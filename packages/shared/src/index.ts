@@ -1,0 +1,1 @@
+export const AGM_ARCHITECTURE_VERSION = '1.0';
