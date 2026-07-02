@@ -203,6 +203,27 @@ model AuditEvent {
   @@index([validationReportId])
 }
 
+model EvidenceMetadata {
+  id               String   @id @default(uuid()) @db.Uuid
+  companyId        String   @db.Uuid
+  transportJobId   String?  @db.Uuid
+  evidenceType     String
+  storageProvider  String
+  storageKey       String
+  originalFileName String?
+  mimeType         String?
+  sizeBytes        Int?
+  checksumSha256   String?
+  description      String?
+  uploadedByUserId String   @db.Uuid
+  createdAt        DateTime @default(now())
+  metadata         Json?
+
+  @@unique([companyId, storageProvider, storageKey])
+  @@index([companyId, transportJobId])
+  @@index([companyId, evidenceType])
+}
+
 model FinancialLedger {
   id                    String       @id @default(uuid()) @db.Uuid
   companyId             String       @db.Uuid

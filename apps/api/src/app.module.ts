@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { AuditModule } from './audit/audit.module';
+import { EvidenceModule } from './evidence/evidence.module';
 import { HealthController } from './health.controller';
 import { LifecycleModule } from './lifecycle/lifecycle.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -16,6 +17,7 @@ import { ValidationReportsModule } from './validation-reports/validation-reports
     UsersModule,
     AuthModule,
     AuditModule,
+    EvidenceModule,
     ValidationReportsModule,
     LifecycleModule,
     TransportsModule,
