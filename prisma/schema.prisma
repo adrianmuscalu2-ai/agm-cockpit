@@ -224,6 +224,28 @@ model EvidenceMetadata {
   @@index([companyId, evidenceType])
 }
 
+model IncidentReport {
+  id               String    @id @default(uuid()) @db.Uuid
+  companyId        String    @db.Uuid
+  transportJobId   String    @db.Uuid
+  incidentType     String
+  severity         String
+  status           String    @default("open")
+  title            String
+  description      String?
+  reportedByUserId String    @db.Uuid
+  resolvedByUserId String?   @db.Uuid
+  resolvedAt       DateTime?
+  resolutionNotes  String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  metadata         Json?
+
+  @@index([companyId, status])
+  @@index([transportJobId, createdAt])
+  @@index([companyId, severity])
+}
+
 model FinancialLedger {
   id                    String       @id @default(uuid()) @db.Uuid
   companyId             String       @db.Uuid

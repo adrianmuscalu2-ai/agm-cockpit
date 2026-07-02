@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { AuditModule } from './audit/audit.module';
 import { EvidenceModule } from './evidence/evidence.module';
 import { HealthController } from './health.controller';
+import { IncidentsModule } from './incidents/incidents.module';
 import { LifecycleModule } from './lifecycle/lifecycle.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TransportsModule } from './transports/transports.module';
@@ -18,6 +19,7 @@ import { ValidationReportsModule } from './validation-reports/validation-reports
     AuthModule,
     AuditModule,
     EvidenceModule,
+    IncidentsModule,
     ValidationReportsModule,
     LifecycleModule,
     TransportsModule,
