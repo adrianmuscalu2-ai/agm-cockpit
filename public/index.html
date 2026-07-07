@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A.G.M. Cockpit</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="cockpit">
+
+    <header class="top-bar">
+        <h1>🚛 A.G.M. COCKPIT</h1>
+    </header>
+<div class="status-bar">
+    <span>🟢 Sistem</span>
+    <span>🌐 Online</span>
+    <span>🤖 AI Ready</span>
+    <span>🎤 Microfon</span>
+    <span id="clock">00:00</span>
+</div>
+    <section class="windshield">
+    <h2>🪟 PARBRIZ (HUD)</h2>
+
+   <textarea id="translation" class="hud-text" rows="6" placeholder="Aici va apărea traducerea în timp real..."></textarea>
+    
+</section>
+    <section class="dashboard">
+<div class="speedometer">
+    <div class="speed">0</div>
+    <div class="label">READY</div>
+</div>
+    <div class="lights">
+        <span>🔴</span>
+        <span>🟡</span>
+        <span>🟢</span>
+        <span>🎤</span>
+        <span>🌐</span>
+        <span>🤖</span>
+        <span>🔊</span>
+    </div>
+
+    <h3>BORD A.G.M.</h3>
+
+</section>
+
+    <section class="controls">
+<div class="button-grid">
+
+<button id="micBtn">🎤</button>
+<button id="translateBtn">🌍</button>
+<button id="improveBtn">🧠</button>
+
+<button id="speakBtn">🔊</button>
+<button id="clearBtn">🧹</button>
+<button id="settingsBtn">⚙️</button>
+
+</div>
+    <h3>🎛️ Panou de comandă</h3>
+
+   
+
+</section>
+
+    <section class="gearbox">
+<h3>⚙️ Schimbător A.G.M.</h3>
+
+<div class="gear-selector">
+
+    <button class="gear">E-mail</button>
+
+    <button class="gear">Interviu</button>
+
+    <button class="gear">Transport</button>
+
+    <button id="switchBtn" class="gear">Traducere</button>
+
+    <button class="gear">Asistent AI</button>
+
+    <button class="gear">SOS</button>
+
+</div>
+    <h3>⚙️ Schimbător de viteze</h3>
+
+    <button>P</button>
+    <button>R</button>
+    <button>N</button>
+    <button>D</button>
+
+    <p>Mod curent: P (Parcare)</p>
+
+</section>
+
+    <section class="handbrake">
+<h3>🅿️ Frână de mână</h3>
+
+<button id="platformBrake" class="handbrake-btn">
+    🚛 PLATFORMĂ OPRITĂ
+</button>
+    <h3>🅿️ Frână de mână</h3>
+
+    <button id="platformSwitch">
+        🔒 Platformă OPRITĂ
+    </button>
+
+    <p>Comunicarea cu platformele este dezactivată.</p>
+
+</section>
+
+    <section class="history">
+        <!-- Istoric -->
+    </section>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
