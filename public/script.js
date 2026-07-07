@@ -47,15 +47,25 @@ recognition.onspeechend = () => {
 
 
 
-   recognition.onresult = (event) => {
-    const text = event.results[event.resultIndex][0].transcript;
+  recognition.onresult = (event) => {
+    const result = event.results[event.resultIndex];
+
+    // Ignorăm rezultatele intermediare
+    if (!result.isFinal) return;
+
+    const text = result[0].transcript.trim();
+
     console.log("TEXT MICROFON:", text);
 
     setSystemState("ready");
-setTimeout(() => {
-    hud.value = text;
-    // translateButton.click();
-}, 100);
+
+    setTimeout(() => {
+
+        hud.value = text;
+
+         translateText();
+
+    }, 100);
 };     
     recognition.onnomatch = () => {
     hud.value = "Nu am înțeles vocea.";
@@ -106,7 +116,7 @@ function setSystemState(state) {
 }
 const translateButton = document.getElementById("translateBtn");
 
-translateButton.addEventListener("click", async () => {
+async function translateText() {
     
 
     const text = hud.value.trim();
@@ -129,8 +139,8 @@ if (!text) {
     
 setSystemState("ready");
 hud.value = data.translation;
-});
-
+}
+translateButton.addEventListener("click", translateText);
 
 const improveButton = document.getElementById("improveBtn");
 
