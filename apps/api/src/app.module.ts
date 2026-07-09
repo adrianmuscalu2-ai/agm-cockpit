@@ -8,12 +8,16 @@ import { IncidentsModule } from './incidents/incidents.module';
 import { LifecycleModule } from './lifecycle/lifecycle.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TransportsModule } from './transports/transports.module';
+import { TranslationModule } from './translation/translation.module';
 import { UsersModule } from './users/users.module';
 import { ValidationReportsModule } from './validation-reports/validation-reports.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', '../../.env'],
+    }),
     PrismaModule,
     UsersModule,
     AuthModule,
@@ -23,6 +27,7 @@ import { ValidationReportsModule } from './validation-reports/validation-reports
     ValidationReportsModule,
     LifecycleModule,
     TransportsModule,
+    TranslationModule,
   ],
   controllers: [HealthController],
 })

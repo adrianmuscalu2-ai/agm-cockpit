@@ -5,7 +5,10 @@
   "description": "AGM AI-assisted vehicle transport management system",
   "scripts": {
     "build": "pnpm --filter @agm/api build",
-    "dev": "pnpm --filter @agm/api start:dev",
+    "dev": "pnpm --filter @agm/web dev",
+    "api:dev": "pnpm --filter @agm/api start:dev",
+    "web:dev": "pnpm --filter @agm/web dev",
+    "web:build": "pnpm --filter @agm/web build",
     "start": "pnpm --filter @agm/api start",
     "lint": "pnpm --filter @agm/api lint",
     "test": "pnpm --filter @agm/api test",
