@@ -10,19 +10,19 @@ export function validateContactDraft(contact: ContactDraft | AgmContact): Contac
   );
 
   if (!hasUsefulIdentifier) {
-    messages.push('Contactul trebuie sa contina cel putin nume, e-mail, telefon sau WhatsApp.');
+    messages.push('contact.validation.identifier');
   }
 
   if (contact.email.trim() && !emailPattern.test(contact.email.trim())) {
-    messages.push('Adresa de e-mail nu pare valida.');
+    messages.push('contact.validation.email');
   }
 
   if (contact.phone.trim() && !phonePattern.test(contact.phone.trim())) {
-    messages.push('Numarul de telefon nu pare valid.');
+    messages.push('contact.validation.phone');
   }
 
   if (contact.whatsapp.trim() && !phonePattern.test(contact.whatsapp.trim())) {
-    messages.push('Numarul WhatsApp nu pare valid.');
+    messages.push('contact.validation.whatsapp');
   }
 
   return {

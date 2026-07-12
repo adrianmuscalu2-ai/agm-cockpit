@@ -7,17 +7,17 @@ export function evaluateMailDraftSecurity(draft: MailDraft): MailSecurityCheck {
   const messages: string[] = [];
 
   if (!draft.recipient.trim()) {
-    messages.push('Introdu destinatarul inainte de pregatirea mesajului.');
+    messages.push('mail.security.missingRecipient');
   } else if (!emailPattern.test(draft.recipient.trim())) {
-    messages.push('Adresa destinatarului nu pare valida.');
+    messages.push('mail.security.invalidRecipient');
   }
 
   if (!draft.subject.trim()) {
-    messages.push('Completeaza subiectul inainte de pregatirea mesajului.');
+    messages.push('mail.security.missingSubject');
   }
 
   if (!draft.message.trim()) {
-    messages.push('Completeaza corpul mesajului inainte de pregatirea mesajului.');
+    messages.push('mail.security.missingBody');
   }
 
   return {

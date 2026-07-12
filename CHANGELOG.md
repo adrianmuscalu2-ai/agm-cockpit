@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased - Full i18n stabilization
+
+### Changed
+
+- Translator/Cockpit HUD labels now use the global RO / DE / EN i18n dictionary.
+- Translator quick actions now use the global i18n dictionary.
+- Translator runtime statuses for language selection, translation, microphone, speech output, clearing, and module navigation now use the global i18n dictionary.
+- Translator preview placeholder now uses a module-specific localized fallback instead of the MailMaster preview text.
+- Header, module navigation, command panel, Profile, E-mail Assistant, Contact Manager, Mail Security, and MailMaster generated text now use the global i18n dictionary.
+- Preinstalled contact labels and e-mail template labels are resolved through i18n keys instead of hardcoded UI labels.
+- Contact Manager validation now returns stable message keys, with UI localization handled at render time.
+- MailMaster salutations, follow-up text, default manual text, attachment label, and closing formulas are resolved from the global i18n dictionary.
+
+### Validated
+
+- `corepack pnpm --filter @agm/web build` passes.
+- Build checkpoints passed after audit, after Translator/Profile/MailMaster migration, and after contact/template cleanup.
+
+### Notes
+
+- Backend, OpenAI translation integration, API endpoints, authentication, and secrets were not modified.
+- Remaining literal text in frontend source is limited to identifiers, route names, local fallback matching phrases, or business template content rather than UI labels.
+
 ## Stable checkpoint - 2026-07-12
 
 Project state saved for restart in the next working session.

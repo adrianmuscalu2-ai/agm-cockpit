@@ -1,6 +1,5 @@
 export interface EmailTemplate {
   id: string;
-  label: string;
   subject: string;
   message: string;
   translations?: Partial<Record<'ro' | 'de' | 'en', EmailTemplateContent>>;
@@ -14,13 +13,11 @@ export interface EmailTemplateContent {
 export const emailTemplates: EmailTemplate[] = [
   {
     id: 'general-manual',
-    label: 'General / Manual',
     subject: '',
     message: '',
   },
   {
     id: 'offer',
-    label: 'Oferta transport',
     subject: 'Oferta transport vehicul',
     message: 'Va transmit oferta pentru transportul vehiculului. Va rog sa imi confirmati daca doriti sa continuam cu programarea.',
     translations: {
@@ -36,7 +33,6 @@ export const emailTemplates: EmailTemplate[] = [
   },
   {
     id: 'pickup-arrival',
-    label: 'Confirmare sosire la preluare',
     subject: 'Confirmare sosire la locatie',
     message: 'Am ajuns la locatie pentru preluarea vehiculului.',
     translations: {
@@ -52,7 +48,6 @@ export const emailTemplates: EmailTemplate[] = [
   },
   {
     id: 'delivery-confirmation',
-    label: 'Confirmare livrare',
     subject: 'Confirmare livrare vehicul',
     message: 'Confirm livrarea vehiculului la destinatie.',
     translations: {
@@ -68,7 +63,6 @@ export const emailTemplates: EmailTemplate[] = [
   },
   {
     id: 'delay-notice',
-    label: 'Anunt intarziere',
     subject: 'Actualizare ora sosire',
     message: 'Transportul va intarzia. Va transmit o actualizare imediat ce am o ora estimata mai exacta.',
     translations: {
@@ -84,7 +78,6 @@ export const emailTemplates: EmailTemplate[] = [
   },
   {
     id: 'missing-documents',
-    label: 'Documente lipsa',
     subject: 'Documente necesare pentru transport',
     message: 'Va rog sa trimiteti documentele necesare pentru continuarea transportului.',
     translations: {
@@ -100,7 +93,6 @@ export const emailTemplates: EmailTemplate[] = [
   },
   {
     id: 'thank-you',
-    label: 'Multumire',
     subject: 'Multumesc pentru colaborare',
     message: 'Va multumesc pentru colaborare. Raman disponibil pentru orice informatie suplimentara.',
     translations: {
@@ -116,7 +108,6 @@ export const emailTemplates: EmailTemplate[] = [
   },
   {
     id: 'vehicle-ready',
-    label: 'Vehicul pregatit',
     subject: 'Vehicul pregatit pentru preluare',
     message: 'Vehiculul este pregatit pentru preluare.',
     translations: {

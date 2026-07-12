@@ -1,4 +1,5 @@
 import { type LanguageCode } from '../emailLanguage';
+import { t } from '../i18n/app-i18n';
 import { defaultProfile, type ProfileSettings } from '../profileSettings';
 import { type MailTone } from './mailmaster.types';
 
@@ -18,38 +19,27 @@ export function buildMailSignature(profile: ProfileSettings, language: LanguageC
 }
 
 function localizedMailClosing(signature: string, language: LanguageCode, tone: MailTone): string {
+  if (!isDefaultClosing(signature)) {
+    return signature;
+  }
+
+  if (tone === 'friendly') return t(language, 'mail.closing.friendly');
+  if (tone === 'polite') return t(language, 'mail.closing.polite');
+  if (tone === 'short') return t(language, 'mail.closing.short');
+  return t(language, 'mail.closing.default');
+}
+
+function isDefaultClosing(signature: string) {
   const normalized = signature
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLocaleLowerCase();
-  const isDefault =
+
+  return (
     !normalized ||
     normalized === 'cu stima' ||
-    normalized === 'cu stimäƒ' ||
     normalized === 'kind regards' ||
-    normalized.startsWith('mit freundlichen');
-
-  if (!isDefault) {
-    return signature;
-  }
-
-  if (language === 'de') {
-    if (tone === 'friendly') return 'Viele Grüße';
-    if (tone === 'polite') return 'Freundliche Grüße';
-    if (tone === 'short') return 'Danke und viele Grüße';
-    return 'Mit freundlichen Grüßen';
-  }
-
-  if (language === 'en') {
-    if (tone === 'friendly') return 'Best wishes,';
-    if (tone === 'polite') return 'Best regards,';
-    if (tone === 'short') return 'Thank you,';
-    return 'Kind regards,';
-  }
-
-  if (tone === 'friendly') return 'Toate cele bune,';
-  if (tone === 'polite') return 'Cu respect,';
-  if (tone === 'short') return 'Mulțumesc,';
-  return 'Cu stimă,';
+    normalized.startsWith('mit freundlichen')
+  );
 }

@@ -20,7 +20,6 @@ import { buildMailPreview } from './mailmaster/mailmaster.compose';
 import { buildMailSignature } from './mailmaster/mailmaster.signature';
 import { mailToneLabels, type MailDraft, type MailPreview, type MailTone } from './mailmaster/mailmaster.types';
 import { contactCategories, normalizeContactCategory } from './contact-manager/contact-manager.categories';
-import { contactCategoryLabels, contactDisplayName } from './contact-manager/contact-manager.ui';
 import { readContacts, saveContacts, emptyContactDraft } from './contact-manager/contact-manager.storage';
 import { addContact, editContact, removeContact, searchContacts } from './contact-manager/contact-manager.service';
 import { type AgmContact, type ContactCategory, type ContactDraft } from './contact-manager/contact-manager.types';
@@ -122,10 +121,10 @@ function render() {
     <main class="shell">
       <section class="workspace" aria-labelledby="page-title">
         <header class="topbar">
-          <nav class="module-strip" aria-label="Module A.G.M.">
-            <label class="profile-chip" title="Schimba rapid limba profilului activ">
+          <nav class="module-strip" aria-label="${escapeHtml(t(language, 'nav.moduleStripLabel'))}">
+            <label class="profile-chip" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
               <span>${escapeHtml(t(language, 'nav.profile'))}</span>
-              <select id="quickProfileLanguage" aria-label="Limba profilului activ">
+              <select id="quickProfileLanguage" aria-label="${escapeHtml(t(language, 'header.quickProfileAria'))}">
                 ${supportedLanguages
                   .map(
                     (code) => `
@@ -139,26 +138,26 @@ function render() {
             </label>
             <div class="module-nav">
               <button data-module="cockpit" type="button" class="${state.view === 'cockpit' ? 'active' : ''}">
-                <span class="nav-code">A.G.M.</span>
+                <span class="nav-code">${escapeHtml(t(language, 'nav.cockpitCode'))}</span>
                 <span>Cockpit</span>
               </button>
               <button data-module="email" type="button" class="${state.view === 'email' ? 'active' : ''}">
-                <span class="nav-code">AG-011-009</span>
+                <span class="nav-code">${escapeHtml(t(language, 'nav.emailCode'))}</span>
                 <span>${escapeHtml(t(language, 'nav.email'))}</span>
               </button>
               <button data-module="profile" type="button" class="${state.view === 'profile' ? 'active' : ''}">
-                <span class="nav-code">AG-011-010</span>
+                <span class="nav-code">${escapeHtml(t(language, 'nav.profileCode'))}</span>
                 <span>${escapeHtml(t(language, 'nav.profileModule'))}</span>
               </button>
             </div>
             <div class="ready-badge header-ready">
-              <strong>OK</strong>
-              <span>READY</span>
+              <strong>${escapeHtml(t(language, 'ready.ok'))}</strong>
+              <span>${escapeHtml(t(language, 'ready.ready'))}</span>
             </div>
           </nav>
 
-          <div class="brand-lockup" aria-label="A.G.M. Cockpit">
-            <img class="brand-logo" src="/images/images/logo1.png" alt="A.G.M. Cockpit" />
+          <div class="brand-lockup" aria-label="${escapeHtml(t(language, 'header.brandAria'))}">
+            <img class="brand-logo" src="/images/images/logo1.png" alt="${escapeHtml(t(language, 'header.brandAlt'))}" />
           </div>
         </header>
 
@@ -201,7 +200,7 @@ function renderCurrentView() {
 
 function renderModuleLauncher() {
   return `
-    <nav class="module-launcher" aria-label="Acces module AGM">
+    <nav class="module-launcher" aria-label="${escapeHtml(t(uiLanguage(), 'nav.moduleStripLabel'))}">
       <a data-module="cockpit" href="/cockpit" class="${state.view === 'cockpit' ? 'active' : ''}">
         <em>HUD</em>
         <strong>A.G.M.</strong>
@@ -210,12 +209,12 @@ function renderModuleLauncher() {
       <a data-module="email" href="/email" class="${state.view === 'email' ? 'active' : ''}">
         <em>MAIL</em>
         <strong>AG-011-009</strong>
-        <span>E-mail Assistant</span>
+        <span>${escapeHtml(t(uiLanguage(), 'nav.email'))}</span>
       </a>
       <a data-module="profile" href="/profile" class="${state.view === 'profile' ? 'active' : ''}">
         <em>USER</em>
         <strong>AG-011-010</strong>
-        <span>Profil</span>
+        <span>${escapeHtml(t(uiLanguage(), 'nav.profileModule'))}</span>
       </a>
     </nav>
   `;
@@ -226,7 +225,7 @@ function renderCommandPanel() {
   const language = uiLanguage();
 
   return `
-    <section class="command-panel" aria-label="Panou de comanda">
+    <section class="command-panel" aria-label="${escapeHtml(t(language, 'command.panelLabel'))}">
       <div class="command-module">
         <strong>${escapeHtml(t(language, 'app.activeMode'))}</strong>
         <span>${escapeHtml(commandSet.moduleName)}</span>
@@ -252,129 +251,77 @@ function renderCommandPanel() {
 
 function commandPanelForView(view: ViewName) {
   if (view === 'email') {
-    const uiLanguage = state.profile.preferredLanguage;
+    const language = uiLanguage();
     return {
-      moduleName: 'E-mail Assistant',
+      moduleName: t(language, 'mail.moduleName'),
       commands: [
-        { id: 'email-improve', label: commandPanelText(uiLanguage, 'improve'), description: commandPanelText(uiLanguage, 'improveDesc'), primary: true },
-        { id: 'email-translate', label: commandPanelText(uiLanguage, 'translate'), description: commandPanelText(uiLanguage, 'translateDesc') },
-        { id: 'email-listen', label: commandPanelText(uiLanguage, 'listen'), description: commandPanelText(uiLanguage, 'listenDesc') },
-        { id: 'email-copy', label: commandPanelText(uiLanguage, 'copy'), description: commandPanelText(uiLanguage, 'copyDesc') },
-        { id: 'email-send', label: commandPanelText(uiLanguage, 'check'), description: commandPanelText(uiLanguage, 'checkDesc') },
-        { id: 'email-clear', label: commandPanelText(uiLanguage, 'clear'), description: commandPanelText(uiLanguage, 'clearDesc') },
+        { id: 'email-improve', label: t(language, 'mail.command.improve'), description: t(language, 'mail.command.improveDesc'), primary: true },
+        { id: 'email-translate', label: t(language, 'mail.command.translate'), description: t(language, 'mail.command.translateDesc') },
+        { id: 'email-listen', label: t(language, 'mail.command.listen'), description: t(language, 'mail.command.listenDesc') },
+        { id: 'email-copy', label: t(language, 'mail.command.copy'), description: t(language, 'mail.command.copyDesc') },
+        { id: 'email-send', label: t(language, 'mail.command.check'), description: t(language, 'mail.command.checkDesc') },
+        { id: 'email-clear', label: t(language, 'mail.command.clear'), description: t(language, 'mail.command.clearDesc') },
       ],
     };
   }
 
   if (view === 'profile') {
+    const language = uiLanguage();
     return {
-      moduleName: 'Profil',
+      moduleName: t(language, 'profile.moduleName'),
       commands: [
-        { id: 'profile-save', label: 'Salveaza', description: 'Pastreaza profilul', primary: true },
-        { id: 'profile-edit', label: 'Editeaza', description: 'Actualizeaza campurile' },
-        { id: 'profile-upload', label: 'Incarca', description: 'Pregatit pentru etapa viitoare' },
-        { id: 'profile-delete', label: 'Sterge profil', description: 'Revine la valori implicite' },
+        { id: 'profile-save', label: t(language, 'profile.command.save'), description: t(language, 'profile.command.saveDesc'), primary: true },
+        { id: 'profile-edit', label: t(language, 'profile.command.edit'), description: t(language, 'profile.command.editDesc') },
+        { id: 'profile-upload', label: t(language, 'profile.command.upload'), description: t(language, 'profile.command.uploadDesc') },
+        { id: 'profile-delete', label: t(language, 'profile.command.delete'), description: t(language, 'profile.command.deleteDesc') },
       ],
     };
   }
 
   return {
-    moduleName: 'Traducere',
+    moduleName: t(uiLanguage(), 'translator.moduleName'),
     commands: [
-      { id: 'translator-speak', label: 'Vorbeste', description: 'Activare microfon', primary: true },
-      { id: 'translator-translate', label: 'Tradu', description: 'Traduce textul' },
-      { id: 'translator-listen', label: 'Asculta', description: 'Reda textul tradus' },
-      { id: 'translator-clear', label: 'Sterge', description: 'Curata campurile' },
+      { id: 'translator-speak', label: t(uiLanguage(), 'translator.command.speak'), description: t(uiLanguage(), 'translator.command.speakDesc'), primary: true },
+      { id: 'translator-translate', label: t(uiLanguage(), 'translator.command.translate'), description: t(uiLanguage(), 'translator.command.translateDesc') },
+      { id: 'translator-listen', label: t(uiLanguage(), 'translator.command.listen'), description: t(uiLanguage(), 'translator.command.listenDesc') },
+      { id: 'translator-clear', label: t(uiLanguage(), 'translator.command.clear'), description: t(uiLanguage(), 'translator.command.clearDesc') },
     ],
   };
 }
 
-function commandPanelText(language: LanguageCode, key: string) {
-  const labels: Record<LanguageCode, Record<string, string>> = {
-    ro: {
-      activeMode: 'MOD ACTIV',
-      hint: 'Actiunile rapide se schimba in functie de modulul activ.',
-      improve: 'Imbunatateste',
-      improveDesc: 'Optimizeaza mesajul',
-      translate: 'Tradu',
-      translateDesc: 'Doar traduce mesajul',
-      listen: 'Asculta',
-      listenDesc: 'Reda mesajul vocal',
-      copy: 'Copiaza',
-      copyDesc: 'Copiaza e-mailul',
-      check: 'Verifica',
-      checkDesc: 'Previzualizeaza mesajul',
-      clear: 'Sterge',
-      clearDesc: 'Curata campurile',
-    },
-    de: {
-      activeMode: 'AKTIVER MODUS',
-      hint: 'Schnellaktionen passen sich dem aktiven Modul an.',
-      improve: 'Verbessern',
-      improveDesc: 'Nachricht optimieren',
-      translate: 'Uebersetzen',
-      translateDesc: 'Nur Nachricht uebersetzen',
-      listen: 'Anhoeren',
-      listenDesc: 'Nachricht vorlesen',
-      copy: 'Kopieren',
-      copyDesc: 'E-Mail kopieren',
-      check: 'Pruefen',
-      checkDesc: 'Nachricht anzeigen',
-      clear: 'Loeschen',
-      clearDesc: 'Felder leeren',
-    },
-    en: {
-      activeMode: 'ACTIVE MODE',
-      hint: 'Quick actions change based on the active module.',
-      improve: 'Improve',
-      improveDesc: 'Optimize message',
-      translate: 'Translate',
-      translateDesc: 'Translate message only',
-      listen: 'Listen',
-      listenDesc: 'Read message aloud',
-      copy: 'Copy',
-      copyDesc: 'Copy e-mail',
-      check: 'Check',
-      checkDesc: 'Preview message',
-      clear: 'Clear',
-      clearDesc: 'Clear fields',
-    },
-  };
-
-  return labels[language][key] ?? labels.ro[key] ?? key;
-}
-
 function renderCockpit() {
+  const language = uiLanguage();
+
   return `
-    <section class="translator-hud" aria-label="Traducator A.G.M.">
+    <section class="translator-hud" aria-label="${escapeHtml(t(language, 'translator.ariaLabel'))}">
       <header class="translator-hud-title">
         <div>
-          <strong>AGM Translator</strong>
+          <strong>${escapeHtml(t(language, 'translator.title'))}</strong>
         </div>
       </header>
 
       <form class="cockpit-input">
         <label class="message-field">
-          <span>Text de tradus</span>
-          <textarea id="translatorText" rows="10" placeholder="Scrie, dicteaza sau lipeste textul pentru traducere.">${escapeHtml(state.translatorText)}</textarea>
+          <span>${escapeHtml(t(language, 'translator.inputLabel'))}</span>
+          <textarea id="translatorText" rows="10" placeholder="${escapeHtml(t(language, 'translator.inputPlaceholder'))}">${escapeHtml(state.translatorText)}</textarea>
         </label>
 
         <fieldset class="language-choice compact-language" data-active-language="${state.translatorTargetLanguage}">
-          <legend>Limba rezultatului</legend>
+          <legend>${escapeHtml(t(language, 'translator.resultLanguage'))}</legend>
           ${languageButtons('translatorTargetLanguage', state.translatorTargetLanguage)}
         </fieldset>
       </form>
 
       <aside class="preview cockpit-result" aria-live="polite">
-        <h2>Rezultat traducere</h2>
-        <p>${formatPreview(state.translatorResult)}</p>
+        <h2>${escapeHtml(t(language, 'translator.resultTitle'))}</h2>
+        <p>${formatPreview(state.translatorResult, t(language, 'translator.resultPlaceholder'))}</p>
       </aside>
 
-      <footer class="translator-status-strip" aria-label="Stare aplicatie">
-        <span><i class="status-dot online"></i> Internet</span>
-        <span><i class="status-dot online"></i> AI Copilot</span>
-        <span><i class="status-dot online"></i> Traducere</span>
-        <span><i class="status-dot online"></i> Voce</span>
+      <footer class="translator-status-strip" aria-label="${escapeHtml(t(language, 'translator.statusStripLabel'))}">
+        <span><i class="status-dot online"></i> ${escapeHtml(t(language, 'translator.status.internet'))}</span>
+        <span><i class="status-dot online"></i> ${escapeHtml(t(language, 'translator.status.aiCopilot'))}</span>
+        <span><i class="status-dot online"></i> ${escapeHtml(t(language, 'translator.status.translation'))}</span>
+        <span><i class="status-dot online"></i> ${escapeHtml(t(language, 'translator.status.voice'))}</span>
       </footer>
     </section>
   `;
@@ -439,7 +386,7 @@ function renderEmailAssistant() {
                   .map(
                     (template) => `
                       <option value="${escapeHtml(template.id)}" ${state.selectedEmailTemplateId === template.id ? 'selected' : ''}>
-                        ${escapeHtml(template.label)}
+                        ${escapeHtml(emailTemplateLabel(template, uiLanguage))}
                       </option>
                     `,
                   )
@@ -545,7 +492,7 @@ function renderEmailAssistant() {
       <p>${formatPreview(preview.body)}</p>
       ${
         preview.hasDrawnSignature && state.profile.drawnSignatureDataUrl
-          ? `<img class="drawn-signature-preview email-signature-preview" src="${escapeHtml(state.profile.drawnSignatureDataUrl)}" alt="Semnatura desenata din profil" />`
+          ? `<img class="drawn-signature-preview email-signature-preview" src="${escapeHtml(state.profile.drawnSignatureDataUrl)}" alt="${escapeHtml(t(uiLanguage, 'profile.drawnSignatureAlt'))}" />`
           : ''
       }
       ${renderMailSecurityPanel()}
@@ -556,23 +503,24 @@ function renderEmailAssistant() {
 function renderContactManager() {
   const contacts = searchContacts(state.contacts, state.contactSearch);
   const editing = Boolean(state.contactEditingId);
+  const language = uiLanguage();
 
   return `
     <section class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="contact-manager-title">
       <div class="contact-manager-window">
         <header class="contact-manager-header">
           <div>
-            <h2 id="contact-manager-title">${escapeHtml(t(uiLanguage(), 'mail.contactsAgenda'))}</h2>
-            <p>Contactele sunt salvate local si pot fi folosite de modulele A.G.M.</p>
+            <h2 id="contact-manager-title">${escapeHtml(t(language, 'contact.managerTitle'))}</h2>
+            <p>${escapeHtml(t(language, 'contact.managerDescription'))}</p>
           </div>
-          <button id="closeContactManager" type="button" aria-label="Inchide agenda">Inchide</button>
+          <button id="closeContactManager" type="button" aria-label="${escapeHtml(t(language, 'contact.closeAgenda'))}">${escapeHtml(t(language, 'common.close'))}</button>
         </header>
 
         <section class="contact-manager-grid">
           <aside class="contact-list-panel">
             <label>
-              <span>Cauta contact</span>
-              <input id="contactSearch" type="search" value="${escapeHtml(state.contactSearch)}" placeholder="Nume, firma, e-mail sau telefon" />
+              <span>${escapeHtml(t(language, 'contact.search'))}</span>
+              <input id="contactSearch" type="search" value="${escapeHtml(state.contactSearch)}" placeholder="${escapeHtml(t(language, 'contact.searchPlaceholder'))}" />
             </label>
 
             <div class="contact-list">
@@ -583,65 +531,65 @@ function renderContactManager() {
                         (contact) => `
                           <article class="contact-row ${state.contactEditingId === contact.id ? 'active' : ''}">
                             <div>
-                              <strong>${escapeHtml(contactDisplayName(contact))}</strong>
+                              <strong>${escapeHtml(contactDisplayNameForLanguage(contact, language))}</strong>
                               <span>${escapeHtml(contact.email || contact.phone || contact.whatsapp || '-')}</span>
-                              <small>${escapeHtml(contactCategoryLabels(contact))}</small>
+                              <small>${escapeHtml(contactCategoryLabelsForLanguage(contact, language))}</small>
                             </div>
                             <div class="contact-row-actions">
-                              <button type="button" data-contact-select="${escapeHtml(contact.id)}">Alege</button>
-                              <button type="button" data-contact-edit="${escapeHtml(contact.id)}">Editeaza</button>
-                              <button type="button" data-contact-delete="${escapeHtml(contact.id)}" class="danger">Sterge</button>
+                              <button type="button" data-contact-select="${escapeHtml(contact.id)}">${escapeHtml(t(language, 'contact.choose'))}</button>
+                              <button type="button" data-contact-edit="${escapeHtml(contact.id)}">${escapeHtml(t(language, 'contact.edit'))}</button>
+                              <button type="button" data-contact-delete="${escapeHtml(contact.id)}" class="danger">${escapeHtml(t(language, 'contact.delete'))}</button>
                             </div>
                           </article>
                         `,
                       )
                       .join('')
-                  : '<p class="muted-note">Nu exista contacte pentru cautarea curenta.</p>'
+                  : `<p class="muted-note">${escapeHtml(t(language, 'contact.noResults'))}</p>`
               }
             </div>
           </aside>
 
-          <form class="contact-form" aria-label="${editing ? 'Editeaza contact' : 'Adauga contact'}">
-            <h3>${editing ? 'Editeaza contact' : 'Adauga contact'}</h3>
+          <form class="contact-form" aria-label="${escapeHtml(editing ? t(language, 'contact.editContact') : t(language, 'contact.addContact'))}">
+            <h3>${escapeHtml(editing ? t(language, 'contact.editContact') : t(language, 'contact.addContact'))}</h3>
             ${state.contactErrors.length > 0 ? `<ul class="form-errors">${state.contactErrors.map((error) => `<li>${escapeHtml(error)}</li>`).join('')}</ul>` : ''}
 
             <label>
-              <span>Nume</span>
+              <span>${escapeHtml(t(language, 'contact.name'))}</span>
               <input id="contactName" type="text" value="${escapeHtml(state.contactDraft.name)}" />
             </label>
             <label>
-              <span>Firma</span>
+              <span>${escapeHtml(t(language, 'contact.company'))}</span>
               <input id="contactCompany" type="text" value="${escapeHtml(state.contactDraft.company)}" />
             </label>
             <label>
-              <span>E-mail</span>
+              <span>${escapeHtml(t(language, 'contact.email'))}</span>
               <input id="contactEmail" type="email" value="${escapeHtml(state.contactDraft.email)}" />
             </label>
             <label>
-              <span>Telefon</span>
+              <span>${escapeHtml(t(language, 'contact.phone'))}</span>
               <input id="contactPhone" type="tel" value="${escapeHtml(state.contactDraft.phone)}" />
             </label>
             <label>
-              <span>WhatsApp</span>
+              <span>${escapeHtml(t(language, 'contact.whatsapp'))}</span>
               <input id="contactWhatsapp" type="tel" value="${escapeHtml(state.contactDraft.whatsapp)}" />
             </label>
             <label>
-              <span>Adresa</span>
+              <span>${escapeHtml(t(language, 'contact.address'))}</span>
               <input id="contactAddress" type="text" value="${escapeHtml(state.contactDraft.address)}" />
             </label>
             <label class="message-field">
-              <span>Observatii</span>
+              <span>${escapeHtml(t(language, 'contact.notes'))}</span>
               <textarea id="contactNotes" rows="4">${escapeHtml(state.contactDraft.notes)}</textarea>
             </label>
 
             <fieldset class="contact-categories">
-              <legend>Categorii</legend>
+              <legend>${escapeHtml(t(language, 'contact.categories'))}</legend>
               ${contactCategories
                 .map(
                   (category) => `
                     <label class="toggle">
                       <input type="checkbox" data-contact-category="${category.id}" ${contactDraftHasCategory(category.id) ? 'checked' : ''} />
-                      <span>${escapeHtml(category.label)}</span>
+                      <span>${escapeHtml(contactCategoryLabel(category.id, language))}</span>
                     </label>
                   `,
                 )
@@ -649,8 +597,8 @@ function renderContactManager() {
             </fieldset>
 
             <div class="actions">
-              <button id="saveContact" type="button" class="primary">${editing ? 'Salveaza modificarile' : 'Adauga contact'}</button>
-              <button id="newContact" type="button">Contact nou</button>
+              <button id="saveContact" type="button" class="primary">${escapeHtml(editing ? t(language, 'contact.saveChanges') : t(language, 'contact.addContact'))}</button>
+              <button id="newContact" type="button">${escapeHtml(t(language, 'contact.newContact'))}</button>
             </div>
           </form>
         </section>
@@ -684,47 +632,49 @@ function senderPreviewLines() {
 }
 
 function renderProfile() {
+  const language = uiLanguage();
+
   return `
-    <form class="profile-panel" aria-label="Setari profil A.G.M.">
+    <form class="profile-panel" aria-label="${escapeHtml(t(language, 'profile.ariaLabel'))}">
       <label>
-        <span>Nume afisat</span>
+        <span>${escapeHtml(t(language, 'profile.displayName'))}</span>
         <input id="profileDisplayName" type="text" autocomplete="name" value="${escapeHtml(state.profile.displayName)}" />
       </label>
 
       <label>
-        <span>Telefon</span>
+        <span>${escapeHtml(t(language, 'profile.phone'))}</span>
         <input id="profilePhone" type="tel" autocomplete="tel" value="${escapeHtml(state.profile.phone)}" />
       </label>
 
       <label>
-        <span>E-mail</span>
+        <span>${escapeHtml(t(language, 'profile.email'))}</span>
         <input id="profileEmail" type="email" autocomplete="email" value="${escapeHtml(state.profile.email)}" />
       </label>
 
       <label>
-        <span>Firma</span>
+        <span>${escapeHtml(t(language, 'profile.company'))}</span>
         <input id="profileCompany" type="text" autocomplete="organization" value="${escapeHtml(state.profile.company)}" />
       </label>
 
       <fieldset class="language-choice" data-active-language="${state.profile.preferredLanguage}">
-        <legend>Limba preferata</legend>
+        <legend>${escapeHtml(t(language, 'profile.preferredLanguage'))}</legend>
         ${languageButtons('profilePreferredLanguage', state.profile.preferredLanguage)}
       </fieldset>
 
       <label class="message-field">
-        <span>Semnatura implicita</span>
-        <textarea id="profileSignature" rows="6" placeholder="Semnatura folosita de modulele de comunicare.">${escapeHtml(state.profile.defaultSignature)}</textarea>
+        <span>${escapeHtml(t(language, 'profile.defaultSignature'))}</span>
+        <textarea id="profileSignature" rows="6" placeholder="${escapeHtml(t(language, 'profile.defaultSignaturePlaceholder'))}">${escapeHtml(state.profile.defaultSignature)}</textarea>
       </label>
 
       <section class="signature-drawing-panel">
         <div class="signature-drawing-header">
           <div>
-            <h2>Semnatura desenata</h2>
-            <p>Optional. Se salveaza local in Profil si este folosita automat in E-mail Assistant.</p>
+            <h2>${escapeHtml(t(language, 'profile.drawnSignature'))}</h2>
+            <p>${escapeHtml(t(language, 'profile.drawnSignatureDescription'))}</p>
           </div>
-          <button id="openSignaturePad" type="button" class="signature-edit" title="Deseneaza semnatura">
+          <button id="openSignaturePad" type="button" class="signature-edit" title="${escapeHtml(t(language, 'profile.drawSignature'))}">
             <span aria-hidden="true">✎</span>
-            Creion
+            ${escapeHtml(t(language, 'profile.pencil'))}
           </button>
         </div>
 
@@ -732,11 +682,11 @@ function renderProfile() {
           state.signaturePadOpen
             ? `
               <div class="signature-pad-wrap">
-                <canvas id="signaturePad" width="760" height="220" aria-label="Zona desenare semnatura"></canvas>
+                <canvas id="signaturePad" width="760" height="220" aria-label="${escapeHtml(t(language, 'profile.signatureCanvas'))}"></canvas>
                 <div class="actions">
-                  <button id="saveDrawnSignature" type="button" class="primary">Salveaza semnatura desenata</button>
-                  <button id="clearDrawnSignature" type="button">Curata desenul</button>
-                  <button id="closeSignaturePad" type="button">Inchide</button>
+                  <button id="saveDrawnSignature" type="button" class="primary">${escapeHtml(t(language, 'profile.saveDrawnSignature'))}</button>
+                  <button id="clearDrawnSignature" type="button">${escapeHtml(t(language, 'profile.clearDrawing'))}</button>
+                  <button id="closeSignaturePad" type="button">${escapeHtml(t(language, 'common.close'))}</button>
                 </div>
               </div>
             `
@@ -745,31 +695,31 @@ function renderProfile() {
 
         ${
           state.profile.drawnSignatureDataUrl
-            ? `<img class="drawn-signature-preview" src="${escapeHtml(state.profile.drawnSignatureDataUrl)}" alt="Semnatura desenata salvata" />`
-            : '<p class="muted-note">Nu exista inca o semnatura desenata salvata.</p>'
+            ? `<img class="drawn-signature-preview" src="${escapeHtml(state.profile.drawnSignatureDataUrl)}" alt="${escapeHtml(t(language, 'profile.drawnSignatureAlt'))}" />`
+            : `<p class="muted-note">${escapeHtml(t(language, 'profile.noDrawnSignature'))}</p>`
         }
       </section>
 
       <div class="actions">
-        <button id="saveProfile" type="button" class="primary">Salveaza Profilul</button>
-        <button id="resetProfile" type="button">Revino la valori implicite</button>
-        <button data-module="cockpit" type="button">Inchide</button>
+        <button id="saveProfile" type="button" class="primary">${escapeHtml(t(language, 'profile.saveProfile'))}</button>
+        <button id="resetProfile" type="button">${escapeHtml(t(language, 'profile.resetDefaults'))}</button>
+        <button data-module="cockpit" type="button">${escapeHtml(t(language, 'common.close'))}</button>
       </div>
     </form>
 
     <aside class="preview">
-      <h2>Compatibilitate module</h2>
+      <h2>${escapeHtml(t(language, 'profile.compatibility'))}</h2>
       <dl>
-        <dt>Limba activa</dt>
+        <dt>${escapeHtml(t(language, 'profile.activeLanguage'))}</dt>
         <dd>${escapeHtml(languageLabel(state.profile.preferredLanguage))}</dd>
-        <dt>E-mail Assistant</dt>
-        <dd>Poate folosi optional limba preferata, semnatura si datele de contact.</dd>
-        <dt>Translator</dt>
-        <dd>Primeste aceeasi limba preferata prin cheia ${profileLanguageKey}.</dd>
-        <dt>Persistenta</dt>
-        <dd>Setarile sunt locale si nu folosesc cloud sau autentificare.</dd>
-        <dt>Functii lipsa</dt>
-        <dd>Sincronizarea cloud si profilul pe cont de utilizator nu sunt implementate in MVP.</dd>
+        <dt>${escapeHtml(t(language, 'profile.emailAssistant'))}</dt>
+        <dd>${escapeHtml(t(language, 'profile.emailAssistantCompatibility'))}</dd>
+        <dt>${escapeHtml(t(language, 'profile.translator'))}</dt>
+        <dd>${escapeHtml(t(language, 'profile.translatorCompatibility', { key: profileLanguageKey }))}</dd>
+        <dt>${escapeHtml(t(language, 'profile.persistence'))}</dt>
+        <dd>${escapeHtml(t(language, 'profile.persistenceCompatibility'))}</dd>
+        <dt>${escapeHtml(t(language, 'profile.missingFunctions'))}</dt>
+        <dd>${escapeHtml(t(language, 'profile.missingFunctionsCompatibility'))}</dd>
       </dl>
     </aside>
   `;
@@ -818,8 +768,8 @@ function bindCommandPanel() {
       if (command === 'email-send') prepareEmailSend();
       if (command === 'email-clear') clearEmail();
       if (command === 'profile-save') saveProfileFromForm();
-      if (command === 'profile-edit') showPlannedCommand('Profilul poate fi editat direct in campurile afisate.');
-      if (command === 'profile-upload') showPlannedCommand('Incarcarea profilului va fi disponibila intr-o etapa viitoare.');
+      if (command === 'profile-edit') showPlannedCommand(t(uiLanguage(), 'profile.status.editDirectly'));
+      if (command === 'profile-upload') showPlannedCommand(t(uiLanguage(), 'profile.status.uploadFuture'));
       if (command === 'profile-delete') resetProfile();
     });
   });
@@ -837,7 +787,7 @@ function bindTranslator() {
       }
 
       state.translatorTargetLanguage = language;
-      state.status = `Limba rezultatului: ${languageLabel(language)}.`;
+      state.status = t(uiLanguage(), 'translator.status.resultLanguageChanged', { language: languageLabel(language) });
       render();
     });
   });
@@ -927,7 +877,10 @@ function bindEmailAssistant() {
     state.subject = content.subject;
     state.message = content.message;
     markMailDraftChanged();
-    state.status = `Sablon selectat in ${languageLabel(state.targetLanguage)}: ${template.label}.`;
+    state.status = t(uiLanguage(), 'mail.status.templateSelected', {
+      language: languageLabel(state.targetLanguage),
+      template: emailTemplateLabel(template, uiLanguage()),
+    });
     render();
   });
 
@@ -945,7 +898,7 @@ function bindEmailAssistant() {
 
   document.querySelector<HTMLButtonElement>('#editSignature')?.addEventListener('click', () => {
     state.signatureEditorOpen = true;
-    state.status = 'Editorul de semnatura este deschis.';
+    state.status = t(uiLanguage(), 'mail.status.signatureEditorOpen');
     render();
   });
 
@@ -963,21 +916,21 @@ function bindEmailAssistant() {
 
   document.querySelector<HTMLButtonElement>('#closeEmailSignature')?.addEventListener('click', () => {
     state.signatureEditorOpen = false;
-    state.status = 'Editorul de semnatura a fost inchis.';
+    state.status = t(uiLanguage(), 'mail.status.signatureEditorClosed');
     render();
   });
 
   document.querySelector<HTMLInputElement>('#translatorEnabled')?.addEventListener('change', (event) => {
     state.translatorEnabled = (event.target as HTMLInputElement).checked;
     markMailDraftChanged();
-    state.status = state.translatorEnabled ? 'Traducatorul local este activ.' : 'Traducatorul este dezactivat.';
+    state.status = t(uiLanguage(), state.translatorEnabled ? 'mail.status.localTranslatorOn' : 'mail.status.localTranslatorOff');
     render();
   });
 
   document.querySelector<HTMLInputElement>('#useProfileDetails')?.addEventListener('change', (event) => {
     state.useProfileDetails = (event.target as HTMLInputElement).checked;
     markMailDraftChanged();
-    state.status = state.useProfileDetails ? 'Datele din Profil vor fi folosite daca sunt disponibile.' : 'Profilul nu va completa semnatura.';
+    state.status = t(uiLanguage(), state.useProfileDetails ? 'mail.status.profileDetailsOn' : 'mail.status.profileDetailsOff');
     render();
   });
 
@@ -1005,7 +958,7 @@ function bindEmailAssistant() {
   });
   document.querySelector<HTMLButtonElement>('#cancelMailPreview')?.addEventListener('click', () => {
     state.mailReviewOpen = false;
-    state.status = 'Pregatirea mesajului a fost anulata.';
+    state.status = t(uiLanguage(), 'mail.status.preparationCancelled');
     render();
   });
 }
@@ -1031,7 +984,7 @@ function bindContactManager() {
     state.contactEditingId = '';
     state.contactDraft = emptyContactDraft();
     state.contactErrors = [];
-    state.status = 'Formular pregatit pentru contact nou.';
+    state.status = t(uiLanguage(), 'contact.status.newReady');
     render();
   });
 
@@ -1068,7 +1021,7 @@ function bindProfile() {
       }
 
       setProfileLanguage(preferredLanguage);
-      state.status = `Limba preferata a fost salvata: ${languageLabel(preferredLanguage)}.`;
+      state.status = t(uiLanguage(), 'profile.status.languageSaved', { language: languageLabel(preferredLanguage) });
       render();
     });
   });
@@ -1083,13 +1036,13 @@ function bindProfile() {
 
   document.querySelector<HTMLButtonElement>('#openSignaturePad')?.addEventListener('click', () => {
     state.signaturePadOpen = true;
-    state.status = 'Zona pentru semnatura desenata este deschisa.';
+    state.status = t(uiLanguage(), 'profile.status.signaturePadOpen');
     render();
   });
 
   document.querySelector<HTMLButtonElement>('#closeSignaturePad')?.addEventListener('click', () => {
     state.signaturePadOpen = false;
-    state.status = 'Zona pentru semnatura desenata a fost inchisa.';
+    state.status = t(uiLanguage(), 'profile.status.signaturePadClosed');
     render();
   });
 
@@ -1099,7 +1052,7 @@ function bindProfile() {
       drawnSignatureDataUrl: '',
     };
     saveProfile(window.localStorage, state.profile);
-    state.status = 'Semnatura desenata a fost stearsa din Profil.';
+    state.status = t(uiLanguage(), 'profile.status.drawnSignatureDeleted');
     render();
   });
 
@@ -1138,7 +1091,7 @@ function registerServiceWorker() {
 
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {
-      state.status = 'PWA offline indisponibil temporar.';
+      state.status = t(uiLanguage(), 'status.pwaUnavailable');
     });
   });
 }
@@ -1213,7 +1166,7 @@ function initSignaturePad() {
     };
     saveProfile(window.localStorage, state.profile);
     state.signaturePadOpen = false;
-    state.status = 'Semnatura desenata a fost salvata in Profil.';
+    state.status = t(uiLanguage(), 'profile.status.drawnSignatureSaved');
     render();
   });
 }
@@ -1231,16 +1184,16 @@ async function improveText() {
       };
 
   if (!translation.available) {
-    state.status = `Translator indisponibil pentru textul introdus in ${languageLabel(baseLanguage)}.`;
-    state.message = `Translator indisponibil.\n\nServiciul real de traducere nu este disponibil, iar fallback-ul local MVP nu poate traduce acest text in ${languageLabel(baseLanguage)}.`;
+    state.status = t(uiLanguage(), 'mail.status.translatorUnavailableText', { language: languageLabel(baseLanguage) });
+    state.message = t(uiLanguage(), 'mail.status.translatorUnavailableImproveBody', { language: languageLabel(baseLanguage) });
     render();
     return;
   }
 
   state.message = normalizeTranslatedMailBody(translation.text);
   state.status = state.translatorEnabled
-    ? `Text tradus si imbunatatit in ${languageLabel(baseLanguage)} prin ${translation.provider}.`
-    : `Text imbunatatit folosind limba din Profil: ${languageLabel(baseLanguage)}.`;
+    ? t(uiLanguage(), 'mail.status.improvedTranslated', { language: languageLabel(baseLanguage), provider: translation.provider })
+    : t(uiLanguage(), 'mail.status.improvedProfileLanguage', { language: languageLabel(baseLanguage) });
   render();
 }
 
@@ -1248,7 +1201,7 @@ async function translateOriginalText() {
   const source = state.translatorText.trim();
 
   if (!source) {
-    state.status = 'Introdu textul care trebuie tradus.';
+    state.status = t(uiLanguage(), 'translator.status.enterText');
     render();
     return;
   }
@@ -1257,14 +1210,19 @@ async function translateOriginalText() {
   const translation = await translateWithAdapter(source, sourceLanguage, state.translatorTargetLanguage);
 
   if (!translation.available) {
-    state.status = `Translator indisponibil pentru textul introdus in ${languageLabel(state.translatorTargetLanguage)}.`;
-    state.translatorResult = `Translator indisponibil.\n\nServiciul real de traducere nu este disponibil pentru acest text.`;
+    state.status = t(uiLanguage(), 'translator.status.unavailable', {
+      language: languageLabel(state.translatorTargetLanguage),
+    });
+    state.translatorResult = t(uiLanguage(), 'translator.status.unavailableBody');
     render();
     return;
   }
 
   state.translatorResult = translation.text;
-  state.status = `Text tradus in ${languageLabel(state.translatorTargetLanguage)} prin ${translation.provider}.`;
+  state.status = t(uiLanguage(), 'translator.status.translated', {
+    language: languageLabel(state.translatorTargetLanguage),
+    provider: translation.provider,
+  });
   render();
 }
 
@@ -1272,7 +1230,7 @@ async function translateEmailOnly() {
   const source = state.message.trim();
 
   if (!source) {
-    state.status = 'Introdu mesajul care trebuie tradus.';
+    state.status = t(uiLanguage(), 'mail.status.enterMessage');
     render();
     return;
   }
@@ -1281,20 +1239,23 @@ async function translateEmailOnly() {
   const translation = await translateWithAdapter(source, sourceLanguage, state.targetLanguage);
 
   if (!translation.available) {
-    state.status = `Translator indisponibil pentru mesajul introdus in ${languageLabel(state.targetLanguage)}.`;
-    state.message = `Translator indisponibil.\n\nServiciul real de traducere nu este disponibil pentru acest mesaj.`;
+    state.status = t(uiLanguage(), 'mail.status.translatorUnavailableMessage', { language: languageLabel(state.targetLanguage) });
+    state.message = t(uiLanguage(), 'mail.status.translatorUnavailableMessageBody');
     render();
     return;
   }
 
   state.message = translation.text;
-  state.status = `Mesaj tradus in ${languageLabel(state.targetLanguage)} prin ${translation.provider}.`;
+  state.status = t(uiLanguage(), 'mail.status.messageTranslated', {
+    language: languageLabel(state.targetLanguage),
+    provider: translation.provider,
+  });
   render();
 }
 
 function startVoiceInput() {
   if (state.isListening) {
-    state.status = 'Microfonul este deja activ.';
+    state.status = t(uiLanguage(), 'translator.status.alreadyListening');
     render();
     return;
   }
@@ -1303,7 +1264,7 @@ function startVoiceInput() {
   const Recognition = speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
 
   if (!Recognition) {
-    state.status = 'Microfonul nu este suportat de acest browser.';
+    state.status = t(uiLanguage(), 'translator.status.unsupportedMicrophone');
     render();
     return;
   }
@@ -1313,19 +1274,21 @@ function startVoiceInput() {
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
   state.isListening = true;
-  state.status = 'Microfon activ. Vorbeste acum.';
+  state.status = t(uiLanguage(), 'translator.status.microphoneActive');
 
   recognition.onresult = (event) => {
     const transcript = event.results[0]?.[0]?.transcript?.trim();
 
     if (transcript) {
       state.translatorText = state.translatorText ? `${state.translatorText}\n${transcript}` : transcript;
-      state.status = `Text preluat din microfon in ${languageLabel(state.translatorTargetLanguage)}.`;
+      state.status = t(uiLanguage(), 'translator.status.voiceCaptured', {
+        language: languageLabel(state.translatorTargetLanguage),
+      });
     }
   };
 
   recognition.onerror = () => {
-    state.status = 'Nu am putut prelua vocea din microfon.';
+    state.status = t(uiLanguage(), 'translator.status.voiceError');
   };
 
   recognition.onend = () => {
@@ -1338,7 +1301,7 @@ function startVoiceInput() {
     render();
   } catch {
     state.isListening = false;
-    state.status = 'Nu am putut porni microfonul.';
+    state.status = t(uiLanguage(), 'translator.status.microphoneStartError');
     render();
   }
 }
@@ -1347,13 +1310,13 @@ function speakTranslation() {
   const text = state.translatorResult.trim();
 
   if (!text) {
-    state.status = 'Nu exista rezultat tradus pentru redare vocala.';
+    state.status = t(uiLanguage(), 'translator.status.noSpeechText');
     render();
     return;
   }
 
   if (!window.speechSynthesis) {
-    state.status = 'Redarea vocala nu este suportata de acest browser.';
+    state.status = t(uiLanguage(), 'translator.status.unsupportedSpeech');
     render();
     return;
   }
@@ -1362,7 +1325,9 @@ function speakTranslation() {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = speechLocale(state.translatorTargetLanguage);
   window.speechSynthesis.speak(utterance);
-  state.status = `Redare vocala pornita in ${languageLabel(state.translatorTargetLanguage)}.`;
+  state.status = t(uiLanguage(), 'translator.status.speaking', {
+    language: languageLabel(state.translatorTargetLanguage),
+  });
   render();
 }
 
@@ -1370,13 +1335,13 @@ function speakEmailMessage() {
   const text = state.message.trim();
 
   if (!text) {
-    state.status = 'Nu exista mesaj pentru redare vocala.';
+    state.status = t(uiLanguage(), 'mail.status.noSpeechText');
     render();
     return;
   }
 
   if (!window.speechSynthesis) {
-    state.status = 'Redarea vocala nu este suportata de acest browser.';
+    state.status = t(uiLanguage(), 'mail.status.unsupportedSpeech');
     render();
     return;
   }
@@ -1385,7 +1350,7 @@ function speakEmailMessage() {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = speechLocale(state.targetLanguage);
   window.speechSynthesis.speak(utterance);
-  state.status = `Redare vocala pornita pentru E-mail Assistant in ${languageLabel(state.targetLanguage)}.`;
+  state.status = t(uiLanguage(), 'mail.status.speaking', { language: languageLabel(state.targetLanguage) });
   render();
 }
 
@@ -1411,10 +1376,10 @@ async function copyEmail() {
 
   try {
     await navigator.clipboard.writeText(content);
-    state.status = 'E-mail copiat in clipboard.';
+    state.status = t(uiLanguage(), 'mail.status.copied');
   } catch {
     fallbackCopy(content);
-    state.status = 'E-mail copiat folosind metoda de compatibilitate.';
+    state.status = t(uiLanguage(), 'mail.status.copiedFallback');
   }
 
   render();
@@ -1510,11 +1475,11 @@ function contactRecipientOptions() {
     .filter((contact) => contact.email.trim())
     .map((contact) => ({
       email: contact.email,
-      label: contactDisplayName(contact),
+      label: contactDisplayNameForLanguage(contact, uiLanguage()),
     }));
   const legacyContacts = emailContacts.map((contact) => ({
     email: contact.email,
-    label: contact.label,
+    label: t(uiLanguage(), `contact.legacy.${contact.id}`),
   }));
   const byEmail = new Map<string, { email: string; label: string }>();
 
@@ -1554,8 +1519,8 @@ function saveCurrentRecipientAsContact() {
   if (!result.valid) {
     state.contactManagerOpen = true;
     state.contactDraft = draft;
-    state.contactErrors = result.messages;
-    state.status = result.messages[0] ?? 'Contactul nu poate fi salvat.';
+    state.contactErrors = localizeContactValidationMessages(result.messages);
+    state.status = state.contactErrors[0] ?? t(uiLanguage(), 'contact.status.cannotSave');
     render();
     return;
   }
@@ -1563,7 +1528,7 @@ function saveCurrentRecipientAsContact() {
   state.contacts = contacts;
   saveContacts(window.localStorage, state.contacts);
   state.contactErrors = [];
-  state.status = 'Contact salvat in agenda si disponibil in lista de destinatari.';
+  state.status = t(uiLanguage(), 'contact.status.savedFromRecipient');
   render();
 }
 
@@ -1573,8 +1538,8 @@ function saveContactFromManager() {
 
   if (!output.result.valid) {
     state.contactDraft = draft;
-    state.contactErrors = output.result.messages;
-    state.status = output.result.messages[0] ?? 'Contactul nu poate fi salvat.';
+    state.contactErrors = localizeContactValidationMessages(output.result.messages);
+    state.status = state.contactErrors[0] ?? t(uiLanguage(), 'contact.status.cannotSave');
     render();
     return;
   }
@@ -1584,7 +1549,7 @@ function saveContactFromManager() {
   state.contactEditingId = '';
   state.contactDraft = emptyContactDraft();
   state.contactErrors = [];
-  state.status = 'Contact salvat in AG-016.';
+  state.status = t(uiLanguage(), 'contact.status.saved');
   render();
 }
 
@@ -1592,13 +1557,13 @@ function selectContactForMail(contactId: string) {
   const contact = state.contacts.find((item) => item.id === contactId);
 
   if (!contact) {
-    state.status = 'Contactul nu mai exista in agenda.';
+    state.status = t(uiLanguage(), 'contact.status.missing');
     render();
     return;
   }
 
   if (!contact.email.trim()) {
-    state.status = 'Contactul selectat nu are adresa de e-mail.';
+    state.status = t(uiLanguage(), 'contact.status.missingEmail');
     render();
     return;
   }
@@ -1606,7 +1571,7 @@ function selectContactForMail(contactId: string) {
   state.recipient = contact.email;
   state.contactManagerOpen = false;
   markMailDraftChanged();
-  state.status = t(uiLanguage(), 'status.recipientSelected', { contact: contactDisplayName(contact) });
+  state.status = t(uiLanguage(), 'status.recipientSelected', { contact: contactDisplayNameForLanguage(contact, uiLanguage()) });
   render();
 }
 
@@ -1614,7 +1579,7 @@ function editContactInManager(contactId: string) {
   const contact = state.contacts.find((item) => item.id === contactId);
 
   if (!contact) {
-    state.status = 'Contactul nu mai exista in agenda.';
+    state.status = t(uiLanguage(), 'contact.status.missing');
     render();
     return;
   }
@@ -1632,7 +1597,7 @@ function editContactInManager(contactId: string) {
     favorite: contact.favorite,
   };
   state.contactErrors = [];
-  state.status = `Editare contact: ${contactDisplayName(contact)}.`;
+  state.status = t(uiLanguage(), 'contact.status.editing', { contact: contactDisplayNameForLanguage(contact, uiLanguage()) });
   render();
 }
 
@@ -1646,7 +1611,7 @@ function deleteContactFromManager(contactId: string) {
   }
 
   state.contactErrors = [];
-  state.status = 'Contact sters din agenda.';
+  state.status = t(uiLanguage(), 'contact.status.deleted');
   render();
 }
 
@@ -1681,6 +1646,30 @@ function contactDraftHasCategory(category: ContactCategory) {
   return state.contactDraft.categories.includes(category) || (category === 'favorites' && state.contactDraft.favorite);
 }
 
+function contactDisplayNameForLanguage(contact: AgmContact, language: LanguageCode) {
+  return contact.name || contact.company || contact.email || contact.phone || contact.whatsapp || t(language, 'contact.noName');
+}
+
+function contactCategoryLabel(category: ContactCategory, language: LanguageCode) {
+  return t(language, `contact.category.${category}`);
+}
+
+function contactCategoryLabelsForLanguage(contact: AgmContact, language: LanguageCode): string {
+  const labels = contact.categories.map((category) => contactCategoryLabel(category, language));
+  return labels.length > 0 ? labels.join(', ') : t(language, 'contact.noCategory');
+}
+
+function localizeContactValidationMessages(messages: string[]) {
+  return messages.map((message) => {
+    if (message.startsWith('contact.validation.')) return t(uiLanguage(), message);
+    if (message.includes('cel putin')) return t(uiLanguage(), 'contact.validation.identifier');
+    if (message.includes('e-mail')) return t(uiLanguage(), 'contact.validation.email');
+    if (message.includes('WhatsApp')) return t(uiLanguage(), 'contact.validation.whatsapp');
+    if (message.includes('telefon')) return t(uiLanguage(), 'contact.validation.phone');
+    return message;
+  });
+}
+
 function recipientNameFromAddress(email: string) {
   const localPart = email.trim().split('@')[0] || '';
   return localPart.replace(/[._-]+/g, ' ').trim();
@@ -1691,6 +1680,10 @@ function emailTemplateContent(template: EmailTemplate, language: LanguageCode) {
     subject: template.subject,
     message: template.message,
   };
+}
+
+function emailTemplateLabel(template: EmailTemplate, language: LanguageCode) {
+  return t(language, `mail.template.${template.id}`);
 }
 
 function applySelectedTemplateLanguage(language: LanguageCode) {
@@ -1748,61 +1741,21 @@ function renderMailSecurityPanel() {
 }
 
 function localizeMailSecurityMessage(message: string) {
-  const language = state.profile.preferredLanguage;
-
-  if (language === 'de') {
-    if (message.includes('destinatarul')) return 'Geben Sie den Empfaenger ein, bevor Sie die Nachricht vorbereiten.';
-    if (message.includes('Adresa destinatarului')) return 'Die Empfaengeradresse scheint nicht gueltig zu sein.';
-    if (message.includes('subiectul')) return 'Fuellen Sie den Betreff aus, bevor Sie die Nachricht vorbereiten.';
-    if (message.includes('corpul mesajului')) return 'Fuellen Sie den Nachrichtentext aus, bevor Sie die Nachricht vorbereiten.';
-  }
-
-  if (language === 'en') {
-    if (message.includes('destinatarul')) return 'Enter the recipient before preparing the message.';
-    if (message.includes('Adresa destinatarului')) return 'The recipient address does not appear to be valid.';
-    if (message.includes('subiectul')) return 'Complete the subject before preparing the message.';
-    if (message.includes('corpul mesajului')) return 'Complete the message body before preparing the message.';
-  }
-
+  const language = uiLanguage();
+  if (message.startsWith('mail.security.')) return t(language, message);
+  if (message.includes('destinatarul')) return t(language, 'mail.security.missingRecipient');
+  if (message.includes('Adresa destinatarului')) return t(language, 'mail.security.invalidRecipient');
+  if (message.includes('subiectul')) return t(language, 'mail.security.missingSubject');
+  if (message.includes('corpul mesajului')) return t(language, 'mail.security.missingBody');
   return message;
 }
 
 function mailStatus(key: 'toneSelected' | 'manualMode' | 'generalMode' | 'freeMessage' | 'signatureSaved' | 'resultLanguage' | 'previewClosed', detail = '') {
-  const language = state.profile.preferredLanguage;
-
-  if (language === 'de') {
-    if (key === 'toneSelected') return `Nachrichtenstil ausgewaehlt: ${detail}.`;
-    if (key === 'manualMode') return 'Manueller Modus aktiv. Betreff und Nachricht koennen frei geschrieben werden.';
-    if (key === 'generalMode') return 'Allgemeiner Modus aktiv. Waehlen Sie eine Vorlage oder bearbeiten Sie den Text.';
-    if (key === 'freeMessage') return 'Freie Nachricht aktiv. Der Editor bleibt frei.';
-    if (key === 'signatureSaved') return 'Die Signatur wurde im Profil gespeichert.';
-    if (key === 'resultLanguage') return `Sprache des Ergebnisses: ${detail}.`;
-    if (key === 'previewClosed') return 'Die Vorschau wurde geschlossen. Die Nachricht kann bearbeitet werden.';
-  }
-
-  if (language === 'en') {
-    if (key === 'toneSelected') return `Message style selected: ${detail}.`;
-    if (key === 'manualMode') return 'Manual mode active. You can write the subject and message freely.';
-    if (key === 'generalMode') return 'General mode active. Choose a template or edit the text after loading.';
-    if (key === 'freeMessage') return 'Free message active. The editor remains fully open.';
-    if (key === 'signatureSaved') return 'The signature was saved in Profile.';
-    if (key === 'resultLanguage') return `Result language: ${detail}.`;
-    if (key === 'previewClosed') return 'The preview was closed. You can edit the message.';
-  }
-
-  if (key === 'toneSelected') return `Stil mesaj selectat: ${detail}.`;
-  if (key === 'manualMode') return 'Mod Manual activ. Poti scrie liber subiectul si mesajul.';
-  if (key === 'generalMode') return 'Mod General activ. Alege un sablon sau editeaza textul dupa completare.';
-  if (key === 'freeMessage') return 'Mesaj liber activ. Editorul ramane complet liber.';
-  if (key === 'signatureSaved') return 'Semnatura a fost salvata in Profil.';
-  if (key === 'resultLanguage') return `Limba rezultatului: ${detail}.`;
-  return 'Previzualizarea a fost inchisa. Poti modifica mesajul.';
+  return t(uiLanguage(), `mail.status.${key}`, { detail });
 }
 
 function mailClearStatus() {
-  if (state.profile.preferredLanguage === 'de') return 'Die Felder wurden geleert.';
-  if (state.profile.preferredLanguage === 'en') return 'The fields were cleared.';
-  return 'Campurile au fost sterse.';
+  return t(uiLanguage(), 'status.fieldsCleared');
 }
 
 function prepareEmailSend() {
@@ -1812,7 +1765,7 @@ function prepareEmailSend() {
 
   if (security.status === 'blocked') {
     state.mailReviewOpen = false;
-    state.status = localizeMailSecurityMessage(security.messages[0] ?? 'Mail Security a blocat pregatirea mesajului.');
+    state.status = localizeMailSecurityMessage(security.messages[0] ?? t(uiLanguage(), 'mail.status.securityBlocked'));
     render();
     return;
   }
@@ -1844,7 +1797,7 @@ function finalEmailText(includeHeaders = true) {
     includeHeaders ? `${t(uiLanguage(), 'mail.attachments')}: ${t(uiLanguage(), 'mail.noAttachments')}` : '',
     includeHeaders ? '' : '',
     preview.body,
-    preview.hasDrawnSignature ? '\n[Signature image is saved locally in Profile and displayed in A.G.M.]' : '',
+    preview.hasDrawnSignature ? `\n${t(uiLanguage(), 'mail.status.signatureImageNote')}` : '',
   ].filter((line) => line.length > 0);
 
   return body.join('\n');
@@ -1863,13 +1816,13 @@ function clearEmail() {
 function clearTranslator() {
   state.translatorText = '';
   state.translatorResult = '';
-  state.status = 'Traducatorul a fost golit.';
+  state.status = t(uiLanguage(), 'translator.status.cleared');
   render();
 }
 
 function enableEmailTranslation() {
   state.translatorEnabled = true;
-  state.status = 'Traducatorul este activ pentru E-mail Assistant.';
+  state.status = t(uiLanguage(), 'translator.status.emailTranslatorEnabled');
   render();
 }
 
@@ -1902,7 +1855,7 @@ function saveProfileFromForm() {
     drawnSignatureDataUrl: state.profile.drawnSignatureDataUrl,
   };
   saveProfile(window.localStorage, state.profile);
-  state.status = `Profil salvat. Limba preferata: ${languageLabel(state.profile.preferredLanguage)}.`;
+  state.status = t(uiLanguage(), 'profile.status.saved', { language: languageLabel(state.profile.preferredLanguage) });
   render();
 }
 
@@ -1911,7 +1864,7 @@ function resetProfile() {
   state.targetLanguage = state.profile.preferredLanguage;
   state.translatorTargetLanguage = state.profile.preferredLanguage;
   saveProfile(window.localStorage, state.profile);
-  state.status = 'Profilul a fost resetat la valorile implicite.';
+  state.status = t(uiLanguage(), 'profile.status.reset');
   render();
 }
 
@@ -1958,14 +1911,14 @@ function profileHasContactDetails(profile: ProfileSettings) {
 
 function moduleStatus(view: ViewName) {
   if (view === 'email') {
-    return 'Modulul E-mail Assistant este activ.';
+    return t(uiLanguage(), 'module.status.email');
   }
 
   if (view === 'profile') {
-    return 'Modulul Profil este activ.';
+    return t(uiLanguage(), 'module.status.profile');
   }
 
-  return 'Cockpit A.G.M. este activ.';
+  return t(uiLanguage(), 'module.status.cockpit');
 }
 
 function navigateToModule(view: ViewName) {
@@ -2020,18 +1973,6 @@ function routeForView(view: ViewName) {
   return '/';
 }
 
-function pageTitle(view: ViewName) {
-  if (view === 'profile') {
-    return 'Profil';
-  }
-
-  if (view === 'email') {
-    return 'E-mail Assistant';
-  }
-
-  return 'A.G.M. Cockpit';
-}
-
 function languageButtons(name: string, selectedLanguage: LanguageCode) {
   return supportedLanguages
     .map(
@@ -2067,8 +2008,8 @@ function speechLocale(language: LanguageCode) {
   return 'ro-RO';
 }
 
-function formatPreview(value: string) {
-  return escapeHtml(value || t(uiLanguage(), 'mail.previewPlaceholder')).replace(/\n/g, '<br />');
+function formatPreview(value: string, placeholder = t(uiLanguage(), 'mail.previewPlaceholder')) {
+  return escapeHtml(value || placeholder).replace(/\n/g, '<br />');
 }
 
 function formatInlinePreview(value: string) {

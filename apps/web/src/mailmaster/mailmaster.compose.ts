@@ -1,4 +1,5 @@
 import { type LanguageCode } from '../emailLanguage';
+import { t } from '../i18n/app-i18n';
 import { professionalSalutation } from './mailmaster.salutations';
 import { type MailDraft, type MailPreview } from './mailmaster.types';
 
@@ -12,7 +13,7 @@ export function buildMailPreview(draft: MailDraft): MailPreview {
     language: draft.language,
     tone: draft.tone,
     signature: draft.signature,
-    attachmentsLabel: 'Nu sunt atasamente in aceasta etapa.',
+    attachmentsLabel: t(draft.language, 'mail.noAttachments'),
     hasDrawnSignature: draft.hasDrawnSignature,
   };
 }
@@ -54,7 +55,5 @@ function looksComposed(message: string, signature: string): boolean {
 }
 
 function defaultManualMessage(language: LanguageCode): string {
-  if (language === 'de') return 'Bitte ergaenzen Sie hier Ihre Nachricht.';
-  if (language === 'en') return 'Please write your message here.';
-  return 'Va rog sa completati aici mesajul.';
+  return t(language, 'mail.defaultManualMessage');
 }
