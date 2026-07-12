@@ -152,7 +152,7 @@ h2 {
 .module-strip {
   display: grid;
   grid-template-columns: repeat(2, minmax(180px, 1fr)) minmax(96px, auto);
-  grid-template-rows: repeat(2, minmax(72px, 1fr));
+  grid-template-rows: repeat(3, minmax(58px, 1fr));
   align-items: stretch;
   gap: 12px;
   min-height: 142px;
@@ -168,7 +168,7 @@ h2 {
   min-width: 0;
   gap: 5px;
   align-content: center;
-  min-height: 72px;
+  min-height: 58px;
   border-color: #203a56;
   background: linear-gradient(180deg, #0b1724, #071018);
 }
@@ -202,7 +202,7 @@ h2 {
   justify-items: start;
   gap: 2px;
   min-width: 0;
-  min-height: 72px;
+  min-height: 58px;
   padding: 12px 16px;
   border-color: #203a56;
   background: linear-gradient(180deg, #0b1724, #071018);
@@ -361,7 +361,7 @@ h2 {
 
 .header-ready {
   grid-column: 3;
-  grid-row: 1 / span 2;
+  grid-row: 1 / span 3;
   width: 94px;
   height: 94px;
   flex: 0 0 auto;
@@ -732,6 +732,28 @@ textarea:focus {
   border: 1px solid #197bff;
   border-radius: 8px;
   background: rgba(7, 24, 41, 0.72);
+}
+
+.text-corrector-module {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.72fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.text-corrector-form {
+  align-content: start;
+}
+
+.text-corrector-form .assistant-options {
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+}
+
+.text-corrector-module .preview {
+  display: grid;
+  gap: 12px;
+  align-content: start;
 }
 
 .contact-actions {
@@ -1209,6 +1231,8 @@ dd {
 
   .workspace,
   .assistant-options,
+  .text-corrector-module,
+  .text-corrector-form .assistant-options,
   .cockpit-panel,
   .translator-hud,
   .compact-language,
@@ -1302,6 +1326,7 @@ dd {
   .topbar,
   .module-strip,
   .translator-hud,
+  .text-corrector-module,
   .composer,
   .profile-panel,
   .preview,

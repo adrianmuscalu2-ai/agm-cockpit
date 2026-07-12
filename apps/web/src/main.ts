@@ -24,6 +24,12 @@ import { readContacts, saveContacts, emptyContactDraft } from './contact-manager
 import { addContact, editContact, removeContact, searchContacts } from './contact-manager/contact-manager.service';
 import { type AgmContact, type ContactCategory, type ContactDraft } from './contact-manager/contact-manager.types';
 import { t, uiLanguageFromProfile } from './i18n/app-i18n';
+import { availableTextCorrectorAgentIds, correctText } from './text-corrector/text-corrector.service';
+import {
+  type TextCorrectorMode,
+  type TextCorrectorResult,
+  type TextCorrectorSourceModule,
+} from './text-corrector/text-corrector.types';
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
@@ -46,7 +52,7 @@ type SpeechWindow = Window & {
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
 };
 
-type ViewName = 'cockpit' | 'email' | 'profile';
+type ViewName = 'cockpit' | 'email' | 'profile' | 'corrector';
 type EmailComposeMode = 'general' | 'manual';
 
 const APP_VERSION = 'A.G.M. Cockpit v0.1-test';
@@ -67,6 +73,10 @@ const state = {
   message: '',
   translatorText: '',
   translatorResult: '',
+  correctorText: '',
+  correctorResult: null as TextCorrectorResult | null,
+  correctorMode: 'correction' as TextCorrectorMode,
+  correctorSourceModule: 'standalone' as TextCorrectorSourceModule,
   isListening: false,
   translatorEnabled: false,
   useProfileDetails: true,
@@ -145,6 +155,10 @@ function render() {
                 <span class="nav-code">${escapeHtml(t(language, 'nav.emailCode'))}</span>
                 <span>${escapeHtml(t(language, 'nav.email'))}</span>
               </button>
+              <button data-module="corrector" type="button" class="${state.view === 'corrector' ? 'active' : ''}">
+                <span class="nav-code">${escapeHtml(t(language, 'nav.correctorCode'))}</span>
+                <span>${escapeHtml(t(language, 'nav.corrector'))}</span>
+              </button>
               <button data-module="profile" type="button" class="${state.view === 'profile' ? 'active' : ''}">
                 <span class="nav-code">${escapeHtml(t(language, 'nav.profileCode'))}</span>
                 <span>${escapeHtml(t(language, 'nav.profileModule'))}</span>
@@ -181,6 +195,8 @@ function render() {
     bindTranslator();
   } else if (state.view === 'email') {
     bindEmailAssistant();
+  } else if (state.view === 'corrector') {
+    bindTextCorrector();
   }
   bindCommandPanel();
   bindContactManager();
@@ -193,6 +209,10 @@ function renderCurrentView() {
 
   if (state.view === 'email') {
     return renderEmailAssistant();
+  }
+
+  if (state.view === 'corrector') {
+    return renderTextCorrector();
   }
 
   return renderCockpit();
@@ -215,6 +235,11 @@ function renderModuleLauncher() {
         <em>USER</em>
         <strong>AG-011-010</strong>
         <span>${escapeHtml(t(uiLanguage(), 'nav.profileModule'))}</span>
+      </a>
+      <a data-module="corrector" href="/corrector" class="${state.view === 'corrector' ? 'active' : ''}">
+        <em>TEXT</em>
+        <strong>AG-011-011</strong>
+        <span>${escapeHtml(t(uiLanguage(), 'nav.corrector'))}</span>
       </a>
     </nav>
   `;
@@ -278,10 +303,25 @@ function commandPanelForView(view: ViewName) {
     };
   }
 
+  if (view === 'corrector') {
+    const language = uiLanguage();
+    return {
+      moduleName: t(language, 'textCorrector.moduleName'),
+      commands: [
+        { id: 'corrector-correct', label: t(language, 'textCorrector.command.correct'), description: t(language, 'textCorrector.command.correctDesc'), primary: true },
+        { id: 'corrector-improve', label: t(language, 'textCorrector.command.improve'), description: t(language, 'textCorrector.command.improveDesc') },
+        { id: 'corrector-apply', label: t(language, 'textCorrector.command.apply'), description: t(language, 'textCorrector.command.applyDesc') },
+        { id: 'corrector-copy', label: t(language, 'textCorrector.command.copy'), description: t(language, 'textCorrector.command.copyDesc') },
+        { id: 'corrector-clear', label: t(language, 'textCorrector.command.clear'), description: t(language, 'textCorrector.command.clearDesc') },
+      ],
+    };
+  }
+
   return {
     moduleName: t(uiLanguage(), 'translator.moduleName'),
     commands: [
       { id: 'translator-speak', label: t(uiLanguage(), 'translator.command.speak'), description: t(uiLanguage(), 'translator.command.speakDesc'), primary: true },
+      { id: 'translator-correct', label: t(uiLanguage(), 'translator.command.correct'), description: t(uiLanguage(), 'translator.command.correctDesc') },
       { id: 'translator-translate', label: t(uiLanguage(), 'translator.command.translate'), description: t(uiLanguage(), 'translator.command.translateDesc') },
       { id: 'translator-listen', label: t(uiLanguage(), 'translator.command.listen'), description: t(uiLanguage(), 'translator.command.listenDesc') },
       { id: 'translator-clear', label: t(uiLanguage(), 'translator.command.clear'), description: t(uiLanguage(), 'translator.command.clearDesc') },
@@ -497,6 +537,75 @@ function renderEmailAssistant() {
       }
       ${renderMailSecurityPanel()}
     </aside>
+  `;
+}
+
+function renderTextCorrector() {
+  const language = uiLanguage();
+  const result = state.correctorResult;
+
+  return `
+    <section class="text-corrector-module" aria-label="${escapeHtml(t(language, 'textCorrector.ariaLabel'))}">
+      <form class="composer text-corrector-form">
+        <section class="assistant-options" aria-label="${escapeHtml(t(language, 'textCorrector.options'))}">
+          <label>
+            <span>${escapeHtml(t(language, 'textCorrector.mode'))}</span>
+            <select id="correctorMode">
+              ${textCorrectorModes()
+                .map(
+                  (mode) => `
+                    <option value="${mode}" ${state.correctorMode === mode ? 'selected' : ''}>
+                      ${escapeHtml(t(language, `textCorrector.mode.${mode}`))}
+                    </option>
+                  `,
+                )
+                .join('')}
+            </select>
+          </label>
+          <label>
+            <span>${escapeHtml(t(language, 'textCorrector.sourceModule'))}</span>
+            <select id="correctorSourceModule">
+              ${textCorrectorSourceModules()
+                .map(
+                  (sourceModule) => `
+                    <option value="${sourceModule}" ${state.correctorSourceModule === sourceModule ? 'selected' : ''}>
+                      ${escapeHtml(t(language, `textCorrector.source.${sourceModule}`))}
+                    </option>
+                  `,
+                )
+                .join('')}
+            </select>
+          </label>
+          <fieldset class="language-choice" data-active-language="${state.translatorTargetLanguage}">
+            <legend>${escapeHtml(t(language, 'textCorrector.targetLanguage'))}</legend>
+            ${languageButtons('correctorTargetLanguage', state.translatorTargetLanguage)}
+          </fieldset>
+        </section>
+
+        <label class="message-field">
+          <span>${escapeHtml(t(language, 'textCorrector.input'))}</span>
+          <textarea id="correctorText" rows="12" placeholder="${escapeHtml(t(language, 'textCorrector.inputPlaceholder'))}">${escapeHtml(state.correctorText)}</textarea>
+        </label>
+      </form>
+
+      <aside class="preview" aria-live="polite">
+        <h2>${escapeHtml(t(language, 'textCorrector.preview'))}</h2>
+        <p>${formatPreview(result?.correctedText ?? '', t(language, 'textCorrector.previewPlaceholder'))}</p>
+        <dl>
+          <dt>${escapeHtml(t(language, 'textCorrector.agent'))}</dt>
+          <dd>${escapeHtml(result?.agentId ?? t(language, 'textCorrector.noAgent'))}</dd>
+          <dt>${escapeHtml(t(language, 'textCorrector.confidence'))}</dt>
+          <dd>${result ? `${Math.round(result.confidence * 100)}%` : '-'}</dd>
+          <dt>${escapeHtml(t(language, 'textCorrector.availableAgents'))}</dt>
+          <dd>${escapeHtml(availableTextCorrectorAgentIds().join(', '))}</dd>
+        </dl>
+        ${
+          result?.warnings.length
+            ? `<ul>${result.warnings.map((warning) => `<li>${escapeHtml(t(language, warning))}</li>`).join('')}</ul>`
+            : ''
+        }
+      </aside>
+    </section>
   `;
 }
 
@@ -731,7 +840,7 @@ function bindShared() {
       event.preventDefault();
       const nextView = control.dataset.module;
 
-      if (nextView !== 'cockpit' && nextView !== 'email' && nextView !== 'profile') {
+      if (nextView !== 'cockpit' && nextView !== 'email' && nextView !== 'profile' && nextView !== 'corrector') {
         return;
       }
 
@@ -758,6 +867,7 @@ function bindCommandPanel() {
       const command = control.dataset.command;
 
       if (command === 'translator-speak') startVoiceInput();
+      if (command === 'translator-correct') correctTranslatorText();
       if (command === 'translator-translate') void translateOriginalText();
       if (command === 'translator-listen') speakTranslation();
       if (command === 'translator-clear') clearTranslator();
@@ -767,6 +877,11 @@ function bindCommandPanel() {
       if (command === 'email-copy') void copyEmail();
       if (command === 'email-send') prepareEmailSend();
       if (command === 'email-clear') clearEmail();
+      if (command === 'corrector-correct') runTextCorrector('correction');
+      if (command === 'corrector-improve') runTextCorrector('improvement');
+      if (command === 'corrector-apply') applyCorrectedTextToSource();
+      if (command === 'corrector-copy') void copyCorrectedText();
+      if (command === 'corrector-clear') clearTextCorrector();
       if (command === 'profile-save') saveProfileFromForm();
       if (command === 'profile-edit') showPlannedCommand(t(uiLanguage(), 'profile.status.editDirectly'));
       if (command === 'profile-upload') showPlannedCommand(t(uiLanguage(), 'profile.status.uploadFuture'));
@@ -960,6 +1075,50 @@ function bindEmailAssistant() {
     state.mailReviewOpen = false;
     state.status = t(uiLanguage(), 'mail.status.preparationCancelled');
     render();
+  });
+}
+
+function bindTextCorrector() {
+  input('correctorText', (value) => {
+    state.correctorText = value;
+  });
+
+  document.querySelector<HTMLSelectElement>('#correctorMode')?.addEventListener('change', (event) => {
+    const mode = normalizeTextCorrectorMode((event.target as HTMLSelectElement).value);
+
+    if (!mode) {
+      return;
+    }
+
+    state.correctorMode = mode;
+    state.status = t(uiLanguage(), 'textCorrector.status.modeChanged', { mode: t(uiLanguage(), `textCorrector.mode.${mode}`) });
+    render();
+  });
+
+  document.querySelector<HTMLSelectElement>('#correctorSourceModule')?.addEventListener('change', (event) => {
+    const sourceModule = normalizeTextCorrectorSourceModule((event.target as HTMLSelectElement).value);
+
+    if (!sourceModule) {
+      return;
+    }
+
+    state.correctorSourceModule = sourceModule;
+    state.status = t(uiLanguage(), 'textCorrector.status.sourceChanged', { source: t(uiLanguage(), `textCorrector.source.${sourceModule}`) });
+    render();
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('button[data-language-group="correctorTargetLanguage"]').forEach((control) => {
+    control.addEventListener('click', () => {
+      const language = normalizeLanguage(control.dataset.language);
+
+      if (!language) {
+        return;
+      }
+
+      state.translatorTargetLanguage = language;
+      state.status = t(uiLanguage(), 'textCorrector.status.languageChanged', { language: languageLabel(language) });
+      render();
+    });
   });
 }
 
@@ -1226,6 +1385,34 @@ async function translateOriginalText() {
   render();
 }
 
+function correctTranslatorText() {
+  const text = state.translatorText.trim();
+
+  if (!text) {
+    state.status = t(uiLanguage(), 'translator.status.enterText');
+    render();
+    return;
+  }
+
+  const sourceLanguage = detectMessageLanguage(text, state.profile.preferredLanguage);
+  const result = correctText({
+    text,
+    sourceLanguage,
+    targetLanguage: state.translatorTargetLanguage,
+    mode: 'correction',
+    sourceModule: 'translator',
+  });
+
+  state.translatorText = result.correctedText;
+  state.correctorText = result.originalText;
+  state.correctorResult = result;
+  state.status = t(uiLanguage(), 'translator.status.corrected', {
+    agent: result.agentId,
+    language: languageLabel(sourceLanguage),
+  });
+  render();
+}
+
 async function translateEmailOnly() {
   const source = state.message.trim();
 
@@ -1369,6 +1556,91 @@ async function translateWithAdapter(text: string, sourceLanguage: LanguageCode, 
       provider: 'unavailable' as const,
     };
   }
+}
+
+function runTextCorrector(mode = state.correctorMode) {
+  const text = state.correctorText.trim();
+
+  if (!text) {
+    state.status = t(uiLanguage(), 'textCorrector.status.enterText');
+    render();
+    return;
+  }
+
+  state.correctorMode = mode;
+  state.correctorResult = correctText({
+    text,
+    sourceLanguage: detectMessageLanguage(text, state.profile.preferredLanguage),
+    targetLanguage: state.translatorTargetLanguage,
+    mode,
+    sourceModule: state.correctorSourceModule,
+  });
+  state.status = t(uiLanguage(), 'textCorrector.status.corrected', {
+    agent: state.correctorResult.agentId,
+    mode: t(uiLanguage(), `textCorrector.mode.${mode}`),
+  });
+  render();
+}
+
+async function copyCorrectedText() {
+  const text = state.correctorResult?.correctedText.trim() ?? '';
+
+  if (!text) {
+    state.status = t(uiLanguage(), 'textCorrector.status.noResult');
+    render();
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(text);
+    state.status = t(uiLanguage(), 'textCorrector.status.copied');
+  } catch {
+    fallbackCopy(text);
+    state.status = t(uiLanguage(), 'textCorrector.status.copiedFallback');
+  }
+
+  render();
+}
+
+function applyCorrectedTextToSource() {
+  const correctedText = state.correctorResult?.correctedText.trim() ?? '';
+
+  if (!correctedText) {
+    state.status = t(uiLanguage(), 'textCorrector.status.noResult');
+    render();
+    return;
+  }
+
+  if (state.correctorSourceModule === 'translator') {
+    state.translatorText = correctedText;
+    state.status = t(uiLanguage(), 'textCorrector.status.appliedToTranslator');
+    render();
+    return;
+  }
+
+  if (state.correctorSourceModule === 'mailmaster') {
+    state.message = correctedText;
+    markMailDraftChanged();
+    state.status = t(uiLanguage(), 'textCorrector.status.appliedToMailMaster');
+    render();
+    return;
+  }
+
+  if (state.correctorSourceModule === 'document-assistant') {
+    state.status = t(uiLanguage(), 'textCorrector.status.documentAssistantPending');
+    render();
+    return;
+  }
+
+  state.status = t(uiLanguage(), 'textCorrector.status.standaloneApply');
+  render();
+}
+
+function clearTextCorrector() {
+  state.correctorText = '';
+  state.correctorResult = null;
+  state.status = t(uiLanguage(), 'textCorrector.status.cleared');
+  render();
 }
 
 async function copyEmail() {
@@ -1918,6 +2190,10 @@ function moduleStatus(view: ViewName) {
     return t(uiLanguage(), 'module.status.profile');
   }
 
+  if (view === 'corrector') {
+    return t(uiLanguage(), 'module.status.corrector');
+  }
+
   return t(uiLanguage(), 'module.status.cockpit');
 }
 
@@ -1950,6 +2226,10 @@ function viewFromCurrentRoute(): ViewName {
     return 'email';
   }
 
+  if (route === 'corrector' || route === 'text-corrector' || route === 'ag-011-011') {
+    return 'corrector';
+  }
+
   if (route === 'cockpit') {
     return 'cockpit';
   }
@@ -1968,6 +2248,10 @@ function routeForView(view: ViewName) {
 
   if (view === 'profile') {
     return '/profile';
+  }
+
+  if (view === 'corrector') {
+    return '/corrector';
   }
 
   return '/';
@@ -2018,6 +2302,22 @@ function formatInlinePreview(value: string) {
 
 function normalizeMailTone(value: unknown): MailTone | null {
   return value === 'formal' || value === 'business' || value === 'friendly' || value === 'short' || value === 'polite' ? value : null;
+}
+
+function textCorrectorModes(): TextCorrectorMode[] {
+  return ['correction', 'improvement', 'professional', 'simplification'];
+}
+
+function textCorrectorSourceModules(): TextCorrectorSourceModule[] {
+  return ['standalone', 'translator', 'mailmaster', 'document-assistant'];
+}
+
+function normalizeTextCorrectorMode(value: unknown): TextCorrectorMode | null {
+  return textCorrectorModes().some((mode) => mode === value) ? (value as TextCorrectorMode) : null;
+}
+
+function normalizeTextCorrectorSourceModule(value: unknown): TextCorrectorSourceModule | null {
+  return textCorrectorSourceModules().some((sourceModule) => sourceModule === value) ? (value as TextCorrectorSourceModule) : null;
 }
 
 function escapeHtml(value: string) {

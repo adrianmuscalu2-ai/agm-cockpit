@@ -1,5 +1,76 @@
 # AGM Technical Change Report
 
+## 2026-07-12 - AG-011-011 Text Corrector architecture
+
+### Scope
+
+- Proiectarea si implementarea arhitecturii frontend pentru modulul `AG-011-011 - Text Corrector`.
+- Crearea punctelor de extensie pentru agentii lingvistici specializati:
+  - `AG-011-011A` RO / DE Specialist;
+  - `AG-011-011B` RO / EN Specialist;
+  - `AG-011-011C` DE / EN Specialist.
+- Integrarea modulului in Cockpit fara modificarea backendului sau a fluxurilor validate.
+
+### Files Changed
+
+- `apps/web/src/main.ts`
+- `apps/web/src/styles.css`
+- `apps/web/src/i18n/app-i18n.dictionary.ts`
+- `apps/web/src/text-corrector/text-corrector.types.ts`
+- `apps/web/src/text-corrector/text-corrector.agents.ts`
+- `apps/web/src/text-corrector/text-corrector.service.ts`
+- `CHANGELOG.md`
+- `TECHNICAL_CHANGE_REPORT.md`
+
+### Architecture
+
+- `text-corrector.types.ts` defineste contractele publice:
+  - `TextCorrectorRequest`;
+  - `TextCorrectorResult`;
+  - `TextCorrectorAgent`;
+  - modurile `correction`, `improvement`, `professional`, `simplification`;
+  - sursele `translator`, `mailmaster`, `document-assistant`, `standalone`.
+- `text-corrector.agents.ts` contine registry-ul agentilor specializati si logica MVP de corectare structurala.
+- `text-corrector.service.ts` orchestreaza selectia agentului si expune un punct unic de intrare pentru modulele AGM.
+- `main.ts` integreaza modulul ca ecran separat, ruta `/corrector`, intrare in navigare si actiuni rapide.
+
+### Integration
+
+- Modulul foloseste limba activa din Profil prin infrastructura existenta `uiLanguage`.
+- Text Corrector poate modela sursa textului ca Translator, MailMaster, Document Assistant sau standalone.
+- Fluxul oficial integrat in Translator este `Text introdus -> Corecteaza -> Tradu`.
+- Actiunea `Corecteaza` din Translator ruleaza Text Corrector pe textul sursa si actualizeaza caseta sursa fara schimbarea paginii.
+- Modulul `/corrector` poate aplica explicit rezultatul inapoi in Translator sau MailMaster, iar Document Assistant ramane pregatit ca punct de extensie.
+- Aplicarea rezultatului este controlata de utilizator si nu suprascrie automat continutul altor module.
+
+### Security Review
+
+- Backendul nu a fost modificat.
+- Integrarea OpenAI nu a fost modificata.
+- Autentificarea si fisierele `.env` nu au fost modificate.
+- Nu au fost introduse chei, tokenuri sau credentiale.
+
+### Validation
+
+- `corepack pnpm --filter @agm/web build` - passed.
+- QA: modulul compileaza si este izolat frontend.
+- UI/UX: modulul este accesibil din Cockpit si foloseste tema existenta.
+- i18n: etichetele modulului sunt disponibile in RO / DE / EN.
+- Architecture: agentii sunt extensibili fara schimbarea UI-ului.
+- Functional: Translator are actiune directa `Corecteaza`, iar `/corrector` are handoff controlat catre Translator/MailMaster.
+
+### Risks
+
+- Logica lingvistica este doar MVP si nu trebuie considerata corectare profesionala completa.
+- Regulile locale pot corecta doar cazuri simple; exemplele complexe necesita agenti lingvistici completi.
+- Viitoarea integrare AI trebuie sa respecte Human-in-Control si minimizarea datelor.
+
+### Recommendations
+
+- Validarea Turnului pentru fluxul integrat `Corecteaza -> Tradu` in Translator.
+- Urmatoarea etapa ar trebui sa extinda agentii cu reguli lingvistice reale si teste pe perechi RO/DE/EN.
+- Agentii completi trebuie implementati prin adaptoare inlocuibile, fara dependenta directa de un provider AI.
+
 ## 2026-07-12 - Translator i18n cleanup
 
 ### Scope

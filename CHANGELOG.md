@@ -1,5 +1,32 @@
 # Changelog
 
+## Unreleased - AG-011-011 Text Corrector architecture
+
+### Added
+
+- AG-011-011 Text Corrector frontend module shell.
+- Modular Text Corrector architecture with extension points for:
+  - `AG-011-011A` RO / DE Specialist;
+  - `AG-011-011B` RO / EN Specialist;
+  - `AG-011-011C` DE / EN Specialist.
+- Shared Text Corrector request/result contracts for future integration with Translator, MailMaster, and Document Assistant.
+- Text Corrector route, navigation entry, command-panel actions, RO / DE / EN i18n keys, and responsive UI styling.
+- Translator command-panel action `Corecteaza` / `Correct` / `Korrigieren` for the official AGM flow:
+  - text entered in Translator;
+  - source text corrected in place;
+  - corrected text translated by the existing translation action.
+- Controlled result handoff from `/corrector` back to Translator or MailMaster.
+
+### Notes
+
+- Current agent behavior is MVP-level and includes structural normalization, punctuation cleanup, duplicate-word cleanup, and a small local rule set per language.
+- Full linguistic correction, grammar scoring, and AI provider integration remain pending a future functional validation.
+- Backend, OpenAI integration, authentication, `.env`, Translator, MailMaster, and Contact Manager were not modified.
+
+### Validated
+
+- `corepack pnpm --filter @agm/web build` passes.
+
 ## Unreleased - Full i18n stabilization
 
 ### Changed
