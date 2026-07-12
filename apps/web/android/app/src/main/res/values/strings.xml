@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">A.G.M. Cockpit</string>
+    <string name="title_activity_main">A.G.M. Cockpit</string>
+    <string name="package_name">com.agm.cockpit</string>
+    <string name="custom_url_scheme">com.agm.cockpit</string>
+</resources>

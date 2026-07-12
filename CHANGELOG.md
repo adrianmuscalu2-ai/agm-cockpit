@@ -1,5 +1,56 @@
 # Changelog
 
+## Stable checkpoint - 2026-07-12
+
+Project state saved for restart in the next working session.
+
+### Added
+
+- One Click Startup scripts for AGM local development:
+  - `Start_AGM.bat`
+  - `scripts/Start-AGM.ps1`
+- MailMaster Basic local module:
+  - manual recipient entry;
+  - professional templates;
+  - message tone selector;
+  - local preview before sending;
+  - local Mail Security gate for blocked real sending.
+- AG-016 Contact Manager foundation:
+  - add, edit, delete, search, select contact;
+  - localStorage persistence;
+  - integration with MailMaster recipient flow.
+- Global i18n infrastructure for RO / DE / EN:
+  - shared dictionary;
+  - single UI language source from Profile;
+  - immediate re-render after Profile language changes.
+- PWA / mobile preparation files for the web app.
+
+### Changed
+
+- MailMaster now uses one shared generator for greeting and closing formulas.
+- MailMaster direct and translated flows now use the same preview composition logic.
+- Sender contact details are displayed only in the preview header.
+- Real e-mail and WhatsApp sending remain blocked until security validation.
+- Development Service Worker handling was adjusted to reduce stale-cache influence.
+
+### Validated
+
+- `pnpm --filter @agm/web build` passes.
+- MailMaster preview no longer duplicates greeting, body, closing, name, or signature.
+- Profile language is persisted through localStorage.
+- Global i18n dictionary returns expected German and English labels for MailMaster.
+- No credentials, tokens, external APIs, SMTP, IMAP, Gmail, Outlook, or WhatsApp sending were activated.
+
+### Known Limitations
+
+- A few UI texts remain hardcoded in Romanian, especially in the Translator/Profile/Cockpit auxiliary labels and placeholders.
+- Full RO / DE / EN localization cleanup continues in the next session.
+- Final browser validation still requires manual hard refresh / Service Worker unregister if an older cached build is present.
+
+### Status
+
+- Project marked as stable for pause and later continuation.
+
 ## v0.1.0 - 2026-07-02
 
 Frozen checkpoint for AGM Milestone 1 and Milestone 2.

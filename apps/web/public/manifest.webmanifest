@@ -1,0 +1,20 @@
+{
+  "name": "A.G.M. Cockpit",
+  "short_name": "A.G.M.",
+  "description": "A.G.M. Cockpit test app for translator, voice and e-mail assistant workflows.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#050a0f",
+  "theme_color": "#071018",
+  "lang": "ro",
+  "icons": [
+    {
+      "src": "/images/images/logo1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
