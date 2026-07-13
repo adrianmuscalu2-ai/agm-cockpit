@@ -1,5 +1,128 @@
 # AGM Technical Change Report
 
+## 2026-07-13 - AG-012.3 mandatory legal corrections
+
+### Scope
+
+- Implementarea cerintelor juridice obligatorii validate in AG-012.2.
+- Inlocuirea elementelor juridice marcate anterior ca placeholder.
+- Pastrarea arhitecturii existente fara modificari de backend, OpenAI, API, autentificare sau `.env`.
+
+### Files Changed
+
+- `apps/web/src/main.ts`
+- `apps/web/src/styles.css`
+- `apps/web/src/i18n/app-i18n.dictionary.ts`
+- `CHANGELOG.md`
+- `TECHNICAL_CHANGE_REPORT.md`
+
+### Implementation
+
+- Legal Center contine acum sectiuni operationale pentru:
+  - Politica de Confidentialitate;
+  - Termeni si Conditii;
+  - AI Transparency;
+  - informarea privind microfonul;
+  - Google Play Data Safety;
+  - Impressum / date dezvoltator;
+  - suport;
+  - versiuni aplicatie / privacy / terms;
+  - Open Source Licenses / Third Party Notices.
+- Ecranul de prima pornire cere acceptarea informarii privind:
+  - Politica de Confidentialitate;
+  - Termeni si Conditii;
+  - utilizarea AI;
+  - utilizarea microfonului.
+- Acceptarea juridica locala include:
+  - `privacyPolicyVersion`;
+  - `termsVersion`;
+  - `acceptedAt`.
+- Traducerea externa si microfonul sunt blocate pana la acceptarea informarii juridice curente.
+- Sectiunea Gestionarea datelor permite stergerea locala a:
+  - profilului;
+  - contactelor;
+  - preferintelor;
+  - acceptarilor juridice;
+  - tuturor datelor locale gestionate de AGM.
+- A fost adaugata pagina `/licenses` pentru notificari open source si third-party.
+
+### Security Review
+
+- Backendul nu a fost modificat.
+- Integrarea OpenAI nu a fost modificata.
+- API-urile si autentificarea nu au fost modificate.
+- Fisierele `.env` nu au fost modificate.
+- Nu au fost introduse chei, tokenuri sau credentiale.
+- Fluxurile care transmit text off-device cer acceptarea informarii juridice curente.
+
+### Validation
+
+- `corepack pnpm --filter @agm/web build` - passed.
+- Verificare placeholder juridic: nu au ramas texte juridice de tip placeholder; aparitiile ramase sunt atribute HTML `placeholder` pentru campuri de formular.
+
+### Remaining Decisions
+
+- Datele oficiale de suport si identitatea completa pentru Impressum trebuie furnizate de Turn inainte de publicarea Google Play.
+- URL-ul public final pentru Privacy Policy trebuie configurat in Google Play Console si, daca este necesar, indicat explicit in aplicatie.
+- Build-ul de productie trebuie configurat cu backend HTTPS.
+
+## 2026-07-13 - AG-012 Legal & Compliance preparation
+
+### Scope
+
+- Pregatirea infrastructurii frontend pentru publicarea AGM Translator in Google Play si pentru auditul juridic AG-012.
+- Clarificarea elementelor UI care puteau induce utilizatorul in eroare in E-mail Assistant si Profil.
+- Adaugarea structurii placeholder pentru Termeni, Confidentialitate, acceptare la prima pornire, Despre aplicatie, versiune si suport.
+
+### Files Changed
+
+- `apps/web/src/main.ts`
+- `apps/web/src/styles.css`
+- `apps/web/src/i18n/app-i18n.dictionary.ts`
+- `CHANGELOG.md`
+- `TECHNICAL_CHANGE_REPORT.md`
+
+### Implementation
+
+- E-mail Assistant:
+  - butonul de editare semnatura din E-mail Assistant este dezactivat si marcat ca functie in dezvoltare;
+  - butonul `Trimite` foloseste text clar, fara simbol temporar;
+  - formularea engleza `Contact agenda` a fost schimbata in `Address Book`.
+- Profil:
+  - adauga note vizibile ca Profilul este optional;
+  - explica faptul ca datele Profilului raman locale si nu sunt exportate/transmise fara actiunea sau acordul utilizatorului;
+  - marcheaza functiile lipsa ca `In dezvoltare`.
+- Legal & Compliance:
+  - adauga view-uri frontend `/legal` si `/about`;
+  - adauga confirmare locala de test la prima pornire;
+  - adauga carduri placeholder pentru Termeni, Confidentialitate, versiune, suport si audit AG-012;
+  - adauga linkuri de acces in footer.
+
+### Security Review
+
+- Backendul nu a fost modificat.
+- Integrarea OpenAI nu a fost modificata.
+- Autentificarea nu a fost modificata.
+- Fisierele `.env` nu au fost modificate.
+- Nu au fost introduse chei, tokenuri sau credentiale.
+- Confirmarea juridica implementata este marcata explicit ca test/placeholder si nu reprezinta acceptarea termenilor finali.
+
+### Validation
+
+- Build frontend: pending in aceasta misiune pana la rularea verificarii finale.
+- QA recomandat: verificare manuala pentru `/`, `/email`, `/profile`, `/legal`, `/about` in RO / DE / EN.
+
+### Risks
+
+- Textele juridice finale lipsesc intentionat si trebuie completate de Agentul Juridic AG-012.
+- Confirmarea de test trebuie inlocuita sau versionata cand termenii finali sunt aprobati.
+
+### Recommendations
+
+- Dupa auditul AG-012, completati Termenii si Politica de Confidentialitate in aceeasi infrastructura.
+- Introduceti o versiune explicita pentru termenii legali finali si resetati acceptarea locala la schimbarea versiunii.
+- Stabiliti datele oficiale de suport inainte de listarea Google Play.
+
 ## 2026-07-12 - AG-011-011 Text Corrector architecture
 
 ### Scope

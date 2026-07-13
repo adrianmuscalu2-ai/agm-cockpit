@@ -1,5 +1,56 @@
 # Changelog
 
+## Unreleased - AG-012.3 mandatory legal corrections
+
+### Added
+
+- Final Legal & Compliance frontend structure for Privacy Policy, Terms and Conditions, AI Transparency, microphone notice, Google Play Data Safety notes, Impressum/developer details, support, versioning, and third-party notices.
+- First-run legal information screen with explicit acceptance for Privacy Policy, Terms, AI notice, and microphone notice.
+- Legal acceptance versioning with `privacyPolicyVersion`, `termsVersion`, and `acceptedAt` saved locally.
+- Data management controls for:
+  - deleting local profile data;
+  - deleting local contacts;
+  - deleting local preferences;
+  - deleting local legal acceptances;
+  - resetting all AGM-managed local data.
+- Open Source Licenses / Third Party Notices page.
+
+### Changed
+
+- External translation and microphone use now require current local legal acceptance before execution.
+- Previous legal placeholders were replaced with operational legal-compliance content.
+
+### Notes
+
+- Backend, OpenAI integration, API contracts, authentication, and `.env` were not modified.
+- No commit was created.
+
+## Unreleased - AG-012 Legal & Compliance preparation
+
+### Added
+
+- Legal & Compliance frontend structure for:
+  - Terms and Conditions placeholder;
+  - Privacy Policy placeholder;
+  - first-run test acceptance notice;
+  - About app page;
+  - visible application version;
+  - support contact placeholder.
+- Footer links for Legal & Compliance and About app.
+- Local first-run test confirmation using `localStorage`.
+- Profile compliance notices explaining that the Profile is optional and profile data remains local unless the user acts or consents.
+
+### Changed
+
+- E-mail Assistant signature edit action is disabled and marked as in development to avoid misleading users.
+- E-mail Assistant `Send` button no longer shows the temporary visual suffix.
+- English `Contact agenda` wording was updated to `Address Book`.
+
+### Notes
+
+- Legal text is not final and must be completed after the AG-012 legal audit.
+- Backend, OpenAI translation integration, authentication, `.env`, and API behavior were not modified.
+
 ## Unreleased - AG-011-011 Text Corrector architecture
 
 ### Added

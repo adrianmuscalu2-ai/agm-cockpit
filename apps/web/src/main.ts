@@ -12,6 +12,7 @@ import {
   defaultProfile,
   normalizeLanguage,
   profileLanguageKey,
+  profileStorageKey,
   readProfile,
   saveProfile,
 } from './profileSettings';
@@ -20,7 +21,7 @@ import { buildMailPreview } from './mailmaster/mailmaster.compose';
 import { buildMailSignature } from './mailmaster/mailmaster.signature';
 import { mailToneLabels, type MailDraft, type MailPreview, type MailTone } from './mailmaster/mailmaster.types';
 import { contactCategories, normalizeContactCategory } from './contact-manager/contact-manager.categories';
-import { readContacts, saveContacts, emptyContactDraft } from './contact-manager/contact-manager.storage';
+import { contactStorageKey, readContacts, saveContacts, emptyContactDraft } from './contact-manager/contact-manager.storage';
 import { addContact, editContact, removeContact, searchContacts } from './contact-manager/contact-manager.service';
 import { type AgmContact, type ContactCategory, type ContactDraft } from './contact-manager/contact-manager.types';
 import { t, uiLanguageFromProfile } from './i18n/app-i18n';
@@ -30,6 +31,16 @@ import {
   type TextCorrectorResult,
   type TextCorrectorSourceModule,
 } from './text-corrector/text-corrector.types';
+import {
+  type TurnCommandItem,
+  type TurnHealthStatus,
+  type TurnMissionItem,
+  turnAgents,
+  turnAuditTrail,
+  turnDepartments,
+  turnMissions,
+  turnModules,
+} from './turn-command-center';
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
@@ -52,10 +63,13 @@ type SpeechWindow = Window & {
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
 };
 
-type ViewName = 'cockpit' | 'email' | 'profile' | 'corrector';
+type ViewName = 'cockpit' | 'email' | 'profile' | 'corrector' | 'turn' | 'legal' | 'about' | 'licenses';
 type EmailComposeMode = 'general' | 'manual';
 
 const APP_VERSION = 'A.G.M. Cockpit v0.1-test';
+const PRIVACY_POLICY_VERSION = 'privacy-v2026.07.13';
+const TERMS_VERSION = 'terms-v2026.07.13';
+const LEGAL_ACCEPTANCE_KEY = `agm.legal.acceptance.${PRIVACY_POLICY_VERSION}.${TERMS_VERSION}`;
 const initialProfile = readProfile(window.localStorage);
 const initialContacts = readContacts(window.localStorage);
 
@@ -88,6 +102,7 @@ const state = {
   emailComposeMode: 'manual' as EmailComposeMode,
   selectedEmailTemplateId: '',
   sendOptionsOpen: false,
+  legalAcceptanceAccepted: readLegalAcceptance(window.localStorage),
   targetLanguage: initialProfile.preferredLanguage,
   translatorTargetLanguage: initialProfile.preferredLanguage,
   status: t(uiLanguageFromProfile(initialProfile.preferredLanguage), 'app.ready'),
@@ -159,6 +174,10 @@ function render() {
                 <span class="nav-code">${escapeHtml(t(language, 'nav.correctorCode'))}</span>
                 <span>${escapeHtml(t(language, 'nav.corrector'))}</span>
               </button>
+              <button data-module="turn" type="button" class="${state.view === 'turn' ? 'active' : ''}">
+                <span class="nav-code">${escapeHtml(t(language, 'nav.turnCode'))}</span>
+                <span>${escapeHtml(t(language, 'nav.turn'))}</span>
+              </button>
               <button data-module="profile" type="button" class="${state.view === 'profile' ? 'active' : ''}">
                 <span class="nav-code">${escapeHtml(t(language, 'nav.profileCode'))}</span>
                 <span>${escapeHtml(t(language, 'nav.profileModule'))}</span>
@@ -175,15 +194,22 @@ function render() {
           </div>
         </header>
 
+        ${state.view === 'cockpit' ? renderCommandPanel() : ''}
+
         ${renderCurrentView()}
 
-        ${renderCommandPanel()}
+        ${state.view === 'cockpit' ? '' : renderCommandPanel()}
 
         <footer class="status" role="status">
           <span>${escapeHtml(state.status)}</span>
+          <nav class="status-links" aria-label="${escapeHtml(t(language, 'legal.footerLinks'))}">
+            <button data-module="legal" type="button">${escapeHtml(t(language, 'legal.moduleName'))}</button>
+            <button data-module="about" type="button">${escapeHtml(t(language, 'about.moduleName'))}</button>
+          </nav>
           <strong>${APP_VERSION}</strong>
         </footer>
       </section>
+      ${state.legalAcceptanceAccepted ? '' : renderLegalAcceptanceNotice()}
       ${state.contactManagerOpen ? renderContactManager() : ''}
     </main>
   `;
@@ -199,10 +225,23 @@ function render() {
     bindTextCorrector();
   }
   bindCommandPanel();
+  bindLegalAcceptance();
   bindContactManager();
 }
 
 function renderCurrentView() {
+  if (state.view === 'legal') {
+    return renderLegalCenter();
+  }
+
+  if (state.view === 'about') {
+    return renderAboutApp();
+  }
+
+  if (state.view === 'licenses') {
+    return renderOpenSourceNotices();
+  }
+
   if (state.view === 'profile') {
     return renderProfile();
   }
@@ -213,6 +252,10 @@ function renderCurrentView() {
 
   if (state.view === 'corrector') {
     return renderTextCorrector();
+  }
+
+  if (state.view === 'turn') {
+    return renderTurnCommandCenter();
   }
 
   return renderCockpit();
@@ -317,6 +360,57 @@ function commandPanelForView(view: ViewName) {
     };
   }
 
+  if (view === 'turn') {
+    const language = uiLanguage();
+    return {
+      moduleName: t(language, 'turn.moduleName'),
+      commands: [
+        { id: 'turn-refresh', label: t(language, 'turn.command.refresh'), description: t(language, 'turn.command.refreshDesc'), primary: true },
+        { id: 'turn-open-cockpit', label: t(language, 'nav.translator'), description: t(language, 'turn.command.cockpitDesc') },
+        { id: 'turn-open-legal', label: t(language, 'legal.moduleName'), description: t(language, 'turn.command.legalDesc') },
+        { id: 'turn-open-about', label: t(language, 'about.moduleName'), description: t(language, 'turn.command.aboutDesc') },
+      ],
+    };
+  }
+
+  if (view === 'legal') {
+    const language = uiLanguage();
+    return {
+      moduleName: t(language, 'legal.moduleName'),
+      commands: [
+        { id: 'legal-open-terms', label: t(language, 'legal.command.terms'), description: t(language, 'legal.command.termsDesc'), primary: true },
+        { id: 'legal-open-privacy', label: t(language, 'legal.command.privacy'), description: t(language, 'legal.command.privacyDesc') },
+        { id: 'legal-accept-test', label: t(language, 'legal.command.acceptTest'), description: t(language, 'legal.command.acceptTestDesc') },
+        { id: 'legal-close', label: t(language, 'common.close'), description: t(language, 'legal.command.closeDesc') },
+      ],
+    };
+  }
+
+  if (view === 'about') {
+    const language = uiLanguage();
+    return {
+      moduleName: t(language, 'about.moduleName'),
+      commands: [
+        { id: 'about-version', label: t(language, 'about.command.version'), description: APP_VERSION, primary: true },
+        { id: 'about-support', label: t(language, 'about.command.support'), description: t(language, 'about.command.supportDesc') },
+        { id: 'about-legal', label: t(language, 'legal.moduleName'), description: t(language, 'about.command.legalDesc') },
+        { id: 'about-close', label: t(language, 'common.close'), description: t(language, 'about.command.closeDesc') },
+      ],
+    };
+  }
+
+  if (view === 'licenses') {
+    const language = uiLanguage();
+    return {
+      moduleName: t(language, 'legal.licensesTitle'),
+      commands: [
+        { id: 'licenses-about', label: t(language, 'about.moduleName'), description: t(language, 'legal.command.aboutDesc'), primary: true },
+        { id: 'licenses-legal', label: t(language, 'legal.moduleName'), description: t(language, 'about.command.legalDesc') },
+        { id: 'licenses-close', label: t(language, 'common.close'), description: t(language, 'legal.command.closeDesc') },
+      ],
+    };
+  }
+
   return {
     moduleName: t(uiLanguage(), 'translator.moduleName'),
     commands: [
@@ -367,14 +461,151 @@ function renderCockpit() {
   `;
 }
 
+function renderTurnCommandCenter() {
+  const language = uiLanguage();
+  const activeDepartments = countByStatus(turnDepartments, 'active');
+  const stableModules = countByStatus(turnModules, 'stable');
+  const activeMissions = countByStatus(turnMissions, 'active');
+  const acceptedAudits = countByValidation(turnAuditTrail, 'turn.validation.accepted');
+
+  return `
+    <section class="turn-command-center" aria-label="${escapeHtml(t(language, 'turn.ariaLabel'))}">
+      <header class="turn-hero">
+        <div>
+          <span class="turn-kicker">${escapeHtml(t(language, 'turn.code'))}</span>
+          <h1>${escapeHtml(t(language, 'turn.title'))}</h1>
+          <p>${escapeHtml(t(language, 'turn.description'))}</p>
+        </div>
+        <div class="turn-readonly-badge">
+          <strong>${escapeHtml(t(language, 'turn.readOnly'))}</strong>
+          <span>${escapeHtml(t(language, 'turn.readOnlyDesc'))}</span>
+        </div>
+      </header>
+
+      <section class="turn-metrics" aria-label="${escapeHtml(t(language, 'turn.metrics'))}">
+        ${renderTurnMetric('turn.metric.departments', String(activeDepartments), 'turn.metric.departmentsDesc')}
+        ${renderTurnMetric('turn.metric.modules', String(stableModules), 'turn.metric.modulesDesc')}
+        ${renderTurnMetric('turn.metric.missions', String(activeMissions), 'turn.metric.missionsDesc')}
+        ${renderTurnMetric('turn.metric.audits', String(acceptedAudits), 'turn.metric.auditsDesc')}
+      </section>
+
+      <section class="turn-grid">
+        ${renderTurnSection('turn.section.departments', 'turn.section.departmentsDesc', turnDepartments)}
+        ${renderTurnSection('turn.section.agents', 'turn.section.agentsDesc', turnAgents)}
+        ${renderTurnSection('turn.section.modules', 'turn.section.modulesDesc', turnModules)}
+        ${renderTurnMissionSection('turn.section.missions', 'turn.section.missionsDesc', turnMissions)}
+        ${renderTurnMissionSection('turn.section.validations', 'turn.section.validationsDesc', turnAuditTrail)}
+        <article class="turn-card turn-system-card">
+          <header>
+            <strong>${escapeHtml(t(language, 'turn.section.system'))}</strong>
+            <p>${escapeHtml(t(language, 'turn.section.systemDesc'))}</p>
+          </header>
+          <dl class="turn-system-list">
+            <div>
+              <dt>${escapeHtml(t(language, 'turn.system.version'))}</dt>
+              <dd>${escapeHtml(APP_VERSION)}</dd>
+            </div>
+            <div>
+              <dt>${escapeHtml(t(language, 'turn.system.build'))}</dt>
+              <dd>${escapeHtml(t(language, 'turn.status.stable'))}</dd>
+            </div>
+            <div>
+              <dt>${escapeHtml(t(language, 'turn.system.backend'))}</dt>
+              <dd>${escapeHtml(t(language, 'turn.system.backendReadonly'))}</dd>
+            </div>
+            <div>
+              <dt>${escapeHtml(t(language, 'turn.system.ai'))}</dt>
+              <dd>${escapeHtml(t(language, 'turn.system.aiReadonly'))}</dd>
+            </div>
+          </dl>
+        </article>
+      </section>
+    </section>
+  `;
+}
+
+function renderTurnMetric(labelKey: string, value: string, descriptionKey: string) {
+  const language = uiLanguage();
+
+  return `
+    <article class="turn-metric">
+      <strong>${escapeHtml(value)}</strong>
+      <span>${escapeHtml(t(language, labelKey))}</span>
+      <small>${escapeHtml(t(language, descriptionKey))}</small>
+    </article>
+  `;
+}
+
+function renderTurnSection(titleKey: string, descriptionKey: string, items: TurnCommandItem[]) {
+  const language = uiLanguage();
+
+  return `
+    <article class="turn-card">
+      <header>
+        <strong>${escapeHtml(t(language, titleKey))}</strong>
+        <p>${escapeHtml(t(language, descriptionKey))}</p>
+      </header>
+      <div class="turn-list">
+        ${items.map(renderTurnItem).join('')}
+      </div>
+    </article>
+  `;
+}
+
+function renderTurnMissionSection(titleKey: string, descriptionKey: string, items: TurnMissionItem[]) {
+  const language = uiLanguage();
+
+  return `
+    <article class="turn-card">
+      <header>
+        <strong>${escapeHtml(t(language, titleKey))}</strong>
+        <p>${escapeHtml(t(language, descriptionKey))}</p>
+      </header>
+      <div class="turn-list">
+        ${items.map(renderTurnMissionItem).join('')}
+      </div>
+    </article>
+  `;
+}
+
+function renderTurnItem(item: TurnCommandItem) {
+  const language = uiLanguage();
+
+  return `
+    <section class="turn-row">
+      <span class="turn-status ${item.status}">${escapeHtml(turnStatusLabel(item.status))}</span>
+      <div>
+        <strong>${escapeHtml(t(language, item.titleKey))}</strong>
+        <p>${escapeHtml(t(language, item.descriptionKey))}</p>
+      </div>
+    </section>
+  `;
+}
+
+function renderTurnMissionItem(item: TurnMissionItem) {
+  const language = uiLanguage();
+
+  return `
+    <section class="turn-row">
+      <span class="turn-status ${item.status}">${escapeHtml(item.id)}</span>
+      <div>
+        <strong>${escapeHtml(t(language, item.titleKey))}</strong>
+        <p>${escapeHtml(t(language, item.validationKey))}</p>
+      </div>
+    </section>
+  `;
+}
+
 function renderEmailAssistant() {
   const preview = currentMailPreview();
   const recipientOptions = contactRecipientOptions();
   const uiLanguage = uiLanguageFromProfile(state.profile.preferredLanguage);
 
   return `
-    <form class="composer" aria-label="Asistent redactare e-mail">
-      <section class="recipient-panel" aria-label="${escapeHtml(t(uiLanguage, 'mail.recipientPanel'))}">
+    <form class="composer mail-composer" aria-label="Asistent redactare e-mail">
+      <details class="module-section" open>
+        <summary>${escapeHtml(t(uiLanguage, 'mail.recipient'))}</summary>
+        <section class="recipient-panel" aria-label="${escapeHtml(t(uiLanguage, 'mail.recipientPanel'))}">
         <label>
           <span>${escapeHtml(t(uiLanguage, 'mail.recipient'))}</span>
           <input
@@ -403,51 +634,57 @@ function renderEmailAssistant() {
           <button id="saveRecipientContact" type="button" class="primary">${escapeHtml(t(uiLanguage, 'mail.saveToContacts'))}</button>
           <button id="openContactManager" type="button">${escapeHtml(t(uiLanguage, 'mail.contactsAgenda'))}</button>
         </div>
-      </section>
+        </section>
+      </details>
 
-      <section class="compose-mode" aria-label="${escapeHtml(t(uiLanguage, 'mail.composeMode'))}">
-        <button id="emailModeManual" type="button" class="${state.emailComposeMode === 'manual' ? 'active' : ''}">
-          ${escapeHtml(t(uiLanguage, 'mail.manual'))}
-        </button>
-        <button id="emailModeGeneral" type="button" class="${state.emailComposeMode === 'general' ? 'active' : ''}">
-          ${escapeHtml(t(uiLanguage, 'mail.general'))}
-        </button>
-      </section>
+      <details class="module-section" open>
+        <summary>${escapeHtml(t(uiLanguage, 'mail.message'))}</summary>
+        <section class="compose-mode" aria-label="${escapeHtml(t(uiLanguage, 'mail.composeMode'))}">
+          <button id="emailModeManual" type="button" class="${state.emailComposeMode === 'manual' ? 'active' : ''}">
+            ${escapeHtml(t(uiLanguage, 'mail.manual'))}
+          </button>
+          <button id="emailModeGeneral" type="button" class="${state.emailComposeMode === 'general' ? 'active' : ''}">
+            ${escapeHtml(t(uiLanguage, 'mail.general'))}
+          </button>
+        </section>
 
-      ${
-        state.emailComposeMode === 'general'
-          ? `
-            <label>
-              <span>${escapeHtml(t(uiLanguage, 'mail.templateMessage'))}</span>
-              <select id="emailTemplateSelect" aria-label="${escapeHtml(t(uiLanguage, 'mail.chooseTemplate'))}">
-                <option value="general-manual" ${state.selectedEmailTemplateId ? '' : 'selected'}>${escapeHtml(t(uiLanguage, 'mail.freeMessage'))}</option>
-                ${emailTemplates
-                  .filter((template) => template.id !== 'general-manual')
-                  .map(
-                    (template) => `
-                      <option value="${escapeHtml(template.id)}" ${state.selectedEmailTemplateId === template.id ? 'selected' : ''}>
-                        ${escapeHtml(emailTemplateLabel(template, uiLanguage))}
-                      </option>
-                    `,
-                  )
-                  .join('')}
-              </select>
-            </label>
-          `
-          : ''
-      }
+        ${
+          state.emailComposeMode === 'general'
+            ? `
+              <label>
+                <span>${escapeHtml(t(uiLanguage, 'mail.templateMessage'))}</span>
+                <select id="emailTemplateSelect" aria-label="${escapeHtml(t(uiLanguage, 'mail.chooseTemplate'))}">
+                  <option value="general-manual" ${state.selectedEmailTemplateId ? '' : 'selected'}>${escapeHtml(t(uiLanguage, 'mail.freeMessage'))}</option>
+                  ${emailTemplates
+                    .filter((template) => template.id !== 'general-manual')
+                    .map(
+                      (template) => `
+                        <option value="${escapeHtml(template.id)}" ${state.selectedEmailTemplateId === template.id ? 'selected' : ''}>
+                          ${escapeHtml(emailTemplateLabel(template, uiLanguage))}
+                        </option>
+                      `,
+                    )
+                    .join('')}
+                </select>
+              </label>
+            `
+            : ''
+        }
 
-      <label>
-        <span>${escapeHtml(t(uiLanguage, 'mail.subject'))}</span>
-        <input id="subject" type="text" placeholder="${escapeHtml(t(uiLanguage, 'mail.subjectPlaceholder'))}" value="${escapeHtml(state.subject)}" />
-      </label>
+        <label>
+          <span>${escapeHtml(t(uiLanguage, 'mail.subject'))}</span>
+          <input id="subject" type="text" placeholder="${escapeHtml(t(uiLanguage, 'mail.subjectPlaceholder'))}" value="${escapeHtml(state.subject)}" />
+        </label>
 
-      <label class="message-field">
-        <span>${escapeHtml(t(uiLanguage, 'mail.message'))}</span>
-        <textarea id="message" rows="12" placeholder="${escapeHtml(t(uiLanguage, 'mail.messagePlaceholder'))}">${escapeHtml(state.message)}</textarea>
-      </label>
+        <label class="message-field">
+          <span>${escapeHtml(t(uiLanguage, 'mail.message'))}</span>
+          <textarea id="message" rows="8" placeholder="${escapeHtml(t(uiLanguage, 'mail.messagePlaceholder'))}">${escapeHtml(state.message)}</textarea>
+        </label>
+      </details>
 
-      <section class="assistant-options" aria-label="${escapeHtml(t(uiLanguage, 'mail.assistantOptions'))}">
+      <details class="module-section">
+        <summary>${escapeHtml(t(uiLanguage, 'mail.assistantOptions'))}</summary>
+        <section class="assistant-options" aria-label="${escapeHtml(t(uiLanguage, 'mail.assistantOptions'))}">
         <label>
           <span>${escapeHtml(t(uiLanguage, 'mail.messageStyle'))}</span>
           <select id="emailTone" aria-label="${escapeHtml(t(uiLanguage, 'mail.chooseTone'))}">
@@ -470,15 +707,16 @@ function renderEmailAssistant() {
           <input id="useProfileDetails" type="checkbox" ${state.useProfileDetails ? 'checked' : ''} />
         <span>${escapeHtml(t(uiLanguage, 'mail.useProfile'))}</span>
         </label>
-        <button id="editSignature" type="button" class="signature-edit" title="${escapeHtml(t(uiLanguage, 'mail.editSignatureTitle'))}">
+        <button type="button" class="signature-edit disabled" title="${escapeHtml(t(uiLanguage, 'mail.signatureUnavailableTitle'))}" disabled>
           <span aria-hidden="true">✎</span>
-          ${escapeHtml(t(uiLanguage, 'mail.signature'))}
+          ${escapeHtml(t(uiLanguage, 'mail.signatureInDevelopment'))}
         </button>
         <fieldset class="language-choice" data-active-language="${state.targetLanguage}">
           <legend>${escapeHtml(t(uiLanguage, 'mail.resultLanguage'))}</legend>
           ${languageButtons('targetLanguage', state.targetLanguage)}
         </fieldset>
-      </section>
+        </section>
+      </details>
 
       ${
         state.signatureEditorOpen
@@ -497,8 +735,10 @@ function renderEmailAssistant() {
           : ''
       }
 
-      <section class="send-panel" aria-label="${escapeHtml(t(uiLanguage, 'mail.sendOptions'))}">
-        <button id="toggleSendOptions" type="button" class="primary">${escapeHtml(t(uiLanguage, 'mail.send'))} v</button>
+      <details class="module-section">
+        <summary>${escapeHtml(t(uiLanguage, 'mail.sendOptions'))}</summary>
+        <section class="send-panel" aria-label="${escapeHtml(t(uiLanguage, 'mail.sendOptions'))}">
+        <button id="toggleSendOptions" type="button" class="primary">${escapeHtml(t(uiLanguage, 'mail.send'))}</button>
         ${
           state.sendOptionsOpen
             ? `
@@ -509,10 +749,11 @@ function renderEmailAssistant() {
             `
             : ''
         }
-      </section>
+        </section>
+      </details>
     </form>
 
-    <aside class="preview" aria-live="polite">
+    <aside class="preview mail-preview" aria-live="polite">
       <h2>${escapeHtml(t(uiLanguage, 'mail.preview'))}</h2>
       ${renderSenderPreviewBlock()}
       <dl>
@@ -745,37 +986,55 @@ function renderProfile() {
 
   return `
     <form class="profile-panel" aria-label="${escapeHtml(t(language, 'profile.ariaLabel'))}">
-      <label>
+      <details class="module-section" open>
+        <summary>${escapeHtml(t(language, 'profile.moduleName'))}</summary>
+        <section class="compliance-note">
+        <strong>${escapeHtml(t(language, 'profile.optionalNoticeTitle'))}</strong>
+        <p>${escapeHtml(t(language, 'profile.optionalNoticeBody'))}</p>
+        </section>
+
+        <section class="compliance-note">
+        <strong>${escapeHtml(t(language, 'profile.privacyNoticeTitle'))}</strong>
+        <p>${escapeHtml(t(language, 'profile.privacyNoticeBody'))}</p>
+        </section>
+
+        <label>
         <span>${escapeHtml(t(language, 'profile.displayName'))}</span>
         <input id="profileDisplayName" type="text" autocomplete="name" value="${escapeHtml(state.profile.displayName)}" />
-      </label>
+        </label>
 
-      <label>
+        <label>
         <span>${escapeHtml(t(language, 'profile.phone'))}</span>
         <input id="profilePhone" type="tel" autocomplete="tel" value="${escapeHtml(state.profile.phone)}" />
-      </label>
+        </label>
 
-      <label>
+        <label>
         <span>${escapeHtml(t(language, 'profile.email'))}</span>
         <input id="profileEmail" type="email" autocomplete="email" value="${escapeHtml(state.profile.email)}" />
-      </label>
+        </label>
 
-      <label>
+        <label>
         <span>${escapeHtml(t(language, 'profile.company'))}</span>
         <input id="profileCompany" type="text" autocomplete="organization" value="${escapeHtml(state.profile.company)}" />
-      </label>
+        </label>
 
-      <fieldset class="language-choice" data-active-language="${state.profile.preferredLanguage}">
+        <fieldset class="language-choice" data-active-language="${state.profile.preferredLanguage}">
         <legend>${escapeHtml(t(language, 'profile.preferredLanguage'))}</legend>
         ${languageButtons('profilePreferredLanguage', state.profile.preferredLanguage)}
-      </fieldset>
+        </fieldset>
+      </details>
 
-      <label class="message-field">
+      <details class="module-section">
+        <summary>${escapeHtml(t(language, 'profile.defaultSignature'))}</summary>
+        <label class="message-field">
         <span>${escapeHtml(t(language, 'profile.defaultSignature'))}</span>
-        <textarea id="profileSignature" rows="6" placeholder="${escapeHtml(t(language, 'profile.defaultSignaturePlaceholder'))}">${escapeHtml(state.profile.defaultSignature)}</textarea>
-      </label>
+        <textarea id="profileSignature" rows="4" placeholder="${escapeHtml(t(language, 'profile.defaultSignaturePlaceholder'))}">${escapeHtml(state.profile.defaultSignature)}</textarea>
+        </label>
+      </details>
 
-      <section class="signature-drawing-panel">
+      <details class="module-section">
+        <summary>${escapeHtml(t(language, 'profile.drawnSignature'))}</summary>
+        <section class="signature-drawing-panel">
         <div class="signature-drawing-header">
           <div>
             <h2>${escapeHtml(t(language, 'profile.drawnSignature'))}</h2>
@@ -807,7 +1066,8 @@ function renderProfile() {
             ? `<img class="drawn-signature-preview" src="${escapeHtml(state.profile.drawnSignatureDataUrl)}" alt="${escapeHtml(t(language, 'profile.drawnSignatureAlt'))}" />`
             : `<p class="muted-note">${escapeHtml(t(language, 'profile.noDrawnSignature'))}</p>`
         }
-      </section>
+        </section>
+      </details>
 
       <div class="actions">
         <button id="saveProfile" type="button" class="primary">${escapeHtml(t(language, 'profile.saveProfile'))}</button>
@@ -828,9 +1088,147 @@ function renderProfile() {
         <dt>${escapeHtml(t(language, 'profile.persistence'))}</dt>
         <dd>${escapeHtml(t(language, 'profile.persistenceCompatibility'))}</dd>
         <dt>${escapeHtml(t(language, 'profile.missingFunctions'))}</dt>
-        <dd>${escapeHtml(t(language, 'profile.missingFunctionsCompatibility'))}</dd>
+        <dd>
+          <span class="development-badge">${escapeHtml(t(language, 'profile.inDevelopment'))}</span>
+          ${escapeHtml(t(language, 'profile.missingFunctionsCompatibility'))}
+        </dd>
+        <dt>${escapeHtml(t(language, 'profile.dataControl'))}</dt>
+        <dd>${escapeHtml(t(language, 'profile.dataControlCompatibility'))}</dd>
       </dl>
     </aside>
+  `;
+}
+
+function renderLegalAcceptanceNotice() {
+  const language = uiLanguage();
+
+  return `
+    <section class="legal-acceptance" role="dialog" aria-labelledby="legal-acceptance-title" aria-live="polite">
+      <div>
+        <strong id="legal-acceptance-title">${escapeHtml(t(language, 'legal.firstRunTitle'))}</strong>
+        <p>${escapeHtml(t(language, 'legal.firstRunBody'))}</p>
+        <ul>
+          <li>${escapeHtml(t(language, 'legal.acceptancePrivacy'))}</li>
+          <li>${escapeHtml(t(language, 'legal.acceptanceTerms'))}</li>
+          <li>${escapeHtml(t(language, 'legal.acceptanceAi'))}</li>
+          <li>${escapeHtml(t(language, 'legal.acceptanceMicrophone'))}</li>
+        </ul>
+      </div>
+      <div class="actions">
+        <button id="acceptLegalNotice" type="button" class="primary">${escapeHtml(t(language, 'legal.accept'))}</button>
+        <button data-module="legal" type="button">${escapeHtml(t(language, 'legal.reviewDocuments'))}</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderLegalCenter() {
+  const language = uiLanguage();
+
+  return `
+    <section class="legal-center" aria-label="${escapeHtml(t(language, 'legal.ariaLabel'))}">
+      <header class="profile-heading">
+        <div>
+          <h1>${escapeHtml(t(language, 'legal.moduleName'))}</h1>
+          <p>${escapeHtml(t(language, 'legal.description'))}</p>
+        </div>
+        <span>${escapeHtml(t(language, 'legal.currentBadge'))}</span>
+      </header>
+
+      <div class="legal-grid">
+        ${renderLegalCard('legal.termsTitle', 'legal.termsBody')}
+        ${renderLegalCard('legal.privacyTitle', 'legal.privacyBody')}
+        ${renderLegalCard('legal.aiTitle', 'legal.aiBody')}
+        ${renderLegalCard('legal.microphoneTitle', 'legal.microphoneBody')}
+        ${renderLegalCard('legal.dataManagementTitle', 'legal.dataManagementBody')}
+        ${renderLegalCard('legal.dataSafetyTitle', 'legal.dataSafetyBody')}
+        ${renderLegalCard('legal.supportTitle', 'legal.supportBody')}
+        ${renderLegalCard('legal.versionTitle', 'legal.versionBody', `${APP_VERSION} | ${PRIVACY_POLICY_VERSION} | ${TERMS_VERSION}`)}
+        ${renderLegalCard('legal.impressumTitle', 'legal.impressumBody')}
+        ${renderLegalCard('legal.licensesTitle', 'legal.licensesBody')}
+      </div>
+
+      ${renderDataManagementPanel()}
+    </section>
+  `;
+}
+
+function renderAboutApp() {
+  const language = uiLanguage();
+
+  return `
+    <section class="legal-center about-app" aria-label="${escapeHtml(t(language, 'about.ariaLabel'))}">
+      <header class="profile-heading">
+        <div>
+          <h1>${escapeHtml(t(language, 'about.moduleName'))}</h1>
+          <p>${escapeHtml(t(language, 'about.description'))}</p>
+        </div>
+        <span>${escapeHtml(APP_VERSION)}</span>
+      </header>
+
+      <div class="legal-grid">
+        ${renderLegalCard('about.versionTitle', 'about.versionBody', APP_VERSION)}
+        ${renderLegalCard('about.scopeTitle', 'about.scopeBody')}
+        ${renderLegalCard('about.supportTitle', 'about.supportBody')}
+        ${renderLegalCard('about.dataTitle', 'about.dataBody')}
+        ${renderLegalCard('legal.aiTitle', 'legal.aiBody')}
+        ${renderLegalCard('legal.microphoneTitle', 'legal.microphoneBody')}
+      </div>
+    </section>
+  `;
+}
+
+function renderOpenSourceNotices() {
+  const language = uiLanguage();
+
+  return `
+    <section class="legal-center" aria-label="${escapeHtml(t(language, 'legal.licensesTitle'))}">
+      <header class="profile-heading">
+        <div>
+          <h1>${escapeHtml(t(language, 'legal.licensesTitle'))}</h1>
+          <p>${escapeHtml(t(language, 'legal.licensesIntro'))}</p>
+        </div>
+        <span>${escapeHtml(APP_VERSION)}</span>
+      </header>
+
+      <div class="legal-grid">
+        ${renderLegalCard('legal.licenseCapacitorTitle', 'legal.licenseCapacitorBody')}
+        ${renderLegalCard('legal.licenseViteTitle', 'legal.licenseViteBody')}
+        ${renderLegalCard('legal.licenseTypescriptTitle', 'legal.licenseTypescriptBody')}
+      </div>
+    </section>
+  `;
+}
+
+function renderDataManagementPanel() {
+  const language = uiLanguage();
+
+  return `
+    <section class="data-management-panel" aria-label="${escapeHtml(t(language, 'legal.dataManagementTitle'))}">
+      <header>
+        <strong>${escapeHtml(t(language, 'legal.dataManagementTitle'))}</strong>
+        <p>${escapeHtml(t(language, 'legal.dataManagementInstructions'))}</p>
+      </header>
+      <div class="data-management-actions">
+        <button data-command="data-delete-profile" type="button">${escapeHtml(t(language, 'legal.deleteProfile'))}</button>
+        <button data-command="data-delete-contacts" type="button">${escapeHtml(t(language, 'legal.deleteContacts'))}</button>
+        <button data-command="data-delete-preferences" type="button">${escapeHtml(t(language, 'legal.deletePreferences'))}</button>
+        <button data-command="data-delete-acceptance" type="button">${escapeHtml(t(language, 'legal.deleteAcceptance'))}</button>
+        <button data-command="data-reset-all" type="button" class="danger">${escapeHtml(t(language, 'legal.resetAllLocalData'))}</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderLegalCard(titleKey: string, bodyKey: string, extra = '') {
+  const language = uiLanguage();
+
+  return `
+    <article class="legal-card">
+      <strong>${escapeHtml(t(language, titleKey))}</strong>
+      <p>${escapeHtml(t(language, bodyKey))}</p>
+      ${extra ? `<small>${escapeHtml(extra)}</small>` : ''}
+    </article>
   `;
 }
 
@@ -840,7 +1238,16 @@ function bindShared() {
       event.preventDefault();
       const nextView = control.dataset.module;
 
-      if (nextView !== 'cockpit' && nextView !== 'email' && nextView !== 'profile' && nextView !== 'corrector') {
+      if (
+        nextView !== 'cockpit' &&
+        nextView !== 'email' &&
+        nextView !== 'profile' &&
+        nextView !== 'corrector' &&
+        nextView !== 'turn' &&
+        nextView !== 'legal' &&
+        nextView !== 'about' &&
+        nextView !== 'licenses'
+      ) {
         return;
       }
 
@@ -882,12 +1289,36 @@ function bindCommandPanel() {
       if (command === 'corrector-apply') applyCorrectedTextToSource();
       if (command === 'corrector-copy') void copyCorrectedText();
       if (command === 'corrector-clear') clearTextCorrector();
+      if (command === 'turn-refresh') showPlannedCommand(t(uiLanguage(), 'turn.status.refreshed'));
+      if (command === 'turn-open-cockpit') navigateToModule('cockpit');
+      if (command === 'turn-open-legal') navigateToModule('legal');
+      if (command === 'turn-open-about') navigateToModule('about');
       if (command === 'profile-save') saveProfileFromForm();
       if (command === 'profile-edit') showPlannedCommand(t(uiLanguage(), 'profile.status.editDirectly'));
       if (command === 'profile-upload') showPlannedCommand(t(uiLanguage(), 'profile.status.uploadFuture'));
       if (command === 'profile-delete') resetProfile();
+      if (command === 'legal-open-terms') showPlannedCommand(t(uiLanguage(), 'legal.status.termsPlaceholder'));
+      if (command === 'legal-open-privacy') showPlannedCommand(t(uiLanguage(), 'legal.status.privacyPlaceholder'));
+      if (command === 'legal-accept-test') acceptLegalNotice();
+      if (command === 'legal-close') navigateToModule('cockpit');
+      if (command === 'about-version') showPlannedCommand(`${APP_VERSION}`);
+      if (command === 'about-support') showPlannedCommand(t(uiLanguage(), 'about.status.supportPlaceholder'));
+      if (command === 'about-legal') navigateToModule('legal');
+      if (command === 'about-close') navigateToModule('cockpit');
+      if (command === 'licenses-about') navigateToModule('about');
+      if (command === 'licenses-legal') navigateToModule('legal');
+      if (command === 'licenses-close') navigateToModule('cockpit');
+      if (command === 'data-delete-profile') deleteProfileData();
+      if (command === 'data-delete-contacts') deleteContactData();
+      if (command === 'data-delete-preferences') deletePreferenceData();
+      if (command === 'data-delete-acceptance') deleteLegalAcceptance();
+      if (command === 'data-reset-all') resetAllLocalData();
     });
   });
+}
+
+function bindLegalAcceptance() {
+  document.querySelector<HTMLButtonElement>('#acceptLegalNotice')?.addEventListener('click', acceptLegalNotice);
 }
 
 function bindTranslator() {
@@ -1332,6 +1763,11 @@ function initSignaturePad() {
 
 async function improveText() {
   const source = state.message.trim();
+
+  if (state.translatorEnabled && !ensureLegalAcceptanceForExternalProcessing()) {
+    return;
+  }
+
   const baseLanguage = state.translatorEnabled ? state.targetLanguage : state.profile.preferredLanguage;
   const sourceLanguage = state.translatorEnabled ? detectMessageLanguage(source, state.profile.preferredLanguage) : state.profile.preferredLanguage;
   const translation = state.translatorEnabled
@@ -1362,6 +1798,10 @@ async function translateOriginalText() {
   if (!source) {
     state.status = t(uiLanguage(), 'translator.status.enterText');
     render();
+    return;
+  }
+
+  if (!ensureLegalAcceptanceForExternalProcessing()) {
     return;
   }
 
@@ -1422,6 +1862,10 @@ async function translateEmailOnly() {
     return;
   }
 
+  if (!ensureLegalAcceptanceForExternalProcessing()) {
+    return;
+  }
+
   const sourceLanguage = detectMessageLanguage(source, state.profile.preferredLanguage);
   const translation = await translateWithAdapter(source, sourceLanguage, state.targetLanguage);
 
@@ -1441,6 +1885,10 @@ async function translateEmailOnly() {
 }
 
 function startVoiceInput() {
+  if (!ensureLegalAcceptanceForMicrophone()) {
+    return;
+  }
+
   if (state.isListening) {
     state.status = t(uiLanguage(), 'translator.status.alreadyListening');
     render();
@@ -2108,6 +2556,132 @@ function showSendBlockedMessage() {
   render();
 }
 
+function acceptLegalNotice() {
+  state.legalAcceptanceAccepted = true;
+  window.localStorage.setItem(
+    LEGAL_ACCEPTANCE_KEY,
+    JSON.stringify({
+      privacyPolicyVersion: PRIVACY_POLICY_VERSION,
+      termsVersion: TERMS_VERSION,
+      acceptedAt: new Date().toISOString(),
+    }),
+  );
+  state.status = t(uiLanguage(), 'legal.status.accepted');
+  render();
+}
+
+function readLegalAcceptance(storage: Storage) {
+  const stored = storage.getItem(LEGAL_ACCEPTANCE_KEY);
+
+  if (!stored) {
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(stored) as Partial<{
+      privacyPolicyVersion: string;
+      termsVersion: string;
+      acceptedAt: string;
+    }>;
+
+    return (
+      parsed.privacyPolicyVersion === PRIVACY_POLICY_VERSION &&
+      parsed.termsVersion === TERMS_VERSION &&
+      Boolean(parsed.acceptedAt)
+    );
+  } catch {
+    return false;
+  }
+}
+
+function deleteProfileData() {
+  window.localStorage.removeItem(profileStorageKey);
+  state.profile = defaultProfile();
+  state.targetLanguage = state.profile.preferredLanguage;
+  state.translatorTargetLanguage = state.profile.preferredLanguage;
+  state.status = t(uiLanguage(), 'legal.status.profileDeleted');
+  render();
+}
+
+function deleteContactData() {
+  window.localStorage.removeItem(contactStorageKey);
+  state.contacts = [];
+  state.contactManagerOpen = false;
+  state.contactSearch = '';
+  state.contactEditingId = '';
+  state.contactDraft = emptyContactDraft();
+  state.contactErrors = [];
+  state.status = t(uiLanguage(), 'legal.status.contactsDeleted');
+  render();
+}
+
+function deletePreferenceData() {
+  window.localStorage.removeItem(profileLanguageKey);
+  state.profile = {
+    ...state.profile,
+    preferredLanguage: defaultProfile().preferredLanguage,
+  };
+  state.targetLanguage = state.profile.preferredLanguage;
+  state.translatorTargetLanguage = state.profile.preferredLanguage;
+  state.status = t(uiLanguage(), 'legal.status.preferencesDeleted');
+  render();
+}
+
+function deleteLegalAcceptance() {
+  window.localStorage.removeItem(LEGAL_ACCEPTANCE_KEY);
+  state.legalAcceptanceAccepted = false;
+  state.status = t(uiLanguage(), 'legal.status.acceptanceDeleted');
+  render();
+}
+
+function resetAllLocalData() {
+  window.localStorage.removeItem(profileStorageKey);
+  window.localStorage.removeItem(profileLanguageKey);
+  window.localStorage.removeItem(contactStorageKey);
+  window.localStorage.removeItem(LEGAL_ACCEPTANCE_KEY);
+  state.profile = defaultProfile();
+  state.contacts = [];
+  state.contactManagerOpen = false;
+  state.contactSearch = '';
+  state.contactEditingId = '';
+  state.contactDraft = emptyContactDraft();
+  state.contactErrors = [];
+  state.recipient = '';
+  state.subject = '';
+  state.message = '';
+  state.translatorText = '';
+  state.translatorResult = '';
+  state.correctorText = '';
+  state.correctorResult = null;
+  state.mailReviewOpen = false;
+  state.mailSecurityMessages = [];
+  state.legalAcceptanceAccepted = false;
+  state.targetLanguage = state.profile.preferredLanguage;
+  state.translatorTargetLanguage = state.profile.preferredLanguage;
+  state.status = t(uiLanguage(), 'legal.status.allDataDeleted');
+  render();
+}
+
+function ensureLegalAcceptanceForExternalProcessing() {
+  if (state.legalAcceptanceAccepted) {
+    return true;
+  }
+
+  state.status = t(uiLanguage(), 'legal.status.acceptBeforeExternal');
+  render();
+  return false;
+}
+
+function ensureLegalAcceptanceForMicrophone() {
+  if (state.legalAcceptanceAccepted) {
+    return true;
+  }
+
+  state.status = t(uiLanguage(), 'legal.status.acceptBeforeMicrophone');
+  render();
+  return false;
+}
+
 function saveProfileFromForm() {
   const displayName =
     document.querySelector<HTMLInputElement>('#profileDisplayName')?.value.trim() ??
@@ -2194,7 +2768,35 @@ function moduleStatus(view: ViewName) {
     return t(uiLanguage(), 'module.status.corrector');
   }
 
+  if (view === 'turn') {
+    return t(uiLanguage(), 'module.status.turn');
+  }
+
+  if (view === 'legal') {
+    return t(uiLanguage(), 'module.status.legal');
+  }
+
+  if (view === 'about') {
+    return t(uiLanguage(), 'module.status.about');
+  }
+
+  if (view === 'licenses') {
+    return t(uiLanguage(), 'module.status.licenses');
+  }
+
   return t(uiLanguage(), 'module.status.cockpit');
+}
+
+function countByStatus(items: Array<{ status: TurnHealthStatus }>, status: TurnHealthStatus) {
+  return items.filter((item) => item.status === status).length;
+}
+
+function countByValidation(items: TurnMissionItem[], validationKey: string) {
+  return items.filter((item) => item.validationKey === validationKey).length;
+}
+
+function turnStatusLabel(status: TurnHealthStatus) {
+  return t(uiLanguage(), `turn.status.${status}`);
 }
 
 function navigateToModule(view: ViewName) {
@@ -2230,6 +2832,22 @@ function viewFromCurrentRoute(): ViewName {
     return 'corrector';
   }
 
+  if (route === 'turn' || route === 'turn-command-center' || route === 'command-center' || route === 'ag-017') {
+    return 'turn';
+  }
+
+  if (route === 'legal' || route === 'terms' || route === 'privacy' || route === 'compliance') {
+    return 'legal';
+  }
+
+  if (route === 'about' || route === 'despre') {
+    return 'about';
+  }
+
+  if (route === 'licenses' || route === 'open-source' || route === 'third-party-notices') {
+    return 'licenses';
+  }
+
   if (route === 'cockpit') {
     return 'cockpit';
   }
@@ -2252,6 +2870,22 @@ function routeForView(view: ViewName) {
 
   if (view === 'corrector') {
     return '/corrector';
+  }
+
+  if (view === 'turn') {
+    return '/turn';
+  }
+
+  if (view === 'legal') {
+    return '/legal';
+  }
+
+  if (view === 'about') {
+    return '/about';
+  }
+
+  if (view === 'licenses') {
+    return '/licenses';
   }
 
   return '/';
