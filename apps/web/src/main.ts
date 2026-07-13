@@ -25,6 +25,8 @@ import { contactStorageKey, readContacts, saveContacts, emptyContactDraft } from
 import { addContact, editContact, removeContact, searchContacts } from './contact-manager/contact-manager.service';
 import { type AgmContact, type ContactCategory, type ContactDraft } from './contact-manager/contact-manager.types';
 import { t, uiLanguageFromProfile } from './i18n/app-i18n';
+import { type InspectorReport, inspectorReportFor, inspectorReports } from './inspector-agent';
+import { recognizeTextFromImage } from './ocr-translator';
 import { availableTextCorrectorAgentIds, correctText } from './text-corrector/text-corrector.service';
 import {
   type TextCorrectorMode,
@@ -66,12 +68,24 @@ type SpeechWindow = Window & {
 type ViewName = 'cockpit' | 'email' | 'profile' | 'corrector' | 'turn' | 'legal' | 'about' | 'licenses';
 type EmailComposeMode = 'general' | 'manual';
 
+type OcrHistoryItem = {
+  id: string;
+  createdAt: string;
+  sourceLanguage: LanguageCode;
+  targetLanguage: LanguageCode;
+  imageDataUrl: string;
+  extractedText: string;
+  translatedText: string;
+};
+
 const APP_VERSION = 'A.G.M. Cockpit v0.1-test';
 const PRIVACY_POLICY_VERSION = 'privacy-v2026.07.13';
 const TERMS_VERSION = 'terms-v2026.07.13';
 const LEGAL_ACCEPTANCE_KEY = `agm.legal.acceptance.${PRIVACY_POLICY_VERSION}.${TERMS_VERSION}`;
+const OCR_HISTORY_KEY = 'agm.ocr.history.v1';
 const initialProfile = readProfile(window.localStorage);
 const initialContacts = readContacts(window.localStorage);
+const initialOcrHistory = readOcrHistory(window.localStorage);
 
 const state = {
   view: viewFromCurrentRoute(),
@@ -87,6 +101,11 @@ const state = {
   message: '',
   translatorText: '',
   translatorResult: '',
+  ocrImageDataUrl: '',
+  ocrExtractedText: '',
+  ocrConfidence: 0,
+  ocrHistory: initialOcrHistory,
+  isOcrProcessing: false,
   correctorText: '',
   correctorResult: null as TextCorrectorResult | null,
   correctorMode: 'correction' as TextCorrectorMode,
@@ -415,9 +434,11 @@ function commandPanelForView(view: ViewName) {
     moduleName: t(uiLanguage(), 'translator.moduleName'),
     commands: [
       { id: 'translator-speak', label: t(uiLanguage(), 'translator.command.speak'), description: t(uiLanguage(), 'translator.command.speakDesc'), primary: true },
+      { id: 'translator-ocr', label: t(uiLanguage(), 'translator.command.ocr'), description: t(uiLanguage(), 'translator.command.ocrDesc') },
       { id: 'translator-correct', label: t(uiLanguage(), 'translator.command.correct'), description: t(uiLanguage(), 'translator.command.correctDesc') },
       { id: 'translator-translate', label: t(uiLanguage(), 'translator.command.translate'), description: t(uiLanguage(), 'translator.command.translateDesc') },
       { id: 'translator-listen', label: t(uiLanguage(), 'translator.command.listen'), description: t(uiLanguage(), 'translator.command.listenDesc') },
+      { id: 'translator-copy', label: t(uiLanguage(), 'translator.command.copy'), description: t(uiLanguage(), 'translator.command.copyDesc') },
       { id: 'translator-clear', label: t(uiLanguage(), 'translator.command.clear'), description: t(uiLanguage(), 'translator.command.clearDesc') },
     ],
   };
@@ -444,6 +465,26 @@ function renderCockpit() {
           <legend>${escapeHtml(t(language, 'translator.resultLanguage'))}</legend>
           ${languageButtons('translatorTargetLanguage', state.translatorTargetLanguage)}
         </fieldset>
+
+        <input id="ocrImageInput" class="visually-hidden" type="file" accept="image/*" capture="environment" />
+
+        ${
+          state.ocrImageDataUrl || state.ocrExtractedText
+            ? `
+              <section class="ocr-preview-panel" aria-label="${escapeHtml(t(language, 'ocr.previewTitle'))}">
+                ${
+                  state.ocrImageDataUrl
+                    ? `<img src="${escapeHtml(state.ocrImageDataUrl)}" alt="${escapeHtml(t(language, 'ocr.imageAlt'))}" />`
+                    : ''
+                }
+                <div>
+                  <strong>${escapeHtml(t(language, 'ocr.previewTitle'))}</strong>
+                  <p>${escapeHtml(t(language, 'ocr.confidence', { confidence: state.ocrConfidence }))}</p>
+                </div>
+              </section>
+            `
+            : ''
+        }
       </form>
 
       <aside class="preview cockpit-result" aria-live="polite">
@@ -457,6 +498,41 @@ function renderCockpit() {
         <span><i class="status-dot online"></i> ${escapeHtml(t(language, 'translator.status.translation'))}</span>
         <span><i class="status-dot online"></i> ${escapeHtml(t(language, 'translator.status.voice'))}</span>
       </footer>
+
+      ${renderOcrHistory()}
+    </section>
+  `;
+}
+
+function renderOcrHistory() {
+  const language = uiLanguage();
+
+  if (!state.ocrHistory.length) {
+    return '';
+  }
+
+  return `
+    <section class="ocr-history" aria-label="${escapeHtml(t(language, 'ocr.historyTitle'))}">
+      <header>
+        <strong>${escapeHtml(t(language, 'ocr.historyTitle'))}</strong>
+        <button id="clearOcrHistory" type="button">${escapeHtml(t(language, 'ocr.clearHistory'))}</button>
+      </header>
+      <div class="ocr-history-list">
+        ${state.ocrHistory
+          .slice(0, 4)
+          .map(
+            (item) => `
+              <article class="ocr-history-item">
+                <img src="${escapeHtml(item.imageDataUrl)}" alt="${escapeHtml(t(language, 'ocr.imageAlt'))}" />
+                <div>
+                  <strong>${escapeHtml(new Date(item.createdAt).toLocaleString())}</strong>
+                  <p>${escapeHtml(item.translatedText || item.extractedText)}</p>
+                </div>
+              </article>
+            `,
+          )
+          .join('')}
+      </div>
     </section>
   `;
 }
@@ -467,6 +543,7 @@ function renderTurnCommandCenter() {
   const stableModules = countByStatus(turnModules, 'stable');
   const activeMissions = countByStatus(turnMissions, 'active');
   const acceptedAudits = countByValidation(turnAuditTrail, 'turn.validation.accepted');
+  const attentionReports = inspectorReports.filter((report) => report.status === 'attention').length;
 
   return `
     <section class="turn-command-center" aria-label="${escapeHtml(t(language, 'turn.ariaLabel'))}">
@@ -487,6 +564,7 @@ function renderTurnCommandCenter() {
         ${renderTurnMetric('turn.metric.modules', String(stableModules), 'turn.metric.modulesDesc')}
         ${renderTurnMetric('turn.metric.missions', String(activeMissions), 'turn.metric.missionsDesc')}
         ${renderTurnMetric('turn.metric.audits', String(acceptedAudits), 'turn.metric.auditsDesc')}
+        ${renderTurnMetric('turn.metric.attention', String(attentionReports), 'turn.metric.attentionDesc')}
       </section>
 
       <section class="turn-grid">
@@ -570,15 +648,53 @@ function renderTurnMissionSection(titleKey: string, descriptionKey: string, item
 
 function renderTurnItem(item: TurnCommandItem) {
   const language = uiLanguage();
+  const inspectorReport = inspectorReportFor(item.id);
 
   return `
-    <section class="turn-row">
-      <span class="turn-status ${item.status}">${escapeHtml(turnStatusLabel(item.status))}</span>
-      <div>
+    <details class="turn-row">
+      <summary>
+        <span class="turn-status ${item.status}">${escapeHtml(turnStatusLabel(item.status))}</span>
+        ${inspectorReport ? renderInspectorBadge(inspectorReport) : ''}
         <strong>${escapeHtml(t(language, item.titleKey))}</strong>
+      </summary>
+      <div>
         <p>${escapeHtml(t(language, item.descriptionKey))}</p>
+        ${inspectorReport ? renderInspectorReport(inspectorReport) : ''}
       </div>
-    </section>
+    </details>
+  `;
+}
+
+function renderInspectorBadge(report: InspectorReport) {
+  return `<span class="inspector-badge ${report.status}">${escapeHtml(t(uiLanguage(), `inspector.status.${report.status}`))}</span>`;
+}
+
+function renderInspectorReport(report: InspectorReport) {
+  const language = uiLanguage();
+
+  return `
+    <dl class="inspector-report">
+      <div>
+        <dt>${escapeHtml(t(language, 'inspector.report.summary'))}</dt>
+        <dd>${escapeHtml(t(language, report.summaryKey))}</dd>
+      </div>
+      <div>
+        <dt>${escapeHtml(t(language, 'inspector.report.issues'))}</dt>
+        <dd>${escapeHtml(t(language, report.issuesKey))}</dd>
+      </div>
+      <div>
+        <dt>${escapeHtml(t(language, 'inspector.report.recommendations'))}</dt>
+        <dd>${escapeHtml(t(language, report.recommendationsKey))}</dd>
+      </div>
+      <div>
+        <dt>${escapeHtml(t(language, 'inspector.report.lastCheck'))}</dt>
+        <dd>${escapeHtml(new Date(report.lastCheckedAt).toLocaleString())}</dd>
+      </div>
+      <div>
+        <dt>${escapeHtml(t(language, 'inspector.report.trend'))}</dt>
+        <dd>${escapeHtml(t(language, `inspector.trend.${report.trend}`))}</dd>
+      </div>
+    </dl>
   `;
 }
 
@@ -1140,6 +1256,7 @@ function renderLegalCenter() {
         ${renderLegalCard('legal.privacyTitle', 'legal.privacyBody')}
         ${renderLegalCard('legal.aiTitle', 'legal.aiBody')}
         ${renderLegalCard('legal.microphoneTitle', 'legal.microphoneBody')}
+        ${renderLegalCard('legal.cameraTitle', 'legal.cameraBody')}
         ${renderLegalCard('legal.dataManagementTitle', 'legal.dataManagementBody')}
         ${renderLegalCard('legal.dataSafetyTitle', 'legal.dataSafetyBody')}
         ${renderLegalCard('legal.supportTitle', 'legal.supportBody')}
@@ -1173,6 +1290,7 @@ function renderAboutApp() {
         ${renderLegalCard('about.dataTitle', 'about.dataBody')}
         ${renderLegalCard('legal.aiTitle', 'legal.aiBody')}
         ${renderLegalCard('legal.microphoneTitle', 'legal.microphoneBody')}
+        ${renderLegalCard('legal.cameraTitle', 'legal.cameraBody')}
       </div>
     </section>
   `;
@@ -1195,6 +1313,7 @@ function renderOpenSourceNotices() {
         ${renderLegalCard('legal.licenseCapacitorTitle', 'legal.licenseCapacitorBody')}
         ${renderLegalCard('legal.licenseViteTitle', 'legal.licenseViteBody')}
         ${renderLegalCard('legal.licenseTypescriptTitle', 'legal.licenseTypescriptBody')}
+        ${renderLegalCard('legal.licenseTesseractTitle', 'legal.licenseTesseractBody')}
       </div>
     </section>
   `;
@@ -1212,6 +1331,7 @@ function renderDataManagementPanel() {
       <div class="data-management-actions">
         <button data-command="data-delete-profile" type="button">${escapeHtml(t(language, 'legal.deleteProfile'))}</button>
         <button data-command="data-delete-contacts" type="button">${escapeHtml(t(language, 'legal.deleteContacts'))}</button>
+        <button data-command="data-delete-ocr-history" type="button">${escapeHtml(t(language, 'legal.deleteOcrHistory'))}</button>
         <button data-command="data-delete-preferences" type="button">${escapeHtml(t(language, 'legal.deletePreferences'))}</button>
         <button data-command="data-delete-acceptance" type="button">${escapeHtml(t(language, 'legal.deleteAcceptance'))}</button>
         <button data-command="data-reset-all" type="button" class="danger">${escapeHtml(t(language, 'legal.resetAllLocalData'))}</button>
@@ -1274,9 +1394,11 @@ function bindCommandPanel() {
       const command = control.dataset.command;
 
       if (command === 'translator-speak') startVoiceInput();
+      if (command === 'translator-ocr') openOcrImagePicker();
       if (command === 'translator-correct') correctTranslatorText();
       if (command === 'translator-translate') void translateOriginalText();
       if (command === 'translator-listen') speakTranslation();
+      if (command === 'translator-copy') void copyTranslatorResult();
       if (command === 'translator-clear') clearTranslator();
       if (command === 'email-improve') void improveText();
       if (command === 'email-translate') void translateEmailOnly();
@@ -1310,6 +1432,7 @@ function bindCommandPanel() {
       if (command === 'licenses-close') navigateToModule('cockpit');
       if (command === 'data-delete-profile') deleteProfileData();
       if (command === 'data-delete-contacts') deleteContactData();
+      if (command === 'data-delete-ocr-history') deleteOcrHistoryData();
       if (command === 'data-delete-preferences') deletePreferenceData();
       if (command === 'data-delete-acceptance') deleteLegalAcceptance();
       if (command === 'data-reset-all') resetAllLocalData();
@@ -1323,6 +1446,14 @@ function bindLegalAcceptance() {
 
 function bindTranslator() {
   input('translatorText', (value) => (state.translatorText = value));
+
+  document.querySelector<HTMLInputElement>('#ocrImageInput')?.addEventListener('change', (event) => {
+    const file = (event.target as HTMLInputElement).files?.[0];
+
+    if (file) {
+      void processOcrImage(file);
+    }
+  });
 
   document.querySelectorAll<HTMLButtonElement>('button[data-language-group="translatorTargetLanguage"]').forEach((control) => {
     control.addEventListener('click', () => {
@@ -1348,6 +1479,8 @@ function bindTranslator() {
   document.querySelector<HTMLButtonElement>('#clearTranslator')?.addEventListener('click', () => {
     clearTranslator();
   });
+
+  document.querySelector<HTMLButtonElement>('#clearOcrHistory')?.addEventListener('click', clearOcrHistory);
 }
 
 function bindEmailAssistant() {
@@ -1818,11 +1951,102 @@ async function translateOriginalText() {
   }
 
   state.translatorResult = translation.text;
+  saveOcrHistoryAfterTranslation(source, translation.text);
   state.status = t(uiLanguage(), 'translator.status.translated', {
     language: languageLabel(state.translatorTargetLanguage),
     provider: translation.provider,
   });
   render();
+}
+
+function openOcrImagePicker() {
+  if (!ensureLegalAcceptanceForCamera()) {
+    return;
+  }
+
+  document.querySelector<HTMLInputElement>('#ocrImageInput')?.click();
+}
+
+async function processOcrImage(file: File) {
+  if (!file.type.startsWith('image/')) {
+    state.status = t(uiLanguage(), 'ocr.status.unsupportedFile');
+    render();
+    return;
+  }
+
+  state.isOcrProcessing = true;
+  state.status = t(uiLanguage(), 'ocr.status.processing');
+  render();
+
+  try {
+    const imageDataUrl = await compressImageForHistory(file);
+    const ocrResult = await recognizeTextFromImage(file, state.profile.preferredLanguage);
+
+    if (!ocrResult.text) {
+      state.status = t(uiLanguage(), 'ocr.status.noText');
+      state.isOcrProcessing = false;
+      render();
+      return;
+    }
+
+    state.ocrImageDataUrl = imageDataUrl;
+    state.ocrExtractedText = ocrResult.text;
+    state.ocrConfidence = ocrResult.confidence;
+    state.translatorText = ocrResult.text;
+    state.isOcrProcessing = false;
+    state.status = t(uiLanguage(), 'ocr.status.completed', { confidence: ocrResult.confidence });
+    render();
+  } catch {
+    state.isOcrProcessing = false;
+    state.status = t(uiLanguage(), 'ocr.status.failed');
+    render();
+  }
+}
+
+async function compressImageForHistory(file: File) {
+  const bitmap = await createImageBitmap(file);
+  const maxWidth = 980;
+  const scale = Math.min(1, maxWidth / bitmap.width);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  const context = canvas.getContext('2d');
+
+  if (!context) {
+    return readFileAsDataUrl(file);
+  }
+
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+  return canvas.toDataURL('image/jpeg', 0.72);
+}
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ''));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+function saveOcrHistoryAfterTranslation(extractedText: string, translatedText: string) {
+  if (!state.ocrImageDataUrl || !state.ocrExtractedText) {
+    return;
+  }
+
+  const item: OcrHistoryItem = {
+    id: createLocalId(),
+    createdAt: new Date().toISOString(),
+    sourceLanguage: detectMessageLanguage(extractedText, state.profile.preferredLanguage),
+    targetLanguage: state.translatorTargetLanguage,
+    imageDataUrl: state.ocrImageDataUrl,
+    extractedText: state.ocrExtractedText,
+    translatedText,
+  };
+
+  state.ocrHistory = [item, ...state.ocrHistory].slice(0, 8);
+  saveOcrHistory(window.localStorage, state.ocrHistory);
 }
 
 function correctTranslatorText() {
@@ -2536,7 +2760,37 @@ function clearEmail() {
 function clearTranslator() {
   state.translatorText = '';
   state.translatorResult = '';
+  state.ocrImageDataUrl = '';
+  state.ocrExtractedText = '';
+  state.ocrConfidence = 0;
   state.status = t(uiLanguage(), 'translator.status.cleared');
+  render();
+}
+
+async function copyTranslatorResult() {
+  const text = state.translatorResult.trim() || state.translatorText.trim();
+
+  if (!text) {
+    state.status = t(uiLanguage(), 'translator.status.noCopyText');
+    render();
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(text);
+    state.status = t(uiLanguage(), 'translator.status.copied');
+  } catch {
+    fallbackCopy(text);
+    state.status = t(uiLanguage(), 'translator.status.copiedFallback');
+  }
+
+  render();
+}
+
+function clearOcrHistory() {
+  state.ocrHistory = [];
+  saveOcrHistory(window.localStorage, state.ocrHistory);
+  state.status = t(uiLanguage(), 'ocr.status.historyCleared');
   render();
 }
 
@@ -2594,6 +2848,36 @@ function readLegalAcceptance(storage: Storage) {
   }
 }
 
+function readOcrHistory(storage: Storage): OcrHistoryItem[] {
+  const stored = storage.getItem(OCR_HISTORY_KEY);
+
+  if (!stored) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(stored) as OcrHistoryItem[];
+
+    return Array.isArray(parsed)
+      ? parsed.filter((item) => item.id && item.createdAt && item.imageDataUrl).slice(0, 8)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveOcrHistory(storage: Storage, items: OcrHistoryItem[]) {
+  storage.setItem(OCR_HISTORY_KEY, JSON.stringify(items.slice(0, 8)));
+}
+
+function createLocalId() {
+  if (crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+
+  return `local-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 function deleteProfileData() {
   window.localStorage.removeItem(profileStorageKey);
   state.profile = defaultProfile();
@@ -2612,6 +2896,16 @@ function deleteContactData() {
   state.contactDraft = emptyContactDraft();
   state.contactErrors = [];
   state.status = t(uiLanguage(), 'legal.status.contactsDeleted');
+  render();
+}
+
+function deleteOcrHistoryData() {
+  window.localStorage.removeItem(OCR_HISTORY_KEY);
+  state.ocrImageDataUrl = '';
+  state.ocrExtractedText = '';
+  state.ocrConfidence = 0;
+  state.ocrHistory = [];
+  state.status = t(uiLanguage(), 'legal.status.ocrHistoryDeleted');
   render();
 }
 
@@ -2639,6 +2933,7 @@ function resetAllLocalData() {
   window.localStorage.removeItem(profileLanguageKey);
   window.localStorage.removeItem(contactStorageKey);
   window.localStorage.removeItem(LEGAL_ACCEPTANCE_KEY);
+  window.localStorage.removeItem(OCR_HISTORY_KEY);
   state.profile = defaultProfile();
   state.contacts = [];
   state.contactManagerOpen = false;
@@ -2651,6 +2946,10 @@ function resetAllLocalData() {
   state.message = '';
   state.translatorText = '';
   state.translatorResult = '';
+  state.ocrImageDataUrl = '';
+  state.ocrExtractedText = '';
+  state.ocrConfidence = 0;
+  state.ocrHistory = [];
   state.correctorText = '';
   state.correctorResult = null;
   state.mailReviewOpen = false;
@@ -2678,6 +2977,16 @@ function ensureLegalAcceptanceForMicrophone() {
   }
 
   state.status = t(uiLanguage(), 'legal.status.acceptBeforeMicrophone');
+  render();
+  return false;
+}
+
+function ensureLegalAcceptanceForCamera() {
+  if (state.legalAcceptanceAccepted) {
+    return true;
+  }
+
+  state.status = t(uiLanguage(), 'legal.status.acceptBeforeCamera');
   render();
   return false;
 }

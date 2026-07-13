@@ -1,5 +1,81 @@
 # AGM Technical Change Report
 
+## 2026-07-13 - AG-018 Platform consolidation
+
+### Scope
+
+- Implementarea consolidarii AG-018 pentru AGM Translator si Turn Command Center.
+- Integrarea traducerii prin camera ca parte din AGM Basic.
+- Implementarea Agentului Inspector ca auditor tehnic read-only.
+- Integrarea indicatorilor de stare si a rapoartelor Inspectorului in Turn Command Center.
+- Pastrarea backendului, API-ului, OpenAI, autentificarii si fisierelor `.env` neschimbate.
+
+### Files Changed
+
+- `apps/web/src/main.ts`
+- `apps/web/src/styles.css`
+- `apps/web/src/i18n/app-i18n.dictionary.ts`
+- `apps/web/src/ocr-translator.ts`
+- `apps/web/src/inspector-agent.ts`
+- `apps/web/android/app/src/main/AndroidManifest.xml`
+- `apps/web/package.json`
+- `pnpm-lock.yaml`
+- `CHANGELOG.md`
+- `TECHNICAL_CHANGE_REPORT.md`
+
+### Implementation
+
+- Translator:
+  - adauga actiune pentru camera / OCR;
+  - permite fotografierea sau selectarea unei imagini;
+  - extrage textul din imagine prin `tesseract.js`;
+  - introduce textul extras in fluxul existent de traducere;
+  - permite copierea rezultatului tradus;
+  - pastreaza istoricul OCR local cu imagine, text extras, traducere si timestamp.
+- Android:
+  - adauga permisiunea `CAMERA` in manifest pentru APK-ul de test.
+- Turn Command Center:
+  - adauga Agentul Inspector ca mecanism read-only;
+  - afiseaza status pentru departamente;
+  - afiseaza raport Inspector cu sumar, probleme, recomandari, ultima verificare si tendinta.
+- Legal / Data Management:
+  - adauga informare pentru utilizarea camerei;
+  - adauga stergerea istoricului OCR;
+  - include Tesseract.js in Third Party Notices.
+
+### Architecture Decisions
+
+- AG-018 valideaza separarea arhitecturala AGM Basic / AGM Premium.
+- AGM Basic si AGM Premium vor evolua ca ramuri independente.
+- Regulile, standardele si metodologia raman comune.
+- Fiecare ramura va avea propriul Inspector si propriile mecanisme de audit.
+- Codex ramane punctul unic de convergenta tehnica pentru imaginea generala transmisa catre Turn.
+
+### Security Review
+
+- Backendul nu a fost modificat.
+- API-ul nu a fost modificat.
+- Integrarea OpenAI nu a fost modificata.
+- Autentificarea nu a fost modificata.
+- Fisierele `.env` nu au fost modificate.
+- Nu au fost introduse chei, tokenuri sau credentiale.
+- Istoricul OCR este stocat local si poate fi sters din Gestionarea datelor.
+
+### Validation
+
+- `corepack pnpm --filter @agm/web build` - passed.
+- `corepack pnpm --filter @agm/web exec cap sync android` - passed.
+- `corepack pnpm --filter @agm/web android:apk` - passed.
+- `git diff --check` - passed; only CRLF/LF warnings reported by Git on Windows.
+- Debug APK generated:
+  - `apps/web/android/app/build/outputs/apk/debug/app-debug.apk`.
+
+### Remaining Decisions
+
+- Performanta OCR pe Android trebuie verificata pe dispozitive reale cu documente de transport.
+- Pentru versiuni viitoare se poate analiza impachetarea locala a datelor de limba OCR, fara schimbarea filozofiei local-first.
+- AGM Premium va defini separat integrarile inteligente avansate si propriul Inspector.
+
 ## 2026-07-13 - AG-012.3 mandatory legal corrections
 
 ### Scope

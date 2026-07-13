@@ -35,6 +35,18 @@ textarea {
   min-width: 0;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .shell {
   min-height: 100vh;
   width: 100%;
@@ -583,6 +595,88 @@ h2 {
   display: grid;
   grid-template-columns: repeat(4, minmax(120px, 1fr));
   gap: 10px;
+}
+
+.ocr-preview-panel,
+.ocr-history {
+  border: 1px solid rgba(25, 123, 255, 0.34);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(9, 25, 38, 0.82), rgba(5, 12, 20, 0.92)),
+    #071018;
+}
+
+.ocr-preview-panel {
+  display: grid;
+  grid-template-columns: minmax(86px, 0.18fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+}
+
+.ocr-preview-panel img,
+.ocr-history-item img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid rgba(76, 198, 255, 0.28);
+  border-radius: 8px;
+  background: #030c14;
+}
+
+.ocr-preview-panel strong,
+.ocr-history strong {
+  color: #eaf6ff;
+}
+
+.ocr-preview-panel p,
+.ocr-history p {
+  margin: 5px 0 0;
+  color: #9fb5ca;
+  line-height: 1.45;
+}
+
+.ocr-history {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.ocr-history header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ocr-history header button {
+  min-height: 40px;
+  padding: 7px 12px;
+}
+
+.ocr-history-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ocr-history-item {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(36, 53, 71, 0.86);
+  border-radius: 8px;
+  background: rgba(3, 12, 20, 0.62);
+}
+
+.ocr-history-item p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .translator-status-strip span {
@@ -1482,7 +1576,7 @@ dd {
 
 .turn-metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
 }
 
@@ -1530,13 +1624,25 @@ dd {
 
 .turn-row {
   display: grid;
-  grid-template-columns: minmax(82px, auto) minmax(0, 1fr);
   gap: 12px;
   align-items: start;
   padding: 12px;
   border: 1px solid rgba(36, 53, 71, 0.88);
   border-radius: 8px;
   background: rgba(3, 12, 20, 0.62);
+}
+
+.turn-row summary {
+  display: grid;
+  grid-template-columns: minmax(82px, auto) minmax(86px, auto) minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+}
+
+.turn-row summary::-webkit-details-marker {
+  display: none;
 }
 
 .turn-row strong {
@@ -1580,6 +1686,63 @@ dd {
   color: #ffe2d2;
   border-color: rgba(255, 138, 76, 0.42);
   background: rgba(255, 138, 76, 0.13);
+}
+
+.inspector-badge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.inspector-badge.ok {
+  color: #dfffe7;
+  border: 1px solid rgba(78, 255, 112, 0.42);
+  background: rgba(78, 255, 112, 0.13);
+}
+
+.inspector-badge.attention {
+  color: #fff2cc;
+  border: 1px solid rgba(255, 193, 7, 0.42);
+  background: rgba(255, 193, 7, 0.13);
+}
+
+.inspector-badge.error {
+  color: #ffd7d7;
+  border: 1px solid rgba(239, 68, 68, 0.48);
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.inspector-report {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0 0;
+}
+
+.inspector-report div {
+  padding: 10px;
+  border: 1px solid rgba(36, 53, 71, 0.72);
+  border-radius: 8px;
+  background: rgba(7, 18, 30, 0.64);
+}
+
+.inspector-report dt {
+  color: #8aa8c7;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.inspector-report dd {
+  margin: 5px 0 0;
+  color: #eaf6ff;
+  line-height: 1.45;
 }
 
 .turn-system-card {
@@ -1649,6 +1812,8 @@ dd {
   .turn-metrics,
   .turn-grid,
   .turn-system-list,
+  .ocr-preview-panel,
+  .ocr-history-list,
   .compact-language,
   .command-panel,
   .command-actions,
@@ -1854,6 +2019,11 @@ dd {
   }
 
   .turn-row {
+    grid-template-columns: 1fr;
+  }
+
+  .turn-row summary,
+  .inspector-report {
     grid-template-columns: 1fr;
   }
 

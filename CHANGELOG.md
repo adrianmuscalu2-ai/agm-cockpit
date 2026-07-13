@@ -1,5 +1,52 @@
 # Changelog
 
+## Unreleased - AG-018 Platform consolidation
+
+### Added
+
+- Camera OCR translation in AGM Translator:
+  - image capture / image selection;
+  - OCR text detection;
+  - translation through the existing Translator flow;
+  - speech playback through the existing voice output;
+  - copy action for the translated result;
+  - local OCR history with image preview, extracted text, translated text, and timestamp.
+- Android camera permission for the internal test APK.
+- Local OCR adapter based on `tesseract.js`.
+- Inspector Agent read-only foundation for Turn Command Center.
+- Department status indicators in Turn Command Center:
+  - OK;
+  - Attention;
+  - Error.
+- Inspector reports with summary, issues, recommendations, last check, and trend.
+- RO / DE / EN localization for OCR, Inspector, status indicators, legal camera notice, and OCR data management.
+- Third-party notice for Tesseract.js.
+
+### Changed
+
+- Turn Command Center now displays Inspector health context for platform departments.
+- Local data management now includes OCR history deletion.
+- Reset all local data now also clears OCR history and OCR preview state.
+
+### Architecture Decisions
+
+- AG-018 validates the separation between AGM Basic and AGM Premium as independent architectural branches.
+- Common rules, common standards, and common methodology remain shared across AGM branches.
+- Each branch will have its own Inspector and audit mechanisms.
+- Codex remains the technical convergence point for platform-level reporting to Turn.
+
+### Validated
+
+- `corepack pnpm --filter @agm/web build` passes.
+- `corepack pnpm --filter @agm/web exec cap sync android` passes.
+- `corepack pnpm --filter @agm/web android:apk` passes.
+- Debug APK generated at `apps/web/android/app/build/outputs/apk/debug/app-debug.apk`.
+
+### Notes
+
+- Backend, API, OpenAI integration, authentication, and `.env` were not modified.
+- OCR is local for MVP. Future work may optimize language data packaging and performance without changing the local-first philosophy.
+
 ## Unreleased - AG-012.3 mandatory legal corrections
 
 ### Added
