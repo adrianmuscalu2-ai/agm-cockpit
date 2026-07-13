@@ -1,5 +1,177 @@
 # AGM Technical Change Report
 
+## 2026-07-13 - AI Governance and Release Operations process
+
+### Scope
+
+- Implementarea recomandarilor validate pentru AI Governance si Release & Operations.
+- Definirea responsabilitatilor AI inaintea oricarei automatizari.
+- Crearea checklist-ului oficial AGM pentru publicare si arhivare.
+
+### Files Changed
+
+- `AI_GOVERNANCE.md`
+- `RELEASE_CHECKLIST.md`
+- `README.md`
+- `ROADMAP.md`
+- `CHANGELOG.md`
+- `TECHNICAL_CHANGE_REPORT.md`
+
+### Implementation
+
+- `AI_GOVERNANCE.md` defineste:
+  - responsabilitatile Inspector, Codex, Turn si Mentor;
+  - ciclul de viata al recomandarilor;
+  - regulile de severitate;
+  - regulile de audit;
+  - politica de automatizare;
+  - regula de clasificare Basic / Premium / Backlog.
+- `RELEASE_CHECKLIST.md` defineste procesul oficial pentru:
+  - build;
+  - testare functionala;
+  - Android / APK;
+  - securitate si confidentialitate;
+  - Google Play;
+  - documentatie;
+  - arhivare.
+- `README.md` si `ROADMAP.md` trimit catre documentele noi.
+
+### Security Review
+
+- Nu au fost introduse chei, tokenuri sau credentiale.
+- Backendul nu a fost modificat.
+- API-ul nu a fost modificat.
+- OpenAI nu a fost modificat.
+- `.env` nu a fost modificat.
+- Etapa este exclusiv documentara.
+
+### Validation
+
+- Recomandat: validare Turn pentru checklist-ul oficial inainte de prima publicare Google Play.
+
+## 2026-07-13 - AI and Agent Systems governance foundation
+
+### Scope
+
+- Implementarea directiei validate de Turn pentru AI & Agent Systems.
+- Crearea unui registru oficial read-only al agentilor AGM.
+- Cresterea trasabilitatii rolurilor, responsabilitatilor si validarii agentilor.
+
+### Files Changed
+
+- `apps/web/src/agent-governance.registry.ts`
+- `apps/web/src/turn-command-center.view.ts`
+- `apps/web/src/styles.css`
+- `apps/web/src/i18n/app-i18n.dictionary.ts`
+- `CHANGELOG.md`
+- `TECHNICAL_CHANGE_REPORT.md`
+
+### Implementation
+
+- A fost creat `agent-governance.registry.ts` cu inregistrari read-only pentru agenti.
+- Fiecare agent are:
+  - identitate unica;
+  - cod;
+  - rol;
+  - responsabilitati;
+  - departament responsabil;
+  - status;
+  - ultima validare;
+  - ultima activitate;
+  - fiabilitate.
+- Turn Command Center afiseaza registrul agentilor intr-o sectiune dedicata.
+- Registrul este localizat in romana, germana si engleza.
+
+### Security Review
+
+- Nu au fost introduse chei, tokenuri sau credentiale.
+- Backendul nu a fost modificat.
+- API-ul nu a fost modificat.
+- OpenAI nu a fost modificat.
+- `.env` nu a fost modificat.
+- Registrul este read-only si nu executa actiuni operationale.
+
+### Validation
+
+- Necesita build frontend dupa implementare.
+- Necesita validare Turn pentru continutul initial al registrului.
+
+## 2026-07-13 - AG-020 Frontend modularization step 1
+
+### Scope
+
+- Implementarea primei refactorizari frontend validate de Turn.
+- Extragerea treptata a modulelor din `main.ts`, fara modificare UX si fara schimbare de comportament.
+
+### Files Changed
+
+- `apps/web/src/main.ts`
+- `apps/web/src/turn-command-center.view.ts`
+- `CHANGELOG.md`
+- `TECHNICAL_CHANGE_REPORT.md`
+
+### Implementation
+
+- Randarea Turn Command Center a fost extrasa intr-un view dedicat:
+  - `turn-command-center.view.ts`.
+- `main.ts` pastreaza doar selectia view-ului si paseaza catre renderer:
+  - limba UI;
+  - versiunea aplicatiei.
+- Sistemul de alerte, rapoartele Inspectorului, raportul general si continutul read-only au fost pastrate functional identic.
+
+### Validation
+
+- `corepack pnpm --filter @agm/web build` - passed.
+
+### Notes
+
+- Refactorizarea este interna si nu modifica experienta utilizatorului.
+- Backendul, API-ul, OpenAI si `.env` nu au fost modificate.
+- Urmatoarele module pot fi extrase doar dupa validarea acestui pas.
+
+## 2026-07-13 - AG-019 Product and Roadmap organization
+
+### Scope
+
+- Implementarea recomandarii validate de Inspector pentru Product & Roadmap.
+- Transformarea deciziilor existente intr-un roadmap oficial, urmaribil si usor de folosit de agenti si dezvoltatori.
+
+### Files Changed
+
+- `ROADMAP.md`
+- `README.md`
+- `CHANGELOG.md`
+- `TECHNICAL_CHANGE_REPORT.md`
+
+### Implementation
+
+- A fost creat `ROADMAP.md` ca document oficial pentru:
+  - AGM Basic Roadmap;
+  - AGM Premium Roadmap;
+  - AGM Future Backlog.
+- Roadmap-ul include:
+  - statusuri;
+  - prioritati;
+  - etape de validare;
+  - separarea Basic / Premium;
+  - idei validate fara prioritate imediata;
+  - recomandari Inspector;
+  - regula de guvernanta pentru clasificarea functiilor viitoare.
+- `README.md` trimite catre roadmap-ul oficial.
+
+### Security Review
+
+- Backendul nu a fost modificat.
+- API-ul nu a fost modificat.
+- Integrarea OpenAI nu a fost modificata.
+- Fisierele `.env` nu au fost modificate.
+- Nu au fost introduse chei, tokenuri sau credentiale.
+
+### Validation
+
+- Etapa este documentara si nu modifica logica aplicatiei.
+- Recomandat: validare Turn pentru clasificarea initiala Basic / Premium / Backlog.
+
 ## 2026-07-13 - AG-018 Platform consolidation
 
 ### Scope

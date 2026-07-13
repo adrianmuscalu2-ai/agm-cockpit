@@ -1,5 +1,87 @@
 # Changelog
 
+## Unreleased - AI Governance and Release Operations process
+
+### Added
+
+- `AI_GOVERNANCE.md` with official AGM rules for:
+  - agent responsibilities;
+  - recommendation lifecycle;
+  - severity rules;
+  - audit rules;
+  - automation limits;
+  - Basic / Premium / Backlog classification.
+- `RELEASE_CHECKLIST.md` with the official release process for:
+  - build;
+  - testing;
+  - validation;
+  - APK;
+  - Google Play;
+  - security/privacy;
+  - documentation;
+  - archive.
+- README and Roadmap links to governance and release documents.
+
+### Notes
+
+- This is a process and documentation stage.
+- No runtime behavior, backend, API, OpenAI, authentication, or `.env` file was modified.
+
+## Unreleased - AI and Agent Systems governance
+
+### Added
+
+- Official read-only Agent Registry in Turn Command Center.
+- Unique agent identity, code, role, responsibilities, owner department, validation history, latest activity, and reliability status.
+- Initial registry entries for:
+  - Codex;
+  - Inspector;
+  - Mentor;
+  - Legal Agent;
+  - RO / DE Specialist;
+  - RO / EN Specialist;
+  - DE / EN Specialist.
+- RO / DE / EN localization for the Agent Registry.
+
+### Notes
+
+- This implements the validated Inspector recommendation for AI & Agent Systems governance.
+- The registry is read-only and does not execute operational decisions.
+- No backend, API, OpenAI, `.env`, or authentication behavior was modified.
+
+## Unreleased - AG-020 Frontend modularization
+
+### Changed
+
+- Extracted Turn Command Center rendering from `main.ts` into `turn-command-center.view.ts`.
+- Preserved the existing Turn Command Center UX, alert system, Inspector reports, and read-only behavior.
+
+### Validated
+
+- `corepack pnpm --filter @agm/web build` passes after the extraction.
+
+### Notes
+
+- This is the first incremental frontend refactor step approved by Turn.
+- No backend, API, OpenAI, `.env`, or user-facing behavior was modified.
+
+## Unreleased - AG-019 Product and Roadmap organization
+
+### Added
+
+- Official `ROADMAP.md` for AGM development planning.
+- Separate sections for:
+  - AGM Basic Roadmap;
+  - AGM Premium Roadmap;
+  - AGM Future Backlog.
+- Status legend and governance rule requiring every future feature to be classified as Basic, Premium, or Backlog before implementation.
+- README link to the official roadmap.
+
+### Notes
+
+- This stage implements the validated Inspector recommendation for Product & Roadmap organization.
+- No backend, API, OpenAI, `.env`, or application runtime logic was modified.
+
 ## Unreleased - AG-018 Platform consolidation
 
 ### Added

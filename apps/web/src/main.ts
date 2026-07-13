@@ -25,7 +25,6 @@ import { contactStorageKey, readContacts, saveContacts, emptyContactDraft } from
 import { addContact, editContact, removeContact, searchContacts } from './contact-manager/contact-manager.service';
 import { type AgmContact, type ContactCategory, type ContactDraft } from './contact-manager/contact-manager.types';
 import { t, uiLanguageFromProfile } from './i18n/app-i18n';
-import { type InspectorReport, inspectorReportFor, inspectorReports } from './inspector-agent';
 import { recognizeTextFromImage } from './ocr-translator';
 import { availableTextCorrectorAgentIds, correctText } from './text-corrector/text-corrector.service';
 import {
@@ -33,16 +32,7 @@ import {
   type TextCorrectorResult,
   type TextCorrectorSourceModule,
 } from './text-corrector/text-corrector.types';
-import {
-  type TurnCommandItem,
-  type TurnHealthStatus,
-  type TurnMissionItem,
-  turnAgents,
-  turnAuditTrail,
-  turnDepartments,
-  turnMissions,
-  turnModules,
-} from './turn-command-center';
+import { renderTurnCommandCenter } from './turn-command-center.view';
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
@@ -274,7 +264,7 @@ function renderCurrentView() {
   }
 
   if (state.view === 'turn') {
-    return renderTurnCommandCenter();
+    return renderTurnCommandCenter({ language: uiLanguage(), appVersion: APP_VERSION });
   }
 
   return renderCockpit();
@@ -532,181 +522,6 @@ function renderOcrHistory() {
             `,
           )
           .join('')}
-      </div>
-    </section>
-  `;
-}
-
-function renderTurnCommandCenter() {
-  const language = uiLanguage();
-  const activeDepartments = countByStatus(turnDepartments, 'active');
-  const stableModules = countByStatus(turnModules, 'stable');
-  const activeMissions = countByStatus(turnMissions, 'active');
-  const acceptedAudits = countByValidation(turnAuditTrail, 'turn.validation.accepted');
-  const attentionReports = inspectorReports.filter((report) => report.status === 'attention').length;
-
-  return `
-    <section class="turn-command-center" aria-label="${escapeHtml(t(language, 'turn.ariaLabel'))}">
-      <header class="turn-hero">
-        <div>
-          <span class="turn-kicker">${escapeHtml(t(language, 'turn.code'))}</span>
-          <h1>${escapeHtml(t(language, 'turn.title'))}</h1>
-          <p>${escapeHtml(t(language, 'turn.description'))}</p>
-        </div>
-        <div class="turn-readonly-badge">
-          <strong>${escapeHtml(t(language, 'turn.readOnly'))}</strong>
-          <span>${escapeHtml(t(language, 'turn.readOnlyDesc'))}</span>
-        </div>
-      </header>
-
-      <section class="turn-metrics" aria-label="${escapeHtml(t(language, 'turn.metrics'))}">
-        ${renderTurnMetric('turn.metric.departments', String(activeDepartments), 'turn.metric.departmentsDesc')}
-        ${renderTurnMetric('turn.metric.modules', String(stableModules), 'turn.metric.modulesDesc')}
-        ${renderTurnMetric('turn.metric.missions', String(activeMissions), 'turn.metric.missionsDesc')}
-        ${renderTurnMetric('turn.metric.audits', String(acceptedAudits), 'turn.metric.auditsDesc')}
-        ${renderTurnMetric('turn.metric.attention', String(attentionReports), 'turn.metric.attentionDesc')}
-      </section>
-
-      <section class="turn-grid">
-        ${renderTurnSection('turn.section.departments', 'turn.section.departmentsDesc', turnDepartments)}
-        ${renderTurnSection('turn.section.agents', 'turn.section.agentsDesc', turnAgents)}
-        ${renderTurnSection('turn.section.modules', 'turn.section.modulesDesc', turnModules)}
-        ${renderTurnMissionSection('turn.section.missions', 'turn.section.missionsDesc', turnMissions)}
-        ${renderTurnMissionSection('turn.section.validations', 'turn.section.validationsDesc', turnAuditTrail)}
-        <article class="turn-card turn-system-card">
-          <header>
-            <strong>${escapeHtml(t(language, 'turn.section.system'))}</strong>
-            <p>${escapeHtml(t(language, 'turn.section.systemDesc'))}</p>
-          </header>
-          <dl class="turn-system-list">
-            <div>
-              <dt>${escapeHtml(t(language, 'turn.system.version'))}</dt>
-              <dd>${escapeHtml(APP_VERSION)}</dd>
-            </div>
-            <div>
-              <dt>${escapeHtml(t(language, 'turn.system.build'))}</dt>
-              <dd>${escapeHtml(t(language, 'turn.status.stable'))}</dd>
-            </div>
-            <div>
-              <dt>${escapeHtml(t(language, 'turn.system.backend'))}</dt>
-              <dd>${escapeHtml(t(language, 'turn.system.backendReadonly'))}</dd>
-            </div>
-            <div>
-              <dt>${escapeHtml(t(language, 'turn.system.ai'))}</dt>
-              <dd>${escapeHtml(t(language, 'turn.system.aiReadonly'))}</dd>
-            </div>
-          </dl>
-        </article>
-      </section>
-    </section>
-  `;
-}
-
-function renderTurnMetric(labelKey: string, value: string, descriptionKey: string) {
-  const language = uiLanguage();
-
-  return `
-    <article class="turn-metric">
-      <strong>${escapeHtml(value)}</strong>
-      <span>${escapeHtml(t(language, labelKey))}</span>
-      <small>${escapeHtml(t(language, descriptionKey))}</small>
-    </article>
-  `;
-}
-
-function renderTurnSection(titleKey: string, descriptionKey: string, items: TurnCommandItem[]) {
-  const language = uiLanguage();
-
-  return `
-    <article class="turn-card">
-      <header>
-        <strong>${escapeHtml(t(language, titleKey))}</strong>
-        <p>${escapeHtml(t(language, descriptionKey))}</p>
-      </header>
-      <div class="turn-list">
-        ${items.map(renderTurnItem).join('')}
-      </div>
-    </article>
-  `;
-}
-
-function renderTurnMissionSection(titleKey: string, descriptionKey: string, items: TurnMissionItem[]) {
-  const language = uiLanguage();
-
-  return `
-    <article class="turn-card">
-      <header>
-        <strong>${escapeHtml(t(language, titleKey))}</strong>
-        <p>${escapeHtml(t(language, descriptionKey))}</p>
-      </header>
-      <div class="turn-list">
-        ${items.map(renderTurnMissionItem).join('')}
-      </div>
-    </article>
-  `;
-}
-
-function renderTurnItem(item: TurnCommandItem) {
-  const language = uiLanguage();
-  const inspectorReport = inspectorReportFor(item.id);
-
-  return `
-    <details class="turn-row">
-      <summary>
-        <span class="turn-status ${item.status}">${escapeHtml(turnStatusLabel(item.status))}</span>
-        ${inspectorReport ? renderInspectorBadge(inspectorReport) : ''}
-        <strong>${escapeHtml(t(language, item.titleKey))}</strong>
-      </summary>
-      <div>
-        <p>${escapeHtml(t(language, item.descriptionKey))}</p>
-        ${inspectorReport ? renderInspectorReport(inspectorReport) : ''}
-      </div>
-    </details>
-  `;
-}
-
-function renderInspectorBadge(report: InspectorReport) {
-  return `<span class="inspector-badge ${report.status}">${escapeHtml(t(uiLanguage(), `inspector.status.${report.status}`))}</span>`;
-}
-
-function renderInspectorReport(report: InspectorReport) {
-  const language = uiLanguage();
-
-  return `
-    <dl class="inspector-report">
-      <div>
-        <dt>${escapeHtml(t(language, 'inspector.report.summary'))}</dt>
-        <dd>${escapeHtml(t(language, report.summaryKey))}</dd>
-      </div>
-      <div>
-        <dt>${escapeHtml(t(language, 'inspector.report.issues'))}</dt>
-        <dd>${escapeHtml(t(language, report.issuesKey))}</dd>
-      </div>
-      <div>
-        <dt>${escapeHtml(t(language, 'inspector.report.recommendations'))}</dt>
-        <dd>${escapeHtml(t(language, report.recommendationsKey))}</dd>
-      </div>
-      <div>
-        <dt>${escapeHtml(t(language, 'inspector.report.lastCheck'))}</dt>
-        <dd>${escapeHtml(new Date(report.lastCheckedAt).toLocaleString())}</dd>
-      </div>
-      <div>
-        <dt>${escapeHtml(t(language, 'inspector.report.trend'))}</dt>
-        <dd>${escapeHtml(t(language, `inspector.trend.${report.trend}`))}</dd>
-      </div>
-    </dl>
-  `;
-}
-
-function renderTurnMissionItem(item: TurnMissionItem) {
-  const language = uiLanguage();
-
-  return `
-    <section class="turn-row">
-      <span class="turn-status ${item.status}">${escapeHtml(item.id)}</span>
-      <div>
-        <strong>${escapeHtml(t(language, item.titleKey))}</strong>
-        <p>${escapeHtml(t(language, item.validationKey))}</p>
       </div>
     </section>
   `;
@@ -3094,18 +2909,6 @@ function moduleStatus(view: ViewName) {
   }
 
   return t(uiLanguage(), 'module.status.cockpit');
-}
-
-function countByStatus(items: Array<{ status: TurnHealthStatus }>, status: TurnHealthStatus) {
-  return items.filter((item) => item.status === status).length;
-}
-
-function countByValidation(items: TurnMissionItem[], validationKey: string) {
-  return items.filter((item) => item.validationKey === validationKey).length;
-}
-
-function turnStatusLabel(status: TurnHealthStatus) {
-  return t(uiLanguage(), `turn.status.${status}`);
 }
 
 function navigateToModule(view: ViewName) {

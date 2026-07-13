@@ -2,6 +2,21 @@
 
 AGM is an AI-assisted vehicle transport management system.
 
+## Official Roadmap
+
+The official AGM roadmap is maintained in [ROADMAP.md](./ROADMAP.md).
+
+It separates:
+
+- AGM Basic;
+- AGM Premium;
+- AGM Future Backlog.
+
+Governance and release process:
+
+- [AI_GOVERNANCE.md](./AI_GOVERNANCE.md)
+- [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md)
+
 This repository starts with Implementation Phase 1:
 
 ```text
