@@ -24,6 +24,7 @@ export class OpenAiTranslationProvider implements TranslationProvider {
 
   async translate(request: TranslationRequest): Promise<TranslationResult> {
     const apiKey = this.config.get<string>('OPENAI_API_KEY');
+    const timeoutMs = translationTimeoutMs(this.config.get<string>('OPENAI_TRANSLATION_TIMEOUT_MS'));
 
     if (!apiKey) {
       return {
@@ -32,6 +33,8 @@ export class OpenAiTranslationProvider implements TranslationProvider {
         provider: 'unavailable',
       };
     }
+
+    const startedAt = performance.now();
 
     try {
       const response = await fetch('https://api.openai.com/v1/responses', {
@@ -55,6 +58,7 @@ export class OpenAiTranslationProvider implements TranslationProvider {
           ],
           temperature: 0,
         }),
+        signal: AbortSignal.timeout(timeoutMs),
       });
 
       if (!response.ok) {
@@ -88,8 +92,15 @@ export class OpenAiTranslationProvider implements TranslationProvider {
         available: false,
         provider: 'unavailable',
       };
+    } finally {
+      console.info(`OPENAI TRANSLATION DURATION: ${Math.round(performance.now() - startedAt)}ms`);
     }
   }
+}
+
+function translationTimeoutMs(configuredValue: string | undefined) {
+  const value = Number(configuredValue ?? 20_000);
+  return Number.isFinite(value) ? Math.min(60_000, Math.max(5_000, value)) : 20_000;
 }
 
 function extractTranslatedText(payload: OpenAiResponsePayload): string | undefined {
