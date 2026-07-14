@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased - AG-018 External Connectivity Test
+
+### Infrastructure
+
+- Added an isolated Cloudflare Quick Tunnel HTTPS endpoint for external Wi-Fi and 4G/5G testing.
+- Updated only the Android production API base URL; dictation, translation logic, and UI remain unchanged.
+- Documented the temporary tunnel lifecycle and validation procedure in `HTTPS_TUNNEL_TESTING.md`.
+
 ## AG-018 - 2026-07-14 - Extended Stability Testing
 
 ### Device validated

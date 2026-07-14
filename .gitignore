@@ -12,3 +12,4 @@ coverage/
 *.log
 .codex-*.log
 *.tsbuildinfo
+.tmp/
