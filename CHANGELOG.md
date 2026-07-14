@@ -2,6 +2,10 @@
 
 ## Unreleased - P0 Legal Dialog Accessibility
 
+### Branded
+
+- Replaced the default Android launcher artwork with the AGM truck, globe, and AI-energy emblem across legacy, round, and adaptive icon densities.
+
 ### Fixed
 
 - The first-run legal dialog stays above the mobile action bar, respects Android safe areas, scrolls its text independently, and keeps acceptance actions visible.
