@@ -969,6 +969,7 @@ textarea:focus {
 }
 
 .language-option {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
@@ -983,9 +984,28 @@ textarea:focus {
 }
 
 .language-option.active {
-  border-color: #197bff;
-  background: #0b1e34;
-  color: #dcecff;
+  border-color: #69b4ff;
+  background: linear-gradient(135deg, #0969da, #0b8bf2);
+  color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(105, 180, 255, 0.28), 0 0 18px rgba(25, 123, 255, 0.38);
+}
+
+.language-option.active::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  display: grid;
+  width: 19px;
+  height: 19px;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #075fbd;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  transform: translateY(-50%);
 }
 
 .language-option small {
@@ -995,7 +1015,7 @@ textarea:focus {
 }
 
 .language-option.active small {
-  color: #123f91;
+  color: #e5f3ff;
 }
 
 .toggle {
@@ -2343,7 +2363,7 @@ dd {
     display: flex;
     min-height: 54px;
     justify-content: center;
-    padding: 10px 6px;
+    padding: 10px 27px 10px 6px;
     text-align: center;
   }
 
@@ -2357,6 +2377,13 @@ dd {
 
   .compact-language .language-option small {
     display: none;
+  }
+
+  .compact-language .language-option.active::after {
+    right: 6px;
+    width: 17px;
+    height: 17px;
+    font-size: 11px;
   }
 
   .translator-status-strip {
