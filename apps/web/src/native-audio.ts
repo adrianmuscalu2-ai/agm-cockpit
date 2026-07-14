@@ -5,7 +5,16 @@ export type MicrophonePermissionState = 'granted' | 'denied' | 'prompt' | 'promp
 interface NativeAudioPlugin {
   checkMicrophonePermission(): Promise<{ state: MicrophonePermissionState }>;
   requestMicrophonePermission(): Promise<{ state: MicrophonePermissionState }>;
-  startListening(options: { language: string }): Promise<{ text: string }>;
+  startListening(options: { language: string }): Promise<{
+    text: string;
+    timing?: {
+      startToSpeechMs: number;
+      speechToEndMs: number;
+      silenceToEndMs: number;
+      endToResultMs: number;
+      totalRecognitionMs: number;
+    };
+  }>;
   speak(options: { text: string; language: string }): Promise<void>;
   stopSpeaking(): Promise<void>;
   openAppSettings(): Promise<void>;

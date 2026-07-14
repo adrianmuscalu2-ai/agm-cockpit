@@ -2043,7 +2043,7 @@ async function startNativeVoiceInput() {
     render();
     try {
       const result = await NativeAudio.startListening({ language });
-      console.info('[AGM Audio] Native speech recognition result', { characters: result.text.length });
+      console.info('[AGM Audio] Native speech recognition result', { characters: result.text.length, timing: result.timing });
       state.translatorText = state.translatorText ? `${state.translatorText}\n${result.text}` : result.text;
       state.status = t(uiLanguage(), 'translator.status.voiceCaptured', { language: languageLabel(state.profile.preferredLanguage) });
       state.voiceInputState = 'inactive';
@@ -2310,9 +2310,10 @@ function audioErrorMessage(component: string, error: unknown) {
 }
 
 async function translateWithAdapter(text: string, sourceLanguage: LanguageCode, targetLanguage: LanguageCode) {
+  const requestStartedAt = performance.now();
   try {
     const { translateText } = await import('./translationAdapter');
-    return translateText({
+    return await translateText({
       text,
       sourceLanguage,
       targetLanguage,
@@ -2323,6 +2324,12 @@ async function translateWithAdapter(text: string, sourceLanguage: LanguageCode, 
       available: false,
       provider: 'unavailable' as const,
     };
+  } finally {
+    console.info('[AGM Performance] Translation request duration', {
+      durationMs: Math.round(performance.now() - requestStartedAt),
+      sourceLanguage,
+      targetLanguage,
+    });
   }
 }
 

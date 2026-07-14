@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -37,6 +38,10 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     private PluginCall pendingSpeechCall;
     private String pendingSpeechText;
     private String pendingSpeechLanguage;
+    private long recognitionStartedAt;
+    private long speechStartedAt;
+    private long lastVoiceActivityAt;
+    private long endOfSpeechAt;
 
     @PluginMethod
     public void checkMicrophonePermission(PluginCall call) {
@@ -90,6 +95,10 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false);
             listeningCall = call;
             call.setKeepAlive(true);
+            recognitionStartedAt = SystemClock.elapsedRealtime();
+            speechStartedAt = 0;
+            lastVoiceActivityAt = 0;
+            endOfSpeechAt = 0;
             speechRecognizer.startListening(intent);
         });
     }
@@ -173,8 +182,17 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         Log.i(TAG, "Speech recognition result; characters=" + text.length());
         if (text.isEmpty()) rejectListening("No speech was recognized", "SPEECH_EMPTY_RESULT");
         else {
+            long resultAt = SystemClock.elapsedRealtime();
+            JSObject timing = new JSObject();
+            timing.put("startToSpeechMs", elapsedBetween(recognitionStartedAt, speechStartedAt));
+            timing.put("speechToEndMs", elapsedBetween(speechStartedAt, endOfSpeechAt));
+            timing.put("silenceToEndMs", elapsedBetween(lastVoiceActivityAt, endOfSpeechAt));
+            timing.put("endToResultMs", elapsedBetween(endOfSpeechAt, resultAt));
+            timing.put("totalRecognitionMs", elapsedBetween(recognitionStartedAt, resultAt));
             JSObject result = new JSObject();
             result.put("text", text);
+            result.put("timing", timing);
+            Log.i(TAG, "Speech timing: " + timing.toString());
             resolveListening(result);
         }
     }
@@ -200,6 +218,10 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
 
     private void destroyRecognizer() {
         if (speechRecognizer != null) { speechRecognizer.destroy(); speechRecognizer = null; }
+    }
+
+    private long elapsedBetween(long start, long end) {
+        return start > 0 && end >= start ? end - start : -1;
     }
 
     private void resolvePendingSpeech() {
@@ -229,12 +251,19 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         Log.i(TAG, "Speech recognizer ready");
         JSObject event = new JSObject(); event.put("state", "listening"); notifyListeners("speechState", event);
     }
-    @Override public void onBeginningOfSpeech() { Log.i(TAG, "Speech detected"); }
+    @Override public void onBeginningOfSpeech() {
+        speechStartedAt = SystemClock.elapsedRealtime();
+        lastVoiceActivityAt = speechStartedAt;
+        Log.i(TAG, "Speech detected");
+    }
     @Override public void onEndOfSpeech() {
+        endOfSpeechAt = SystemClock.elapsedRealtime();
         Log.i(TAG, "Speech processing started");
         JSObject event = new JSObject(); event.put("state", "processing"); notifyListeners("speechState", event);
     }
-    @Override public void onRmsChanged(float rmsdB) {}
+    @Override public void onRmsChanged(float rmsdB) {
+        if (speechStartedAt > 0 && rmsdB > 2.0f) lastVoiceActivityAt = SystemClock.elapsedRealtime();
+    }
     @Override public void onBufferReceived(byte[] buffer) {}
     @Override public void onPartialResults(Bundle partialResults) {}
     @Override public void onEvent(int eventType, Bundle params) {}
