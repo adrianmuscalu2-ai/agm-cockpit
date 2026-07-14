@@ -1972,7 +1972,7 @@ async function startVoiceInput() {
   }
 
   const recognition = new Recognition();
-  recognition.lang = speechLocale(state.translatorTargetLanguage);
+  recognition.lang = speechLocale(state.profile.preferredLanguage);
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
   state.isListening = true;
@@ -1986,7 +1986,7 @@ async function startVoiceInput() {
       console.info('[AGM Audio] Browser speech recognition result', { characters: transcript.length });
       state.translatorText = state.translatorText ? `${state.translatorText}\n${transcript}` : transcript;
       state.status = t(uiLanguage(), 'translator.status.voiceCaptured', {
-        language: languageLabel(state.translatorTargetLanguage),
+        language: languageLabel(state.profile.preferredLanguage),
       });
     }
   };
@@ -2017,7 +2017,7 @@ async function startVoiceInput() {
 }
 
 async function startNativeVoiceInput() {
-  const language = speechLocale(state.translatorTargetLanguage);
+  const language = speechLocale(state.profile.preferredLanguage);
   try {
     let permission = await NativeAudio.checkMicrophonePermission();
     console.info('[AGM Audio] Microphone permission state', permission.state);
@@ -2045,7 +2045,7 @@ async function startNativeVoiceInput() {
       const result = await NativeAudio.startListening({ language });
       console.info('[AGM Audio] Native speech recognition result', { characters: result.text.length });
       state.translatorText = state.translatorText ? `${state.translatorText}\n${result.text}` : result.text;
-      state.status = t(uiLanguage(), 'translator.status.voiceCaptured', { language: languageLabel(state.translatorTargetLanguage) });
+      state.status = t(uiLanguage(), 'translator.status.voiceCaptured', { language: languageLabel(state.profile.preferredLanguage) });
       state.voiceInputState = 'inactive';
     } finally {
       await stateListener.remove();
@@ -2068,7 +2068,7 @@ async function startEmailVoiceInput() {
     render();
     return;
   }
-  const language = speechLocale(state.targetLanguage);
+  const language = speechLocale(state.profile.preferredLanguage);
   try {
     let permission = await NativeAudio.checkMicrophonePermission();
     if (permission.state !== 'granted') permission = await NativeAudio.requestMicrophonePermission();
@@ -2090,7 +2090,7 @@ async function startEmailVoiceInput() {
       const result = await NativeAudio.startListening({ language });
       state.message = state.message ? `${state.message}\n${result.text}` : result.text;
       state.voiceInputState = 'inactive';
-      state.status = t(uiLanguage(), 'translator.status.voiceCaptured', { language: languageLabel(state.targetLanguage) });
+      state.status = t(uiLanguage(), 'translator.status.voiceCaptured', { language: languageLabel(state.profile.preferredLanguage) });
     } finally {
       await listener.remove();
     }
