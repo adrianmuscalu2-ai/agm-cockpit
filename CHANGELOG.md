@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased - P0 Legal Dialog Accessibility
+
+### Fixed
+
+- The first-run legal dialog stays above the mobile action bar, respects Android safe areas, scrolls its text independently, and keeps acceptance actions visible.
+
 ## v0.5.0 - 2026-07-14 - Android Stable Foundation
 
 ### Added

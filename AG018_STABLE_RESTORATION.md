@@ -8,7 +8,7 @@ Date: 2026-07-14
 - Preserved regression work: branch `ag-018-regression-backup-20260714`, commit `e3117d4`
 - Restoration branch: `ag-018-stable-restoration`
 
-No optimized runtime file was copied into the restoration branch. This document is the only source change after `24fa84b`.
+No performance optimization was copied into the restoration branch. After restoration, one isolated P0 fix was applied to keep the first-run legal acceptance action reachable inside the Android safe area.
 
 ## Confirmed causes and findings
 

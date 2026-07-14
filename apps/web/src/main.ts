@@ -1048,8 +1048,9 @@ function renderLegalAcceptanceNotice() {
   const language = uiLanguage();
 
   return `
-    <section class="legal-acceptance" role="dialog" aria-labelledby="legal-acceptance-title" aria-live="polite">
-      <div>
+    <div class="legal-acceptance-overlay">
+      <section class="legal-acceptance" role="dialog" aria-modal="true" aria-labelledby="legal-acceptance-title" aria-live="polite">
+      <div class="legal-acceptance__content">
         <strong id="legal-acceptance-title">${escapeHtml(t(language, 'legal.firstRunTitle'))}</strong>
         <p>${escapeHtml(t(language, 'legal.firstRunBody'))}</p>
         <ul>
@@ -1063,7 +1064,8 @@ function renderLegalAcceptanceNotice() {
         <button id="acceptLegalNotice" type="button" class="primary">${escapeHtml(t(language, 'legal.accept'))}</button>
         <button data-module="legal" type="button">${escapeHtml(t(language, 'legal.reviewDocuments'))}</button>
       </div>
-    </section>
+      </section>
+    </div>
   `;
 }
 
