@@ -1,5 +1,21 @@
 # Changelog
 
+## AG-018 - 2026-07-14 - Extended Stability Testing
+
+### Device validated
+
+- Dictation captures the user's spoken input correctly.
+- Dictated and typed source text is recognized correctly.
+- Translation produces the expected target-language result.
+- Previously blocking first-run and core translator regressions are resolved for the validated device scenario.
+
+### Test phase
+
+- AG-018 is frozen for extended stability testing across multiple Android devices.
+- No new product functionality will be introduced during this phase.
+- Wi-Fi, performance, and remaining defects will be monitored under real usage.
+- Mobile-data translation remains dependent on deploying a public HTTPS AGM API and is not marked as passed by the LAN build.
+
 ## Unreleased - P0 Legal Dialog Accessibility
 
 ### Branded

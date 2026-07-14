@@ -32,6 +32,8 @@ No performance optimization was copied into the restoration branch. After restor
 | Wi-Fi end-to-end APK | Pending user validation with API kept running |
 | Mobile-data end-to-end APK | Blocked: no public HTTPS API exists |
 
-## Closure rule
+## Device validation update
 
-AG-018 remains open until the restored APK passes real-device translation, dictation, translated-result rendering, TTS, and Wi-Fi tests. Mobile-data validation requires a separate public HTTPS backend deployment and cannot be claimed for the LAN build.
+On 2026-07-14, physical-device testing confirmed that dictation captures the user's voice, dictated and typed text is recognized correctly, and translation returns the expected target-language result. The platform is accepted into extended stability testing with functionality frozen.
+
+AG-018 remains under extended observation across additional devices and real Wi-Fi usage. Mobile-data validation requires a separate public HTTPS backend deployment and cannot be claimed for the LAN build.
