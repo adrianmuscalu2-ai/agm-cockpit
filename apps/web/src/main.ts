@@ -125,6 +125,8 @@ const state = {
   status: t(uiLanguageFromProfile(initialProfile.preferredLanguage), 'app.ready'),
 };
 
+let activeTranslatorVoiceInput: Promise<void> | null = null;
+
 const appRoot = document.querySelector<HTMLDivElement>('#app');
 
 if (!appRoot) {
@@ -1763,6 +1765,7 @@ async function improveText() {
 }
 
 async function translateOriginalText() {
+  await finishActiveTranslatorDictation();
   const source = state.translatorText.trim();
 
   if (!source) {
@@ -1958,7 +1961,13 @@ async function startVoiceInput() {
   }
 
   if (isNativeAudioAvailable()) {
-    await startNativeVoiceInput();
+    const voiceInput = startNativeVoiceInput();
+    activeTranslatorVoiceInput = voiceInput;
+    try {
+      await voiceInput;
+    } finally {
+      if (activeTranslatorVoiceInput === voiceInput) activeTranslatorVoiceInput = null;
+    }
     return;
   }
 
@@ -2331,6 +2340,25 @@ async function translateWithAdapter(text: string, sourceLanguage: LanguageCode, 
       targetLanguage,
     });
   }
+}
+
+async function finishActiveTranslatorDictation() {
+  const voiceInput = activeTranslatorVoiceInput;
+  if (!voiceInput || !state.isListening) return;
+
+  console.info('[AGM Audio] Translate pressed during dictation; finalizing speech recognition');
+  if (isNativeAudioAvailable() && state.voiceInputState === 'listening') {
+    state.voiceInputState = 'processing';
+    state.status = audioMessage(
+      'Dictare finalizată. Se pregătește traducerea…',
+      'Diktat beendet. Übersetzung wird vorbereitet…',
+      'Dictation finished. Preparing translation…',
+    );
+    render();
+    await NativeAudio.stopListening();
+  }
+
+  await voiceInput;
 }
 
 function runTextCorrector(mode = state.correctorMode) {

@@ -15,6 +15,7 @@ interface NativeAudioPlugin {
       totalRecognitionMs: number;
     };
   }>;
+  stopListening(): Promise<void>;
   speak(options: { text: string; language: string }): Promise<void>;
   stopSpeaking(): Promise<void>;
   openAppSettings(): Promise<void>;

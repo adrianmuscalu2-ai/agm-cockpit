@@ -104,6 +104,25 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     }
 
     @PluginMethod
+    public void stopListening(PluginCall call) {
+        if (speechRecognizer == null || listeningCall == null) {
+            call.resolve();
+            return;
+        }
+
+        Log.i(TAG, "Manual end of speech requested");
+        getActivity().runOnUiThread(() -> {
+            try {
+                speechRecognizer.stopListening();
+                call.resolve();
+            } catch (Exception error) {
+                Log.e(TAG, "Could not stop speech recognition", error);
+                call.reject("Could not stop speech recognition", "SPEECH_STOP_FAILED", error);
+            }
+        });
+    }
+
+    @PluginMethod
     public void speak(PluginCall call) {
         String text = call.getString("text", "").trim();
         String language = call.getString("language", Locale.getDefault().toLanguageTag());
