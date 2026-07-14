@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.5.0 - 2026-07-14 - Android Stable Foundation
+
+### Added
+
+- Native Android speech recognition with runtime microphone permission handling.
+- Native Android Text-to-Speech with RO / DE / EN locale validation.
+- Voice dictation in Translator and Email Assistant.
+- Local AGM PIN protection for Turn Command Center, including PIN rotation, 15-minute sessions, attempt limiting, and persistent bcrypt storage.
+- Production Android API endpoint configuration for LAN testing.
+
+### Changed
+
+- API now binds explicitly to `0.0.0.0` and accepts the Capacitor origin.
+- Android WebView permits the internal HTTP API used during LAN testing.
+- Mobile cockpit actions, language selectors, translated-text area, safe-area spacing, and keyboard behavior were optimized for narrow Android devices.
+- Turn Command Center was removed from ordinary-user navigation and moved behind the administrative PIN gate.
+
+### Validated
+
+- Translation, microphone permission, speech recognition, voice playback, OCR, Android API connectivity, cockpit stability, and mobile ergonomics were validated on a physical Android device.
+- Web, API, Capacitor sync, Prisma migration, and debug APK builds pass.
+
+### Stable Baseline
+
+- This commit is the official stable foundation for the next AGM Android development cycle.
+
 ## Unreleased - AI Governance and Release Operations process
 
 ### Added

@@ -70,6 +70,15 @@ model UserRole {
   @@unique([userId, roleId])
 }
 
+model TurnAdminCredential {
+  id             String    @id
+  passwordHash   String
+  failedAttempts Int       @default(0)
+  lockedUntil    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
 model LifecycleState {
   id            String                     @id @default(uuid()) @db.Uuid
   companyId     String?                    @db.Uuid

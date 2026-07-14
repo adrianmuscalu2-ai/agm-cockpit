@@ -33,6 +33,8 @@ import {
   type TextCorrectorSourceModule,
 } from './text-corrector/text-corrector.types';
 import { renderTurnCommandCenter } from './turn-command-center.view';
+import { isNativeAudioAvailable, NativeAudio, type MicrophonePermissionState } from './native-audio';
+import { changeAdministratorPin, unlockAdministrator, validateAdministrator, type AdminSession } from './admin-auth';
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
@@ -73,6 +75,7 @@ const PRIVACY_POLICY_VERSION = 'privacy-v2026.07.13';
 const TERMS_VERSION = 'terms-v2026.07.13';
 const LEGAL_ACCEPTANCE_KEY = `agm.legal.acceptance.${PRIVACY_POLICY_VERSION}.${TERMS_VERSION}`;
 const OCR_HISTORY_KEY = 'agm.ocr.history.v1';
+const ADMIN_SESSION_KEY = 'agm.admin.session';
 const initialProfile = readProfile(window.localStorage);
 const initialContacts = readContacts(window.localStorage);
 const initialOcrHistory = readOcrHistory(window.localStorage);
@@ -101,6 +104,11 @@ const state = {
   correctorMode: 'correction' as TextCorrectorMode,
   correctorSourceModule: 'standalone' as TextCorrectorSourceModule,
   isListening: false,
+  voiceInputState: 'inactive' as 'inactive' | 'listening' | 'processing' | 'error',
+  voicePlaybackState: 'stopped' as 'stopped' | 'playing' | 'error',
+  adminSession: readAdminSession(),
+  adminAccessVerified: false,
+  adminChangePinOpen: false,
   translatorEnabled: false,
   useProfileDetails: true,
   signatureEditorOpen: false,
@@ -127,6 +135,7 @@ const app = appRoot;
 
 registerServiceWorker();
 render();
+void restoreAdministratorAccess();
 
 function uiLanguage() {
   return uiLanguageFromProfile(state.profile.preferredLanguage);
@@ -152,7 +161,7 @@ function render() {
   document.documentElement.lang = state.profile.preferredLanguage;
   const language = uiLanguage();
   app.innerHTML = `
-    <main class="shell">
+    <main class="shell view-${state.view}">
       <section class="workspace" aria-labelledby="page-title">
         <header class="topbar">
           <nav class="module-strip" aria-label="${escapeHtml(t(language, 'nav.moduleStripLabel'))}">
@@ -182,10 +191,6 @@ function render() {
               <button data-module="corrector" type="button" class="${state.view === 'corrector' ? 'active' : ''}">
                 <span class="nav-code">${escapeHtml(t(language, 'nav.correctorCode'))}</span>
                 <span>${escapeHtml(t(language, 'nav.corrector'))}</span>
-              </button>
-              <button data-module="turn" type="button" class="${state.view === 'turn' ? 'active' : ''}">
-                <span class="nav-code">${escapeHtml(t(language, 'nav.turnCode'))}</span>
-                <span>${escapeHtml(t(language, 'nav.turn'))}</span>
               </button>
               <button data-module="profile" type="button" class="${state.view === 'profile' ? 'active' : ''}">
                 <span class="nav-code">${escapeHtml(t(language, 'nav.profileCode'))}</span>
@@ -234,6 +239,7 @@ function render() {
     bindTextCorrector();
   }
   bindCommandPanel();
+  bindAdministratorLogin();
   bindLegalAcceptance();
   bindContactManager();
 }
@@ -264,7 +270,9 @@ function renderCurrentView() {
   }
 
   if (state.view === 'turn') {
-    return renderTurnCommandCenter({ language: uiLanguage(), appVersion: APP_VERSION });
+    return state.adminAccessVerified
+      ? `${renderTurnCommandCenter({ language: uiLanguage(), appVersion: APP_VERSION })}${renderChangeAdminPin()}`
+      : renderAdministratorLogin();
   }
 
   return renderCockpit();
@@ -311,7 +319,7 @@ function renderCommandPanel() {
         ${commandSet.commands
           .map(
             (command) => `
-              <button type="button" data-command="${command.id}" class="${command.primary ? 'primary' : ''}">
+              <button type="button" data-command="${command.id}" class="${command.primary ? 'primary' : ''} ${audioCommandClass(command.id)}">
                 <strong>${escapeHtml(command.label)}</strong>
                 <span>${escapeHtml(command.description)}</span>
               </button>
@@ -378,6 +386,7 @@ function commandPanelForView(view: ViewName) {
         { id: 'turn-open-cockpit', label: t(language, 'nav.translator'), description: t(language, 'turn.command.cockpitDesc') },
         { id: 'turn-open-legal', label: t(language, 'legal.moduleName'), description: t(language, 'turn.command.legalDesc') },
         { id: 'turn-open-about', label: t(language, 'about.moduleName'), description: t(language, 'turn.command.aboutDesc') },
+        { id: 'turn-change-pin', label: 'Schimbă PIN', description: 'Securitate administrativă' },
       ],
     };
   }
@@ -403,6 +412,7 @@ function commandPanelForView(view: ViewName) {
         { id: 'about-version', label: t(language, 'about.command.version'), description: APP_VERSION, primary: true },
         { id: 'about-support', label: t(language, 'about.command.support'), description: t(language, 'about.command.supportDesc') },
         { id: 'about-legal', label: t(language, 'legal.moduleName'), description: t(language, 'about.command.legalDesc') },
+        { id: 'about-admin', label: 'Administrare', description: 'Acces securizat' },
         { id: 'about-close', label: t(language, 'common.close'), description: t(language, 'about.command.closeDesc') },
       ],
     };
@@ -423,11 +433,11 @@ function commandPanelForView(view: ViewName) {
   return {
     moduleName: t(uiLanguage(), 'translator.moduleName'),
     commands: [
-      { id: 'translator-speak', label: t(uiLanguage(), 'translator.command.speak'), description: t(uiLanguage(), 'translator.command.speakDesc'), primary: true },
+      { id: 'translator-speak', label: t(uiLanguage(), 'translator.command.speak'), description: microphoneCommandDescription(), primary: true },
       { id: 'translator-ocr', label: t(uiLanguage(), 'translator.command.ocr'), description: t(uiLanguage(), 'translator.command.ocrDesc') },
       { id: 'translator-correct', label: t(uiLanguage(), 'translator.command.correct'), description: t(uiLanguage(), 'translator.command.correctDesc') },
       { id: 'translator-translate', label: t(uiLanguage(), 'translator.command.translate'), description: t(uiLanguage(), 'translator.command.translateDesc') },
-      { id: 'translator-listen', label: t(uiLanguage(), 'translator.command.listen'), description: t(uiLanguage(), 'translator.command.listenDesc') },
+      { id: 'translator-listen', label: t(uiLanguage(), 'translator.command.listen'), description: speakerCommandDescription() },
       { id: 'translator-copy', label: t(uiLanguage(), 'translator.command.copy'), description: t(uiLanguage(), 'translator.command.copyDesc') },
       { id: 'translator-clear', label: t(uiLanguage(), 'translator.command.clear'), description: t(uiLanguage(), 'translator.command.clearDesc') },
     ],
@@ -611,6 +621,10 @@ function renderEmailAssistant() {
           <span>${escapeHtml(t(uiLanguage, 'mail.message'))}</span>
           <textarea id="message" rows="8" placeholder="${escapeHtml(t(uiLanguage, 'mail.messagePlaceholder'))}">${escapeHtml(state.message)}</textarea>
         </label>
+        <button id="emailDictate" class="email-dictate-button audio-command audio-${state.voiceInputState}" type="button">
+          <strong>${escapeHtml(t(uiLanguage, 'translator.command.speak'))}</strong>
+          <span>${escapeHtml(microphoneCommandDescription())}</span>
+        </button>
       </details>
 
       <details class="module-section">
@@ -1230,6 +1244,7 @@ function bindCommandPanel() {
       if (command === 'turn-open-cockpit') navigateToModule('cockpit');
       if (command === 'turn-open-legal') navigateToModule('legal');
       if (command === 'turn-open-about') navigateToModule('about');
+      if (command === 'turn-change-pin') { state.adminChangePinOpen = true; render(); }
       if (command === 'profile-save') saveProfileFromForm();
       if (command === 'profile-edit') showPlannedCommand(t(uiLanguage(), 'profile.status.editDirectly'));
       if (command === 'profile-upload') showPlannedCommand(t(uiLanguage(), 'profile.status.uploadFuture'));
@@ -1241,6 +1256,7 @@ function bindCommandPanel() {
       if (command === 'about-version') showPlannedCommand(`${APP_VERSION}`);
       if (command === 'about-support') showPlannedCommand(t(uiLanguage(), 'about.status.supportPlaceholder'));
       if (command === 'about-legal') navigateToModule('legal');
+      if (command === 'about-admin') navigateToModule('turn');
       if (command === 'about-close') navigateToModule('cockpit');
       if (command === 'licenses-about') navigateToModule('about');
       if (command === 'licenses-legal') navigateToModule('legal');
@@ -1331,6 +1347,10 @@ function bindEmailAssistant() {
     markMailDraftChanged();
     state.status = mailStatus('manualMode');
     render();
+  });
+
+  document.querySelector<HTMLButtonElement>('#emailDictate')?.addEventListener('click', () => {
+    void startEmailVoiceInput();
   });
 
   document.querySelector<HTMLButtonElement>('#openContactManager')?.addEventListener('click', () => {
@@ -1923,7 +1943,8 @@ async function translateEmailOnly() {
   render();
 }
 
-function startVoiceInput() {
+async function startVoiceInput() {
+  console.info('[AGM Audio] Microphone button pressed');
   if (!ensureLegalAcceptanceForMicrophone()) {
     return;
   }
@@ -1931,6 +1952,11 @@ function startVoiceInput() {
   if (state.isListening) {
     state.status = t(uiLanguage(), 'translator.status.alreadyListening');
     render();
+    return;
+  }
+
+  if (isNativeAudioAvailable()) {
+    await startNativeVoiceInput();
     return;
   }
 
@@ -1948,12 +1974,14 @@ function startVoiceInput() {
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
   state.isListening = true;
+  state.voiceInputState = 'listening';
   state.status = t(uiLanguage(), 'translator.status.microphoneActive');
 
   recognition.onresult = (event) => {
     const transcript = event.results[0]?.[0]?.transcript?.trim();
 
     if (transcript) {
+      console.info('[AGM Audio] Browser speech recognition result', { characters: transcript.length });
       state.translatorText = state.translatorText ? `${state.translatorText}\n${transcript}` : transcript;
       state.status = t(uiLanguage(), 'translator.status.voiceCaptured', {
         language: languageLabel(state.translatorTargetLanguage),
@@ -1962,30 +1990,215 @@ function startVoiceInput() {
   };
 
   recognition.onerror = () => {
+    console.error('[AGM Audio] Browser speech recognition failed');
+    state.voiceInputState = 'error';
     state.status = t(uiLanguage(), 'translator.status.voiceError');
   };
 
   recognition.onend = () => {
     state.isListening = false;
+    if (state.voiceInputState !== 'error') state.voiceInputState = 'inactive';
     render();
   };
 
   try {
+    console.info('[AGM Audio] Browser speech recognition starting', { language: recognition.lang });
     recognition.start();
     render();
   } catch {
     state.isListening = false;
+    state.voiceInputState = 'error';
+    console.error('[AGM Audio] Browser speech recognition could not start');
     state.status = t(uiLanguage(), 'translator.status.microphoneStartError');
     render();
   }
 }
 
-function speakTranslation() {
+async function startNativeVoiceInput() {
+  const language = speechLocale(state.translatorTargetLanguage);
+  try {
+    let permission = await NativeAudio.checkMicrophonePermission();
+    console.info('[AGM Audio] Microphone permission state', permission.state);
+    if (permission.state !== 'granted') {
+      permission = await NativeAudio.requestMicrophonePermission();
+      console.info('[AGM Audio] Microphone permission request result', permission.state);
+    }
+    if (permission.state !== 'granted') {
+      showMicrophonePermissionDenied(permission.state);
+      return;
+    }
+
+    const stateListener = await NativeAudio.addListener('speechState', (event) => {
+      state.voiceInputState = event.state;
+      state.status = audioMessage(event.state === 'processing' ? 'Microfon: procesare voce…' : 'Microfon activ. Vorbește acum.', event.state === 'processing' ? 'Mikrofon: Sprache wird verarbeitet…' : 'Mikrofon aktiv. Jetzt sprechen.', event.state === 'processing' ? 'Microphone: processing speech…' : 'Microphone active. Speak now.');
+      console.info('[AGM Audio] Native speech state', event.state);
+      render();
+    });
+    state.isListening = true;
+    state.voiceInputState = 'listening';
+    state.status = t(uiLanguage(), 'translator.status.microphoneActive');
+    console.info('[AGM Audio] Native speech recognition starting', { language });
+    render();
+    try {
+      const result = await NativeAudio.startListening({ language });
+      console.info('[AGM Audio] Native speech recognition result', { characters: result.text.length });
+      state.translatorText = state.translatorText ? `${state.translatorText}\n${result.text}` : result.text;
+      state.status = t(uiLanguage(), 'translator.status.voiceCaptured', { language: languageLabel(state.translatorTargetLanguage) });
+      state.voiceInputState = 'inactive';
+    } finally {
+      await stateListener.remove();
+    }
+  } catch (error) {
+    console.error('[AGM Audio] Native speech recognition error', error);
+    state.voiceInputState = 'error';
+    state.status = audioErrorMessage('Microfon', error);
+  } finally {
+    state.isListening = false;
+    render();
+  }
+}
+
+async function startEmailVoiceInput() {
+  console.info('[AGM Audio] Email microphone button pressed');
+  if (!ensureLegalAcceptanceForMicrophone() || state.isListening) return;
+  if (!isNativeAudioAvailable()) {
+    state.status = t(uiLanguage(), 'translator.status.unsupportedMicrophone');
+    render();
+    return;
+  }
+  const language = speechLocale(state.targetLanguage);
+  try {
+    let permission = await NativeAudio.checkMicrophonePermission();
+    if (permission.state !== 'granted') permission = await NativeAudio.requestMicrophonePermission();
+    if (permission.state !== 'granted') {
+      showMicrophonePermissionDenied(permission.state);
+      return;
+    }
+    const listener = await NativeAudio.addListener('speechState', (event) => {
+      state.voiceInputState = event.state;
+      state.status = event.state === 'processing'
+        ? audioMessage('E-mail: procesare voce…', 'E-Mail: Sprache wird verarbeitet…', 'Email: processing speech…')
+        : t(uiLanguage(), 'translator.status.microphoneActive');
+      render();
+    });
+    state.isListening = true;
+    state.voiceInputState = 'listening';
+    render();
+    try {
+      const result = await NativeAudio.startListening({ language });
+      state.message = state.message ? `${state.message}\n${result.text}` : result.text;
+      state.voiceInputState = 'inactive';
+      state.status = t(uiLanguage(), 'translator.status.voiceCaptured', { language: languageLabel(state.targetLanguage) });
+    } finally {
+      await listener.remove();
+    }
+  } catch (error) {
+    console.error('[AGM Audio] Email dictation error', error);
+    state.voiceInputState = 'error';
+    state.status = audioErrorMessage('Microfon e-mail', error);
+  } finally {
+    state.isListening = false;
+    render();
+  }
+}
+
+function renderAdministratorLogin() {
+  return `
+    <section class="admin-login" aria-labelledby="admin-login-title">
+      <header><span>AG-017</span><h1 id="admin-login-title">Acces administrativ</h1></header>
+      <p>Turn Command Center este protejat prin PIN-ul local AGM.</p>
+      <form id="adminLoginForm">
+        <label>PIN AGM<input id="adminPin" type="password" inputmode="numeric" autocomplete="off" minlength="4" maxlength="64" required /></label>
+        <button class="primary" type="submit">Deblochează Turn</button>
+      </form>
+      <button data-module="cockpit" type="button">Înapoi la Cockpit</button>
+    </section>`;
+}
+
+function renderChangeAdminPin() {
+  if (!state.adminChangePinOpen) return '';
+  return `<section class="modal-backdrop" role="dialog" aria-modal="true"><form id="changeAdminPinForm" class="admin-login">
+    <h2>Schimbă PIN-ul AGM</h2>
+    <label>PIN curent<input id="currentAdminPin" type="password" inputmode="numeric" minlength="4" required /></label>
+    <label>PIN nou<input id="newAdminPin" type="password" inputmode="numeric" minlength="4" required /></label>
+    <div class="actions"><button class="primary" type="submit">Salvează PIN</button><button id="cancelAdminPinChange" type="button">Anulează</button></div>
+  </form></section>`;
+}
+
+function bindAdministratorLogin() {
+  document.querySelector<HTMLFormElement>('#adminLoginForm')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    void authenticateAdministrator();
+  });
+  document.querySelector<HTMLFormElement>('#changeAdminPinForm')?.addEventListener('submit', (event) => {
+    event.preventDefault(); void submitAdminPinChange();
+  });
+  document.querySelector<HTMLButtonElement>('#cancelAdminPinChange')?.addEventListener('click', () => {
+    state.adminChangePinOpen = false; render();
+  });
+}
+
+async function authenticateAdministrator() {
+  const pin = document.querySelector<HTMLInputElement>('#adminPin')?.value ?? '';
+  try {
+    const session = await unlockAdministrator(pin);
+    window.sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
+    state.adminSession = session;
+    state.adminAccessVerified = true;
+    state.status = 'Acces administrativ autorizat.';
+  } catch (error) {
+    state.adminAccessVerified = false;
+    state.status = audioErrorMessage('Administrare', error);
+  }
+  render();
+}
+
+async function submitAdminPinChange() {
+  if (!state.adminSession) return;
+  const currentPin = document.querySelector<HTMLInputElement>('#currentAdminPin')?.value ?? '';
+  const newPin = document.querySelector<HTMLInputElement>('#newAdminPin')?.value ?? '';
+  try {
+    await changeAdministratorPin(state.adminSession, currentPin, newPin);
+    state.adminChangePinOpen = false;
+    state.status = 'PIN-ul administrativ AGM a fost schimbat.';
+  } catch (error) { state.status = audioErrorMessage('Schimbare PIN', error); }
+  render();
+}
+
+function readAdminSession(): AdminSession | null {
+  try {
+    return JSON.parse(window.sessionStorage.getItem(ADMIN_SESSION_KEY) ?? 'null') as AdminSession | null;
+  } catch { return null; }
+}
+
+async function restoreAdministratorAccess() {
+  if (!state.adminSession) return;
+  state.adminAccessVerified = await validateAdministrator(state.adminSession);
+  if (!state.adminAccessVerified) window.sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  render();
+}
+
+function showMicrophonePermissionDenied(permission: MicrophonePermissionState) {
+  console.warn('[AGM Audio] Microphone permission denied', permission);
+  state.voiceInputState = 'error';
+  state.status = audioMessage('Permisiunea pentru microfon a fost refuzată.', 'Die Mikrofonberechtigung wurde verweigert.', 'Microphone permission was denied.');
+  render();
+  const openSettings = window.confirm(audioMessage('Microfonul este blocat. Deschideți setările aplicației pentru a acorda permisiunea?', 'Das Mikrofon ist blockiert. App-Einstellungen öffnen?', 'Microphone is blocked. Open app settings to grant permission?'));
+  if (openSettings) void NativeAudio.openAppSettings();
+}
+
+async function speakTranslation() {
+  console.info('[AGM Audio] Speaker button pressed');
   const text = state.translatorResult.trim();
 
   if (!text) {
     state.status = t(uiLanguage(), 'translator.status.noSpeechText');
     render();
+    return;
+  }
+
+  if (isNativeAudioAvailable()) {
+    await speakNativeText(text, state.translatorTargetLanguage, false);
     return;
   }
 
@@ -1998,6 +2211,18 @@ function speakTranslation() {
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = speechLocale(state.translatorTargetLanguage);
+  utterance.onerror = (event) => {
+    console.error('[AGM Audio] Browser TTS error', event.error);
+    state.voicePlaybackState = 'error';
+    state.status = audioMessage(`Eroare redare vocală: ${event.error}`, `Fehler bei der Sprachausgabe: ${event.error}`, `Voice playback error: ${event.error}`);
+    render();
+  };
+  utterance.onend = () => {
+    state.voicePlaybackState = 'stopped';
+    render();
+  };
+  state.voicePlaybackState = 'playing';
+  console.info('[AGM Audio] Browser TTS starting', { language: utterance.lang, characters: text.length });
   window.speechSynthesis.speak(utterance);
   state.status = t(uiLanguage(), 'translator.status.speaking', {
     language: languageLabel(state.translatorTargetLanguage),
@@ -2005,12 +2230,17 @@ function speakTranslation() {
   render();
 }
 
-function speakEmailMessage() {
+async function speakEmailMessage() {
   const text = state.message.trim();
 
   if (!text) {
     state.status = t(uiLanguage(), 'mail.status.noSpeechText');
     render();
+    return;
+  }
+
+  if (isNativeAudioAvailable()) {
+    await speakNativeText(text, state.targetLanguage, true);
     return;
   }
 
@@ -2026,6 +2256,55 @@ function speakEmailMessage() {
   window.speechSynthesis.speak(utterance);
   state.status = t(uiLanguage(), 'mail.status.speaking', { language: languageLabel(state.targetLanguage) });
   render();
+}
+
+async function speakNativeText(text: string, language: LanguageCode, isEmail: boolean) {
+  const locale = speechLocale(language);
+  state.voicePlaybackState = 'playing';
+  state.status = isEmail
+    ? t(uiLanguage(), 'mail.status.speaking', { language: languageLabel(language) })
+    : t(uiLanguage(), 'translator.status.speaking', { language: languageLabel(language) });
+  console.info('[AGM Audio] Native TTS starting', { language: locale, characters: text.length });
+  render();
+  try {
+    await NativeAudio.speak({ text, language: locale });
+    console.info('[AGM Audio] Native TTS completed', { language: locale });
+    state.voicePlaybackState = 'stopped';
+    state.status = audioMessage('Redarea vocală s-a încheiat.', 'Sprachausgabe beendet.', 'Voice playback finished.');
+  } catch (error) {
+    console.error('[AGM Audio] Native TTS error', error);
+    state.voicePlaybackState = 'error';
+    state.status = audioErrorMessage('Difuzor', error);
+  }
+  render();
+}
+
+function audioCommandClass(command: string) {
+  if (command === 'translator-speak') return `audio-command audio-${state.voiceInputState}`;
+  if (command === 'translator-listen' || command === 'email-listen') return `audio-command audio-${state.voicePlaybackState}`;
+  return '';
+}
+
+function microphoneCommandDescription() {
+  if (state.voiceInputState === 'listening') return audioMessage('Ascultă…', 'Hört zu…', 'Listening…');
+  if (state.voiceInputState === 'processing') return audioMessage('Procesează…', 'Verarbeitet…', 'Processing…');
+  if (state.voiceInputState === 'error') return audioMessage('Eroare microfon – apasă pentru reîncercare', 'Mikrofonfehler – erneut versuchen', 'Microphone error – tap to retry');
+  return t(uiLanguage(), 'translator.command.speakDesc');
+}
+
+function speakerCommandDescription() {
+  if (state.voicePlaybackState === 'playing') return audioMessage('Redare…', 'Wiedergabe…', 'Playing…');
+  if (state.voicePlaybackState === 'error') return audioMessage('Eroare difuzor – apasă pentru reîncercare', 'Lautsprecherfehler – erneut versuchen', 'Speaker error – tap to retry');
+  return t(uiLanguage(), 'translator.command.listenDesc');
+}
+
+function audioMessage(ro: string, de: string, en: string) {
+  return uiLanguage() === 'de' ? de : uiLanguage() === 'en' ? en : ro;
+}
+
+function audioErrorMessage(component: string, error: unknown) {
+  const detail = error instanceof Error ? error.message : String(error);
+  return `${component}: ${detail}`;
 }
 
 async function translateWithAdapter(text: string, sourceLanguage: LanguageCode, targetLanguage: LanguageCode) {

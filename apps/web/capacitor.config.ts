@@ -5,6 +5,10 @@ const config: CapacitorConfig = {
   appName: 'A.G.M. Cockpit',
   webDir: 'dist',
   bundledWebRuntime: false,
+  android: {
+    // Internal LAN testing uses an HTTP API. Replace this with HTTPS before production release.
+    allowMixedContent: true,
+  },
   server: {
     androidScheme: 'https',
   },

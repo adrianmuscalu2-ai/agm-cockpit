@@ -1,5 +1,40 @@
 # AGM Technical Change Report
 
+## 2026-07-14 - Android stable foundation (AG-018 / AG-019 / AG-020)
+
+### Scope
+
+- Restabilirea conexiunii Android catre API prin endpoint LAN configurat.
+- Integrarea nativa Android pentru Speech-to-Text si Text-to-Speech.
+- Optimizarea ergonomiei cockpit-ului pentru ecrane mobile inguste si tastatura virtuala.
+- Adaugarea dictarii in Email Assistant.
+- Protejarea Turn Command Center prin PIN local AGM verificat server-side.
+
+### Security
+
+- PIN-ul Turn este stocat exclusiv ca hash bcrypt in PostgreSQL.
+- Dupa 5 incercari gresite accesul este blocat 15 minute.
+- Sesiunea Turn foloseste JWT cu scope dedicat si expirare dupa 15 minute.
+- Turn nu mai este prezent in navigatia utilizatorului obisnuit.
+- PIN-ul poate fi schimbat numai dintr-o sesiune Turn valida si cu confirmarea PIN-ului curent.
+
+### Android
+
+- `RECORD_AUDIO` este declarat si solicitat runtime.
+- `SpeechRecognizer` si `TextToSpeech` sunt expuse printr-un plugin Capacitor local.
+- Manifestul declara vizibilitatea serviciilor Android STT/TTS.
+- HTTP local si mixed content sunt permise numai pentru etapa interna LAN.
+
+### Validation
+
+- Validare fizica Android: traducere, microfon, difuzor, permisiuni, OCR si cockpit.
+- `pnpm web:build`, `pnpm build`, Prisma migration, Capacitor sync si Gradle `assembleDebug` finalizate cu succes.
+- Fluxul PIN `unlock -> scoped token -> validate` a fost verificat prin cereri HTTP reale.
+
+### Stable Artifact
+
+- Debug APK SHA-256: `56223F83C8556DF6C4C399445512A188879361B4C24CBA87B6A13E7BEFC556FE`.
+
 ## 2026-07-13 - AI Governance and Release Operations process
 
 ### Scope

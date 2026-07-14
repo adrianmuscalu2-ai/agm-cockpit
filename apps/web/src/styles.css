@@ -20,6 +20,7 @@ body {
   width: 100%;
   min-width: 0;
   overflow-x: hidden;
+  min-height: 100dvh;
 }
 
 #app {
@@ -49,6 +50,7 @@ textarea {
 
 .shell {
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   padding: clamp(10px, 2vw, 18px);
   overflow-x: hidden;
@@ -357,6 +359,51 @@ h2 {
 .status-dot.online {
   background: #29f23f;
   box-shadow: 0 0 14px rgba(41, 242, 63, 0.72);
+}
+
+.command-actions .audio-command.audio-listening,
+.command-actions .audio-command.audio-playing {
+  outline: 2px solid #2dd4bf;
+  box-shadow: 0 0 18px rgba(45, 212, 191, 0.45);
+}
+
+.command-actions .audio-command.audio-processing {
+  outline: 2px solid #fbbf24;
+}
+
+.command-actions .audio-command.audio-error {
+  outline: 2px solid #fb7185;
+  box-shadow: 0 0 14px rgba(251, 113, 133, 0.35);
+}
+
+.email-dictate-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  border-color: #197bff;
+}
+
+.email-dictate-button span {
+  color: #b8c9dc;
+}
+
+.admin-login {
+  grid-column: 1 / -1;
+  width: min(480px, 100%);
+  margin: 24px auto;
+  padding: clamp(18px, 4vw, 30px);
+  border: 1px solid #1569af;
+  border-radius: 12px;
+  background: #0b131d;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.42);
+}
+
+.admin-login form {
+  display: grid;
+  gap: 14px;
+  margin: 20px 0 12px;
 }
 
 .ready-badge {
@@ -2141,8 +2188,12 @@ dd {
 }
 
 @media (max-width: 520px) {
+  :root {
+    scroll-padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+
   .shell {
-    padding: 8px;
+    padding: 8px 8px calc(132px + env(safe-area-inset-bottom));
   }
 
   .workspace {
@@ -2167,8 +2218,39 @@ dd {
     padding: 8px;
   }
 
+  .topbar .brand-lockup,
+  .header-ready {
+    display: none;
+  }
+
   .brand-logo {
     max-height: 116px;
+  }
+
+  .module-strip {
+    display: grid;
+    grid-template-columns: minmax(104px, 0.36fr) minmax(0, 1fr);
+    gap: 8px;
+    padding: 7px;
+  }
+
+  .module-nav {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    scroll-snap-type: inline proximity;
+  }
+
+  .module-nav::-webkit-scrollbar,
+  .command-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .module-nav button {
+    flex: 0 0 96px;
+    scroll-snap-align: start;
   }
 
   .profile-chip {
@@ -2222,24 +2304,144 @@ dd {
   }
 
   .translator-hud textarea,
-  .translator-hud .preview p,
   textarea,
   .preview p {
-    min-height: 150px;
+    min-height: 160px;
   }
 
-  .compact-language,
-  .translator-status-strip {
-    grid-template-columns: 1fr;
+  .translator-hud .cockpit-result .preview p,
+  .translator-hud .cockpit-result > p {
+    min-height: 195px;
+  }
+
+  .compact-language {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .language-option,
   .command-actions button {
-    min-height: 44px;
+    min-height: 48px;
   }
 
-  .command-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .compact-language .language-option {
+    display: flex;
+    min-height: 54px;
+    justify-content: center;
+    padding: 10px 6px;
+    text-align: center;
+  }
+
+  .compact-language .language-option span {
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .compact-language .language-option small {
+    display: none;
+  }
+
+  .translator-status-strip {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .translator-status-strip span {
+    flex: 0 0 auto;
+    min-height: 34px;
+    padding: 6px 9px;
+    font-size: 12px;
+  }
+
+  .view-cockpit .command-panel {
+    position: fixed;
+    z-index: 30;
+    right: 8px;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    left: 8px;
+    display: block;
+    padding: 7px;
+    border-color: rgba(43, 143, 255, 0.78);
+    background: rgba(5, 14, 23, 0.94);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(18px) saturate(1.25);
+  }
+
+  .view-cockpit .command-module,
+  .view-cockpit .command-panel aside {
+    display: none;
+  }
+
+  .view-cockpit .command-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    overflow: visible;
+  }
+
+  .view-cockpit .command-actions button {
+    width: 100%;
+    min-width: 0;
+    min-height: 50px;
+    padding: 7px 4px;
+    justify-items: center;
+    align-content: center;
+    font-size: 12px;
+    line-height: 1.12;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .view-cockpit .command-actions button[data-command='translator-speak'] {
+    order: 1;
+  }
+
+  .view-cockpit .command-actions button[data-command='translator-translate'] {
+    order: 2;
+    border-color: #2dd4bf;
+    background: linear-gradient(180deg, rgba(18, 117, 118, 0.9), rgba(7, 49, 57, 0.96));
+  }
+
+  .view-cockpit .command-actions button[data-command='translator-listen'] {
+    order: 3;
+  }
+
+  .view-cockpit .command-actions button[data-command='translator-ocr'] {
+    order: 4;
+  }
+
+  .view-cockpit .command-actions button[data-command='translator-correct'] {
+    order: 5;
+  }
+
+  .view-cockpit .command-actions button[data-command='translator-copy'] {
+    order: 6;
+  }
+
+  .view-cockpit .command-actions button[data-command='translator-clear'] {
+    order: 7;
+  }
+
+  .view-cockpit:has(textarea:focus) .command-actions button:not([data-command='translator-speak']):not([data-command='translator-translate']):not([data-command='translator-listen']) {
+    display: none;
+  }
+
+  .view-cockpit:has(textarea:focus) .command-actions button {
+    width: 100%;
+  }
+
+  .view-cockpit:has(textarea:focus) .command-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .view-cockpit:has(textarea:focus) .topbar,
+  .view-email:has(input:focus, textarea:focus) .topbar,
+  .view-corrector:has(textarea:focus) .topbar {
+    display: none;
   }
 
   .turn-row {
@@ -2292,9 +2494,55 @@ dd {
   }
 
   .translator-hud textarea,
-  .translator-hud .preview p,
   textarea,
   .preview p {
-    min-height: 140px;
+    min-height: 150px;
+  }
+
+  .translator-hud .cockpit-result .preview p,
+  .translator-hud .cockpit-result > p {
+    min-height: 180px;
+  }
+
+  .module-strip {
+    grid-template-columns: 92px minmax(0, 1fr);
+  }
+
+  .view-cockpit .command-actions button {
+    min-height: 48px;
+    font-size: 11px;
+  }
+
+  .view-cockpit .command-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .shell.view-cockpit {
+    padding-bottom: calc(180px + env(safe-area-inset-bottom));
+  }
+
+  .compact-language .language-option span {
+    font-size: 12px;
+  }
+}
+
+@media (max-height: 520px) and (pointer: coarse) {
+  .shell {
+    padding-bottom: calc(126px + env(safe-area-inset-bottom));
+  }
+
+  .topbar,
+  .translator-hud-title,
+  .translator-status-strip {
+    display: none;
+  }
+
+  .view-cockpit .command-actions button {
+    min-height: 50px;
+  }
+
+  .translator-hud textarea,
+  .translator-hud .preview p {
+    min-height: 128px;
   }
 }

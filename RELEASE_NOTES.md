@@ -1,5 +1,31 @@
 # Release Notes
 
+## v0.5.0 - Android Stable Foundation
+
+This checkpoint establishes the validated Android baseline for AGM Translator and Cockpit.
+
+### Device-validated functionality
+
+- RO / DE / EN translation through the AGM API.
+- Android microphone permission and native speech recognition.
+- Native Android voice playback.
+- Camera OCR flow and translation handoff.
+- Responsive cockpit UX on narrow Android devices.
+- Email Assistant voice dictation.
+
+### Administration and security
+
+- Turn Command Center is hidden from ordinary-user navigation.
+- Access uses a local AGM PIN verified by the API.
+- PIN values are bcrypt-hashed, changeable, rate-limited, and protected by short-lived scoped sessions.
+
+### Remaining work
+
+- OCR quality and performance optimization.
+- Final device-level UX refinements.
+- HTTPS/public API configuration before public distribution.
+- Release signing and Google Play preparation.
+
 ## v0.4.0 - Stable Backend Checkpoint
 
 This release captures the current stable AGM backend state after Milestones 1 through 4.

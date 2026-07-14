@@ -11,6 +11,7 @@ import { TransportsModule } from './transports/transports.module';
 import { TranslationModule } from './translation/translation.module';
 import { UsersModule } from './users/users.module';
 import { ValidationReportsModule } from './validation-reports/validation-reports.module';
+import { TurnAdminModule } from './turn-admin/turn-admin.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ValidationReportsModule } from './validation-reports/validation-reports
     LifecycleModule,
     TransportsModule,
     TranslationModule,
+    TurnAdminModule,
   ],
   controllers: [HealthController],
 })

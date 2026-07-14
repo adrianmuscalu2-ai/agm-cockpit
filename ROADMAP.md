@@ -63,6 +63,7 @@ Email Assistant aparține AGM Basic.
 | --- | --- | --- | --- |
 | Redactare asistată e-mail | Implemented | High | Validated |
 | Traducere e-mail | Implemented | High | Validated |
+| Dictare vocala in corpul e-mailului | Implemented | High | Validated Android 2026-07-14 |
 | Corector text pentru e-mail | Implemented | High | Validated |
 | Șabloane e-mail | Implemented | Medium | Validated |
 | Contacte locale / Address Book | Implemented | Medium | Validated |
@@ -97,6 +98,9 @@ Email Assistant aparține AGM Basic.
 | Internal debug APK | Implemented | High | Validated |
 | Responsive Android UI | Implemented | High | Validated |
 | Camera permission | Implemented | High | Validated AG-018 |
+| Microfon nativ si redare vocala Android | Implemented | Critical | Validated AG-018 |
+| Conexiune APK catre API LAN | Implemented | Critical | Validated AG-020 |
+| Ergonomie cockpit pentru ecrane inguste | Implemented | High | Validated preliminar AG-019 |
 | APK release build process | Planned | High | Required before Google Play |
 | Google Play internal testing setup | Planned | High | Required before public testing |
 
@@ -105,6 +109,7 @@ Email Assistant aparține AGM Basic.
 | Feature | Status | Priority | Validation Stage |
 | --- | --- | --- | --- |
 | Turn Command Center MVP read-only | Implemented | High | Validated AG-017 |
+| Acces administrativ prin PIN local AGM | Implemented | Critical | Stable baseline 2026-07-14 |
 | Inspector Agent | Implemented | High | Validated AG-018 |
 | Department status indicators | Implemented | High | Validated AG-018 |
 | Agent status indicators | Implemented | High | In validation |

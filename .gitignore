@@ -5,6 +5,7 @@ dist/
 .env.*
 .env.local
 .env.*.local
+!apps/web/.env.production
 coverage/
 .turbo/
 .pnpm-store/
