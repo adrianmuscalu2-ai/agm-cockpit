@@ -2219,6 +2219,16 @@ async function processOcrImage(file: File) {
       return;
     }
 
+    if (!ocrResult.isUsable) {
+      state.ocrImageDataUrl = imageDataUrl;
+      state.ocrExtractedText = '';
+      state.ocrConfidence = ocrResult.confidence;
+      state.isOcrProcessing = false;
+      state.status = t(uiLanguage(), 'ocr.status.lowQuality', { confidence: ocrResult.confidence });
+      render();
+      return;
+    }
+
     state.ocrImageDataUrl = imageDataUrl;
     state.ocrExtractedText = ocrResult.text;
     state.ocrConfidence = ocrResult.confidence;

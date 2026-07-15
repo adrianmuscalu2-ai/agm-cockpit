@@ -314,6 +314,8 @@ export const appI18nDictionary: AppI18nDictionary = {
     'ocr.status.processing': 'OCR procesează imaginea. Te rog așteaptă.',
     'ocr.status.completed': 'Text detectat prin OCR. Încredere: {confidence}%.',
     'ocr.status.noText': 'Nu am detectat text lizibil în imagine.',
+    'ocr.status.lowQuality':
+      'Textul detectat nu este suficient de sigur ({confidence}%). Fotografiază drept, mai aproape și cu lumină uniformă.',
     'ocr.status.failed': 'OCR nu a putut procesa imaginea.',
     'ocr.status.unsupportedFile': 'Fișierul selectat nu este o imagine.',
     'ocr.status.historyCleared': 'Istoricul OCR local a fost șters.',
@@ -1094,6 +1096,8 @@ export const appI18nDictionary: AppI18nDictionary = {
     'ocr.status.processing': 'OCR verarbeitet das Bild. Bitte warten.',
     'ocr.status.completed': 'Text per OCR erkannt. Vertrauen: {confidence}%.',
     'ocr.status.noText': 'Im Bild wurde kein lesbarer Text erkannt.',
+    'ocr.status.lowQuality':
+      'Der erkannte Text ist nicht zuverlässig genug ({confidence}%). Fotografiere gerade, näher und bei gleichmäßigem Licht.',
     'ocr.status.failed': 'OCR konnte das Bild nicht verarbeiten.',
     'ocr.status.unsupportedFile': 'Die ausgewählte Datei ist kein Bild.',
     'ocr.status.historyCleared': 'Der lokale OCR-Verlauf wurde gelöscht.',
@@ -1874,6 +1878,8 @@ export const appI18nDictionary: AppI18nDictionary = {
     'ocr.status.processing': 'OCR is processing the image. Please wait.',
     'ocr.status.completed': 'Text detected by OCR. Confidence: {confidence}%.',
     'ocr.status.noText': 'No readable text was detected in the image.',
+    'ocr.status.lowQuality':
+      'The detected text is not reliable enough ({confidence}%). Take the photo straight on, closer, and in even light.',
     'ocr.status.failed': 'OCR could not process the image.',
     'ocr.status.unsupportedFile': 'The selected file is not an image.',
     'ocr.status.historyCleared': 'Local OCR history was cleared.',
