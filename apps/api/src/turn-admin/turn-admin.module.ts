@@ -9,7 +9,7 @@ import { TurnAdminService } from './turn-admin.service';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({ secret: config.get<string>('JWT_SECRET', 'change-me-in-development') }),
+      useFactory: (config: ConfigService) => ({ secret: config.getOrThrow<string>('JWT_SECRET') }),
     }),
   ],
   controllers: [TurnAdminController],

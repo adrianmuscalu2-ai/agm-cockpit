@@ -1,13 +1,14 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
+const allowLanHttp = process.env.AGM_ALLOW_LAN_HTTP_BUILD === 'true';
+
 const config: CapacitorConfig = {
   appId: 'com.agm.cockpit',
   appName: 'A.G.M. Cockpit',
   webDir: 'dist',
   bundledWebRuntime: false,
   android: {
-    // Internal LAN testing uses an HTTP API. Replace this with HTTPS before production release.
-    allowMixedContent: true,
+    allowMixedContent: allowLanHttp,
   },
   server: {
     androidScheme: 'https',

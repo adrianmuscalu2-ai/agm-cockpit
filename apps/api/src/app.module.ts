@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { AuditModule } from './audit/audit.module';
 import { EvidenceModule } from './evidence/evidence.module';
@@ -12,13 +14,16 @@ import { TranslationModule } from './translation/translation.module';
 import { UsersModule } from './users/users.module';
 import { ValidationReportsModule } from './validation-reports/validation-reports.module';
 import { TurnAdminModule } from './turn-admin/turn-admin.module';
+import { validateEnvironment } from './config/environment';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', '../../.env'],
+      validate: validateEnvironment,
     }),
+    ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
     PrismaModule,
     UsersModule,
     AuthModule,
@@ -32,5 +37,6 @@ import { TurnAdminModule } from './turn-admin/turn-admin.module';
     TurnAdminModule,
   ],
   controllers: [HealthController],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

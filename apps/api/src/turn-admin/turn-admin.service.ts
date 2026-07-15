@@ -63,7 +63,7 @@ export class TurnAdminService {
   private async verifyToken(authorization: string | undefined) {
     const token = authorization?.startsWith('Bearer ') ? authorization.slice(7) : '';
     try {
-      const payload = await this.jwt.verifyAsync<{ scope?: string }>(token, { secret: this.config.get<string>('JWT_SECRET', 'change-me-in-development') });
+      const payload = await this.jwt.verifyAsync<{ scope?: string }>(token, { secret: this.config.getOrThrow<string>('JWT_SECRET') });
       if (payload.scope !== 'turn-admin') throw new Error('Invalid scope');
     } catch {
       throw new UnauthorizedException('Sesiunea administrativă a expirat.');

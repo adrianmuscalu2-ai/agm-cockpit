@@ -91,7 +91,7 @@ export class OpenAiTranslationProvider implements TranslationProvider {
         provider: 'openai',
       };
     } catch (error) {
-      console.error('OPENAI ERROR:', error);
+      console.error('OpenAI translation request failed.', safeErrorDetails(error));
       return {
         text: request.text,
         available: false,
@@ -101,6 +101,14 @@ export class OpenAiTranslationProvider implements TranslationProvider {
       console.info(`OPENAI TRANSLATION DURATION: ${Math.round(performance.now() - startedAt)}ms`);
     }
   }
+}
+
+function safeErrorDetails(error: unknown) {
+  if (!(error instanceof Error)) return { type: 'UnknownError' };
+  return {
+    type: error.name,
+    message: error.message.replace(/Bearer\s+\S+/gi, 'Bearer [REDACTED]').slice(0, 200),
+  };
 }
 
 function translationTimeoutMs(configuredValue: string | undefined) {
