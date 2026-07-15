@@ -1557,6 +1557,147 @@ dd {
   color: #9fb5ca;
 }
 
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: grid;
+  place-items: center;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  background: rgba(2, 8, 14, 0.84);
+  backdrop-filter: blur(14px);
+}
+
+.tutorial-dialog {
+  width: min(680px, 100%);
+  max-height: 100%;
+  overflow-y: auto;
+  border: 1px solid #1c6eaa;
+  border-radius: 8px;
+  background: #07121e;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.48);
+}
+
+.tutorial-header,
+.tutorial-actions,
+.tutorial-actions > div,
+.tutorial-progress,
+.tutorial-preference,
+.contextual-hint,
+.contextual-hint > div {
+  display: flex;
+  align-items: center;
+}
+
+.tutorial-header {
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(81, 174, 255, 0.2);
+}
+
+.tutorial-header > div {
+  display: grid;
+  gap: 3px;
+}
+
+.tutorial-header span {
+  color: #51aeff;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.tutorial-header strong { font-size: 20px; }
+
+.tutorial-close {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.tutorial-slide {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+  min-height: 250px;
+  padding: 30px;
+  touch-action: pan-y;
+}
+
+.tutorial-symbol {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 1px solid #168fda;
+  border-radius: 8px;
+  color: #eaf6ff;
+  background: #0b263b;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.tutorial-slide strong { display: block; font-size: 24px; }
+.tutorial-slide p { margin: 10px 0 0; color: #b8cde0; font-size: 16px; line-height: 1.55; }
+
+.tutorial-progress { justify-content: center; gap: 8px; padding: 0 20px 16px; }
+.tutorial-progress i { width: 28px; height: 4px; border-radius: 2px; background: #294156; }
+.tutorial-progress i.active { background: #2aa9ff; }
+.tutorial-progress span { margin-left: 8px; color: #8aa8c7; font-size: 12px; }
+
+.tutorial-preference {
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(81, 174, 255, 0.16);
+  color: #cfe5f8;
+}
+
+.tutorial-preference input { width: 20px; height: 20px; }
+
+.tutorial-actions {
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px max(16px, env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(81, 174, 255, 0.2);
+  background: #091725;
+}
+
+.tutorial-actions > div,
+.contextual-hint > div { gap: 10px; }
+.tutorial-actions button { min-height: 46px; }
+.tutorial-actions button:disabled { opacity: 0.42; }
+
+.contextual-hint {
+  position: fixed;
+  z-index: 105;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  left: max(14px, env(safe-area-inset-left));
+  justify-content: space-between;
+  gap: 16px;
+  width: min(720px, calc(100% - 28px));
+  margin: 0 auto;
+  padding: 14px 16px;
+  border: 1px solid #2aa9ff;
+  border-radius: 8px;
+  background: #081726;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.48);
+}
+
+.contextual-hint span { color: #eaf6ff; line-height: 1.4; }
+
+.tutorial-target {
+  position: relative;
+  z-index: 106;
+  border-color: #80d1ff !important;
+  outline: 3px solid rgba(42, 169, 255, 0.48);
+  outline-offset: 3px;
+}
+
 .status-links {
   display: inline-flex;
   align-items: center;
@@ -2588,4 +2729,205 @@ dd {
   .translator-hud .preview p {
     min-height: 128px;
   }
+}
+
+@media (max-width: 860px) {
+  .tutorial-slide {
+    grid-template-columns: 84px minmax(0, 1fr);
+    min-height: 220px;
+    gap: 18px;
+    padding: 22px;
+  }
+
+  .tutorial-slide strong { font-size: 20px; }
+
+  .contextual-hint {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .contextual-hint > div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .tutorial-overlay { place-items: stretch; padding: 0; }
+
+  .tutorial-dialog {
+    width: 100%;
+    min-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .tutorial-slide {
+    grid-template-columns: 1fr;
+    align-content: center;
+    min-height: 300px;
+    padding: 24px 20px;
+  }
+
+  .tutorial-symbol { width: 76px; }
+
+  .tutorial-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .tutorial-actions > div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tutorial-actions button { width: 100%; }
+}
+
+.email-tutorial-hint {
+  align-items: flex-end;
+  width: min(920px, calc(100% - 28px));
+}
+
+.email-tutorial-copy {
+  display: grid !important;
+  justify-items: start;
+  gap: 4px !important;
+}
+
+.email-tutorial-copy small {
+  color: #51aeff;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.email-tutorial-copy strong { font-size: 17px; }
+.email-tutorial-copy em { color: #ffd36b; font-size: 13px; font-style: normal; }
+
+.email-tutorial-actions {
+  flex: 0 0 auto;
+}
+
+.email-tutorial-actions button:disabled { opacity: 0.42; }
+
+.roadmap {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 16px;
+}
+
+.roadmap-release,
+.roadmap-lane,
+.roadmap-suggestion,
+.roadmap-invitation {
+  border: 1px solid rgba(81, 174, 255, 0.24);
+  border-radius: 8px;
+  background: #08131f;
+}
+
+.roadmap-release { padding: 18px; }
+.roadmap-release ul { margin: 10px 0 0; padding-left: 20px; color: #bdd2e5; }
+
+.roadmap-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.roadmap-lane { min-width: 0; overflow: hidden; }
+
+.roadmap-lane > header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(81, 174, 255, 0.18);
+}
+
+.roadmap-lane > header i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #2aa9ff;
+}
+
+.roadmap-available > header i { background: #31c36b; }
+.roadmap-development > header i { background: #e7b341; }
+.roadmap-planned > header i { background: #4b9cff; }
+.roadmap-lane > div { display: grid; }
+
+.roadmap-priority-note {
+  margin: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(231, 179, 65, 0.2);
+  color: #dbc98f;
+  background: rgba(231, 179, 65, 0.06);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.roadmap-item {
+  min-height: 126px;
+  padding: 16px;
+  border-bottom: 1px solid rgba(81, 174, 255, 0.12);
+}
+
+.roadmap-item:last-child { border-bottom: 0; }
+.roadmap-item > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.roadmap-item > div span { padding: 3px 7px; border: 1px solid #d4ae47; border-radius: 4px; color: #ffe49a; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+.roadmap-item > div small { margin-left: auto; color: #6fbfff; font-size: 11px; font-weight: 800; }
+.roadmap-item p { margin: 8px 0 0; color: #9fb5ca; line-height: 1.45; }
+
+.roadmap-suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px;
+}
+
+.roadmap-suggestion p { margin: 6px 0; color: #c5d8e8; }
+.roadmap-suggestion small { color: #8aa8c7; }
+.roadmap-suggestion button:disabled { opacity: 0.5; }
+
+.roadmap-suggestion-action {
+  display: grid;
+  flex: 0 0 min(320px, 100%);
+  gap: 7px;
+}
+
+.roadmap-suggestion-action small {
+  max-width: 320px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.roadmap-invitation { width: min(560px, 100%); padding: 22px; }
+.roadmap-invitation > strong { display: block; font-size: 21px; }
+.roadmap-invitation p { margin: 10px 0 20px; color: #b8cde0; line-height: 1.55; }
+.roadmap-invitation .actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+@media (max-width: 860px) {
+  .email-tutorial-hint { align-items: stretch; }
+
+  .email-tutorial-copy {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .email-tutorial-actions {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .roadmap-columns { grid-template-columns: 1fr; }
+  .roadmap-suggestion { align-items: stretch; flex-direction: column; }
+  .roadmap-suggestion button { width: 100%; }
+  .roadmap-suggestion-action { width: 100%; }
+  .roadmap-suggestion-action small { max-width: none; }
+}
+
+@media (max-width: 520px) {
+  .roadmap-invitation { min-height: 100dvh; display: grid; align-content: center; border: 0; border-radius: 0; }
+  .roadmap-invitation .actions { display: grid; grid-template-columns: 1fr; }
 }

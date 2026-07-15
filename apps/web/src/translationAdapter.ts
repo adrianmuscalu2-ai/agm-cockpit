@@ -61,6 +61,7 @@ async function translateWithAgmApi(request: TranslateRequest): Promise<Translate
     });
 
     if (!response.ok) {
+      console.error(`Translation API returned HTTP ${response.status} from ${translationEndpointUrl}.`);
       return unavailable(request.text);
     }
 
@@ -68,6 +69,7 @@ async function translateWithAgmApi(request: TranslateRequest): Promise<Translate
     const translatedText = payload.data?.text?.trim();
 
     if (!payload.data?.available || !translatedText) {
+      console.error(`Translation provider is unavailable through ${translationEndpointUrl}.`);
       return unavailable(request.text);
     }
 
@@ -76,7 +78,8 @@ async function translateWithAgmApi(request: TranslateRequest): Promise<Translate
       available: true,
       provider: 'agm-api',
     };
-  } catch {
+  } catch (error) {
+    console.error(`Translation API request failed for ${translationEndpointUrl}.`, error);
     return unavailable(request.text);
   }
 }

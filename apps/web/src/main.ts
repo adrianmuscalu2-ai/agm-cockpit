@@ -57,7 +57,7 @@ type SpeechWindow = Window & {
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
 };
 
-type ViewName = 'cockpit' | 'email' | 'profile' | 'corrector' | 'turn' | 'legal' | 'about' | 'licenses';
+type ViewName = 'cockpit' | 'email' | 'profile' | 'corrector' | 'turn' | 'legal' | 'about' | 'roadmap' | 'licenses';
 type EmailComposeMode = 'general' | 'manual';
 
 type OcrHistoryItem = {
@@ -76,6 +76,9 @@ const TERMS_VERSION = 'terms-v2026.07.13';
 const LEGAL_ACCEPTANCE_KEY = `agm.legal.acceptance.${PRIVACY_POLICY_VERSION}.${TERMS_VERSION}`;
 const OCR_HISTORY_KEY = 'agm.ocr.history.v1';
 const ADMIN_SESSION_KEY = 'agm.admin.session';
+const TUTORIAL_COMPLETION_KEY = 'agm.tutorial.completed.v1';
+const EMAIL_TUTORIAL_COMPLETION_KEY = 'agm.tutorial.email.completed.v1';
+const ROADMAP_INVITATION_KEY = 'agm.roadmap.invitation.v1';
 const initialProfile = readProfile(window.localStorage);
 const initialContacts = readContacts(window.localStorage);
 const initialOcrHistory = readOcrHistory(window.localStorage);
@@ -120,6 +123,15 @@ const state = {
   selectedEmailTemplateId: '',
   sendOptionsOpen: false,
   legalAcceptanceAccepted: readLegalAcceptance(window.localStorage),
+  tutorialOpen: false,
+  tutorialStep: 0,
+  tutorialDontShowAgain: true,
+  tutorialOpenedFromHelp: false,
+  contextualHint: null as number | null,
+  emailTutorialOpen: false,
+  emailTutorialStep: 0,
+  emailTutorialOpenedFromHelp: false,
+  roadmapInvitationOpen: false,
   targetLanguage: initialProfile.preferredLanguage,
   translatorTargetLanguage: initialProfile.preferredLanguage,
   status: t(uiLanguageFromProfile(initialProfile.preferredLanguage), 'app.ready'),
@@ -135,9 +147,9 @@ if (!appRoot) {
 
 const app = appRoot;
 
-registerServiceWorker();
-render();
-void restoreAdministratorAccess();
+state.tutorialOpen = state.legalAcceptanceAccepted && !readTutorialCompletion(window.localStorage);
+state.emailTutorialOpen =
+  state.legalAcceptanceAccepted && state.view === 'email' && !readEmailTutorialCompletion(window.localStorage);
 
 function uiLanguage() {
   return uiLanguageFromProfile(state.profile.preferredLanguage);
@@ -219,6 +231,8 @@ function render() {
         <footer class="status" role="status">
           <span>${escapeHtml(state.status)}</span>
           <nav class="status-links" aria-label="${escapeHtml(t(language, 'legal.footerLinks'))}">
+            <button id="openTutorial" type="button">${escapeHtml(t(language, 'tutorial.help'))}</button>
+            <button data-module="roadmap" type="button">${escapeHtml(t(language, 'roadmap.nav'))}</button>
             <button data-module="legal" type="button">${escapeHtml(t(language, 'legal.moduleName'))}</button>
             <button data-module="about" type="button">${escapeHtml(t(language, 'about.moduleName'))}</button>
           </nav>
@@ -226,6 +240,10 @@ function render() {
         </footer>
       </section>
       ${state.legalAcceptanceAccepted ? '' : renderLegalAcceptanceNotice()}
+      ${state.legalAcceptanceAccepted && state.tutorialOpen ? renderTutorial() : ''}
+      ${state.legalAcceptanceAccepted && !state.tutorialOpen && state.contextualHint !== null ? renderContextualHint() : ''}
+      ${state.legalAcceptanceAccepted && !state.tutorialOpen && state.emailTutorialOpen ? renderEmailTutorialHint() : ''}
+      ${state.roadmapInvitationOpen ? renderRoadmapInvitation() : ''}
       ${state.contactManagerOpen ? renderContactManager() : ''}
     </main>
   `;
@@ -243,7 +261,114 @@ function render() {
   bindCommandPanel();
   bindAdministratorLogin();
   bindLegalAcceptance();
+  bindTutorial();
   bindContactManager();
+}
+
+const tutorialSteps = [
+  { icon: 'MIC', title: 'tutorial.step.dictationTitle', body: 'tutorial.step.dictationBody' },
+  { icon: 'A>B', title: 'tutorial.step.translationTitle', body: 'tutorial.step.translationBody' },
+  { icon: 'PLAY', title: 'tutorial.step.playbackTitle', body: 'tutorial.step.playbackBody' },
+] as const;
+
+const contextualHintTargets = ['translator-speak', 'translator-translate', 'translator-listen'] as const;
+
+registerServiceWorker();
+render();
+void restoreAdministratorAccess();
+
+function renderTutorial() {
+  const language = uiLanguage();
+  const step = tutorialSteps[state.tutorialStep] ?? tutorialSteps[0];
+  const isLastStep = state.tutorialStep === tutorialSteps.length - 1;
+
+  return `
+    <div class="tutorial-overlay">
+      <section class="tutorial-dialog" role="dialog" aria-modal="true" aria-labelledby="tutorial-title">
+        <header class="tutorial-header">
+          <div>
+            <span>${escapeHtml(t(language, 'tutorial.eyebrow'))}</span>
+            <strong id="tutorial-title">${escapeHtml(t(language, 'tutorial.title'))}</strong>
+          </div>
+          <button id="closeTutorial" class="tutorial-close" type="button" aria-label="${escapeHtml(t(language, 'common.close'))}" title="${escapeHtml(t(language, 'common.close'))}">×</button>
+        </header>
+        <div class="tutorial-slide" data-tutorial-slide>
+          <div class="tutorial-symbol" aria-hidden="true">${step.icon}</div>
+          <div>
+            <strong>${escapeHtml(t(language, step.title))}</strong>
+            <p>${escapeHtml(t(language, step.body))}</p>
+          </div>
+        </div>
+        <div class="tutorial-progress" aria-label="${escapeHtml(t(language, 'tutorial.progress', { current: state.tutorialStep + 1, total: tutorialSteps.length }))}">
+          ${tutorialSteps.map((_, index) => `<i class="${index === state.tutorialStep ? 'active' : ''}"></i>`).join('')}
+          <span>${escapeHtml(t(language, 'tutorial.progress', { current: state.tutorialStep + 1, total: tutorialSteps.length }))}</span>
+        </div>
+        <label class="tutorial-preference">
+          <input id="tutorialDontShowAgain" type="checkbox" ${state.tutorialDontShowAgain ? 'checked' : ''} />
+          <span>${escapeHtml(t(language, 'tutorial.dontShowAgain'))}</span>
+        </label>
+        <footer class="tutorial-actions">
+          <button id="skipTutorial" type="button">${escapeHtml(t(language, 'tutorial.skip'))}</button>
+          <div>
+            <button id="previousTutorialStep" type="button" ${state.tutorialStep === 0 ? 'disabled' : ''}>${escapeHtml(t(language, 'tutorial.back'))}</button>
+            <button id="nextTutorialStep" class="primary" type="button">${escapeHtml(t(language, isLastStep ? 'tutorial.start' : 'tutorial.next'))}</button>
+          </div>
+        </footer>
+      </section>
+    </div>
+  `;
+}
+
+function renderContextualHint() {
+  const language = uiLanguage();
+  const hint = state.contextualHint ?? 0;
+  return `
+    <aside class="contextual-hint" role="status" aria-live="polite">
+      <span>${escapeHtml(t(language, `tutorial.hint.${hint + 1}`))}</span>
+      <div>
+        <button id="closeContextualHints" type="button">${escapeHtml(t(language, 'tutorial.closeHints'))}</button>
+        <button id="nextContextualHint" class="primary" type="button">${escapeHtml(t(language, hint === contextualHintTargets.length - 1 ? 'tutorial.done' : 'tutorial.next'))}</button>
+      </div>
+    </aside>
+  `;
+}
+
+const emailTutorialSteps = [
+  { target: '[data-email-tutorial="mode"]', title: 'tutorial.email.modeTitle', body: 'tutorial.email.modeBody' },
+  { target: '[data-email-tutorial="template"]', title: 'tutorial.email.templateTitle', body: 'tutorial.email.templateBody' },
+  { target: '[data-email-tutorial="content"]', title: 'tutorial.email.contentTitle', body: 'tutorial.email.contentBody' },
+  { target: '[data-email-tutorial="options"]', title: 'tutorial.email.optionsTitle', body: 'tutorial.email.optionsBody' },
+  { target: '[data-email-tutorial="actions"]', title: 'tutorial.email.actionsTitle', body: 'tutorial.email.actionsBody' },
+] as const;
+
+function renderEmailTutorialHint() {
+  const language = uiLanguage();
+  const stepIndex = Math.min(state.emailTutorialStep, emailTutorialSteps.length - 1);
+  const step = emailTutorialSteps[stepIndex];
+  const canContinue = emailTutorialCanContinue(stepIndex);
+  const isLastStep = stepIndex === emailTutorialSteps.length - 1;
+
+  return `
+    <aside class="contextual-hint email-tutorial-hint" role="dialog" aria-labelledby="email-tutorial-title">
+      <div class="email-tutorial-copy">
+        <small>${escapeHtml(t(language, 'tutorial.email.progress', { current: stepIndex + 1, total: emailTutorialSteps.length }))}</small>
+        <strong id="email-tutorial-title">${escapeHtml(t(language, step.title))}</strong>
+        <span>${escapeHtml(t(language, step.body))}</span>
+        ${canContinue ? '' : `<em>${escapeHtml(t(language, 'tutorial.email.completeAction'))}</em>`}
+      </div>
+      <div class="email-tutorial-actions">
+        <button id="closeEmailTutorial" type="button">${escapeHtml(t(language, 'tutorial.skip'))}</button>
+        <button id="previousEmailTutorial" type="button" ${stepIndex === 0 ? 'disabled' : ''}>${escapeHtml(t(language, 'tutorial.back'))}</button>
+        <button id="nextEmailTutorial" class="primary" type="button" ${canContinue ? '' : 'disabled'}>${escapeHtml(t(language, isLastStep ? 'tutorial.done' : 'tutorial.next'))}</button>
+      </div>
+    </aside>
+  `;
+}
+
+function emailTutorialCanContinue(step: number) {
+  if (step === 0) return state.emailComposeMode === 'general';
+  if (step === 1) return Boolean(state.selectedEmailTemplateId);
+  return true;
 }
 
 function renderCurrentView() {
@@ -253,6 +378,10 @@ function renderCurrentView() {
 
   if (state.view === 'about') {
     return renderAboutApp();
+  }
+
+  if (state.view === 'roadmap') {
+    return renderRoadmap();
   }
 
   if (state.view === 'licenses') {
@@ -312,7 +441,7 @@ function renderCommandPanel() {
   const language = uiLanguage();
 
   return `
-    <section class="command-panel" aria-label="${escapeHtml(t(language, 'command.panelLabel'))}">
+    <section class="command-panel" ${state.view === 'email' ? 'data-email-tutorial="actions"' : ''} aria-label="${escapeHtml(t(language, 'command.panelLabel'))}">
       <div class="command-module">
         <strong>${escapeHtml(t(language, 'app.activeMode'))}</strong>
         <span>${escapeHtml(commandSet.moduleName)}</span>
@@ -416,6 +545,17 @@ function commandPanelForView(view: ViewName) {
         { id: 'about-legal', label: t(language, 'legal.moduleName'), description: t(language, 'about.command.legalDesc') },
         { id: 'about-admin', label: 'Administrare', description: 'Acces securizat' },
         { id: 'about-close', label: t(language, 'common.close'), description: t(language, 'about.command.closeDesc') },
+      ],
+    };
+  }
+
+  if (view === 'roadmap') {
+    const language = uiLanguage();
+    return {
+      moduleName: t(language, 'roadmap.title'),
+      commands: [
+        { id: 'roadmap-about', label: t(language, 'about.moduleName'), description: t(language, 'roadmap.command.aboutDesc'), primary: true },
+        { id: 'roadmap-close', label: t(language, 'common.close'), description: t(language, 'roadmap.command.closeDesc') },
       ],
     };
   }
@@ -582,7 +722,7 @@ function renderEmailAssistant() {
 
       <details class="module-section" open>
         <summary>${escapeHtml(t(uiLanguage, 'mail.message'))}</summary>
-        <section class="compose-mode" aria-label="${escapeHtml(t(uiLanguage, 'mail.composeMode'))}">
+        <section class="compose-mode" data-email-tutorial="mode" aria-label="${escapeHtml(t(uiLanguage, 'mail.composeMode'))}">
           <button id="emailModeManual" type="button" class="${state.emailComposeMode === 'manual' ? 'active' : ''}">
             ${escapeHtml(t(uiLanguage, 'mail.manual'))}
           </button>
@@ -594,7 +734,7 @@ function renderEmailAssistant() {
         ${
           state.emailComposeMode === 'general'
             ? `
-              <label>
+              <label data-email-tutorial="template">
                 <span>${escapeHtml(t(uiLanguage, 'mail.templateMessage'))}</span>
                 <select id="emailTemplateSelect" aria-label="${escapeHtml(t(uiLanguage, 'mail.chooseTemplate'))}">
                   <option value="general-manual" ${state.selectedEmailTemplateId ? '' : 'selected'}>${escapeHtml(t(uiLanguage, 'mail.freeMessage'))}</option>
@@ -619,7 +759,7 @@ function renderEmailAssistant() {
           <input id="subject" type="text" placeholder="${escapeHtml(t(uiLanguage, 'mail.subjectPlaceholder'))}" value="${escapeHtml(state.subject)}" />
         </label>
 
-        <label class="message-field">
+        <label class="message-field" data-email-tutorial="content">
           <span>${escapeHtml(t(uiLanguage, 'mail.message'))}</span>
           <textarea id="message" rows="8" placeholder="${escapeHtml(t(uiLanguage, 'mail.messagePlaceholder'))}">${escapeHtml(state.message)}</textarea>
         </label>
@@ -629,7 +769,7 @@ function renderEmailAssistant() {
         </button>
       </details>
 
-      <details class="module-section">
+      <details class="module-section" data-email-tutorial="options">
         <summary>${escapeHtml(t(uiLanguage, 'mail.assistantOptions'))}</summary>
         <section class="assistant-options" aria-label="${escapeHtml(t(uiLanguage, 'mail.assistantOptions'))}">
         <label>
@@ -700,7 +840,7 @@ function renderEmailAssistant() {
       </details>
     </form>
 
-    <aside class="preview mail-preview" aria-live="polite">
+    <aside class="preview mail-preview" data-email-tutorial="preview" aria-live="polite">
       <h2>${escapeHtml(t(uiLanguage, 'mail.preview'))}</h2>
       ${renderSenderPreviewBlock()}
       <dl>
@@ -1125,7 +1265,114 @@ function renderAboutApp() {
         ${renderLegalCard('legal.microphoneTitle', 'legal.microphoneBody')}
         ${renderLegalCard('legal.cameraTitle', 'legal.cameraBody')}
       </div>
+      <div class="actions">
+        <button data-module="roadmap" type="button" class="primary">${escapeHtml(t(language, 'roadmap.open'))}</button>
+      </div>
     </section>
+  `;
+}
+
+type RoadmapStatus = 'available' | 'development' | 'planned';
+
+function roadmapItems(): Array<{ id: string; status: RoadmapStatus; version: string; premium?: boolean }> {
+  return [
+    { id: 'translator', status: 'available', version: 'v0.5.0' },
+    { id: 'email', status: 'available', version: 'v0.5.0' },
+    { id: 'profile', status: 'available', version: 'v0.5.0' },
+    { id: 'ocr', status: 'available', version: 'v0.5.0' },
+    { id: 'tutorials', status: 'available', version: 'v0.5.0' },
+    { id: 'profileTutorial', status: 'development', version: 'Next' },
+    { id: 'httpsBackend', status: 'development', version: 'Next' },
+    { id: 'suggestions', status: 'development', version: 'Next' },
+    { id: 'mobileData', status: 'planned', version: 'Future' },
+    { id: 'premiumAutomation', status: 'planned', version: 'Future', premium: true },
+  ];
+}
+
+function renderRoadmap() {
+  const language = uiLanguage();
+  const statuses: RoadmapStatus[] = ['available', 'development', 'planned'];
+
+  return `
+    <section class="roadmap" aria-labelledby="roadmap-title">
+      <header class="profile-heading">
+        <div>
+          <h1 id="roadmap-title">${escapeHtml(t(language, 'roadmap.title'))}</h1>
+          <p>${escapeHtml(t(language, 'roadmap.description'))}</p>
+        </div>
+        <span>${escapeHtml(t(language, 'roadmap.updated', { version: APP_VERSION, date: '15.07.2026' }))}</span>
+      </header>
+
+      <section class="roadmap-release" aria-labelledby="roadmap-release-title">
+        <strong id="roadmap-release-title">${escapeHtml(t(language, 'roadmap.whatsNew'))}</strong>
+        <ul>
+          <li>${escapeHtml(t(language, 'roadmap.new.mainTutorial'))}</li>
+          <li>${escapeHtml(t(language, 'roadmap.new.emailTutorial'))}</li>
+          <li>${escapeHtml(t(language, 'roadmap.new.stability'))}</li>
+        </ul>
+      </section>
+
+      <div class="roadmap-columns">
+        ${statuses
+          .map(
+            (status) => `
+              <section class="roadmap-lane roadmap-${status}" aria-labelledby="roadmap-${status}-title">
+                <header>
+                  <i aria-hidden="true"></i>
+                  <strong id="roadmap-${status}-title">${escapeHtml(t(language, `roadmap.status.${status}`))}</strong>
+                </header>
+                ${status === 'development' ? `<p class="roadmap-priority-note">${escapeHtml(t(language, 'roadmap.developmentNote'))}</p>` : ''}
+                <div>
+                  ${roadmapItems()
+                    .filter((item) => item.status === status)
+                    .map(
+                      (item) => `
+                        <article class="roadmap-item">
+                          <div>
+                            <strong>${escapeHtml(t(language, `roadmap.item.${item.id}.title`))}</strong>
+                            <small>${escapeHtml(item.version)}</small>
+                            ${item.premium ? `<span>${escapeHtml(t(language, 'roadmap.premium'))}</span>` : ''}
+                          </div>
+                          <p>${escapeHtml(t(language, `roadmap.item.${item.id}.body`))}</p>
+                        </article>
+                      `,
+                    )
+                    .join('')}
+                </div>
+              </section>
+            `,
+          )
+          .join('')}
+      </div>
+
+      <section class="roadmap-suggestion">
+        <div>
+          <strong>${escapeHtml(t(language, 'roadmap.suggestionTitle'))}</strong>
+          <p>${escapeHtml(t(language, 'roadmap.suggestionBody'))}</p>
+          <small>${escapeHtml(t(language, 'roadmap.suggestionNotice'))}</small>
+        </div>
+        <div class="roadmap-suggestion-action">
+          <button type="button" disabled title="${escapeHtml(t(language, 'roadmap.suggestionUnavailable'))}">${escapeHtml(t(language, 'roadmap.sendSuggestion'))}</button>
+          <small>${escapeHtml(t(language, 'roadmap.suggestionThanks'))}</small>
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function renderRoadmapInvitation() {
+  const language = uiLanguage();
+  return `
+    <div class="tutorial-overlay roadmap-invitation-overlay">
+      <section class="roadmap-invitation" role="dialog" aria-modal="true" aria-labelledby="roadmap-invitation-title">
+        <strong id="roadmap-invitation-title">${escapeHtml(t(language, 'roadmap.invitationTitle'))}</strong>
+        <p>${escapeHtml(t(language, 'roadmap.invitationBody'))}</p>
+        <div class="actions">
+          <button id="openRoadmapInvitation" class="primary" type="button">${escapeHtml(t(language, 'roadmap.open'))}</button>
+          <button id="skipRoadmapInvitation" type="button">${escapeHtml(t(language, 'roadmap.later'))}</button>
+        </div>
+      </section>
+    </div>
   `;
 }
 
@@ -1199,6 +1446,7 @@ function bindShared() {
         nextView !== 'turn' &&
         nextView !== 'legal' &&
         nextView !== 'about' &&
+        nextView !== 'roadmap' &&
         nextView !== 'licenses'
       ) {
         return;
@@ -1262,6 +1510,8 @@ function bindCommandPanel() {
       if (command === 'about-legal') navigateToModule('legal');
       if (command === 'about-admin') navigateToModule('turn');
       if (command === 'about-close') navigateToModule('cockpit');
+      if (command === 'roadmap-about') navigateToModule('about');
+      if (command === 'roadmap-close') navigateToModule('cockpit');
       if (command === 'licenses-about') navigateToModule('about');
       if (command === 'licenses-legal') navigateToModule('legal');
       if (command === 'licenses-close') navigateToModule('cockpit');
@@ -1277,6 +1527,146 @@ function bindCommandPanel() {
 
 function bindLegalAcceptance() {
   document.querySelector<HTMLButtonElement>('#acceptLegalNotice')?.addEventListener('click', acceptLegalNotice);
+}
+
+function bindTutorial() {
+  document.querySelector<HTMLButtonElement>('#openRoadmapInvitation')?.addEventListener('click', () => {
+    dismissRoadmapInvitation();
+    navigateToModule('roadmap');
+  });
+  document.querySelector<HTMLButtonElement>('#skipRoadmapInvitation')?.addEventListener('click', () => {
+    dismissRoadmapInvitation();
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#openTutorial')?.addEventListener('click', () => {
+    if (state.view === 'email') {
+      state.emailTutorialOpen = true;
+      state.emailTutorialStep = 0;
+      state.emailTutorialOpenedFromHelp = true;
+      state.tutorialOpen = false;
+      state.contextualHint = null;
+      render();
+      return;
+    }
+
+    state.tutorialOpen = true;
+    state.tutorialStep = 0;
+    state.tutorialOpenedFromHelp = true;
+    state.contextualHint = null;
+    render();
+  });
+
+  if (state.tutorialOpen) {
+    const preference = document.querySelector<HTMLInputElement>('#tutorialDontShowAgain');
+    preference?.addEventListener('change', () => {
+      state.tutorialDontShowAgain = preference.checked;
+    });
+    document.querySelector<HTMLButtonElement>('#closeTutorial')?.addEventListener('click', () => closeTutorial(false));
+    document.querySelector<HTMLButtonElement>('#skipTutorial')?.addEventListener('click', () => closeTutorial(false));
+    document.querySelector<HTMLButtonElement>('#previousTutorialStep')?.addEventListener('click', () => changeTutorialStep(-1));
+    document.querySelector<HTMLButtonElement>('#nextTutorialStep')?.addEventListener('click', () => {
+      if (state.tutorialStep === tutorialSteps.length - 1) {
+        closeTutorial(true);
+      } else {
+        changeTutorialStep(1);
+      }
+    });
+
+    let swipeStartX = 0;
+    const overlay = document.querySelector<HTMLElement>('.tutorial-overlay');
+    const slide = document.querySelector<HTMLElement>('[data-tutorial-slide]');
+    overlay?.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeTutorial(false);
+      if (event.key === 'ArrowLeft') changeTutorialStep(-1);
+      if (event.key === 'ArrowRight') changeTutorialStep(1);
+    });
+    slide?.addEventListener('pointerdown', (event) => (swipeStartX = event.clientX));
+    slide?.addEventListener('pointerup', (event) => {
+      const distance = event.clientX - swipeStartX;
+      if (Math.abs(distance) < 50) return;
+      changeTutorialStep(distance < 0 ? 1 : -1);
+    });
+    document.querySelector<HTMLButtonElement>('#closeTutorial')?.focus();
+    return;
+  }
+
+  if (state.contextualHint !== null) {
+    const target = contextualHintTargets[state.contextualHint];
+    document.querySelector<HTMLElement>(`[data-command="${target}"]`)?.classList.add('tutorial-target');
+    document.querySelector<HTMLButtonElement>('#closeContextualHints')?.addEventListener('click', () => closeContextualHints(false));
+    document.querySelector<HTMLButtonElement>('#nextContextualHint')?.addEventListener('click', () => {
+      if ((state.contextualHint ?? 0) >= contextualHintTargets.length - 1) {
+        closeContextualHints(true);
+      } else {
+        state.contextualHint = (state.contextualHint ?? 0) + 1;
+        render();
+      }
+    });
+  }
+
+  if (state.emailTutorialOpen) {
+    const stepIndex = Math.min(state.emailTutorialStep, emailTutorialSteps.length - 1);
+    const step = emailTutorialSteps[stepIndex];
+    document.querySelector<HTMLElement>(step.target)?.classList.add('tutorial-target');
+    document.querySelector<HTMLButtonElement>('#closeEmailTutorial')?.addEventListener('click', closeEmailTutorial);
+    document.querySelector<HTMLButtonElement>('#previousEmailTutorial')?.addEventListener('click', () => {
+      state.emailTutorialStep = Math.max(0, state.emailTutorialStep - 1);
+      render();
+    });
+    document.querySelector<HTMLButtonElement>('#nextEmailTutorial')?.addEventListener('click', () => {
+      if (!emailTutorialCanContinue(state.emailTutorialStep)) return;
+      if (state.emailTutorialStep >= emailTutorialSteps.length - 1) {
+        completeEmailTutorial();
+      } else {
+        state.emailTutorialStep += 1;
+        render();
+      }
+    });
+  }
+}
+
+function changeTutorialStep(direction: number) {
+  state.tutorialStep = Math.min(tutorialSteps.length - 1, Math.max(0, state.tutorialStep + direction));
+  render();
+}
+
+function closeTutorial(showContextualHints: boolean) {
+  if (!state.tutorialOpenedFromHelp && state.tutorialDontShowAgain) {
+    window.localStorage.setItem(TUTORIAL_COMPLETION_KEY, new Date().toISOString());
+  }
+  state.tutorialOpen = false;
+  state.tutorialOpenedFromHelp = false;
+  state.contextualHint = showContextualHints && state.view === 'cockpit' ? 0 : null;
+  render();
+}
+
+function closeContextualHints(showRoadmapInvitation: boolean) {
+  state.contextualHint = null;
+  state.roadmapInvitationOpen =
+    showRoadmapInvitation && !window.localStorage.getItem(ROADMAP_INVITATION_KEY);
+  render();
+}
+
+function dismissRoadmapInvitation() {
+  window.localStorage.setItem(ROADMAP_INVITATION_KEY, new Date().toISOString());
+  state.roadmapInvitationOpen = false;
+}
+
+function closeEmailTutorial() {
+  if (!state.emailTutorialOpenedFromHelp) {
+    window.localStorage.setItem(EMAIL_TUTORIAL_COMPLETION_KEY, new Date().toISOString());
+  }
+  state.emailTutorialOpen = false;
+  state.emailTutorialOpenedFromHelp = false;
+  render();
+}
+
+function completeEmailTutorial() {
+  window.localStorage.setItem(EMAIL_TUTORIAL_COMPLETION_KEY, new Date().toISOString());
+  state.emailTutorialOpen = false;
+  state.emailTutorialOpenedFromHelp = false;
+  state.status = t(uiLanguage(), 'tutorial.email.completed');
+  render();
 }
 
 function bindTranslator() {
@@ -2952,7 +3342,17 @@ function acceptLegalNotice() {
     }),
   );
   state.status = t(uiLanguage(), 'legal.status.accepted');
+  state.tutorialOpen = !readTutorialCompletion(window.localStorage);
+  state.tutorialOpenedFromHelp = false;
   render();
+}
+
+function readTutorialCompletion(storage: Storage) {
+  return Boolean(storage.getItem(TUTORIAL_COMPLETION_KEY));
+}
+
+function readEmailTutorialCompletion(storage: Storage) {
+  return Boolean(storage.getItem(EMAIL_TUTORIAL_COMPLETION_KEY));
 }
 
 function readLegalAcceptance(storage: Storage) {
@@ -3032,6 +3432,9 @@ function deleteContactData() {
 
 function deleteOcrHistoryData() {
   window.localStorage.removeItem(OCR_HISTORY_KEY);
+  window.localStorage.removeItem(TUTORIAL_COMPLETION_KEY);
+  window.localStorage.removeItem(EMAIL_TUTORIAL_COMPLETION_KEY);
+  window.localStorage.removeItem(ROADMAP_INVITATION_KEY);
   state.ocrImageDataUrl = '';
   state.ocrExtractedText = '';
   state.ocrConfidence = 0;
@@ -3055,6 +3458,10 @@ function deletePreferenceData() {
 function deleteLegalAcceptance() {
   window.localStorage.removeItem(LEGAL_ACCEPTANCE_KEY);
   state.legalAcceptanceAccepted = false;
+  state.tutorialOpen = false;
+  state.contextualHint = null;
+  state.emailTutorialOpen = false;
+  state.roadmapInvitationOpen = false;
   state.status = t(uiLanguage(), 'legal.status.acceptanceDeleted');
   render();
 }
@@ -3220,6 +3627,10 @@ function moduleStatus(view: ViewName) {
     return t(uiLanguage(), 'module.status.about');
   }
 
+  if (view === 'roadmap') {
+    return t(uiLanguage(), 'module.status.roadmap');
+  }
+
   if (view === 'licenses') {
     return t(uiLanguage(), 'module.status.licenses');
   }
@@ -3232,6 +3643,9 @@ function navigateToModule(view: ViewName) {
 
   if (window.location.pathname === route) {
     state.view = view;
+    state.emailTutorialOpen =
+      view === 'email' && state.legalAcceptanceAccepted && !readEmailTutorialCompletion(window.localStorage);
+    state.emailTutorialStep = 0;
     state.status = moduleStatus(view);
     render();
     return;
@@ -3239,6 +3653,9 @@ function navigateToModule(view: ViewName) {
 
   window.history.pushState({}, '', route);
   state.view = view;
+  state.emailTutorialOpen =
+    view === 'email' && state.legalAcceptanceAccepted && !readEmailTutorialCompletion(window.localStorage);
+  state.emailTutorialStep = 0;
   state.status = moduleStatus(view);
   render();
 }
@@ -3272,6 +3689,10 @@ function viewFromCurrentRoute(): ViewName {
     return 'about';
   }
 
+  if (route === 'roadmap' || route === 'foaie-de-parcurs') {
+    return 'roadmap';
+  }
+
   if (route === 'licenses' || route === 'open-source' || route === 'third-party-notices') {
     return 'licenses';
   }
@@ -3302,6 +3723,10 @@ function routeForView(view: ViewName) {
 
   if (view === 'turn') {
     return '/turn';
+  }
+
+  if (view === 'roadmap') {
+    return '/roadmap';
   }
 
   if (view === 'legal') {

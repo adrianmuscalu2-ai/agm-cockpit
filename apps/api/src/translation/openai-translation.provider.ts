@@ -27,6 +27,7 @@ export class OpenAiTranslationProvider implements TranslationProvider {
     const timeoutMs = translationTimeoutMs(this.config.get<string>('OPENAI_TRANSLATION_TIMEOUT_MS'));
 
     if (!apiKey) {
+      console.error('OpenAI translation is unavailable: OPENAI_API_KEY is not configured.');
       return {
         text: request.text,
         available: false,
@@ -62,6 +63,10 @@ export class OpenAiTranslationProvider implements TranslationProvider {
       });
 
       if (!response.ok) {
+        const responseBody = await response.text();
+        console.error(
+          `OpenAI translation request failed with HTTP ${response.status}: ${summarizeProviderError(responseBody)}`,
+        );
         return {
           text: request.text,
           available: false,
@@ -101,6 +106,18 @@ export class OpenAiTranslationProvider implements TranslationProvider {
 function translationTimeoutMs(configuredValue: string | undefined) {
   const value = Number(configuredValue ?? 20_000);
   return Number.isFinite(value) ? Math.min(60_000, Math.max(5_000, value)) : 20_000;
+}
+
+function summarizeProviderError(responseBody: string) {
+  if (!responseBody) return 'empty response body';
+
+  try {
+    const payload = JSON.parse(responseBody) as { error?: { code?: string; message?: string; type?: string } };
+    const error = payload.error;
+    return [error?.type, error?.code, error?.message].filter(Boolean).join(' | ') || 'unrecognized error response';
+  } catch {
+    return responseBody.replace(/\s+/g, ' ').slice(0, 300);
+  }
 }
 
 function extractTranslatedText(payload: OpenAiResponsePayload): string | undefined {
