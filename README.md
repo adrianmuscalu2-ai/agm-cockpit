@@ -54,6 +54,8 @@ Laptop/Neon flow:
 
 Each started service opens in its own command window. Existing processes on the expected ports are reused instead of started again.
 
+For silent startup after Windows logon, automatic service recovery, verification, and rollback, see [WINDOWS_AUTOSTART.md](./WINDOWS_AUTOSTART.md).
+
 For a dry run without starting services:
 
 ```powershell
