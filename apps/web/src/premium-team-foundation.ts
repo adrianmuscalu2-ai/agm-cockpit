@@ -1,70 +1,31 @@
+import { premiumAgents } from './premium-agents';
+import { premiumAgentStateDefinition } from './premium-agent-states';
 import { renderPremiumShell } from './premium-shell';
 
 type PremiumTeamTranslator = (key: string) => string;
-
-type PremiumAgent = {
-  id: string;
-  marker: string;
-  nameKey: string;
-  roleKey: string;
-};
-
-const premiumAgents: PremiumAgent[] = [
-  { id: 'mentor', marker: 'ME', nameKey: 'premium.team.agent.mentor.name', roleKey: 'premium.team.agent.mentor.role' },
-  { id: 'atlas', marker: 'AT', nameKey: 'premium.team.agent.atlas.name', roleKey: 'premium.team.agent.atlas.role' },
-  {
-    id: 'inspector',
-    marker: 'IN',
-    nameKey: 'premium.team.agent.inspector.name',
-    roleKey: 'premium.team.agent.inspector.role',
-  },
-  {
-    id: 'transport',
-    marker: 'TR',
-    nameKey: 'premium.team.agent.transport.name',
-    roleKey: 'premium.team.agent.transport.role',
-  },
-  {
-    id: 'load-safety',
-    marker: 'LS',
-    nameKey: 'premium.team.agent.loadSafety.name',
-    roleKey: 'premium.team.agent.loadSafety.role',
-  },
-  {
-    id: 'communication',
-    marker: 'CM',
-    nameKey: 'premium.team.agent.communication.name',
-    roleKey: 'premium.team.agent.communication.role',
-  },
-  {
-    id: 'documents',
-    marker: 'DO',
-    nameKey: 'premium.team.agent.documents.name',
-    roleKey: 'premium.team.agent.documents.role',
-  },
-  { id: 'journal', marker: 'JR', nameKey: 'premium.team.agent.journal.name', roleKey: 'premium.team.agent.journal.role' },
-];
 
 export function renderPremiumTeamFoundation(
   translate: PremiumTeamTranslator,
   escapeHtml: (value: string) => string,
 ) {
   const agents = premiumAgents
-    .map(
-      (agent) => `
-        <article class="premium-team-agent premium-team-agent-preparing" aria-labelledby="premium-agent-${agent.id}">
+    .map((agent) => {
+      const state = premiumAgentStateDefinition(agent.state);
+
+      return `
+        <article class="premium-team-agent ${state.className}" aria-labelledby="premium-agent-${agent.id}">
           <span class="premium-team-marker" aria-hidden="true">${agent.marker}</span>
           <div class="premium-team-agent-content">
             <h2 id="premium-agent-${agent.id}">${escapeHtml(translate(agent.nameKey))}</h2>
             <p>${escapeHtml(translate(agent.roleKey))}</p>
             <span class="premium-team-state">
               <span class="premium-team-state-dot" aria-hidden="true"></span>
-              ${escapeHtml(translate('premium.team.status.preparing'))}
+              ${escapeHtml(translate(state.translationKey))}
             </span>
           </div>
         </article>
-      `,
-    )
+      `;
+    })
     .join('');
 
   return renderPremiumShell({
