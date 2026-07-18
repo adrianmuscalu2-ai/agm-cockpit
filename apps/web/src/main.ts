@@ -58,6 +58,7 @@ import { isNativeAudioAvailable, NativeAudio, type MicrophonePermissionState } f
 import { changeAdministratorPin, unlockAdministrator, validateAdministrator, type AdminSession } from './admin-auth';
 import { renderPremiumFoundation } from './premium-foundation';
 import { renderPremiumTeamFoundation } from './premium-team-foundation';
+import { premiumRouteForView, premiumViewFromRoute, type PremiumViewName } from './premium-routes';
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
@@ -82,8 +83,7 @@ type SpeechWindow = Window & {
 
 type ViewName =
   | 'home'
-  | 'premium'
-  | 'premiumTeam'
+  | PremiumViewName
   | 'cockpit'
   | 'email'
   | 'profile'
@@ -4124,12 +4124,9 @@ function viewFromCurrentRoute(): ViewName {
     return 'cockpit';
   }
 
-  if (route === 'premium') {
-    return 'premium';
-  }
-
-  if (route === 'premium/team') {
-    return 'premiumTeam';
+  const premiumView = premiumViewFromRoute(route);
+  if (premiumView) {
+    return premiumView;
   }
 
   if (route === 'email' || route === 'email-assistant' || route === 'ag-011-009') {
@@ -4172,20 +4169,17 @@ function viewFromCurrentRoute(): ViewName {
 }
 
 function routeForView(view: ViewName) {
+  const premiumRoute = premiumRouteForView(view);
+  if (premiumRoute) {
+    return premiumRoute;
+  }
+
   if (view === 'home') {
     return '/';
   }
 
   if (view === 'email') {
     return '/email';
-  }
-
-  if (view === 'premium') {
-    return '/premium';
-  }
-
-  if (view === 'premiumTeam') {
-    return '/premium/team';
   }
 
   if (view === 'profile') {
