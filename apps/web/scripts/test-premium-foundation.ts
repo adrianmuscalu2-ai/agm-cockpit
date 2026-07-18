@@ -10,6 +10,9 @@ import {
 import { premiumCopilotBoundaries } from '../src/premium-copilot/premium-copilot.contract';
 import { premiumCopilotModule } from '../src/premium-copilot/premium-copilot.module';
 import { transitionPremiumCopilot } from '../src/premium-copilot/premium-copilot.workflow';
+import { premiumContextAnalysisBoundaries } from '../src/premium-context-analysis/premium-context-analysis.contract';
+import { premiumContextAnalysisModule } from '../src/premium-context-analysis/premium-context-analysis.module';
+import { transitionPremiumContextAnalysis } from '../src/premium-context-analysis/premium-context-analysis.workflow';
 import { premiumLinguisticBoundaries } from '../src/premium-linguistic-agents/premium-linguistic-agents.contract';
 import { premiumLinguisticAgents } from '../src/premium-linguistic-agents/premium-linguistic-agents.registry';
 import { premiumLinguisticAgentsModule } from '../src/premium-linguistic-agents/premium-linguistic-agents.module';
@@ -124,5 +127,69 @@ assert.equal(premiumLinguisticBoundaries.appliesHiddenCorrections, false);
 assert.equal(premiumLinguisticBoundaries.requiresUserConfirmation, true);
 assert.equal(premiumLinguisticBoundaries.performsExternalCalls, false);
 assert.equal(premiumLinguisticBoundaries.storesText, false);
+
+assert.equal(
+  premiumApplicationModules.contextAnalysis,
+  premiumContextAnalysisModule,
+);
+assert.equal(premiumContextAnalysisModule.enabled, false);
+assert.deepEqual(premiumContextAnalysisModule.analyzers, []);
+assert.equal(premiumContextAnalysisBoundaries.changesBasicData, false);
+assert.equal(premiumContextAnalysisBoundaries.changesSourceContent, false);
+assert.equal(
+  premiumContextAnalysisBoundaries.producesAutomaticDecisions,
+  false,
+);
+assert.equal(premiumContextAnalysisBoundaries.performsExternalCalls, false);
+assert.equal(premiumContextAnalysisBoundaries.storesContent, false);
+
+const contextRequest = {
+  id: 'context-validation',
+  source: 'operational-question' as const,
+  content: 'Care este următorul pas?',
+  language: 'ro' as const,
+};
+const disabledContextState = premiumContextAnalysisModule.initialState;
+const blockedContextAnalysis = transitionPremiumContextAnalysis(
+  disabledContextState,
+  { type: 'start-analysis', request: contextRequest },
+);
+const contextValidationState = transitionPremiumContextAnalysis(
+  disabledContextState,
+  { type: 'enable-for-validation' },
+);
+const analyzingContextState = transitionPremiumContextAnalysis(
+  contextValidationState,
+  { type: 'start-analysis', request: contextRequest },
+);
+const prematureContextConfirmation = transitionPremiumContextAnalysis(
+  analyzingContextState,
+  { type: 'confirm' },
+);
+const proposedContextState = transitionPremiumContextAnalysis(
+  analyzingContextState,
+  {
+    type: 'propose-findings',
+    findings: [
+      {
+        id: 'finding-validation',
+        summary: 'Constatare pentru validarea fluxului.',
+        confidence: 0.8,
+        requiresUserConfirmation: true,
+      },
+    ],
+  },
+);
+const confirmedContextState = transitionPremiumContextAnalysis(
+  proposedContextState,
+  { type: 'confirm' },
+);
+
+assert.equal(blockedContextAnalysis.status, 'disabled');
+assert.equal(contextValidationState.status, 'idle');
+assert.equal(analyzingContextState.status, 'analyzing');
+assert.equal(prematureContextConfirmation.status, 'analyzing');
+assert.equal(proposedContextState.status, 'awaiting-confirmation');
+assert.equal(confirmedContextState.status, 'confirmed');
 
 console.log('Premium foundation tests: PASS');
