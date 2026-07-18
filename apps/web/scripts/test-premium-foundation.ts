@@ -7,6 +7,12 @@ import {
   renderPremiumView,
   usesPremiumLayout,
 } from '../src/premium-app';
+import { aiGovernanceBoundaries } from '../src/premium-ai-governance/ai-governance.contract';
+import { aiGovernanceInspectorPolicy, inspectorRequirementForRisk } from '../src/premium-ai-governance/ai-governance.inspector';
+import { initialAiGovernanceKillSwitch } from '../src/premium-ai-governance/ai-governance.kill-switch';
+import { aiGovernanceModule } from '../src/premium-ai-governance/ai-governance.module';
+import { aiGovernancePolicies, isValidAiGovernancePolicyVersion } from '../src/premium-ai-governance/ai-governance.policy';
+import { governedAiModules } from '../src/premium-ai-governance/ai-governance.registry';
 import { premiumCopilotBoundaries } from '../src/premium-copilot/premium-copilot.contract';
 import { premiumCopilotModule } from '../src/premium-copilot/premium-copilot.module';
 import { transitionPremiumCopilot } from '../src/premium-copilot/premium-copilot.workflow';
@@ -268,6 +274,49 @@ assert.deepEqual(
     new Date('2026-07-18T10:30:00.000Z'),
   ),
   { outcome: 'blocked', reason: 'missing-source' },
+);
+
+assert.equal(premiumApplicationModules.aiGovernance, aiGovernanceModule);
+assert.equal(aiGovernanceModule.enabled, false);
+assert.equal(aiGovernanceBoundaries.issuesPermits, false);
+assert.equal(aiGovernanceBoundaries.executesOperations, false);
+assert.equal(aiGovernanceBoundaries.performsExternalCalls, false);
+assert.equal(aiGovernanceBoundaries.storesOperationalData, false);
+assert.equal(initialAiGovernanceKillSwitch.engaged, true);
+assert.equal(initialAiGovernanceKillSwitch.reason, 'foundation-disabled');
+assert.equal(governedAiModules.length, 4);
+assert.equal(new Set(governedAiModules.map((module) => module.id)).size, 4);
+assert.ok(governedAiModules.every((module) => module.enabled === false));
+assert.equal(aiGovernancePolicies.length, governedAiModules.length);
+assert.ok(aiGovernancePolicies.every((policy) => policy.enabled === false));
+assert.ok(
+  aiGovernancePolicies.every((policy) =>
+    isValidAiGovernancePolicyVersion(policy.version),
+  ),
+);
+assert.ok(
+  aiGovernancePolicies.every((policy) => policy.retention === 'none'),
+);
+assert.ok(
+  governedAiModules.every((module) =>
+    aiGovernancePolicies.some(
+      (policy) =>
+        policy.id === module.policyId && policy.moduleId === module.id,
+    ),
+  ),
+);
+assert.equal(aiGovernanceInspectorPolicy.canConfirmForUser, false);
+assert.equal(
+  inspectorRequirementForRisk({ level: 'low', reasons: [] }),
+  'not-required',
+);
+assert.equal(
+  inspectorRequirementForRisk({ level: 'sensitive', reasons: [] }),
+  'required',
+);
+assert.equal(
+  inspectorRequirementForRisk({ level: 'prohibited', reasons: [] }),
+  'blocked',
 );
 
 console.log('Premium foundation tests: PASS');

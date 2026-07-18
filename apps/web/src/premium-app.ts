@@ -1,4 +1,5 @@
 import { renderPremiumFoundation } from './premium-foundation';
+import { aiGovernanceModule } from './premium-ai-governance/ai-governance.module';
 import { premiumCopilotModule } from './premium-copilot/premium-copilot.module';
 import { premiumContextAnalysisModule } from './premium-context-analysis/premium-context-analysis.module';
 import { premiumLinguisticAgentsModule } from './premium-linguistic-agents/premium-linguistic-agents.module';
@@ -10,6 +11,7 @@ type PremiumTranslator = (key: string) => string;
 type HtmlEscaper = (value: string) => string;
 
 export const premiumApplicationModules = {
+  aiGovernance: aiGovernanceModule,
   copilot: premiumCopilotModule,
   contextAnalysis: premiumContextAnalysisModule,
   linguisticAgents: premiumLinguisticAgentsModule,
