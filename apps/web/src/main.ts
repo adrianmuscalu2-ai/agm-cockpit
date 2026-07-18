@@ -56,9 +56,8 @@ import {
 } from './incident-journal';
 import { isNativeAudioAvailable, NativeAudio, type MicrophonePermissionState } from './native-audio';
 import { changeAdministratorPin, unlockAdministrator, validateAdministrator, type AdminSession } from './admin-auth';
-import { renderPremiumFoundation } from './premium-foundation';
-import { renderPremiumTeamFoundation } from './premium-team-foundation';
-import { premiumRouteForView, premiumViewFromRoute, type PremiumViewName } from './premium-routes';
+import { premiumStatusKey, renderPremiumView, usesPremiumLayout } from './premium-app';
+import { isPremiumView, premiumRouteForView, premiumViewFromRoute, type PremiumViewName } from './premium-routes';
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
@@ -218,10 +217,11 @@ window.addEventListener('popstate', () => {
 function render() {
   document.documentElement.lang = state.profile.preferredLanguage;
   const language = uiLanguage();
+  const premiumLayout = usesPremiumLayout(state.view);
   app.innerHTML = `
     <main class="shell view-${state.view}">
       <section class="workspace" aria-labelledby="page-title">
-        ${state.view === 'home' ? renderHomeHeader() : state.view === 'premium' || state.view === 'premiumTeam' ? '' : `<header class="topbar">
+        ${state.view === 'home' ? renderHomeHeader() : premiumLayout ? '' : `<header class="topbar">
           <nav class="module-strip" aria-label="${escapeHtml(t(language, 'nav.moduleStripLabel'))}">
             <label class="profile-chip" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
               <span>${escapeHtml(t(language, 'nav.profile'))}</span>
@@ -270,7 +270,7 @@ function render() {
 
         ${renderCurrentView()}
 
-        ${state.view === 'cockpit' || state.view === 'home' || state.view === 'premium' || state.view === 'premiumTeam' ? '' : renderCommandPanel()}
+        ${state.view === 'cockpit' || state.view === 'home' || premiumLayout ? '' : renderCommandPanel()}
 
         <footer class="status" role="status">
           <span>${escapeHtml(state.status)}</span>
@@ -446,12 +446,9 @@ function renderCurrentView() {
     return renderHome();
   }
 
-  if (state.view === 'premium') {
-    return renderPremiumFoundation((key) => t(uiLanguage(), key), escapeHtml);
-  }
-
-  if (state.view === 'premiumTeam') {
-    return renderPremiumTeamFoundation((key) => t(uiLanguage(), key), escapeHtml);
+  const premiumView = renderPremiumView(state.view, (key) => t(uiLanguage(), key), escapeHtml);
+  if (premiumView !== undefined) {
+    return premiumView;
   }
 
   if (state.view === 'legal') {
@@ -1584,8 +1581,7 @@ function bindShared() {
 
       if (
         nextView !== 'home' &&
-        nextView !== 'premium' &&
-        nextView !== 'premiumTeam' &&
+        !isPremiumView(nextView) &&
         nextView !== 'cockpit' &&
         nextView !== 'email' &&
         nextView !== 'profile' &&
@@ -4050,12 +4046,8 @@ function moduleStatus(view: ViewName) {
     return t(uiLanguage(), 'module.status.email');
   }
 
-  if (view === 'premium') {
-    return t(uiLanguage(), 'premium.status');
-  }
-
-  if (view === 'premiumTeam') {
-    return t(uiLanguage(), 'premium.team.status');
+  if (isPremiumView(view)) {
+    return t(uiLanguage(), premiumStatusKey(view));
   }
 
   if (view === 'profile') {
