@@ -342,7 +342,8 @@ textarea {
   cursor: not-allowed;
 }
 
-.premium-view {
+.premium-view,
+.premium-team-view {
   min-width: 0;
   border: 1px solid #62572a;
   background: #071018;
@@ -416,7 +417,8 @@ textarea {
   padding: clamp(24px, 5vw, 64px) clamp(16px, 5vw, 72px) 28px;
 }
 
-.premium-intro > span {
+.premium-intro > span,
+.premium-team-intro > span {
   color: #f4c95d;
   font-size: 12px;
   font-weight: 850;
@@ -427,7 +429,8 @@ textarea {
   font-size: clamp(28px, 5vh, 44px);
 }
 
-.premium-intro p {
+.premium-intro p,
+.premium-team-intro p {
   max-width: 720px;
   margin: 0;
   color: #b8c9da;
@@ -467,7 +470,8 @@ textarea {
   line-height: 1.4;
 }
 
-.premium-modules {
+.premium-modules,
+.premium-team-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
@@ -498,19 +502,28 @@ textarea {
   font-weight: 900;
 }
 
-.premium-module-content {
+.premium-module-content,
+.premium-team-agent-content {
   min-width: 0;
 }
 
-.premium-module h2 {
+.premium-module h2,
+.premium-team-agent h2 {
   margin: 2px 0 7px;
+}
+
+.premium-module h2 {
   font-size: 18px;
+}
+
+.premium-module p,
+.premium-team-agent p {
+  color: #aebfce;
 }
 
 .premium-module p {
   min-height: 44px;
   margin: 0 0 14px;
-  color: #aebfce;
   line-height: 1.45;
 }
 
@@ -534,12 +547,6 @@ textarea {
   min-width: 180px;
 }
 
-.premium-team-view {
-  min-width: 0;
-  border: 1px solid #62572a;
-  background: #071018;
-}
-
 .premium-team-navigation {
   display: flex;
   align-items: center;
@@ -551,22 +558,9 @@ textarea {
   padding: clamp(24px, 5vw, 56px) clamp(16px, 5vw, 72px) 20px;
 }
 
-.premium-team-intro > span {
-  color: #f4c95d;
-  font-size: 12px;
-  font-weight: 850;
-}
-
 .premium-team-intro h1 {
   margin: 7px 0 10px;
   font-size: clamp(28px, 5vh, 42px);
-}
-
-.premium-team-intro p {
-  max-width: 720px;
-  margin: 0;
-  color: #b8c9da;
-  line-height: 1.55;
 }
 
 .premium-team-legend {
@@ -606,13 +600,6 @@ textarea {
   background: #49d7a0;
 }
 
-.premium-team-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  padding: 0 clamp(16px, 5vw, 72px) 32px;
-}
-
 .premium-team-agent {
   min-height: 150px;
   display: grid;
@@ -637,19 +624,13 @@ textarea {
   font-weight: 900;
 }
 
-.premium-team-agent-content {
-  min-width: 0;
-}
-
 .premium-team-agent h2 {
-  margin: 2px 0 7px;
   font-size: 17px;
 }
 
 .premium-team-agent p {
   min-height: 42px;
   margin: 0 0 13px;
-  color: #aebfce;
   line-height: 1.4;
 }
 
@@ -3701,10 +3682,7 @@ dd {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .premium-modules {
-    grid-template-columns: 1fr;
-  }
-
+  .premium-modules,
   .premium-team-grid {
     grid-template-columns: 1fr;
   }
@@ -3821,15 +3799,13 @@ dd {
     align-self: auto;
   }
 
-  .view-premium.shell {
-    padding: 0;
-  }
-
+  .view-premium.shell,
   .view-premiumTeam.shell {
     padding: 0;
   }
 
-  .premium-view {
+  .premium-view,
+  .premium-team-view {
     border-inline: 0;
   }
 
@@ -3871,11 +3847,15 @@ dd {
     padding: 0 10px 24px;
   }
 
-  .premium-module {
+  .premium-module,
+  .premium-team-agent {
     min-height: 0;
-    grid-template-columns: 44px minmax(0, 1fr);
     gap: 11px;
     padding: 14px;
+  }
+
+  .premium-module {
+    grid-template-columns: 44px minmax(0, 1fr);
   }
 
   .premium-module-marker {
@@ -3883,26 +3863,25 @@ dd {
     font-size: 11px;
   }
 
-  .premium-module h2 {
+  .premium-module h2,
+  .premium-team-agent h2 {
     font-size: 16px;
   }
 
-  .premium-module p {
+  .premium-module p,
+  .premium-team-agent p {
     min-height: 0;
     font-size: 13px;
   }
 
-  .premium-footer {
+  .premium-footer,
+  .premium-team-footer {
     padding-inline: 10px;
   }
 
   .premium-back-footer {
     width: 100%;
     max-width: none;
-  }
-
-  .premium-team-view {
-    border-inline: 0;
   }
 
   .premium-team-navigation {
@@ -3934,10 +3913,7 @@ dd {
   }
 
   .premium-team-agent {
-    min-height: 0;
     grid-template-columns: 42px minmax(0, 1fr);
-    gap: 11px;
-    padding: 14px;
   }
 
   .premium-team-marker {
@@ -3945,18 +3921,8 @@ dd {
     font-size: 10px;
   }
 
-  .premium-team-agent h2 {
-    font-size: 16px;
-  }
-
-  .premium-team-agent p {
-    min-height: 0;
-    font-size: 13px;
-  }
-
   .premium-team-footer {
     display: grid;
-    padding-inline: 10px;
   }
 
   .premium-team-footer .premium-back {
