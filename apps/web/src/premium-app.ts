@@ -2,6 +2,7 @@ import { renderPremiumFoundation } from './premium-foundation';
 import { premiumCopilotModule } from './premium-copilot/premium-copilot.module';
 import { premiumContextAnalysisModule } from './premium-context-analysis/premium-context-analysis.module';
 import { premiumLinguisticAgentsModule } from './premium-linguistic-agents/premium-linguistic-agents.module';
+import { proactiveRecommendationsModule } from './premium-proactive-recommendations/proactive-recommendations.module';
 import { isPremiumView, type PremiumViewName } from './premium-routes';
 import { renderPremiumTeamFoundation } from './premium-team-foundation';
 
@@ -12,6 +13,7 @@ export const premiumApplicationModules = {
   copilot: premiumCopilotModule,
   contextAnalysis: premiumContextAnalysisModule,
   linguisticAgents: premiumLinguisticAgentsModule,
+  proactiveRecommendations: proactiveRecommendationsModule,
 } as const;
 
 export function renderPremiumView(

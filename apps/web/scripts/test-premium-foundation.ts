@@ -13,6 +13,10 @@ import { transitionPremiumCopilot } from '../src/premium-copilot/premium-copilot
 import { premiumContextAnalysisBoundaries } from '../src/premium-context-analysis/premium-context-analysis.contract';
 import { premiumContextAnalysisModule } from '../src/premium-context-analysis/premium-context-analysis.module';
 import { transitionPremiumContextAnalysis } from '../src/premium-context-analysis/premium-context-analysis.workflow';
+import { proactiveRecommendationBoundaries } from '../src/premium-proactive-recommendations/proactive-recommendations.contract';
+import { inspectProactiveRecommendation } from '../src/premium-proactive-recommendations/proactive-recommendations.inspector-policy';
+import { proactiveRecommendationsModule } from '../src/premium-proactive-recommendations/proactive-recommendations.module';
+import { transitionProactiveRecommendation } from '../src/premium-proactive-recommendations/proactive-recommendations.workflow';
 import { premiumLinguisticBoundaries } from '../src/premium-linguistic-agents/premium-linguistic-agents.contract';
 import { premiumLinguisticAgents } from '../src/premium-linguistic-agents/premium-linguistic-agents.registry';
 import { premiumLinguisticAgentsModule } from '../src/premium-linguistic-agents/premium-linguistic-agents.module';
@@ -191,5 +195,79 @@ assert.equal(analyzingContextState.status, 'analyzing');
 assert.equal(prematureContextConfirmation.status, 'analyzing');
 assert.equal(proposedContextState.status, 'awaiting-confirmation');
 assert.equal(confirmedContextState.status, 'confirmed');
+
+assert.equal(
+  premiumApplicationModules.proactiveRecommendations,
+  proactiveRecommendationsModule,
+);
+assert.equal(proactiveRecommendationsModule.enabled, false);
+assert.deepEqual(proactiveRecommendationsModule.generators, []);
+assert.equal(proactiveRecommendationsModule.inspector, undefined);
+assert.equal(proactiveRecommendationsModule.audit, undefined);
+assert.equal(proactiveRecommendationBoundaries.displaysRecommendations, false);
+assert.equal(proactiveRecommendationBoundaries.generatesAutomatically, false);
+assert.equal(proactiveRecommendationBoundaries.executesActions, false);
+assert.equal(proactiveRecommendationBoundaries.storesRecommendations, false);
+assert.equal(proactiveRecommendationBoundaries.monitorsContinuously, false);
+assert.equal(proactiveRecommendationBoundaries.performsExternalCalls, false);
+
+const recommendation = {
+  id: 'recommendation-validation',
+  category: 'ambiguous-text' as const,
+  observedContext: 'Text cu posibilă ambiguitate.',
+  proposedRecommendation: 'Verifică textul înainte de trimitere.',
+  reason: 'A fost identificată o formulare neclară.',
+  source: {
+    type: 'validated-rule' as const,
+    id: 'ambiguous-text-rule',
+    version: '1.0.0',
+  },
+  confidence: 0.82,
+  sensitivity: 'standard' as const,
+  ruleVersion: 'ambiguous-text@1.0.0',
+  createdAt: '2026-07-18T10:00:00.000Z',
+  expiresAt: '2026-07-18T11:00:00.000Z',
+};
+const inspectorDecision = inspectProactiveRecommendation(
+  recommendation,
+  new Date('2026-07-18T10:30:00.000Z'),
+);
+const createdRecommendationState = {
+  status: 'created' as const,
+  recommendation,
+};
+const prematureAcceptance = transitionProactiveRecommendation(
+  createdRecommendationState,
+  { type: 'accept' },
+);
+const waitingInspectorState = transitionProactiveRecommendation(
+  createdRecommendationState,
+  { type: 'submit-to-inspector' },
+);
+const approvedRecommendationState = transitionProactiveRecommendation(
+  waitingInspectorState,
+  { type: 'record-inspector-decision', decision: inspectorDecision },
+);
+const acceptedRecommendationState = transitionProactiveRecommendation(
+  approvedRecommendationState,
+  { type: 'accept' },
+);
+const blockedRecommendation = {
+  ...recommendation,
+  source: { ...recommendation.source, id: '' },
+};
+
+assert.equal(inspectorDecision.outcome, 'approved');
+assert.equal(prematureAcceptance.status, 'created');
+assert.equal(waitingInspectorState.status, 'waiting-inspector');
+assert.equal(approvedRecommendationState.status, 'approved');
+assert.equal(acceptedRecommendationState.status, 'accepted');
+assert.deepEqual(
+  inspectProactiveRecommendation(
+    blockedRecommendation,
+    new Date('2026-07-18T10:30:00.000Z'),
+  ),
+  { outcome: 'blocked', reason: 'missing-source' },
+);
 
 console.log('Premium foundation tests: PASS');
