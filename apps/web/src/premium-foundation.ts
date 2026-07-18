@@ -1,3 +1,5 @@
+import { renderPremiumShell } from './premium-shell';
+
 type PremiumTranslator = (key: string) => string;
 
 type PremiumModule = {
@@ -56,17 +58,14 @@ export function renderPremiumFoundation(translate: PremiumTranslator, escapeHtml
     )
     .join('');
 
-  return `
-    <section class="premium-view" aria-labelledby="premium-title">
-      <header class="premium-topbar">
-        <a href="/" data-module="home" class="premium-brand" aria-label="${escapeHtml(translate('premium.backToBasic'))}">
-          <img src="/images/images/logo1.png" alt="" />
-          <strong>AGM</strong>
-          <span>Premium</span>
-        </a>
-        <a href="/" data-module="home" class="premium-back">${escapeHtml(translate('premium.backToBasic'))}</a>
-      </header>
-
+  return renderPremiumShell({
+    viewClass: 'premium-view',
+    labelledBy: 'premium-title',
+    brandHref: '/',
+    brandModule: 'home',
+    brandAriaLabel: escapeHtml(translate('premium.backToBasic')),
+    navigation: `<a href="/" data-module="home" class="premium-back">${escapeHtml(translate('premium.backToBasic'))}</a>`,
+    content: `
       <div class="premium-intro">
         <span>${escapeHtml(translate('premium.eyebrow'))}</span>
         <h1 id="premium-title">${escapeHtml(translate('premium.title'))}</h1>
@@ -80,12 +79,11 @@ export function renderPremiumFoundation(translate: PremiumTranslator, escapeHtml
       <div class="premium-modules" aria-label="${escapeHtml(translate('premium.modulesLabel'))}">
         ${modules}
       </div>
-
-      <footer class="premium-footer">
-        <a href="/" data-module="home" class="premium-back premium-back-footer">
-          ${escapeHtml(translate('premium.backToBasic'))}
-        </a>
-      </footer>
-    </section>
-  `;
+    `,
+    footer: `
+      <a href="/" data-module="home" class="premium-back premium-back-footer">
+        ${escapeHtml(translate('premium.backToBasic'))}
+      </a>
+    `,
+  });
 }

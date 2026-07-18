@@ -1,3 +1,5 @@
+import { renderPremiumShell } from './premium-shell';
+
 type PremiumTeamTranslator = (key: string) => string;
 
 type PremiumAgent = {
@@ -65,20 +67,19 @@ export function renderPremiumTeamFoundation(
     )
     .join('');
 
-  return `
-    <section class="premium-team-view" aria-labelledby="premium-team-title">
-      <header class="premium-topbar">
-        <a href="/premium" data-module="premium" class="premium-brand" aria-label="${escapeHtml(translate('premium.team.backToPremium'))}">
-          <img src="/images/images/logo1.png" alt="" />
-          <strong>AGM</strong>
-          <span>Premium</span>
-        </a>
-        <nav class="premium-team-navigation" aria-label="${escapeHtml(translate('premium.team.navigationLabel'))}">
-          <a href="/premium" data-module="premium" class="premium-back">${escapeHtml(translate('premium.team.backToPremium'))}</a>
-          <a href="/" data-module="home" class="premium-back">${escapeHtml(translate('premium.backToBasic'))}</a>
-        </nav>
-      </header>
-
+  return renderPremiumShell({
+    viewClass: 'premium-team-view',
+    labelledBy: 'premium-team-title',
+    brandHref: '/premium',
+    brandModule: 'premium',
+    brandAriaLabel: escapeHtml(translate('premium.team.backToPremium')),
+    navigation: `
+      <nav class="premium-team-navigation" aria-label="${escapeHtml(translate('premium.team.navigationLabel'))}">
+        <a href="/premium" data-module="premium" class="premium-back">${escapeHtml(translate('premium.team.backToPremium'))}</a>
+        <a href="/" data-module="home" class="premium-back">${escapeHtml(translate('premium.backToBasic'))}</a>
+      </nav>
+    `,
+    content: `
       <div class="premium-team-intro">
         <span>${escapeHtml(translate('premium.team.eyebrow'))}</span>
         <h1 id="premium-team-title">${escapeHtml(translate('premium.team.title'))}</h1>
@@ -94,11 +95,10 @@ export function renderPremiumTeamFoundation(
       <div class="premium-team-grid" aria-label="${escapeHtml(translate('premium.team.agentsLabel'))}">
         ${agents}
       </div>
-
-      <footer class="premium-footer premium-team-footer">
-        <a href="/premium" data-module="premium" class="premium-back">${escapeHtml(translate('premium.team.backToPremium'))}</a>
-        <a href="/" data-module="home" class="premium-back">${escapeHtml(translate('premium.backToBasic'))}</a>
-      </footer>
-    </section>
-  `;
+    `,
+    footer: `
+      <a href="/premium" data-module="premium" class="premium-back">${escapeHtml(translate('premium.team.backToPremium'))}</a>
+      <a href="/" data-module="home" class="premium-back">${escapeHtml(translate('premium.backToBasic'))}</a>
+    `,
+  });
 }
