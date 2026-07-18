@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173",
     "build": "node scripts/validate-production-api.mjs && tsc --noEmit && vite build",
+    "test:premium": "tsx scripts/test-premium-foundation.ts",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "pwa:build": "pnpm build",
     "android:add": "cap add android",
