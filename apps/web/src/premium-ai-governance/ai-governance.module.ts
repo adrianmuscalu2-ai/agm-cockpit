@@ -6,6 +6,9 @@ import { governedAiModules } from './ai-governance.registry';
 export const aiGovernanceModule = {
   id: 'ai-governance',
   enabled: false,
+  authorizationEngine: {
+    enabled: false,
+  },
   modules: governedAiModules,
   policies: aiGovernancePolicies,
   killSwitch: initialAiGovernanceKillSwitch,

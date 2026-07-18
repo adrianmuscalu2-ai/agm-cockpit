@@ -6,6 +6,7 @@ import type { AiGovernanceRiskLevel } from './ai-governance.risk';
 
 export type AiGovernanceAuditOutcome =
   | 'registered'
+  | 'permit-issued'
   | 'inspector-approved'
   | 'inspector-blocked'
   | 'kill-switch-blocked'

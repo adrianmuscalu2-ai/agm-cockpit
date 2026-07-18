@@ -5,7 +5,7 @@ export type AiGovernancePolicy = {
   id: string;
   version: string;
   moduleId: GovernedAiModuleId;
-  enabled: false;
+  enabled: boolean;
   maximumRisk: AiGovernanceRiskLevel;
   requiresInspector: boolean;
   requiresUserConfirmation: boolean;

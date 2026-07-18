@@ -6,7 +6,7 @@ import type { GovernedAiModuleId } from './ai-governance.contract';
 
 export type GovernedAiModuleRegistration = {
   id: GovernedAiModuleId;
-  enabled: false;
+  enabled: boolean;
   policyId: string;
 };
 

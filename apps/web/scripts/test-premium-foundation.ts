@@ -8,9 +8,11 @@ import {
   usesPremiumLayout,
 } from '../src/premium-app';
 import { aiGovernanceBoundaries } from '../src/premium-ai-governance/ai-governance.contract';
+import { authorizeAiOperation } from '../src/premium-ai-governance/ai-governance.authorization';
 import { aiGovernanceInspectorPolicy, inspectorRequirementForRisk } from '../src/premium-ai-governance/ai-governance.inspector';
 import { initialAiGovernanceKillSwitch } from '../src/premium-ai-governance/ai-governance.kill-switch';
 import { aiGovernanceModule } from '../src/premium-ai-governance/ai-governance.module';
+import { isAiGovernancePermitValid, transitionAiGovernancePermit } from '../src/premium-ai-governance/ai-governance.permit';
 import { aiGovernancePolicies, isValidAiGovernancePolicyVersion } from '../src/premium-ai-governance/ai-governance.policy';
 import { governedAiModules } from '../src/premium-ai-governance/ai-governance.registry';
 import { premiumCopilotBoundaries } from '../src/premium-copilot/premium-copilot.contract';
@@ -318,5 +320,153 @@ assert.equal(
   inspectorRequirementForRisk({ level: 'prohibited', reasons: [] }),
   'blocked',
 );
+
+const authorizationOperation = {
+  id: 'authorization-validation',
+  moduleId: 'ai-copilot' as const,
+  capability: 'prepare-translation',
+  purpose: 'Validarea motorului fără execuție.',
+  usesPersonalData: false,
+  producesExternalEffect: false,
+};
+const authorizationPolicy = {
+  ...aiGovernancePolicies[0],
+  enabled: true,
+};
+const authorizationRegistration = {
+  ...governedAiModules[0],
+  enabled: true,
+};
+const disengagedKillSwitch = {
+  ...initialAiGovernanceKillSwitch,
+  engaged: false,
+};
+const authorizationNow = new Date('2026-07-19T10:00:00.000Z');
+const authorizationBase = {
+  operation: authorizationOperation,
+  risk: { level: 'sensitive' as const, reasons: ['validation'] },
+  registration: authorizationRegistration,
+  policy: authorizationPolicy,
+  permitTtlMs: 60_000,
+  now: authorizationNow,
+  createPermitId: () => 'permit-validation',
+};
+const killSwitchDenial = authorizeAiOperation({
+  ...authorizationBase,
+  killSwitch: initialAiGovernanceKillSwitch,
+});
+const inspectorDenial = authorizeAiOperation({
+  ...authorizationBase,
+  killSwitch: disengagedKillSwitch,
+});
+const userConfirmationDenial = authorizeAiOperation({
+  ...authorizationBase,
+  killSwitch: disengagedKillSwitch,
+  inspectorConfirmation: {
+    operationId: authorizationOperation.id,
+    policyVersion: authorizationPolicy.version,
+    outcome: 'approved',
+    confirmedAt: authorizationNow.toISOString(),
+  },
+});
+const prohibitedRiskDenial = authorizeAiOperation({
+  ...authorizationBase,
+  risk: { level: 'prohibited', reasons: ['forbidden-operation'] },
+  killSwitch: disengagedKillSwitch,
+});
+const missingPolicyDenial = authorizeAiOperation({
+  ...authorizationBase,
+  policy: undefined,
+  killSwitch: disengagedKillSwitch,
+});
+const personalDataDenial = authorizeAiOperation({
+  ...authorizationBase,
+  operation: { ...authorizationOperation, usesPersonalData: true },
+  killSwitch: disengagedKillSwitch,
+});
+const permittedAuthorization = authorizeAiOperation({
+  ...authorizationBase,
+  killSwitch: disengagedKillSwitch,
+  inspectorConfirmation: {
+    operationId: authorizationOperation.id,
+    policyVersion: authorizationPolicy.version,
+    outcome: 'approved',
+    confirmedAt: authorizationNow.toISOString(),
+  },
+  userConfirmation: {
+    operationId: authorizationOperation.id,
+    confirmed: true,
+    confirmedAt: authorizationNow.toISOString(),
+  },
+});
+
+assert.equal(aiGovernanceModule.authorizationEngine.enabled, false);
+assert.deepEqual(killSwitchDenial, {
+  outcome: 'denied',
+  reason: 'kill-switch-engaged',
+});
+assert.deepEqual(inspectorDenial, {
+  outcome: 'denied',
+  reason: 'inspector-confirmation-required',
+});
+assert.deepEqual(userConfirmationDenial, {
+  outcome: 'denied',
+  reason: 'user-confirmation-required',
+});
+assert.deepEqual(prohibitedRiskDenial, {
+  outcome: 'denied',
+  reason: 'risk-prohibited',
+});
+assert.deepEqual(missingPolicyDenial, {
+  outcome: 'denied',
+  reason: 'policy-missing',
+});
+assert.deepEqual(personalDataDenial, {
+  outcome: 'denied',
+  reason: 'personal-data-not-allowed',
+});
+assert.equal(permittedAuthorization.outcome, 'permitted');
+if (permittedAuthorization.outcome === 'permitted') {
+  assert.equal(permittedAuthorization.permit.singleUse, true);
+  assert.equal(permittedAuthorization.permit.status, 'issued');
+  assert.equal(
+    isAiGovernancePermitValid(
+      permittedAuthorization.permit,
+      authorizationPolicy.version,
+      authorizationNow,
+    ),
+    true,
+  );
+  assert.equal(
+    isAiGovernancePermitValid(
+      permittedAuthorization.permit,
+      'copilot-policy@2.0.0',
+      authorizationNow,
+    ),
+    false,
+  );
+  assert.equal(
+    isAiGovernancePermitValid(
+      permittedAuthorization.permit,
+      authorizationPolicy.version,
+      new Date('2026-07-19T10:02:00.000Z'),
+    ),
+    false,
+  );
+  const consumedPermit = transitionAiGovernancePermit(
+    permittedAuthorization.permit,
+    {
+      type: 'consume',
+    },
+  );
+  assert.equal(
+    consumedPermit.status,
+    'consumed',
+  );
+  assert.equal(
+    transitionAiGovernancePermit(consumedPermit, { type: 'consume' }).status,
+    'consumed',
+  );
+}
 
 console.log('Premium foundation tests: PASS');
