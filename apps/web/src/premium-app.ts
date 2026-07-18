@@ -1,9 +1,14 @@
 import { renderPremiumFoundation } from './premium-foundation';
+import { premiumCopilotModule } from './premium-copilot/premium-copilot.module';
 import { isPremiumView, type PremiumViewName } from './premium-routes';
 import { renderPremiumTeamFoundation } from './premium-team-foundation';
 
 type PremiumTranslator = (key: string) => string;
 type HtmlEscaper = (value: string) => string;
+
+export const premiumApplicationModules = {
+  copilot: premiumCopilotModule,
+} as const;
 
 export function renderPremiumView(
   view: string,

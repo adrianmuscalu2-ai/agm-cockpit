@@ -2,7 +2,14 @@ import assert from 'node:assert/strict';
 
 import { premiumAgents } from '../src/premium-agents';
 import { premiumAgentStateDefinition } from '../src/premium-agent-states';
-import { renderPremiumView, usesPremiumLayout } from '../src/premium-app';
+import {
+  premiumApplicationModules,
+  renderPremiumView,
+  usesPremiumLayout,
+} from '../src/premium-app';
+import { premiumCopilotBoundaries } from '../src/premium-copilot/premium-copilot.contract';
+import { premiumCopilotModule } from '../src/premium-copilot/premium-copilot.module';
+import { transitionPremiumCopilot } from '../src/premium-copilot/premium-copilot.workflow';
 import {
   isPremiumView,
   premiumRouteForView,
@@ -50,4 +57,46 @@ assert.equal(
 assert.equal(teamHtml?.includes('premium-team-agent-available'), false);
 assert.equal(teamHtml?.includes('premium-team-agent-active'), false);
 
-console.log('Premium navigation and agent state tests: PASS');
+const mission = {
+  id: 'validation-mission',
+  capability: 'prepare-translation' as const,
+  userRequest: 'Tradu în germană.',
+  proposedAction: 'Pregătește traducerea în limba germană.',
+};
+assert.equal(premiumApplicationModules.copilot, premiumCopilotModule);
+
+const disabledState = premiumApplicationModules.copilot.initialState;
+const blockedMission = transitionPremiumCopilot(disabledState, {
+  type: 'prepare-mission',
+  mission,
+});
+const validationState = transitionPremiumCopilot(disabledState, {
+  type: 'enable-for-validation',
+});
+const preparedState = transitionPremiumCopilot(validationState, {
+  type: 'prepare-mission',
+  mission,
+});
+const prematureApproval = transitionPremiumCopilot(preparedState, {
+  type: 'approve',
+});
+const confirmationState = transitionPremiumCopilot(preparedState, {
+  type: 'request-confirmation',
+});
+const approvedState = transitionPremiumCopilot(confirmationState, {
+  type: 'approve',
+});
+
+assert.equal(premiumCopilotModule.enabled, false);
+assert.deepEqual(premiumCopilotModule.capabilities, []);
+assert.equal(premiumCopilotBoundaries.listensContinuously, false);
+assert.equal(premiumCopilotBoundaries.performsExternalCalls, false);
+assert.equal(premiumCopilotBoundaries.storesConversation, false);
+assert.equal(blockedMission.status, 'disabled');
+assert.equal(validationState.status, 'idle');
+assert.equal(preparedState.status, 'preparing');
+assert.equal(prematureApproval.status, 'preparing');
+assert.equal(confirmationState.status, 'awaiting-confirmation');
+assert.equal(approvedState.status, 'approved');
+
+console.log('Premium foundation tests: PASS');
