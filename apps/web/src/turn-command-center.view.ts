@@ -2,6 +2,8 @@ import { agentGovernanceRegistry, type AgentGovernanceRecord } from './agent-gov
 import { t } from './i18n/app-i18n';
 import { type UiLanguage } from './i18n/app-i18n.types';
 import { type InspectorReport, inspectorReportFor, inspectorReports } from './inspector-agent';
+import { renderIncidentJournal, type IncidentJournalFilters, type OperationalIncident } from './incident-journal';
+import { renderMaintenanceDepartment } from './maintenance-department';
 import {
   type TurnCommandItem,
   type TurnHealthStatus,
@@ -16,9 +18,11 @@ import {
 type TurnCommandCenterViewOptions = {
   language: UiLanguage;
   appVersion: string;
+  incidents: OperationalIncident[];
+  incidentFilters: IncidentJournalFilters;
 };
 
-export function renderTurnCommandCenter({ language, appVersion }: TurnCommandCenterViewOptions) {
+export function renderTurnCommandCenter({ language, appVersion, incidents, incidentFilters }: TurnCommandCenterViewOptions) {
   const activeDepartments = countByStatus(turnDepartments, 'active');
   const stableModules = countByStatus(turnModules, 'stable');
   const activeMissions = countByStatus(turnMissions, 'active');
@@ -92,6 +96,8 @@ export function renderTurnCommandCenter({ language, appVersion }: TurnCommandCen
           </dl>
         </article>
       </section>
+      ${renderMaintenanceDepartment(language)}
+      ${renderIncidentJournal(language, incidents, incidentFilters)}
     </section>
   `;
 }

@@ -1,6 +1,14 @@
 import './styles.css';
 import { emailContacts } from './emailContacts';
-import { emailTemplates, type EmailTemplate } from './emailTemplates';
+import {
+  emailTemplates,
+  fillTemplateVariables,
+  messageCategories,
+  templateContent,
+  type EmailTemplate,
+  type MessageCategory,
+} from './emailTemplates';
+import { readMessageLibraryPreferences, saveMessageLibraryPreferences } from './message-library.storage';
 import {
   detectMessageLanguage,
   type LanguageCode,
@@ -33,6 +41,19 @@ import {
   type TextCorrectorSourceModule,
 } from './text-corrector/text-corrector.types';
 import { renderTurnCommandCenter } from './turn-command-center.view';
+import {
+  createIncident,
+  emptyIncidentFilters,
+  exportIncidentAudit,
+  readIncidentJournal,
+  saveIncidentJournal,
+  transitionIncident,
+  updateIncident,
+  type IncidentDraft,
+  type IncidentEnvironment,
+  type IncidentJournalFilters,
+  type IncidentStatus,
+} from './incident-journal';
 import { isNativeAudioAvailable, NativeAudio, type MicrophonePermissionState } from './native-audio';
 import { changeAdministratorPin, unlockAdministrator, validateAdministrator, type AdminSession } from './admin-auth';
 
@@ -57,7 +78,7 @@ type SpeechWindow = Window & {
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
 };
 
-type ViewName = 'cockpit' | 'email' | 'profile' | 'corrector' | 'turn' | 'legal' | 'about' | 'roadmap' | 'licenses';
+type ViewName = 'home' | 'cockpit' | 'email' | 'profile' | 'corrector' | 'turn' | 'legal' | 'about' | 'roadmap' | 'licenses';
 type EmailComposeMode = 'general' | 'manual';
 
 type OcrHistoryItem = {
@@ -70,7 +91,7 @@ type OcrHistoryItem = {
   translatedText: string;
 };
 
-const APP_VERSION = 'A.G.M. Cockpit v0.1-test';
+const APP_VERSION = 'A.G.M. Basic Home RC4';
 const PRIVACY_POLICY_VERSION = 'privacy-v2026.07.13';
 const TERMS_VERSION = 'terms-v2026.07.13';
 const LEGAL_ACCEPTANCE_KEY = `agm.legal.acceptance.${PRIVACY_POLICY_VERSION}.${TERMS_VERSION}`;
@@ -82,6 +103,8 @@ const ROADMAP_INVITATION_KEY = 'agm.roadmap.invitation.v1';
 const initialProfile = readProfile(window.localStorage);
 const initialContacts = readContacts(window.localStorage);
 const initialOcrHistory = readOcrHistory(window.localStorage);
+const initialMessageLibraryPreferences = readMessageLibraryPreferences(window.localStorage);
+const initialIncidentJournal = readIncidentJournal(window.localStorage);
 
 const state = {
   view: viewFromCurrentRoute(),
@@ -121,6 +144,13 @@ const state = {
   emailTone: 'business' as MailTone,
   emailComposeMode: 'manual' as EmailComposeMode,
   selectedEmailTemplateId: '',
+  messageLibraryCategory: 'all' as MessageCategory | 'all' | 'favorites' | 'recent',
+  messageLibrarySearch: '',
+  messageLibraryFavorites: initialMessageLibraryPreferences.favorites,
+  messageLibraryRecent: initialMessageLibraryPreferences.recent,
+  messageTemplateVariables: {} as Record<string, string>,
+  incidents: initialIncidentJournal,
+  incidentFilters: emptyIncidentFilters(),
   sendOptionsOpen: false,
   legalAcceptanceAccepted: readLegalAcceptance(window.localStorage),
   tutorialOpen: false,
@@ -177,7 +207,7 @@ function render() {
   app.innerHTML = `
     <main class="shell view-${state.view}">
       <section class="workspace" aria-labelledby="page-title">
-        <header class="topbar">
+        ${state.view === 'home' ? renderHomeHeader() : `<header class="topbar">
           <nav class="module-strip" aria-label="${escapeHtml(t(language, 'nav.moduleStripLabel'))}">
             <label class="profile-chip" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
               <span>${escapeHtml(t(language, 'nav.profile'))}</span>
@@ -194,17 +224,17 @@ function render() {
               </select>
             </label>
             <div class="module-nav">
+              <button data-module="home" type="button">
+                <span class="nav-code">HOME</span>
+                <span>${escapeHtml(t(language, 'home.title'))}</span>
+              </button>
               <button data-module="cockpit" type="button" class="${state.view === 'cockpit' ? 'active' : ''}">
                 <span class="nav-code">${escapeHtml(t(language, 'nav.cockpitCode'))}</span>
-                <span>Cockpit</span>
+                <span>${escapeHtml(t(language, 'nav.translator'))}</span>
               </button>
               <button data-module="email" type="button" class="${state.view === 'email' ? 'active' : ''}">
                 <span class="nav-code">${escapeHtml(t(language, 'nav.emailCode'))}</span>
                 <span>${escapeHtml(t(language, 'nav.email'))}</span>
-              </button>
-              <button data-module="corrector" type="button" class="${state.view === 'corrector' ? 'active' : ''}">
-                <span class="nav-code">${escapeHtml(t(language, 'nav.correctorCode'))}</span>
-                <span>${escapeHtml(t(language, 'nav.corrector'))}</span>
               </button>
               <button data-module="profile" type="button" class="${state.view === 'profile' ? 'active' : ''}">
                 <span class="nav-code">${escapeHtml(t(language, 'nav.profileCode'))}</span>
@@ -220,13 +250,13 @@ function render() {
           <div class="brand-lockup" aria-label="${escapeHtml(t(language, 'header.brandAria'))}">
             <img class="brand-logo" src="/images/images/logo1.png" alt="${escapeHtml(t(language, 'header.brandAlt'))}" />
           </div>
-        </header>
+        </header>`}
 
         ${state.view === 'cockpit' ? renderCommandPanel() : ''}
 
         ${renderCurrentView()}
 
-        ${state.view === 'cockpit' ? '' : renderCommandPanel()}
+        ${state.view === 'cockpit' || state.view === 'home' ? '' : renderCommandPanel()}
 
         <footer class="status" role="status">
           <span>${escapeHtml(state.status)}</span>
@@ -257,12 +287,38 @@ function render() {
     bindEmailAssistant();
   } else if (state.view === 'corrector') {
     bindTextCorrector();
+  } else if (state.view === 'turn') {
+    bindIncidentJournal();
   }
   bindCommandPanel();
   bindAdministratorLogin();
   bindLegalAcceptance();
   bindTutorial();
   bindContactManager();
+}
+
+function renderHomeHeader() {
+  const language = uiLanguage();
+  return `
+    <header class="home-topbar">
+      <button class="home-brand" data-module="home" type="button" aria-label="${escapeHtml(t(language, 'home.title'))}">
+        <strong>A.G.M.</strong>
+        <span>Basic</span>
+      </button>
+      <div class="home-profile-control">
+        <label class="home-language-control" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
+          <span class="visually-hidden">${escapeHtml(t(language, 'header.quickProfileAria'))}</span>
+          <select id="quickProfileLanguage" aria-label="${escapeHtml(t(language, 'header.quickProfileAria'))}">
+            ${supportedLanguages.map((code) => `<option value="${code}" ${state.profile.preferredLanguage === code ? 'selected' : ''}>${escapeHtml(code.toUpperCase())}</option>`).join('')}
+          </select>
+        </label>
+        <button data-module="profile" type="button" title="${escapeHtml(t(language, 'nav.profileModule'))}">
+          <span>${escapeHtml(t(language, 'nav.profileModule'))}</span>
+          <strong>${escapeHtml(state.profile.displayName)}</strong>
+        </button>
+      </div>
+    </header>
+  `;
 }
 
 const tutorialSteps = [
@@ -372,6 +428,10 @@ function emailTutorialCanContinue(step: number) {
 }
 
 function renderCurrentView() {
+  if (state.view === 'home') {
+    return renderHome();
+  }
+
   if (state.view === 'legal') {
     return renderLegalCenter();
   }
@@ -402,11 +462,51 @@ function renderCurrentView() {
 
   if (state.view === 'turn') {
     return state.adminAccessVerified
-      ? `${renderTurnCommandCenter({ language: uiLanguage(), appVersion: APP_VERSION })}${renderChangeAdminPin()}`
+      ? `${renderTurnCommandCenter({ language: uiLanguage(), appVersion: APP_VERSION, incidents: state.incidents, incidentFilters: state.incidentFilters })}${renderChangeAdminPin()}`
       : renderAdministratorLogin();
   }
 
   return renderCockpit();
+}
+
+function renderHome() {
+  const language = uiLanguage();
+  return `
+    <section class="home-view" aria-labelledby="home-title">
+      <figure class="home-visual">
+        <img src="/images/images/logo1.png" alt="${escapeHtml(t(language, 'header.brandAlt'))}" />
+      </figure>
+      <div class="home-intro">
+        <div>
+          <span>${escapeHtml(t(language, 'home.eyebrow'))}</span>
+          <h1 id="home-title">${escapeHtml(t(language, 'home.title'))}</h1>
+        </div>
+        <p>${escapeHtml(t(language, 'home.description'))}</p>
+      </div>
+      <nav class="home-actions" aria-label="${escapeHtml(t(language, 'home.actionsLabel'))}">
+        <a href="/translator" data-module="cockpit" class="home-action home-action-primary home-action-translator">
+          <span class="home-action-icon" aria-hidden="true">⇄</span>
+          <strong>${escapeHtml(t(language, 'nav.translator'))}</strong>
+          <small>${escapeHtml(t(language, 'home.translatorDescription'))}</small>
+        </a>
+        <a href="/email" data-module="email" class="home-action home-action-email">
+          <span class="home-action-icon" aria-hidden="true">✉︎</span>
+          <strong>${escapeHtml(t(language, 'nav.email'))}</strong>
+          <small>${escapeHtml(t(language, 'home.emailDescription'))}</small>
+        </a>
+        <button type="button" class="home-action home-action-premium" disabled aria-describedby="premium-planned">
+          <span class="home-action-icon" aria-hidden="true">★</span>
+          <strong>Premium</strong>
+          <small id="premium-planned">${escapeHtml(t(language, 'home.planned'))}</small>
+        </button>
+        <button type="button" class="home-action home-action-voice" disabled aria-describedby="voice-planned">
+          <span class="home-action-icon" aria-hidden="true"></span>
+          <strong>${escapeHtml(t(language, 'home.voice'))}</strong>
+          <small id="voice-planned">${escapeHtml(t(language, 'home.plannedPremium'))}</small>
+        </button>
+      </nav>
+    </section>
+  `;
 }
 
 function renderModuleLauncher() {
@@ -415,7 +515,7 @@ function renderModuleLauncher() {
       <a data-module="cockpit" href="/cockpit" class="${state.view === 'cockpit' ? 'active' : ''}">
         <em>HUD</em>
         <strong>A.G.M.</strong>
-        <span>Cockpit</span>
+        <span>${escapeHtml(t(uiLanguage(), 'nav.translator'))}</span>
       </a>
       <a data-module="email" href="/email" class="${state.view === 'email' ? 'active' : ''}">
         <em>MAIL</em>
@@ -579,6 +679,7 @@ function commandPanelForView(view: ViewName) {
       { id: 'translator-ocr', label: t(uiLanguage(), 'translator.command.ocr'), description: t(uiLanguage(), 'translator.command.ocrDesc') },
       { id: 'translator-correct', label: t(uiLanguage(), 'translator.command.correct'), description: t(uiLanguage(), 'translator.command.correctDesc') },
       { id: 'translator-translate', label: t(uiLanguage(), 'translator.command.translate'), description: t(uiLanguage(), 'translator.command.translateDesc') },
+      { id: 'translator-email', label: t(uiLanguage(), 'translator.command.email'), description: t(uiLanguage(), 'translator.command.emailDesc') },
       { id: 'translator-listen', label: t(uiLanguage(), 'translator.command.listen'), description: speakerCommandDescription() },
       { id: 'translator-copy', label: t(uiLanguage(), 'translator.command.copy'), description: t(uiLanguage(), 'translator.command.copyDesc') },
       { id: 'translator-clear', label: t(uiLanguage(), 'translator.command.clear'), description: t(uiLanguage(), 'translator.command.clearDesc') },
@@ -734,22 +835,43 @@ function renderEmailAssistant() {
         ${
           state.emailComposeMode === 'general'
             ? `
-              <label data-email-tutorial="template">
+              <section class="message-library" data-email-tutorial="template" aria-label="${escapeHtml(t(uiLanguage, 'mail.library.title'))}">
+                <header>
+                  <strong>${escapeHtml(t(uiLanguage, 'mail.library.title'))}</strong>
+                  <small>${escapeHtml(t(uiLanguage, 'mail.library.curated'))}</small>
+                </header>
+                <div class="message-library-filters">
+                  <label>
+                    <span>${escapeHtml(t(uiLanguage, 'mail.library.search'))}</span>
+                    <input id="messageLibrarySearch" type="search" value="${escapeHtml(state.messageLibrarySearch)}" placeholder="${escapeHtml(t(uiLanguage, 'mail.library.searchPlaceholder'))}" />
+                  </label>
+                  <label>
+                    <span>${escapeHtml(t(uiLanguage, 'mail.library.category'))}</span>
+                    <select id="messageLibraryCategory">
+                      <option value="all" ${state.messageLibraryCategory === 'all' ? 'selected' : ''}>${escapeHtml(t(uiLanguage, 'mail.library.all'))}</option>
+                      <option value="favorites" ${state.messageLibraryCategory === 'favorites' ? 'selected' : ''}>★ ${escapeHtml(t(uiLanguage, 'mail.library.favorites'))}</option>
+                      <option value="recent" ${state.messageLibraryCategory === 'recent' ? 'selected' : ''}>${escapeHtml(t(uiLanguage, 'mail.library.recent'))}</option>
+                      ${messageCategories.map((category) => `<option value="${category}" ${state.messageLibraryCategory === category ? 'selected' : ''}>${escapeHtml(t(uiLanguage, `mail.library.category.${category}`))}</option>`).join('')}
+                    </select>
+                  </label>
+                </div>
+                <label>
                 <span>${escapeHtml(t(uiLanguage, 'mail.templateMessage'))}</span>
                 <select id="emailTemplateSelect" aria-label="${escapeHtml(t(uiLanguage, 'mail.chooseTemplate'))}">
                   <option value="general-manual" ${state.selectedEmailTemplateId ? '' : 'selected'}>${escapeHtml(t(uiLanguage, 'mail.freeMessage'))}</option>
-                  ${emailTemplates
-                    .filter((template) => template.id !== 'general-manual')
+                  ${filteredEmailTemplates()
                     .map(
                       (template) => `
                         <option value="${escapeHtml(template.id)}" ${state.selectedEmailTemplateId === template.id ? 'selected' : ''}>
-                          ${escapeHtml(emailTemplateLabel(template, uiLanguage))}
+                          ${state.messageLibraryFavorites.includes(template.id) ? '★ ' : ''}${escapeHtml(emailTemplateLabel(template, state.targetLanguage))}
                         </option>
                       `,
                     )
                     .join('')}
                 </select>
-              </label>
+                </label>
+                ${renderSelectedTemplateControls()}
+              </section>
             `
             : ''
         }
@@ -830,7 +952,7 @@ function renderEmailAssistant() {
           state.sendOptionsOpen
             ? `
               <div class="send-options">
-                <button type="button" data-planned-send="email" aria-disabled="true">${escapeHtml(t(uiLanguage, 'mail.sendEmail'))}</button>
+                <button type="button" data-send="email">${escapeHtml(t(uiLanguage, 'mail.sendEmail'))}</button>
                 <button type="button" data-planned-send="whatsapp" aria-disabled="true">${escapeHtml(t(uiLanguage, 'mail.sendWhatsapp'))}</button>
               </div>
             `
@@ -1439,6 +1561,7 @@ function bindShared() {
       const nextView = control.dataset.module;
 
       if (
+        nextView !== 'home' &&
         nextView !== 'cockpit' &&
         nextView !== 'email' &&
         nextView !== 'profile' &&
@@ -1478,6 +1601,7 @@ function bindCommandPanel() {
       if (command === 'translator-ocr') openOcrImagePicker();
       if (command === 'translator-correct') correctTranslatorText();
       if (command === 'translator-translate') void translateOriginalText();
+      if (command === 'translator-email') createEmailFromTranslation();
       if (command === 'translator-listen') speakTranslation();
       if (command === 'translator-copy') void copyTranslatorResult();
       if (command === 'translator-clear') clearTranslator();
@@ -1762,6 +1886,34 @@ function bindEmailAssistant() {
     render();
   });
 
+  document.querySelector<HTMLInputElement>('#messageLibrarySearch')?.addEventListener('change', (event) => {
+    state.messageLibrarySearch = (event.target as HTMLInputElement).value.trim();
+    state.selectedEmailTemplateId = '';
+    state.messageTemplateVariables = {};
+    render();
+  });
+
+  document.querySelector<HTMLSelectElement>('#messageLibraryCategory')?.addEventListener('change', (event) => {
+    const category = (event.target as HTMLSelectElement).value;
+    state.messageLibraryCategory = category as typeof state.messageLibraryCategory;
+    state.selectedEmailTemplateId = '';
+    state.messageTemplateVariables = {};
+    render();
+  });
+
+  document.querySelector<HTMLButtonElement>('#toggleTemplateFavorite')?.addEventListener('click', toggleSelectedTemplateFavorite);
+
+  document.querySelectorAll<HTMLInputElement>('[data-template-variable]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const variable = input.dataset.templateVariable;
+      if (!variable) return;
+      state.messageTemplateVariables[variable] = input.value;
+      applySelectedTemplateLanguage(state.targetLanguage);
+      markMailDraftChanged();
+      render();
+    });
+  });
+
   document.querySelector<HTMLSelectElement>('#emailTemplateSelect')?.addEventListener('change', (event) => {
     const templateId = (event.target as HTMLSelectElement).value;
 
@@ -1782,8 +1934,10 @@ function bindEmailAssistant() {
 
     const content = emailTemplateContent(template, state.targetLanguage);
     state.selectedEmailTemplateId = template.id;
+    state.messageTemplateVariables = {};
     state.subject = content.subject;
     state.message = content.message;
+    recordTemplateUse(template.id);
     markMailDraftChanged();
     state.status = t(uiLanguage(), 'mail.status.templateSelected', {
       language: languageLabel(state.targetLanguage),
@@ -1803,6 +1957,8 @@ function bindEmailAssistant() {
       showSendBlockedMessage();
     });
   });
+
+  document.querySelector<HTMLButtonElement>('[data-send="email"]')?.addEventListener('click', prepareEmailSend);
 
   document.querySelector<HTMLButtonElement>('#editSignature')?.addEventListener('click', () => {
     state.signatureEditorOpen = true;
@@ -2742,6 +2898,159 @@ async function translateWithAdapter(text: string, sourceLanguage: LanguageCode, 
   }
 }
 
+function bindIncidentJournal() {
+  const dialog = document.querySelector<HTMLDialogElement>('#incidentEditorDialog');
+  const form = document.querySelector<HTMLFormElement>('#incidentEditorForm');
+
+  document.querySelector<HTMLFormElement>('#incidentJournalFilters')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget as HTMLFormElement);
+    state.incidentFilters = {
+      query: String(data.get('query') || ''),
+      module: String(data.get('module') || ''),
+      severity: String(data.get('severity') || '') as IncidentJournalFilters['severity'],
+      status: String(data.get('status') || '') as IncidentJournalFilters['status'],
+      category: String(data.get('category') || '') as IncidentJournalFilters['category'],
+      dateFrom: String(data.get('dateFrom') || ''),
+      dateTo: String(data.get('dateTo') || ''),
+      version: String(data.get('version') || ''),
+    };
+    render();
+  });
+
+  document.querySelector<HTMLButtonElement>('#clearIncidentFilters')?.addEventListener('click', () => {
+    state.incidentFilters = emptyIncidentFilters();
+    render();
+  });
+
+  document.querySelector<HTMLButtonElement>('#newJournalIncident')?.addEventListener('click', () => {
+    if (!form || !dialog) return;
+    form.reset();
+    setIncidentFormValue(form, 'occurredAt', localDateTimeValue(new Date().toISOString()));
+    setIncidentFormValue(form, 'status', 'new');
+    setIncidentFormValue(form, 'severity', 'minor');
+    setIncidentFormValue(form, 'category', 'technical');
+    dialog.showModal();
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-incident-edit]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const incident = state.incidents.find((item) => item.id === button.dataset.incidentEdit);
+      if (!incident || !form || !dialog) return;
+      form.reset();
+      Object.entries({ ...incident, occurredAt: localDateTimeValue(incident.occurredAt), relatedIncidentIds: incident.relatedIncidentIds.join(', ') }).forEach(([name, value]) => {
+        if (typeof value === 'string') setIncidentFormValue(form, name, value);
+      });
+      form.querySelectorAll<HTMLInputElement>('input[name="environments"]').forEach((input) => input.checked = incident.environments.includes(input.value as IncidentEnvironment));
+      const reusable = form.elements.namedItem('reusableSolution') as HTMLInputElement | null;
+      if (reusable) reusable.checked = incident.reusableSolution;
+      dialog.showModal();
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-incident-reopen]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const incident = state.incidents.find((item) => item.id === button.dataset.incidentReopen);
+      if (!incident) return;
+      const note = window.prompt('Motivul redeschiderii incidentului:')?.trim();
+      if (!note) return;
+      const reopened = transitionIncident(incident, 'reopened', currentIncidentActor(), note);
+      state.incidents = state.incidents.map((item) => item.id === reopened.id ? reopened : item);
+      saveIncidentJournal(window.localStorage, state.incidents);
+      state.status = `Incident ${reopened.id} redeschis și păstrat în istoric.`;
+      render();
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-incident-focus]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const record = document.querySelector<HTMLDetailsElement>(`#incident-${CSS.escape(button.dataset.incidentFocus || '')}`);
+      if (!record) return;
+      record.open = true;
+      record.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  document.querySelector<HTMLButtonElement>('#exportIncidentJournal')?.addEventListener('click', () => {
+    const blob = new Blob([exportIncidentAudit(state.incidents)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `AGM-incident-journal-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    state.status = 'Raportul de audit al incidentelor a fost exportat.';
+    render();
+  });
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const error = document.querySelector<HTMLElement>('#incidentEditorError');
+    try {
+      const draft = incidentDraftFromForm(data);
+      const existing = state.incidents.find((item) => item.id === String(data.get('id') || ''));
+      const note = String(data.get('historyNote') || '').trim();
+      const saved = existing
+        ? updateIncident(existing, draft, currentIncidentActor(), note)
+        : createIncident(draft, currentIncidentActor());
+      state.incidents = [saved, ...state.incidents.filter((item) => item.id !== saved.id)].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
+      saveIncidentJournal(window.localStorage, state.incidents);
+      dialog?.close();
+      state.status = `Incident ${saved.id} salvat în jurnal.`;
+      render();
+    } catch (caught) {
+      if (error) error.textContent = caught instanceof Error && caught.message === 'VALIDATION_EVIDENCE_REQUIRED'
+        ? 'Statutul Validat necesită soluția aplicată, testele și validarea umană.'
+        : caught instanceof Error && caught.message === 'ENVIRONMENT_REQUIRED'
+          ? 'Selectați cel puțin un mediu afectat.'
+        : 'Incidentul nu a putut fi salvat. Verificați câmpurile și statutul.';
+    }
+  });
+
+  document.querySelector<HTMLButtonElement>('#closeIncidentEditor')?.addEventListener('click', () => dialog?.close());
+  document.querySelector<HTMLButtonElement>('#cancelIncidentEditor')?.addEventListener('click', () => dialog?.close());
+}
+
+function incidentDraftFromForm(data: FormData): IncidentDraft {
+  const occurredAtInput = String(data.get('occurredAt') || '');
+  return {
+    occurredAt: occurredAtInput ? new Date(occurredAtInput).toISOString() : new Date().toISOString(),
+    module: String(data.get('module') || '').trim(),
+    environments: data.getAll('environments').map(String) as IncidentEnvironment[],
+    category: String(data.get('category') || 'technical') as IncidentDraft['category'],
+    symptom: String(data.get('symptom') || '').trim(),
+    severity: String(data.get('severity') || 'minor') as IncidentDraft['severity'],
+    reproduction: String(data.get('reproduction') || '').trim(),
+    cause: String(data.get('cause') || '').trim(),
+    attemptedSolutions: String(data.get('attemptedSolutions') || '').trim(),
+    appliedSolution: String(data.get('appliedSolution') || '').trim(),
+    owner: String(data.get('owner') || '').trim(),
+    fixedInVersion: String(data.get('fixedInVersion') || '').trim(),
+    tests: String(data.get('tests') || '').trim(),
+    humanValidation: String(data.get('humanValidation') || '').trim(),
+    preventiveMeasure: String(data.get('preventiveMeasure') || '').trim(),
+    status: String(data.get('status') || 'new') as IncidentStatus,
+    relatedIncidentIds: String(data.get('relatedIncidentIds') || '').split(',').map((value) => value.trim()).filter(Boolean),
+    reusableSolution: data.get('reusableSolution') === 'on',
+  };
+}
+
+function setIncidentFormValue(form: HTMLFormElement, name: string, value: string) {
+  const control = form.elements.namedItem(name);
+  if (control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement || control instanceof HTMLSelectElement) control.value = value;
+}
+
+function localDateTimeValue(iso: string) {
+  const date = new Date(iso);
+  const offset = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+}
+
+function currentIncidentActor() {
+  return state.profile.displayName.trim() || 'AGM Operator';
+}
+
 async function finishActiveTranslatorDictation() {
   const voiceInput = activeTranslatorVoiceInput;
   if (!voiceInput || !state.isListening) return;
@@ -3151,14 +3460,76 @@ function recipientNameFromAddress(email: string) {
 }
 
 function emailTemplateContent(template: EmailTemplate, language: LanguageCode) {
-  return template.translations?.[language] ?? {
-    subject: template.subject,
-    message: template.message,
+  const content = templateContent(template, language);
+  return {
+    subject: fillTemplateVariables(content.subject, state.messageTemplateVariables),
+    message: fillTemplateVariables(content.message, state.messageTemplateVariables),
   };
 }
 
 function emailTemplateLabel(template: EmailTemplate, language: LanguageCode) {
-  return t(language, `mail.template.${template.id}`);
+  return templateContent(template, language).subject;
+}
+
+function filteredEmailTemplates() {
+  const query = state.messageLibrarySearch.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
+
+  return emailTemplates.filter((item) => {
+    const categoryMatches =
+      state.messageLibraryCategory === 'all' ||
+      state.messageLibraryCategory === item.category ||
+      (state.messageLibraryCategory === 'favorites' && state.messageLibraryFavorites.includes(item.id)) ||
+      (state.messageLibraryCategory === 'recent' && state.messageLibraryRecent.includes(item.id));
+    if (!categoryMatches) return false;
+    if (!query) return true;
+    const content = templateContent(item, state.targetLanguage);
+    const searchable = `${content.subject} ${content.message}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
+    return searchable.includes(query);
+  }).sort((left, right) => {
+    if (state.messageLibraryCategory !== 'recent') return 0;
+    return state.messageLibraryRecent.indexOf(left.id) - state.messageLibraryRecent.indexOf(right.id);
+  });
+}
+
+function renderSelectedTemplateControls() {
+  const selected = emailTemplates.find((item) => item.id === state.selectedEmailTemplateId);
+  if (!selected) return '';
+  const favorite = state.messageLibraryFavorites.includes(selected.id);
+
+  return `
+    <div class="message-template-tools">
+      <button id="toggleTemplateFavorite" type="button" class="${favorite ? 'active' : ''}" aria-pressed="${favorite}">
+        ${favorite ? '★' : '☆'} ${escapeHtml(t(uiLanguage(), favorite ? 'mail.library.removeFavorite' : 'mail.library.addFavorite'))}
+      </button>
+      ${selected.variables.length > 0 ? `<div class="template-variable-grid">${selected.variables.map((variable) => `
+        <label>
+          <span>${escapeHtml(t(uiLanguage(), `mail.library.variable.${variable}`))}</span>
+          <input data-template-variable="${escapeHtml(variable)}" value="${escapeHtml(state.messageTemplateVariables[variable] || '')}" placeholder="{{${escapeHtml(variable)}}}" />
+        </label>`).join('')}</div>` : ''}
+    </div>`;
+}
+
+function saveMessageLibraryState() {
+  saveMessageLibraryPreferences(window.localStorage, {
+    favorites: state.messageLibraryFavorites,
+    recent: state.messageLibraryRecent,
+  });
+}
+
+function recordTemplateUse(templateId: string) {
+  state.messageLibraryRecent = [templateId, ...state.messageLibraryRecent.filter((id) => id !== templateId)].slice(0, 8);
+  saveMessageLibraryState();
+}
+
+function toggleSelectedTemplateFavorite() {
+  const templateId = state.selectedEmailTemplateId;
+  if (!templateId) return;
+  state.messageLibraryFavorites = state.messageLibraryFavorites.includes(templateId)
+    ? state.messageLibraryFavorites.filter((id) => id !== templateId)
+    : [...state.messageLibraryFavorites, templateId];
+  saveMessageLibraryState();
+  state.status = t(uiLanguage(), state.messageLibraryFavorites.includes(templateId) ? 'mail.library.status.favoriteAdded' : 'mail.library.status.favoriteRemoved');
+  render();
 }
 
 function applySelectedTemplateLanguage(language: LanguageCode) {
@@ -3250,7 +3621,7 @@ function prepareEmailSend() {
   render();
 }
 
-function confirmMailPreview() {
+async function confirmMailPreview() {
   if (!realMailSendingIsApproved()) {
     state.mailReviewOpen = false;
     state.status = t(uiLanguage(), 'mail.blockedSendMessage');
@@ -3258,7 +3629,21 @@ function confirmMailPreview() {
     return;
   }
 
-  state.status = t(uiLanguage(), 'mail.blockedSendMessage');
+  const preview = currentMailPreview();
+
+  try {
+    const { openEmailComposer } = await import('./native-email');
+    await openEmailComposer(preview.recipient, preview.subject, preview.body);
+    state.mailReviewOpen = false;
+    state.status = t(uiLanguage(), 'mail.status.emailClientOpened');
+  } catch (error) {
+    const code = typeof error === 'object' && error && 'code' in error ? String(error.code) : '';
+    state.status = t(
+      uiLanguage(),
+      code === 'EMAIL_CLIENT_UNAVAILABLE' ? 'mail.status.emailClientUnavailable' : 'mail.status.emailClientFailed',
+    );
+  }
+
   render();
 }
 
@@ -3354,6 +3739,26 @@ function acceptLegalNotice() {
   state.status = t(uiLanguage(), 'legal.status.accepted');
   state.tutorialOpen = !readTutorialCompletion(window.localStorage);
   state.tutorialOpenedFromHelp = false;
+  render();
+}
+
+function createEmailFromTranslation() {
+  const translatedText = state.translatorResult.trim() || state.translatorText.trim();
+
+  if (!translatedText) {
+    state.status = t(uiLanguage(), 'translator.status.noEmailText');
+    render();
+    return;
+  }
+
+  state.message = translatedText;
+  state.targetLanguage = state.translatorTargetLanguage;
+  state.emailComposeMode = 'manual';
+  state.selectedEmailTemplateId = '';
+  state.mailReviewOpen = false;
+  state.mailSecurityMessages = [];
+  navigateToModule('email');
+  state.status = t(uiLanguage(), 'translator.status.emailCreated');
   render();
 }
 
@@ -3613,6 +4018,10 @@ function profileHasContactDetails(profile: ProfileSettings) {
 }
 
 function moduleStatus(view: ViewName) {
+  if (view === 'home') {
+    return t(uiLanguage(), 'home.status');
+  }
+
   if (view === 'email') {
     return t(uiLanguage(), 'module.status.email');
   }
@@ -3675,7 +4084,11 @@ function viewFromCurrentRoute(): ViewName {
   const pathRoute = window.location.pathname.replace(/^\/?/, '').toLocaleLowerCase();
   const route = hashRoute || pathRoute;
 
-  if (!route || route === 'cockpit' || route === 'translator' || route === 'traducator') {
+  if (!route || route === 'home') {
+    return 'home';
+  }
+
+  if (route === 'cockpit' || route === 'translator' || route === 'traducator') {
     return 'cockpit';
   }
 
@@ -3715,10 +4128,14 @@ function viewFromCurrentRoute(): ViewName {
     return 'profile';
   }
 
-  return 'email';
+  return 'home';
 }
 
 function routeForView(view: ViewName) {
+  if (view === 'home') {
+    return '/';
+  }
+
   if (view === 'email') {
     return '/email';
   }

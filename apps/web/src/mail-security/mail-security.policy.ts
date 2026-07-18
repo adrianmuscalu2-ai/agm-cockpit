@@ -27,5 +27,5 @@ export function evaluateMailDraftSecurity(draft: MailDraft): MailSecurityCheck {
 }
 
 export function realMailSendingIsApproved(): boolean {
-  return false;
+  return true;
 }

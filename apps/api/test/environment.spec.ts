@@ -5,7 +5,7 @@ const validEnvironment = {
   DATABASE_URL: 'postgresql://example.invalid/agm',
   OPENAI_API_KEY: 'test-openai-key',
   JWT_SECRET: 'a-secure-test-secret-with-more-than-32-characters',
-  CORS_ALLOWED_ORIGINS: 'https://localhost,https://app.agm.example',
+  CORS_ALLOWED_ORIGINS: 'https://localhost,https://agm-cockpit.pages.dev,https://app.agmcockpit.com',
 };
 
 describe('environment validation', () => {
@@ -31,9 +31,10 @@ describe('environment validation', () => {
   });
 
   it('parses configured origins without wildcards', () => {
-    expect(configuredCorsOrigins('https://localhost, https://app.agm.example')).toEqual([
+    expect(configuredCorsOrigins('https://localhost, https://agm-cockpit.pages.dev, https://app.agmcockpit.com')).toEqual([
       'https://localhost',
-      'https://app.agm.example',
+      'https://agm-cockpit.pages.dev',
+      'https://app.agmcockpit.com',
     ]);
   });
 });

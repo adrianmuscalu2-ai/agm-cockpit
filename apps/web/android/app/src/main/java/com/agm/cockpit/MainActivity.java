@@ -7,6 +7,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(AgmAudioPlugin.class);
+        registerPlugin(AgmEmailPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

@@ -15,6 +15,7 @@ export type TurnMissionItem = {
 };
 
 export const turnDepartments: TurnCommandItem[] = [
+  { id: 'maintenance-quality-evolution', titleKey: 'turn.department.maintenance', descriptionKey: 'turn.department.maintenanceDesc', status: 'active' },
   { id: 'turn-command', titleKey: 'turn.department.turnCommand', descriptionKey: 'turn.department.turnCommandDesc', status: 'active' },
   { id: 'product-roadmap', titleKey: 'turn.department.productRoadmap', descriptionKey: 'turn.department.productRoadmapDesc', status: 'planned' },
   { id: 'architecture-platform', titleKey: 'turn.department.architecture', descriptionKey: 'turn.department.architectureDesc', status: 'active' },

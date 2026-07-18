@@ -1,5 +1,10 @@
 const env = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env;
-const apiBaseUrl = (env?.VITE_AGM_API_BASE_URL?.trim() || 'http://127.0.0.1:3000/api/v1').replace(/\/$/, '');
+const developmentApiBaseUrl = import.meta.env.DEV ? 'http://127.0.0.1:3000/api/v1' : undefined;
+const apiBaseUrl = (env?.VITE_AGM_API_BASE_URL?.trim() || developmentApiBaseUrl)?.replace(/\/$/, '');
+
+if (!apiBaseUrl) {
+  throw new Error('VITE_AGM_API_BASE_URL is required outside development.');
+}
 
 export interface AdminSession {
   accessToken: string;
