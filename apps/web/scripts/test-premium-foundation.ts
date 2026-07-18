@@ -10,6 +10,9 @@ import {
 import { premiumCopilotBoundaries } from '../src/premium-copilot/premium-copilot.contract';
 import { premiumCopilotModule } from '../src/premium-copilot/premium-copilot.module';
 import { transitionPremiumCopilot } from '../src/premium-copilot/premium-copilot.workflow';
+import { premiumLinguisticBoundaries } from '../src/premium-linguistic-agents/premium-linguistic-agents.contract';
+import { premiumLinguisticAgents } from '../src/premium-linguistic-agents/premium-linguistic-agents.registry';
+import { premiumLinguisticAgentsModule } from '../src/premium-linguistic-agents/premium-linguistic-agents.module';
 import {
   isPremiumView,
   premiumRouteForView,
@@ -98,5 +101,28 @@ assert.equal(preparedState.status, 'preparing');
 assert.equal(prematureApproval.status, 'preparing');
 assert.equal(confirmationState.status, 'awaiting-confirmation');
 assert.equal(approvedState.status, 'approved');
+
+assert.equal(
+  premiumApplicationModules.linguisticAgents,
+  premiumLinguisticAgentsModule,
+);
+assert.equal(premiumLinguisticAgentsModule.enabled, false);
+assert.deepEqual(
+  premiumLinguisticAgents.map((agent) => agent.language),
+  ['ro', 'de', 'en'],
+);
+assert.ok(premiumLinguisticAgents.every((agent) => agent.enabled === false));
+assert.ok(
+  premiumLinguisticAgents.every((agent) => agent.status === 'preparing'),
+);
+assert.ok(
+  premiumLinguisticAgents.every((agent) => agent.capabilities.length === 0),
+);
+assert.equal(premiumLinguisticBoundaries.changesBasicCorrection, false);
+assert.equal(premiumLinguisticBoundaries.changesBasicTranslation, false);
+assert.equal(premiumLinguisticBoundaries.appliesHiddenCorrections, false);
+assert.equal(premiumLinguisticBoundaries.requiresUserConfirmation, true);
+assert.equal(premiumLinguisticBoundaries.performsExternalCalls, false);
+assert.equal(premiumLinguisticBoundaries.storesText, false);
 
 console.log('Premium foundation tests: PASS');

@@ -1,5 +1,6 @@
 import { renderPremiumFoundation } from './premium-foundation';
 import { premiumCopilotModule } from './premium-copilot/premium-copilot.module';
+import { premiumLinguisticAgentsModule } from './premium-linguistic-agents/premium-linguistic-agents.module';
 import { isPremiumView, type PremiumViewName } from './premium-routes';
 import { renderPremiumTeamFoundation } from './premium-team-foundation';
 
@@ -8,6 +9,7 @@ type HtmlEscaper = (value: string) => string;
 
 export const premiumApplicationModules = {
   copilot: premiumCopilotModule,
+  linguisticAgents: premiumLinguisticAgentsModule,
 } as const;
 
 export function renderPremiumView(
