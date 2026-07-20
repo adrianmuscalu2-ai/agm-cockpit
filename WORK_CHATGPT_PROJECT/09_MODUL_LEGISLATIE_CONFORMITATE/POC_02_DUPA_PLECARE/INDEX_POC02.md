@@ -33,6 +33,9 @@
 | `I5_1_MATRICE_TRASABILITATE.md` | obiective, livrabile, criterii și dovezi | PASS |
 | `RAPORT_VALIDARE_I5_1.md` | verificările și rezultatul incrementului I5.1 | PASS |
 | `DECIZIE_VALIDARE_I5_1.md` | decizia Product Owner și autorizarea checkpoint-ului | aprobat |
+| `DECIZIE_AUTORIZARE_I5_2.md` | autorizarea și limitele incrementului I5.2 | aprobat |
+| `RAPORT_REGRESIE_AUTOMATA_I5_2.md` | comenzile, mediul, rezultatele și clasificarea I5.2 | PASS |
+| `DECIZIE_VALIDARE_I5_2.md` | decizia Product Owner și autorizarea checkpoint-ului I5.2 | aprobat |
 | `INDEX_POC02.md` | inventar și status curent | activ |
 
 ## Starea implementării
@@ -49,11 +52,13 @@
 - ETAPA 4: PASS implementare, închisă oficial;
 - checkpoint ETAPA 4: `290aad19ae8a55595d6a7ad4d3a2eec1f8a1044c`;
 - ETAPA 5: PASS documentar;
-- I5.1: PASS, checkpoint Git autorizat;
-- I5.2–I5.7: neautorizate;
+- I5.1: PASS, închis oficial;
+- checkpoint I5.1: `335b48c24f006056b226382e22902a245a610fb2`;
+- I5.2: PASS, checkpoint Git autorizat;
+- I5.3–I5.7: neautorizate;
 - modificări asupra POC 01: zero.
 
 ## Următorul checkpoint
 
-Crearea și verificarea checkpoint-ului Git dedicat I5.1. I5.2 rămâne
-neautorizat până la confirmarea înregistrării checkpoint-ului.
+Crearea și verificarea checkpoint-ului Git dedicat I5.2. I5.3–I5.7 rămân
+neautorizate.

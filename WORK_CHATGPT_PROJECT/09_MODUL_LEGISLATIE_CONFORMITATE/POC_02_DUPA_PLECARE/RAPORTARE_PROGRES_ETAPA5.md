@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-20
 **Statut:** PASS DOCUMENTAR – INCREMENTE NEAUTORIZATE
-**Execuție incrementări:** I5.1 PASS – CHECKPOINT AUTORIZAT
+**Execuție incrementări:** I5.1 ÎNCHIS – I5.2 PASS, CHECKPOINT AUTORIZAT
 
 ## Rezultat documentar
 
@@ -61,5 +61,15 @@ Nu sunt autorizate:
 - checkpoint ETAPA 5;
 - manifest sau arhivă baseline POC 02.
 
-I5.1 a fost validat cu PASS de Product Owner. Următorul pas permis este
-crearea și verificarea checkpoint-ului dedicat. I5.2–I5.7 rămân neautorizate.
+I5.1 este închis prin checkpoint-ul
+`335b48c24f006056b226382e22902a245a610fb2`.
+
+I5.2 a fost executat fără modificări funcționale:
+
+- controale automate: 5/5 PASS;
+- criterii AC5-05–AC5-07 și AC5-11–AC5-13: 6/6 PASS;
+- regresii funcționale reproductibile: 0;
+- neconformități reziduale cunoscute: 0.
+
+Auditul Product Owner acordă PASS pentru I5.2. Următorul pas permis este
+crearea și verificarea checkpoint-ului dedicat. I5.3–I5.7 rămân neautorizate.
