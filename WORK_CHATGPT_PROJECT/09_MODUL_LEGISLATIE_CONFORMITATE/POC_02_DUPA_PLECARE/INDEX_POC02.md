@@ -1,7 +1,7 @@
 # INDEX – POC 02 „DUPĂ PLECARE”
 
 **Data:** 2026-07-20  
-**Statut:** ETAPELE 1–3 ÎNCHISE OFICIAL – ETAPA 4 ÎN PREGĂTIRE
+**Statut:** ETAPELE 1–4 ÎNCHISE OFICIAL – CHECKPOINT ETAPA 4 AUTORIZAT
 **Baseline protejat:** POC 01, commit `769a6a2c4bca200341d3eee9b685ec3ec3c8bb5b`  
 
 ## Documente
@@ -19,6 +19,12 @@
 | `ETAPA_3_IMPLEMENTARE_FUNCTIONALA.md` | domeniul implementat, trasabilitate și limite | PASS – închis |
 | `RAPORTARE_PROGRES_ETAPA3.md` | dovezi tehnice și decizia ETAPEI 3 | decizie înregistrată |
 | `DECIZIE_VALIDARE_ETAPA3.md` | confirmarea Product Owner și autorizarea checkpoint-ului | aprobat |
+| `ETAPA_4_PLAN_INTEGRARE_MULTIPLATFORM.md` | obiective, livrabile, acceptanță, riscuri și validare | PASS documentar |
+| `RAPORTARE_PROGRES_ETAPA4.md` | progresul documentar și poarta de implementare | decizie înregistrată |
+| `DECIZIE_VALIDARE_DOCUMENTATIE_ETAPA4.md` | validarea Product Owner și limita autorizării | aprobat |
+| `ETAPA_4_MATRICE_STARE_ECRAN.md` | trasabilitatea celor 9 stări în interfață | implementat |
+| `ETAPA_4_REGISTRU_REMEDIERE_SI_DOVEZI.md` | separarea defectelor de lipsurile de dovadă | activ |
+| `DECIZIE_VALIDARE_ETAPA4.md` | PASS-ul final și autorizarea checkpoint-ului | aprobat |
 | `INDEX_POC02.md` | inventar și status curent | activ |
 
 ## Starea implementării
@@ -31,10 +37,11 @@
 - ETAPA 3: PASS implementare, închisă oficial;
 - implementarea funcțională de cod: nucleu operațional izolat implementat;
 - integrare Browser/Android: neinițiată, planificată pentru ETAPA 4;
-- ETAPA 4: în pregătire, implementarea neautorizată;
+- checkpoint ETAPA 3: `1bbbc0f8a5ad17e9fbad1b3bec5cc73692a10309`;
+- ETAPA 4: PASS implementare, închisă oficial;
 - modificări asupra POC 01: zero.
 
 ## Următorul checkpoint
 
-Înregistrarea checkpoint-ului Git autorizat pentru ETAPA 3, urmată de pregătirea
-documentară a ETAPEI 4. Implementarea ETAPEI 4 necesită autorizare explicită.
+Crearea checkpoint-ului Git autorizat pentru ETAPA 4, cu staging explicit și
+excluderea modificărilor paralele din workspace.
