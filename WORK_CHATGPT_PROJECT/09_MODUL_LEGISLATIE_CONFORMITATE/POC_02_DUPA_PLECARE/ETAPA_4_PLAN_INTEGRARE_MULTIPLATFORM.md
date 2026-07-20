@@ -179,6 +179,7 @@ Implementarea a fost autorizată, executată, remediată și reauditată.
 - neconformități reziduale: 0.
 
 ETAPA 4 primește PASS IMPLEMENTARE și este închisă oficial. Checkpoint-ul Git
-este autorizat și se va crea separat, cu staging limitat la aria ETAPEI 4.
+a fost înregistrat la `290aad19ae8a55595d6a7ad4d3a2eec1f8a1044c`, cu staging
+limitat la aria ETAPEI 4.
 
 🚛 **AGM respiră prin noi.**

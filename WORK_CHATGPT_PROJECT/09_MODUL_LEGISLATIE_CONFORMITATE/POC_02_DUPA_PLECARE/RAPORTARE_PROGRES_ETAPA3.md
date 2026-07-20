@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-20  
 **Statut:** PASS IMPLEMENTARE – ÎNCHISĂ OFICIAL  
-**Checkpoint Git ETAPA 3:** AUTORIZAT – identificatorul se înregistrează după commit
+**Checkpoint Git ETAPA 3:** `1bbbc0f8a5ad17e9fbad1b3bec5cc73692a10309`
 
 ## Rezultat
 
@@ -51,6 +51,6 @@ funcțional aprobat.
 Product Owner confirmă rezultatele tehnice și documentare:
 
 - **ETAPA 3:** PASS IMPLEMENTARE – ÎNCHISĂ OFICIAL;
-- **Checkpoint Git ETAPA 3:** AUTORIZAT;
+- **Checkpoint Git ETAPA 3:** ÎNREGISTRAT – `1bbbc0f8a5ad17e9fbad1b3bec5cc73692a10309`;
 - **POC 01:** baseline oficial, protejat și nemodificat;
 - **ETAPA 4:** poate fi pregătită după înregistrarea checkpoint-ului.

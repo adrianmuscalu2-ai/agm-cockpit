@@ -1,7 +1,7 @@
 # INDEX – POC 02 „DUPĂ PLECARE”
 
 **Data:** 2026-07-20  
-**Statut:** ETAPELE 1–4 ÎNCHISE OFICIAL – CHECKPOINT ETAPA 4 AUTORIZAT
+**Statut:** ETAPELE 1–4 ÎNCHISE OFICIAL – ETAPA 5 DESCHISĂ DOCUMENTAR
 **Baseline protejat:** POC 01, commit `769a6a2c4bca200341d3eee9b685ec3ec3c8bb5b`  
 
 ## Documente
@@ -25,6 +25,14 @@
 | `ETAPA_4_MATRICE_STARE_ECRAN.md` | trasabilitatea celor 9 stări în interfață | implementat |
 | `ETAPA_4_REGISTRU_REMEDIERE_SI_DOVEZI.md` | separarea defectelor de lipsurile de dovadă | activ |
 | `DECIZIE_VALIDARE_ETAPA4.md` | PASS-ul final și autorizarea checkpoint-ului | aprobat |
+| `ETAPA_5_PLAN_VALIDARE_FINALA.md` | obiective, livrabile, acceptanță, riscuri și limite | PASS documentar |
+| `ETAPA_5_PLAN_INCREMENTAL.md` | ordinea incrementărilor și porțile individuale | aprobat documentar |
+| `RAPORTARE_PROGRES_ETAPA5.md` | progresul documentar și limita autorizării | decizie înregistrată |
+| `DECIZIE_VALIDARE_DOCUMENTATIE_ETAPA5.md` | PASS documentar și limita autorizării | aprobat |
+| `I5_1_INVENTAR_OFICIAL.md` | inventarul baseline-ului și al documentelor de guvernanță | PASS |
+| `I5_1_MATRICE_TRASABILITATE.md` | obiective, livrabile, criterii și dovezi | PASS |
+| `RAPORT_VALIDARE_I5_1.md` | verificările și rezultatul incrementului I5.1 | PASS |
+| `DECIZIE_VALIDARE_I5_1.md` | decizia Product Owner și autorizarea checkpoint-ului | aprobat |
 | `INDEX_POC02.md` | inventar și status curent | activ |
 
 ## Starea implementării
@@ -36,12 +44,16 @@
 - ETAPA 2 – analiză operațională: PASS documentar, închisă oficial;
 - ETAPA 3: PASS implementare, închisă oficial;
 - implementarea funcțională de cod: nucleu operațional izolat implementat;
-- integrare Browser/Android: neinițiată, planificată pentru ETAPA 4;
+- integrare Browser/Android: implementată și validată în ETAPA 4;
 - checkpoint ETAPA 3: `1bbbc0f8a5ad17e9fbad1b3bec5cc73692a10309`;
 - ETAPA 4: PASS implementare, închisă oficial;
+- checkpoint ETAPA 4: `290aad19ae8a55595d6a7ad4d3a2eec1f8a1044c`;
+- ETAPA 5: PASS documentar;
+- I5.1: PASS, checkpoint Git autorizat;
+- I5.2–I5.7: neautorizate;
 - modificări asupra POC 01: zero.
 
 ## Următorul checkpoint
 
-Crearea checkpoint-ului Git autorizat pentru ETAPA 4, cu staging explicit și
-excluderea modificărilor paralele din workspace.
+Crearea și verificarea checkpoint-ului Git dedicat I5.1. I5.2 rămâne
+neautorizat până la confirmarea înregistrării checkpoint-ului.

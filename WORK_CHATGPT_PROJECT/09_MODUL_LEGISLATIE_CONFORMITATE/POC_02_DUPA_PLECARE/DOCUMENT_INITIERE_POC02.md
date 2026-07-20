@@ -2,7 +2,8 @@
 ## „După Plecare” – Asistență și conformitate în timpul transportului
 
 **Data redactării:** 2026-07-20  
-**Statut:** ✅ APROBAT – ETAPA 1 AUTORIZATĂ  
+**Statut inițial:** ✅ APROBAT – ETAPA 1 AUTORIZATĂ
+**Statut curent:** ETAPELE 1–4 ÎNCHISE; ETAPA 5 PASS DOCUMENTAR; I5.1 AUTORIZAT
 **Modul:** 09 – Legislație și conformitate  
 **Baseline protejat:** POC 01 „Înainte de Plecare”  
 **Commit baseline POC 01:** `769a6a2c4bca200341d3eee9b685ec3ec3c8bb5b`  
@@ -217,7 +218,7 @@ afectează baseline-ul POC 01 sau introduce o acțiune externă nouă necesită:
 3. actualizarea testelor și documentației;
 4. aprobarea înainte de implementare.
 
-## 13. Condiția de start a implementării
+## 13. Condiția inițială de start a implementării
 
 Implementarea ETAPEI 1 a POC 02 este autorizată numai după completarea
 următorului checkpoint:
@@ -234,11 +235,13 @@ următorului checkpoint:
 | Criterii de închidere definite | ✅ |
 | Aprobare Product Owner | ✅ ACORDATĂ – 2026-07-20 |
 
-**Decizie curentă:** document aprobat. ETAPELE 1 și 2 sunt închise oficial.
-Prin autorizarea Product Owner din 2026-07-20, ETAPA 3 este redefinită și
-autorizată ca prima etapă de implementare funcțională controlată. Schimbarea
-este limitată la un nucleu izolat, fără integrare în POC 01 și fără acțiuni
-externe. ETAPA 4 va prelua integrarea și prototipul Browser/Android.
+**Decizie istorică:** documentul a autorizat inițial ETAPA 1. Ulterior,
+ETAPELE 1–4 au fost autorizate, executate și închise individual.
+
+**Decizie curentă:** ETAPA 4 este închisă la checkpoint-ul
+`290aad19ae8a55595d6a7ad4d3a2eec1f8a1044c`. Documentația ETAPEI 5 are PASS
+DOCUMENTAR. Exclusiv I5.1 – inventar și trasabilitate – este autorizat; I5.2–I5.7
+rămân neautorizate.
 
 ---
 
