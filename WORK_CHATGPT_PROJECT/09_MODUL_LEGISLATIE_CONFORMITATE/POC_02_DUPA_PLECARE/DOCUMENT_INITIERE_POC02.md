@@ -89,8 +89,8 @@ POC 02 va documenta și valida conceptual următoarele familii de situații:
 |---|---|---|
 | E1 – Situații reale | catalog de scenarii, actori, date de intrare și limite | situații clare și diferențiate |
 | E2 – Analiză operațională | obligații practice, drepturi, riscuri și escaladări | matrice situație–acțiune |
-| E3 – Fundament și surse | registru de surse și delimitarea afirmațiilor | nicio certitudine nesusținută |
-| E4 – Prototip funcțional | flux minim Browser și Android, în limitele aprobate | comportament observabil și reversibil |
+| E3 – Implementare funcțională controlată | nucleu operațional izolat, fără efecte externe și fără integrare în POC 01 | comportament testabil, conservator și reversibil |
+| E4 – Integrare și prototip multiplatformă | flux minim Browser și Android, în limitele aprobate | comportament observabil și reversibil |
 | E5 – Validare finală | raport de regresie, dovezi, limitări și decizie | PASS sau revenire în remediere |
 
 Fiecare etapă va avea raport propriu, criterii măsurabile și checkpoint Git
@@ -234,8 +234,11 @@ următorului checkpoint:
 | Criterii de închidere definite | ✅ |
 | Aprobare Product Owner | ✅ ACORDATĂ – 2026-07-20 |
 
-**Decizie curentă:** document aprobat. ETAPA 1 – definirea detaliată a
-situațiilor reale – este autorizată. Implementarea de cod rămâne neinițiată.
+**Decizie curentă:** document aprobat. ETAPELE 1 și 2 sunt închise oficial.
+Prin autorizarea Product Owner din 2026-07-20, ETAPA 3 este redefinită și
+autorizată ca prima etapă de implementare funcțională controlată. Schimbarea
+este limitată la un nucleu izolat, fără integrare în POC 01 și fără acțiuni
+externe. ETAPA 4 va prelua integrarea și prototipul Browser/Android.
 
 ---
 
