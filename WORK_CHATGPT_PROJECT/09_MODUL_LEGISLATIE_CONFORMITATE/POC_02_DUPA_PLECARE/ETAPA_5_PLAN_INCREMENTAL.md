@@ -1,7 +1,7 @@
 # ETAPA 5 – PLAN INCREMENTAL
 
 **Data:** 2026-07-20
-**Statut:** APROBAT DOCUMENTAR – NICIUN INCREMENT AUTORIZAT
+**Statut:** I5.1–I5.2 ÎNCHISE – I5.3 FĂRĂ PASS, REMEDIERE ÎNCHISĂ
 
 ## Principiu
 
@@ -59,6 +59,8 @@ principală.
 
 ## Statut curent
 
-Planul incremental este validat documentar. Toate incrementările I5.1–I5.7
-rămân neautorizate. Următoarea decizie posibilă este autorizarea exclusivă a
-I5.1.
+Planul incremental este validat documentar. I5.1 și I5.2 sunt închise prin
+checkpoint-uri dedicate. I5.3 nu primește PASS; scenariile sale sunt
+NEAPLICABIL / NEIMPLEMENTAT, iar remedierea documentară este închisă fără
+checkpoint. Implementarea și revalidarea POC 02 vor fi planificate separat.
+I5.4–I5.7 rămân neautorizate.

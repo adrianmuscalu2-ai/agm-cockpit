@@ -36,6 +36,25 @@
 | `DECIZIE_AUTORIZARE_I5_2.md` | autorizarea și limitele incrementului I5.2 | aprobat |
 | `RAPORT_REGRESIE_AUTOMATA_I5_2.md` | comenzile, mediul, rezultatele și clasificarea I5.2 | PASS |
 | `DECIZIE_VALIDARE_I5_2.md` | decizia Product Owner și autorizarea checkpoint-ului I5.2 | aprobat |
+| `DECIZIE_ANALIZA_I5_3.md` | autorizarea și limitele analizei I5.3 | aprobat |
+| `I5_3_PLAN_VALIDARE_BROWSER.md` | criterii, teste, dovezi și riscuri Browser | pregătit pentru aprobare |
+| `I5_3_REGISTRU_VALIDARE_MANUALA.md` | fișele și verdicturile individuale B5.3-01–B5.3-12 | retras din execuție |
+| `I5_3_REAUDIT_TRASABILITATE.md` | separarea artefactului tehnic de funcționalitatea livrată | remediere documentară |
+| `DECIZIE_PRODUCT_OWNER_I5_3_NEAPLICABIL.md` | decizia fără PASS și închiderea remedierii documentare | aprobat |
+| `PLAN_SEPARAT_IMPLEMENTARE_SI_REVALIDARE_POC02.md` | succesiunea viitoare implementare–Browser–Android | planificare, neautorizat |
+| `POC02_IMP_DOCUMENT_INITIERE.md` | obiective, scope, livrabile, criterii, riscuri și subincrementări | PASS documentar |
+| `DECIZIE_AUDIT_DOCUMENTAR_POC02_IMP.md` | PASS documentar și aprobarea Variantei A | aprobat |
+| `DECIZIE_AUTORIZARE_EXECUTIE_POC02_IMP.md` | autorizarea și limitele implementării | aprobat |
+| `POC02_IMP_MATRICE_TRASABILITATE.md` | maparea livrabilelor și criteriilor la dovezi | în audit |
+| `POC02_IMP_RAPORT_IMPLEMENTARE.md` | modificările și validarea tehnică Browser/Android | în audit |
+| `DECIZIE_AUTORIZARE_POC02_BRW.md` | autorizarea și delimitarea revalidării Browser | aprobat |
+| `POC02_BRW_RAPORT_VALIDARE.md` | dovezile practice și verificările Browser rămase | în validare |
+| `DECIZIE_VALIDARE_POC02_BRW.md` | verdictul PASS și autorizarea POC02-AND | aprobat |
+| `POC02_AND_PLAN_VALIDARE.md` | matricea de revalidare practică Android | deschis |
+| `POC02_AND_RAPORT_VALIDARE.md` | rezultatele practice Android | PASS |
+| `DECIZIE_VALIDARE_POC02_AND.md` | verdictul PASS și autorizarea POC02-FIN | aprobat |
+| `POC02_FIN_RAPORT_AUDIT_CONSOLIDAT.md` | consolidarea implementării și revalidărilor | în audit |
+| `DECIZIE_FINALA_POC02_FIN.md` | PASS consolidat și autorizarea IMP-AC15/checkpoint | aprobat |
 | `INDEX_POC02.md` | inventar și status curent | activ |
 
 ## Starea implementării
@@ -54,11 +73,18 @@
 - ETAPA 5: PASS documentar;
 - I5.1: PASS, închis oficial;
 - checkpoint I5.1: `335b48c24f006056b226382e22902a245a610fb2`;
-- I5.2: PASS, checkpoint Git autorizat;
-- I5.3–I5.7: neautorizate;
+- I5.2: PASS, închis oficial;
+- checkpoint I5.2: `493554d58001bc445a0854d74418d243562b3371`;
+- I5.3: fără PASS; remediere documentară închisă, checkpoint necreat;
+- I5.4–I5.7: neautorizate;
+- POC02-IMP: implementare finalizată, validare tehnică PASS, în audit;
+- POC02-BRW: PASS, 11/11 verificări practice;
+- POC02-AND: PASS, 11/11 verificări practice;
+- POC02-FIN: PASS audit consolidat; IMP-AC15 și checkpoint autorizate secvențial;
+- „Înainte de Plecare”: exclus, neimplementat; increment viitor separat;
 - modificări asupra POC 01: zero.
 
 ## Următorul checkpoint
 
-Crearea și verificarea checkpoint-ului Git dedicat I5.2. I5.3–I5.7 rămân
-neautorizate.
+IMP-AC15 este PASS. Următorul pas este crearea și verificarea checkpoint-ului
+dedicat POC 02. I5.4–I5.7 rămân neautorizate.
