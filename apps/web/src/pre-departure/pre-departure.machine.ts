@@ -28,6 +28,7 @@ export const createPreDepartureSession = (): PreDepartureSession => ({
   contexts: [],
   applicableCheckIds: [],
   answers: {},
+  language: 'ro',
 });
 
 const unchanged = (session: PreDepartureSession, reason: string): PreDepartureTransitionResult => ({
@@ -108,10 +109,10 @@ const validRestore = (session: PreDepartureSession) => {
     !session.contexts.every((context) => validContexts.includes(context)) ||
     session.applicableCheckIds.length === 0 ||
     normalizeIds(session.applicableCheckIds).length !== session.applicableCheckIds.length ||
-    !Object.entries(session.answers).every(
-      ([id, answer]) =>
-        session.applicableCheckIds.includes(id) && (!answer || isValidAnswer(answer)),
-    )
+      !Object.entries(session.answers).every(
+        ([id, answer]) =>
+          session.applicableCheckIds.includes(id) && (!answer || isValidAnswer(answer)),
+      )
   ) {
     return false;
   }
@@ -231,6 +232,7 @@ export function transitionPreDeparture(
           contexts: [...event.session.contexts],
           applicableCheckIds: [...event.session.applicableCheckIds],
           answers: { ...event.session.answers },
+          language: event.session.language ?? 'ro',
         },
         'E6-T18',
       );
@@ -248,7 +250,7 @@ export function transitionPreDeparture(
       return unchanged(session, 'At least one context and one applicable check are required.');
     }
     return applied(
-      { state: 'IN_PROGRESS', contexts, applicableCheckIds, answers: {} },
+      { state: 'IN_PROGRESS', contexts, applicableCheckIds, answers: {}, language: session.language ?? 'ro' },
       'E6-T02',
     );
   }

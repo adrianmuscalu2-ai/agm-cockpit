@@ -15,6 +15,16 @@ export type PreDepartureContext =
   | 'night'
   | 'adverse-weather';
 
+export type PreDepartureCheckId =
+  | 'vehicle'
+  | 'driver'
+  | 'documents'
+  | 'tachograph'
+  | 'cargo'
+  | 'route'
+  | 'adr'
+  | 'weather';
+
 export type PreDepartureAnswer =
   | { status: 'confirmed' }
   | { status: 'problem'; note?: string }
@@ -25,6 +35,7 @@ export type PreDepartureSession = {
   readonly contexts: readonly PreDepartureContext[];
   readonly applicableCheckIds: readonly string[];
   readonly answers: Readonly<Record<string, PreDepartureAnswer | undefined>>;
+  readonly language?: 'ro' | 'de' | 'en';
 };
 
 export type PreDepartureEvent =
