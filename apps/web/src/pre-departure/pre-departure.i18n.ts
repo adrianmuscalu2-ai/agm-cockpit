@@ -93,7 +93,7 @@ export const preDepartureCopy: Record<
     blockedLabel: 'Blocat',
     confirmedLabel: 'Confirmat',
     closedLabel: 'Închis',
-    localOnlyNote: 'Toate acțiunile și rezultatele sunt locale și auditate.',
+    localOnlyNote: 'Toate acțiunile și rezultatele sunt locale și nu transmite date către exterior.',
     contexts: {
       local: 'Transport local',
       'long-distance': 'Transport pe distanță lungă',

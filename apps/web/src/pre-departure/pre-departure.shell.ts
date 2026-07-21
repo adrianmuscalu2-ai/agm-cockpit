@@ -3,7 +3,6 @@ import type {
   PreDepartureAnswer,
   PreDepartureContext,
   PreDepartureSession,
-  PreDepartureState,
   PreDepartureCheckId,
 } from './pre-departure.types';
 
@@ -144,12 +143,7 @@ function renderFlow(language: PreDepartureLanguage, session: PreDepartureSession
           ? 2
           : 3;
 
-  const steps = [
-    copy.flowStepStart,
-    copy.flowStepContext,
-    copy.flowStepReview,
-    copy.flowStepConfirm,
-  ];
+  const steps = [copy.flowStepStart, copy.flowStepContext, copy.flowStepReview, copy.flowStepConfirm];
 
   return `
     <section class="pre-departure-flow" aria-label="${escapeHtml(copy.flowTitle)}">
@@ -167,14 +161,25 @@ function renderFlow(language: PreDepartureLanguage, session: PreDepartureSession
   `;
 }
 
-export function renderPreDepartureShell(state: PreDepartureViewState) {
-  const copy = preDepartureCopy[state.language];
-  const hasSelectedContexts = state.session.contexts.length > 0;
+function normalizeViewState(state: PreDepartureViewState | PreDepartureSession): PreDepartureViewState {
+  if ('session' in state) return state;
+  return {
+    language: 'ro',
+    session: state,
+    online: true,
+    saved: false,
+  };
+}
+
+export function renderPreDepartureShell(state: PreDepartureViewState | PreDepartureSession) {
+  const viewState = normalizeViewState(state);
+  const copy = preDepartureCopy[viewState.language];
+  const hasSelectedContexts = viewState.session.contexts.length > 0;
   const activeChecks = checkGroups.filter((check) =>
-    check.contexts.some((context) => state.session.contexts.includes(context)),
+    check.contexts.some((context) => viewState.session.contexts.includes(context)),
   );
   const allChecked =
-    activeChecks.length > 0 && activeChecks.every((check) => Boolean(state.session.answers[check.id]));
+    activeChecks.length > 0 && activeChecks.every((check) => Boolean(viewState.session.answers[check.id]));
 
   return `
     <main class="pre-departure-shell" data-e6-entry="before-departure">
@@ -188,7 +193,7 @@ export function renderPreDepartureShell(state: PreDepartureViewState) {
           <label class="pre-departure-language">
             <span>${escapeHtml(copy.mode)}</span>
             <select data-pre-departure-language aria-label="${escapeHtml(copy.mode)}">
-              ${renderLanguageOptions(state.language)}
+              ${renderLanguageOptions(viewState.language)}
             </select>
           </label>
           <a href="/" class="pre-departure-home">← AGM</a>
@@ -197,21 +202,28 @@ export function renderPreDepartureShell(state: PreDepartureViewState) {
 
       <section class="pre-departure-card">
         <div class="pre-departure-banner" role="status">
-          <strong>${escapeHtml(copy.stateLabel)}: ${escapeHtml(copy.states[state.session.state])}</strong>
+          <strong>${escapeHtml(copy.stateLabel)}: ${escapeHtml(copy.states[viewState.session.state])}</strong>
           <span>${escapeHtml(copy.languageHint)}</span>
         </div>
-        ${state.online ? '' : `<aside class="pre-departure-offline" role="status">${escapeHtml(copy.offline)}</aside>`}
-        ${renderSummary(state.session, state.language)}
-        ${renderFlow(state.language, state.session)}
+        <dl class="pre-departure-state-legacy">
+          <div>
+            <dt>${escapeHtml(copy.stateLabel)}</dt>
+            <dd data-before-departure-state>${escapeHtml(viewState.session.state)}</dd>
+          </div>
+        </dl>
+        ${viewState.online ? '' : `<aside class="pre-departure-offline" role="status">${escapeHtml(copy.offline)}</aside>`}
+        ${renderSummary(viewState.session, viewState.language)}
+        ${renderFlow(viewState.language, viewState.session)}
       </section>
 
       <section class="pre-departure-card">
         <h2>${escapeHtml(copy.contextsLabel)}</h2>
         <div class="pre-departure-contexts">
-          ${renderContextOptions(state.session, state.language)}
+          ${renderContextOptions(viewState.session, viewState.language)}
         </div>
         <div class="pre-departure-actions">
-          <button type="button" data-pre-departure-action="start" ${hasSelectedContexts || state.session.state !== 'NOT_STARTED' ? 'disabled' : ''}>${escapeHtml(copy.start)}</button>
+          <button type="button" data-pre-departure-action="start" ${hasSelectedContexts || viewState.session.state !== 'NOT_STARTED' ? 'disabled' : ''}>${escapeHtml(copy.start)}</button>
+          ${viewState.session.state === 'NOT_STARTED' ? `<button type="button" data-before-departure-start>${escapeHtml(copy.start)}</button>` : ''}
           <button type="button" data-pre-departure-action="restore">${escapeHtml(copy.restore)}</button>
           <button type="button" data-pre-departure-action="reset" class="secondary">${escapeHtml(copy.reset)}</button>
           <button type="button" data-pre-departure-action="save" class="secondary">${escapeHtml(copy.save)}</button>
@@ -221,7 +233,7 @@ export function renderPreDepartureShell(state: PreDepartureViewState) {
 
       <section class="pre-departure-card">
         <h2>${escapeHtml(copy.checksLabel)}</h2>
-        ${renderCheckCards(state.session, state.language)}
+        ${renderCheckCards(viewState.session, viewState.language)}
       </section>
 
       <section class="pre-departure-card">
@@ -231,11 +243,15 @@ export function renderPreDepartureShell(state: PreDepartureViewState) {
         <p class="pre-departure-limit">${escapeHtml(copy.limits)}</p>
         <div class="pre-departure-actions">
           <button type="button" data-pre-departure-action="confirm" ${allChecked ? '' : 'disabled'}>${escapeHtml(copy.confirmReady)}</button>
-          <button type="button" data-pre-departure-action="close" ${state.session.state === 'CONFIRMED' ? '' : 'disabled'}>${escapeHtml(copy.close)}</button>
+          <button type="button" data-pre-departure-action="close" ${viewState.session.state === 'CONFIRMED' ? '' : 'disabled'}>${escapeHtml(copy.close)}</button>
         </div>
-        ${state.session.state === 'READY_TO_CONFIRM' || state.session.state === 'CONFIRMED' || state.session.state === 'CLOSED'
-          ? `<p class="pre-departure-ready">${escapeHtml(copy.completedLabel)} · ${escapeHtml(copy.confirmedLabel)} · ${escapeHtml(copy.closedLabel)}</p>`
-          : ''}
+        ${
+          viewState.session.state === 'READY_TO_CONFIRM' ||
+          viewState.session.state === 'CONFIRMED' ||
+          viewState.session.state === 'CLOSED'
+            ? `<p class="pre-departure-ready">${escapeHtml(copy.completedLabel)} · ${escapeHtml(copy.confirmedLabel)} · ${escapeHtml(copy.closedLabel)}</p>`
+            : ''
+        }
       </section>
 
       <aside class="pre-departure-footer">
