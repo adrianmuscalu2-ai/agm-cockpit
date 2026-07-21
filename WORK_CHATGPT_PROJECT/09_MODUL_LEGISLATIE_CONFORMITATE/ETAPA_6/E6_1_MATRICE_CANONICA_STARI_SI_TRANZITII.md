@@ -1,6 +1,6 @@
 # E6.1 – MATRICE CANONICĂ DE STĂRI ȘI TRANZIȚII
 
-**Versiune:** 1.0 – propusă pentru audit
+**Versiune:** 1.1 – amendată prin decizia Product Owner E6.2-NC01
 **Statut:** unica sursă normativă propusă pentru E6.2
 **Cod:** neautorizat
 
@@ -10,9 +10,9 @@
 |---|---|---|---|---|
 | E6-S00 | NOT_STARTED | nu există sesiune activă | stare inițială sau resetare confirmată din E6-S10–E6-S70 | E6-S10, restaurare locală în E6-S20/E6-S30/E6-S40/E6-S50 |
 | E6-S10 | CONTEXT_SELECTION | sesiunea este activă și așteaptă selectarea contextului | E6-S00 | E6-S20, E6-S00 |
-| E6-S20 | IN_PROGRESS | există verificări aplicabile necompletate | E6-S10, E6-S20, E6-S30, E6-S40, reluare locală | E6-S20, E6-S30, E6-S40, E6-S50, E6-S00 |
+| E6-S20 | IN_PROGRESS | evaluarea este activă și nu a fost finalizată explicit; poate conține verificări necompletate sau toate răspunsurile fără probleme | E6-S10, E6-S20, E6-S30, E6-S40, reluare locală | E6-S20, E6-S30, E6-S50, E6-S00 |
 | E6-S30 | NEEDS_ATTENTION | există cel puțin o problemă declarată, dar evaluarea poate continua | E6-S20, E6-S30, E6-S40 sau restaurare locală | E6-S20, E6-S30, E6-S40, E6-S50, E6-S00 |
-| E6-S40 | BLOCKED | evaluarea este completă și există cel puțin o problemă nerezolvată | E6-S20, E6-S30 sau restaurare locală | E6-S30, E6-S20, E6-S50, E6-S00 |
+| E6-S40 | BLOCKED | evaluarea este completă și există cel puțin o problemă nerezolvată | E6-S30 sau restaurare locală | E6-S30, E6-S20, E6-S50, E6-S00 |
 | E6-S50 | READY_TO_CONFIRM | toate verificările aplicabile sunt completate fără probleme deschise | E6-S20, E6-S30, E6-S40 sau restaurare locală | E6-S20, E6-S30, E6-S60, E6-S00 |
 | E6-S60 | CONFIRMED | utilizatorul a confirmat rezultatul local „pregătit” | E6-S50 | E6-S70, E6-S00 |
 | E6-S70 | CLOSED | sesiunea este închisă și numai consultabilă | E6-S60 | E6-S00 |
@@ -44,7 +44,6 @@
 | E6-T05 | E6-S30 | E6-E03/E6-E05/E6-E06; există încă probleme | E6-S30 | E6-REQ-12, E6-REQ-14 |
 | E6-T06 | E6-S30 | E6-E06; probleme rezolvate, dar există elemente incomplete | E6-S20 | E6-REQ-14, E6-REQ-15 |
 | E6-T07 | E6-S20 | E6-E07; toate elementele aplicabile sunt complete și fără probleme | E6-S50 | E6-REQ-16 |
-| E6-T08 | E6-S20 | E6-E07; evaluarea completă conține probleme | E6-S40 | E6-REQ-13, E6-REQ-15 |
 | E6-T09 | E6-S30 | E6-E07; evaluarea completă conține probleme | E6-S40 | E6-REQ-13, E6-REQ-15 |
 | E6-T10 | E6-S40 | E6-E06; există încă probleme | E6-S30 | E6-REQ-14 |
 | E6-T11 | E6-S40 | E6-E06; fără probleme, dar cu elemente incomplete | E6-S20 | E6-REQ-14 |
@@ -66,6 +65,10 @@
 - orice tranziție bazată exclusiv pe expirarea timpului;
 - orice tranziție care transmite date extern;
 - orice tranziție neenumerată în tabelul de mai sus.
+
+E6-T08 a fost eliminată prin decizia Product Owner E6.2-NC01 deoarece orice
+răspuns „Problemă” mută imediat sesiunea din E6-S20 în E6-S30 prin E6-T04.
+Finalizarea cu probleme rămâne acoperită exclusiv de E6-T09.
 
 ## 5. Regula de derivare
 

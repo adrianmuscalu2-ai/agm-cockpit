@@ -5,10 +5,10 @@
 | Grup cerințe | Stări/tranziții | Dovadă documentară | Dovadă viitoare E6.2–E6.7 |
 |---|---|---|---|
 | E6-REQ-01–02 | E6-S00, E6-S10; E6-T01–T02 | inventar și matrice canonică | teste inițiere/context și navigație Browser |
-| E6-REQ-03–08 | E6-S20; E6-T03–T09 | categoriile POC01 §4 inventariate | teste de completare pentru fiecare categorie |
+| E6-REQ-03–08 | E6-S20; E6-T03–T07 și E6-T09 | categoriile POC01 §4 inventariate | teste de completare pentru fiecare categorie |
 | E6-REQ-09–10 | E6-S10, E6-S20; E6-T02 | reguli condiționate de context | teste ADR și condiții dificile activate/dezactivate |
 | E6-REQ-11–12 | E6-S20, E6-S30; E6-T03–T05 | răspunsuri și justificare definite | teste Confirmat/Problemă/Neaplicabil |
-| E6-REQ-13–16 | E6-S30–E6-S60; E6-T06–T15 și E6-T19 | blocare, remediere și confirmare explicite | teste pozitive, negative și terminale |
+| E6-REQ-13–16 | E6-S30–E6-S60; E6-T06–T07, E6-T09–T15 și E6-T19 | blocare, remediere și confirmare explicite | teste pozitive, negative și terminale |
 | E6-REQ-17–18 | E6-S00–E6-S50; E6-T17–T18 | reset/restore definite | teste refresh, offline și background/resume |
 | E6-REQ-19 | toate stările | obligație RO/DE/EN | matrice chei și scenarii în trei limbi |
 | E6-REQ-20 | E6-S50–E6-S70 | limite declarate | verificare mesaje și lipsa transmiterii externe |
