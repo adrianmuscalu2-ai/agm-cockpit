@@ -8,6 +8,7 @@ import { EvidenceModule } from './evidence/evidence.module';
 import { HealthController } from './health.controller';
 import { IncidentsModule } from './incidents/incidents.module';
 import { LifecycleModule } from './lifecycle/lifecycle.module';
+import { PremiumLoadSafetyModule } from './premium-load-safety/premium-load-safety.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TransportsModule } from './transports/transports.module';
 import { TranslationModule } from './translation/translation.module';
@@ -32,6 +33,7 @@ import { validateEnvironment } from './config/environment';
     IncidentsModule,
     ValidationReportsModule,
     LifecycleModule,
+    PremiumLoadSafetyModule,
     TransportsModule,
     TranslationModule,
     TurnAdminModule,

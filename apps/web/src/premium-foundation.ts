@@ -7,6 +7,8 @@ type PremiumModule = {
   marker: string;
   titleKey: string;
   descriptionKey: string;
+  href?: string;
+  view?: string;
 };
 
 const premiumModules: PremiumModule[] = [
@@ -23,10 +25,28 @@ const premiumModules: PremiumModule[] = [
     descriptionKey: 'premium.module.transport.description',
   },
   {
+    id: 'before-departure',
+    marker: 'BD',
+    titleKey: 'premium.module.beforeDeparture.title',
+    descriptionKey: 'premium.module.beforeDeparture.description',
+    href: '/before-departure.html',
+    view: 'beforeDeparture',
+  },
+  {
+    id: 'after-departure',
+    marker: 'AD',
+    titleKey: 'premium.module.afterDeparture.title',
+    descriptionKey: 'premium.module.afterDeparture.description',
+    href: '/after-departure.html',
+    view: 'afterDeparture',
+  },
+  {
     id: 'load-safety',
     marker: 'LS',
     titleKey: 'premium.module.loadSafety.title',
     descriptionKey: 'premium.module.loadSafety.description',
+    href: '/premium/ladungssicherung',
+    view: 'premiumLoadSafety',
   },
   {
     id: 'smart-communication',
@@ -51,7 +71,11 @@ export function renderPremiumFoundation(translate: PremiumTranslator, escapeHtml
           <div class="premium-module-content">
             <h2 id="premium-${module.id}-title">${escapeHtml(translate(module.titleKey))}</h2>
             <p>${escapeHtml(translate(module.descriptionKey))}</p>
-            <span class="premium-module-status">${escapeHtml(translate('premium.module.unavailable'))}</span>
+            ${
+              module.href && module.view
+                ? `<a class="premium-module-action" href="${module.href}"${module.view.startsWith('premium') ? ` data-module="${module.view}"` : ''}>${escapeHtml(translate('premium.module.open'))}</a>`
+                : `<span class="premium-module-status">${escapeHtml(translate('premium.module.unavailable'))}</span>`
+            }
           </div>
         </article>
       `,

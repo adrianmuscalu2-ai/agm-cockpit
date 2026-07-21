@@ -513,24 +513,6 @@ function renderHome() {
           <strong>${escapeHtml(t(language, 'nav.email'))}</strong>
           <small>${escapeHtml(t(language, 'home.emailDescription'))}</small>
         </a>
-        <a
-          href="/before-departure.html"
-          class="home-action home-action-before-departure"
-          data-e6-entry="before-departure"
-        >
-          <span class="home-action-icon" aria-hidden="true">✓</span>
-          <strong>Înainte de Plecare · Vor der Abfahrt · Before Departure</strong>
-          <small>ETAPA 6 · Evaluare locală înaintea pornirii în cursă</small>
-        </a>
-        <a
-          href="/after-departure.html"
-          class="home-action home-action-after-departure"
-          data-poc02-entry="after-departure"
-        >
-          <span class="home-action-icon" aria-hidden="true">→</span>
-          <strong>După Plecare · Nach der Abfahrt · After Departure</strong>
-          <small>POC 02 · Asistență operațională în timpul transportului</small>
-        </a>
         <a href="/premium" data-module="premium" class="home-action home-action-premium" aria-describedby="premium-planned">
           <span class="home-action-icon" aria-hidden="true">★</span>
           <strong>Premium</strong>

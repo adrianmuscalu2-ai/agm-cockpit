@@ -33,29 +33,123 @@ import {
   premiumRouteForView,
   premiumViewFromRoute,
 } from '../src/premium-routes';
+import { loadSafetyEndpointUrl } from '../src/premium-load-safety/load-safety.api';
+import { securingRecommendationEndpointUrl } from '../src/premium-load-safety/securing-recommendation/securing-recommendation.api';
+import { securingRecommendationState } from '../src/premium-load-safety/securing-recommendation/securing-recommendation.state';
+import { renderSecuringRecommendation } from '../src/premium-load-safety/securing-recommendation/securing-recommendation.view';
+import { renderFieldTest } from '../src/premium-load-safety/field-test/field-test.view';
 
 const translate = (key: string) => key;
 const escapeHtml = (value: string) => value;
 
 const premiumHtml = renderPremiumView('premium', translate, escapeHtml);
 const teamHtml = renderPremiumView('premiumTeam', translate, escapeHtml);
+const loadSafetyHtml = renderPremiumView('premiumLoadSafety', translate, escapeHtml);
 
 assert.equal(premiumRouteForView('premium'), '/premium');
 assert.equal(premiumRouteForView('premiumTeam'), '/premium/team');
+assert.equal(premiumRouteForView('premiumLoadSafety'), '/premium/ladungssicherung');
 assert.equal(premiumViewFromRoute('/premium'), 'premium');
 assert.equal(premiumViewFromRoute('/premium/team'), 'premiumTeam');
+assert.equal(premiumViewFromRoute('/premium/ladungssicherung'), 'premiumLoadSafety');
 assert.equal(premiumViewFromRoute('/'), undefined);
 assert.equal(isPremiumView('premium'), true);
 assert.equal(isPremiumView('premiumTeam'), true);
+assert.equal(isPremiumView('premiumLoadSafety'), true);
 assert.equal(isPremiumView('home'), false);
 assert.equal(usesPremiumLayout('premium'), true);
 assert.equal(usesPremiumLayout('premiumTeam'), true);
+assert.equal(usesPremiumLayout('premiumLoadSafety'), true);
 assert.equal(usesPremiumLayout('home'), false);
 
 assert.ok(premiumHtml?.includes('href="/premium/team"'));
 assert.ok(premiumHtml?.includes('href="/"'));
 assert.ok(teamHtml?.includes('href="/premium"'));
 assert.ok(teamHtml?.includes('href="/"'));
+assert.ok(premiumHtml?.includes('premium.module.beforeDeparture.title'));
+assert.ok(premiumHtml?.includes('premium.module.afterDeparture.title'));
+assert.ok(premiumHtml?.includes('href="/before-departure.html"'));
+assert.ok(premiumHtml?.includes('href="/after-departure.html"'));
+assert.equal(premiumHtml?.includes('data-module="beforeDeparture"'), false);
+assert.equal(premiumHtml?.includes('data-module="afterDeparture"'), false);
+assert.ok(premiumHtml?.includes('data-module="premiumLoadSafety"'));
+assert.ok(loadSafetyHtml?.includes('id="loadSafetyCameraInput"'));
+assert.ok(loadSafetyHtml?.includes('capture="environment"'));
+assert.ok(loadSafetyHtml?.includes('id="loadSafetyGalleryInput"'));
+assert.ok(loadSafetyHtml?.includes('id="analyzeLoadSafety"'));
+assert.ok(loadSafetyHtml?.includes('premium.loadSafety.disclaimer'));
+assert.equal(premiumApplicationModules.loadSafety.enabled, true);
+assert.equal(premiumApplicationModules.loadSafety.storesImages, false);
+if (loadSafetyEndpointUrl) {
+  assert.ok(loadSafetyEndpointUrl.endsWith('/premium/ladungssicherung/analyze'));
+}
+if (securingRecommendationEndpointUrl) {
+  assert.ok(securingRecommendationEndpointUrl.endsWith('/premium/ladungssicherung/recommendation'));
+}
+
+const recommendationHtmlBeforeAnalysis = renderSecuringRecommendation(
+  { statusKey: 'ready', processing: false },
+  translate,
+  escapeHtml,
+);
+assert.equal(recommendationHtmlBeforeAnalysis, '');
+
+securingRecommendationState.result = {
+  visibleStraps: {
+    estimatedCount: 2,
+    recommendedCount: null,
+    observations: [{
+      id: 'visible-straps',
+      conclusion: 'Două chingi sunt vizibile.',
+      certainty: 'observed',
+      sources: ['visual'],
+      explanation: 'Două benzi distincte pot fi urmărite în fotografie.',
+    }],
+  },
+  recommendations: [{
+    id: 'calculation-required',
+    conclusion: 'Numărul necesar trebuie calculat separat.',
+    certainty: 'undetermined',
+    sources: ['general-practice'],
+    explanation: 'Fotografia nu conține masa și coeficientul de frecare.',
+  }],
+  lcStf: [{
+    id: 'lc-stf-labels',
+    conclusion: 'LC și STF nu pot fi confirmate.',
+    certainty: 'undetermined',
+    sources: ['visual', 'general-practice'],
+    explanation: 'Etichetele nu sunt lizibile.',
+  }],
+  additionalElements: [],
+  missingData: ['Greutatea încărcăturii'],
+};
+securingRecommendationState.expandedWhy.add('visible-straps');
+const recommendationHtml = renderSecuringRecommendation(
+  {
+    statusKey: 'ready',
+    processing: false,
+    image: {} as File,
+    analysis: { correct: [], recommendations: [], risks: [] },
+  },
+  translate,
+  escapeHtml,
+);
+assert.ok(recommendationHtml.includes('securingRecommendationForm'));
+assert.ok(recommendationHtml.includes('data-why-id="visible-straps"'));
+assert.ok(recommendationHtml.includes('Două benzi distincte'));
+assert.ok(recommendationHtml.includes('premium.loadSafety.recommendation.disclaimer'));
+assert.ok(recommendationHtml.includes('premium.loadSafety.certainty.undetermined'));
+securingRecommendationState.result = undefined;
+securingRecommendationState.expandedWhy.clear();
+
+const fieldTestHtml = renderFieldTest(translate, escapeHtml);
+assert.equal(fieldTestHtml.match(/data-field-photo="(?:front-oblique|rear-oblique)"/g)?.length, 2);
+assert.ok(fieldTestHtml.includes('data-field-photo="opposite-side"'));
+assert.ok(fieldTestHtml.includes('name="oppositeSide"'));
+assert.ok(fieldTestHtml.includes('data-field-photo="strap-label"'));
+assert.ok(fieldTestHtml.includes('id="fieldTestForm"'));
+assert.ok(fieldTestHtml.includes('id="generateFieldTestReport"'));
+assert.ok(fieldTestHtml.includes('premium.loadSafety.field.disclaimer'));
 assert.equal(renderPremiumView('home', translate, escapeHtml), undefined);
 
 assert.equal(premiumAgents.length, 8);

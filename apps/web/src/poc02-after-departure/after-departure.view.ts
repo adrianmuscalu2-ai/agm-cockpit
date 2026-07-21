@@ -70,7 +70,10 @@ export function renderAfterDepartureView(state: AfterDepartureViewState) {
               ${(['ro', 'de', 'en'] as const).map((language) => `<option value="${language}" ${state.language === language ? 'selected' : ''}>${language.toUpperCase()}</option>`).join('')}
             </select>
           </label>
-          <a href="/">${escapeHtml(copy.back)}</a>
+          <nav class="after-departure-navigation" aria-label="AGM navigation">
+            <a href="/premium" class="after-departure-back-primary">${escapeHtml(copy.backPremium)}</a>
+            <a href="/">${escapeHtml(copy.backCockpit)}</a>
+          </nav>
         </div>
       </header>
 

@@ -1,0 +1,136 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "AGM: Install dependencies",
+      "type": "process",
+      "command": "pnpm.cmd",
+      "args": ["install", "--frozen-lockfile"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "AGM: Web dev",
+      "type": "process",
+      "command": "pnpm.cmd",
+      "args": ["web:dev"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "group": "development",
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "AGM: API dev",
+      "type": "process",
+      "command": "pnpm.cmd",
+      "args": ["api:dev"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "group": "development",
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "AGM: Start development",
+      "dependsOn": ["AGM: Web dev", "AGM: API dev"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "AGM: Build web",
+      "type": "process",
+      "command": "pnpm.cmd",
+      "args": ["web:build"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "AGM: Build API",
+      "type": "process",
+      "command": "pnpm.cmd",
+      "args": ["build"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "AGM: Test API",
+      "type": "process",
+      "command": "pnpm.cmd",
+      "args": ["--filter", "@agm/api", "exec", "jest", "--runInBand"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "AGM: Test Premium foundation",
+      "type": "process",
+      "command": "pnpm.cmd",
+      "args": ["--filter", "@agm/web", "test:premium"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "AGM: Android sync",
+      "type": "process",
+      "command": "pnpm.cmd",
+      "args": ["android:sync"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "AGM: Android debug APK",
+      "type": "process",
+      "command": "pnpm.cmd",
+      "args": ["android:apk"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "AGM: Git status",
+      "type": "process",
+      "command": "git.exe",
+      "args": ["status", "--short", "--branch"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

@@ -2,6 +2,39 @@
 
 AGM is an AI-assisted vehicle transport management system.
 
+## OpenAI Build Presentation
+
+For the OpenAI Build demo, the official presentation surface is AGM Basic.
+
+- AGM Basic is the version shown for judging and demonstration.
+- AGM Premium remains under development and is isolated from the official demo.
+- `POC01` and `POC02` are closed and preserved as protected baselines.
+
+Presentation highlights:
+
+- RO / DE / EN translation
+- OCR capture and local text recognition
+- Voice dictation and voice playback
+- Email Assistant and text correction
+- Turn Command Center and incident journal
+- Android-ready web app with Capacitor packaging
+
+Recommended demo flow:
+
+1. Start on the AGM Basic home screen.
+2. Show translation, OCR, and voice features.
+3. Show profile and legal acceptance flows.
+4. Show Email Assistant and Turn Command Center.
+5. Confirm Android packaging and stable build status.
+
+Submission checklist:
+
+- stable Basic demo path
+- English project description
+- short demo video
+- code repository link
+- final review of the submission package
+
 ## Official Roadmap
 
 The official AGM roadmap is maintained in [ROADMAP.md](./ROADMAP.md).
@@ -61,3 +94,17 @@ For a dry run without starting services:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Start-AGM.ps1 -DryRun
 ```
+
+## Build and Verification
+
+Typical validation commands for the presentation build:
+
+```powershell
+corepack pnpm --filter @agm/web build
+corepack pnpm --filter @agm/api test
+corepack pnpm --filter @agm/web test:premium
+corepack pnpm --filter @agm/web android:sync
+git diff --check
+```
+
+The repo is currently organized so that AGM Basic is the demo surface while AGM Premium stays out of the official presentation path.

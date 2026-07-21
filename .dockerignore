@@ -1,0 +1,12 @@
+.git
+.tmp
+.env
+.env.*
+!.env.example
+**/node_modules
+**/dist
+apps/web/android
+apps/web/.env.production
+*.apk
+*.dump
+*.log

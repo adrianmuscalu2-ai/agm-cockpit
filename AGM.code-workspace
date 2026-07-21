@@ -1,0 +1,14 @@
+{
+  "folders": [
+    {
+      "name": "AGM",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "window.title": "AGM — ${activeEditorShort}",
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true
+  }
+}

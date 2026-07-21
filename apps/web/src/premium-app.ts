@@ -1,4 +1,7 @@
 import { renderPremiumFoundation } from './premium-foundation';
+import './premium-load-safety/load-safety.controller';
+import { loadSafetyModule } from './premium-load-safety/load-safety.module';
+import { renderLoadSafetyView } from './premium-load-safety/load-safety.view';
 import { aiGovernanceModule } from './premium-ai-governance/ai-governance.module';
 import { premiumCopilotModule } from './premium-copilot/premium-copilot.module';
 import { premiumContextAnalysisModule } from './premium-context-analysis/premium-context-analysis.module';
@@ -15,6 +18,7 @@ export const premiumApplicationModules = {
   copilot: premiumCopilotModule,
   contextAnalysis: premiumContextAnalysisModule,
   linguisticAgents: premiumLinguisticAgentsModule,
+  loadSafety: loadSafetyModule,
   proactiveRecommendations: proactiveRecommendationsModule,
 } as const;
 
@@ -31,11 +35,17 @@ export function renderPremiumView(
     return renderPremiumTeamFoundation(translate, escapeHtml);
   }
 
+  if (view === 'premiumLoadSafety') {
+    return renderLoadSafetyView(translate, escapeHtml);
+  }
+
   return undefined;
 }
 
 export function premiumStatusKey(view: PremiumViewName) {
-  return view === 'premium' ? 'premium.status' : 'premium.team.status';
+  if (view === 'premium') return 'premium.status';
+  if (view === 'premiumTeam') return 'premium.team.status';
+  return 'premium.loadSafety.status.ready';
 }
 
 export function usesPremiumLayout(view: string) {

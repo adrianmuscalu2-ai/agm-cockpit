@@ -13,3 +13,6 @@ coverage/
 .codex-*.log
 *.tsbuildinfo
 .tmp/
+.tmp-video-tools/
+.video-work/
+*.mp4

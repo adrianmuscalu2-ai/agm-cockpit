@@ -30,6 +30,8 @@ type Copy = {
   limitations: string;
   none: string;
   back: string;
+  backPremium: string;
+  backCockpit: string;
   escalate: string;
   stabilize: string;
   close: string;
@@ -63,6 +65,8 @@ export const afterDepartureCopy: Record<AfterDepartureLanguage, Copy> = {
     limitations: 'Limitele AGM',
     none: 'Niciuna',
     back: 'Înapoi la AGM',
+    backPremium: 'Înapoi la Premium',
+    backCockpit: 'Cockpit AGM',
     escalate: 'Confirmă escaladarea locală',
     stabilize: 'Marchează situația stabilizată',
     close: 'Închide fluxul',
@@ -113,6 +117,8 @@ export const afterDepartureCopy: Record<AfterDepartureLanguage, Copy> = {
     limitations: 'AGM-Grenzen',
     none: 'Keine',
     back: 'Zurück zu AGM',
+    backPremium: 'Zurück zu Premium',
+    backCockpit: 'AGM Cockpit',
     escalate: 'Lokale Eskalation bestätigen',
     stabilize: 'Situation als stabil markieren',
     close: 'Ablauf schließen',
@@ -163,6 +169,8 @@ export const afterDepartureCopy: Record<AfterDepartureLanguage, Copy> = {
     limitations: 'AGM limitations',
     none: 'None',
     back: 'Back to AGM',
+    backPremium: 'Back to Premium',
+    backCockpit: 'AGM Cockpit',
     escalate: 'Confirm local escalation',
     stabilize: 'Mark situation as stable',
     close: 'Close flow',

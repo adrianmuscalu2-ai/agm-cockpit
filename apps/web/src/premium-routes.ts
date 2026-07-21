@@ -1,4 +1,4 @@
-export type PremiumViewName = 'premium' | 'premiumTeam';
+export type PremiumViewName = 'premium' | 'premiumTeam' | 'premiumLoadSafety';
 
 type PremiumRouteDefinition = {
   view: PremiumViewName;
@@ -8,6 +8,7 @@ type PremiumRouteDefinition = {
 export const premiumRouteRegistry: readonly PremiumRouteDefinition[] = [
   { view: 'premium', route: '/premium' },
   { view: 'premiumTeam', route: '/premium/team' },
+  { view: 'premiumLoadSafety', route: '/premium/ladungssicherung' },
 ];
 
 export function premiumViewFromRoute(route: string): PremiumViewName | undefined {

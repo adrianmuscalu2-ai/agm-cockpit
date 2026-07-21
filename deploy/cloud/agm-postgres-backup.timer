@@ -1,0 +1,11 @@
+[Unit]
+Description=Run AGM PostgreSQL backup daily
+
+[Timer]
+OnCalendar=*-*-* 02:15:00 UTC
+RandomizedDelaySec=15m
+Persistent=true
+Unit=agm-postgres-backup.service
+
+[Install]
+WantedBy=timers.target

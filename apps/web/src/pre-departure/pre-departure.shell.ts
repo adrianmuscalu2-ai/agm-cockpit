@@ -11,6 +11,7 @@ export type PreDepartureViewState = {
   session: PreDepartureSession;
   online: boolean;
   saved: boolean;
+  feedback?: string;
 };
 
 const escapeHtml = (value: string) =>
@@ -51,12 +52,7 @@ function answerLabel(answer: PreDepartureAnswer | undefined, language: PreDepart
   if (!answer) return copy.actions.edit;
   if (answer.status === 'confirmed') return copy.actions.confirmed;
   if (answer.status === 'problem') return copy.actions.problem;
-  return `${copy.actions.na} · ${answer.reason}`;
-}
-
-function answerValue(answer: PreDepartureAnswer | undefined) {
-  if (!answer) return 'pending';
-  return answer.status;
+  return copy.actions.na;
 }
 
 function renderLanguageOptions(language: PreDepartureLanguage) {
@@ -106,7 +102,6 @@ function renderCheckCards(session: PreDepartureSession, language: PreDepartureLa
             <button type="button" data-pre-departure-answer="${check.id}:problem" class="secondary">${escapeHtml(copy.actions.problem)}</button>
             <button type="button" data-pre-departure-answer="${check.id}:na" class="secondary">${escapeHtml(copy.actions.na)}</button>
           </div>
-          <small class="pre-departure-answer-value">${escapeHtml(answerValue(answer))}</small>
         </article>
       `;
     })
@@ -183,6 +178,18 @@ export function renderPreDepartureShell(state: PreDepartureViewState | PreDepart
 
   return `
     <main class="pre-departure-shell" data-e6-entry="before-departure">
+      <header class="pre-departure-agm-topbar">
+        <a href="/premium" class="pre-departure-brand" aria-label="AGM Premium">
+          <img src="/images/images/logo1.png" alt="AGM" />
+          <strong>AGM</strong>
+          <span>Premium</span>
+        </a>
+        <nav class="pre-departure-navigation" aria-label="AGM navigation">
+          <a href="/premium" class="pre-departure-home pre-departure-home-primary">← Premium</a>
+          <a href="/" class="pre-departure-home">Cockpit AGM</a>
+        </nav>
+      </header>
+
       <header class="pre-departure-header">
         <div>
           <p class="pre-departure-kicker">${escapeHtml(copy.eyebrow)}</p>
@@ -196,7 +203,6 @@ export function renderPreDepartureShell(state: PreDepartureViewState | PreDepart
               ${renderLanguageOptions(viewState.language)}
             </select>
           </label>
-          <a href="/" class="pre-departure-home">← AGM</a>
         </div>
       </header>
 
@@ -222,13 +228,13 @@ export function renderPreDepartureShell(state: PreDepartureViewState | PreDepart
           ${renderContextOptions(viewState.session, viewState.language)}
         </div>
         <div class="pre-departure-actions">
-          <button type="button" data-pre-departure-action="start" ${hasSelectedContexts || viewState.session.state !== 'NOT_STARTED' ? 'disabled' : ''}>${escapeHtml(copy.start)}</button>
-          ${viewState.session.state === 'NOT_STARTED' ? `<button type="button" data-before-departure-start>${escapeHtml(copy.start)}</button>` : ''}
+          <button type="button" data-pre-departure-action="start"${viewState.session.state === 'NOT_STARTED' ? ' data-before-departure-start' : ''} ${hasSelectedContexts || viewState.session.state !== 'NOT_STARTED' ? 'disabled' : ''}>${escapeHtml(copy.start)}</button>
           <button type="button" data-pre-departure-action="restore">${escapeHtml(copy.restore)}</button>
           <button type="button" data-pre-departure-action="reset" class="secondary">${escapeHtml(copy.reset)}</button>
           <button type="button" data-pre-departure-action="save" class="secondary">${escapeHtml(copy.save)}</button>
         </div>
         <p class="pre-departure-note">${escapeHtml(copy.resumeHint)}</p>
+        ${viewState.feedback ? `<p class="pre-departure-feedback" role="status" aria-live="polite">${escapeHtml(viewState.feedback)}</p>` : ''}
       </section>
 
       <section class="pre-departure-card">

@@ -10,11 +10,13 @@ type PremiumShellOptions = {
 };
 
 export function renderPremiumShell(options: PremiumShellOptions) {
+  const logoUrl = `${import.meta.env?.BASE_URL ?? '/'}images/images/logo1.png`;
+
   return `
     <section class="${options.viewClass}" aria-labelledby="${options.labelledBy}">
       <header class="premium-topbar">
         <a href="${options.brandHref}" data-module="${options.brandModule}" class="premium-brand" aria-label="${options.brandAriaLabel}">
-          <img src="/images/images/logo1.png" alt="" />
+          <img src="${logoUrl}" alt="AGM" />
           <strong>AGM</strong>
           <span>Premium</span>
         </a>

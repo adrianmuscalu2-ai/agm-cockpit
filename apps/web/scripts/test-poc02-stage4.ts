@@ -128,9 +128,11 @@ assert.ok(viteConfig.includes('data-poc02-entry="after-departure"'));
 assert.ok(viteConfig.includes('href="/after-departure.html"'));
 
 const mainSource = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
-assert.ok(mainSource.includes('class="home-action home-action-after-departure"'));
-assert.ok(mainSource.includes('data-poc02-entry="after-departure"'));
-assert.ok(mainSource.includes('href="/after-departure.html"'));
+const premiumSource = readFileSync(new URL('../src/premium-foundation.ts', import.meta.url), 'utf8');
+assert.equal(mainSource.includes('class="home-action home-action-after-departure"'), false);
+assert.equal(mainSource.includes('data-poc02-entry="after-departure"'), false);
+assert.equal(mainSource.includes('href="/after-departure.html"'), false);
+assert.ok(premiumSource.includes("href: '/after-departure.html'"));
 assert.equal(mainSource.includes('data-module="after-departure"'), false);
 
 console.log('POC 02 stage 4 presentation tests passed.');
