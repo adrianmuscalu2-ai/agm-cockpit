@@ -275,6 +275,10 @@ textarea {
   --home-action-color: #49d7a0;
 }
 
+.home-action-before-departure {
+  --home-action-color: #7ce6c0;
+}
+
 .home-action-after-departure {
   --home-action-color: #59d2ff;
 }

@@ -514,6 +514,15 @@ function renderHome() {
           <small>${escapeHtml(t(language, 'home.emailDescription'))}</small>
         </a>
         <a
+          href="/before-departure.html"
+          class="home-action home-action-before-departure"
+          data-e6-entry="before-departure"
+        >
+          <span class="home-action-icon" aria-hidden="true">✓</span>
+          <strong>Înainte de Plecare · Vor der Abfahrt · Before Departure</strong>
+          <small>ETAPA 6 · Evaluare locală înaintea pornirii în cursă</small>
+        </a>
+        <a
           href="/after-departure.html"
           class="home-action home-action-after-departure"
           data-poc02-entry="after-departure"

@@ -123,7 +123,7 @@ for (const scenario of Object.keys(afterDeparturePolicies) as Array<keyof typeof
   }
 }
 
-const viteConfig = readFileSync(new URL('../vite.config.ts', import.meta.url), 'utf8');
+const viteConfig = readFileSync(new URL('../vite.config.mjs', import.meta.url), 'utf8');
 assert.ok(viteConfig.includes('data-poc02-entry="after-departure"'));
 assert.ok(viteConfig.includes('href="/after-departure.html"'));
 

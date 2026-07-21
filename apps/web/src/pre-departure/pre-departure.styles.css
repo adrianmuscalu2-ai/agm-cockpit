@@ -1,0 +1,146 @@
+:root {
+  color: #eaf8ff;
+  background: #071018;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(44, 190, 150, 0.18), transparent 40%),
+    #071018;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+.before-departure-shell {
+  width: min(760px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 48px;
+}
+
+.before-departure-header,
+.before-departure-card,
+.before-departure-limit {
+  border: 1px solid rgba(116, 232, 197, 0.22);
+  border-radius: 20px;
+  background: rgba(9, 28, 40, 0.92);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+}
+
+.before-departure-header {
+  padding: 26px;
+}
+
+.before-departure-back {
+  color: #7ce6c0;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.before-departure-kicker,
+.before-departure-languages {
+  color: #9bb6c5;
+}
+
+.before-departure-kicker {
+  margin: 24px 0 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 8px;
+  font-size: clamp(2rem, 8vw, 3.6rem);
+  line-height: 1;
+}
+
+.before-departure-card {
+  margin-top: 18px;
+  padding: 26px;
+}
+
+.before-departure-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.before-departure-status div {
+  padding: 14px;
+  border-radius: 14px;
+  background: #0c2632;
+}
+
+.before-departure-status dt {
+  color: #9bb6c5;
+  font-size: 0.82rem;
+}
+
+.before-departure-status dd {
+  margin: 5px 0 0;
+  font-weight: 800;
+  color: #7ce6c0;
+}
+
+[data-before-departure-start] {
+  min-height: 48px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 14px;
+  color: #04120e;
+  background: #7ce6c0;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+[data-before-departure-start]:focus-visible,
+.before-departure-back:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.before-departure-next {
+  padding: 14px;
+  border-radius: 14px;
+  color: #bff6e4;
+  background: #0c2632;
+}
+
+.before-departure-limit {
+  margin-top: 18px;
+  padding: 18px 22px;
+  color: #b9cbd5;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 520px) {
+  .before-departure-shell {
+    width: min(100% - 20px, 760px);
+    padding-top: 10px;
+  }
+
+  .before-departure-header,
+  .before-departure-card {
+    padding: 20px;
+    border-radius: 16px;
+  }
+}
