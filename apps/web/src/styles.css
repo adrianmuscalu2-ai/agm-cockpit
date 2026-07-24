@@ -712,6 +712,19 @@ textarea {
 .platform-map-list dt { color: #77a1b8; font-size: .78rem; }
 .platform-map-list dd { margin: 0; color: #d6e7f1; font-size: .78rem; overflow-wrap: anywhere; }
 .platform-map-list a { color: #62cfff; }
+.project-catalog-card { grid-column: 1 / -1; }
+.catalog-search { display: grid; gap: 7px; margin-bottom: 14px; color: #8eb0c2; font-size: .8rem; }
+.catalog-search input { width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #28617d; border-radius: 8px; background: #06131d; color: #e6f5fc; font: inherit; }
+.project-catalog-list { display: grid; gap: 9px; }
+.catalog-entry { border: 1px solid #21465c; border-radius: 9px; background: rgba(5, 20, 31, .72); }
+.catalog-entry[hidden] { display: none; }
+.catalog-entry summary { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; cursor: pointer; list-style: none; }
+.catalog-entry summary::-webkit-details-marker { display: none; }
+.catalog-entry summary span { color: #55e29e; font-size: .75rem; }
+.catalog-entry dl { display: grid; gap: 7px; margin: 0; padding: 0 14px 14px; }
+.catalog-entry dl div { display: grid; grid-template-columns: 140px 1fr; gap: 10px; border-top: 1px solid #18384a; padding-top: 7px; }
+.catalog-entry dt { color: #77a1b8; font-size: .75rem; }
+.catalog-entry dd { margin: 0; color: #d6e7f1; font-size: .75rem; overflow-wrap: anywhere; }
 
 .eyebrow {
   margin: 0 0 4px;

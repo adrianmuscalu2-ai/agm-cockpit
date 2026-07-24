@@ -65,6 +65,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       </section>
 
       <section class="turn-grid">
+        ${renderProjectCatalogCard()}
         ${renderPlatformMapCard()}
         ${renderTurnSection(language, 'turn.section.departments', 'turn.section.departmentsDesc', turnDepartments)}
         ${renderTurnSection(language, 'turn.section.agents', 'turn.section.agentsDesc', turnAgents)}
@@ -101,6 +102,19 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       ${renderIncidentJournal(language, incidents, incidentFilters)}
     </section>
   `;
+}
+
+function renderProjectCatalogCard() {
+  const entries = [
+    ['AGM Cockpit', 'apps/web/src/main.ts', 'baseline/agm-basic-v1', '7670640a7a8cdcd49418bfc85079c33105094d78', '/turn', 'http://localhost:5173/turn', 'https://app.agmcockpit.com/'],
+    ['Turn Command Center', 'apps/web/src/turn-command-center.view.ts', 'feature/post-basic-turn-architecture-audit', 'c362476b358c11c16d8834a176f7aa01a8f45745', '/turn', 'http://localhost:5173/turn', 'https://app.agmcockpit.com/turn'],
+    ['AGM Cockpit Web', 'agmcockpit-website/src/pages/index.astro', 'feature/post-contest-functions-v02', '708f1dfad0c1d7e6027837a6ca24594cfd229db4', '/', 'http://localhost:4321/', 'neconfigurat'],
+    ['Version Guardian', 'agmcockpit-website/guardians/version-registry.json', 'feature/post-contest-functions-v02', '6558c0e4c9b454d05ac4f96b0c2774d3411417fe', 'registru', 'local repository', 'neconfigurat'],
+    ['Architecture Guardian', 'agmcockpit-website/guardians/architecture-map.json', 'feature/post-contest-functions-v02', '6558c0e4c9b454d05ac4f96b0c2774d3411417fe', 'registru', 'local repository', 'neconfigurat'],
+    ['Email Assistant', 'apps/web/src/main.ts + apps/web/src/mailmaster', 'baseline/agm-basic-v1', '7670640a7a8cdcd49418bfc85079c33105094d78', '/email', 'http://localhost:5173/email', 'https://app.agmcockpit.com/email'],
+    ['Gmail integration', 'neimplementat; planificat', 'post-Basic TBD', 'nevalidat', 'nu există rută', 'nu există URL', 'nu există URL'],
+  ];
+  return `<article class="turn-card project-catalog-card"><header><strong>Catalog proiect · Unde găsesc?</strong><p>Căutare verificabilă în componente, fișiere, branch-uri, commituri și URL-uri.</p></header><label class="catalog-search"><span>Caută componentă, agent, URL, branch, commit, fișier, misiune sau incident</span><input id="projectCatalogSearch" type="search" placeholder="Ex.: Turn, 7670640, /turn, AG-017" /></label><div id="projectCatalogResults" class="project-catalog-list">${entries.map(([name, file, branch, commit, route, localUrl, publicUrl]) => `<details class="catalog-entry" data-search="${[name, file, branch, commit, route, localUrl, publicUrl].join(' ').toLocaleLowerCase()}"><summary><strong>${name}</strong><span>Activ</span></summary><dl><div><dt>Fișier sursă</dt><dd><code>${file}</code></dd></div><div><dt>Branch / commit</dt><dd><code>${branch}</code><br /><code>${commit}</code></dd></div><div><dt>Rută / URL local</dt><dd><code>${route}</code> · ${localUrl}</dd></div><div><dt>URL public</dt><dd>${publicUrl}</dd></div><div><dt>Registru</dt><dd>Architecture Map · Version Registry · Turn</dd></div></dl></details>`).join('')}</div></article>`;
 }
 
 function renderPlatformMapCard() {

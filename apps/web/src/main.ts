@@ -303,12 +303,26 @@ function render() {
     bindTextCorrector();
   } else if (state.view === 'turn') {
     bindIncidentJournal();
+    bindProjectCatalog();
   }
   bindCommandPanel();
   bindAdministratorLogin();
   bindLegalAcceptance();
   bindTutorial();
   bindContactManager();
+}
+
+function bindProjectCatalog() {
+  const input = document.querySelector<HTMLInputElement>('#projectCatalogSearch');
+  if (!input) return;
+  const entries = [...document.querySelectorAll<HTMLElement>('.catalog-entry')];
+  input.addEventListener('input', () => {
+    const query = input.value.trim().toLocaleLowerCase();
+    entries.forEach((entry) => {
+      const visible = !query || (entry.dataset.search ?? '').includes(query);
+      entry.hidden = !visible;
+    });
+  });
 }
 
 function renderHomeHeader() {
