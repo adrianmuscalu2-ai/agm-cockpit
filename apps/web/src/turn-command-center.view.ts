@@ -64,14 +64,21 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
         )}
       </section>
 
+      <nav class="turn-module-nav" aria-label="Turn modules">
+        ${['dashboard', 'organization', 'agents', 'missions', 'alerts', 'incidents', 'registers', 'architecture', 'modules', 'documentation', 'system']
+          .map((module) => `<a href="#turn-${module}">${module[0].toUpperCase()}${module.slice(1)}</a>`)
+          .join('')}
+      </nav>
+
       <section class="turn-grid">
         ${renderProjectCatalogCard()}
         ${renderPlatformMapCard()}
-        ${renderTurnSection(language, 'turn.section.departments', 'turn.section.departmentsDesc', turnDepartments)}
-        ${renderTurnSection(language, 'turn.section.agents', 'turn.section.agentsDesc', turnAgents)}
+        ${renderTurnSection(language, 'turn.section.departments', 'turn.section.departmentsDesc', turnDepartments, 'turn-dashboard')}
+        ${renderTurnSection(language, 'turn.section.agents', 'turn.section.agentsDesc', turnAgents, 'turn-agents')}
         ${renderAgentGovernanceSection(language)}
-        ${renderTurnSection(language, 'turn.section.modules', 'turn.section.modulesDesc', turnModules)}
-        ${renderTurnMissionSection(language, 'turn.section.missions', 'turn.section.missionsDesc', turnMissions)}
+        ${renderOrganizationMapSection(language)}
+        ${renderTurnSection(language, 'turn.section.modules', 'turn.section.modulesDesc', turnModules, 'turn-modules')}
+        ${renderTurnMissionSection(language, 'turn.section.missions', 'turn.section.missionsDesc', turnMissions, 'turn-missions')}
         ${renderTurnMissionSection(language, 'turn.section.validations', 'turn.section.validationsDesc', turnAuditTrail)}
         <article class="turn-card turn-system-card">
           <header>
@@ -102,6 +109,17 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       ${renderIncidentJournal(language, incidents, incidentFilters)}
     </section>
   `;
+}
+
+function renderOrganizationMapSection(language: UiLanguage) {
+  const grouped = new Map<string, AgentGovernanceRecord[]>();
+  agentGovernanceRegistry.forEach((agent) => {
+    const list = grouped.get(agent.ownerDepartmentId) ?? [];
+    list.push(agent);
+    grouped.set(agent.ownerDepartmentId, list);
+  });
+  const departmentLabel = (id: string) => id.replace(/[-]/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return `<article class="turn-card organization-map-card" id="turn-organization"><header><strong>Harta organizațională AGM</strong><p>Departamente, agenți, responsabilități și fluxuri de colaborare.</p></header><div class="organization-map"><div class="organization-root"><strong>Product Owner / AGM</strong><span>Aprobă direcția și închiderea etapelor</span></div>${[...grouped.entries()].map(([department, agents]) => `<section class="organization-department"><h3>${escapeHtml(departmentLabel(department))}</h3><div class="organization-agents">${agents.map((agent) => `<details class="organization-agent"><summary><strong>${escapeHtml(agent.displayName ?? t(language, agent.nameKey))}</strong><span>${escapeHtml(agent.status)}</span></summary><dl><div><dt>Rol</dt><dd>${escapeHtml(agent.displayRole ?? t(language, agent.roleKey))}</dd></div><div><dt>Responsabilități</dt><dd>${escapeHtml(agent.displayResponsibilities ?? t(language, agent.responsibilitiesKey))}</dd></div><div><dt>Flux</dt><dd>Primește → execută → raportează → verifică</dd></div></dl></details>`).join('')}</div></section>`).join('')}</div></article>`;
 }
 
 function renderProjectCatalogCard() {
@@ -206,9 +224,9 @@ function renderGeneralInspectorReport(language: UiLanguage, counts: Record<Inspe
   `;
 }
 
-function renderTurnSection(language: UiLanguage, titleKey: string, descriptionKey: string, items: TurnCommandItem[]) {
+function renderTurnSection(language: UiLanguage, titleKey: string, descriptionKey: string, items: TurnCommandItem[], id = '') {
   return `
-    <article class="turn-card">
+    <article class="turn-card"${id ? ` id="${id}"` : ''}>
       <header>
         <strong>${escapeHtml(t(language, titleKey))}</strong>
         <p>${escapeHtml(t(language, descriptionKey))}</p>
@@ -279,9 +297,9 @@ function renderAgentGovernanceItem(language: UiLanguage, agent: AgentGovernanceR
   `;
 }
 
-function renderTurnMissionSection(language: UiLanguage, titleKey: string, descriptionKey: string, items: TurnMissionItem[]) {
+function renderTurnMissionSection(language: UiLanguage, titleKey: string, descriptionKey: string, items: TurnMissionItem[], id = '') {
   return `
-    <article class="turn-card">
+    <article class="turn-card"${id ? ` id="${id}"` : ''}>
       <header>
         <strong>${escapeHtml(t(language, titleKey))}</strong>
         <p>${escapeHtml(t(language, descriptionKey))}</p>
