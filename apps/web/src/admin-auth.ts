@@ -12,15 +12,29 @@ export interface AdminSession {
 }
 
 async function request(path: string, options: RequestInit = {}) {
-  const response = await fetch(`${apiBaseUrl}/turn-admin/${path}`, options);
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 10000);
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl}/turn-admin/${path}`, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error('Serviciul Turn nu a răspuns în 10 secunde. Verifică API-ul și conexiunea.');
+    }
+    throw new Error('Serviciul Turn nu este accesibil. Verifică API-ul și conexiunea.');
+  } finally {
+    window.clearTimeout(timeout);
+  }
   const payload = await response.json().catch(() => ({})) as { data?: unknown; message?: string };
   if (!response.ok) throw new Error(Array.isArray(payload.message) ? payload.message.join(' ') : payload.message || 'Acces administrativ indisponibil.');
   return payload.data;
 }
 
 export async function unlockAdministrator(pin: string): Promise<AdminSession> {
+  const normalizedPin = pin.trim();
+  if (!normalizedPin) throw new Error('Introdu PIN-ul administrativ.');
   return await request('unlock', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin }),
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: normalizedPin }),
   }) as AdminSession;
 }
 
