@@ -38,6 +38,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
 
   return `
     <section class="turn-command-center" aria-label="${escapeHtml(t(language, 'turn.ariaLabel'))}">
+      ${renderCentralAlertPanel(incidents)}
       <header class="turn-hero">
         <div>
           <span class="turn-kicker">${escapeHtml(t(language, 'turn.code'))}</span>
@@ -109,6 +110,17 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       ${renderIncidentJournal(language, incidents, incidentFilters)}
     </section>
   `;
+}
+
+function renderCentralAlertPanel(incidents: OperationalIncident[]) {
+  const open = incidents.filter((incident) => !['validated', 'archived'].includes(incident.status)).sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
+  const highest = open[0];
+  const label = highest ? (highest.severity === 'critical' ? '🔴 CRITIC' : highest.severity === 'major' ? '🟠 IMPORTANT' : highest.severity === 'minor' ? '🟡 ATENȚIE' : '🟢 NORMAL') : '🟢 NORMAL';
+  return `<section class="central-alert-panel ${highest?.severity ?? 'normal'}" id="turn-alerts" aria-live="polite"><div class="central-alert-summary"><strong>${label}</strong><span>${open.length ? `${open.length} alertă(e) deschisă(e)` : 'Sistem funcțional'}</span></div>${open.length ? `<div class="central-alert-list">${open.slice(0, 5).map((incident) => `<article class="central-alert-item ${incident.severity}"><div><strong>${escapeHtml(incident.id)} · ${escapeHtml(incident.module)}</strong><span>${escapeHtml(incident.owner)} · ${escapeHtml(new Date(incident.occurredAt).toLocaleString())}</span></div><div class="central-alert-actions"><a href="#incident-journal">Deschide incidentul</a><a href="#turn-procedures">Vezi procedura</a><a href="#incident-journal">Jurnal tehnic</a></div></article>`).join('')}</div>` : ''}</section>`;
+}
+
+function severityRank(severity: OperationalIncident['severity']) {
+  return severity === 'critical' ? 4 : severity === 'major' ? 3 : severity === 'minor' ? 2 : 1;
 }
 
 function renderOrganizationMapSection(language: UiLanguage) {

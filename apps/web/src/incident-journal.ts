@@ -160,7 +160,7 @@ export function renderIncidentJournal(language: UiLanguage, incidents: Operation
   const modules = Array.from(new Set(incidents.map((item) => item.module))).sort();
 
   return `
-    <section class="incident-journal" aria-labelledby="incident-journal-title">
+    <section class="incident-journal" id="incident-journal" aria-labelledby="incident-journal-title">
       <header class="incident-journal-header">
         <div><span>TURN · OPERATIONAL MEMORY</span><h2 id="incident-journal-title">${escapeHtml(copy.title)}</h2><p>${escapeHtml(copy.description)}</p></div>
         <div class="incident-journal-actions"><button id="newJournalIncident" type="button" class="primary">${escapeHtml(copy.newIncident)}</button><button id="exportIncidentJournal" type="button">${escapeHtml(copy.export)}</button></div>
