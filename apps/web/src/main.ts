@@ -164,7 +164,6 @@ const state = {
   messageTemplateVariables: {} as Record<string, string>,
   incidents: initialIncidentJournal,
   incidentFilters: emptyIncidentFilters(),
-  sendOptionsOpen: false,
   legalAcceptanceAccepted: readLegalAcceptance(window.localStorage),
   tutorialOpen: false,
   tutorialStep: 0,
@@ -977,20 +976,13 @@ function renderEmailAssistant() {
           : ''
       }
 
-      <details class="module-section">
+      <details class="module-section" open>
         <summary>${escapeHtml(t(uiLanguage, 'mail.sendOptions'))}</summary>
         <section class="send-panel" aria-label="${escapeHtml(t(uiLanguage, 'mail.sendOptions'))}">
-        <button id="toggleSendOptions" type="button" class="primary">${escapeHtml(t(uiLanguage, 'mail.send'))}</button>
-        ${
-          state.sendOptionsOpen
-            ? `
-              <div class="send-options">
-                <button type="button" data-send="email">${escapeHtml(t(uiLanguage, 'mail.sendEmail'))}</button>
-                <button type="button" data-planned-send="whatsapp" aria-disabled="true">${escapeHtml(t(uiLanguage, 'mail.sendWhatsapp'))}</button>
-              </div>
-            `
-            : ''
-        }
+        <div class="send-options">
+          <button type="button" class="primary" data-send="email">${escapeHtml(t(uiLanguage, 'mail.sendEmail'))}</button>
+          <button type="button" data-planned-send="whatsapp" aria-disabled="true">${escapeHtml(t(uiLanguage, 'mail.sendWhatsapp'))}</button>
+        </div>
         </section>
       </details>
     </form>
@@ -1977,12 +1969,6 @@ function bindEmailAssistant() {
       language: languageLabel(state.targetLanguage),
       template: emailTemplateLabel(template, uiLanguage()),
     });
-    render();
-  });
-
-  document.querySelector<HTMLButtonElement>('#toggleSendOptions')?.addEventListener('click', () => {
-    state.sendOptionsOpen = !state.sendOptionsOpen;
-    state.status = t(uiLanguage(), 'mail.blockedSendMessage');
     render();
   });
 
