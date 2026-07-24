@@ -11,9 +11,33 @@ export type AgentGovernanceRecord = {
   lastValidationKey: string;
   lastActivityKey: string;
   reliabilityKey: string;
+  displayName?: string;
+  displayRole?: string;
+  displayResponsibilities?: string;
 };
 
 export const agentGovernanceRegistry: AgentGovernanceRecord[] = [
+  {
+    id: 'version-guardian', code: 'VERSION-GUARDIAN', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'release-operations', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.validated', displayName: 'Version Guardian', displayRole: 'Release & traceability control', displayResponsibilities: 'Protects baselines and records branches, commits, checkpoints and deployments.',
+  },
+  {
+    id: 'architecture-guardian', code: 'ARCHITECTURE-GUARDIAN', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'architecture-platform', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.validated', displayName: 'Architecture Guardian', displayRole: 'Architecture & platform control', displayResponsibilities: 'Maintains the canonical map and reconciles documentation with implementation.',
+  },
+  {
+    id: 'release-operations', code: 'RELEASE-OPERATIONS', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'release-operations', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.validated', displayName: 'Release & Operations', displayRole: 'Production release operations', displayResponsibilities: 'Coordinates release evidence, environment health and rollback readiness.',
+  },
+  {
+    id: 'frontend-experience', code: 'FRONTEND-EXPERIENCE', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'frontend-experience', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.validated', displayName: 'Frontend Experience', displayRole: 'Browser and Android experience', displayResponsibilities: 'Maintains the validated user interface and responsive behavior.',
+  },
+  {
+    id: 'backend-infrastructure', code: 'BACKEND-INFRASTRUCTURE', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'backend-infrastructure', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.validated', displayName: 'Backend & Infrastructure', displayRole: 'API and infrastructure', displayResponsibilities: 'Maintains API services, deployment configuration and operational dependencies.',
+  },
+  {
+    id: 'i18n-localization', code: 'I18N-LOCALIZATION', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'ai-agents', status: 'monitoring', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.monitoring', displayName: 'I18n / Localization', displayRole: 'Language coverage', displayResponsibilities: 'Tracks language dictionaries, speech locales and translation coverage.',
+  },
+  {
+    id: 'documentation', code: 'DOCUMENTATION', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'documentation-knowledge', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.validated', displayName: 'Documentation', displayRole: 'Project records', displayResponsibilities: 'Keeps reports, decisions and operational references current.',
+  },
   {
     id: 'agent-codex',
     code: 'AGENT-CODEX',

@@ -701,6 +701,18 @@ textarea {
   box-shadow: 0 0 20px rgba(36, 164, 255, 0.28);
 }
 
+.platform-map-card { grid-column: 1 / -1; }
+.platform-map-list { display: grid; gap: 10px; }
+.platform-map-list details { border: 1px solid #21465c; border-radius: 10px; background: rgba(5, 20, 31, .72); }
+.platform-map-list summary { display: flex; justify-content: space-between; gap: 14px; padding: 14px 16px; cursor: pointer; list-style: none; }
+.platform-map-list summary::-webkit-details-marker { display: none; }
+.platform-map-list summary span { color: #75a1b9; font-size: .8rem; }
+.platform-map-list dl { display: grid; gap: 8px; margin: 0; padding: 0 16px 16px; }
+.platform-map-list dl div { display: grid; grid-template-columns: 150px 1fr; gap: 12px; border-top: 1px solid #18384a; padding-top: 8px; }
+.platform-map-list dt { color: #77a1b8; font-size: .78rem; }
+.platform-map-list dd { margin: 0; color: #d6e7f1; font-size: .78rem; overflow-wrap: anywhere; }
+.platform-map-list a { color: #62cfff; }
+
 .eyebrow {
   margin: 0 0 4px;
   font-size: 13px;

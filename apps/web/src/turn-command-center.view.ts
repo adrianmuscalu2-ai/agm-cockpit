@@ -65,6 +65,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       </section>
 
       <section class="turn-grid">
+        ${renderPlatformMapCard()}
         ${renderTurnSection(language, 'turn.section.departments', 'turn.section.departmentsDesc', turnDepartments)}
         ${renderTurnSection(language, 'turn.section.agents', 'turn.section.agentsDesc', turnAgents)}
         ${renderAgentGovernanceSection(language)}
@@ -100,6 +101,15 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       ${renderIncidentJournal(language, incidents, incidentFilters)}
     </section>
   `;
+}
+
+function renderPlatformMapCard() {
+  const entries = [
+    ['AGM Cockpit', 'AGM', 'baseline/agm-basic-v1', '7670640a7a8cdcd49418bfc85079c33105094d78', 'apps/web', 'https://app.agmcockpit.com/'],
+    ['AGM Cockpit Web', 'agmcockpit-website', 'feature/post-contest-functions-v02', '708f1dfad0c1d7e6027837a6ca24594cfd229db4', 'src/pages/index.astro', 'http://localhost:4321/'],
+    ['AGM API', 'AGM', 'baseline/agm-basic-v1', '7670640a7a8cdcd49418bfc85079c33105094d78', 'apps/api/src', 'https://api.agmcockpit.com/api/v1'],
+  ];
+  return `<article class="turn-card platform-map-card"><header><strong>Harta platformei</strong><p>Repository, branch, baseline, rute și URL-uri canonice.</p></header><div class="platform-map-list">${entries.map(([name, repo, branch, commit, path, url]) => `<details><summary><strong>${name}</strong><span>${repo}</span></summary><dl><div><dt>Branch</dt><dd><code>${branch}</code></dd></div><div><dt>Commit</dt><dd><code>${commit}</code></dd></div><div><dt>Fișiere principale</dt><dd><code>${path}</code></dd></div><div><dt>URL</dt><dd><a href="${url}" target="_blank" rel="noreferrer">${url}</a></dd></div></dl></details>`).join('')}</div></article>`;
 }
 
 function renderTurnMetric(language: UiLanguage, labelKey: string, value: string, descriptionKey: string, detailsHtml = '') {
@@ -211,11 +221,14 @@ function renderAgentGovernanceSection(language: UiLanguage) {
 }
 
 function renderAgentGovernanceItem(language: UiLanguage, agent: AgentGovernanceRecord) {
+  const name = agent.displayName ?? t(language, agent.nameKey);
+  const role = agent.displayRole ?? t(language, agent.roleKey);
+  const responsibilities = agent.displayResponsibilities ?? t(language, agent.responsibilitiesKey);
   return `
     <details class="agent-registry-row">
       <summary>
         <span class="turn-status ${agent.status === 'monitoring' ? 'watch' : agent.status === 'planned' ? 'planned' : 'active'}">${escapeHtml(t(language, `agentRegistry.status.${agent.status}`))}</span>
-        <strong>${escapeHtml(t(language, agent.nameKey))}</strong>
+        <strong>${escapeHtml(name)}</strong>
         <code>${escapeHtml(agent.code)}</code>
       </summary>
       <dl>
@@ -225,11 +238,11 @@ function renderAgentGovernanceItem(language: UiLanguage, agent: AgentGovernanceR
         </div>
         <div>
           <dt>${escapeHtml(t(language, 'agentRegistry.field.role'))}</dt>
-          <dd>${escapeHtml(t(language, agent.roleKey))}</dd>
+          <dd>${escapeHtml(role)}</dd>
         </div>
         <div>
           <dt>${escapeHtml(t(language, 'agentRegistry.field.responsibilities'))}</dt>
-          <dd>${escapeHtml(t(language, agent.responsibilitiesKey))}</dd>
+          <dd>${escapeHtml(responsibilities)}</dd>
         </div>
         <div>
           <dt>${escapeHtml(t(language, 'agentRegistry.field.ownerDepartment'))}</dt>
