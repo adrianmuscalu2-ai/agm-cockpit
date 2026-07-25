@@ -1,0 +1,382 @@
+# AGM Incident Integrity Audit
+
+Date: 2026-07-25
+Environment: AGM local primary, public Cloudflare surfaces, Hetzner validation route
+Audit mode: integrity and functional verification
+Final decision: **CONDITIONAL GO**
+
+## 1. Executive conclusion
+
+The audit found no verified loss of source code, PostgreSQL data, schema migrations, or
+Browser/Android build assets following the multi-service incident and Docker
+reinstallation.
+
+The active AGM production path is operational:
+
+- local API readiness: HTTP 200;
+- public API readiness: HTTP 200;
+- public Cloudflare Pages frontend: HTTP 200;
+- custom frontend domain: HTTP 200;
+- PostgreSQL: healthy;
+- authenticated local and public data reads: PASS;
+- real public translation: PASS;
+- Browser production build: PASS;
+- Android synchronization and APK build: PASS;
+- automated regression suites: PASS.
+
+Development may continue only with the open operational findings recorded below. The
+audit does not authorize treating the Hetzner validation environment, Windows monitor,
+or remote Git protection as healthy until their findings are closed.
+
+## 2. Scope and evidence
+
+The audit covered:
+
+1. Hetzner validation exposure and available historical infrastructure evidence;
+2. Docker Engine, Compose services, containers, volumes, and restart state;
+3. PostgreSQL readiness, schema, migrations, exact row counts, and logical-dump
+   readability;
+4. local and public API health plus authenticated reads;
+5. public frontend, direct SPA routes, public assets, and CORS;
+6. Android Capacitor synchronization, Browser asset parity, and APK compilation;
+7. Browser build, local HTTP surface, public HTTP surface, and automated Browser-shell
+   checks;
+8. Git object integrity, working-tree state, last commit, and remote traceability;
+9. required configuration presence and secret-file tracking controls;
+10. automated and end-to-end functional tests.
+
+Secrets and translated content were not printed into this report.
+
+## 3. Results by objective
+
+### 3.1 Hetzner server and services
+
+Result: **HETZNER AVAILABILITY PASS / POINT 1 CLOSED**
+
+- Audited host: `agm-cloud-validation-01`, Hetzner CPX22, Ubuntu 24.04.
+- The Product Owner supplied direct Hetzner Cloud Console evidence confirming:
+  - server state `Running`;
+  - CPX22 allocation with 2 vCPU, 4 GB RAM, and 80 GB local disk;
+  - no server-level critical alert or availability indication;
+  - public IPv4 address `167.233.237.253`.
+- An independent direct network check confirmed TCP/22 reachable on
+  `167.233.237.253`.
+- An SSH handshake reached the VPS and was rejected at authentication with
+  `Permission denied (publickey)`. This confirms that the host and SSH service were
+  reachable; the audit session did not possess the authorized private key.
+- Historical repository evidence records prior PASS results for Docker, PostgreSQL,
+  API, Cloudflared, and the backup timer on this validation VPS.
+
+The HTTP 530 observation is not evidence that the Hetzner VPS is stopped. Follow-up
+testing identified the public-access failure at the Cloudflare Tunnel connector layer,
+documented separately in finding F-01.
+
+Live systemd, Docker, disk, journal, and backup state inside the VPS remain outside the
+direct evidence of this session because SSH authentication was unavailable. This
+limitation does not reopen the server-availability conclusion.
+
+### 3.2 Docker and containers
+
+Result: **PASS WITH AUTOSTART RISK**
+
+- Docker client/server: 29.6.2.
+- Storage driver: `overlayfs`.
+- Containers: 2 running, both healthy:
+  - `agm-postgres`;
+  - `agm-development-postgres`.
+- `agm-postgres` restart count: 0 after recovery.
+- PostgreSQL image: `postgres:16-alpine`.
+- Primary volume: `agm_agm_postgres_data`.
+- Volume creation: 2026-07-02T17:03:27Z, proving it was not recreated during the
+  2026-07-25 Docker reinstallation.
+- Windows `com.docker.service` was observed stopped/manual while Docker Engine was
+  available through Docker Desktop. This is an autostart/reboot resilience risk.
+
+### 3.3 Database integrity and persistence
+
+Result: **PASS**
+
+- PostgreSQL 16.14 accepted connections and reported healthy.
+- All four Prisma migrations were present and completed:
+  - `20260702171528_init`;
+  - `20260702185645_add_evidence_metadata`;
+  - `20260702191656_add_incident_reports`;
+  - `20260714090500_add_turn_admin_credential`.
+- Exact application row counts:
+
+| Table | Rows |
+|---|---:|
+| Company | 1 |
+| User | 1 |
+| Role | 1 |
+| UserRole | 1 |
+| TransportJob | 6 |
+| TransportJobStateHistory | 12 |
+| AuditEvent | 21 |
+| BusinessValidationReport | 12 |
+| EvidenceMetadata | 1 |
+| IncidentReport | 1 |
+| LifecycleState | 14 |
+| FinancialLedger | 1 |
+| TurnAdminCredential | 1 |
+| `_prisma_migrations` | 4 |
+
+- Database size: 8,775 kB.
+- A temporary custom-format logical dump was created inside the container, listed
+  successfully by `pg_restore`, and removed after validation:
+  - dump size: 47,798 bytes;
+  - catalog list: 96 lines;
+  - SHA-256:
+    `f73f3920cc5bbf94cb98000843a910b7d62f68f93d9f986fd74ed9c26a87c79b`.
+
+No evidence of database replacement, emptying, or migration loss was found.
+
+### 3.4 API and primary endpoints
+
+Result: **PASS**
+
+- Local liveness: HTTP 200.
+- Local readiness: HTTP 200, database available, translation provider configured.
+- Public liveness: HTTP 200 through Cloudflare.
+- Public readiness: HTTP 200 through Cloudflare.
+- Local authenticated login and `/auth/me`: PASS.
+- Public authenticated login and `/auth/me`: PASS.
+- Local and public authenticated list checks:
+  - transports: 6;
+  - evidence records: 1;
+  - incidents: 1.
+- Real RO-to-DE translation through the public endpoint: PASS, provider `openai`.
+- API automated tests: 3 suites, 11 tests, all PASS.
+
+### 3.5 Public website/frontend
+
+Result: **PASS**
+
+- `https://agm-cockpit.pages.dev/`: HTTP 200.
+- `https://agm-cockpit.pages.dev/turn`: HTTP 200.
+- `https://agm-cockpit.pages.dev/email`: HTTP 200.
+- `https://app.agmcockpit.com/`: HTTP 200.
+- Public manifest, JavaScript, CSS, and logo assets: HTTP 200.
+- CORS preflight:
+  - `https://agm-cockpit.pages.dev`: HTTP 204, correct allowed origin;
+  - `https://app.agmcockpit.com`: HTTP 204, correct allowed origin.
+- Separate Astro website static build: PASS.
+- Local Astro website surface: HTTP 200 on port 4321.
+
+### 3.6 Android
+
+Result: **TECHNICAL PASS / DEVICE UI NOT REPEATED**
+
+- Production web build: PASS.
+- Capacitor Android synchronization: PASS.
+- Browser-to-Android packaged asset parity: 17 files checked, 0 missing,
+  0 mismatches.
+- Gradle `assembleDebug`: PASS, 93 tasks, no build failure.
+- New APK:
+  - file: `app-debug.apk`;
+  - size: 7,667,651 bytes;
+  - SHA-256:
+    `BA5E5BDA075FC8BD0A7CD44A2F073E06E91AEE961720BE44E77A74A641A25817`.
+
+No emulator/device automation was available in this audit. The Product Owner reported
+that the installed Android application was operational, but that report is not a
+substitute for a repeated instrumented device test.
+
+### 3.7 Browser version
+
+Result: **TECHNICAL PASS / INTERACTIVE UI PARTIAL**
+
+- Production Browser build: PASS.
+- Production API endpoint validation: PASS.
+- Local Browser surface: HTTP 200 on port 5173.
+- Public Browser surface and direct SPA routes: HTTP 200.
+- E6.3 Browser navigation and shell tests: PASS.
+- POC02 Browser presentation tests: PASS.
+
+The browser automation channel reported no available browser instance. Therefore,
+pointer, keyboard, visual layout, console, refresh, and offline/recovery interactions
+were not repeated as a live UI session. No live interactive Browser PASS is claimed.
+
+### 3.8 Git integrity and traceability
+
+Result: **PASS — ACTIVE SOURCE STATE PROTECTED**
+
+- Git object verification: `git fsck --full --no-dangling` exited 0.
+- Current branch: `feature/post-basic-turn-architecture-audit`.
+- At the initial audit checkpoint, the active branch had no upstream and contained
+  42 commits not reachable from any remote branch. Four tracked application files and
+  three Turn Command Center reports were also uncommitted. The original observation
+  was therefore accurate for the repository state at that moment.
+- The relevant source and documentation were reviewed, scanned for common credential
+  patterns, checked with `git diff --check`, and committed as:
+  - commit `db4611d`;
+  - subject `feat(turn): protect command center audit state`.
+- The complete active branch was published to
+  `origin/feature/post-basic-turn-architecture-audit` and configured with that
+  upstream. This protects the entire 42-commit active history plus the new checkpoint.
+- `agmcockpit-website` was confirmed to be a separate, clean Git repository rather
+  than untracked root-project source. Its active branch
+  `feature/post-contest-functions-v02` was published to the separate GitHub repository
+  `adrianmuscalu2-ai/agmcockpit-website` and configured with its upstream.
+- The root project now ignores `/agmcockpit-website/` so the nested repository cannot
+  be accidentally embedded in the primary repository.
+- `.env` is ignored and is not tracked.
+- `apps/web/.env.production` is tracked and contains the public production API
+  endpoint as intended.
+- Remaining untracked PNG/JPEG files are screenshots and audit/marketing media, not
+  executable source code. They were intentionally not published automatically because
+  visual artifacts require a separate privacy/content review.
+- Two commits on separate historical/development branch tips were not published by
+  the scoped protection action because they are not part of the active audited
+  application history:
+  - `9c3b374` on `development/post-contest`;
+  - `e3117d4` on `ag-018-regression-backup-20260714`.
+  Their objects remain valid locally. They do not prevent PASS for the active
+  application source, but their future retention policy should be decided explicitly.
+
+There is no evidence of Git object loss. The active AGM application code, active
+history, Turn Command Center changes, audit documentation, and separate website
+repository are protected in GitHub.
+
+### 3.9 Configuration integrity
+
+Result: **PASS FOR PRESENCE / ONE CRITICAL STARTUP DEFECT**
+
+- All required runtime keys checked were present, non-empty, and not placeholders.
+- No duplicate root `.env` keys were detected.
+- `.env` remained outside Git.
+- Production API URL validation passed.
+- A bcrypt-style value containing `$` is present in root `.env`. Docker Compose reads
+  the root `.env` automatically and interprets this value as variable interpolation.
+  This produced a warning and caused `scripts/Start-AGM.ps1` to abort under
+  `$ErrorActionPreference = "Stop"`.
+
+Required closure: isolate Compose variables from the application `.env`, escape the
+value for Compose, or change the startup script so a valid application secret cannot
+abort Docker detection.
+
+### 3.10 Full functional/regression test
+
+Result: **PASS WITH UI LIMITATIONS**
+
+- API Jest: 11/11 PASS.
+- Premium foundation tests: PASS.
+- E6.2 canonical transitions: 18/18 PASS.
+- E6.3 Browser navigation and shell: PASS.
+- E6.4-E6.6 validation checks: PASS.
+- POC02 after-departure stage 3: PASS.
+- POC02 stage 4 presentation: PASS.
+- Authenticated reads over local and public API: PASS.
+- Real public translation: PASS.
+- Browser build: PASS.
+- Website build: PASS.
+- Android synchronization: PASS.
+- Android APK build: PASS.
+
+Live browser automation and a fresh instrumented Android device test remain outside
+the evidence completed in this session.
+
+## 4. Operational findings
+
+### F-01 — Cloudflare validation tunnel has no healthy connector
+
+Severity: High for migration readiness, no current impact on local-primary production.
+Status: OPEN as a Cloudflare connector issue; **Hetzner audit point 1 is CLOSED**.
+
+Verified evidence:
+
+- `validation-api.agmcockpit.com` resolves to Cloudflare anycast A and AAAA
+  addresses;
+- TLS verification succeeds and the request reaches Cloudflare Frankfurt;
+- Cloudflare returns HTTP 530, `Server: cloudflare`, a Cloudflare Ray ID, and the
+  exact body `error code: 1033`;
+- the Hetzner VPS is `Running` in the provider console;
+- direct TCP/22 to the VPS succeeds;
+- the primary hostname `api.agmcockpit.com` remains HTTP 200.
+
+According to Cloudflare's official
+[Error 1033 documentation](https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1033/),
+error 1033 means Cloudflare cannot find a healthy `cloudflared` instance connected to
+the tunnel. Cloudflare separately documents that an origin service or reverse-proxy
+reachability failure behind an already connected tunnel produces HTTP 502, not 1033.
+
+Immediate cause: the named validation tunnel has no healthy connector connection to
+Cloudflare Edge.
+
+The remaining connector-level alternatives require Cloudflare Dashboard or authorized
+VPS access to distinguish:
+
+- `cloudflared` systemd service stopped or failed;
+- connector credentials/configuration missing or invalid;
+- connector outbound connectivity blocked;
+- validation hostname still routed to an inactive or retired tunnel.
+
+Required closure for F-01: verify the validation tunnel status in Cloudflare
+Networking > Tunnels, then inspect `systemctl status cloudflared`,
+`journalctl -u cloudflared`, and the installed ingress/credential configuration on the
+VPS. Restore the connector only if the validation environment is still intended to
+remain active; otherwise formally retire the validation hostname and finding.
+
+### F-02 — Current source state not fully protected remotely
+
+Severity: formerly High.
+Status: **CLOSED — PASS**.
+
+The finding accurately described the initial audit snapshot. It was closed by creating
+checkpoint `db4611d`, publishing the active 42-commit application branch, and
+publishing the clean active website branch to its separate GitHub repository.
+Remaining local-only items are non-code media and two out-of-scope historical branch
+tips, documented above.
+
+### F-03 — Windows monitor state is stale
+
+Severity: Medium/High.
+Evidence: monitor state still records both services offline with the last check at
+2026-07-25T09:29:25Z, while direct final checks return HTTP 200. The scheduled monitor
+was observed running and its previous task result was non-zero.
+Status: OPEN.
+
+### F-04 — AGM service autostart task is not clean
+
+Severity: High for reboot recovery.
+Evidence: scheduled task `AGM Services` last result was non-zero
+(`3221225786` / `0xC000013A`).
+Status: OPEN.
+
+### F-05 — Root `.env` conflicts with Docker Compose interpolation
+
+Severity: High for one-click startup.
+Evidence: the normal startup flow aborted on a Compose interpolation warning caused by
+a valid secret format.
+Status: OPEN.
+
+### F-06 — Live UI validation incomplete
+
+Severity: Medium.
+Evidence: no browser automation instance and no instrumented Android device were
+available in this audit.
+Status: OPEN.
+
+## 5. Final decision
+
+### Integrity decision
+
+**PASS** for local code-object integrity, PostgreSQL persistence, schema, application
+records, builds, API functionality, public frontend availability, Browser/Android
+asset parity, and automated regression.
+
+### Operational decision
+
+**CONDITIONAL GO** for continued local development.
+
+**NO-GO** for declaring the entire platform fully healthy or migration-ready until:
+
+1. the Cloudflare validation connector is restored or the validation hostname is
+   formally retired; Hetzner server availability itself is already closed as PASS;
+2. the monitor updates online state and its scheduled execution returns success;
+3. the AGM service task and Docker startup pass a reboot/recovery rehearsal;
+4. the Compose/`.env` interpolation defect is corrected;
+5. Browser and Android live UI smoke tests are repeated.
+
+This decision is based only on evidence collected during the audit. No unverified
+claim of code loss, data loss, or full-platform health is made.
