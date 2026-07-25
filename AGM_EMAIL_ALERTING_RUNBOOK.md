@@ -58,6 +58,44 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Monitor-AGM-Servic
 
 Exactly one recovery email must be delivered.
 
+## Validation record — 2026-07-25
+
+The final operator screenshot supplied in Turn AGM records the following:
+
+- `Configuration saved: C:\ProgramData\AGM\monitor\config.json`;
+- the SMTP credential was encrypted for the current Windows user;
+- the configuration script returned normally to the PowerShell prompt;
+- the later controlled sequence `Failure -> Deduplication -> Recovery -> SMTP ->
+  Inbox` passed in full;
+- two alert messages and two recovery messages were received by
+  `adrianmuscalu2@gmail.com`.
+
+The screenshot is treated as operator evidence associated with this validation
+record. It is not copied into the repository because the original attachment is
+held in the Turn AGM audit conversation and shows local configuration context.
+
+Final result: **PASS**.
+
+### Non-blocking implementation observation
+
+During configuration, `icacls` printed:
+
+```text
+Invalid parameter: "(OI)(CI)F"
+```
+
+The message did not prevent `config.json` or the encrypted credential from being
+written and did not affect the subsequent SMTP tests.
+
+Probable cause, based on inspection of `Configure-AGM-Monitor.ps1`: the expression
+`"$env:USERNAME:(OI)(CI)F"` can be parsed ambiguously by Windows PowerShell at the
+boundary between the environment-variable reference and the ACL suffix. This may
+leave `icacls` receiving only `(OI)(CI)F` as the grant parameter.
+
+This is recorded for later improvement only. No script or ACL behavior was changed
+as part of this documentation update. Any remediation requires a separate approved
+implementation and a before/after ACL test.
+
 ## Rollback
 
 Disable without modifying AGM or PostgreSQL:

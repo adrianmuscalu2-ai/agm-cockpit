@@ -202,6 +202,10 @@ function mailToneLabel(language: LanguageCode, tone: MailTone) {
 }
 
 window.addEventListener('hashchange', () => {
+  const fragment = window.location.hash.replace(/^#/, '');
+  if (isTurnSectionFragment(fragment)) {
+    return;
+  }
   state.view = viewFromCurrentRoute();
   state.status = moduleStatus(state.view);
   render();
@@ -303,12 +307,74 @@ function render() {
   } else if (state.view === 'turn') {
     bindIncidentJournal();
     bindProjectCatalog();
+    bindOperationsHealthChecks();
+    bindOperationActions();
   }
   bindCommandPanel();
   bindAdministratorLogin();
   bindLegalAcceptance();
   bindTutorial();
   bindContactManager();
+}
+
+function bindOperationActions() {
+  document.querySelectorAll<HTMLButtonElement>('[data-operation-recheck]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const card = button.closest<HTMLElement>('.operation-service');
+      if (!card) return;
+      const url = card.dataset.healthUrl;
+      if (!url) return;
+      button.disabled = true;
+      const started = performance.now();
+      try {
+        const response = await fetch(url, { cache: 'no-store' });
+        card.classList.toggle('online', response.ok);
+        card.classList.toggle('offline', !response.ok);
+        const status = card.querySelector<HTMLElement>('.operation-service-status');
+        const latency = card.querySelector<HTMLElement>('.operation-service-latency');
+        const checked = card.querySelector<HTMLElement>('.operation-service-checked');
+        if (status) status.textContent = response.ok ? 'Online' : 'Offline';
+        if (latency) latency.textContent = `${Math.round(performance.now() - started)} ms`;
+        if (checked) checked.textContent = new Date().toLocaleTimeString();
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+}
+
+function bindOperationsHealthChecks() {
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-health-url]')].filter((card) => card.dataset.healthUrl);
+  if (!cards.length) return;
+  const check = async (card: HTMLElement) => {
+    const url = card.dataset.healthUrl;
+    if (!url) return;
+    const started = performance.now();
+    const status = card.querySelector<HTMLElement>('.operation-service-status');
+    const checked = card.querySelector<HTMLElement>('.operation-service-checked');
+    const latency = card.querySelector<HTMLElement>('.operation-service-latency');
+    try {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 5000);
+      const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+      window.clearTimeout(timeout);
+      const elapsed = Math.round(performance.now() - started);
+      const ok = response.ok;
+      card.classList.remove('attention', 'offline', 'degraded', 'unconfigured');
+      card.classList.add(ok ? 'online' : 'offline');
+      if (status) status.textContent = ok ? 'Online' : 'Offline';
+      if (checked) checked.textContent = new Date().toLocaleTimeString();
+      if (latency) latency.textContent = `${elapsed} ms`;
+    } catch {
+      card.classList.remove('attention', 'online', 'degraded', 'unconfigured');
+      card.classList.add('offline');
+      if (status) status.textContent = 'Offline';
+      if (checked) checked.textContent = new Date().toLocaleTimeString();
+      if (latency) latency.textContent = 'timeout / eroare';
+    }
+  };
+  void Promise.all(cards.map(check));
+  window.setInterval(() => void Promise.all(cards.map(check)), 30000);
 }
 
 function bindProjectCatalog() {
@@ -4106,7 +4172,7 @@ function navigateToModule(view: ViewName) {
 function viewFromCurrentRoute(): ViewName {
   const hashRoute = window.location.hash.replace(/^#\/?/, '').toLocaleLowerCase();
   const pathRoute = window.location.pathname.replace(/^\/?/, '').toLocaleLowerCase();
-  const route = hashRoute || pathRoute;
+  const route = hashRoute && !isTurnSectionFragment(hashRoute) ? hashRoute : pathRoute;
 
   if (!route || route === 'home') {
     return 'home';
@@ -4158,6 +4224,10 @@ function viewFromCurrentRoute(): ViewName {
   }
 
   return 'home';
+}
+
+function isTurnSectionFragment(fragment: string) {
+  return fragment.toLocaleLowerCase().startsWith('turn-') || fragment.toLocaleLowerCase() === 'incident-journal';
 }
 
 function routeForView(view: ViewName) {

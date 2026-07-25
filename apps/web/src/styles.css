@@ -2759,6 +2759,28 @@ dd {
 .central-alert-item.minor { border-left: 4px solid #ffd35a; }
 @media (max-width: 700px) { .central-alert-item { flex-direction: column; } .central-alert-summary { align-items: flex-start; flex-direction: column; gap: .25rem; } }
 
+.operations-center { margin: 1rem 0; padding: 1rem; border: 1px solid rgba(83,185,255,.35); border-radius: 14px; background: rgba(6,20,34,.8); }
+.operations-center > header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: .85rem; }
+.operations-center h2 { margin: .2rem 0; }
+.operations-source, .operation-source-note { color: #9ab9cc; font-size: .75rem; }
+.operations-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .65rem; }
+.operation-service { border: 1px solid rgba(145,205,255,.2); border-radius: 10px; padding: .7rem; background: rgba(255,255,255,.035); }
+.operation-service.online { border-color: rgba(91,226,142,.45); }
+.operation-service.degraded { border-color: rgba(255,155,69,.75); }
+.operation-service.offline { border-color: rgba(255,92,104,.85); box-shadow: 0 0 16px rgba(255,92,104,.2); }
+.operation-service.unconfigured { border-color: rgba(180,190,200,.45); }
+.operation-service-head { display: flex; justify-content: space-between; gap: .4rem; font-size: .86rem; }
+.operation-service-head span { color: #8ff0b7; font-size: .72rem; text-transform: uppercase; }
+.operation-service.degraded .operation-service-head span { color: #ffb36b; }
+.operation-service.offline .operation-service-head span { color: #ff8290; }
+.operation-service.unconfigured .operation-service-head span { color: #c4ccd3; }
+.operation-service dl { margin: .6rem 0; display: grid; gap: .35rem; }
+.operation-service dt { color: #77c8ff; font-size: .68rem; text-transform: uppercase; }
+.operation-service dd { margin: .1rem 0 0; color: #d7efff; font-size: .78rem; }
+.operation-cause { margin: .45rem 0; color: #ffd0d4; font-size: .78rem; }
+.operation-action { display: inline-block; color: #d7efff; border: 1px solid rgba(83,185,255,.4); border-radius: 999px; padding: .3rem .5rem; text-decoration: none; font-size: .72rem; }
+@media (max-width: 700px) { .operations-center > header { flex-direction: column; } }
+
 .turn-hero,
 .turn-card,
 .turn-metric {

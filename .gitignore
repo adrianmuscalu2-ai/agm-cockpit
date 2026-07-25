@@ -16,3 +16,6 @@ coverage/
 .tmp-video-tools/
 .video-work/
 *.mp4
+
+# Separate website repository
+/agmcockpit-website/

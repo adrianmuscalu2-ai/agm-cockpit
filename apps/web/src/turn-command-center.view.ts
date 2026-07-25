@@ -39,6 +39,8 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
   return `
     <section class="turn-command-center" aria-label="${escapeHtml(t(language, 'turn.ariaLabel'))}">
       ${renderCentralAlertPanel(incidents)}
+      ${renderOperationsCenter(incidents)}
+      ${renderOperationsProcedures()}
       <header class="turn-hero">
         <div>
           <span class="turn-kicker">${escapeHtml(t(language, 'turn.code'))}</span>
@@ -66,14 +68,27 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       </section>
 
       <nav class="turn-module-nav" aria-label="Turn modules">
-        ${['dashboard', 'organization', 'agents', 'missions', 'alerts', 'incidents', 'registers', 'architecture', 'modules', 'documentation', 'system']
-          .map((module) => `<a href="#turn-${module}">${module[0].toUpperCase()}${module.slice(1)}</a>`)
+        ${[
+          ['Dashboard', 'turn-dashboard'],
+          ['Organization', 'turn-organization'],
+          ['Agents', 'turn-agents'],
+          ['Missions', 'turn-missions'],
+          ['Alerts', 'turn-alerts'],
+          ['Incidents', 'incident-journal'],
+          ['Registers', 'turn-registers'],
+          ['Architecture', 'turn-architecture'],
+          ['Modules', 'turn-modules'],
+          ['Documentation', 'turn-documentation'],
+          ['System', 'turn-system'],
+        ]
+          .map(([label, target]) => `<a href="#${target}">${label}</a>`)
           .join('')}
       </nav>
 
       <section class="turn-grid">
         ${renderProjectCatalogCard()}
         ${renderPlatformMapCard()}
+        ${renderRegistersSection(language, incidents)}
         ${renderTurnSection(language, 'turn.section.departments', 'turn.section.departmentsDesc', turnDepartments, 'turn-dashboard')}
         ${renderTurnSection(language, 'turn.section.agents', 'turn.section.agentsDesc', turnAgents, 'turn-agents')}
         ${renderAgentGovernanceSection(language)}
@@ -81,7 +96,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
         ${renderTurnSection(language, 'turn.section.modules', 'turn.section.modulesDesc', turnModules, 'turn-modules')}
         ${renderTurnMissionSection(language, 'turn.section.missions', 'turn.section.missionsDesc', turnMissions, 'turn-missions')}
         ${renderTurnMissionSection(language, 'turn.section.validations', 'turn.section.validationsDesc', turnAuditTrail)}
-        <article class="turn-card turn-system-card">
+        <article class="turn-card turn-system-card" id="turn-system">
           <header>
             <strong>${escapeHtml(t(language, 'turn.section.system'))}</strong>
             <p>${escapeHtml(t(language, 'turn.section.systemDesc'))}</p>
@@ -110,6 +125,16 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       ${renderIncidentJournal(language, incidents, incidentFilters)}
     </section>
   `;
+}
+
+function renderOperationsProcedures() {
+  return `<section class="operations-procedures turn-card" id="turn-procedures"><header><strong>Proceduri operaționale</strong><p>Runbook pentru incidentul „Server principal indisponibil”.</p></header><ol><li>Confirmă health-check-ul și identifică durata incidentului.</li><li>Deschide incidentul și notifică responsabilul Release & Operations.</li><li>Verifică serviciile Docker și endpointul API.</li><li>Activează serverul backup numai după aprobarea Inspectorului.</li><li>Confirmă funcționarea pe backup și monitorizează revenirea serverului principal.</li><li>Revino controlat pe principal, verifică stabilitatea și arhivează istoricul.</li></ol></section>`;
+}
+
+function renderOperationsCenter(incidents: OperationalIncident[]) {
+  const services = ['Server Principal', 'Server Backup', 'API', 'Browser', 'Android', 'AI', 'Baza de date', 'Backup', 'Heartbeat'];
+  const active = incidents.filter((incident) => !['validated', 'archived'].includes(incident.status));
+  return `<section class="operations-center" id="turn-operations" aria-labelledby="operations-center-title"><header><div><span class="turn-kicker">TURN · OPERATIONS</span><h2 id="operations-center-title">Operations Center</h2><p>Starea ecosistemului AGM, cu sursa și momentul ultimei verificări.</p></div><span class="operations-source">Health-check automat · interval 30s · timeout 5s</span></header><div class="operations-grid">${services.map((service) => { const incident = active.find((item) => item.module.toLocaleLowerCase().includes(service.toLocaleLowerCase().split(' ')[0])); const healthUrl = service === 'API' ? 'https://api.agmcockpit.com/api/v1/health/live' : ''; const state = incident?.severity === 'critical' ? 'offline' : incident ? 'degraded' : healthUrl ? 'attention' : 'unconfigured'; const icon = state === 'offline' ? '🔴' : state === 'degraded' ? '🟠' : state === 'attention' ? '🟡' : '⚪'; const label = state === 'offline' ? 'Offline' : state === 'degraded' ? 'Degradat' : state === 'attention' ? 'În verificare' : 'Neconfigurat'; return `<article class="operation-service ${state}" data-operation-service="${escapeHtml(service)}" data-health-url="${escapeHtml(healthUrl)}"><div class="operation-service-head"><strong class="operation-service-title">${icon} ${service}</strong><span class="operation-service-status">${label}</span></div><dl><div><dt>Ultima verificare</dt><dd class="operation-service-checked">—</dd></div><div><dt>Timp răspuns</dt><dd class="operation-service-latency">—</dd></div><div><dt>Incident</dt><dd>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">${escapeHtml(incident.id)}</a>` : 'Niciun incident activ'}</dd></div></dl>${incident ? `<p class="operation-cause">${escapeHtml(incident.symptom)}</p>` : `<span class="operation-source-note">${healthUrl ? 'Health-check configurat' : 'Health-check real neconfigurat'}</span>`}<div class="operation-actions"><button type="button" data-operation-recheck="${escapeHtml(service)}">Reverifică</button><a href="#turn-procedures">SOP</a><a href="#incident-journal">Jurnal</a>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">Incident</a>` : ''}</div></article>`; }).join('')}</div></section>`;
 }
 
 function renderCentralAlertPanel(incidents: OperationalIncident[]) {
@@ -153,7 +178,40 @@ function renderPlatformMapCard() {
     ['AGM Cockpit Web', 'agmcockpit-website', 'feature/post-contest-functions-v02', '708f1dfad0c1d7e6027837a6ca24594cfd229db4', 'src/pages/index.astro', 'http://localhost:4321/'],
     ['AGM API', 'AGM', 'baseline/agm-basic-v1', '7670640a7a8cdcd49418bfc85079c33105094d78', 'apps/api/src', 'https://api.agmcockpit.com/api/v1'],
   ];
-  return `<article class="turn-card platform-map-card"><header><strong>Harta platformei</strong><p>Repository, branch, baseline, rute și URL-uri canonice.</p></header><div class="platform-map-list">${entries.map(([name, repo, branch, commit, path, url]) => `<details><summary><strong>${name}</strong><span>${repo}</span></summary><dl><div><dt>Branch</dt><dd><code>${branch}</code></dd></div><div><dt>Commit</dt><dd><code>${commit}</code></dd></div><div><dt>Fișiere principale</dt><dd><code>${path}</code></dd></div><div><dt>URL</dt><dd><a href="${url}" target="_blank" rel="noreferrer">${url}</a></dd></div></dl></details>`).join('')}</div></article>`;
+  return `<article class="turn-card platform-map-card" id="turn-architecture"><header><strong>Harta platformei</strong><p>Repository, branch, baseline, rute și URL-uri canonice.</p></header><div class="platform-map-list">${entries.map(([name, repo, branch, commit, path, url]) => `<details><summary><strong>${name}</strong><span>${repo}</span></summary><dl><div><dt>Branch</dt><dd><code>${branch}</code></dd></div><div><dt>Commit</dt><dd><code>${commit}</code></dd></div><div><dt>Fișiere principale</dt><dd><code>${path}</code></dd></div><div><dt>URL</dt><dd><a href="${url}" target="_blank" rel="noreferrer">${url}</a></dd></div></dl></details>`).join('')}</div></article>`;
+}
+
+function renderRegistersSection(language: UiLanguage, incidents: OperationalIncident[]) {
+  const openIncidents = incidents.filter((incident) => !['validated', 'archived'].includes(incident.status)).length;
+  const inspectorHistoryEntries = inspectorReports.reduce((total, report) => total + report.alertHistory.length, 0);
+
+  return `
+    <article class="turn-card turn-system-card" id="turn-registers">
+      <header>
+        <strong>Registre operaționale</strong>
+        <p>Index read-only al registrelor existente în Turn Command Center.</p>
+      </header>
+      <dl class="turn-system-list">
+        <div>
+          <dt>Registrul agenților</dt>
+          <dd>${agentGovernanceRegistry.length} înregistrări · <a href="#turn-agents">Deschide Agents</a></dd>
+        </div>
+        <div>
+          <dt>Registrul incidentelor</dt>
+          <dd>${incidents.length} total · ${openIncidents} deschise · <a href="#incident-journal">Deschide Incidents</a></dd>
+        </div>
+        <div>
+          <dt>Istoric alerte Inspector</dt>
+          <dd>${inspectorHistoryEntries} înregistrări · <a href="#turn-alerts">Deschide Alerts</a></dd>
+        </div>
+        <div>
+          <dt>Registrul misiunilor</dt>
+          <dd>${turnMissions.length} misiuni · ${turnAuditTrail.length} validări · <a href="#turn-missions">Deschide Missions</a></dd>
+        </div>
+      </dl>
+      <p>${escapeHtml(t(language, 'turn.readOnlyDesc'))}</p>
+    </article>
+  `;
 }
 
 function renderTurnMetric(language: UiLanguage, labelKey: string, value: string, descriptionKey: string, detailsHtml = '') {
