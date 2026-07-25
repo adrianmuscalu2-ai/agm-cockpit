@@ -166,7 +166,7 @@ function Test-PostgresContainerRunning {
     return $false
   }
 
-  $containerId = docker compose ps -q postgres 2>$null
+  $containerId = docker compose --env-file docker-compose.env ps -q postgres 2>$null
 
   if (-not $containerId) {
     return $false
@@ -178,7 +178,7 @@ function Test-PostgresContainerRunning {
 
 function Start-DatabaseIfNeeded {
   if ($DryRun) {
-    Write-Step "Dry run: would start PostgreSQL with docker compose up if it is not already running."
+    Write-Step "Dry run: would start PostgreSQL with docker compose --env-file docker-compose.env up if it is not already running."
     return
   }
 
@@ -187,7 +187,7 @@ function Start-DatabaseIfNeeded {
     return
   }
 
-  Start-CmdWindow -Title "AGM PostgreSQL" -Command "docker compose up"
+  Start-CmdWindow -Title "AGM PostgreSQL" -Command "docker compose --env-file docker-compose.env up"
 }
 
 function Start-ApiIfNeeded {

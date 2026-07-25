@@ -275,20 +275,41 @@ competition commit.
 
 ### 3.9 Configuration integrity
 
-Result: **PASS FOR PRESENCE / ONE CRITICAL STARTUP DEFECT**
+Result: **PASS / POINT 5 CLOSED**
 
 - All required runtime keys checked were present, non-empty, and not placeholders.
 - No duplicate root `.env` keys were detected.
 - `.env` remained outside Git.
 - Production API URL validation passed.
-- A bcrypt-style value containing `$` is present in root `.env`. Docker Compose reads
-  the root `.env` automatically and interprets this value as variable interpolation.
-  This produced a warning and caused `scripts/Start-AGM.ps1` to abort under
-  `$ErrorActionPreference = "Stop"`.
-
-Required closure: isolate Compose variables from the application `.env`, escape the
-value for Compose, or change the startup script so a valid application secret cannot
-abort Docker detection.
+- Root cause: the bcrypt PIN hash in the application `.env` legitimately contained
+  `$`, but was unquoted. When Compose implicitly loaded the root file, one hash segment
+  was treated as a variable reference, defaulted to an empty string, and emitted a
+  warning. Under `$ErrorActionPreference = "Stop"`, that native warning could abort the
+  interactive startup script.
+- The local Compose manifest itself does not require application secrets; PostgreSQL
+  values are deliberately declared in `docker-compose.yml`.
+- The bcrypt value is now single-quoted. Application-style parsing preserves the exact
+  bcrypt value while Compose no longer interpolates its `$` segments.
+- Both Windows startup paths now call Compose with the dedicated
+  `docker-compose.env`, separating Compose loading from the application `.env`.
+- Root `.env` validation: 17/17 required values present, zero duplicates, bcrypt format
+  valid, PostgreSQL URL scheme valid, JWT length valid, numeric port and timeout valid.
+- Local manifest validation with Docker Compose v5.3.1: exit 0, zero missing-variable
+  or interpolation warnings.
+- Cloud validation manifest validation with explicit synthetic PostgreSQL variables
+  and server-style env-file resolution disabled: exit 0, zero interpolation warnings.
+  Its runtime secret file remains intentionally external at
+  `/opt/agm/secrets/agm-validation.env`.
+- Docker Engine client/server 29.6.2 and Docker Compose v5.3.1 are compatible with the
+  current configuration.
+- `agm-postgres`: running and healthy, `restart: unless-stopped`, PostgreSQL 16.14,
+  accepting connections.
+- Idempotent `compose up -d postgres`: exit 0, zero interpolation warnings, existing
+  container identity and creation timestamp unchanged.
+- Persistent volume `agm_agm_postgres_data` remains mounted and dates from
+  2026-07-02.
+- Local and public API readiness after validation: HTTP 200.
+- API environment validation regression: 4/4 tests PASS.
 
 ### 3.10 Full functional/regression test
 
@@ -451,10 +472,26 @@ automatic rearm were all verified.
 
 ### F-05 — Root `.env` conflicts with Docker Compose interpolation
 
-Severity: High for one-click startup.
-Evidence: the normal startup flow aborted on a Compose interpolation warning caused by
-a valid secret format.
-Status: OPEN.
+Severity: formerly High for one-click startup.
+Status: **CLOSED — PASS**.
+
+Cause:
+
+- an unquoted bcrypt hash in the application `.env` contained `$`;
+- implicit Compose loading interpreted part of that valid hash as an unset variable;
+- PowerShell's stop-on-error behavior could abort the interactive launcher on the
+  warning.
+
+Remediation and validation:
+
+- single-quoted the bcrypt value without changing its parsed value;
+- isolated all scripted local Compose calls with
+  `--env-file docker-compose.env`;
+- local and cloud manifest validation: exit 0, zero interpolation warnings;
+- all 17 required application variables present and structurally valid;
+- Docker/Compose version compatibility, PostgreSQL health, persistence, readiness,
+  and local/public API HTTP 200 verified.
+- final idempotent Compose start retained the existing container and data volume.
 
 ### F-06 — Live UI validation incomplete
 
@@ -479,8 +516,7 @@ asset parity, and automated regression.
 
 1. the Cloudflare validation connector is restored or the validation hostname is
    formally retired; Hetzner server availability itself is already closed as PASS;
-2. the Compose/`.env` interpolation defect is corrected;
-3. Browser and Android live UI smoke tests are repeated.
+2. Browser and Android live UI smoke tests are repeated.
 
 This decision is based only on evidence collected during the audit. No unverified
 claim of code loss, data loss, or full-platform health is made.
