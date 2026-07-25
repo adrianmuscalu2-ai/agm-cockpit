@@ -111,6 +111,7 @@ async function captureTarget(browser, target, httpResult) {
           const [
             { renderCentralAlertPanel, renderOperationsCenter },
             { renderMonitoringDepartment },
+            { bindTurnOrganizationChart, renderTurnOrganizationChart },
             { bindOperationsHealthChecks },
             { readIncidentJournal },
             { bindTurnBackToTop },
@@ -118,13 +119,15 @@ async function captureTarget(browser, target, httpResult) {
             await Promise.all([
               import('/src/turn-command-center.view.ts'),
               import('/src/monitoring-department.ts'),
+              import('/src/turn-organization-chart.ts'),
               import('/src/operations-health.ts'),
               import('/src/incident-journal.ts'),
               import('/src/turn-navigation.ts'),
             ]);
           const incidents = readIncidentJournal(window.localStorage);
-          document.body.innerHTML = `<main id="ui-live-operations-evidence">${renderCentralAlertPanel(incidents)}${renderOperationsCenter(incidents)}${renderMonitoringDepartment(incidents)}</main><button id="turnBackToTop" class="turn-back-to-top" type="button" hidden>↑ Înapoi sus</button>`;
+          document.body.innerHTML = `<main id="ui-live-operations-evidence">${renderCentralAlertPanel(incidents)}${renderOperationsCenter(incidents)}${renderMonitoringDepartment(incidents)}${renderTurnOrganizationChart()}</main><button id="turnBackToTop" class="turn-back-to-top" type="button" hidden>↑ Înapoi sus</button>`;
           bindOperationsHealthChecks();
+          bindTurnOrganizationChart();
           bindTurnBackToTop();
         });
         const operations = page.locator('.operations-center');
@@ -171,6 +174,21 @@ async function captureTarget(browser, target, httpResult) {
         await page.waitForFunction(() => window.scrollY < 10, undefined, {
           timeout: timeoutMs,
         });
+        await page.locator('[data-turn-org-department="monitoring"]').click();
+        const monitoringBranch = page.locator('[data-org-branch="monitoring"]');
+        if ((await monitoringBranch.locator('[data-turn-org-agent]').count()) !== 12) {
+          throw new Error('Organization chart did not expose all 12 monitoring agents.');
+        }
+        await page.locator('[data-turn-org-agent="monitor-security"]').click();
+        await page
+          .locator('#turnOrgRelations [data-org-field="name"]')
+          .filter({ hasText: 'Agent de Securitate' })
+          .waitFor({ state: 'visible', timeout: timeoutMs });
+        await page.locator('#turnBackToTop').evaluate((button) => button.remove());
+        const organizationEvidence = `turn-organization-${viewport.id}.png`;
+        await page.locator('.turn-organization-chart').screenshot({
+          path: path.join(outputDirectory, organizationEvidence),
+        });
         await page.locator('#ui-live-operations-evidence').screenshot({ path: absolutePath });
       } else {
         const acceptButton = page.locator('#acceptLegalNotice');
@@ -187,6 +205,11 @@ async function captureTarget(browser, target, httpResult) {
         backToTopEvidence:
           target.id === 'turn-local'
             ? `${target.id}-${viewport.id}-back-to-top.png`
+            : null,
+        organizationChart: target.id === 'turn-local' ? 'PASS' : null,
+        organizationEvidence:
+          target.id === 'turn-local'
+            ? `turn-organization-${viewport.id}.png`
             : null,
         result: 'PASS',
         error: null,

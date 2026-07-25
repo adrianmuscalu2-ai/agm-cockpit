@@ -60,6 +60,7 @@ import { premiumStatusKey, renderPremiumView, usesPremiumLayout } from './premiu
 import { isPremiumView, premiumRouteForView, premiumViewFromRoute, type PremiumViewName } from './premium-routes';
 import { bindOperationsHealthChecks } from './operations-health';
 import { bindTurnBackToTop } from './turn-navigation';
+import { bindTurnOrganizationChart } from './turn-organization-chart';
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
@@ -310,6 +311,7 @@ function render() {
     bindIncidentJournal();
     bindProjectCatalog();
     bindOperationsHealthChecks();
+    bindTurnOrganizationChart();
     bindTurnBackToTop();
   }
   bindCommandPanel();

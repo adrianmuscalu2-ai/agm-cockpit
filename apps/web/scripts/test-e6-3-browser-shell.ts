@@ -15,6 +15,10 @@ import {
 } from '../src/incident-journal';
 import { monitoringAgents } from '../src/monitoring-department';
 import { turnDepartments } from '../src/turn-command-center';
+import {
+  createOrganizationAgent,
+  turnOrganizationAgents,
+} from '../src/turn-organization-chart';
 
 const htmlEntry = readFileSync(new URL('../before-departure.html', import.meta.url), 'utf8');
 const mainSource = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
@@ -56,6 +60,45 @@ assert.equal(JSON.stringify(securityMonitoringAgent).includes('AGM_TURN_ADMIN_PI
 assert.equal(JSON.stringify(securityMonitoringAgent).includes('OPENAI_API_KEY'), false);
 assert.ok(turnNavigationSource.includes('window.scrollY < 600'));
 assert.ok(turnNavigationSource.includes("behavior: 'smooth'"));
+assert.equal(turnOrganizationAgents.find((agent) => agent.id === 'mentor')?.subordinateAgentIds[0], 'adrian-turn-commander');
+assert.deepEqual(
+  turnOrganizationAgents.find((agent) => agent.id === 'adrian-turn-commander')?.subordinateAgentIds,
+  ['atlas-operations', 'chief-monitoring-inspector'],
+);
+assert.equal(
+  turnOrganizationAgents.filter((agent) => agent.coordinatorId === 'chief-monitoring-inspector').length,
+  12,
+);
+const newMonitoringAgent = createOrganizationAgent(turnOrganizationAgents, {
+  id: 'monitor-network-test',
+  name: 'Agent Monitorizare Rețea Test',
+  kind: 'agent',
+  departmentId: 'monitoring',
+  coordinatorId: 'chief-monitoring-inspector',
+  reportsToId: 'chief-monitoring-inspector',
+  responsibility: 'Validează plasarea automată în test.',
+  accessLevel: 'operational-readonly',
+  procedure: 'Verifică sursa și escaladează.',
+  escalationLevel: 'L2',
+});
+assert.equal(newMonitoringAgent.placement.departmentId, 'monitoring');
+assert.equal(newMonitoringAgent.placement.coordinatorId, 'chief-monitoring-inspector');
+assert.equal(newMonitoringAgent.placement.level, 3);
+assert.throws(
+  () => createOrganizationAgent(turnOrganizationAgents, {
+    id: 'invalid-monitor',
+    name: 'Invalid',
+    kind: 'agent',
+    departmentId: 'monitoring',
+    coordinatorId: 'chief-monitoring-inspector',
+    reportsToId: 'chief-monitoring-inspector',
+    responsibility: 'Test invalid.',
+    accessLevel: 'operational-readonly',
+    procedure: '',
+    escalationLevel: 'L2',
+  }),
+  /ORGANIZATION_FIELD_REQUIRED:procedure/,
+);
 assert.deepEqual(
   operationsHealthConfiguration.operationsServices
     .filter((service) => service.showInOperations !== false)

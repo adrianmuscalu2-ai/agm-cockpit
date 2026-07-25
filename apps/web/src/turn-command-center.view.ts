@@ -7,6 +7,7 @@ import { renderMaintenanceDepartment } from './maintenance-department';
 import { operationalClosureRegistry } from './operational-closure.registry';
 import { operationsHealthSources } from './operations-health';
 import { renderMonitoringDepartment } from './monitoring-department';
+import { renderTurnOrganizationChart } from './turn-organization-chart';
 import {
   type TurnCommandItem,
   type TurnHealthStatus,
@@ -44,6 +45,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       ${renderCentralAlertPanel(incidents)}
       ${renderOperationsCenter(incidents)}
       ${renderMonitoringDepartment(incidents)}
+      ${renderTurnOrganizationChart()}
       ${renderOperationsProcedures()}
       <header class="turn-hero">
         <div>
@@ -75,6 +77,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
         ${[
           ['Dashboard', 'turn-dashboard'],
           ['Monitoring', 'turn-monitoring'],
+          ['Structura Turnului', 'turn-structure'],
           ['Organization', 'turn-organization'],
           ['Agents', 'turn-agents'],
           ['Missions', 'turn-missions'],
