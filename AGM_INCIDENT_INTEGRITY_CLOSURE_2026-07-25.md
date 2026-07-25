@@ -21,7 +21,8 @@ visible and separately owned:
 2. `AGM-FU-20260725-UILIVE` — **OPEN**. Capture instrumented Browser and Android smoke-test
    evidence. Existing builds, regressions, asset parity, and human confirmation pass.
    Current execution evidence: Browser runtime reported zero available browsers and
-   `adb devices` reported zero connected devices/emulators.
+   `adb devices` reported zero connected devices/emulators. Detailed root-cause and
+   closure gate: `AGM_UILIVE_INSTRUMENTATION_DIAGNOSIS_2026-07-25.md`.
 
 ## Responsibility records
 

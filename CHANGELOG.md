@@ -18,6 +18,9 @@
   `AGM-FU-20260725-CF1033`.
 - Recorded the exact `UILIVE` instrumentation blocker (zero Browser instances and zero
   adb devices) without weakening its evidence gate.
+- Documented that ordinary Edge/Chrome availability does not register a Browser Runtime
+  session, while the healthy ADB server still requires a connected and authorized
+  phone transport; user photographs remain human evidence, not automatic captures.
 
 ## Unreleased - AG-018 External Connectivity Test
 
