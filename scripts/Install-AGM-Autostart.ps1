@@ -19,7 +19,11 @@ $action = New-ScheduledTaskAction `
   -Execute 'powershell.exe' `
   -Argument $arguments `
   -WorkingDirectory $root
-$trigger = New-ScheduledTaskTrigger -AtLogOn -User $userId
+$logonTrigger = New-ScheduledTaskTrigger -AtLogOn -User $userId
+$recoveryTrigger = New-ScheduledTaskTrigger `
+  -Once `
+  -At (Get-Date).AddMinutes(1) `
+  -RepetitionInterval (New-TimeSpan -Minutes 2)
 $principal = New-ScheduledTaskPrincipal -UserId $userId -LogonType Interactive -RunLevel Highest
 $settings = New-ScheduledTaskSettingsSet `
   -AllowStartIfOnBatteries `
@@ -33,10 +37,10 @@ $settings = New-ScheduledTaskSettingsSet `
 Register-ScheduledTask `
   -TaskName $taskName `
   -Action $action `
-  -Trigger $trigger `
+  -Trigger @($logonTrigger, $recoveryTrigger) `
   -Principal $principal `
   -Settings $settings `
-  -Description 'Starts and supervises Docker, PostgreSQL, and AGM API without VS Code.' `
+  -Description 'Starts at logon and rearms every two minutes to supervise Docker, PostgreSQL, and AGM API without VS Code.' `
   -Force | Out-Null
 
 Start-ScheduledTask -TaskName $taskName

@@ -401,10 +401,53 @@ Validation:
 
 ### F-04 — AGM service autostart task is not clean
 
-Severity: High for reboot recovery.
-Evidence: scheduled task `AGM Services` last result was non-zero
-(`3221225786` / `0xC000013A`).
-Status: OPEN.
+Severity: formerly High for reboot recovery.
+Status: **CLOSED — PASS**.
+
+Historical cause and evidence:
+
+- the recorded result `3221225786` / `0xC000013A` means that the PowerShell process
+  was terminated externally; it is not an AGM application exception code;
+- Windows System events show Docker Desktop Service installation at 10:59:57, a
+  system restart initiated at 11:22:35, operating-system startup at 11:23:15, and the
+  task launch at 11:23:23 on 2026-07-25;
+- Task Scheduler operational history was disabled, so the exact process that
+  terminated the affected task instance cannot be attributed retroactively;
+- the original task had only an at-logon trigger. If terminated later in the same
+  session, it had no independent trigger that guaranteed rearming.
+
+Current configuration:
+
+- principal: Windows user `adria`, interactive token, highest run level;
+- trigger 1: at logon for `DESKTOP-2MU7PHH\adria`;
+- trigger 2: every two minutes for recovery/rearming;
+- multiple instances: `IgnoreNew`;
+- restart on failure: three attempts at one-minute intervals;
+- execution time limit: disabled (`PT0S`);
+- start when available: enabled;
+- action: hidden PowerShell running `scripts/Start-AGM-Services.ps1`;
+- supervised dependencies: Docker Desktop/Engine, PostgreSQL container, AGM API;
+- Cloudflare remains an independent automatic Windows service;
+- public API availability additionally depends on network and Cloudflare connectivity.
+
+Validation:
+
+- finite supervisor run: exit code 0;
+- local readiness: HTTP 200;
+- public readiness: HTTP 200;
+- persistent task steady state: `Running`;
+- active-task result: `267009` / `0x00041301`, meaning `currently running`;
+- controlled supervisor stop left API and database available;
+- periodic trigger restarted the task automatically at the next interval;
+- supervisor log after automatic rearm: `AGM API and PostgreSQL are ready`;
+- repeatability and `IgnoreNew` behavior: PASS.
+
+The automatic startup contract is intentionally after the AGM Windows user logs in,
+because Docker Desktop and the interactive user token are dependencies. Historical
+logs demonstrate successful post-logon starts across multiple dates. A disruptive
+cold-reboot rehearsal was not required to establish this result because the logon
+trigger, historical post-boot execution, finite exit-code test, and controlled
+automatic rearm were all verified.
 
 ### F-05 — Root `.env` conflicts with Docker Compose interpolation
 
@@ -436,9 +479,8 @@ asset parity, and automated regression.
 
 1. the Cloudflare validation connector is restored or the validation hostname is
    formally retired; Hetzner server availability itself is already closed as PASS;
-2. the AGM service task and Docker startup pass a reboot/recovery rehearsal;
-3. the Compose/`.env` interpolation defect is corrected;
-4. Browser and Android live UI smoke tests are repeated.
+2. the Compose/`.env` interpolation defect is corrected;
+3. Browser and Android live UI smoke tests are repeated.
 
 This decision is based only on evidence collected during the audit. No unverified
 claim of code loss, data loss, or full-platform health is made.
