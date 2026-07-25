@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-07-25 - Integrity incident operational closure
+
+### Operations
+
+- Archived `AGM_INTEGRITY_AUDIT_2026-07-25` in the Turn incident journal.
+- Added a typed operational-closure registry with Inspector, Chronicler, Version
+  Guardian, Architecture Guardian, Release & Operations, Legal, and technical sign-off
+  evidence.
+- Preserved the Cloudflare validation connector and instrumented UI evidence limits as
+  separately owned follow-up incidents.
+- Recorded department lessons, architecture reconciliation, and competition-baseline
+  integrity.
+- Isolated every documented local Compose command from the application `.env`.
+
 ## Unreleased - AG-018 External Connectivity Test
 
 ### Infrastructure

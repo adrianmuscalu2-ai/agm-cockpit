@@ -520,3 +520,21 @@ asset parity, and automated regression.
 
 This decision is based only on evidence collected during the audit. No unverified
 claim of code loss, data loss, or full-platform health is made.
+
+### Operational incident disposition
+
+The primary outage incident is archived in Turn Command Center under
+`AGM-CLOSE-20260725-001` with decision **CLOSED WITH TRACKED FOLLOW-UP**. This
+operational closure confirms restoration and integrity of the active AGM platform; it
+does not override the migration-readiness and instrumented-UI limitations above.
+
+Residual findings were transferred without loss of traceability:
+
+- `AGM-FU-20260725-CF1033` — Cloudflare validation connector;
+- `AGM-FU-20260725-UILIVE` — instrumented Browser/Android evidence.
+
+The responsibility sign-offs, department lessons, Inspector decision, Chronicler
+timeline, Version Guardian baseline confirmation, architecture reconciliation,
+Release & Operations evidence, and legal-impact assessment are recorded in
+`AGM_INCIDENT_INTEGRITY_CLOSURE_2026-07-25.md` and the typed Turn operational-closure
+registry.

@@ -113,7 +113,10 @@ corepack pnpm build
 
 - No frontend application is implemented.
 - No separate evidence storage subsystem is implemented.
-- No incident management subsystem is implemented.
+- Turn Command Center includes a client-side operational incident journal, seeded
+  history, lifecycle transitions, validation-evidence gates, audit export, and a typed
+  operational-closure registry. This operational UI subsystem is separate from the
+  transport-linked API `IncidentReport` model.
 - No AI recommendation subsystem is implemented.
 - No additional human approval workflow subsystem is implemented.
 - No production secrets management is configured.

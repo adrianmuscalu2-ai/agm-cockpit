@@ -4,6 +4,7 @@ import { type UiLanguage } from './i18n/app-i18n.types';
 import { type InspectorReport, inspectorReportFor, inspectorReports } from './inspector-agent';
 import { renderIncidentJournal, type IncidentJournalFilters, type OperationalIncident } from './incident-journal';
 import { renderMaintenanceDepartment } from './maintenance-department';
+import { operationalClosureRegistry } from './operational-closure.registry';
 import {
   type TurnCommandItem,
   type TurnHealthStatus,
@@ -188,6 +189,7 @@ function renderPlatformMapCard() {
 function renderRegistersSection(language: UiLanguage, incidents: OperationalIncident[]) {
   const openIncidents = incidents.filter((incident) => !['validated', 'archived'].includes(incident.status)).length;
   const inspectorHistoryEntries = inspectorReports.reduce((total, report) => total + report.alertHistory.length, 0);
+  const closures = operationalClosureRegistry;
 
   return `
     <article class="turn-card turn-system-card" id="turn-registers">
@@ -205,6 +207,10 @@ function renderRegistersSection(language: UiLanguage, incidents: OperationalInci
           <dd>${incidents.length} total · ${openIncidents} deschise · <a href="#incident-journal">Deschide Incidents</a></dd>
         </div>
         <div>
+          <dt>Registrul închiderilor operaționale</dt>
+          <dd>${closures.length} înregistrări · ${closures.map((item) => `${escapeHtml(item.id)} (${escapeHtml(item.status)})`).join(', ')}</dd>
+        </div>
+        <div>
           <dt>Istoric alerte Inspector</dt>
           <dd>${inspectorHistoryEntries} înregistrări · <a href="#turn-alerts">Deschide Alerts</a></dd>
         </div>
@@ -213,6 +219,7 @@ function renderRegistersSection(language: UiLanguage, incidents: OperationalInci
           <dd>${turnMissions.length} misiuni · ${turnAuditTrail.length} validări · <a href="#turn-missions">Deschide Missions</a></dd>
         </div>
       </dl>
+      ${closures.map((closure) => `<details class="register-closure"><summary><strong>${escapeHtml(closure.incidentId)}</strong><span>${escapeHtml(closure.status)}</span></summary><p>${escapeHtml(closure.summary)}</p><dl><div><dt>Checkpoint</dt><dd><code>${escapeHtml(closure.checkpoint)}</code></dd></div><div><dt>Raport</dt><dd><code>${escapeHtml(closure.auditReport)}</code></dd></div><div><dt>Confirmări</dt><dd>${closure.signoffs.map((item) => `${escapeHtml(item.owner)} — ${escapeHtml(item.conclusion)}`).join('<br />')}</dd></div><div><dt>Follow-up</dt><dd>${closure.followUps.map((item) => `<code>${escapeHtml(item.id)}</code> — ${escapeHtml(item.condition)}`).join('<br />')}</dd></div></dl></details>`).join('')}
       <p>${escapeHtml(t(language, 'turn.readOnlyDesc'))}</p>
     </article>
   `;
