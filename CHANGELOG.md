@@ -21,6 +21,8 @@
 - Documented that ordinary Edge/Chrome availability does not register a Browser Runtime
   session, while the healthy ADB server still requires a connected and authorized
   phone transport; user photographs remain human evidence, not automatic captures.
+- Authorized the Galaxy S25 through ADB, launched AGM Cockpit, and preserved the first
+  automatic Android live-evidence screenshot with its SHA-256.
 
 ## Unreleased - AG-018 External Connectivity Test
 

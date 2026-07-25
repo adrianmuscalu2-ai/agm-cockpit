@@ -2,7 +2,7 @@
 
 Follow-up: `AGM-FU-20260725-UILIVE`  
 Date: 2026-07-25  
-Status: **READY-TEST — EXTERNAL CONNECTIONS REQUIRED**
+Status: **READY-TEST — BROWSER RUNTIME CONNECTION REQUIRED**
 
 ## Conclusion
 
@@ -32,40 +32,40 @@ infrastructure. AGM application configuration does not require correction.
 Closure input required: connect/open a browser instance supported by the Browser
 Runtime for this session, then execute and capture the agreed smoke-test route.
 
-## Android/ADB diagnosis
+## Android/ADB diagnosis and resolution
 
 - Android SDK platform tools are installed.
 - The ADB server starts normally and listens on `127.0.0.1:5037`.
 - Samsung USB base and modem drivers are installed.
-- `adb devices -l` returns zero devices.
-- `adb mdns services` returns zero wireless-debugging services.
-- Windows exposes no present Android, ADB, WPD/MTP, Samsung phone, or Galaxy device
-  interface during the check.
+- Initial checks returned zero devices because no authorized transport was connected.
+- USB debugging was confirmed enabled through the supplied video.
+- Galaxy S25 (`SM-S931B`) was subsequently connected and authorized as ADB state
+  `device`.
+- Windows detected the ADB, MTP, modem, and Samsung composite interfaces.
+- `com.agm.cockpit/.MainActivity` was confirmed as the AGM application activity.
+- An automatic ADB screenshot was captured and visually verified.
 
-Cause: no USB-debugging or wireless-debugging transport is connected and authorized.
-The running AGM application and the ADB control channel are independent. AGM's
-Capacitor identity and production API configuration are valid:
+AGM's Capacitor identity and production API configuration remain valid:
 
 - application ID: `com.agm.cockpit`;
 - Android scheme: HTTPS;
 - production API: `https://api.agmcockpit.com/api/v1`.
 
-Closure input required:
+Android evidence:
 
-1. connect the phone using a USB data cable;
-2. enable Developer options and USB debugging;
-3. select file transfer/data mode if requested;
-4. accept the RSA authorization prompt for this PC;
-5. confirm that `adb devices -l` shows the device as `device`, not `unauthorized`;
-6. alternatively, pair Wireless debugging and expose the device through ADB.
+- file: `evidence/uilive-2026-07-25/android-galaxy-s25.png`;
+- size: 1,608,018 bytes;
+- SHA-256:
+  `8638262F0EE860BC1938E9B8E89FDFB48379409FFD2585A5DA1A05AD56E55620`.
 
 ## Evidence gate
 
 `AGM-FU-20260725-UILIVE` may be archived only after:
 
 - Browser Runtime reports a controllable instance;
-- ADB reports an authorized Android target;
-- automated Browser and Android screenshots are captured;
+- ADB reports an authorized Android target — **PASS**;
+- automated Android screenshot is captured — **PASS**;
+- automated Browser screenshot is captured — **PENDING**;
 - the captures and execution results are linked in Turn Command Center.
 
 Until then, status remains `ready-test`. This does not affect the operational status of
