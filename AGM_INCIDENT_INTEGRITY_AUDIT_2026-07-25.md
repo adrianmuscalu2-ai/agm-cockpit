@@ -238,6 +238,41 @@ There is no evidence of Git object loss. The active AGM application code, active
 history, Turn Command Center changes, audit documentation, and separate website
 repository are protected in GitHub.
 
+#### 3.8.1 Competition baseline integrity
+
+Result: **PASS — BASELINE INTACT**
+
+- Canonical branch: `baseline/agm-basic-v1`.
+- Canonical commit:
+  `7670640a7a8cdcd49418bfc85079c33105094d78`.
+- Canonical tree:
+  `7b0a85cc83fd776ec3aaed45b9dbff95403815fb`.
+- Commit subject: `release: AGM Cockpit Basic baseline`.
+- Annotated tag: `agm-cockpit-basic-v1.0.0`.
+- The tag resolves to the same canonical commit and tree as the baseline branch.
+- Git object and tree verification passed.
+- The baseline branch reflog contains no movement after its creation at the release
+  commit.
+- The audit/remediation branch contains the competition baseline as an unchanged
+  ancestor. All audit-related changes are nine later commits on
+  `feature/post-basic-turn-architecture-audit`.
+- No audit action rewrote, amended, reset, force-updated, or committed directly on
+  `baseline/agm-basic-v1`.
+
+The post-baseline interventions were made only in the descendant audit branch and
+covered platform/agent registry synchronization, project catalog and organization map,
+the Turn alert panel, the email send confirmation correction, governed email
+monitoring, Turn Command Center audit changes, and the incident-integrity report.
+These changes do not alter the immutable competition commit or its tree.
+
+Remote traceability note: the baseline commit is protected in GitHub because it is
+reachable from the published audit branch. At the time of this clarification, the
+canonical branch name `baseline/agm-basic-v1` and annotated tag
+`agm-cockpit-basic-v1.0.0` were still local refs and were not returned by
+`git ls-remote`. Publishing those two canonical refs would improve discoverability and
+release traceability, but their absence does not change or invalidate the preserved
+competition commit.
+
 ### 3.9 Configuration integrity
 
 Result: **PASS FOR PRESENCE / ONE CRITICAL STARTUP DEFECT**
