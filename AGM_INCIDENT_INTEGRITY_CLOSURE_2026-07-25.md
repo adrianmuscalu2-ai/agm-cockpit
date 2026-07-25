@@ -12,13 +12,16 @@ code, PostgreSQL data, migration, Browser asset, Android asset, or competition-b
 loss was found. Monitoring, service rearming, and Compose environment isolation were
 remediated on the post-baseline audit branch.
 
-The primary incident is archived in Turn Command Center. Two residual items remain
+The primary incident is archived in Turn Command Center. The residual items remain
 visible and separately owned:
 
-1. `AGM-FU-20260725-CF1033` — restore or formally retire the Cloudflare validation
-   hostname. This does not affect the active public API.
-2. `AGM-FU-20260725-UILIVE` — capture instrumented Browser and Android smoke-test
+1. `AGM-FU-20260725-CF1033` — **CLOSED**. The validation tunnel was rotated, the
+   hostname was moved, the VPS established four connections, and live/ready passed
+   5/5 with HTTP 200 while production remained HTTP 200.
+2. `AGM-FU-20260725-UILIVE` — **OPEN**. Capture instrumented Browser and Android smoke-test
    evidence. Existing builds, regressions, asset parity, and human confirmation pass.
+   Current execution evidence: Browser runtime reported zero available browsers and
+   `adb devices` reported zero connected devices/emulators.
 
 ## Responsibility records
 

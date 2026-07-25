@@ -13,6 +13,11 @@
 - Recorded department lessons, architecture reconciliation, and competition-baseline
   integrity.
 - Isolated every documented local Compose command from the application `.env`.
+- Rotated and restored the dedicated Hetzner validation tunnel, removed the stale
+  production override, validated both public API routes, and archived follow-up
+  `AGM-FU-20260725-CF1033`.
+- Recorded the exact `UILIVE` instrumentation blocker (zero Browser instances and zero
+  adb devices) without weakening its evidence gate.
 
 ## Unreleased - AG-018 External Connectivity Test
 

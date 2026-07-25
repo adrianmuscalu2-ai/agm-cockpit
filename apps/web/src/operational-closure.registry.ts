@@ -15,7 +15,7 @@ export type OperationalClosureRecord = {
   summary: string;
   lessonsLearned: string[];
   signoffs: OperationalClosureSignoff[];
-  followUps: Array<{ id: string; owner: string; condition: string }>;
+  followUps: Array<{ id: string; owner: string; status: 'open' | 'closed'; condition: string }>;
 };
 
 export const operationalClosureRegistry: OperationalClosureRecord[] = [
@@ -44,8 +44,8 @@ export const operationalClosureRegistry: OperationalClosureRecord[] = [
       { owner: 'Agent Legal', department: 'Security & Legal', conclusion: 'Nu există dovezi de pierdere de date, expunere de secrete sau impact juridic demonstrabil.', evidence: '.env exclus din Git; secrete absente din raport; persistență verificată.' },
     ],
     followUps: [
-      { id: 'AGM-FU-20260725-CF1033', owner: 'Release & Operations', condition: 'Restaurarea sau retragerea formală a hostname-ului validation-api afectat de Cloudflare 1033.' },
-      { id: 'AGM-FU-20260725-UILIVE', owner: 'Frontend Experience / QA', condition: 'Capturarea unui smoke test instrumentat Browser și Android.' },
+      { id: 'AGM-FU-20260725-CF1033', owner: 'Release & Operations', status: 'closed', condition: 'Tunel rotit, hostname mutat, patru conexiuni Hetzner și health live/ready 5/5 HTTP 200.' },
+      { id: 'AGM-FU-20260725-UILIVE', owner: 'Frontend Experience / QA', status: 'open', condition: 'Capturarea unui smoke test instrumentat Browser și Android.' },
     ],
   },
 ];

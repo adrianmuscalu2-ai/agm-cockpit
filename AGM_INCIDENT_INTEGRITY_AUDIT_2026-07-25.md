@@ -337,7 +337,7 @@ the evidence completed in this session.
 ### F-01 — Cloudflare validation tunnel has no healthy connector
 
 Severity: High for migration readiness, no current impact on local-primary production.
-Status: OPEN as a Cloudflare connector issue; **Hetzner audit point 1 is CLOSED**.
+Status: **CLOSED — PASS**; Hetzner audit point 1 remains closed.
 
 Verified evidence:
 
@@ -356,22 +356,27 @@ error 1033 means Cloudflare cannot find a healthy `cloudflared` instance connect
 the tunnel. Cloudflare separately documents that an origin service or reverse-proxy
 reachability failure behind an already connected tunnel produces HTTP 502, not 1033.
 
-Immediate cause: the named validation tunnel has no healthy connector connection to
-Cloudflare Edge.
+Confirmed cause: the VPS had an active systemd drop-in that connected it to
+`agm-api-production`, while `agm-api-validation` had zero connectors. The validation
+hostname therefore targeted an inactive tunnel.
 
-The remaining connector-level alternatives require Cloudflare Dashboard or authorized
-VPS access to distinguish:
+Remediation:
 
-- `cloudflared` systemd service stopped or failed;
-- connector credentials/configuration missing or invalid;
-- connector outbound connectivity blocked;
-- validation hostname still routed to an inactive or retired tunnel.
+- created and installed the rotated dedicated tunnel
+  `agm-api-validation-rotated-20260725`
+  (`f4343acc-7303-4422-a10a-587a9dc96114`);
+- moved only `validation-api.agmcockpit.com` to the rotated tunnel;
+- removed the VPS production override and configured origin
+  `http://127.0.0.1:3000`;
+- retained the Windows connector as the only production connector;
+- revoked the old validation tunnel after credential rotation.
 
-Required closure for F-01: verify the validation tunnel status in Cloudflare
-Networking > Tunnels, then inspect `systemctl status cloudflared`,
-`journalctl -u cloudflared`, and the installed ingress/credential configuration on the
-VPS. Restore the connector only if the validation environment is still intended to
-remain active; otherwise formally retire the validation hostname and finding.
+Validation:
+
+- rotated validation tunnel: four active Hetzner connections;
+- validation liveness/readiness: 5/5 HTTP 200;
+- production readiness during the same cycles: 5/5 HTTP 200;
+- cloudflared service: active/enabled, zero automatic restarts.
 
 ### F-02 — Current source state not fully protected remotely
 
@@ -530,7 +535,7 @@ does not override the migration-readiness and instrumented-UI limitations above.
 
 Residual findings were transferred without loss of traceability:
 
-- `AGM-FU-20260725-CF1033` — Cloudflare validation connector;
+- `AGM-FU-20260725-CF1033` — Cloudflare validation connector, CLOSED;
 - `AGM-FU-20260725-UILIVE` — instrumented Browser/Android evidence.
 
 The responsibility sign-offs, department lessons, Inspector decision, Chronicler
