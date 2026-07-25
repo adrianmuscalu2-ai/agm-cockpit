@@ -34,6 +34,18 @@ $config = [ordered]@{
       name = 'AGM acces public'
       url = 'https://api.agmcockpit.com/api/v1/health/ready'
       timeoutSeconds = 15
+    },
+    [ordered]@{
+      id = 'browser-local'
+      name = 'AGM Browser local'
+      url = 'http://127.0.0.1:5173/'
+      timeoutSeconds = 10
+    },
+    [ordered]@{
+      id = 'browser-public'
+      name = 'AGM Browser public'
+      url = 'https://app.agmcockpit.com/'
+      timeoutSeconds = 15
     }
   )
   smtp = [ordered]@{

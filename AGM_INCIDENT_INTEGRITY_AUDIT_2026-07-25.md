@@ -365,11 +365,39 @@ tips, documented above.
 
 ### F-03 — Windows monitor state is stale
 
-Severity: Medium/High.
-Evidence: monitor state still records both services offline with the last check at
-2026-07-25T09:29:25Z, while direct final checks return HTTP 200. The scheduled monitor
-was observed running and its previous task result was non-zero.
-Status: OPEN.
+Severity: formerly Medium/High.
+Status: **CLOSED — PASS**.
+
+Root cause:
+
+- the Windows monitor configuration contained only `api-local` and `api-public`;
+- no Browser health check existed;
+- the Operations Center supplied a real health URL only to the API card, while the
+  Browser card had an empty URL;
+- an SMTP recovery failure could abort the monitor before the updated online state was
+  persisted;
+- replacement of an existing `state.json` was not reliable in the original Windows
+  write path.
+
+Remediation:
+
+- added `browser-local` for `http://127.0.0.1:5173/`;
+- added `browser-public` for `https://app.agmcockpit.com/`;
+- connected the Operations Center Browser card to the public Browser health URL;
+- added a 15-second SMTP timeout and isolated alert-delivery errors from health-state
+  persistence;
+- made existing state-file replacement explicit and repeatable;
+- installed the active configuration under the authorized Windows user, with backups
+  of the previous configuration and state.
+
+Validation:
+
+- failure, deduplication, and recovery simulation for all four checks: PASS;
+- repeated state replacement: PASS;
+- production Browser build and Browser regression checks: PASS;
+- active `api-local`, `api-public`, `browser-local`, and `browser-public`: online,
+  HTTP 200, zero consecutive failures;
+- scheduled task `AGM Service Monitor`: last result 0.
 
 ### F-04 — AGM service autostart task is not clean
 
@@ -408,10 +436,9 @@ asset parity, and automated regression.
 
 1. the Cloudflare validation connector is restored or the validation hostname is
    formally retired; Hetzner server availability itself is already closed as PASS;
-2. the monitor updates online state and its scheduled execution returns success;
-3. the AGM service task and Docker startup pass a reboot/recovery rehearsal;
-4. the Compose/`.env` interpolation defect is corrected;
-5. Browser and Android live UI smoke tests are repeated.
+2. the AGM service task and Docker startup pass a reboot/recovery rehearsal;
+3. the Compose/`.env` interpolation defect is corrected;
+4. Browser and Android live UI smoke tests are repeated.
 
 This decision is based only on evidence collected during the audit. No unverified
 claim of code loss, data loss, or full-platform health is made.

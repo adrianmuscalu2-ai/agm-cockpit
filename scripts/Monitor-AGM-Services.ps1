@@ -20,7 +20,12 @@ function Write-JsonFile {
   New-Item -ItemType Directory -Path $directory -Force | Out-Null
   $temporaryPath = "$Path.tmp"
   $Value | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $temporaryPath -Encoding UTF8
-  Move-Item -LiteralPath $temporaryPath -Destination $Path -Force
+  if (Test-Path -LiteralPath $Path) {
+    Copy-Item -LiteralPath $temporaryPath -Destination $Path -Force
+    Remove-Item -LiteralPath $temporaryPath -Force
+  } else {
+    Move-Item -LiteralPath $temporaryPath -Destination $Path
+  }
 }
 
 function Send-AgmAlert {
@@ -54,12 +59,28 @@ function Send-AgmAlert {
     $message.Subject = $Subject
     $message.Body = $Body
     $message.IsBodyHtml = $false
+    $client.Timeout = 15000
     $client.EnableSsl = [bool]$Config.smtp.enableSsl
     $client.Credentials = $credential.GetNetworkCredential()
     $client.Send($message)
   } finally {
     $message.Dispose()
     $client.Dispose()
+  }
+}
+
+function Try-SendAgmAlert {
+  param(
+    [object]$Config,
+    [string]$Subject,
+    [string]$Body
+  )
+
+  try {
+    Send-AgmAlert -Config $Config -Subject $Subject -Body $Body
+    return $null
+  } catch {
+    return $_.Exception.Message
   }
 }
 
@@ -116,11 +137,20 @@ foreach ($check in $config.checks) {
       alertSent = $false
       lastCheckedAt = $null
       lastResult = $null
+      lastAlertError = $null
     }
+  }
+  if (-not $previous.PSObject.Properties['lastAlertError']) {
+    $previous | Add-Member -NotePropertyName lastAlertError -NotePropertyValue $null
   }
 
   if ($result.ok) {
-    if ($previous.alertSent) {
+    $recoveryPending = [bool]$previous.alertSent
+    $previous.status = 'online'
+    $previous.consecutiveFailures = 0
+    $previous.alertSent = $false
+    $previous.lastAlertError = $null
+    if ($recoveryPending) {
       $subject = "[AGM RECOVERY] $($check.name) este din nou online"
       $body = @"
 Serviciu: $($check.name)
@@ -128,11 +158,12 @@ Ora revenirii: $($now.ToString('yyyy-MM-dd HH:mm:ss zzz'))
 Rezultat verificare: $($result.result)
 Recomandare: verificați stabilitatea și închideți incidentul numai după confirmarea operațională.
 "@
-      Send-AgmAlert -Config $config -Subject $subject -Body $body
+      $alertError = Try-SendAgmAlert -Config $config -Subject $subject -Body $body
+      if ($alertError) {
+        $previous.alertSent = $true
+        $previous.lastAlertError = $alertError
+      }
     }
-    $previous.status = 'online'
-    $previous.consecutiveFailures = 0
-    $previous.alertSent = $false
   } else {
     $previous.consecutiveFailures = [int]$previous.consecutiveFailures + 1
     $previous.status = 'offline'
@@ -145,8 +176,13 @@ Rezultat verificare: $($result.result)
 URL verificat: $($check.url)
 Recomandare: verificați API-ul AGM, serviciul cloudflared și conectivitatea publică; nu reporniți PostgreSQL fără diagnostic separat.
 "@
-      Send-AgmAlert -Config $config -Subject $subject -Body $body
-      $previous.alertSent = $true
+      $alertError = Try-SendAgmAlert -Config $config -Subject $subject -Body $body
+      if ($alertError) {
+        $previous.lastAlertError = $alertError
+      } else {
+        $previous.alertSent = $true
+        $previous.lastAlertError = $null
+      }
     }
   }
 

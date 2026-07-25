@@ -6,7 +6,9 @@ The monitor is independent from AGM Cockpit, Email Assistant, PostgreSQL and the
 Cloudflare connector. It checks:
 
 - `http://127.0.0.1:3000/api/v1/health/ready`;
-- `https://api.agmcockpit.com/api/v1/health/ready`.
+- `https://api.agmcockpit.com/api/v1/health/ready`;
+- `http://127.0.0.1:5173/`;
+- `https://app.agmcockpit.com/`.
 
 Two consecutive failures are required before an outage alert. Only one alert is sent
 for the same outage. A separate recovery message is sent after the next successful
@@ -15,6 +17,19 @@ check. State is stored outside Git under:
 ```text
 C:\ProgramData\AGM\monitor\state.json
 ```
+
+Alert transport errors are recorded in `lastAlertError` and do not prevent the
+service status from being persisted. SMTP operations have a 15-second timeout.
+
+To add the Browser checks to an existing secured monitor installation without
+re-entering the SMTP credential, run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Update-AGM-Browser-Monitor.ps1
+```
+
+The updater backs up the previous configuration and state, captures any pending
+recovery notifications in a local outbox, and restarts the scheduled task.
 
 ## Secure configuration
 

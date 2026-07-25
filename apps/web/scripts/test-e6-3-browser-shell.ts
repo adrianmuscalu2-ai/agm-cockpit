@@ -15,6 +15,7 @@ const mainSource = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf
 const viteConfig = readFileSync(new URL('../vite.config.mjs', import.meta.url), 'utf8');
 const premiumSource = readFileSync(new URL('../src/premium-foundation.ts', import.meta.url), 'utf8');
 const controllerSource = readFileSync(new URL('../src/pre-departure/pre-departure.controller.ts', import.meta.url), 'utf8');
+const turnOperationsSource = readFileSync(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
 
 assert.ok(htmlEntry.includes('id="before-departure-app"'));
 assert.ok(htmlEntry.includes('/src/pre-departure/pre-departure.entry.ts'));
@@ -25,6 +26,8 @@ assert.ok(premiumSource.includes('before-departure'));
 assert.ok(controllerSource.includes("root.addEventListener('click'"));
 assert.ok(controllerSource.includes("root.addEventListener('change'"));
 assert.ok(controllerSource.includes("target.closest<HTMLButtonElement>('button')"));
+assert.ok(turnOperationsSource.includes("Browser: 'https://app.agmcockpit.com/'"));
+assert.ok(turnOperationsSource.includes("const healthUrl = healthUrls[service] ?? ''"));
 
 const initialHtml = renderPreDepartureShell(createPreDepartureSession());
 assert.ok(initialHtml.includes('data-e6-entry="before-departure"'));

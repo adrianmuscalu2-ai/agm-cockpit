@@ -30,7 +30,7 @@ Register-ScheduledTask `
   -Trigger $trigger `
   -Principal $principal `
   -Settings $settings `
-  -Description 'Checks AGM local API and public access; sends deduplicated outage and recovery email alerts.' `
+  -Description 'Checks AGM API and Browser locally and publicly; sends deduplicated outage and recovery email alerts.' `
   -Force | Out-Null
 
 Start-ScheduledTask -TaskName $taskName
