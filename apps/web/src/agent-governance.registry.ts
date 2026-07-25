@@ -1,3 +1,5 @@
+import { monitoringAgentGovernanceRecords } from './monitoring-department';
+
 export type AgentGovernanceStatus = 'active' | 'planned' | 'monitoring';
 
 export type AgentGovernanceRecord = {
@@ -17,6 +19,7 @@ export type AgentGovernanceRecord = {
 };
 
 export const agentGovernanceRegistry: AgentGovernanceRecord[] = [
+  ...monitoringAgentGovernanceRecords,
   {
     id: 'version-guardian', code: 'VERSION-GUARDIAN', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'release-operations', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.validated', displayName: 'Version Guardian', displayRole: 'Release & traceability control', displayResponsibilities: 'Protects baselines and records branches, commits, checkpoints and deployments.',
   },

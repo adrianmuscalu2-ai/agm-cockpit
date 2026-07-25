@@ -1,0 +1,163 @@
+{
+  "auditTargets": [
+    {
+      "id": "agm-browser-local",
+      "name": "AGM Browser local",
+      "env": "AGM_BROWSER_LOCAL_URL",
+      "defaultUrl": "http://127.0.0.1:5173/",
+      "capture": true
+    },
+    {
+      "id": "turn-local",
+      "name": "Turn Command Center local",
+      "env": "AGM_TURN_LOCAL_URL",
+      "defaultUrl": "http://127.0.0.1:5173/turn",
+      "capture": true
+    },
+    {
+      "id": "agm-website-local",
+      "name": "AGM Website local",
+      "env": "AGM_WEBSITE_LOCAL_URL",
+      "defaultUrl": "http://127.0.0.1:4321/",
+      "capture": true
+    },
+    {
+      "id": "agm-api-ready-local",
+      "name": "API AGM ready local",
+      "env": "AGM_API_READY_LOCAL_URL",
+      "defaultUrl": "http://127.0.0.1:3000/api/v1/health/ready",
+      "capture": false
+    },
+    {
+      "id": "agm-browser-public",
+      "name": "AGM Browser public",
+      "env": "AGM_BROWSER_PUBLIC_URL",
+      "defaultUrl": "https://app.agmcockpit.com/",
+      "capture": true
+    },
+    {
+      "id": "turn-public",
+      "name": "Turn Command Center public",
+      "env": "AGM_TURN_PUBLIC_URL",
+      "defaultUrl": "https://app.agmcockpit.com/turn",
+      "capture": true
+    },
+    {
+      "id": "agm-api-ready-public",
+      "name": "API AGM ready public",
+      "env": "AGM_API_READY_PUBLIC_URL",
+      "defaultUrl": "https://api.agmcockpit.com/api/v1/health/ready",
+      "capture": false
+    },
+    {
+      "id": "agm-website-public",
+      "name": "AGM Website public",
+      "env": "AGM_WEBSITE_PUBLIC_URL",
+      "defaultUrl": "https://agm-cockpit.pages.dev/",
+      "capture": true
+    }
+  ],
+  "operationsServices": [
+    {
+      "id": "server-primary",
+      "label": "Server Principal",
+      "kind": "http",
+      "url": "https://api.agmcockpit.com/api/v1/health/live",
+      "evaluator": "live",
+      "healthyStatus": "ONLINE",
+      "source": "API public · health/live"
+    },
+    {
+      "id": "server-backup",
+      "label": "Server Backup",
+      "kind": "static",
+      "staticStatus": "NOT CONFIGURED",
+      "displayStatus": "BACKUP ENDPOINT NOT CONFIGURED",
+      "source": "Registru infrastructură · fără endpoint backup"
+    },
+    {
+      "id": "api",
+      "label": "API",
+      "kind": "http",
+      "url": "https://api.agmcockpit.com/api/v1/health/ready",
+      "evaluator": "ready",
+      "healthyStatus": "READY",
+      "source": "API public · health/ready"
+    },
+    {
+      "id": "browser",
+      "label": "Browser",
+      "kind": "http",
+      "url": "self",
+      "evaluator": "http",
+      "healthyStatus": "ONLINE",
+      "source": "Origin AGM curent · aceeași rută ca UI LIVE"
+    },
+    {
+      "id": "android",
+      "label": "Android",
+      "kind": "static",
+      "staticStatus": "NOT IMPLEMENTED",
+      "displayStatus": "CLIENT ONLINE · TELEMETRY NOT CONFIGURED",
+      "source": "Android operațional și UI LIVE PASS · telemetrie runtime continuă neconfigurată"
+    },
+    {
+      "id": "ai",
+      "label": "AI",
+      "kind": "http",
+      "url": "https://api.agmcockpit.com/api/v1/health/ready",
+      "evaluator": "dependency",
+      "dependency": "translationProvider",
+      "healthyStatus": "READY",
+      "source": "API ready · dependencies.translationProvider"
+    },
+    {
+      "id": "databases",
+      "label": "Baze de date",
+      "kind": "http",
+      "url": "https://api.agmcockpit.com/api/v1/health/ready",
+      "evaluator": "dependency",
+      "dependency": "database",
+      "healthyStatus": "READY",
+      "source": "API ready · dependencies.database"
+    },
+    {
+      "id": "cloudflare-public",
+      "label": "Cloudflare / rute publice",
+      "kind": "http",
+      "url": "https://app.agmcockpit.com/",
+      "evaluator": "http",
+      "healthyStatus": "ONLINE",
+      "source": "Rută publică Cloudflare · app.agmcockpit.com",
+      "showInOperations": false
+    },
+    {
+      "id": "ui-live",
+      "label": "UI LIVE",
+      "kind": "static",
+      "staticStatus": "READY",
+      "displayStatus": "UI LIVE PASS",
+      "source": "Runner UI LIVE · ultimul audit integral PASS",
+      "showInOperations": false
+    },
+    {
+      "id": "telemetry",
+      "label": "Telemetrie",
+      "kind": "static",
+      "staticStatus": "NOT IMPLEMENTED",
+      "displayStatus": "MONITORING PENDING",
+      "source": "Registru monitorizare · colector continuu neimplementat",
+      "showInOperations": false
+    },
+    {
+      "id": "security",
+      "label": "Securitate",
+      "kind": "http",
+      "url": "https://api.agmcockpit.com/api/v1/health/ready",
+      "evaluator": "ready",
+      "healthyStatus": "READY",
+      "source": "API ready + CORS + controale locale fără expunere de secrete",
+      "showInOperations": false
+    }
+  ]
+}

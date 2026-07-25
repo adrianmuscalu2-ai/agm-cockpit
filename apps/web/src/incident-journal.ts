@@ -66,7 +66,16 @@ export function readIncidentJournal(storage: Storage): OperationalIncident[] {
   try {
     const parsed = JSON.parse(storage.getItem(incidentJournalStorageKey) || '[]') as OperationalIncident[];
     const byId = new Map(seeded.map((item) => [item.id, item]));
-    if (Array.isArray(parsed)) parsed.forEach((item) => item?.id && byId.set(item.id, normalizeIncident(item)));
+    if (Array.isArray(parsed)) {
+      parsed.forEach((item) => {
+        if (!item?.id) return;
+        const local = normalizeIncident(item);
+        const official = byId.get(local.id);
+        if (!official || local.updatedAt > official.updatedAt) {
+          byId.set(local.id, local);
+        }
+      });
+    }
     const incidents = Array.from(byId.values()).sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
     saveIncidentJournal(storage, incidents);
     return incidents;
@@ -284,22 +293,24 @@ function historicalIncidents(): OperationalIncident[] {
       ],
     },
     {
-      id: 'AGM-FU-20260725-UILIVE', occurredAt: '2026-07-25T14:45:00.000Z', updatedAt: '2026-07-25T17:19:00.000Z',
+      id: 'AGM-FU-20260725-UILIVE', occurredAt: '2026-07-25T14:45:00.000Z', updatedAt: '2026-07-25T17:57:18.000Z',
       module: 'Browser / Android live validation', environments: ['Web', 'Android/APK'], category: 'ux', severity: 'informational',
       symptom: 'Probele automate sunt PASS, dar lipsește o captură instrumentată completă Browser și Android.',
       reproduction: 'Audit fără instanță Browser automation și fără dispozitiv Android instrumentat.',
       cause: 'Canalele de instrumentare nu au fost disponibile: Browser runtime a raportat zero browsere, iar adb zero dispozitive.',
       attemptedSolutions: 'Builduri, paritate asset, regresii, fotografii de validare umană și diagnostic Browser runtime/Android SDK/ADB/USB.',
-      appliedSolution: '', owner: 'Frontend Experience / QA & Validation', fixedInVersion: '',
-      tests: 'Browser build PASS; Android sync/APK PASS; paritate 17/17; regresii PASS; Galaxy S25 autorizat ADB; AGM foreground; captură Android automată PASS; Browser Runtime încă 0 instanțe.',
+      appliedSolution: 'Modul UI LIVE separat cu Chromium izolat, registru comun de endpoint-uri, health-check-uri locale/publice și capturi automate Desktop/Mobile. Captura Android ADB rămâne legată ca dovadă a dispozitivului real.', owner: 'Frontend Experience / QA & Validation', fixedInVersion: 'UI LIVE Automation follow-up',
+      tests: 'Web build PASS; Browser Shell PASS; opt rute locale/publice HTTP 200; capturi Desktop/Mobile PASS; Operations Center sincronizat fără DEGRADED/OFFLINE; Galaxy S25 autorizat ADB și captură Android automată PASS.',
       humanValidation: 'Fotografiile utilizatorului confirmă website, Turn și traducerea Android; captura ADB confirmă automat AGM Cockpit pe dispozitiv.',
-      preventiveMeasure: 'Gate separat: Browser Runtime conectat + ADB autorizat + capturi automate înaintea arhivării.', status: 'ready-test',
+      preventiveMeasure: 'Rulare pnpm audit:ui-live după schimbări operaționale; același registru de endpoint-uri pentru raport și dashboard; Android nu este declarat monitorizat până la existența telemetriei continue.', status: 'archived',
       relatedIncidentIds: ['AGM_INTEGRITY_AUDIT_2026-07-25'], reusableSolution: false,
       history: [
         { at: '2026-07-25T14:45:00.000Z', action: 'transferred', actor: 'Inspector', toStatus: 'ready-test', note: 'Transferat pentru probă instrumentată separată.' },
         { at: '2026-07-25T14:54:30.000Z', action: 'blocked-evidence', actor: 'Inspector / Frontend Experience', fromStatus: 'ready-test', toStatus: 'ready-test', note: 'Browser runtime: 0 instanțe; adb: 0 dispozitive. Follow-up-ul rămâne deschis până la capturi reale.' },
         { at: '2026-07-25T14:56:30.000Z', action: 'diagnosed', actor: 'Inspector / Frontend Experience', fromStatus: 'ready-test', toStatus: 'ready-test', note: 'Platforma este funcțională; lipsesc exclusiv sesiunea Browser instrumentabilă și transportul ADB autorizat.' },
         { at: '2026-07-25T17:19:00.000Z', action: 'android-evidence-captured', actor: 'Inspector / Frontend Experience', fromStatus: 'ready-test', toStatus: 'ready-test', note: 'Galaxy S25 autorizat; AGM Cockpit lansat; captură ADB salvată. Rămâne numai Browser Runtime.' },
+        { at: '2026-07-25T17:57:18.000Z', action: 'validated', actor: 'UI LIVE Automation / Inspector', fromStatus: 'ready-test', toStatus: 'validated', note: 'Audit automat complet PASS: opt rute HTTP 200, capturi Desktop/Mobile și Operations Center sincronizat.' },
+        { at: '2026-07-25T17:57:18.000Z', action: 'archived', actor: 'Turn Command Center', fromStatus: 'validated', toStatus: 'archived', note: 'Follow-up închis; dovezile și cronologia rămân disponibile exclusiv în jurnal.' },
       ],
     },
     resolved('AGM-INC-20260702-001', '2026-07-02T19:00:00.000Z', 'Translator', ['Web', 'API'], 'translation', 'critical', 'Translatorul raporta serviciul indisponibil.', 'Endpoint API sau furnizor de traducere indisponibil/configurat incorect.', 'Configurarea adaptorului AGM API cu fallback controlat și mesaje clare.', 'Build web, teste API și traduceri reale RO/DE/EN.', 'Validarea endpointului de producție la fiecare build.'),

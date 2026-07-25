@@ -58,6 +58,8 @@ import { isNativeAudioAvailable, NativeAudio, type MicrophonePermissionState } f
 import { changeAdministratorPin, unlockAdministrator, validateAdministrator, type AdminSession } from './admin-auth';
 import { premiumStatusKey, renderPremiumView, usesPremiumLayout } from './premium-app';
 import { isPremiumView, premiumRouteForView, premiumViewFromRoute, type PremiumViewName } from './premium-routes';
+import { bindOperationsHealthChecks } from './operations-health';
+import { bindTurnBackToTop } from './turn-navigation';
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
@@ -308,73 +310,13 @@ function render() {
     bindIncidentJournal();
     bindProjectCatalog();
     bindOperationsHealthChecks();
-    bindOperationActions();
+    bindTurnBackToTop();
   }
   bindCommandPanel();
   bindAdministratorLogin();
   bindLegalAcceptance();
   bindTutorial();
   bindContactManager();
-}
-
-function bindOperationActions() {
-  document.querySelectorAll<HTMLButtonElement>('[data-operation-recheck]').forEach((button) => {
-    button.addEventListener('click', async () => {
-      const card = button.closest<HTMLElement>('.operation-service');
-      if (!card) return;
-      const url = card.dataset.healthUrl;
-      if (!url) return;
-      button.disabled = true;
-      const started = performance.now();
-      try {
-        const response = await fetch(url, { cache: 'no-store' });
-        card.classList.toggle('online', response.ok);
-        card.classList.toggle('offline', !response.ok);
-        const status = card.querySelector<HTMLElement>('.operation-service-status');
-        const latency = card.querySelector<HTMLElement>('.operation-service-latency');
-        const checked = card.querySelector<HTMLElement>('.operation-service-checked');
-        if (status) status.textContent = response.ok ? 'Online' : 'Offline';
-        if (latency) latency.textContent = `${Math.round(performance.now() - started)} ms`;
-        if (checked) checked.textContent = new Date().toLocaleTimeString();
-      } finally {
-        button.disabled = false;
-      }
-    });
-  });
-}
-
-function bindOperationsHealthChecks() {
-  const cards = [...document.querySelectorAll<HTMLElement>('[data-health-url]')].filter((card) => card.dataset.healthUrl);
-  if (!cards.length) return;
-  const check = async (card: HTMLElement) => {
-    const url = card.dataset.healthUrl;
-    if (!url) return;
-    const started = performance.now();
-    const status = card.querySelector<HTMLElement>('.operation-service-status');
-    const checked = card.querySelector<HTMLElement>('.operation-service-checked');
-    const latency = card.querySelector<HTMLElement>('.operation-service-latency');
-    try {
-      const controller = new AbortController();
-      const timeout = window.setTimeout(() => controller.abort(), 5000);
-      const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
-      window.clearTimeout(timeout);
-      const elapsed = Math.round(performance.now() - started);
-      const ok = response.ok;
-      card.classList.remove('attention', 'offline', 'degraded', 'unconfigured');
-      card.classList.add(ok ? 'online' : 'offline');
-      if (status) status.textContent = ok ? 'Online' : 'Offline';
-      if (checked) checked.textContent = new Date().toLocaleTimeString();
-      if (latency) latency.textContent = `${elapsed} ms`;
-    } catch {
-      card.classList.remove('attention', 'online', 'degraded', 'unconfigured');
-      card.classList.add('offline');
-      if (status) status.textContent = 'Offline';
-      if (checked) checked.textContent = new Date().toLocaleTimeString();
-      if (latency) latency.textContent = 'timeout / eroare';
-    }
-  };
-  void Promise.all(cards.map(check));
-  window.setInterval(() => void Promise.all(cards.map(check)), 30000);
 }
 
 function bindProjectCatalog() {

@@ -45,7 +45,7 @@ export const operationalClosureRegistry: OperationalClosureRecord[] = [
     ],
     followUps: [
       { id: 'AGM-FU-20260725-CF1033', owner: 'Release & Operations', status: 'closed', condition: 'Tunel rotit, hostname mutat, patru conexiuni Hetzner și health live/ready 5/5 HTTP 200.' },
-      { id: 'AGM-FU-20260725-UILIVE', owner: 'Frontend Experience / QA', status: 'open', condition: 'Android ADB și captura automată sunt PASS; rămâne conectarea și captura Browser Runtime.' },
+      { id: 'AGM-FU-20260725-UILIVE', owner: 'Frontend Experience / QA', status: 'closed', condition: 'UI LIVE Automation PASS integral: opt rute HTTP 200, capturi Desktop/Mobile, Android ADB și Operations Center sincronizat.' },
     ],
   },
 ];

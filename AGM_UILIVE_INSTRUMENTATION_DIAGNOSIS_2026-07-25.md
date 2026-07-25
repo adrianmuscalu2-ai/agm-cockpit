@@ -2,7 +2,7 @@
 
 Follow-up: `AGM-FU-20260725-UILIVE`  
 Date: 2026-07-25  
-Status: **READY-TEST — BROWSER RUNTIME CONNECTION REQUIRED**
+Status: **CLOSED — AUTOMATED UI LIVE VALIDATION PASS**
 
 ## Conclusion
 
@@ -60,13 +60,15 @@ Android evidence:
 
 ## Evidence gate
 
-`AGM-FU-20260725-UILIVE` may be archived only after:
+`AGM-FU-20260725-UILIVE` was archived after:
 
-- Browser Runtime reports a controllable instance;
+- isolated Playwright Chromium completed the repeatable Browser audit;
 - ADB reports an authorized Android target — **PASS**;
 - automated Android screenshot is captured — **PASS**;
-- automated Browser screenshot is captured — **PENDING**;
+- automated Browser Desktop/Mobile screenshots are captured — **PASS**;
 - the captures and execution results are linked in Turn Command Center.
 
-Until then, status remains `ready-test`. This does not affect the operational status of
-the active AGM platform or the archived parent incident.
+Final evidence: `.tmp/ui-live-audit/2026-07-25T17-56-46-541Z/report.md`.
+The interactive Codex Browser Runtime remains an optional control surface and is no
+longer a blocker because the repository now owns a repeatable, isolated automation
+runner. This does not alter the archived parent incident.

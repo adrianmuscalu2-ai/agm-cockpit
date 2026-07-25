@@ -5,6 +5,8 @@ import { type InspectorReport, inspectorReportFor, inspectorReports } from './in
 import { renderIncidentJournal, type IncidentJournalFilters, type OperationalIncident } from './incident-journal';
 import { renderMaintenanceDepartment } from './maintenance-department';
 import { operationalClosureRegistry } from './operational-closure.registry';
+import { operationsHealthSources } from './operations-health';
+import { renderMonitoringDepartment } from './monitoring-department';
 import {
   type TurnCommandItem,
   type TurnHealthStatus,
@@ -41,6 +43,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
     <section class="turn-command-center" aria-label="${escapeHtml(t(language, 'turn.ariaLabel'))}">
       ${renderCentralAlertPanel(incidents)}
       ${renderOperationsCenter(incidents)}
+      ${renderMonitoringDepartment(incidents)}
       ${renderOperationsProcedures()}
       <header class="turn-hero">
         <div>
@@ -71,6 +74,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       <nav class="turn-module-nav" aria-label="Turn modules">
         ${[
           ['Dashboard', 'turn-dashboard'],
+          ['Monitoring', 'turn-monitoring'],
           ['Organization', 'turn-organization'],
           ['Agents', 'turn-agents'],
           ['Missions', 'turn-missions'],
@@ -124,6 +128,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       </section>
       ${renderMaintenanceDepartment(language)}
       ${renderIncidentJournal(language, incidents, incidentFilters)}
+      <button id="turnBackToTop" class="turn-back-to-top" type="button" hidden aria-label="Înapoi sus">↑ Înapoi sus</button>
     </section>
   `;
 }
@@ -132,21 +137,17 @@ function renderOperationsProcedures() {
   return `<section class="operations-procedures turn-card" id="turn-procedures"><header><strong>Proceduri operaționale</strong><p>Runbook pentru incidentul „Server principal indisponibil”.</p></header><ol><li>Confirmă health-check-ul și identifică durata incidentului.</li><li>Deschide incidentul și notifică responsabilul Release & Operations.</li><li>Verifică serviciile Docker și endpointul API.</li><li>Activează serverul backup numai după aprobarea Inspectorului.</li><li>Confirmă funcționarea pe backup și monitorizează revenirea serverului principal.</li><li>Revino controlat pe principal, verifică stabilitatea și arhivează istoricul.</li></ol></section>`;
 }
 
-function renderOperationsCenter(incidents: OperationalIncident[]) {
-  const services = ['Server Principal', 'Server Backup', 'API', 'Browser', 'Android', 'AI', 'Baza de date', 'Backup', 'Heartbeat'];
-  const healthUrls: Record<string, string> = {
-    API: 'https://api.agmcockpit.com/api/v1/health/live',
-    Browser: 'https://app.agmcockpit.com/',
-  };
+export function renderOperationsCenter(incidents: OperationalIncident[]) {
   const active = incidents.filter((incident) => !['validated', 'archived'].includes(incident.status));
-  return `<section class="operations-center" id="turn-operations" aria-labelledby="operations-center-title"><header><div><span class="turn-kicker">TURN · OPERATIONS</span><h2 id="operations-center-title">Operations Center</h2><p>Starea ecosistemului AGM, cu sursa și momentul ultimei verificări.</p></div><span class="operations-source">Health-check automat · interval 30s · timeout 5s</span></header><div class="operations-grid">${services.map((service) => { const incident = active.find((item) => item.module.toLocaleLowerCase().includes(service.toLocaleLowerCase().split(' ')[0])); const healthUrl = healthUrls[service] ?? ''; const state = incident?.severity === 'critical' ? 'offline' : incident ? 'degraded' : healthUrl ? 'attention' : 'unconfigured'; const icon = state === 'offline' ? '🔴' : state === 'degraded' ? '🟠' : state === 'attention' ? '🟡' : '⚪'; const label = state === 'offline' ? 'Offline' : state === 'degraded' ? 'Degradat' : state === 'attention' ? 'În verificare' : 'Neconfigurat'; return `<article class="operation-service ${state}" data-operation-service="${escapeHtml(service)}" data-health-url="${escapeHtml(healthUrl)}"><div class="operation-service-head"><strong class="operation-service-title">${icon} ${service}</strong><span class="operation-service-status">${label}</span></div><dl><div><dt>Ultima verificare</dt><dd class="operation-service-checked">—</dd></div><div><dt>Timp răspuns</dt><dd class="operation-service-latency">—</dd></div><div><dt>Incident</dt><dd>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">${escapeHtml(incident.id)}</a>` : 'Niciun incident activ'}</dd></div></dl>${incident ? `<p class="operation-cause">${escapeHtml(incident.symptom)}</p>` : `<span class="operation-source-note">${healthUrl ? 'Health-check configurat' : 'Health-check real neconfigurat'}</span>`}<div class="operation-actions"><button type="button" data-operation-recheck="${escapeHtml(service)}" ${healthUrl ? '' : 'disabled'}>Reverifică</button><a href="#turn-procedures">SOP</a><a href="#incident-journal">Jurnal</a>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">Incident</a>` : ''}</div></article>`; }).join('')}</div></section>`;
+  return `<section class="operations-center" id="turn-operations" aria-labelledby="operations-center-title"><header><div><span class="turn-kicker">TURN · OPERATIONS</span><h2 id="operations-center-title">Operations Center</h2><p>Starea ecosistemului AGM, cu sursa și momentul ultimei verificări.</p></div><span class="operations-source">Health-check automat · interval 30s · timeout 5s · surse comune UI LIVE</span></header><div class="operations-grid">${operationsHealthSources.map((service) => { const incident = active.find((item) => item.module.toLocaleLowerCase().includes(service.label.toLocaleLowerCase().split(' ')[0])); const initialStatus = service.kind === 'static' ? service.staticStatus ?? 'NOT CONFIGURED' : 'DEGRADED'; const displayStatus = service.displayStatus ?? initialStatus; const state = service.kind === 'static' ? (initialStatus === 'NOT IMPLEMENTED' ? 'not-implemented' : 'unconfigured') : 'attention'; return `<article class="operation-service ${state}" data-operation-id="${escapeHtml(service.id)}"><div class="operation-service-head"><strong class="operation-service-title"><span class="operation-service-icon">⚪</span> ${escapeHtml(service.label)}</strong><span class="operation-service-status">${escapeHtml(displayStatus)}</span></div><dl><div><dt>Ultima verificare</dt><dd class="operation-service-checked">—</dd></div><div><dt>Timp răspuns</dt><dd class="operation-service-latency">—</dd></div><div><dt>Ultima schimbare</dt><dd class="operation-service-changed">—</dd></div><div><dt>Incident activ</dt><dd>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">${escapeHtml(incident.id)}</a>` : 'Niciun incident activ'}</dd></div></dl>${incident ? `<p class="operation-cause">${escapeHtml(incident.symptom)}</p>` : `<span class="operation-source-note">Sursă: ${escapeHtml(service.source)}</span>`}<div class="operation-actions"><button type="button" data-operation-recheck="${escapeHtml(service.id)}" ${service.kind === 'http' ? '' : 'disabled'}>Reverifică</button><a href="#turn-procedures">SOP</a><a href="#incident-journal">Jurnal</a>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">Incident</a>` : ''}</div></article>`; }).join('')}</div></section>`;
 }
 
-function renderCentralAlertPanel(incidents: OperationalIncident[]) {
+export function renderCentralAlertPanel(incidents: OperationalIncident[]) {
   const open = incidents.filter((incident) => !['validated', 'archived'].includes(incident.status)).sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
+  const archived = incidents.filter((incident) => ['validated', 'archived'].includes(incident.status)).length;
   const highest = open[0];
   const label = highest ? (highest.severity === 'critical' ? '🔴 CRITIC' : highest.severity === 'major' ? '🟠 IMPORTANT' : highest.severity === 'minor' ? '🟡 ATENȚIE' : '🟢 NORMAL') : '🟢 NORMAL';
-  return `<section class="central-alert-panel ${highest?.severity ?? 'normal'}" id="turn-alerts" aria-live="polite"><div class="central-alert-summary"><strong>${label}</strong><span>${open.length ? `${open.length} alertă(e) deschisă(e)` : 'Sistem funcțional'}</span></div>${open.length ? `<div class="central-alert-list">${open.slice(0, 5).map((incident) => `<article class="central-alert-item ${incident.severity}"><div><strong>${escapeHtml(incident.id)} · ${escapeHtml(incident.module)}</strong><span>${escapeHtml(incident.owner)} · ${escapeHtml(new Date(incident.occurredAt).toLocaleString())}</span></div><div class="central-alert-actions"><a href="#incident-journal">Deschide incidentul</a><a href="#turn-procedures">Vezi procedura</a><a href="#incident-journal">Jurnal tehnic</a></div></article>`).join('')}</div>` : ''}</section>`;
+  return `<section class="central-alert-panel ${highest?.severity ?? 'normal'}" id="turn-alerts" aria-live="polite"><div class="central-alert-summary"><strong>${label}</strong><span>${open.length} alerte active · ${archived} incidente validate/arhivate</span></div>${open.length ? `<div class="central-alert-list">${open.slice(0, 5).map((incident) => `<article class="central-alert-item ${incident.severity}"><div><strong>${escapeHtml(incident.id)} · ${escapeHtml(incident.module)}</strong><span>${escapeHtml(incident.owner)} · ${escapeHtml(new Date(incident.occurredAt).toLocaleString())}</span></div><div class="central-alert-actions"><a href="#incident-journal">Deschide incidentul</a><a href="#turn-procedures">Vezi procedura</a><a href="#incident-journal">Jurnal tehnic</a></div></article>`).join('')}</div>` : ''}</section>`;
 }
 
 function severityRank(severity: OperationalIncident['severity']) {

@@ -2769,17 +2769,80 @@ dd {
 .operation-service.degraded { border-color: rgba(255,155,69,.75); }
 .operation-service.offline { border-color: rgba(255,92,104,.85); box-shadow: 0 0 16px rgba(255,92,104,.2); }
 .operation-service.unconfigured { border-color: rgba(180,190,200,.45); }
+.operation-service.not-implemented { border-color: rgba(150,160,175,.45); border-style: dashed; }
 .operation-service-head { display: flex; justify-content: space-between; gap: .4rem; font-size: .86rem; }
 .operation-service-head span { color: #8ff0b7; font-size: .72rem; text-transform: uppercase; }
+.operation-service-status { max-width: 11rem; text-align: right; line-height: 1.25; }
 .operation-service.degraded .operation-service-head span { color: #ffb36b; }
 .operation-service.offline .operation-service-head span { color: #ff8290; }
 .operation-service.unconfigured .operation-service-head span { color: #c4ccd3; }
+.operation-service.not-implemented .operation-service-head span { color: #aeb8c2; }
 .operation-service dl { margin: .6rem 0; display: grid; gap: .35rem; }
 .operation-service dt { color: #77c8ff; font-size: .68rem; text-transform: uppercase; }
 .operation-service dd { margin: .1rem 0 0; color: #d7efff; font-size: .78rem; }
 .operation-cause { margin: .45rem 0; color: #ffd0d4; font-size: .78rem; }
 .operation-action { display: inline-block; color: #d7efff; border: 1px solid rgba(83,185,255,.4); border-radius: 999px; padding: .3rem .5rem; text-decoration: none; font-size: .72rem; }
 @media (max-width: 700px) { .operations-center > header { flex-direction: column; } }
+
+.monitoring-department {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(54, 214, 177, .45);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(5, 29, 37, .96), rgba(4, 16, 27, .96));
+  margin-bottom: 4.5rem;
+}
+.monitoring-department > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: .9rem;
+}
+.monitoring-department > header h2 { margin: .2rem 0; }
+.monitoring-department > header > strong { color: #75edc5; }
+.monitoring-agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: .75rem;
+}
+.monitoring-agent { min-width: 0; }
+.monitoring-agent-component { color: #c7e8f5; font-size: .78rem; }
+.monitoring-agent .operation-service-title { max-width: 70%; }
+.security-monitor-checks {
+  margin: .6rem 0;
+  border: 1px solid rgba(117, 237, 197, .28);
+  border-radius: 8px;
+  padding: .55rem;
+  color: #ccefe4;
+  font-size: .76rem;
+}
+.security-monitor-checks summary { cursor: pointer; color: #75edc5; }
+.security-monitor-checks ul { padding-left: 1.1rem; }
+.turn-back-to-top {
+  position: fixed;
+  z-index: 40;
+  right: max(1.25rem, env(safe-area-inset-right));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  border: 1px solid rgba(83, 185, 255, .7);
+  border-radius: 999px;
+  padding: .65rem .9rem;
+  color: #e8f7ff;
+  background: rgba(5, 22, 35, .94);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .35);
+}
+.turn-back-to-top:hover { border-color: #75edc5; }
+.turn-back-to-top[hidden] { display: none; }
+@media (max-width: 700px) {
+  .monitoring-department > header { flex-direction: column; }
+  .monitoring-agent-grid { grid-template-columns: 1fr; }
+  .monitoring-department { margin-bottom: 7rem; }
+  .turn-back-to-top {
+    right: max(.75rem, env(safe-area-inset-right));
+    bottom: max(5.25rem, env(safe-area-inset-bottom));
+    padding: .55rem .75rem;
+  }
+}
 
 .turn-hero,
 .turn-card,
