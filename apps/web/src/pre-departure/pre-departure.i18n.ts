@@ -60,6 +60,11 @@ export const preDepartureCopy: Record<
     issueResolveAction: string;
     issueCriticalLabel: string;
     issueWarningLabel: string;
+    confirmationActorPrompt: string;
+    confirmationStatement: string;
+    exportReport: string;
+    reportExportedFeedback: string;
+    reportUnavailableFeedback: string;
     reviewTitle: string;
     reviewHint: string;
     reviewReady: string;
@@ -136,6 +141,11 @@ export const preDepartureCopy: Record<
     issueResolveAction: 'Marchează rezolvată',
     issueCriticalLabel: 'Critică — plecare blocată',
     issueWarningLabel: 'Avertizare',
+    confirmationActorPrompt: 'Numele persoanei care confirmă verificarea:',
+    confirmationStatement: 'Confirm că am verificat rezumatul și că nu există probleme deschise. Aceasta este o declarație operațională, nu o semnătură electronică calificată.',
+    exportReport: 'Descarcă raportul',
+    reportExportedFeedback: 'Raportul final verificabil a fost generat.',
+    reportUnavailableFeedback: 'Raportul final nu poate fi generat înaintea confirmării complete.',
     reviewTitle: 'Rezumat înainte de confirmare',
     reviewHint: 'Verifică toate răspunsurile înainte de confirmarea pregătirii.',
     reviewReady: 'Toate verificările sunt completate. Poți confirma pregătirea.',
@@ -235,6 +245,11 @@ export const preDepartureCopy: Record<
     issueResolveAction: 'Als gelöst markieren',
     issueCriticalLabel: 'Kritisch — Abfahrt blockiert',
     issueWarningLabel: 'Warnung',
+    confirmationActorPrompt: 'Name der Person, die die Prüfung bestätigt:',
+    confirmationStatement: 'Ich bestätige, dass ich die Zusammenfassung geprüft habe und keine offenen Probleme bestehen. Dies ist eine betriebliche Erklärung, keine qualifizierte elektronische Signatur.',
+    exportReport: 'Bericht herunterladen',
+    reportExportedFeedback: 'Der überprüfbare Abschlussbericht wurde erstellt.',
+    reportUnavailableFeedback: 'Der Abschlussbericht kann vor der vollständigen Bestätigung nicht erstellt werden.',
     reviewTitle: 'Zusammenfassung vor der Bestätigung',
     reviewHint: 'Prüfe alle Antworten, bevor du die Bereitschaft bestätigst.',
     reviewReady: 'Alle Prüfungen sind abgeschlossen. Die Bereitschaft kann bestätigt werden.',
@@ -334,6 +349,11 @@ export const preDepartureCopy: Record<
     issueResolveAction: 'Mark resolved',
     issueCriticalLabel: 'Critical — departure blocked',
     issueWarningLabel: 'Warning',
+    confirmationActorPrompt: 'Name of the person confirming the assessment:',
+    confirmationStatement: 'I confirm that I reviewed the summary and that no open problems remain. This is an operational declaration, not a qualified electronic signature.',
+    exportReport: 'Download report',
+    reportExportedFeedback: 'The verifiable final report was generated.',
+    reportUnavailableFeedback: 'The final report cannot be generated before complete confirmation.',
     reviewTitle: 'Summary before confirmation',
     reviewHint: 'Review every answer before confirming readiness.',
     reviewReady: 'All checks are complete. You can confirm readiness.',

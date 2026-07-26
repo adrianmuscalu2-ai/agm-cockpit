@@ -345,6 +345,7 @@ export function renderPreDepartureShell(state: PreDepartureViewState | PreDepart
         <div class="pre-departure-actions">
           <button type="button" data-pre-departure-action="confirm" ${canCompleteAssessment || canConfirmReadiness ? '' : 'disabled'}>${escapeHtml(canConfirmReadiness ? copy.confirmReady : copy.reviewAssessment)}</button>
           <button type="button" data-pre-departure-action="close" ${viewState.session.state === 'CONFIRMED' ? '' : 'disabled'}>${escapeHtml(copy.close)}</button>
+          <button type="button" data-pre-departure-action="export-report" class="secondary" ${viewState.session.state === 'CONFIRMED' || viewState.session.state === 'CLOSED' ? '' : 'disabled'}>${escapeHtml(copy.exportReport)}</button>
         </div>
         ${
           viewState.session.state === 'READY_TO_CONFIRM' ||

@@ -15,6 +15,10 @@ import {
   openPreDepartureIssue,
   resolvePreDepartureIssue,
 } from './pre-departure.issue-management';
+import {
+  createPreDepartureFinalReport,
+  downloadPreDepartureReport,
+} from './pre-departure.report';
 
 const STORAGE_KEY = 'agm.e6.pre-departure.session.v1';
 const SYNC_META_KEY = 'agm.pre-departure.sync-meta.v1';
@@ -104,6 +108,9 @@ function safeParse(value: string | null): PersistedSession | null {
       issues: typeof parsed.issues === 'object' && parsed.issues !== null
         ? parsed.issues as PreDepartureSession['issues']
         : {},
+      confirmation: typeof parsed.confirmation === 'object' && parsed.confirmation !== null
+        ? parsed.confirmation as PreDepartureSession['confirmation']
+        : undefined,
       language: normalizePreDepartureLanguage(parsed.language),
     };
   } catch {
@@ -268,7 +275,7 @@ export function mountPreDepartureShell(root: HTMLElement) {
     draw();
   });
 
-  root.addEventListener('click', (event) => {
+  root.addEventListener('click', async (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
     const button = target.closest<HTMLButtonElement>('button');
@@ -365,14 +372,45 @@ export function mountPreDepartureShell(root: HTMLElement) {
     }
 
     if (action === 'confirm') {
+      const actorLabel = session.state === 'READY_TO_CONFIRM'
+        ? window.prompt(preDepartureCopy[language].confirmationActorPrompt)?.trim() ?? ''
+        : '';
+      if (session.state === 'READY_TO_CONFIRM' && !actorLabel) return;
+      if (
+        session.state === 'READY_TO_CONFIRM' &&
+        !window.confirm(preDepartureCopy[language].confirmationStatement)
+      ) return;
       const next =
         session.state === 'READY_TO_CONFIRM'
           ? transitionPreDeparture(session, { type: 'CONFIRM_READY' })
           : transitionPreDeparture(session, { type: 'COMPLETE_ASSESSMENT' });
       if (!next.applied) return;
-      session = next.session;
+      session = next.session.state === 'CONFIRMED'
+        ? {
+            ...next.session,
+            confirmation: {
+              actorLabel,
+              confirmedAt: new Date().toISOString(),
+              statementVersion: 'pre-departure-confirmation-v1',
+            },
+          }
+        : next.session;
       feedback = '';
       persist(session, language);
+      draw();
+      return;
+    }
+
+    if (action === 'export-report') {
+      try {
+        const report = await createPreDepartureFinalReport(session, {
+          clientSessionId: readSyncMeta().clientSessionId,
+        });
+        downloadPreDepartureReport(report);
+        feedback = preDepartureCopy[language].reportExportedFeedback;
+      } catch {
+        feedback = preDepartureCopy[language].reportUnavailableFeedback;
+      }
       draw();
       return;
     }

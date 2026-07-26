@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: AGM Pre-Departure Confirmation and Report Contract
+  version: 1.0.0
+  description: Stage 5 contract. Routes remain inactive until persistence is approved.
+paths:
+  /pre-departure/sessions/{sessionId}/confirm:
+    post:
+      summary: Record an explicit operational confirmation
+      responses:
+        '200':
+          description: Session confirmed
+        '409':
+          description: Open problems, incomplete checks, or revision conflict
+  /pre-departure/sessions/{sessionId}/report:
+    get:
+      summary: Retrieve the immutable final report for a confirmed session
+      responses:
+        '200':
+          description: Versioned report with SHA-256 integrity digest
+        '409':
+          description: Session is not confirmed

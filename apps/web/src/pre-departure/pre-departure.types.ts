@@ -47,6 +47,11 @@ export type PreDepartureSession = {
   readonly applicableCheckIds: readonly string[];
   readonly answers: Readonly<Record<string, PreDepartureAnswer | undefined>>;
   readonly issues?: Readonly<Record<string, PreDepartureIssue>>;
+  readonly confirmation?: {
+    readonly actorLabel: string;
+    readonly confirmedAt: string;
+    readonly statementVersion: 'pre-departure-confirmation-v1';
+  };
   readonly language?: 'ro' | 'de' | 'en';
 };
 

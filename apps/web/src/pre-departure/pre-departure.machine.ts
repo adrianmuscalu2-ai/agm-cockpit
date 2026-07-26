@@ -234,6 +234,7 @@ export function transitionPreDeparture(
           applicableCheckIds: [...event.session.applicableCheckIds],
           answers: { ...event.session.answers },
           issues: { ...(event.session.issues ?? {}) },
+          confirmation: event.session.confirmation ? { ...event.session.confirmation } : undefined,
           language: event.session.language ?? 'ro',
         },
         'E6-T18',
