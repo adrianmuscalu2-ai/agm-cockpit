@@ -54,7 +54,7 @@ raportului final verificabil pentru modulul „Înainte de plecare”.
 | Build API | PASS |
 | Build Web responsive | PASS |
 | Verificare secrete | PASS |
-| Captură instrumentată Desktop/Mobile | PENDING — Browser Runtime indisponibil |
+| Validare vizuală Desktop/Mobile | PASS — confirmată prin dovezi Product Owner |
 | Migrare / scrieri PostgreSQL | NU — intenționat |
 | Deployment public | NEMODIFICAT |
 
@@ -63,9 +63,23 @@ raportului final verificabil pentru modulul „Înainte de plecare”.
 - raportul este local până la aprobarea activării endpoint-urilor;
 - digestul asigură detectarea modificării conținutului, nu identitatea juridică
   a semnatarului;
-- validarea vizuală instrumentată rămâne separată;
+- raportul Android exportat a fost verificat integral;
 - integrarea Android, Browser și Turn Command Center aparține Etapei 6.
+
+## Validare finală Product Owner
+
+- stare: `CLOSED — COMPLETE`;
+- flux Android complet: PASS;
+- verificări: 8/8 complete;
+- probleme deschise: 0;
+- digest SHA-256 verificat independent:
+  `86f8c12415871ea854c9d81f7540d63e8888b8ed19faa2393d93f9ac9eaf8bb1`;
+- remedierea navigării către verificările aplicabile:
+  `b40d0976b7f056c5a56816bd669631bc61272d89`;
+- compatibilitatea Android HTTP:
+  `9fcd8d3b18f1e11cf6383894daec40c85c76524e`;
+- deploymentul public a rămas nemodificat.
 
 ## Verdict
 
-**PASS TEHNIC — READY FOR PRODUCT OWNER STAGE 5 REVIEW**
+**PASS COMPLET — CLOSED**
