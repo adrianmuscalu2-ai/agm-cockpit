@@ -15,6 +15,10 @@ deployment sau modificarea baseline-urilor validate.
   centralizate și localizate RO/DE/EN;
 - dialogul de resetare respectă limba activă;
 - progresul afișează verificările completate, totalul și procentul;
+- contoarele sunt identificate explicit drept indicatori informativi, nu
+  butoane;
+- pașii fluxului sunt identificați explicit drept progres automat;
+- controlul „Continuă la verificări” navighează lin către zona de lucru;
 - răspunsul selectat este evidențiat vizual și semantic;
 - contextele și răspunsurile sunt blocate vizual după stările în care nu mai pot
   fi modificate;
@@ -84,4 +88,3 @@ Aceste elemente aparțin etapelor următoare.
 **PASS TEHNIC — READY FOR PRODUCT OWNER VISUAL VALIDATION**
 
 Etapa 2 nu trebuie inițiată înaintea acceptării Etapei 1.
-

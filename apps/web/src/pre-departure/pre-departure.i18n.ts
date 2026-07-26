@@ -56,6 +56,11 @@ export const preDepartureCopy: Record<
     reviewReady: string;
     reviewBlocked: string;
     progressLabel: string;
+    automaticSummaryTitle: string;
+    automaticSummaryHint: string;
+    stepsTitle: string;
+    stepsHint: string;
+    continueToChecks: string;
     contexts: Record<PreDepartureContext, string>;
     states: Record<PreDepartureState, string>;
     checks: Record<string, string>;
@@ -118,6 +123,11 @@ export const preDepartureCopy: Record<
     reviewReady: 'Toate verificările sunt completate. Poți confirma pregătirea.',
     reviewBlocked: 'Există probleme deschise. Rezolvă-le înainte de confirmare.',
     progressLabel: 'Progres verificări',
+    automaticSummaryTitle: 'Rezumat automat',
+    automaticSummaryHint: 'Indicatori informativi actualizați automat. Nu sunt butoane.',
+    stepsTitle: 'Etapele verificării',
+    stepsHint: 'Etapele se actualizează automat pe măsură ce completezi fluxul.',
+    continueToChecks: 'Continuă la verificări',
     contexts: {
       local: 'Transport local',
       'long-distance': 'Transport pe distanță lungă',
@@ -203,6 +213,11 @@ export const preDepartureCopy: Record<
     reviewReady: 'Alle Prüfungen sind abgeschlossen. Die Bereitschaft kann bestätigt werden.',
     reviewBlocked: 'Es gibt offene Probleme. Löse sie vor der Bestätigung.',
     progressLabel: 'Prüffortschritt',
+    automaticSummaryTitle: 'Automatische Übersicht',
+    automaticSummaryHint: 'Automatisch aktualisierte Informationsanzeigen. Keine Schaltflächen.',
+    stepsTitle: 'Prüfschritte',
+    stepsHint: 'Die Schritte werden während des Ablaufs automatisch aktualisiert.',
+    continueToChecks: 'Weiter zu den Prüfungen',
     contexts: {
       local: 'Lokaler Transport',
       'long-distance': 'Ferntransport',
@@ -288,6 +303,11 @@ export const preDepartureCopy: Record<
     reviewReady: 'All checks are complete. You can confirm readiness.',
     reviewBlocked: 'There are open problems. Resolve them before confirmation.',
     progressLabel: 'Check progress',
+    automaticSummaryTitle: 'Automatic summary',
+    automaticSummaryHint: 'Informational indicators updated automatically. They are not buttons.',
+    stepsTitle: 'Assessment steps',
+    stepsHint: 'Steps update automatically as you complete the flow.',
+    continueToChecks: 'Continue to checks',
     contexts: {
       local: 'Local transport',
       'long-distance': 'Long-distance transport',

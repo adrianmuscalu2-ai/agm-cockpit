@@ -121,7 +121,12 @@ function renderSummary(session: PreDepartureSession, language: PreDepartureLangu
   const progress = activeChecks.length ? Math.round((completedCount / activeChecks.length) * 100) : 0;
 
   return `
-    <section class="pre-departure-summary" aria-label="${escapeHtml(copy.status)}">
+    <section class="pre-departure-information" aria-labelledby="pre-departure-summary-title">
+      <header>
+        <h2 id="pre-departure-summary-title">${escapeHtml(copy.automaticSummaryTitle)}</h2>
+        <p>${escapeHtml(copy.automaticSummaryHint)}</p>
+      </header>
+      <div class="pre-departure-summary" aria-label="${escapeHtml(copy.status)}">
       <div><span>${escapeHtml(copy.stateLabel)}</span><strong>${escapeHtml(copy.states[session.state])}</strong></div>
       <div><span>${escapeHtml(copy.summary.contexts)}</span><strong>${session.contexts.length}</strong></div>
       <div><span>${escapeHtml(copy.summary.checks)}</span><strong>${activeChecks.length}</strong></div>
@@ -131,6 +136,7 @@ function renderSummary(session: PreDepartureSession, language: PreDepartureLangu
         <span>${escapeHtml(copy.progressLabel)}</span>
         <strong>${completedCount}/${activeChecks.length} · ${progress}%</strong>
         <progress value="${completedCount}" max="${Math.max(activeChecks.length, 1)}">${progress}%</progress>
+      </div>
       </div>
     </section>
   `;
@@ -189,7 +195,12 @@ function renderFlow(language: PreDepartureLanguage, session: PreDepartureSession
   const steps = [copy.flowStepStart, copy.flowStepContext, copy.flowStepReview, copy.flowStepConfirm];
 
   return `
-    <section class="pre-departure-flow" aria-label="${escapeHtml(copy.flowTitle)}">
+    <section class="pre-departure-flow-panel" aria-labelledby="pre-departure-steps-title">
+      <header>
+        <h2 id="pre-departure-steps-title">${escapeHtml(copy.stepsTitle)}</h2>
+        <p>${escapeHtml(copy.stepsHint)}</p>
+      </header>
+      <div class="pre-departure-flow" aria-label="${escapeHtml(copy.flowTitle)}">
       ${steps
         .map(
           (step, index) => `
@@ -200,6 +211,7 @@ function renderFlow(language: PreDepartureLanguage, session: PreDepartureSession
           `,
         )
         .join('')}
+      </div>
     </section>
   `;
 }
@@ -284,12 +296,13 @@ export function renderPreDepartureShell(state: PreDepartureViewState | PreDepart
           <button type="button" data-pre-departure-action="restore">${escapeHtml(copy.restore)}</button>
           <button type="button" data-pre-departure-action="reset" class="secondary">${escapeHtml(copy.reset)}</button>
           <button type="button" data-pre-departure-action="save" class="secondary">${escapeHtml(copy.save)}</button>
+          <a class="pre-departure-action-link" href="#pre-departure-checks">${escapeHtml(copy.continueToChecks)} ↓</a>
         </div>
         <p class="pre-departure-note">${escapeHtml(copy.resumeHint)}</p>
         ${viewState.feedback ? `<p class="pre-departure-feedback" role="status" aria-live="polite">${escapeHtml(viewState.feedback)}</p>` : ''}
       </section>
 
-      <section class="pre-departure-card">
+      <section class="pre-departure-card" id="pre-departure-checks">
         <h2>${escapeHtml(copy.checksLabel)}</h2>
         ${renderCheckCards(viewState.session, viewState.language)}
       </section>
