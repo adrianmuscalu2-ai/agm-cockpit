@@ -1,0 +1,298 @@
+openapi: 3.1.0
+info:
+  title: AGM Pre-Departure API Contract
+  version: 1.0.0
+  description: >-
+    Versioned Stage 2 contract. It is documentation only and does not expose
+    runtime endpoints until a later implementation stage.
+servers:
+  - url: /api/v1
+paths:
+  /pre-departure/sessions:
+    post:
+      operationId: createPreDepartureSession
+      summary: Create or idempotently recover a pre-departure session
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePreDepartureSessionRequest'
+      responses:
+        '201':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreDepartureSessionResponse'
+        '400':
+          description: Contract validation failed
+        '401':
+          description: Authentication required
+  /pre-departure/sessions/{sessionId}:
+    get:
+      operationId: getPreDepartureSession
+      summary: Read an owned session
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Session resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreDepartureSessionResponse'
+        '404':
+          description: Session not found in the authenticated company
+    put:
+      operationId: updatePreDepartureSession
+      summary: Synchronize a client revision
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePreDepartureSessionRequest'
+      responses:
+        '200':
+          description: Session updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreDepartureSessionResponse'
+        '409':
+          description: Server revision differs from expected revision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreDepartureConflictResponse'
+  /pre-departure/sessions/{sessionId}/confirm:
+    post:
+      operationId: confirmPreDepartureSession
+      summary: Confirm a complete session with no open problems
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Session confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreDepartureSessionResponse'
+        '409':
+          description: Session is incomplete, blocked, or revision-conflicted
+  /pre-departure/sessions/{sessionId}/close:
+    post:
+      operationId: closePreDepartureSession
+      summary: Close an already confirmed session
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Session closed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreDepartureSessionResponse'
+        '409':
+          description: Only a confirmed session can be closed
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    CreatePreDepartureSessionRequest:
+      type: object
+      additionalProperties: false
+      required: [session]
+      properties:
+        session:
+          $ref: '#/components/schemas/PreDepartureSessionPayload'
+    UpdatePreDepartureSessionRequest:
+      type: object
+      additionalProperties: false
+      required: [session, expectedServerRevision]
+      properties:
+        session:
+          $ref: '#/components/schemas/PreDepartureSessionPayload'
+        expectedServerRevision:
+          type: integer
+          minimum: 0
+    PreDepartureSessionPayload:
+      type: object
+      additionalProperties: false
+      required:
+        - contractVersion
+        - clientSessionId
+        - idempotencyKey
+        - checklistVersion
+        - language
+        - contexts
+        - state
+        - answers
+        - clientRevision
+        - startedAt
+        - updatedAt
+      properties:
+        contractVersion:
+          const: 1.0.0
+        clientSessionId:
+          type: string
+          format: uuid
+        idempotencyKey:
+          type: string
+          format: uuid
+        transportJobId:
+          type: string
+          format: uuid
+        deviceId:
+          type: string
+          format: uuid
+        vehicleReference:
+          type: string
+          minLength: 1
+          maxLength: 64
+        trailerReference:
+          type: string
+          minLength: 1
+          maxLength: 64
+        checklistVersion:
+          type: string
+          minLength: 1
+          maxLength: 40
+        language:
+          type: string
+          enum: [ro, de, en]
+        contexts:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/PreDepartureContext'
+        state:
+          $ref: '#/components/schemas/PreDepartureSessionState'
+        answers:
+          type: array
+          maxItems: 8
+          items:
+            $ref: '#/components/schemas/PreDepartureAnswer'
+        clientRevision:
+          type: integer
+          minimum: 0
+        startedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        confirmedAt:
+          type: string
+          format: date-time
+        closedAt:
+          type: string
+          format: date-time
+    PreDepartureAnswer:
+      type: object
+      additionalProperties: false
+      required: [checkId, status, answeredAt]
+      properties:
+        checkId:
+          type: string
+          enum: [vehicle, driver, documents, tachograph, cargo, route, adr, weather]
+        status:
+          type: string
+          enum: [confirmed, problem, not-applicable]
+        note:
+          type: string
+          minLength: 1
+          maxLength: 500
+        notApplicableReason:
+          type: string
+          minLength: 1
+          maxLength: 240
+        answeredAt:
+          type: string
+          format: date-time
+    PreDepartureContext:
+      type: string
+      enum: [local, long-distance, adr, night, adverse-weather]
+    PreDepartureSessionState:
+      type: string
+      enum: [DRAFT, IN_PROGRESS, NEEDS_ATTENTION, BLOCKED, READY_TO_CONFIRM, CONFIRMED, CLOSED]
+    PreDepartureSessionResponse:
+      type: object
+      required: [contractVersion, data, requestId]
+      properties:
+        contractVersion:
+          const: 1.0.0
+        data:
+          allOf:
+            - $ref: '#/components/schemas/PreDepartureSessionPayload'
+            - type: object
+              required: [id, companyId, driverUserId, serverRevision, createdAt, serverUpdatedAt]
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                companyId:
+                  type: string
+                  format: uuid
+                  readOnly: true
+                driverUserId:
+                  type: string
+                  format: uuid
+                  readOnly: true
+                serverRevision:
+                  type: integer
+                  minimum: 0
+                createdAt:
+                  type: string
+                  format: date-time
+                serverUpdatedAt:
+                  type: string
+                  format: date-time
+        requestId:
+          type: string
+          format: uuid
+    PreDepartureConflictResponse:
+      type: object
+      required: [contractVersion, error, requestId]
+      properties:
+        contractVersion:
+          const: 1.0.0
+        error:
+          type: object
+          required: [code, message, serverRevision]
+          properties:
+            code:
+              const: PRE_DEPARTURE_REVISION_CONFLICT
+            message:
+              type: string
+            serverRevision:
+              type: integer
+              minimum: 0
+        requestId:
+          type: string
+          format: uuid
+
