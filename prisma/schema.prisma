@@ -20,6 +20,7 @@ model Company {
   roles               Role[]
   lifecycleStates     LifecycleState[]
   transports          TransportJob[]
+  preDepartureSessions PreDepartureSession[]
 }
 
 model User {
@@ -39,6 +40,7 @@ model User {
   updatedAt            DateTime   @updatedAt
   lastLoginAt          DateTime?
   roles                UserRole[]
+  preDepartureSessions PreDepartureSession[]
 
   @@unique([companyId, email])
 }
@@ -126,6 +128,7 @@ model TransportJob {
   validationReports       BusinessValidationReport[]
   auditEvents             AuditEvent[]
   financialLedger         FinancialLedger[]
+  preDepartureSessions    PreDepartureSession[]
 
   @@unique([companyId, transportNumber])
   @@index([companyId, currentLifecycleStateId])
@@ -278,4 +281,56 @@ model FinancialLedger {
   @@index([transportJobId, occurredAt])
   @@index([companyId, ledgerNumber])
   @@index([validationReportId])
+}
+
+model PreDepartureSession {
+  id               String               @id @default(uuid()) @db.Uuid
+  companyId        String               @db.Uuid
+  company          Company              @relation(fields: [companyId], references: [id])
+  driverUserId     String               @db.Uuid
+  driverUser       User                 @relation(fields: [driverUserId], references: [id])
+  transportJobId   String?              @db.Uuid
+  transportJob     TransportJob?        @relation(fields: [transportJobId], references: [id])
+  clientSessionId  String               @db.Uuid
+  idempotencyKey   String               @db.Uuid
+  deviceId         String?              @db.Uuid
+  vehicleReference String?              @db.VarChar(64)
+  trailerReference String?              @db.VarChar(64)
+  contractVersion  String               @db.VarChar(20)
+  checklistVersion String               @db.VarChar(40)
+  language         String               @db.VarChar(2)
+  contexts         Json
+  state            String               @db.VarChar(32)
+  clientRevision   Int
+  clientUpdatedAt  DateTime
+  serverRevision   Int                  @default(0)
+  startedAt        DateTime
+  confirmedAt      DateTime?
+  closedAt         DateTime?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  answers          PreDepartureAnswer[]
+
+  @@unique([companyId, clientSessionId])
+  @@unique([companyId, idempotencyKey])
+  @@index([companyId, state, updatedAt])
+  @@index([transportJobId, updatedAt])
+  @@index([driverUserId, updatedAt])
+}
+
+model PreDepartureAnswer {
+  id                  String              @id @default(uuid()) @db.Uuid
+  companyId           String              @db.Uuid
+  sessionId           String              @db.Uuid
+  session             PreDepartureSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  checkId             String              @db.VarChar(32)
+  status              String              @db.VarChar(32)
+  note                String?             @db.VarChar(500)
+  notApplicableReason String?             @db.VarChar(240)
+  answeredAt          DateTime
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  @@unique([sessionId, checkId])
+  @@index([companyId, status])
 }

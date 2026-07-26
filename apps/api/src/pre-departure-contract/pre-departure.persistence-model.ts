@@ -28,6 +28,7 @@ export type PreDepartureSessionRecord = {
   contexts: PreDepartureContext[];
   state: PreDepartureSessionState;
   clientRevision: number;
+  clientUpdatedAt: Date;
   serverRevision: number;
   startedAt: Date;
   confirmedAt: Date | null;
@@ -62,4 +63,3 @@ export const PRE_DEPARTURE_PERSISTENCE_CONSTRAINTS = {
   ],
   ownershipFieldsFromAuthentication: ['companyId', 'driverUserId'],
 } as const;
-

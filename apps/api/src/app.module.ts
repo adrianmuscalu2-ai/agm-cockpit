@@ -16,6 +16,7 @@ import { UsersModule } from './users/users.module';
 import { ValidationReportsModule } from './validation-reports/validation-reports.module';
 import { TurnAdminModule } from './turn-admin/turn-admin.module';
 import { validateEnvironment } from './config/environment';
+import { PreDepartureSyncModule } from './pre-departure-sync/pre-departure-sync.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { validateEnvironment } from './config/environment';
     TransportsModule,
     TranslationModule,
     TurnAdminModule,
+    PreDepartureSyncModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

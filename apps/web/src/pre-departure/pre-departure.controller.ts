@@ -10,8 +10,10 @@ import type {
   PreDepartureContext,
   PreDepartureSession,
 } from './pre-departure.types';
+import { enqueuePreDepartureSync, flushPreDepartureOutbox } from './pre-departure.outbox';
 
 const STORAGE_KEY = 'agm.e6.pre-departure.session.v1';
+const SYNC_META_KEY = 'agm.pre-departure.sync-meta.v1';
 
 type PersistedSession = PreDepartureSession & { language: string };
 
@@ -110,6 +112,90 @@ function persist(session: PreDepartureSession, language: string) {
       language,
     }),
   );
+  const meta = readSyncMeta();
+  const updatedAt = new Date().toISOString();
+  const clientRevision = meta.clientRevision + 1;
+  window.localStorage.setItem(
+    SYNC_META_KEY,
+    JSON.stringify({ ...meta, clientRevision, updatedAt }),
+  );
+  enqueuePreDepartureSync(window.localStorage, {
+    clientSessionId: meta.clientSessionId,
+    serverRevision: meta.serverRevision,
+    payload: {
+      contractVersion: '1.0.0',
+      clientSessionId: meta.clientSessionId,
+      idempotencyKey: meta.idempotencyKey,
+      checklistVersion: 'pre-departure-checklist-v1',
+      language,
+      contexts: [...session.contexts],
+      state: apiState(session.state),
+      answers: Object.entries(session.answers).flatMap(([checkId, answer]) => {
+        if (!answer) return [];
+        return [{
+          checkId,
+          status: answer.status,
+          note: answer.status === 'problem' ? answer.note ?? 'Open local review' : undefined,
+          notApplicableReason: answer.status === 'not-applicable' ? answer.reason : undefined,
+          answeredAt: updatedAt,
+        }];
+      }),
+      clientRevision,
+      startedAt: meta.startedAt,
+      updatedAt,
+      confirmedAt: session.state === 'CONFIRMED' || session.state === 'CLOSED' ? updatedAt : undefined,
+      closedAt: session.state === 'CLOSED' ? updatedAt : undefined,
+    },
+  });
+  void syncPendingPreDeparture();
+}
+
+async function syncPendingPreDeparture() {
+  const apiBaseUrl = import.meta.env.VITE_AGM_API_BASE_URL?.trim();
+  const accessToken =
+    window.sessionStorage.getItem('agm.auth.accessToken') ??
+    window.localStorage.getItem('agm.auth.accessToken') ??
+    undefined;
+  if (!apiBaseUrl) return;
+  await flushPreDepartureOutbox({
+    storage: window.localStorage,
+    online: navigator.onLine,
+    apiBaseUrl,
+    accessToken,
+  });
+}
+
+function readSyncMeta() {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(SYNC_META_KEY) ?? '{}') as Record<string, unknown>;
+    if (
+      typeof parsed.clientSessionId === 'string' &&
+      typeof parsed.idempotencyKey === 'string' &&
+      typeof parsed.startedAt === 'string'
+    ) {
+      return {
+        clientSessionId: parsed.clientSessionId,
+        idempotencyKey: parsed.idempotencyKey,
+        startedAt: parsed.startedAt,
+        clientRevision: typeof parsed.clientRevision === 'number' ? parsed.clientRevision : 0,
+        serverRevision: typeof parsed.serverRevision === 'number' ? parsed.serverRevision : 0,
+      };
+    }
+  } catch {
+    // A damaged local metadata record is replaced with a new local identity.
+  }
+  const startedAt = new Date().toISOString();
+  return {
+    clientSessionId: crypto.randomUUID(),
+    idempotencyKey: crypto.randomUUID(),
+    startedAt,
+    clientRevision: 0,
+    serverRevision: 0,
+  };
+}
+
+function apiState(state: PreDepartureSession['state']) {
+  return state === 'NOT_STARTED' || state === 'CONTEXT_SELECTION' ? 'DRAFT' : state;
 }
 
 function render(root: HTMLElement, state: PreDepartureViewState) {
@@ -247,6 +333,7 @@ export function mountPreDepartureShell(root: HTMLElement) {
       if (!window.confirm(preDepartureCopy[language].resetQuestion)) return;
       session = createPreDepartureSession();
       window.localStorage.removeItem(STORAGE_KEY);
+      window.localStorage.removeItem(SYNC_META_KEY);
       feedback = preDepartureCopy[language].resetFeedback;
       draw();
       return;
@@ -277,6 +364,7 @@ export function mountPreDepartureShell(root: HTMLElement) {
 
   const syncConnectivity = () => {
     draw();
+    if (navigator.onLine) void syncPendingPreDeparture();
   };
 
   window.addEventListener('online', syncConnectivity);
