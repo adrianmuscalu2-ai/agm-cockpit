@@ -2,7 +2,7 @@ import {
   createPreDepartureSession,
   transitionPreDeparture,
 } from './pre-departure.machine';
-import { normalizePreDepartureLanguage, preDepartureLanguages } from './pre-departure.i18n';
+import { normalizePreDepartureLanguage, preDepartureCopy } from './pre-departure.i18n';
 import { renderPreDepartureShell, type PreDepartureViewState } from './pre-departure.shell';
 import type {
   PreDepartureAnswer,
@@ -217,7 +217,7 @@ export function mountPreDepartureShell(root: HTMLElement) {
 
     if (action === 'save') {
       persist(session, language);
-      feedback = language === 'ro' ? 'Sesiunea a fost salvată local.' : language === 'de' ? 'Die Sitzung wurde lokal gespeichert.' : 'The session was saved locally.';
+      feedback = preDepartureCopy[language].savedFeedback;
       draw();
       return;
     }
@@ -225,35 +225,38 @@ export function mountPreDepartureShell(root: HTMLElement) {
     if (action === 'restore') {
       const stored = safeParse(window.localStorage.getItem(STORAGE_KEY));
       if (!stored) {
-        feedback = language === 'ro' ? 'Nu există o sesiune locală validă.' : language === 'de' ? 'Keine gültige lokale Sitzung vorhanden.' : 'No valid local session is available.';
+        feedback = preDepartureCopy[language].missingSavedFeedback;
         draw();
         return;
       }
       const restoredResult = transitionPreDeparture(createPreDepartureSession(), { type: 'RESTORE_SESSION', session: stored });
       if (!restoredResult.applied) {
-        feedback = language === 'ro' ? 'Sesiunea salvată nu poate fi restaurată.' : language === 'de' ? 'Die gespeicherte Sitzung kann nicht wiederhergestellt werden.' : 'The saved session cannot be restored.';
+        feedback = preDepartureCopy[language].invalidSavedFeedback;
         draw();
         return;
       }
       language = normalizePreDepartureLanguage(stored.language);
       session = restoredResult.session;
       window.localStorage.setItem('agm.pre-departure.language', language);
-      feedback = language === 'ro' ? 'Sesiunea a fost restaurată.' : language === 'de' ? 'Die Sitzung wurde wiederhergestellt.' : 'The session was restored.';
+      feedback = preDepartureCopy[language].restoredFeedback;
       draw();
       return;
     }
 
     if (action === 'reset') {
-      if (!window.confirm('Reset the local pre-departure session?')) return;
+      if (!window.confirm(preDepartureCopy[language].resetQuestion)) return;
       session = createPreDepartureSession();
       window.localStorage.removeItem(STORAGE_KEY);
-      feedback = language === 'ro' ? 'Sesiunea a fost resetată.' : language === 'de' ? 'Die Sitzung wurde zurückgesetzt.' : 'The session was reset.';
+      feedback = preDepartureCopy[language].resetFeedback;
       draw();
       return;
     }
 
     if (action === 'confirm') {
-      const next = completePreDepartureAssessment(session);
+      const next =
+        session.state === 'READY_TO_CONFIRM'
+          ? transitionPreDeparture(session, { type: 'CONFIRM_READY' })
+          : transitionPreDeparture(session, { type: 'COMPLETE_ASSESSMENT' });
       if (!next.applied) return;
       session = next.session;
       feedback = '';

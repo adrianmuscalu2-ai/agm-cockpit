@@ -26,6 +26,7 @@ export const preDepartureCopy: Record<
     resume: string;
     reset: string;
     confirmReady: string;
+    reviewAssessment: string;
     close: string;
     save: string;
     restore: string;
@@ -44,6 +45,17 @@ export const preDepartureCopy: Record<
     confirmedLabel: string;
     closedLabel: string;
     localOnlyNote: string;
+    resetQuestion: string;
+    savedFeedback: string;
+    restoredFeedback: string;
+    missingSavedFeedback: string;
+    invalidSavedFeedback: string;
+    resetFeedback: string;
+    reviewTitle: string;
+    reviewHint: string;
+    reviewReady: string;
+    reviewBlocked: string;
+    progressLabel: string;
     contexts: Record<PreDepartureContext, string>;
     states: Record<PreDepartureState, string>;
     checks: Record<string, string>;
@@ -76,6 +88,7 @@ export const preDepartureCopy: Record<
     resume: 'Reia sesiunea',
     reset: 'Resetează sesiunea',
     confirmReady: 'Confirmă pregătirea',
+    reviewAssessment: 'Finalizează verificările',
     close: 'Închide sesiunea',
     save: 'Salvează local',
     restore: 'Restaurează local',
@@ -94,6 +107,17 @@ export const preDepartureCopy: Record<
     confirmedLabel: 'Confirmat',
     closedLabel: 'Închis',
     localOnlyNote: 'Toate acțiunile și rezultatele sunt locale și nu transmite date către exterior.',
+    resetQuestion: 'Resetezi sesiunea locală „Înainte de plecare”? Datele salvate local vor fi șterse.',
+    savedFeedback: 'Sesiunea a fost salvată local.',
+    restoredFeedback: 'Sesiunea a fost restaurată.',
+    missingSavedFeedback: 'Nu există o sesiune locală salvată.',
+    invalidSavedFeedback: 'Sesiunea salvată nu poate fi restaurată.',
+    resetFeedback: 'Sesiunea a fost resetată.',
+    reviewTitle: 'Rezumat înainte de confirmare',
+    reviewHint: 'Verifică toate răspunsurile înainte de confirmarea pregătirii.',
+    reviewReady: 'Toate verificările sunt completate. Poți confirma pregătirea.',
+    reviewBlocked: 'Există probleme deschise. Rezolvă-le înainte de confirmare.',
+    progressLabel: 'Progres verificări',
     contexts: {
       local: 'Transport local',
       'long-distance': 'Transport pe distanță lungă',
@@ -149,6 +173,7 @@ export const preDepartureCopy: Record<
     resume: 'Sitzung fortsetzen',
     reset: 'Sitzung zurücksetzen',
     confirmReady: 'Bereitschaft bestätigen',
+    reviewAssessment: 'Prüfungen abschließen',
     close: 'Sitzung schließen',
     save: 'Lokal speichern',
     restore: 'Lokal wiederherstellen',
@@ -167,6 +192,17 @@ export const preDepartureCopy: Record<
     confirmedLabel: 'Bestätigt',
     closedLabel: 'Geschlossen',
     localOnlyNote: 'Alle Aktionen und Ergebnisse sind lokal und prüfbar.',
+    resetQuestion: 'Lokale Sitzung „Vor der Abfahrt“ zurücksetzen? Lokal gespeicherte Daten werden gelöscht.',
+    savedFeedback: 'Die Sitzung wurde lokal gespeichert.',
+    restoredFeedback: 'Die Sitzung wurde wiederhergestellt.',
+    missingSavedFeedback: 'Keine lokal gespeicherte Sitzung vorhanden.',
+    invalidSavedFeedback: 'Die gespeicherte Sitzung kann nicht wiederhergestellt werden.',
+    resetFeedback: 'Die Sitzung wurde zurückgesetzt.',
+    reviewTitle: 'Zusammenfassung vor der Bestätigung',
+    reviewHint: 'Prüfe alle Antworten, bevor du die Bereitschaft bestätigst.',
+    reviewReady: 'Alle Prüfungen sind abgeschlossen. Die Bereitschaft kann bestätigt werden.',
+    reviewBlocked: 'Es gibt offene Probleme. Löse sie vor der Bestätigung.',
+    progressLabel: 'Prüffortschritt',
     contexts: {
       local: 'Lokaler Transport',
       'long-distance': 'Ferntransport',
@@ -222,6 +258,7 @@ export const preDepartureCopy: Record<
     resume: 'Resume session',
     reset: 'Reset session',
     confirmReady: 'Confirm readiness',
+    reviewAssessment: 'Complete checks',
     close: 'Close session',
     save: 'Save locally',
     restore: 'Restore locally',
@@ -240,6 +277,17 @@ export const preDepartureCopy: Record<
     confirmedLabel: 'Confirmed',
     closedLabel: 'Closed',
     localOnlyNote: 'All actions and results are local and auditable.',
+    resetQuestion: 'Reset the local “Before Departure” session? Locally saved data will be deleted.',
+    savedFeedback: 'The session was saved locally.',
+    restoredFeedback: 'The session was restored.',
+    missingSavedFeedback: 'No locally saved session is available.',
+    invalidSavedFeedback: 'The saved session cannot be restored.',
+    resetFeedback: 'The session was reset.',
+    reviewTitle: 'Summary before confirmation',
+    reviewHint: 'Review every answer before confirming readiness.',
+    reviewReady: 'All checks are complete. You can confirm readiness.',
+    reviewBlocked: 'There are open problems. Resolve them before confirmation.',
+    progressLabel: 'Check progress',
     contexts: {
       local: 'Local transport',
       'long-distance': 'Long-distance transport',
