@@ -11,6 +11,10 @@ import type {
   PreDepartureSession,
 } from './pre-departure.types';
 import { enqueuePreDepartureSync, flushPreDepartureOutbox } from './pre-departure.outbox';
+import {
+  openPreDepartureIssue,
+  resolvePreDepartureIssue,
+} from './pre-departure.issue-management';
 
 const STORAGE_KEY = 'agm.e6.pre-departure.session.v1';
 const SYNC_META_KEY = 'agm.pre-departure.sync-meta.v1';
@@ -97,6 +101,9 @@ function safeParse(value: string | null): PersistedSession | null {
       contexts: parsed.contexts as readonly PreDepartureContext[],
       applicableCheckIds: parsed.applicableCheckIds as readonly string[],
       answers: parsed.answers as Readonly<Record<string, PreDepartureAnswer | undefined>>,
+      issues: typeof parsed.issues === 'object' && parsed.issues !== null
+        ? parsed.issues as PreDepartureSession['issues']
+        : {},
       language: normalizePreDepartureLanguage(parsed.language),
     };
   } catch {
@@ -271,10 +278,28 @@ export function mountPreDepartureShell(root: HTMLElement) {
     if (answerDescriptor) {
       const [checkId, answerType] = answerDescriptor.split(':') as [PreDepartureCheckId, 'confirmed' | 'problem' | 'na'];
       if (!checkId || !answerType) return;
-      const next = applyPreDepartureAnswer(session, checkId, answerType, language);
+      const next = answerType === 'problem'
+        ? openPreDepartureIssue(session, {
+            checkId,
+            description: window.prompt(preDepartureCopy[language].issueDescriptionPrompt)?.trim() ?? '',
+            severity: window.confirm(preDepartureCopy[language].issueCriticalPrompt) ? 'critical' : 'warning',
+          })
+        : applyPreDepartureAnswer(session, checkId, answerType, language);
       if (!next.applied) return;
       session = next.session;
       feedback = '';
+      persist(session, language);
+      draw();
+      return;
+    }
+
+    const issueId = button.dataset.preDepartureResolveIssue;
+    if (issueId) {
+      const note = window.prompt(preDepartureCopy[language].issueResolutionPrompt)?.trim() ?? '';
+      const next = resolvePreDepartureIssue(session, issueId, note);
+      if (!next.applied) return;
+      session = next.session;
+      feedback = preDepartureCopy[language].issueResolvedFeedback;
       persist(session, language);
       draw();
       return;

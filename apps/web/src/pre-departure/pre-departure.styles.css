@@ -559,6 +559,45 @@ h1 {
   color: #ffe7b3;
 }
 
+.pre-departure-issue-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.pre-departure-issue {
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-left: 4px solid #f59e0b;
+  border-radius: 0.85rem;
+  padding: 1rem;
+  background: rgba(120, 53, 15, 0.16);
+}
+
+.pre-departure-issue.critical {
+  border-color: rgba(239, 68, 68, 0.55);
+  border-left-color: #ef4444;
+  background: rgba(127, 29, 29, 0.2);
+}
+
+.pre-departure-issue.resolved {
+  border-color: rgba(34, 197, 94, 0.4);
+  border-left-color: #22c55e;
+  background: rgba(20, 83, 45, 0.14);
+  opacity: 0.82;
+}
+
+.pre-departure-issue header {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.pre-departure-issue header span {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .pre-departure-review-contexts {
   color: #e5d38b;
   font-weight: 750;

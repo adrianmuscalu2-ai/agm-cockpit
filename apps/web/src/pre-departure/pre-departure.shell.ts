@@ -142,6 +142,33 @@ function renderSummary(session: PreDepartureSession, language: PreDepartureLangu
   `;
 }
 
+function renderIssueRegister(session: PreDepartureSession, language: PreDepartureLanguage) {
+  const copy = preDepartureCopy[language];
+  const issues = Object.values(session.issues ?? {}).sort((left, right) =>
+    right.createdAt.localeCompare(left.createdAt),
+  );
+  return `
+    <section class="pre-departure-card pre-departure-issues" aria-labelledby="pre-departure-issues-title">
+      <h2 id="pre-departure-issues-title">${escapeHtml(copy.issueRegisterTitle)}</h2>
+      ${issues.length
+        ? `<div class="pre-departure-issue-list">${issues.map((issue) => `
+            <article class="pre-departure-issue ${issue.status} ${issue.severity}">
+              <header>
+                <strong>${escapeHtml(copy.checks[issue.checkId] ?? issue.checkId)}</strong>
+                <span>${escapeHtml(issue.severity === 'critical' ? copy.issueCriticalLabel : copy.issueWarningLabel)}</span>
+              </header>
+              <p>${escapeHtml(issue.description)}</p>
+              ${issue.resolutionNote ? `<small>${escapeHtml(issue.resolutionNote)}</small>` : ''}
+              ${issue.status === 'open'
+                ? `<button type="button" data-pre-departure-resolve-issue="${escapeHtml(issue.id)}">${escapeHtml(copy.issueResolveAction)}</button>`
+                : ''}
+            </article>
+          `).join('')}</div>`
+        : `<p class="pre-departure-empty">${escapeHtml(copy.issueRegisterEmpty)}</p>`}
+    </section>
+  `;
+}
+
 function renderReviewSummary(session: PreDepartureSession, language: PreDepartureLanguage) {
   const copy = preDepartureCopy[language];
   const activeChecks = checkGroups.filter((check) =>
@@ -306,6 +333,8 @@ export function renderPreDepartureShell(state: PreDepartureViewState | PreDepart
         <h2>${escapeHtml(copy.checksLabel)}</h2>
         ${renderCheckCards(viewState.session, viewState.language)}
       </section>
+
+      ${renderIssueRegister(viewState.session, viewState.language)}
 
       <section class="pre-departure-card">
         <h2>${escapeHtml(copy.confirmReady)}</h2>

@@ -1,0 +1,20 @@
+openapi: 3.1.0
+info:
+  title: AGM Pre-Departure Issue Contract
+  version: 1.0.0
+  description: Contract proposed for Stage 4. Routes are not activated in this checkpoint.
+paths:
+  /pre-departure/sessions/{sessionId}/issues:
+    post:
+      summary: Register an open pre-departure issue
+      responses:
+        '201':
+          description: Issue registered
+  /pre-departure/sessions/{sessionId}/issues/{issueId}/resolve:
+    post:
+      summary: Resolve an issue and require the associated check to be repeated
+      responses:
+        '200':
+          description: Issue resolved
+        '409':
+          description: Revision conflict or issue already resolved

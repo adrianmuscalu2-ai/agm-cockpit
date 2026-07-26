@@ -51,6 +51,15 @@ export const preDepartureCopy: Record<
     missingSavedFeedback: string;
     invalidSavedFeedback: string;
     resetFeedback: string;
+    issueDescriptionPrompt: string;
+    issueCriticalPrompt: string;
+    issueResolutionPrompt: string;
+    issueResolvedFeedback: string;
+    issueRegisterTitle: string;
+    issueRegisterEmpty: string;
+    issueResolveAction: string;
+    issueCriticalLabel: string;
+    issueWarningLabel: string;
     reviewTitle: string;
     reviewHint: string;
     reviewReady: string;
@@ -118,6 +127,15 @@ export const preDepartureCopy: Record<
     missingSavedFeedback: 'Nu există o sesiune locală salvată.',
     invalidSavedFeedback: 'Sesiunea salvată nu poate fi restaurată.',
     resetFeedback: 'Sesiunea a fost resetată.',
+    issueDescriptionPrompt: 'Descrie problema identificată:',
+    issueCriticalPrompt: 'Problema blochează plecarea? OK = critică, Anulare = avertizare.',
+    issueResolutionPrompt: 'Descrie remedierea efectuată. Verificarea va trebui repetată:',
+    issueResolvedFeedback: 'Problema a fost marcată rezolvată. Repetă verificarea asociată.',
+    issueRegisterTitle: 'Registrul problemelor',
+    issueRegisterEmpty: 'Nu există probleme înregistrate.',
+    issueResolveAction: 'Marchează rezolvată',
+    issueCriticalLabel: 'Critică — plecare blocată',
+    issueWarningLabel: 'Avertizare',
     reviewTitle: 'Rezumat înainte de confirmare',
     reviewHint: 'Verifică toate răspunsurile înainte de confirmarea pregătirii.',
     reviewReady: 'Toate verificările sunt completate. Poți confirma pregătirea.',
@@ -208,6 +226,15 @@ export const preDepartureCopy: Record<
     missingSavedFeedback: 'Keine lokal gespeicherte Sitzung vorhanden.',
     invalidSavedFeedback: 'Die gespeicherte Sitzung kann nicht wiederhergestellt werden.',
     resetFeedback: 'Die Sitzung wurde zurückgesetzt.',
+    issueDescriptionPrompt: 'Beschreibe das festgestellte Problem:',
+    issueCriticalPrompt: 'Blockiert das Problem die Abfahrt? OK = kritisch, Abbrechen = Warnung.',
+    issueResolutionPrompt: 'Beschreibe die Behebung. Die Prüfung muss wiederholt werden:',
+    issueResolvedFeedback: 'Das Problem wurde als gelöst markiert. Wiederhole die zugehörige Prüfung.',
+    issueRegisterTitle: 'Problemregister',
+    issueRegisterEmpty: 'Keine Probleme erfasst.',
+    issueResolveAction: 'Als gelöst markieren',
+    issueCriticalLabel: 'Kritisch — Abfahrt blockiert',
+    issueWarningLabel: 'Warnung',
     reviewTitle: 'Zusammenfassung vor der Bestätigung',
     reviewHint: 'Prüfe alle Antworten, bevor du die Bereitschaft bestätigst.',
     reviewReady: 'Alle Prüfungen sind abgeschlossen. Die Bereitschaft kann bestätigt werden.',
@@ -298,6 +325,15 @@ export const preDepartureCopy: Record<
     missingSavedFeedback: 'No locally saved session is available.',
     invalidSavedFeedback: 'The saved session cannot be restored.',
     resetFeedback: 'The session was reset.',
+    issueDescriptionPrompt: 'Describe the identified problem:',
+    issueCriticalPrompt: 'Does this problem block departure? OK = critical, Cancel = warning.',
+    issueResolutionPrompt: 'Describe the remediation. The associated check must be repeated:',
+    issueResolvedFeedback: 'The problem was resolved. Repeat the associated check.',
+    issueRegisterTitle: 'Problem register',
+    issueRegisterEmpty: 'No problems have been recorded.',
+    issueResolveAction: 'Mark resolved',
+    issueCriticalLabel: 'Critical — departure blocked',
+    issueWarningLabel: 'Warning',
     reviewTitle: 'Summary before confirmation',
     reviewHint: 'Review every answer before confirming readiness.',
     reviewReady: 'All checks are complete. You can confirm readiness.',

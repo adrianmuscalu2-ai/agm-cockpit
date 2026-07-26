@@ -30,11 +30,23 @@ export type PreDepartureAnswer =
   | { status: 'problem'; note?: string }
   | { status: 'not-applicable'; reason: string };
 
+export type PreDepartureIssue = {
+  readonly id: string;
+  readonly checkId: string;
+  readonly severity: 'warning' | 'critical';
+  readonly description: string;
+  readonly status: 'open' | 'resolved';
+  readonly createdAt: string;
+  readonly resolvedAt?: string;
+  readonly resolutionNote?: string;
+};
+
 export type PreDepartureSession = {
   readonly state: PreDepartureState;
   readonly contexts: readonly PreDepartureContext[];
   readonly applicableCheckIds: readonly string[];
   readonly answers: Readonly<Record<string, PreDepartureAnswer | undefined>>;
+  readonly issues?: Readonly<Record<string, PreDepartureIssue>>;
   readonly language?: 'ro' | 'de' | 'en';
 };
 

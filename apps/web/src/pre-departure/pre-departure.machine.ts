@@ -28,6 +28,7 @@ export const createPreDepartureSession = (): PreDepartureSession => ({
   contexts: [],
   applicableCheckIds: [],
   answers: {},
+  issues: {},
   language: 'ro',
 });
 
@@ -232,6 +233,7 @@ export function transitionPreDeparture(
           contexts: [...event.session.contexts],
           applicableCheckIds: [...event.session.applicableCheckIds],
           answers: { ...event.session.answers },
+          issues: { ...(event.session.issues ?? {}) },
           language: event.session.language ?? 'ro',
         },
         'E6-T18',
@@ -250,7 +252,7 @@ export function transitionPreDeparture(
       return unchanged(session, 'At least one context and one applicable check are required.');
     }
     return applied(
-      { state: 'IN_PROGRESS', contexts, applicableCheckIds, answers: {}, language: session.language ?? 'ro' },
+      { state: 'IN_PROGRESS', contexts, applicableCheckIds, answers: {}, issues: {}, language: session.language ?? 'ro' },
       'E6-T02',
     );
   }
