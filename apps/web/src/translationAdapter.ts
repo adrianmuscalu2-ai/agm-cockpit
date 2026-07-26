@@ -22,8 +22,8 @@ interface ApiTranslationResponse {
 
 const viteEnv = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env;
 const configuredTranslationApiBaseUrl = viteEnv?.VITE_AGM_API_BASE_URL?.trim();
-const developmentTranslationApiBaseUrl = import.meta.env.DEV ? 'http://127.0.0.1:3000/api/v1' : undefined;
-const translationApiBaseUrl = (configuredTranslationApiBaseUrl || developmentTranslationApiBaseUrl)?.replace(/\/$/, '');
+const developmentTranslationApiBaseUrl = import.meta.env.DEV ? '/api/v1' : undefined;
+const translationApiBaseUrl = (developmentTranslationApiBaseUrl || configuredTranslationApiBaseUrl)?.replace(/\/$/, '');
 
 if (!translationApiBaseUrl) {
   throw new Error('VITE_AGM_API_BASE_URL is required outside development.');

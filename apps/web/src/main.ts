@@ -28,6 +28,7 @@ import { evaluateMailDraftSecurity, realMailSendingIsApproved } from './mail-sec
 import { buildMailPreview } from './mailmaster/mailmaster.compose';
 import { buildMailSignature } from './mailmaster/mailmaster.signature';
 import { mailToneLabels, type MailDraft, type MailPreview, type MailTone } from './mailmaster/mailmaster.types';
+import { mailTranslationAllowsSend, type MailTranslationState } from './mailmaster/mail-translation.guard';
 import { contactCategories, normalizeContactCategory } from './contact-manager/contact-manager.categories';
 import { contactStorageKey, readContacts, saveContacts, emptyContactDraft } from './contact-manager/contact-manager.storage';
 import { addContact, editContact, removeContact, searchContacts } from './contact-manager/contact-manager.service';
@@ -152,6 +153,7 @@ const state = {
   adminAccessVerified: false,
   adminChangePinOpen: false,
   translatorEnabled: false,
+  mailTranslationState: 'not-requested' as MailTranslationState,
   useProfileDetails: true,
   signatureEditorOpen: false,
   signaturePadOpen: false,
@@ -1879,6 +1881,7 @@ function bindEmailAssistant() {
   });
   input('message', (value) => {
     state.message = value;
+    if (state.translatorEnabled) state.mailTranslationState = 'pending';
     markMailDraftChanged();
   });
 
@@ -1973,6 +1976,7 @@ function bindEmailAssistant() {
     state.messageTemplateVariables = {};
     state.subject = content.subject;
     state.message = content.message;
+    if (state.translatorEnabled) state.mailTranslationState = 'pending';
     recordTemplateUse(template.id);
     markMailDraftChanged();
     state.status = t(uiLanguage(), 'mail.status.templateSelected', {
@@ -2016,6 +2020,7 @@ function bindEmailAssistant() {
 
   document.querySelector<HTMLInputElement>('#translatorEnabled')?.addEventListener('change', (event) => {
     state.translatorEnabled = (event.target as HTMLInputElement).checked;
+    state.mailTranslationState = state.translatorEnabled ? 'pending' : 'not-requested';
     markMailDraftChanged();
     state.status = t(uiLanguage(), state.translatorEnabled ? 'mail.status.localTranslatorOn' : 'mail.status.localTranslatorOff');
     render();
@@ -2037,6 +2042,7 @@ function bindEmailAssistant() {
       }
 
       state.targetLanguage = language;
+      if (state.translatorEnabled) state.mailTranslationState = 'pending';
       applySelectedTemplateLanguage(language);
       markMailDraftChanged();
       state.status = mailStatus('resultLanguage', languageLabel(language));
@@ -2328,12 +2334,13 @@ async function improveText() {
 
   if (!translation.available) {
     state.status = t(uiLanguage(), 'mail.status.translatorUnavailableText', { language: languageLabel(baseLanguage) });
-    state.message = t(uiLanguage(), 'mail.status.translatorUnavailableImproveBody', { language: languageLabel(baseLanguage) });
+    state.mailTranslationState = 'failed';
     render();
     return;
   }
 
   state.message = normalizeTranslatedMailBody(translation.text);
+  state.mailTranslationState = state.translatorEnabled ? 'succeeded' : 'not-requested';
   state.status = state.translatorEnabled
     ? t(uiLanguage(), 'mail.status.improvedTranslated', { language: languageLabel(baseLanguage), provider: translation.provider })
     : t(uiLanguage(), 'mail.status.improvedProfileLanguage', { language: languageLabel(baseLanguage) });
@@ -2505,6 +2512,7 @@ function correctTranslatorText() {
 
 async function translateEmailOnly() {
   const source = state.message.trim();
+  const subjectSource = state.subject.trim();
 
   if (!source) {
     state.status = t(uiLanguage(), 'mail.status.enterMessage');
@@ -2517,16 +2525,27 @@ async function translateEmailOnly() {
   }
 
   const sourceLanguage = detectMessageLanguage(source, state.profile.preferredLanguage);
-  const translation = await translateWithAdapter(source, sourceLanguage, state.targetLanguage);
+  const [translation, subjectTranslation] = await Promise.all([
+    translateWithAdapter(source, sourceLanguage, state.targetLanguage),
+    subjectSource
+      ? translateWithAdapter(
+          subjectSource,
+          detectMessageLanguage(subjectSource, state.profile.preferredLanguage),
+          state.targetLanguage,
+        )
+      : Promise.resolve({ text: '', available: true, provider: 'local-fallback' as const }),
+  ]);
 
-  if (!translation.available) {
+  if (!translation.available || !subjectTranslation.available) {
     state.status = t(uiLanguage(), 'mail.status.translatorUnavailableMessage', { language: languageLabel(state.targetLanguage) });
-    state.message = t(uiLanguage(), 'mail.status.translatorUnavailableMessageBody');
+    state.mailTranslationState = 'failed';
     render();
     return;
   }
 
   state.message = translation.text;
+  if (subjectSource) state.subject = subjectTranslation.text;
+  state.mailTranslationState = 'succeeded';
   state.status = t(uiLanguage(), 'mail.status.messageTranslated', {
     language: languageLabel(state.targetLanguage),
     provider: translation.provider,
@@ -3635,6 +3654,17 @@ function mailClearStatus() {
 }
 
 function prepareEmailSend() {
+  if (!mailTranslationAllowsSend(state.translatorEnabled, state.mailTranslationState)) {
+    state.mailReviewOpen = false;
+    state.status = t(
+      uiLanguage(),
+      state.mailTranslationState === 'failed'
+        ? 'mail.status.translationFailedSendBlocked'
+        : 'mail.status.translationRequiredSendBlocked',
+    );
+    render();
+    return;
+  }
   const security = evaluateMailDraftSecurity(currentMailDraft());
 
   state.mailSecurityMessages = security.messages;
@@ -3652,6 +3682,12 @@ function prepareEmailSend() {
 }
 
 async function confirmMailPreview() {
+  if (!mailTranslationAllowsSend(state.translatorEnabled, state.mailTranslationState)) {
+    state.mailReviewOpen = false;
+    state.status = t(uiLanguage(), 'mail.status.translationFailedSendBlocked');
+    render();
+    return;
+  }
   if (!realMailSendingIsApproved()) {
     state.mailReviewOpen = false;
     state.status = t(uiLanguage(), 'mail.blockedSendMessage');
@@ -3697,6 +3733,7 @@ function clearEmail() {
   state.recipient = '';
   state.subject = '';
   state.message = '';
+  state.mailTranslationState = state.translatorEnabled ? 'pending' : 'not-requested';
   state.mailReviewOpen = false;
   state.mailSecurityMessages = [];
   state.status = mailClearStatus();
