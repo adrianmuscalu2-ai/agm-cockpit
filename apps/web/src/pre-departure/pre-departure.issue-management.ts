@@ -4,6 +4,7 @@ import type {
   PreDepartureTransitionResult,
 } from './pre-departure.types';
 import { transitionPreDeparture } from './pre-departure.machine';
+import { createPreDepartureUuid } from './pre-departure.uuid';
 
 export function openPreDepartureIssue(
   session: PreDepartureSession,
@@ -37,7 +38,7 @@ export function openPreDepartureIssue(
     (issue) => issue.checkId === input.checkId && issue.status === 'open',
   );
   const issue: PreDepartureIssue = {
-    id: existing?.id ?? input.issueId ?? crypto.randomUUID(),
+    id: existing?.id ?? input.issueId ?? createPreDepartureUuid(),
     checkId: input.checkId,
     description,
     severity: input.severity,

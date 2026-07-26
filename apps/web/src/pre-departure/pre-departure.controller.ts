@@ -19,6 +19,7 @@ import {
   createPreDepartureFinalReport,
   downloadPreDepartureReport,
 } from './pre-departure.report';
+import { createPreDepartureUuid } from './pre-departure.uuid';
 
 const STORAGE_KEY = 'agm.e6.pre-departure.session.v1';
 const SYNC_META_KEY = 'agm.pre-departure.sync-meta.v1';
@@ -200,8 +201,8 @@ function readSyncMeta() {
   }
   const startedAt = new Date().toISOString();
   return {
-    clientSessionId: crypto.randomUUID(),
-    idempotencyKey: crypto.randomUUID(),
+    clientSessionId: createPreDepartureUuid(),
+    idempotencyKey: createPreDepartureUuid(),
     startedAt,
     clientRevision: 0,
     serverRevision: 0,

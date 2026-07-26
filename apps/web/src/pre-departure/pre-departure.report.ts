@@ -1,5 +1,6 @@
 import type { PreDepartureSession } from './pre-departure.types';
 import { openPreDepartureIssues } from './pre-departure.issue-management';
+import { sha256Hex } from './pre-departure.sha256';
 
 export const PRE_DEPARTURE_REPORT_VERSION = '1.0.0' as const;
 
@@ -36,7 +37,7 @@ export async function createPreDepartureFinalReport(
     ...report,
     integrity: {
       algorithm: 'SHA-256' as const,
-      digest: await sha256(JSON.stringify(report)),
+      digest: await sha256Hex(JSON.stringify(report)),
     },
   };
 }
@@ -49,9 +50,4 @@ export function downloadPreDepartureReport(report: Awaited<ReturnType<typeof cre
   anchor.download = `agm-pre-departure-${report.clientSessionId}-${report.generatedAt.replace(/[:.]/g, '-')}.json`;
   anchor.click();
   URL.revokeObjectURL(url);
-}
-
-async function sha256(value: string) {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 }
