@@ -56,7 +56,7 @@ assert.ok(shellRo.includes('data-pre-departure-language'));
 assert.ok(shellRo.includes('data-pre-departure-action="start"'));
 assert.ok(shellRo.includes(preDepartureCopy.ro.automaticSummaryHint));
 assert.ok(shellRo.includes(preDepartureCopy.ro.stepsHint));
-assert.ok(shellRo.includes('href="#pre-departure-checks"'));
+assert.ok(shellRo.includes('data-pre-departure-action="continue"'));
 assert.ok(preDepartureCopy.ro.resetQuestion.includes('Înainte de plecare'));
 assert.ok(preDepartureCopy.de.resetQuestion.includes('Vor der Abfahrt'));
 assert.ok(preDepartureCopy.en.resetQuestion.includes('Before Departure'));

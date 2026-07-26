@@ -75,6 +75,7 @@ export const preDepartureCopy: Record<
     stepsTitle: string;
     stepsHint: string;
     continueToChecks: string;
+    selectContextFeedback: string;
     contexts: Record<PreDepartureContext, string>;
     states: Record<PreDepartureState, string>;
     checks: Record<string, string>;
@@ -156,6 +157,7 @@ export const preDepartureCopy: Record<
     stepsTitle: 'Etapele verificării',
     stepsHint: 'Etapele se actualizează automat pe măsură ce completezi fluxul.',
     continueToChecks: 'Continuă la verificări',
+    selectContextFeedback: 'Selectează cel puțin un context înainte de a continua.',
     contexts: {
       local: 'Transport local',
       'long-distance': 'Transport pe distanță lungă',
@@ -260,6 +262,7 @@ export const preDepartureCopy: Record<
     stepsTitle: 'Prüfschritte',
     stepsHint: 'Die Schritte werden während des Ablaufs automatisch aktualisiert.',
     continueToChecks: 'Weiter zu den Prüfungen',
+    selectContextFeedback: 'Wähle mindestens einen Kontext, bevor du fortfährst.',
     contexts: {
       local: 'Lokaler Transport',
       'long-distance': 'Ferntransport',
@@ -364,6 +367,7 @@ export const preDepartureCopy: Record<
     stepsTitle: 'Assessment steps',
     stepsHint: 'Steps update automatically as you complete the flow.',
     continueToChecks: 'Continue to checks',
+    selectContextFeedback: 'Select at least one context before continuing.',
     contexts: {
       local: 'Local transport',
       'long-distance': 'Long-distance transport',

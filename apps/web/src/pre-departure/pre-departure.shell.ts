@@ -323,7 +323,7 @@ export function renderPreDepartureShell(state: PreDepartureViewState | PreDepart
           <button type="button" data-pre-departure-action="restore">${escapeHtml(copy.restore)}</button>
           <button type="button" data-pre-departure-action="reset" class="secondary">${escapeHtml(copy.reset)}</button>
           <button type="button" data-pre-departure-action="save" class="secondary">${escapeHtml(copy.save)}</button>
-          <a class="pre-departure-action-link" href="#pre-departure-checks">${escapeHtml(copy.continueToChecks)} ↓</a>
+          <button type="button" class="pre-departure-action-link" data-pre-departure-action="continue">${escapeHtml(copy.continueToChecks)} ↓</button>
         </div>
         <p class="pre-departure-note">${escapeHtml(copy.resumeHint)}</p>
         ${viewState.feedback ? `<p class="pre-departure-feedback" role="status" aria-live="polite">${escapeHtml(viewState.feedback)}</p>` : ''}

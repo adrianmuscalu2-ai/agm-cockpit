@@ -248,6 +248,29 @@ export function mountPreDepartureShell(root: HTMLElement) {
     .map((item) => item.dataset.preDepartureContext as PreDepartureContext)
     .filter(Boolean);
 
+  const startWithSelectedContexts = () => {
+    if (session.state !== 'NOT_STARTED') return false;
+    const contexts = selectedContexts();
+    if (!contexts.length) {
+      feedback = preDepartureCopy[language].selectContextFeedback;
+      draw();
+      return false;
+    }
+    const started = transitionPreDeparture(session, { type: 'START_SESSION' });
+    if (!started.applied) return false;
+    const contextSelection = transitionPreDeparture(started.session, {
+      type: 'SELECT_CONTEXT',
+      contexts,
+      applicableCheckIds: applicableChecksForContexts(contexts),
+    });
+    if (!contextSelection.applied) return false;
+    session = contextSelection.session;
+    feedback = '';
+    persist(session, language);
+    draw();
+    return true;
+  };
+
   root.addEventListener('change', (event) => {
     const target = event.target;
     if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement)) return;
@@ -316,20 +339,13 @@ export function mountPreDepartureShell(root: HTMLElement) {
     if (!action) return;
 
     if (action === 'start') {
-      if (session.state !== 'NOT_STARTED') return;
-      const contexts = selectedContexts();
-      const started = transitionPreDeparture(session, { type: 'START_SESSION' });
-      if (!started.applied) return;
-      session = started.session;
-      const contextSelection = transitionPreDeparture(session, {
-        type: 'SELECT_CONTEXT',
-        contexts,
-        applicableCheckIds: applicableChecksForContexts(contexts),
-      });
-      if (contextSelection.applied) session = contextSelection.session;
-      feedback = '';
-      persist(session, language);
-      draw();
+      startWithSelectedContexts();
+      return;
+    }
+
+    if (action === 'continue') {
+      if (session.state === 'NOT_STARTED' && !startWithSelectedContexts()) return;
+      root.querySelector('#pre-departure-checks')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
 
