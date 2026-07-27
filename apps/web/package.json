@@ -7,6 +7,7 @@
     "dev": "vite --host 127.0.0.1 --port 5173",
     "build": "node scripts/validate-production-api.mjs && tsc --noEmit && node scripts/build-web.mjs",
     "test:premium": "tsx scripts/test-premium-foundation.ts",
+    "test:operational-context": "tsx scripts/test-premium-operational-context.ts",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "pwa:build": "pnpm build",
     "android:add": "cap add android",
