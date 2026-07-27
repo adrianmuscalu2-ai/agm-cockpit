@@ -16,6 +16,10 @@
 8. `08_PLAN_MIGRARE_MODULE.md`
 9. `09_TESTE_CANONICE.md`
 10. `10_RAPORT_VALIDARE.md`
+11. `11_DECIZIE_INCHIDERE_OFICIALA.md`
 
 Codul fundației este în
 `apps/web/src/premium-operational-context/`.
+
+Etapa este închisă oficial cu statutul `APPROVED WITH CONDITIONS`. Condițiile
+deschise sunt urmărite în decizia oficială de închidere.
