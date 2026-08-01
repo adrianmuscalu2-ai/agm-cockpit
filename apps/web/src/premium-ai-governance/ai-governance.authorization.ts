@@ -16,6 +16,8 @@ export type AiAuthorizationRequest = AiAuthorizationValidationInput & {
   createPermitId: () => string;
 };
 
+export const maximumAiPermitTtlMs = 15 * 60_000;
+
 export function authorizeAiOperation(
   request: AiAuthorizationRequest,
 ): AiAuthorizationResult {
@@ -25,7 +27,11 @@ export function authorizeAiOperation(
   const policy = request.policy as AiGovernancePolicy;
   const permitId = request.createPermitId().trim();
   if (!permitId) return { outcome: 'denied', reason: 'invalid-permit-id' };
-  if (!Number.isFinite(request.permitTtlMs) || request.permitTtlMs <= 0) {
+  if (
+    !Number.isFinite(request.permitTtlMs) ||
+    request.permitTtlMs <= 0 ||
+    request.permitTtlMs > maximumAiPermitTtlMs
+  ) {
     return { outcome: 'denied', reason: 'invalid-permit-ttl' };
   }
 

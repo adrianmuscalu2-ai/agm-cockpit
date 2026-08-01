@@ -3,7 +3,8 @@ param(
   [string]$StatePath = "$env:ProgramData\AGM\monitor\state.json",
   [ValidateSet('Live', 'Failure', 'Recovery')]
   [string]$Simulation = 'Live',
-  [string]$OutboxPath = ''
+  [string]$OutboxPath = '',
+  [string]$EventLogPath = "$env:ProgramData\AGM\monitor\events.jsonl"
 )
 
 $ErrorActionPreference = 'Stop'
@@ -84,6 +85,38 @@ function Try-SendAgmAlert {
   }
 }
 
+function Write-AgmMonitoringEvent {
+  param(
+    [object]$Check,
+    [object]$Result,
+    [string]$Kind,
+    [string]$IncidentId,
+    [string]$Summary,
+    [string]$RecommendedAction
+  )
+  if (-not $EventLogPath) { return }
+  $directory = Split-Path -Parent $EventLogPath
+  New-Item -ItemType Directory -Path $directory -Force | Out-Null
+  $event = [ordered]@{
+    contract = 'agm-monitoring-event.v1'
+    eventId = "AGM-MON-EVT-$([guid]::NewGuid().ToString('N'))"
+    incidentId = $IncidentId
+    kind = $Kind
+    occurredAt = $now.ToUniversalTime().ToString('o')
+    detectedAt = (Get-Date).ToUniversalTime().ToString('o')
+    monitorCode = if ($Check.monitorCode) { [string]$Check.monitorCode } else { 'MON-003' }
+    checkId = [string]$Check.id
+    component = [string]$Check.name
+    environment = if ($Check.environment) { [string]$Check.environment } else { 'API' }
+    category = if ($Check.category) { [string]$Check.category } else { 'infrastructure' }
+    severity = if ($Check.severity) { [string]$Check.severity } else { 'major' }
+    summary = $Summary
+    observedResult = [string]$Result.result
+    recommendedAction = $RecommendedAction
+  }
+  $event | ConvertTo-Json -Compress | Add-Content -LiteralPath $EventLogPath -Encoding UTF8
+}
+
 function Invoke-AgmCheck {
   param([object]$Check)
 
@@ -151,6 +184,7 @@ foreach ($check in $config.checks) {
     $previous.alertSent = $false
     $previous.lastAlertError = $null
     if ($recoveryPending) {
+      $incidentId = [string]$previous.incidentId
       $subject = "[AGM RECOVERY] $($check.name) este din nou online"
       $body = @"
 Serviciu: $($check.name)
@@ -163,11 +197,23 @@ Recomandare: verificați stabilitatea și închideți incidentul numai după con
         $previous.alertSent = $true
         $previous.lastAlertError = $alertError
       }
+      if ($incidentId) {
+        Write-AgmMonitoringEvent -Check $check -Result $result -Kind 'recovery' -IncidentId $incidentId `
+          -Summary "$($check.name) este din nou online" `
+          -RecommendedAction 'Validați stabilitatea și închideți incidentul numai după confirmarea operațională.'
+      }
+      $previous.incidentId = $null
     }
   } else {
     $previous.consecutiveFailures = [int]$previous.consecutiveFailures + 1
     $previous.status = 'offline'
     if (-not $previous.alertSent -and $previous.consecutiveFailures -ge [int]$config.failureThreshold) {
+      $incidentCreated = $false
+      if (-not $previous.PSObject.Properties['incidentId'] -or -not $previous.incidentId) {
+        $previous | Add-Member -NotePropertyName incidentId -NotePropertyValue `
+          "AGM-MON-$($check.id)-$($now.ToUniversalTime().ToString('yyyyMMddTHHmmssZ'))" -Force
+        $incidentCreated = $true
+      }
       $subject = "[AGM ALERT] $($check.name) indisponibil"
       $body = @"
 Serviciu afectat: $($check.name)
@@ -182,6 +228,11 @@ Recomandare: verificați API-ul AGM, serviciul cloudflared și conectivitatea pu
       } else {
         $previous.alertSent = $true
         $previous.lastAlertError = $null
+      }
+      if ($incidentCreated) {
+        Write-AgmMonitoringEvent -Check $check -Result $result -Kind 'failure' `
+          -IncidentId ([string]$previous.incidentId) -Summary "$($check.name) indisponibil" `
+          -RecommendedAction 'Verificați componenta, ruta și dependențele; nu executați restart automat fără diagnostic.'
       }
     }
   }

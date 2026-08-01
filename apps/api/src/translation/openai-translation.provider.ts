@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TranslationProvider, TranslationRequest, TranslationResult } from './translation.types';
+import { TRANSLATION_CONTRACT } from './translation.contract';
 
 const languageNames = {
   ro: 'Romanian',
@@ -38,14 +39,14 @@ export class OpenAiTranslationProvider implements TranslationProvider {
     const startedAt = performance.now();
 
     try {
-      const response = await fetch('https://api.openai.com/v1/responses', {
+      const response = await fetch(TRANSLATION_CONTRACT.endpoint, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: this.config.get<string>('OPENAI_TRANSLATION_MODEL', 'gpt-4.1-mini'),
+          model: this.config.get<string>('OPENAI_TRANSLATION_MODEL', TRANSLATION_CONTRACT.defaultModel),
           input: [
             {
               role: 'system',
@@ -112,8 +113,10 @@ function safeErrorDetails(error: unknown) {
 }
 
 function translationTimeoutMs(configuredValue: string | undefined) {
-  const value = Number(configuredValue ?? 20_000);
-  return Number.isFinite(value) ? Math.min(60_000, Math.max(5_000, value)) : 20_000;
+  const value = Number(configuredValue ?? TRANSLATION_CONTRACT.defaultTimeoutMs);
+  return Number.isFinite(value)
+    ? Math.min(TRANSLATION_CONTRACT.maximumTimeoutMs, Math.max(TRANSLATION_CONTRACT.minimumTimeoutMs, value))
+    : TRANSLATION_CONTRACT.defaultTimeoutMs;
 }
 
 function summarizeProviderError(responseBody: string) {
@@ -122,9 +125,9 @@ function summarizeProviderError(responseBody: string) {
   try {
     const payload = JSON.parse(responseBody) as { error?: { code?: string; message?: string; type?: string } };
     const error = payload.error;
-    return [error?.type, error?.code, error?.message].filter(Boolean).join(' | ') || 'unrecognized error response';
+    return [error?.type, error?.code].filter(Boolean).join(' | ') || 'provider error response';
   } catch {
-    return responseBody.replace(/\s+/g, ' ').slice(0, 300);
+    return 'non-JSON provider error response';
   }
 }
 

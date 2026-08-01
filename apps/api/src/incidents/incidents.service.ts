@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { API006_TRACEABILITY_CONTRACT } from '../common/api006-traceability.contract';
 import { RequestContext } from '../common/request-context';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateIncidentDto } from './dto/create-incident.dto';
@@ -31,8 +32,8 @@ export class IncidentsService {
 
       const auditEvent = await this.audit.create(
         {
-          actionCode: 'create-incident-report',
-          entityType: 'IncidentReport',
+          actionCode: API006_TRACEABILITY_CONTRACT.actions.createIncident,
+          entityType: API006_TRACEABILITY_CONTRACT.entities.incident,
           entityId: incident.id,
           transportJobId: incident.transportJobId,
           reason: 'Incident report registered through business action API.',
@@ -97,8 +98,8 @@ export class IncidentsService {
 
       const auditEvent = await this.audit.create(
         {
-          actionCode: 'resolve-incident-report',
-          entityType: 'IncidentReport',
+          actionCode: API006_TRACEABILITY_CONTRACT.actions.resolveIncident,
+          entityType: API006_TRACEABILITY_CONTRACT.entities.incident,
           entityId: updatedIncident.id,
           transportJobId: updatedIncident.transportJobId,
           reason: dto.resolutionNotes ?? 'Incident report resolved through business action API.',

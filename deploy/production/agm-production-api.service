@@ -1,0 +1,26 @@
+[Unit]
+Description=AGM Production API container lifecycle
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+ConditionPathExists=/opt/agm/production/compose.production.yml
+ConditionPathExists=/opt/agm/production/secrets/agm-production.env
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+Group=root
+WorkingDirectory=/opt/agm/production
+ExecStartPre=/usr/bin/docker image inspect agm-api@sha256:b949e5dd986a4b654f4af8f58b891d714593f46ac84702e90dae623488e44a3e
+ExecStartPre=/usr/bin/docker inspect agm-postgres
+ExecStart=/usr/bin/docker compose --project-name agm-production --file /opt/agm/production/compose.production.yml up --detach --no-build --no-deps api
+ExecStop=/usr/bin/docker compose --project-name agm-production --file /opt/agm/production/compose.production.yml stop --timeout 30 api
+ExecReload=/usr/bin/docker restart --timeout 30 agm-production-api
+TimeoutStartSec=180
+TimeoutStopSec=60
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+

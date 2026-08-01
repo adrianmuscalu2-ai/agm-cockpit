@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type {
-  LoadSafetyAnalysis,
   LoadSafetyAnalysisResult,
   UploadedImage,
 } from './premium-load-safety.types';
+import { parseLoadSafetyAnalysisJson } from './premium-load-safety.validation';
 
 type OpenAiResponsePayload = {
   output_text?: string;
@@ -91,7 +91,7 @@ export class PremiumLoadSafetyProvider {
       }
 
       const payload = (await response.json()) as OpenAiResponsePayload;
-      const analysis = parseAnalysis(extractText(payload));
+      const analysis = parseLoadSafetyAnalysisJson(extractText(payload));
       return analysis ? { available: true, analysis, provider: 'openai' } : unavailable();
     } catch (error) {
       console.error('OpenAI load safety request failed.', safeErrorDetails(error));
@@ -108,31 +108,6 @@ function extractText(payload: OpenAiResponsePayload) {
     }
   }
   return undefined;
-}
-
-function parseAnalysis(value: string | undefined): LoadSafetyAnalysis | undefined {
-  if (!value) return undefined;
-  try {
-    const parsed = JSON.parse(value) as Partial<LoadSafetyAnalysis>;
-    if (!isStringArray(parsed.correct) || !isStringArray(parsed.recommendations) || !isStringArray(parsed.risks)) {
-      return undefined;
-    }
-    return {
-      correct: parsed.correct.map(cleanObservation).filter(Boolean),
-      recommendations: parsed.recommendations.map(cleanObservation).filter(Boolean),
-      risks: parsed.risks.map(cleanObservation).filter(Boolean),
-    };
-  } catch {
-    return undefined;
-  }
-}
-
-function cleanObservation(value: string) {
-  return value.replace(/\s+/g, ' ').trim().slice(0, 500);
-}
-
-function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.length <= 20 && value.every((item) => typeof item === 'string');
 }
 
 function loadSafetyTimeoutMs(value: string | undefined) {

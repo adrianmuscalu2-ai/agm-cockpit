@@ -2,6 +2,7 @@ import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PrismaService } from './prisma/prisma.service';
+import { API_CORE_CONTRACT } from './api-core.contract';
 
 @Controller('health')
 @SkipThrottle()
@@ -18,7 +19,7 @@ export class HealthController {
     return {
       data: {
         status: 'ok',
-        service: 'agm-api',
+        service: API_CORE_CONTRACT.service,
         check: 'live',
       },
       meta: {
@@ -40,7 +41,7 @@ export class HealthController {
     } catch {
       throw new ServiceUnavailableException({
         status: 'not_ready',
-        service: 'agm-api',
+        service: API_CORE_CONTRACT.service,
         dependencies,
       });
     }
@@ -48,7 +49,7 @@ export class HealthController {
     if (dependencies.translationProvider !== 'configured') {
       throw new ServiceUnavailableException({
         status: 'not_ready',
-        service: 'agm-api',
+        service: API_CORE_CONTRACT.service,
         dependencies,
       });
     }
@@ -56,7 +57,7 @@ export class HealthController {
     return {
       data: {
         status: 'ready',
-        service: 'agm-api',
+        service: API_CORE_CONTRACT.service,
         dependencies,
       },
       meta: {

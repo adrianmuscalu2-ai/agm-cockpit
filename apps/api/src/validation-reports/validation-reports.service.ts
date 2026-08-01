@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { randomUUID } from 'crypto';
+import { API006_TRACEABILITY_CONTRACT } from '../common/api006-traceability.contract';
 import { RequestContext } from '../common/request-context';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -44,7 +45,7 @@ export class ValidationReportsService {
         validationReportId: randomUUID(),
         companyId: ctx.companyId,
         validationType: input.validationType,
-        validationVersion: '2026.1',
+        validationVersion: API006_TRACEABILITY_CONTRACT.validationVersion,
         parentValidationReportId: input.parentValidationReportId,
         correlationId: ctx.correlationId || randomUUID(),
         requestId: ctx.requestId || randomUUID(),

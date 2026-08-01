@@ -1,0 +1,13 @@
+413b43023a8f05e89d8ce4738c3ec58e68c9e8f61b238ef7310df077643e4415  apps/api/src/turn-admin/turn-admin.contract.ts
+d036240fc83a91067372657bd81a19e4a8803f971ba4ef5d20b8d1605e1d181c  apps/api/src/turn-admin/turn-admin.service.ts
+8f94ef3179b42de53e0d862afe7589fa6460c86dbcd1fa133bd9e6ff6e4e3942  apps/api/src/turn-admin/turn-admin.controller.ts
+f3a59ca1bbcdf0d7a6b45e234907dfac3aafeaaca730e0fd86649d30978acbfa  apps/api/test/turn-admin.service.spec.ts
+cd37a2bd31514a3e836807b3f04dddf07423cf336aede6c0f98d90556342ac7f  apps/api/test/security.e2e.spec.ts
+437b3f16ab02e31cf6e96cb69c67c06c90850e80c71df90416ba8df838faee38  evidence/governance/modules/API-007/v1.0/CLOSURE_DECISION.md
+631ad59113a918ef2b3ecf207a4d69244a19150783d281db712d25e0909be5e7  evidence/governance/modules/API-007/v1.0/CONTINUITY_EVALUATION.md
+53a1076e44aa0d1515ca0006f8eed296a9c05b360fce71df9fe074e5771ac94c  evidence/governance/modules/API-007/v1.0/G0_INITIATION.md
+7ef60a2fe4ccf92eedb833165f836f29727049c944cafd189d73ee99fd531d3c  evidence/governance/modules/API-007/v1.0/INTERFACE_INVENTORY_G0.md
+93814a9a5eeae22d97d35c6348214e48462c13fdf7d16cf3d87a41d8dce6c80d  evidence/governance/modules/API-007/v1.0/MODULE_STATUS.md
+0c74a458773efd3e6b338811b1ae08337f58e0b8fed7b6daca9fc094f0b7b6b3  evidence/governance/modules/API-007/v1.0/SECURITY_CONTRACT.md
+a80333ba4fa1eb72874525b55f9c74031dc932eeaaed7d1189246630e7a61288  evidence/governance/modules/API-007/v1.0/USER_VALIDATION.md
+16f07a7900e49dbed9412eed72f4a0421bf4c413b349e2a9f111e880eedde4e8  evidence/governance/modules/API-007/v1.0/VALIDATION_REPORT.md

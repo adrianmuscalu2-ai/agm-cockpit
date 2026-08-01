@@ -74,6 +74,28 @@ const tampered = events.map((event) => ({ ...event, integrity: { ...event.integr
 tampered[1].integrity.previousEventId = randomUUID();
 assert.equal(validateRestorableTripContext((await ports.repository.readActive())!, tampered).valid, false);
 
+const duplicateEvent = [...events, events.at(-1)!];
+assert.deepEqual(
+  validateRestorableTripContext((await ports.repository.readActive())!, duplicateEvent),
+  { valid: false, reason: 'DUPLICATE_EVENT_ID' },
+);
+
+const wrongVersion = events.map((event) => ({ ...event }));
+wrongVersion[1].aggregateVersion = 99;
+assert.deepEqual(
+  validateRestorableTripContext((await ports.repository.readActive())!, wrongVersion),
+  { valid: false, reason: 'EVENT_CHAIN_BROKEN' },
+);
+
+const mismatchedContext = {
+  ...(await ports.repository.readActive())!,
+  lifecycleState: 'TRIP_ACTIVE' as const,
+};
+assert.deepEqual(
+  validateRestorableTripContext(mismatchedContext, events),
+  { valid: false, reason: 'CONTEXT_EVENT_STATE_MISMATCH' },
+);
+
 assert.equal(mappingForPremiumState('TRIP_ACTIVE')?.preferredTransportJobState, 'in_transport');
 assert.equal(transportJobStateSupportsPremiumState('TRIP_ACTIVE', 'InTransport'), true);
 assert.equal(transportJobStateSupportsPremiumState('ARCHIVED', 'Archived'), true);

@@ -5,6 +5,7 @@ import { preDepartureCopy, preDepartureLanguages } from '../src/pre-departure/pr
 import { createPreDepartureSession, transitionPreDeparture } from '../src/pre-departure/pre-departure.machine';
 import { renderPreDepartureShell } from '../src/pre-departure/pre-departure.shell';
 import { preDepartureCore } from '../src/pre-departure/pre-departure.module';
+import { createWebBuildDefinition } from '../web-build-definition.mjs';
 
 assert.deepEqual([...preDepartureLanguages], ['ro', 'de', 'en']);
 assert.equal(preDepartureCore.stateCount, 8);
@@ -87,7 +88,9 @@ const confirmed = transitionPreDeparture(assessmentComplete.session, { type: 'CO
 assert.equal(confirmed.applied, true);
 assert.equal(confirmed.session.state, 'CONFIRMED');
 
-const viteConfig = readFileSync(new URL('../vite.config.mjs', import.meta.url), 'utf8');
-assert.ok(viteConfig.includes("beforeDeparture: 'before-departure.html'"));
+assert.equal(
+  createWebBuildDefinition().build.rollupOptions.input.beforeDeparture,
+  'before-departure.html',
+);
 
 console.log('E6.4-E6.6 validation checks passed.');

@@ -1,5 +1,6 @@
 import type { GovernedAiModuleId } from './ai-governance.contract';
 import type { AiGovernanceRiskLevel } from './ai-governance.risk';
+import type { AiGovernanceOperation } from './ai-governance.contract';
 
 export type AiGovernancePermitStatus =
   | 'issued'
@@ -45,5 +46,19 @@ export function isAiGovernancePermitValid(
     permit.status === 'issued' &&
     permit.policyVersion === policyVersion &&
     Date.parse(permit.expiresAt) > now.getTime()
+  );
+}
+
+export function isAiGovernancePermitValidForOperation(
+  permit: AiGovernancePermit,
+  operation: AiGovernanceOperation,
+  policyVersion: string,
+  now: Date,
+) {
+  return (
+    isAiGovernancePermitValid(permit, policyVersion, now) &&
+    permit.operationId === operation.id &&
+    permit.moduleId === operation.moduleId &&
+    permit.capability === operation.capability
   );
 }

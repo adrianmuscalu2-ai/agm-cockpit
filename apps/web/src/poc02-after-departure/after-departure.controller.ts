@@ -7,6 +7,10 @@ import {
 } from './after-departure.view';
 import { transitionAssessment } from './after-departure.presenter';
 import type { AfterDepartureState } from './after-departure.types';
+import {
+  createAfterDepartureJourneyAdapter,
+  type AfterDepartureJourneyAdapter,
+} from './after-departure.journey-adapter';
 
 const initialState = (): AfterDepartureViewState => ({
   language: normalizeAfterDepartureLanguage(window.localStorage.getItem('agm.poc02.language')),
@@ -18,7 +22,10 @@ const initialState = (): AfterDepartureViewState => ({
   online: navigator.onLine,
 });
 
-export function mountAfterDepartureApp(root: HTMLElement) {
+export function mountAfterDepartureApp(
+  root: HTMLElement,
+  journeyAdapter: AfterDepartureJourneyAdapter = createAfterDepartureJourneyAdapter(),
+) {
   let state = initialState();
 
   const readFormState = () => {
@@ -69,6 +76,9 @@ export function mountAfterDepartureApp(root: HTMLElement) {
         externalActionRequested: state.externalActionRequested,
         facts: state.facts,
       });
+      void journeyAdapter.record(window.localStorage, state.assessment, state.online).catch((error) => {
+        console.error('After-departure Journey recording failed.', error);
+      });
       render();
     });
 
@@ -84,6 +94,9 @@ export function mountAfterDepartureApp(root: HTMLElement) {
           state.assessment,
           button.dataset.afterDepartureTransition as AfterDepartureState,
         );
+        void journeyAdapter.record(window.localStorage, state.assessment, state.online).catch((error) => {
+          console.error('After-departure Journey transition recording failed.', error);
+        });
         render();
       });
     });

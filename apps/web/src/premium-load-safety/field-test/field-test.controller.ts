@@ -1,5 +1,6 @@
 import type { UiLanguage } from '../../i18n/app-i18n.types';
 import { LoadSafetyApiError } from '../load-safety.api';
+import { validateLoadSafetyImageFile } from '../load-safety.module';
 import { requestFieldTestReport } from './field-test.api';
 import { readStrapLabel } from './field-test.ocr';
 import { inspectFieldPhoto, prepareFieldPhoto } from './field-test.quality';
@@ -10,22 +11,30 @@ export async function selectFieldPhoto(input: HTMLInputElement) {
   const role = input.dataset.fieldPhoto as FieldPhotoRole | undefined;
   const file = input.files?.[0];
   if (!role || !file) return false;
+  const validation = validateLoadSafetyImageFile(file);
+  if (!validation.valid) {
+    fieldTestState.statusKey = `premium.loadSafety.status.${validation.reason}`;
+    return false;
+  }
   const previous = fieldTestState.photos[role];
-  if (previous) URL.revokeObjectURL(previous.previewUrl);
-  const preparedFile = await prepareFieldPhoto(file);
-  fieldTestState.photos[role] = { role, file: preparedFile, previewUrl: URL.createObjectURL(preparedFile), checking: true };
-  fieldTestState.report = undefined;
   try {
+    const preparedFile = await prepareFieldPhoto(file);
+    if (previous) URL.revokeObjectURL(previous.previewUrl);
+    fieldTestState.photos[role] = { role, file: preparedFile, previewUrl: URL.createObjectURL(preparedFile), checking: true };
+    fieldTestState.report = undefined;
     fieldTestState.photos[role]!.quality = await inspectFieldPhoto(preparedFile);
     fieldTestState.statusKey = fieldTestCanAnalyze()
       ? 'premium.loadSafety.field.status.photosReady'
       : 'premium.loadSafety.field.status.ready';
   } catch {
-    fieldTestState.photos[role]!.quality = {
-      usable: false, width: 0, height: 0, sharpness: 0, exposure: 0, issues: ['resolution'],
-    };
+    if (fieldTestState.photos[role]) {
+      fieldTestState.photos[role]!.quality = {
+        usable: false, width: 0, height: 0, sharpness: 0, exposure: 0, issues: ['resolution'],
+      };
+    }
+    fieldTestState.statusKey = 'premium.loadSafety.field.status.failed';
   } finally {
-    fieldTestState.photos[role]!.checking = false;
+    if (fieldTestState.photos[role]) fieldTestState.photos[role]!.checking = false;
   }
   return true;
 }

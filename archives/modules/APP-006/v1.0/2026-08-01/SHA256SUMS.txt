@@ -1,0 +1,12 @@
+791b73903bca0a443cc6bbea08f5232c270f497a43d7f5efc2850d44f98193a6  apps/web/src/text-corrector/text-corrector.types.ts
+7cdcf3e2335174bdc29e1e4fccd31cd470fc6b93ea5300e4b0e77d995b67d720  apps/web/src/text-corrector/text-corrector.service.ts
+6bfcd5fa43bb2afffe761869c4042563e57aa389040ccc5b233aae9a8a7582c0  apps/web/src/text-corrector/text-corrector.agents.ts
+68c8d7da762242185400f98cb3a6514f4151c1247178f5d7f09290fca851e8d5  apps/web/scripts/test-app006-text-corrector-contract.ts
+7faa0283f1e96e3caf1991c8dc691963e094fbb5e3f888e2da297c941b6c75d3  evidence/governance/modules/APP-006/v1.0/CLOSURE_DECISION.md
+5d818319e1e97dcf69502200635d21918ddc7d970e579a3613ecaf7731231df5  evidence/governance/modules/APP-006/v1.0/CONTINUITY_EVALUATION.md
+b0336da776e5bc901f67ee7241720a62eb3b2012bf96ee51d6587f2ae55710a3  evidence/governance/modules/APP-006/v1.0/G0_INITIATION.md
+384c890e8843b123ad7272c041e43c0cd6b01de3b1d91dcfe256276de3a72987  evidence/governance/modules/APP-006/v1.0/INTERFACE_INVENTORY_G0.md
+f6a0f16e2af59085373e459b2a6094393526bcbd39085d61f7564c3009b1101d  evidence/governance/modules/APP-006/v1.0/MODULE_STATUS.md
+2d1682daf1db34521d8ab352b5f8ff9e6499f63952fa739fc7f761c2898ef579  evidence/governance/modules/APP-006/v1.0/TEXT_CORRECTOR_CONTRACT.md
+93d8a13f6d09f80b437a46315a9ae7ef964cbef1623c607351d090cf976de7c1  evidence/governance/modules/APP-006/v1.0/USER_VALIDATION.md
+a397ff6bf8c72d6e6fb6e05ff17a9d155df6279a528372865b596d9f245e61c1  evidence/governance/modules/APP-006/v1.0/VALIDATION_REPORT.md

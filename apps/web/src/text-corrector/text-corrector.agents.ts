@@ -6,9 +6,9 @@ import {
   type TextCorrectorResult,
 } from './text-corrector.types';
 
-const roDePairs = [['ro', 'de'], ['de', 'ro']] as Array<Readonly<[LanguageCode, LanguageCode]>>;
-const roEnPairs = [['ro', 'en'], ['en', 'ro']] as Array<Readonly<[LanguageCode, LanguageCode]>>;
-const deEnPairs = [['de', 'en'], ['en', 'de']] as Array<Readonly<[LanguageCode, LanguageCode]>>;
+const roDePairs = [['ro', 'ro'], ['ro', 'de'], ['de', 'ro']] as Array<Readonly<[LanguageCode, LanguageCode]>>;
+const roEnPairs = [['en', 'en'], ['ro', 'en'], ['en', 'ro']] as Array<Readonly<[LanguageCode, LanguageCode]>>;
+const deEnPairs = [['de', 'de'], ['de', 'en'], ['en', 'de']] as Array<Readonly<[LanguageCode, LanguageCode]>>;
 
 export const textCorrectorAgents: TextCorrectorAgent[] = [
   createAgent('AG-011-011A', roDePairs),

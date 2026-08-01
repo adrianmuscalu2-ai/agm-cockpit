@@ -1,0 +1,13 @@
+528c3c4a81b987e93b89a728b7923693263a7caf6c435af82a4448e16ac1aca9  apps/web/src/app-shell/navigation.contract.ts
+c16905aab9f4dee6e1535248ca896bc046ddd05572a493097ec2d13c4c790de4  apps/web/src/app-shell/view-module.registry.ts
+1eed38c5aaff3d47e0a137bf131b78273edfba21c566209a897ba3dae2f45ec7  apps/web/src/app-shell/app-state.contract.ts
+13730b9779d447117283e68b6cb37047e8e0b04246961b9a193a13d6dc1e29f1  apps/web/src/main.ts
+dc48995a7506a8bfb13a00337444fb3ebbc16f74c549d99878ab528da25a756e  apps/web/scripts/test-app001-shell-navigation.ts
+383614fa00cf268bb01a5dd00554a825cd0aaee9406f3b6801572e8189defa92  evidence/governance/modules/APP-001/v1.0/CLOSURE_DECISION.md
+ba660e80f94169d1d44f75eb67674ff2cf5fdef7551819a7bf506251385df76d  evidence/governance/modules/APP-001/v1.0/CONTINUITY_EVALUATION.md
+2c30e6813d52580204426c165cce853c0b125247bce3d68137032ed6e83cb848  evidence/governance/modules/APP-001/v1.0/G0_INITIATION.md
+665a8d2f1a2f6109f981e20f6c24b5e4eb41411dccf87f023aa12ba905637f1d  evidence/governance/modules/APP-001/v1.0/INTERFACE_INVENTORY_G0.md
+8c0daf87e6c48bc8bb9b351511940a2ce0bc31114313ec8cf5ed410817ef0c71  evidence/governance/modules/APP-001/v1.0/MODULE_STATUS.md
+0114eac19293f1b2c8dfc2fab4ee7da2cc3688ae106d7289b6866564a9fb0f68  evidence/governance/modules/APP-001/v1.0/NAVIGATION_CONTRACT.md
+3f74344e4b5ac4642bb2cb2bdcd6e79a2ba084f9cca46d4992f2fffa03685870  evidence/governance/modules/APP-001/v1.0/USER_VALIDATION.md
+009bec648077ffa3c9901cf1ceac2c3ec530caa1277d4d3a19f8308215ac5170  evidence/governance/modules/APP-001/v1.0/VALIDATION_REPORT.md

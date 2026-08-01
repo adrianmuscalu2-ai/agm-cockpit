@@ -174,6 +174,22 @@ const mission = {
   capability: 'prepare-translation' as const,
   userRequest: 'Tradu în germană.',
   proposedAction: 'Pregătește traducerea în limba germană.',
+  contextRefs: [],
+  usesPersonalData: false as const,
+  producesExternalEffect: false as const,
+};
+const foundationPermit = {
+  id: 'foundation-permit',
+  operationId: mission.id,
+  moduleId: 'ai-copilot' as const,
+  capability: mission.capability,
+  policyId: 'copilot-policy',
+  policyVersion: 'copilot-policy@1.0.0',
+  risk: 'sensitive' as const,
+  issuedAt: '2026-07-19T09:59:00.000Z',
+  expiresAt: '2026-07-19T10:01:00.000Z',
+  singleUse: true as const,
+  status: 'issued' as const,
 };
 assert.equal(premiumApplicationModules.copilot, premiumCopilotModule);
 
@@ -191,12 +207,18 @@ const preparedState = transitionPremiumCopilot(validationState, {
 });
 const prematureApproval = transitionPremiumCopilot(preparedState, {
   type: 'approve',
+  permit: foundationPermit,
+  policyVersion: foundationPermit.policyVersion,
+  now: new Date('2026-07-19T10:00:00.000Z'),
 });
 const confirmationState = transitionPremiumCopilot(preparedState, {
   type: 'request-confirmation',
 });
 const approvedState = transitionPremiumCopilot(confirmationState, {
   type: 'approve',
+  permit: foundationPermit,
+  policyVersion: foundationPermit.policyVersion,
+  now: new Date('2026-07-19T10:00:00.000Z'),
 });
 
 assert.equal(premiumCopilotModule.enabled, false);
@@ -254,11 +276,22 @@ const contextRequest = {
   source: 'operational-question' as const,
   content: 'Care este următorul pas?',
   language: 'ro' as const,
+  contextRefs: ['question:validation'],
+  usesPersonalData: false as const,
+  producesExternalEffect: false as const,
+};
+const contextPermit = {
+  id: 'context-foundation-permit', operationId: contextRequest.id,
+  moduleId: 'advanced-context-analysis' as const, capability: 'analyze-context',
+  policyId: 'context-analysis-policy', policyVersion: 'context-analysis-policy@1.0.0',
+  risk: 'sensitive' as const, issuedAt: '2026-07-19T09:59:00.000Z',
+  expiresAt: '2026-07-19T10:01:00.000Z', singleUse: true as const, status: 'issued' as const,
 };
 const disabledContextState = premiumContextAnalysisModule.initialState;
 const blockedContextAnalysis = transitionPremiumContextAnalysis(
   disabledContextState,
-  { type: 'start-analysis', request: contextRequest },
+  { type: 'start-analysis', request: contextRequest, permit: contextPermit,
+    policyVersion: contextPermit.policyVersion, now: new Date('2026-07-19T10:00:00.000Z') },
 );
 const contextValidationState = transitionPremiumContextAnalysis(
   disabledContextState,
@@ -266,7 +299,8 @@ const contextValidationState = transitionPremiumContextAnalysis(
 );
 const analyzingContextState = transitionPremiumContextAnalysis(
   contextValidationState,
-  { type: 'start-analysis', request: contextRequest },
+  { type: 'start-analysis', request: contextRequest, permit: contextPermit,
+    policyVersion: contextPermit.policyVersion, now: new Date('2026-07-19T10:00:00.000Z') },
 );
 const prematureContextConfirmation = transitionPremiumContextAnalysis(
   analyzingContextState,
@@ -281,6 +315,7 @@ const proposedContextState = transitionPremiumContextAnalysis(
         id: 'finding-validation',
         summary: 'Constatare pentru validarea fluxului.',
         confidence: 0.8,
+        sourceRefs: ['question:validation'],
         requiresUserConfirmation: true,
       },
     ],
@@ -323,12 +358,16 @@ const recommendation = {
     type: 'validated-rule' as const,
     id: 'ambiguous-text-rule',
     version: '1.0.0',
+    confirmedByUser: true as const,
   },
   confidence: 0.82,
   sensitivity: 'standard' as const,
   ruleVersion: 'ambiguous-text@1.0.0',
   createdAt: '2026-07-18T10:00:00.000Z',
   expiresAt: '2026-07-18T11:00:00.000Z',
+  contextRefs: ['rule:ambiguous-text-rule'],
+  usesPersonalData: false as const,
+  producesExternalEffect: false as const,
 };
 const inspectorDecision = inspectProactiveRecommendation(
   recommendation,
@@ -340,7 +379,7 @@ const createdRecommendationState = {
 };
 const prematureAcceptance = transitionProactiveRecommendation(
   createdRecommendationState,
-  { type: 'accept' },
+  { type: 'accept', now: new Date('2026-07-18T10:30:00.000Z') },
 );
 const waitingInspectorState = transitionProactiveRecommendation(
   createdRecommendationState,
@@ -352,7 +391,7 @@ const approvedRecommendationState = transitionProactiveRecommendation(
 );
 const acceptedRecommendationState = transitionProactiveRecommendation(
   approvedRecommendationState,
-  { type: 'accept' },
+  { type: 'accept', now: new Date('2026-07-18T10:30:00.000Z') },
 );
 const blockedRecommendation = {
   ...recommendation,

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service';
+import { API006_TRACEABILITY_CONTRACT } from '../common/api006-traceability.contract';
 import { RequestContext } from '../common/request-context';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEvidenceMetadataDto } from './dto/create-evidence-metadata.dto';
@@ -36,8 +37,8 @@ export class EvidenceService {
 
       const auditEvent = await this.audit.create(
         {
-          actionCode: 'create-evidence-metadata',
-          entityType: 'EvidenceMetadata',
+          actionCode: API006_TRACEABILITY_CONTRACT.actions.createEvidence,
+          entityType: API006_TRACEABILITY_CONTRACT.entities.evidence,
           entityId: evidence.id,
           transportJobId: evidence.transportJobId ?? undefined,
           reason: 'Evidence metadata registered through business action API.',

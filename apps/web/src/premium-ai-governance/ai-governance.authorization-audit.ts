@@ -24,9 +24,17 @@ export function createAiAuthorizationAuditEntry(input: {
     outcome:
       input.result.outcome === 'permitted'
         ? 'permit-issued'
-        : 'policy-blocked',
+        : auditOutcomeForDenial(input.result.reason),
     reasonCodes:
       input.result.outcome === 'denied' ? [input.result.reason] : [],
     containsPersonalContent: false,
   };
+}
+
+function auditOutcomeForDenial(reason: Extract<AiAuthorizationResult, { outcome: 'denied' }>['reason']) {
+  if (reason === 'kill-switch-engaged') return 'kill-switch-blocked' as const;
+  if (reason === 'inspector-confirmation-required' || reason === 'inspector-confirmation-invalid') {
+    return 'inspector-blocked' as const;
+  }
+  return 'policy-blocked' as const;
 }

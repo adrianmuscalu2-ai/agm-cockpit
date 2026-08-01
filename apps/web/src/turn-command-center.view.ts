@@ -8,6 +8,7 @@ import { operationalClosureRegistry } from './operational-closure.registry';
 import { operationsHealthSources } from './operations-health';
 import { renderMonitoringDepartment } from './monitoring-department';
 import { renderTurnOrganizationChart } from './turn-organization-chart';
+import { turnCommandCenterContract } from './turn-command-center.contract';
 import {
   type TurnCommandItem,
   type TurnHealthStatus,
@@ -41,7 +42,12 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
   );
 
   return `
-    <section class="turn-command-center" aria-label="${escapeHtml(t(language, 'turn.ariaLabel'))}">
+    <section
+      class="turn-command-center"
+      aria-label="${escapeHtml(t(language, 'turn.ariaLabel'))}"
+      data-module-contract="${turnCommandCenterContract.version}"
+      data-operation-mode="${turnCommandCenterContract.mode}"
+    >
       ${renderCentralAlertPanel(incidents)}
       ${renderOperationsCenter(incidents)}
       ${renderMonitoringDepartment(incidents)}
@@ -56,6 +62,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
         <div class="turn-readonly-badge">
           <strong>${escapeHtml(t(language, 'turn.readOnly'))}</strong>
           <span>${escapeHtml(t(language, 'turn.readOnlyDesc'))}</span>
+          <small>Surse: ${turnCommandCenterContract.dataSources.map(escapeHtml).join(' · ')}</small>
         </div>
       </header>
 

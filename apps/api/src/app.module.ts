@@ -17,6 +17,7 @@ import { ValidationReportsModule } from './validation-reports/validation-reports
 import { TurnAdminModule } from './turn-admin/turn-admin.module';
 import { validateEnvironment } from './config/environment';
 import { PreDepartureSyncModule } from './pre-departure-sync/pre-departure-sync.module';
+import { API_CORE_CONTRACT } from './api-core.contract';
 
 @Module({
   imports: [
@@ -25,7 +26,11 @@ import { PreDepartureSyncModule } from './pre-departure-sync/pre-departure-sync.
       envFilePath: ['.env', '../../.env'],
       validate: validateEnvironment,
     }),
-    ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
+    ThrottlerModule.forRoot([{
+      name: 'default',
+      ttl: API_CORE_CONTRACT.throttle.ttlMs,
+      limit: API_CORE_CONTRACT.throttle.limit,
+    }]),
     PrismaModule,
     UsersModule,
     AuthModule,

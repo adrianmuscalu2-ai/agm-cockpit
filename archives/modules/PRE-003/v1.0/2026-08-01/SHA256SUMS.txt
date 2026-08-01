@@ -1,0 +1,15 @@
+d6140c27f482b333627e0f8c2af4d199e17bcc99b9acb5325c663c26395e89ac  apps/web/src/premium-copilot/premium-copilot.contract.ts
+7a2d6085c30fb58ca3d22e282fe0a16f4d724985890d0aa63dc6f65e188b5c86  apps/web/src/premium-copilot/premium-copilot.module.ts
+ab08eb9ab5b07a0c62c69acad59105fea5a395844a6544e26cf7395fa3ba2106  apps/web/src/premium-copilot/premium-copilot.states.ts
+b4e29349717ec3dd1f9b408bd0b2606c6548ee2f334b07537edd83721c51edff  apps/web/src/premium-copilot/premium-copilot.validation.ts
+152cc6c73f6a40a7776e3bdc72873d41aa7825ba291437fe2f7cad2e30da0367  apps/web/src/premium-copilot/premium-copilot.workflow.ts
+6a4bfc1b35e8af67b0fd57cc2956646a18e64a93098dd0c4214434e478062439  apps/web/scripts/test-pre003-ai-copilot-contract.ts
+e1abfe6812b828fae4488336a9c5ee366c7f37f781ffa7d827056ec767149975  apps/web/scripts/test-premium-foundation.ts
+a3c08a9423be9a998a5b03d65f5c63f05211ecf798bda3bf401b2d10586d4ce4  evidence/governance/modules/PRE-003/v1.0/CLOSURE_DECISION.md
+ff41869a258c397b0f63362c413b7b246f8de7bd014702634c6d379c3df354d4  evidence/governance/modules/PRE-003/v1.0/CONTINUITY_EVALUATION.md
+8e7564012f19dd0e4aa5eb493b57b449318ba84a317dc1b26506323523f21a49  evidence/governance/modules/PRE-003/v1.0/COPILOT_CONTRACT.md
+b2f84721ce5287f4be068003a5cb39fcddaf478ae3da9aaedb02dbefa059d911  evidence/governance/modules/PRE-003/v1.0/G0_INITIATION.md
+6e065ded543d94bb122fdae7877869d566730aa3d185b4d5d29938159be3f213  evidence/governance/modules/PRE-003/v1.0/INTERFACE_INVENTORY_G0.md
+e38e331b37fc0a24b099a26afedc825c130bf19dda230110963ad89aac6738ca  evidence/governance/modules/PRE-003/v1.0/MODULE_STATUS.md
+460bac75a78ca30532b92f4d037e840d16738cdc88b95eadbef481ffc1575336  evidence/governance/modules/PRE-003/v1.0/USER_VALIDATION.md
+b63331585d1e8f141c8c3fed62c651af1230140bec052b7534e462a10d9a8c3e  evidence/governance/modules/PRE-003/v1.0/VALIDATION_REPORT.md

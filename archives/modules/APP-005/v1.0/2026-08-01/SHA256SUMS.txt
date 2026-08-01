@@ -1,0 +1,14 @@
+e005e72a6366b2c6769e9bada43c2075053c3be7939e4b62af6f2c1601e62791  apps/web/src/contact-manager/contact-manager.types.ts
+7a80ee3035b160368c997565bcbb05bbac70dfb297e2303f7e46eeca7f357592  apps/web/src/contact-manager/contact-manager.validation.ts
+a42f2e81b9daf512c5bc3c7a784be51cad3a37201a4c47b8472b19e5ae9f5548  apps/web/src/contact-manager/contact-manager.storage.ts
+c08d6b231415ccaeb63eec1426ac76fcc8f11b540ff66117e3c4f24e84c424e1  apps/web/src/contact-manager/contact-manager.service.ts
+f58ad3b46fc097329049febcecb256ff8f39e9ff97e3be784fa9bca409cc7a29  apps/web/src/contact-manager/contact-manager.controller.ts
+4750e034389a8cc718163769e0898a54f4355bd81271085bcb84b7c0a002e547  apps/web/scripts/test-app005-contact-manager-contract.ts
+ff7dbf6f7c95df5eafc5d126b8b685bbc4b6e72f8d22e6fd5250a9b66f7021bd  evidence/governance/modules/APP-005/v1.0/CLOSURE_DECISION.md
+3f681cef010c9f7d36f9ba9ca3454ed0216722da47f6244fb5cfb462d990d755  evidence/governance/modules/APP-005/v1.0/CONTINUITY_EVALUATION.md
+d6483320d692674bf2a0e33ab01549de6698412b9bf8dff939a4b78bc8815656  evidence/governance/modules/APP-005/v1.0/CONTACT_MANAGER_CONTRACT.md
+27305089d44e8a7d58b98b7a38c5327639061a3071e7c0680c6ebc2a2ece50f4  evidence/governance/modules/APP-005/v1.0/G0_INITIATION.md
+6f8e4df996f326afe4ae5530bba8e7c48419dcd2ce56166a298bad676b1b3440  evidence/governance/modules/APP-005/v1.0/INTERFACE_INVENTORY_G0.md
+200f4b38bf14169ad1507872705d61920d0b9220e1b98cb1bc2dc8f27ea03e35  evidence/governance/modules/APP-005/v1.0/MODULE_STATUS.md
+9a2c72188bb06acfe2d3a31d559d517c53776a802ee8276e2314ca42b1b7402d  evidence/governance/modules/APP-005/v1.0/USER_VALIDATION.md
+82b25a6de6cb6f18e2d65824f77d2e99bf2375099de8d66aa0b3a0e412321e68  evidence/governance/modules/APP-005/v1.0/VALIDATION_REPORT.md

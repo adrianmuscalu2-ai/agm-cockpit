@@ -1,0 +1,17 @@
+5b24758889565109952e827a2da3a07e07fe1b5b1dfdd2bbebadec3b2839da03  apps/api/src/pre-departure-contract/pre-departure-contract.types.ts
+1f8854e816215da32cf58f1f6f24020805851798f19a850d60f25b83b686e38d  apps/api/src/pre-departure-contract/pre-departure-contract.validation.ts
+21392c96b42a9f93f2301ec38ffb8e68ca21ecb275936df8c296caf7fb871511  apps/api/src/pre-departure-contract/pre-departure-confirmation-contract.ts
+497de8ff3bf759b33b676970e48999bf9b289dc537f7ff04be993027a88f473d  apps/api/src/pre-departure-contract/pre-departure-issue-contract.ts
+c97fb9d07ff3ea571930cd7b1fb162250df1db25322cdfeda5aa4e45cc7dacf1  apps/api/src/pre-departure-sync/pre-departure-sync.service.ts
+db004ffc1f31309864d280a33f50954f582ab5f13cb28dd8536a2c3876f7ff90  apps/api/test/pre-departure-sync.service.spec.ts
+06c1f77ed1405f32c51fcdb9f3cc0a2d8b71debdaa24ddfaa5fa22d71153e76b  apps/api/test/pre-departure-contract.spec.ts
+7baa13ac9ba44ab384c30a5a84ebee4a9a01ef8a9f34a068c8dd1303772f767a  apps/api/test/pre-departure-confirmation-contract.spec.ts
+96bc4c7259d0faba161208b12811acf0c3183606d9feefc9fef505c796efcaac  apps/api/test/pre-departure-issue-contract.spec.ts
+eefe8a7f2f89643c212e93eaaf984169b60fdc636dd4b9f2be5a4d6c4fca0f17  evidence/governance/modules/API-005/v1.0/CLOSURE_DECISION.md
+847482e933cc715d520bbfd40f59703d293096a522c589e86e702a274eb34796  evidence/governance/modules/API-005/v1.0/CONTINUITY_EVALUATION.md
+6f362070544ba28ab6834791d1574f6070116848a5a26a73f3a46edf634c4434  evidence/governance/modules/API-005/v1.0/G0_INITIATION.md
+8249275f8b5857f7bf4562bacf6775e90f3f9d3aba51834fca76534bd1bb757e  evidence/governance/modules/API-005/v1.0/INTERFACE_INVENTORY_G0.md
+77afd2023f7744df83f356a22f944b8a9b96d072ac9bb75a79886c5fd13002dd  evidence/governance/modules/API-005/v1.0/MODULE_STATUS.md
+8a44b458dcddf7a2fdcdb34e94bc9b885e0de98dfb5289229f68152bc23b8bf6  evidence/governance/modules/API-005/v1.0/PRE_DEPARTURE_SYNC_CONTRACT.md
+133488c8492a3da84981491a40511b6cfd8bc3a77b1e9a34d84156b5a82b6e17  evidence/governance/modules/API-005/v1.0/USER_VALIDATION.md
+b0f3481037ccab29c33007c12b2c13f108bad639dcd4950d4dc6a2500b0a9a51  evidence/governance/modules/API-005/v1.0/VALIDATION_REPORT.md

@@ -1,7 +1,7 @@
 import { t } from '../i18n/app-i18n';
 import type { UiLanguage } from '../i18n/app-i18n.types';
 import { analyzeLoadSafetyImage, LoadSafetyApiError } from './load-safety.api';
-import { loadSafetyModule } from './load-safety.module';
+import { validateLoadSafetyImageFile } from './load-safety.module';
 import { loadSafetyUiState, renderLoadSafetyContent } from './load-safety.view';
 import {
   generateSecuringRecommendation,
@@ -43,13 +43,9 @@ async function onDocumentChange(event: Event) {
   const image = input.files?.[0];
   if (!image) return;
 
-  if (!loadSafetyModule.accepts.includes(image.type as (typeof loadSafetyModule.accepts)[number])) {
-    loadSafetyUiState.statusKey = 'premium.loadSafety.status.invalid';
-    refresh();
-    return;
-  }
-  if (image.size > loadSafetyModule.maxImageBytes) {
-    loadSafetyUiState.statusKey = 'premium.loadSafety.status.tooLarge';
+  const validation = validateLoadSafetyImageFile(image);
+  if (!validation.valid) {
+    loadSafetyUiState.statusKey = `premium.loadSafety.status.${validation.reason}`;
     refresh();
     return;
   }

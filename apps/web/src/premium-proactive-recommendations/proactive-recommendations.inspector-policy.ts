@@ -3,6 +3,7 @@ import {
   isRecommendationExpired,
   isValidRecommendationRuleVersion,
 } from './proactive-recommendations.expiry';
+import { validateProactiveRecommendation } from './proactive-recommendations.validation';
 
 export type ProactiveInspectorDecision =
   | { outcome: 'approved' }
@@ -12,6 +13,8 @@ export function inspectProactiveRecommendation(
   recommendation: ProactiveRecommendationDraft,
   now: Date,
 ): ProactiveInspectorDecision {
+  const validation = validateProactiveRecommendation(recommendation);
+  if (!validation.valid) return { outcome: 'blocked', reason: validation.reason };
   if (!recommendation.source.id.trim() || !recommendation.source.version.trim()) {
     return { outcome: 'blocked', reason: 'missing-source' };
   }

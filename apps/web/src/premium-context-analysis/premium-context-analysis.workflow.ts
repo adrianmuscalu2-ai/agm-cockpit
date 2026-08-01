@@ -3,10 +3,28 @@ import type {
   PremiumContextFinding,
 } from './premium-context-analysis.contract';
 import type { PremiumContextAnalysisState } from './premium-context-analysis.states';
+import type { AiGovernancePermit } from '../premium-ai-governance/ai-governance.permit';
+import {
+  isAiGovernancePermitValidForOperation,
+  transitionAiGovernancePermit,
+} from '../premium-ai-governance/ai-governance.permit';
+import {
+  premiumContextAnalysisCapability,
+} from './premium-context-analysis.contract';
+import {
+  validatePremiumContextAnalysisFindings,
+  validatePremiumContextAnalysisRequest,
+} from './premium-context-analysis.validation';
 
 export type PremiumContextAnalysisEvent =
   | { type: 'enable-for-validation' }
-  | { type: 'start-analysis'; request: PremiumContextAnalysisRequest }
+  | {
+      type: 'start-analysis';
+      request: PremiumContextAnalysisRequest;
+      permit: AiGovernancePermit;
+      policyVersion: string;
+      now: Date;
+    }
   | { type: 'propose-findings'; findings: readonly PremiumContextFinding[] }
   | { type: 'confirm' }
   | { type: 'reject' }
@@ -27,14 +45,33 @@ export function transitionPremiumContextAnalysis(
   }
 
   if (state.status === 'idle' && event.type === 'start-analysis') {
+    if (!validatePremiumContextAnalysisRequest(event.request).valid) return state;
+    const operation = {
+      id: event.request.id,
+      moduleId: 'advanced-context-analysis' as const,
+      capability: premiumContextAnalysisCapability,
+      purpose: 'Analiză contextuală solicitată explicit de utilizator.',
+      usesPersonalData: event.request.usesPersonalData,
+      producesExternalEffect: event.request.producesExternalEffect,
+    };
+    if (!isAiGovernancePermitValidForOperation(
+      event.permit,
+      operation,
+      event.policyVersion,
+      event.now,
+    )) return state;
     return {
       status: 'analyzing',
       request: event.request,
       findings: [],
+      consumedPermit: transitionAiGovernancePermit(event.permit, { type: 'consume' }),
     };
   }
 
   if (state.status === 'analyzing' && event.type === 'propose-findings') {
+    if (!state.request || !validatePremiumContextAnalysisFindings(event.findings).valid) {
+      return { status: 'idle', findings: [] };
+    }
     return {
       ...state,
       status: 'awaiting-confirmation',

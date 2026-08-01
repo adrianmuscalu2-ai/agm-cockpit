@@ -12,14 +12,20 @@ export type PremiumContextAnalysisRequest = {
   source: PremiumContextSource;
   content: string;
   language: 'ro' | 'de' | 'en';
+  contextRefs: readonly string[];
+  usesPersonalData: false;
+  producesExternalEffect: false;
 };
 
 export type PremiumContextFinding = {
   id: string;
   summary: string;
   confidence: number;
+  sourceRefs: readonly string[];
   requiresUserConfirmation: true;
 };
+
+export const premiumContextAnalysisCapability = 'analyze-context' as const;
 
 export const premiumContextAnalysisBoundaries = {
   changesBasicData: false,

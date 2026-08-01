@@ -1,0 +1,15 @@
+def9372623a1c965c9cc89517a48afda9262e5d1b89e033444ca817f7f52cd4b  apps/api/src/auth/auth.contract.ts
+7ea435348e1d8df3e5689d3a2050360c4fecf9b9b763bac62fe92c364c3243ef  apps/api/src/auth/auth.controller.ts
+06a5bb8b01163d47b3f4a1b0409d3a596582464bc184395e86eb03c0e80f2e1f  apps/api/src/auth/auth.module.ts
+278f26f3c6f7594a8bf2fdcc0884ce5691d6f72a5aa44108992ffb1c6c99f869  apps/api/src/auth/auth.service.ts
+db2d9fc26d54a0e00cfbb5de950c60459975a53f7cac422cb7737a9483e8e9ad  apps/api/src/auth/jwt.strategy.ts
+076ee774b38fb320db4d143900f7a847d0f81c2e4c4c8092960996617c5f5076  apps/api/src/users/users.service.ts
+2a27cd88631a7e883f83364d924667fd50f05b9951be75e1f9ed3a17a1e6525f  apps/api/test/api002-auth-users.spec.ts
+2d4ad2850e2d77cce71d1f7491ea6ad646f95e31c492b07930376e60b2573ecd  evidence/governance/modules/API-002/v1.0/AUTH_USERS_CONTRACT.md
+587c4c0855a474eaa5f71ca3c519bc63ca8212a5b90b54568f14a0a08d5abe0f  evidence/governance/modules/API-002/v1.0/CLOSURE_DECISION.md
+6857dcd68f89c29019dcfab348108d8c7df1cf1b3da810acf03050a2e112ea4f  evidence/governance/modules/API-002/v1.0/CONTINUITY_EVALUATION.md
+49f37268551ea60cf773ca586ca64494fa21bb4687853b2524a046366099505d  evidence/governance/modules/API-002/v1.0/G0_INITIATION.md
+67049ac252c4777d8846ceaee3bae4b819e037035ba27ca5f20bf392a348d054  evidence/governance/modules/API-002/v1.0/INTERFACE_INVENTORY_G0.md
+d0e234e583545c74f3511a259d2dd87d8ccdb0810e8536f1c77937a128835f7e  evidence/governance/modules/API-002/v1.0/MODULE_STATUS.md
+5f231ba1154524daa0488839e7354f0af447bebb4cd045f2555e8384bea70ff2  evidence/governance/modules/API-002/v1.0/USER_VALIDATION.md
+fdb0ce8007fd4a1851ef016e678cc4bf5db2ab352f2e9850b3ecd2276f042c76  evidence/governance/modules/API-002/v1.0/VALIDATION_REPORT.md

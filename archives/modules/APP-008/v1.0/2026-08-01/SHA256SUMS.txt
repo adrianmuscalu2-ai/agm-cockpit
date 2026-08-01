@@ -1,0 +1,14 @@
+f7c82c8e5c4a0f7834654d8be3d9ed45b6eacab0ca195b48b1767b9ada788ebf  apps/web/src/i18n/app-i18n.ts
+5a0fccb5356d1b25aa2f3b1b7809613ec5278965b9d1f667827407961d697dfe  apps/web/src/i18n/app-i18n.dictionary.ts
+a05042c4e7b5f82d9f5b70b9c9229b80fb7e6917cf935e404313ac2b3055282d  apps/web/src/i18n/premium-i18n.dictionary.ts
+b4c8bfe3b64cdd83afa49c7d2d6fd753acc11d1f4979572e3a97f50029fe14bd  apps/web/src/i18n/i18n-catalog.registry.ts
+12d2a575b43df5f2706203f063ee1216c4df996d33aa607c0da2bdea480134a3  apps/web/scripts/test-app008-i18n-runtime-contract.ts
+32d30ab8fa189a3f58a60b74ac56afba782267d9aeeae8ed7a43897e481d0daf  apps/web/scripts/test-sr14-css-i18n-accessibility.ts
+bc3df4b65e022521382b6e5131ff4469a16a315fa93d1dc4df88e199d0b917f9  evidence/governance/modules/APP-008/v1.0/CLOSURE_DECISION.md
+0d5a327b3fcc0c547b425a6269544743a39f87956c198a87eebf77324ede5926  evidence/governance/modules/APP-008/v1.0/CONTINUITY_EVALUATION.md
+0d22cb55821779306ab25151bf1486368e1d99b71b43f8a636f6217aa6b22e1e  evidence/governance/modules/APP-008/v1.0/G0_INITIATION.md
+99c2f6720894ac9c7a46b65ee7ba9639e6bcf1d75a627563947355cb10a5b9ac  evidence/governance/modules/APP-008/v1.0/I18N_CONTRACT.md
+3df3d371cc528fad91e1bf56b16968751e5c8157bdcdabb21cd0b551c4c707fb  evidence/governance/modules/APP-008/v1.0/INTERFACE_INVENTORY_G0.md
+413d7276c9f214ead7c8f1b76e0a59db6165709c1eb33584fcda548dc5257180  evidence/governance/modules/APP-008/v1.0/MODULE_STATUS.md
+95d9cf78bdf9bc2ea47f7574d2a48d787798c4218611e4c764bc85e4d4ca12b0  evidence/governance/modules/APP-008/v1.0/USER_VALIDATION.md
+1333ae656e9e38f2bf45869c81c548ee1f987af2bac092fde4b1cdf0364af1be  evidence/governance/modules/APP-008/v1.0/VALIDATION_REPORT.md

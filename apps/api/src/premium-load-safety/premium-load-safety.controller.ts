@@ -14,6 +14,7 @@ import { Throttle } from '@nestjs/throttler';
 import { responseEnvelope } from '../common/response';
 import { PremiumLoadSafetyProvider } from './premium-load-safety.provider';
 import type { UploadedImage } from './premium-load-safety.types';
+import { parseLoadSafetyAnalysisJson } from './premium-load-safety.validation';
 import { SecuringRecommendationProvider } from './securing-recommendation/securing-recommendation.provider';
 import {
   parseRecommendationInput,
@@ -78,7 +79,8 @@ export class PremiumLoadSafetyController {
     let visualAnalysis;
     try {
       input = parseRecommendationInput(rawInput);
-      visualAnalysis = rawVisualAnalysis ? JSON.parse(rawVisualAnalysis) : undefined;
+      visualAnalysis = rawVisualAnalysis ? parseLoadSafetyAnalysisJson(rawVisualAnalysis) : undefined;
+      if (rawVisualAnalysis && !visualAnalysis) throw new Error('Invalid visual analysis.');
     } catch {
       throw new BadRequestException('Recommendation data is invalid.');
     }
@@ -105,8 +107,8 @@ export class PremiumLoadSafetyController {
     @Body('input') rawInput?: string,
     @Body('language') requestedLanguage?: string,
   ) {
-    if (!photos || photos.length < 4 || photos.some((photo) => !acceptedImageTypes.has(photo.mimetype))) {
-      throw new BadRequestException('Four required JPEG, PNG, or WEBP views are required.');
+    if (!photos || photos.length < 2 || photos.some((photo) => !acceptedImageTypes.has(photo.mimetype))) {
+      throw new BadRequestException('Two required JPEG, PNG, or WEBP lateral views are required.');
     }
     let roles;
     let input;

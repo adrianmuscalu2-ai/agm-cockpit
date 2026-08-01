@@ -1,22 +1,10 @@
+import { type AgentGovernanceRecord } from './agent-governance.contract';
 import { monitoringAgentGovernanceRecords } from './monitoring-department';
 
-export type AgentGovernanceStatus = 'active' | 'planned' | 'monitoring';
-
-export type AgentGovernanceRecord = {
-  id: string;
-  code: string;
-  nameKey: string;
-  roleKey: string;
-  responsibilitiesKey: string;
-  ownerDepartmentId: string;
-  status: AgentGovernanceStatus;
-  lastValidationKey: string;
-  lastActivityKey: string;
-  reliabilityKey: string;
-  displayName?: string;
-  displayRole?: string;
-  displayResponsibilities?: string;
-};
+export type {
+  AgentGovernanceRecord,
+  AgentGovernanceStatus,
+} from './agent-governance.contract';
 
 export const agentGovernanceRegistry: AgentGovernanceRecord[] = [
   ...monitoringAgentGovernanceRecords,

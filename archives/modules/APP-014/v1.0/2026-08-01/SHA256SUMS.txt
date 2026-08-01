@@ -1,0 +1,13 @@
+09f02d3b04a3a6b041e3e99e3117f402a4db9a28fb18f406df7b6b13803de770  apps/web/src/outbox/common-outbox.contract.ts
+4c4fea3a8b2fcf658bb29aff34896bad9b907c824b4823e2e5d56ba400b23612  apps/web/src/outbox/pre-departure-outbox.adapter.ts
+10845fe46dbb825d9f1b054484d4e9cb8cbd58923f563ab64cf6e7d4ef3b25d8  apps/web/src/outbox/operational-outbox.adapter.ts
+2576bcba649660344c6241d1cd566be8748985c4c6caef4c9ba918c37857528a  apps/web/src/outbox/index.ts
+5ea7706cadedad62c8b00c9b827a325ba283b5dc1d5dcc13dcd3c4381993043a  apps/web/scripts/test-sr10-common-outbox-contract.ts
+d1429243fdd37fc7e76828de145f886d397245eeeb1e24b2cf6f83b2fc452dfe  evidence/governance/modules/APP-014/v1.0/CLOSURE_DECISION.md
+1f1baa1ec20e69ae9028292aedf1471abc1ec1b8918e09f81a364bb8213ee36d  evidence/governance/modules/APP-014/v1.0/COMMON_OUTBOX_CONTRACT.md
+994eaefa90047549ee7ddae9d4bb600b65684788acf9b678b6437c1d5e4f9ca0  evidence/governance/modules/APP-014/v1.0/CONTINUITY_EVALUATION.md
+aca7befa77e0ad1021f2d14069638419c38b5f7649ead8be1ff5ef8c1c377683  evidence/governance/modules/APP-014/v1.0/G0_INITIATION.md
+a40f7024bdbdda7a943960c21e70fb6b446b18f09d8aa285267f794edf609696  evidence/governance/modules/APP-014/v1.0/INTERFACE_INVENTORY_G0.md
+f2253399bc009aafc1d6d70e4a50e063e41932f5a3a2fa20b76caef68c15ca73  evidence/governance/modules/APP-014/v1.0/MODULE_STATUS.md
+4b73bffdb6be78fb98a6e5f8e2d56a398dcfa316625727b7c2ab903ffeeecefc  evidence/governance/modules/APP-014/v1.0/USER_VALIDATION.md
+a5bb4f1021f10ee613edead778ea6b61e81956a637764e858f62f66da854660d  evidence/governance/modules/APP-014/v1.0/VALIDATION_REPORT.md

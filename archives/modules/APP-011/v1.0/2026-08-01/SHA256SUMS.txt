@@ -1,0 +1,10 @@
+35ef9bb057eacb01c1c4894fb0e5b06b11d7b5ba8bcfe6ef202f0208faa1177a  apps/web/src/turn-command-center.contract.ts
+8ac0d4ba33ed2d9fcd8f81c8aa014b330452f0896ddaff58272027070a0960ff  apps/web/src/turn-command-center.view.ts
+26dddcaf3d03878f793993cfa53486020a56c3fef3e689e50475878513ad72bd  apps/web/scripts/test-app011-turn-command-center.ts
+7509484161b03cad04e5034b46eff4cf68807b620f47909b8fd825fa58d295e3  evidence/governance/modules/APP-011/v1.0/CLOSURE_DECISION.md
+3e391745aa80515126125c269e2d454393ff05ba556c934383ab43f6df627ae7  evidence/governance/modules/APP-011/v1.0/CONTINUITY_EVALUATION.md
+ddde6389eeb03ca3dca3a9678550d9ea8f1804676c3850e072f82ce6b255231f  evidence/governance/modules/APP-011/v1.0/G0_INITIATION.md
+e04bda6722906c06cc5f8c33ec6cf9cdb8ec5d854b4c078388099ff88c87138b  evidence/governance/modules/APP-011/v1.0/INTERFACE_INVENTORY_G0.md
+ca94dcd0210afd9f9b83df1cea003e9e5151035067f7019fbb41c85f8b99d05b  evidence/governance/modules/APP-011/v1.0/MODULE_STATUS.md
+799d7016801216ecec7861dbd8d3a868c55129dc4ce7723d886f516f2551a90d  evidence/governance/modules/APP-011/v1.0/USER_VALIDATION.md
+4d9327ccf85bb2404a8bebf886af5371073b557c79c26313e23d596333005132  evidence/governance/modules/APP-011/v1.0/VALIDATION_REPORT.md

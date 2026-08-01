@@ -20,13 +20,11 @@ import {
   downloadPreDepartureReport,
 } from './pre-departure.report';
 import { createPreDepartureUuid } from './pre-departure.uuid';
-import {
-  recordPreDepartureInOperationalContext,
-  recordPreDepartureReset,
-} from '../premium-operational-context/pre-departure.integration';
+import { createPreDepartureJourneyFacade } from './pre-departure.facade';
 
 const STORAGE_KEY = 'agm.e6.pre-departure.session.v1';
 const SYNC_META_KEY = 'agm.pre-departure.sync-meta.v1';
+const journeyFacade = createPreDepartureJourneyFacade();
 
 type PersistedSession = PreDepartureSession & { language: string };
 
@@ -166,7 +164,7 @@ function persist(session: PreDepartureSession, language: string) {
       closedAt: session.state === 'CLOSED' ? updatedAt : undefined,
     },
   });
-  void recordPreDepartureInOperationalContext(window.localStorage, session, navigator.onLine).catch((error) => {
+  void journeyFacade.handoff(window.localStorage, session, navigator.onLine).catch((error) => {
     console.error('Pre-departure operational context recording failed.', error);
   });
   void syncPendingPreDeparture();
@@ -387,7 +385,7 @@ export function mountPreDepartureShell(root: HTMLElement) {
 
     if (action === 'reset') {
       if (!window.confirm(preDepartureCopy[language].resetQuestion)) return;
-      void recordPreDepartureReset(window.localStorage).catch((error) => {
+      void journeyFacade.reset(window.localStorage).catch((error) => {
         console.error('Pre-departure operational reset audit failed.', error);
       });
       session = createPreDepartureSession();

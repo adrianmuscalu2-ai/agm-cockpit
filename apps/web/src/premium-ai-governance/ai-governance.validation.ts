@@ -38,6 +38,8 @@ export type AiAuthorizationValidationInput = {
   userConfirmation?: AiGovernanceUserConfirmation;
 };
 
+export const maximumAiConfirmationAgeMs = 5 * 60_000;
+
 export function validateAiAuthorization(
   input: AiAuthorizationValidationInput,
 ): AiAuthorizationDenialReason | undefined {
@@ -100,5 +102,9 @@ function riskRank(level: AiGovernanceRiskClassification['level']) {
 
 function isValidPastTimestamp(value: string, now: Date) {
   const timestamp = Date.parse(value);
-  return Number.isFinite(timestamp) && timestamp <= now.getTime();
+  return (
+    Number.isFinite(timestamp) &&
+    timestamp <= now.getTime() &&
+    now.getTime() - timestamp <= maximumAiConfirmationAgeMs
+  );
 }

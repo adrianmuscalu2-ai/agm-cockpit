@@ -1,0 +1,19 @@
+[Unit]
+Description=AGM Production Cloudflare Tunnel
+Wants=network-online.target
+After=network-online.target agm-production-api.service
+ConditionPathExists=/etc/cloudflared/config-production.yml
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/cloudflared --no-autoupdate --config /etc/cloudflared/config-production.yml tunnel run
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadOnlyPaths=/etc/cloudflared
+
+[Install]
+WantedBy=multi-user.target

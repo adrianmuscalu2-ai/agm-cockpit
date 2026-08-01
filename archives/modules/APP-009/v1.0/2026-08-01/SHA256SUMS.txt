@@ -1,0 +1,10 @@
+bd06b5332e23e120c3a85a9790ad8fa98d649f28c04496fe1459baa8b5a31580  apps/web/src/storage/storage-registry.ts
+761ff9760f3cac1e95ddaafb09a068f48b89251c0b0d59edd8bf119d9153f362  apps/web/scripts/test-app009-storage-offline-contract.ts
+f52b6ef697dd7fc33d02bd27bf65500f6916f3ef1959c4fcb590f81215ea31dd  evidence/governance/modules/APP-009/v1.0/CLOSURE_DECISION.md
+cc7643a80173928b748f45a7a165191c3a0cb15f64c40af06353f4ac33181184  evidence/governance/modules/APP-009/v1.0/CONTINUITY_EVALUATION.md
+bdc64b626cd4b51e4ea21d9ab34d4d50d09a1529bf73f4e3e62a0825abb05b7f  evidence/governance/modules/APP-009/v1.0/G0_INITIATION.md
+4a7a734718104954d455ee4508a535d18ef7c07484960a5cda53a6f18dd0408a  evidence/governance/modules/APP-009/v1.0/INTERFACE_INVENTORY_G0.md
+8197056ce7c642d25bb60bae098d290ecbdd81b7f2da1a5c93200cb22a238173  evidence/governance/modules/APP-009/v1.0/MODULE_STATUS.md
+39db7f4e9869f42e101820de70f9e3187176771477dc92f00a1b6689bd5128b7  evidence/governance/modules/APP-009/v1.0/STORAGE_OFFLINE_CONTRACT.md
+e7a715a41e8930d4f39018a32343801b2d6679442b8ce89f38b3f9b25eb85d07  evidence/governance/modules/APP-009/v1.0/USER_VALIDATION.md
+582d9f73d23c3d799d277a7bd6b51dc4f9fa5599337291441cccd00fc0376d2b  evidence/governance/modules/APP-009/v1.0/VALIDATION_REPORT.md

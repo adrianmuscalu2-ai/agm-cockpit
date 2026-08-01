@@ -1,0 +1,15 @@
+1b7bc4e06d4d4060af7f7955c5c9e91acc704b731cda714a95c4b136f5788059  apps/web/src/poc02-after-departure/after-departure.evaluator.ts
+bbd2d399aa5a821184874f8c26eb36003c04f19175c018a21a673b017c9d1276  apps/web/src/poc02-after-departure/after-departure.presenter.ts
+3c21b44db68938a852e1713cd95344e1753a494f2df7a70ccc2bcb61f2d982a4  apps/web/src/poc02-after-departure/after-departure.controller.ts
+e300501895aff7adf0a4c91cc0da75079e3aaf87040dc09d8928e6232451622b  apps/web/src/poc02-after-departure/after-departure.journey-adapter.ts
+aa3f51057b700c5ea948084484b363e5bef5b18dd9771c6af18b3abe36cb156d  apps/web/scripts/test-poc02-after-departure.ts
+06e6e9049ac514eef36040b5923851e481246e923ca87da07a2027c2351d09c5  apps/web/scripts/test-poc02-stage4.ts
+a8a3ac937afca36f9a17cb35c9f9118a5c70d46dd0f3d41f4bc71cf277e252b1  apps/web/scripts/test-sr12-after-departure-journey-adapter.ts
+9987110acb47a7e0fe6d8b224d5a072914f2bda182aec2a592b0889512b0b89f  evidence/governance/modules/APP-013/v1.0/AFTER_DEPARTURE_CONTRACT.md
+21c0d60b12782b82a472b7c921789d8f9b401e685b8a49c98a3063e9935495be  evidence/governance/modules/APP-013/v1.0/CLOSURE_DECISION.md
+362ad94218208b303bedfa01ab8e77ebd7beeffe5d0a74d12771990970cc2289  evidence/governance/modules/APP-013/v1.0/CONTINUITY_EVALUATION.md
+c7def6a11faacf9768cfa1125341eaa623b4bc8397978c4a9eacd20ca71cbf29  evidence/governance/modules/APP-013/v1.0/G0_INITIATION.md
+5c9a313c83379440da5c41acdffa43d277e3a81b209cea0e32f36739307af6bf  evidence/governance/modules/APP-013/v1.0/INTERFACE_INVENTORY_G0.md
+4b1305313955dfa238d6a37c64daf76b6b1c80a7ff5a18c597dd9a43cb51f96a  evidence/governance/modules/APP-013/v1.0/MODULE_STATUS.md
+ec5c87d16a2b2ff97cd31f03a504f62e9eae6b3e29737a343363ebe351709ab3  evidence/governance/modules/APP-013/v1.0/USER_VALIDATION.md
+918bcb0d0ff2ad135c18b5f80ddd2c352923011fb38038788d9ec632eb901424  evidence/governance/modules/APP-013/v1.0/VALIDATION_REPORT.md

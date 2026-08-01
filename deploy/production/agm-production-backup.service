@@ -1,0 +1,22 @@
+[Unit]
+Description=AGM production PostgreSQL logical backup
+Requires=docker.service
+After=docker.service
+ConditionPathExists=/opt/agm/production/compose.production.yml
+ConditionPathExists=/opt/agm/production/secrets/agm-production.env
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/agm/production
+ExecStart=/usr/bin/docker compose --project-name agm-production --env-file /opt/agm/production/secrets/agm-production.env --file /opt/agm/production/compose.production.yml --profile ops run --rm backup
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/agm/backups /run/docker.sock
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+

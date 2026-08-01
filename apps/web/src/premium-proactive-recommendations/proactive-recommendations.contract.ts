@@ -16,6 +16,7 @@ export type ProactiveRecommendationSource = {
   type: 'validated-rule' | 'context-analysis' | 'inspector-event';
   id: string;
   version: string;
+  confirmedByUser: true;
 };
 
 export type ProactiveRecommendationDraft = {
@@ -30,7 +31,12 @@ export type ProactiveRecommendationDraft = {
   ruleVersion: string;
   createdAt: string;
   expiresAt: string;
+  contextRefs: readonly string[];
+  usesPersonalData: false;
+  producesExternalEffect: false;
 };
+
+export const proactiveRecommendationCapability = 'generate-recommendation' as const;
 
 export const proactiveRecommendationBoundaries = {
   enabled: false,

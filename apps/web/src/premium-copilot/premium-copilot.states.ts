@@ -1,4 +1,5 @@
 import type { PremiumCopilotMission } from './premium-copilot.contract';
+import type { AiGovernancePermit } from '../premium-ai-governance/ai-governance.permit';
 
 export type PremiumCopilotStatus =
   | 'disabled'
@@ -11,6 +12,7 @@ export type PremiumCopilotStatus =
 export type PremiumCopilotState = {
   status: PremiumCopilotStatus;
   mission?: PremiumCopilotMission;
+  consumedPermit?: AiGovernancePermit;
 };
 
 export const disabledPremiumCopilotState: PremiumCopilotState = {

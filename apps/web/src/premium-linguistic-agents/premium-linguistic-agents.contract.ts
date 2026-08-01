@@ -12,6 +12,30 @@ export const premiumLinguisticCapabilities = [
 
 export type PremiumLinguisticCapability = (typeof premiumLinguisticCapabilities)[number];
 
+export type PremiumLinguisticRequest = {
+  id: string;
+  language: PremiumLinguisticLanguage;
+  capability: PremiumLinguisticCapability;
+  sourceFingerprint: string;
+  protectedTerms: readonly string[];
+};
+
+export type PremiumLinguisticChange = {
+  id: string;
+  original: string;
+  replacement: string;
+  explanation: string;
+  confidence: number;
+};
+
+export type PremiumLinguisticProposal = {
+  id: string;
+  requestId: string;
+  language: PremiumLinguisticLanguage;
+  changes: readonly PremiumLinguisticChange[];
+  requiresUserConfirmation: true;
+};
+
 export const premiumLinguisticBoundaries = {
   changesBasicCorrection: false,
   changesBasicTranslation: false,

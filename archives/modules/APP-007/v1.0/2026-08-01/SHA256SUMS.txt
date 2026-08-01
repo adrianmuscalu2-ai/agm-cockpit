@@ -1,0 +1,9 @@
+9668919322b6f495fb0876763c83929ec45ae247671d7a650687a39f2811d601  apps/web/src/profileSettings.ts
+a8c2f5b03b807cafb3cfeefad38194a4dbea2d3cbd3f0ff94f0e056984502558  apps/web/scripts/test-app007-driver-profile-contract.ts
+78dc78c4d39a9520947d8430fad31a2ec89df0f831f6c5357f210c4b79d2f119  evidence/governance/modules/APP-007/v1.0/CLOSURE_DECISION.md
+787cdeaff24cd158234c59f4b15c65ab3f6ad64402adb76848ccfa82be559e50  evidence/governance/modules/APP-007/v1.0/CONTINUITY_EVALUATION.md
+0d09995f56ddd9c8becd5d34fc5b61c27a39380a86300f08dc2cd18ee263bd74  evidence/governance/modules/APP-007/v1.0/G0_INITIATION.md
+a5b84b34eff100aeda696ece2bba53a75eecf5bc608c3822481f944a8b18b02d  evidence/governance/modules/APP-007/v1.0/INTERFACE_INVENTORY_G0.md
+7a0182cb93d829692fa59800a59440a3e98079b731a9f37720302a37e1f15f28  evidence/governance/modules/APP-007/v1.0/MODULE_STATUS.md
+fa799f5ad6e17bd68e7a71f6c065e6bbf4771273cd169cd3ee90b9b261545a7f  evidence/governance/modules/APP-007/v1.0/USER_VALIDATION.md
+b90fed5e590bd4a2fb343b8047e73c801cedfbc6ac2746b366d996bb95326575  evidence/governance/modules/APP-007/v1.0/VALIDATION_REPORT.md

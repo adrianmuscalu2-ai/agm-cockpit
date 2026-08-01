@@ -1,0 +1,16 @@
+{
+  "recipient": "simulation@example.invalid",
+  "failureThreshold": 2,
+  "checks": [
+    {
+      "id": "api-public",
+      "name": "AGM API public",
+      "url": "https://api.agmcockpit.com/api/v1/health/ready",
+      "timeoutSeconds": 1,
+      "monitorCode": "MON-003",
+      "environment": "API",
+      "category": "infrastructure",
+      "severity": "critical"
+    }
+  ]
+}

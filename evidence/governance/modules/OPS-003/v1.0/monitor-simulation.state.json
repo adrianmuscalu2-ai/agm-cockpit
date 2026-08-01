@@ -1,0 +1,13 @@
+﻿{
+    "services":  {
+                     "api-public":  {
+                                        "status":  "online",
+                                        "consecutiveFailures":  0,
+                                        "alertSent":  false,
+                                        "lastCheckedAt":  "2026-08-01T07:03:20.5246264Z",
+                                        "lastResult":  "SIMULATED_RECOVERY",
+                                        "lastAlertError":  null,
+                                        "incidentId":  null
+                                    }
+                 }
+}

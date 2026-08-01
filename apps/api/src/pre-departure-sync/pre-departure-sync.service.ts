@@ -24,7 +24,10 @@ export class PreDepartureSyncService {
       },
       include: { answers: true },
     });
-    if (existing) return this.resource(existing);
+    if (existing) {
+      this.ensureStableIdentity(existing, payload);
+      return this.resource(existing);
+    }
 
     const created = await this.prisma.preDepartureSession.create({
       data: {
@@ -64,19 +67,42 @@ export class PreDepartureSyncService {
       if (current.clientSessionId !== payload.clientSessionId) {
         throw new BadRequestException('clientSessionId cannot be changed.');
       }
+      if (current.idempotencyKey !== payload.idempotencyKey) {
+        throw new BadRequestException('idempotencyKey cannot be changed.');
+      }
 
+      const claimed = await tx.preDepartureSession.updateMany({
+        where: {
+          id,
+          companyId: ctx.companyId,
+          serverRevision: expectedServerRevision,
+        },
+        data: {
+          ...this.sessionData(payload, ctx),
+          serverRevision: { increment: 1 },
+        },
+      });
+      if (claimed.count !== 1) {
+        throw new ConflictException({
+          code: 'PRE_DEPARTURE_REVISION_CONFLICT',
+          message: 'The server session has a newer revision.',
+          serverRevision: current.serverRevision,
+        });
+      }
       await tx.preDepartureAnswer.deleteMany({ where: { sessionId: id } });
-      return this.resource(
-        await tx.preDepartureSession.update({
-          where: { id },
-          data: {
-            ...this.sessionData(payload, ctx),
-            serverRevision: { increment: 1 },
-            answers: { create: this.answerData(payload, ctx.companyId) },
-          },
-          include: { answers: true },
-        }),
-      );
+      const answers = this.answerData(payload, ctx.companyId).map((answer) => ({
+        ...answer,
+        sessionId: id,
+      }));
+      if (answers.length) {
+        await tx.preDepartureAnswer.createMany({ data: answers });
+      }
+      const updated = await tx.preDepartureSession.findFirst({
+        where: { id, companyId: ctx.companyId },
+        include: { answers: true },
+      });
+      if (!updated) throw new NotFoundException('Pre-departure session not found.');
+      return this.resource(updated);
     });
   }
 
@@ -120,6 +146,21 @@ export class PreDepartureSyncService {
       notApplicableReason: answer.notApplicableReason,
       answeredAt: new Date(answer.answeredAt),
     }));
+  }
+
+  private ensureStableIdentity(
+    session: Pick<SessionWithAnswers, 'clientSessionId' | 'idempotencyKey'>,
+    payload: PreDepartureSessionPayload,
+  ) {
+    if (
+      session.clientSessionId !== payload.clientSessionId ||
+      session.idempotencyKey !== payload.idempotencyKey
+    ) {
+      throw new ConflictException({
+        code: 'PRE_DEPARTURE_IDEMPOTENCY_CONFLICT',
+        message: 'The idempotency identity is already associated with another session.',
+      });
+    }
   }
 
   private async ensureTransportOwnership(transportJobId: string | undefined, ctx: RequestContext) {

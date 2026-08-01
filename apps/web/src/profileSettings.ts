@@ -17,6 +17,7 @@ export interface ProfileStorage {
 
 export const profileStorageKey = 'agm.profile.settings';
 export const profileLanguageKey = 'agm.profile.preferredLanguage';
+export const maximumDrawnSignatureLength = 1_000_000;
 
 export function defaultProfile(): ProfileSettings {
   return {
@@ -43,15 +44,7 @@ export function readProfile(storage: ProfileStorage): ProfileSettings {
 
   try {
     const parsed = JSON.parse(storedProfile) as Partial<ProfileSettings>;
-    return {
-      displayName: parsed.displayName || defaultProfile().displayName,
-      phone: parsed.phone || '',
-      email: parsed.email || '',
-      company: parsed.company || '',
-      preferredLanguage: normalizeLanguage(parsed.preferredLanguage) ?? legacyLanguage,
-      defaultSignature: parsed.defaultSignature || defaultProfile().defaultSignature,
-      drawnSignatureDataUrl: parsed.drawnSignatureDataUrl || '',
-    };
+    return normalizeProfile(parsed, legacyLanguage);
   } catch {
     return {
       ...defaultProfile(),
@@ -60,9 +53,42 @@ export function readProfile(storage: ProfileStorage): ProfileSettings {
   }
 }
 
-export function saveProfile(storage: ProfileStorage, profile: ProfileSettings) {
-  storage.setItem(profileStorageKey, JSON.stringify(profile));
-  storage.setItem(profileLanguageKey, profile.preferredLanguage);
+export function saveProfile(storage: ProfileStorage, profile: ProfileSettings): ProfileSettings {
+  const normalized = normalizeProfile(profile);
+  storage.setItem(profileStorageKey, JSON.stringify(normalized));
+  storage.setItem(profileLanguageKey, normalized.preferredLanguage);
+  return normalized;
+}
+
+export function normalizeProfile(
+  profile: Partial<ProfileSettings>,
+  fallbackLanguage: LanguageCode = 'ro',
+): ProfileSettings {
+  const defaults = defaultProfile();
+  const displayName = normalizeText(profile.displayName);
+  const defaultSignature = normalizeText(profile.defaultSignature);
+
+  return {
+    displayName: displayName || defaults.displayName,
+    phone: normalizeText(profile.phone),
+    email: normalizeText(profile.email),
+    company: normalizeText(profile.company),
+    preferredLanguage: normalizeLanguage(profile.preferredLanguage) ?? fallbackLanguage,
+    defaultSignature: defaultSignature || defaults.defaultSignature,
+    drawnSignatureDataUrl: normalizeDrawnSignature(profile.drawnSignatureDataUrl),
+  };
+}
+
+export function normalizeDrawnSignature(value: unknown): string {
+  if (typeof value !== 'string' || value.length > maximumDrawnSignatureLength) {
+    return '';
+  }
+
+  return /^data:image\/png;base64,[a-z0-9+/=]+$/i.test(value) ? value : '';
+}
+
+function normalizeText(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
 }
 
 export function readPreferredLanguage(storage: ProfileStorage): LanguageCode {

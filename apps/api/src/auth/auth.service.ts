@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from '../users/users.service';
+import { AUTH_CONTRACT } from './auth.contract';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +13,7 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.users.findByEmail(email);
-    if (!user) {
+    if (!user || user.status !== AUTH_CONTRACT.activeStatus) {
       throw new UnauthorizedException('Invalid credentials.');
     }
 
@@ -21,11 +22,16 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials.');
     }
 
-    const roles = user.roles.map((item: { role: { code: string } }) => item.role.code);
+    const roles = user.roles
+      .filter((item: { companyId: string; role: { companyId: string; isActive: boolean } }) =>
+        item.companyId === user.companyId && item.role.companyId === user.companyId && item.role.isActive,
+      )
+      .map((item: { role: { code: string } }) => item.role.code);
     const payload = {
       sub: user.id,
       companyId: user.companyId,
       roles,
+      scope: AUTH_CONTRACT.tokenScope,
     };
 
     return {

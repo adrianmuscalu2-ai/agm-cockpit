@@ -1,12 +1,13 @@
 import type { ProactiveInspectorDecision } from './proactive-recommendations.inspector-policy';
 import type { ProactiveRecommendationState } from './proactive-recommendations.states';
+import { isRecommendationExpired } from './proactive-recommendations.expiry';
 
 export type ProactiveRecommendationEvent =
   | { type: 'submit-to-inspector' }
   | { type: 'record-inspector-decision'; decision: ProactiveInspectorDecision }
   | { type: 'expire' }
-  | { type: 'accept' }
-  | { type: 'defer' }
+  | { type: 'accept'; now: Date }
+  | { type: 'defer'; now: Date }
   | { type: 'reject' };
 
 export function transitionProactiveRecommendation(
@@ -35,10 +36,16 @@ export function transitionProactiveRecommendation(
   }
 
   if (state.status === 'approved' && event.type === 'accept') {
+    if (isRecommendationExpired(state.recommendation, event.now)) {
+      return { ...state, status: 'expired' };
+    }
     return { ...state, status: 'accepted' };
   }
 
   if (state.status === 'approved' && event.type === 'defer') {
+    if (isRecommendationExpired(state.recommendation, event.now)) {
+      return { ...state, status: 'expired' };
+    }
     return { ...state, status: 'deferred' };
   }
 

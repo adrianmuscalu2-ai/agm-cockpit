@@ -1,4 +1,15 @@
 import './styles.css';
+import { copyPlainText } from './platform/clipboard';
+import {
+  fetchFunctionalTranslationHealth,
+  fetchHealthEndpoint,
+} from './platform/translation-health.client';
+import {
+  createOcrHistoryRepository,
+  type OcrHistoryItem,
+} from './storage/ocr-history.repository';
+import { createTutorialRepository } from './storage/tutorial.repository';
+import { escapeHtml, formatInlinePreview, formatPreview } from './text-format';
 import { emailContacts } from './emailContacts';
 import {
   emailTemplates,
@@ -31,7 +42,16 @@ import { mailToneLabels, type MailDraft, type MailPreview, type MailTone } from 
 import { mailTranslationAllowsSend, type MailTranslationState } from './mailmaster/mail-translation.guard';
 import { contactCategories, normalizeContactCategory } from './contact-manager/contact-manager.categories';
 import { contactStorageKey, readContacts, saveContacts, emptyContactDraft } from './contact-manager/contact-manager.storage';
-import { addContact, editContact, removeContact, searchContacts } from './contact-manager/contact-manager.service';
+import { searchContacts } from './contact-manager/contact-manager.service';
+import { createContactManagerController } from './contact-manager/contact-manager.controller';
+import { createOcrController } from './ocr/ocr.controller';
+import { createIncidentController } from './incident/incident.controller';
+import { isTurnSectionFragment, routeForShellView, shellViewFromRoute } from './app-shell/navigation.contract';
+import { attachTranslatorLegacyFacade, createTranslatorState } from './app-shell/translator-state.store';
+import { attachMailLegacyFacade, createMailState } from './app-shell/mail-state.store';
+import { attachContactsLegacyFacade, createContactsState } from './app-shell/contacts-state.store';
+import { attachOcrLegacyFacade, createOcrState } from './app-shell/ocr-state.store';
+import { attachIncidentsLegacyFacade, createIncidentsState } from './app-shell/incidents-state.store';
 import { type AgmContact, type ContactCategory, type ContactDraft } from './contact-manager/contact-manager.types';
 import { t, uiLanguageFromProfile } from './i18n/app-i18n';
 import { recognizeTextFromImage } from './ocr-translator';
@@ -62,6 +82,28 @@ import { isPremiumView, premiumRouteForView, premiumViewFromRoute, type PremiumV
 import { bindOperationsHealthChecks } from './operations-health';
 import { bindTurnBackToTop } from './turn-navigation';
 import { bindTurnOrganizationChart } from './turn-organization-chart';
+import {
+  TURN_REPORT_RECIPIENT,
+  adminReportModuleForView,
+  buildAdminBugReport,
+  buildAdminBugSubject,
+  sanitizeTechnicalError,
+  type AdminReportModule,
+} from './admin-report';
+import {
+  adminIncidentCategories,
+  createAdminDiagnosticStatus,
+  createAdminIncidentReportV1,
+} from './admin-incident-report.contract';
+import { collectSafeTechnicalDiagnostics, isNativeAndroidApp } from './native-diagnostics';
+import { createTranslatorController } from './translator/translator.controller';
+import { createMailController } from './mailmaster/mail.controller';
+import {
+  filesToMailAttachments,
+  formatAttachmentBytes,
+  validateMailAttachments,
+  type MailAttachment,
+} from './mailmaster/mail-attachments';
 
 type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
 
@@ -97,51 +139,65 @@ type ViewName =
   | 'roadmap'
   | 'licenses';
 type EmailComposeMode = 'general' | 'manual';
+type ServiceAvailability = 'checking' | 'online' | 'offline';
 
-type OcrHistoryItem = {
-  id: string;
-  createdAt: string;
-  sourceLanguage: LanguageCode;
-  targetLanguage: LanguageCode;
-  imageDataUrl: string;
-  extractedText: string;
-  translatedText: string;
-};
-
-const APP_VERSION = 'A.G.M. Basic Home RC4';
+const APP_VERSION = 'A.G.M. Cockpit 1.2.9';
 const PRIVACY_POLICY_VERSION = 'privacy-v2026.07.13';
 const TERMS_VERSION = 'terms-v2026.07.13';
 const LEGAL_ACCEPTANCE_KEY = `agm.legal.acceptance.${PRIVACY_POLICY_VERSION}.${TERMS_VERSION}`;
-const OCR_HISTORY_KEY = 'agm.ocr.history.v1';
 const ADMIN_SESSION_KEY = 'agm.admin.session';
-const TUTORIAL_COMPLETION_KEY = 'agm.tutorial.completed.v1';
-const EMAIL_TUTORIAL_COMPLETION_KEY = 'agm.tutorial.email.completed.v1';
-const ROADMAP_INVITATION_KEY = 'agm.roadmap.invitation.v1';
+const ocrHistoryRepository = createOcrHistoryRepository(window.localStorage);
+const tutorialRepository = createTutorialRepository(window.localStorage);
 const initialProfile = readProfile(window.localStorage);
 const initialContacts = readContacts(window.localStorage);
-const initialOcrHistory = readOcrHistory(window.localStorage);
+const initialOcrHistory = ocrHistoryRepository.read();
 const initialMessageLibraryPreferences = readMessageLibraryPreferences(window.localStorage);
 const initialIncidentJournal = readIncidentJournal(window.localStorage);
 
-const state = {
-  view: viewFromCurrentRoute(),
-  profile: initialProfile,
-  contacts: initialContacts,
-  contactManagerOpen: false,
-  contactSearch: '',
-  contactEditingId: '',
-  contactDraft: emptyContactDraft(),
-  contactErrors: [] as string[],
-  recipient: '',
-  subject: '',
-  message: '',
-  translatorText: '',
-  translatorResult: '',
+const translatorState = createTranslatorState(initialProfile.preferredLanguage);
+const incidentsState = createIncidentsState({
+  incidents: initialIncidentJournal,
+  incidentFilters: emptyIncidentFilters(),
+});
+const ocrState = createOcrState({
   ocrImageDataUrl: '',
   ocrExtractedText: '',
   ocrConfidence: 0,
   ocrHistory: initialOcrHistory,
   isOcrProcessing: false,
+});
+const contactsState = createContactsState({
+  contacts: initialContacts,
+  contactManagerOpen: false,
+  contactSearch: '',
+  contactEditingId: '',
+  contactDraft: emptyContactDraft(),
+  contactErrors: [],
+});
+const mailState = createMailState({
+  recipient: '',
+  subject: '',
+  message: '',
+  translatorEnabled: false,
+  mailTranslationState: 'not-requested',
+  signatureEditorOpen: false,
+  signaturePadOpen: false,
+  mailReviewOpen: false,
+  mailSecurityMessages: [],
+  emailTone: 'business',
+  emailComposeMode: 'manual',
+  selectedEmailTemplateId: '',
+  messageLibraryCategory: 'all',
+  messageLibrarySearch: '',
+  messageLibraryFavorites: initialMessageLibraryPreferences.favorites,
+  messageLibraryRecent: initialMessageLibraryPreferences.recent,
+  messageTemplateVariables: {},
+});
+let mailAttachments: MailAttachment[] = [];
+let pendingMailAction: 'email' | 'whatsapp' = 'email';
+const state = attachMailLegacyFacade(attachTranslatorLegacyFacade(attachContactsLegacyFacade(attachOcrLegacyFacade(attachIncidentsLegacyFacade({
+  view: viewFromCurrentRoute(),
+  profile: initialProfile,
   correctorText: '',
   correctorResult: null as TextCorrectorResult | null,
   correctorMode: 'correction' as TextCorrectorMode,
@@ -152,23 +208,11 @@ const state = {
   adminSession: readAdminSession(),
   adminAccessVerified: false,
   adminChangePinOpen: false,
-  translatorEnabled: false,
-  mailTranslationState: 'not-requested' as MailTranslationState,
+  adminMenuOpen: false,
+  adminReportActive: false,
+  adminReportModule: 'Alt incident' as AdminReportModule,
+  lastTechnicalError: 'Nicio eroare tehnică sigură înregistrată.',
   useProfileDetails: true,
-  signatureEditorOpen: false,
-  signaturePadOpen: false,
-  mailReviewOpen: false,
-  mailSecurityMessages: [] as string[],
-  emailTone: 'business' as MailTone,
-  emailComposeMode: 'manual' as EmailComposeMode,
-  selectedEmailTemplateId: '',
-  messageLibraryCategory: 'all' as MessageCategory | 'all' | 'favorites' | 'recent',
-  messageLibrarySearch: '',
-  messageLibraryFavorites: initialMessageLibraryPreferences.favorites,
-  messageLibraryRecent: initialMessageLibraryPreferences.recent,
-  messageTemplateVariables: {} as Record<string, string>,
-  incidents: initialIncidentJournal,
-  incidentFilters: emptyIncidentFilters(),
   legalAcceptanceAccepted: readLegalAcceptance(window.localStorage),
   tutorialOpen: false,
   tutorialStep: 0,
@@ -180,11 +224,11 @@ const state = {
   emailTutorialOpenedFromHelp: false,
   roadmapInvitationOpen: false,
   targetLanguage: initialProfile.preferredLanguage,
-  translatorTargetLanguage: initialProfile.preferredLanguage,
   status: t(uiLanguageFromProfile(initialProfile.preferredLanguage), 'app.ready'),
-};
+}, incidentsState), ocrState), contactsState), translatorState), mailState);
 
 let activeTranslatorVoiceInput: Promise<void> | null = null;
+let lastTranslatorHealthCapturedAt: string | null = null;
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
 
@@ -194,12 +238,78 @@ if (!appRoot) {
 
 const app = appRoot;
 
-state.tutorialOpen = state.legalAcceptanceAccepted && !readTutorialCompletion(window.localStorage);
+state.tutorialOpen = state.legalAcceptanceAccepted && !tutorialRepository.isTutorialCompleted();
 state.emailTutorialOpen =
-  state.legalAcceptanceAccepted && state.view === 'email' && !readEmailTutorialCompletion(window.localStorage);
+  state.legalAcceptanceAccepted &&
+  state.view === 'email' &&
+  !tutorialRepository.isEmailTutorialCompleted();
 
 function uiLanguage() {
   return uiLanguageFromProfile(state.profile.preferredLanguage);
+}
+
+const translatorController = createTranslatorController({
+  state,
+  translatorState,
+  render,
+  translate: translateWithAdapter,
+  detectLanguage: detectMessageLanguage,
+  correct: correctText,
+  copy: copyPlainText,
+  saveTranslation: saveOcrHistoryAfterTranslation,
+  navigateToEmail: () => navigateToModule('email'),
+  message: (key, parameters) => t(uiLanguage(), key, parameters),
+  languageLabel,
+});
+
+const mailController = createMailController({
+  state,
+  mailState,
+  render,
+  currentDraft: currentMailDraft,
+  message: (key) => t(uiLanguage(), key),
+  localizeSecurity: localizeMailSecurityMessage,
+});
+
+const contactManagerController = createContactManagerController({
+  state,
+  contactsState,
+  render,
+  persist: persistContactState,
+  emptyDraft: emptyContactDraft,
+  localizeErrors: localizeContactValidationMessages,
+  displayName: (contact) => contactDisplayNameForLanguage(contact, uiLanguage()),
+  message: (key, parameters) => t(uiLanguage(), key, parameters),
+  markMailDraftChanged,
+});
+
+const ocrController = createOcrController({
+  state,
+  ocrState,
+  render,
+  compress: compressImageForHistory,
+  recognize: recognizeTextFromImage,
+  message: (key, parameters) => t(uiLanguage(), key, parameters),
+  detectLanguage: detectMessageLanguage,
+  createId: createLocalId,
+  now: () => new Date().toISOString(),
+  persist: (history) => ocrHistoryRepository.save(history),
+});
+
+const incidentController = createIncidentController({
+  state,
+  incidentsState,
+  render,
+  persist: persistIncidentState,
+  actor: currentIncidentActor,
+});
+
+function persistIncidentState() {
+  saveIncidentJournal(window.localStorage, state.incidents);
+}
+
+function persistContactState() {
+  saveContacts(window.localStorage, state.contacts);
 }
 
 function mailToneLabel(language: LanguageCode, tone: MailTone) {
@@ -270,7 +380,7 @@ function render() {
           </nav>
 
           <div class="brand-lockup" aria-label="${escapeHtml(t(language, 'header.brandAria'))}">
-            <img class="brand-logo" src="/images/images/logo1.png" alt="${escapeHtml(t(language, 'header.brandAlt'))}" />
+            <img class="brand-logo" data-admin-trigger src="/images/images/logo1.png" alt="${escapeHtml(t(language, 'header.brandAlt'))}" />
           </div>
         </header>`}
 
@@ -297,6 +407,7 @@ function render() {
       ${state.legalAcceptanceAccepted && !state.tutorialOpen && state.emailTutorialOpen ? renderEmailTutorialHint() : ''}
       ${state.roadmapInvitationOpen ? renderRoadmapInvitation() : ''}
       ${state.contactManagerOpen ? renderContactManager() : ''}
+      ${state.adminMenuOpen ? renderMaskedAdminMenu() : ''}
     </main>
   `;
 
@@ -340,9 +451,9 @@ function renderHomeHeader() {
   const language = uiLanguage();
   return `
     <header class="home-topbar">
-      <button class="home-brand" data-module="home" type="button" aria-label="${escapeHtml(t(language, 'home.title'))}">
+      <button class="home-brand" data-module="home" data-admin-trigger type="button" aria-label="${escapeHtml(t(language, 'home.title'))}">
         <strong>A.G.M.</strong>
-        <span>Basic</span>
+        <span>Basic 1.2.6</span>
       </button>
       <div class="home-profile-control">
         <label class="home-language-control" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
@@ -370,6 +481,7 @@ const contextualHintTargets = ['translator-speak', 'translator-translate', 'tran
 
 registerServiceWorker();
 render();
+startTranslatorHealthChecks();
 void restoreAdministratorAccess();
 
 function renderTutorial() {
@@ -518,7 +630,7 @@ function renderHome() {
   return `
     <section class="home-view" aria-labelledby="home-title">
       <figure class="home-visual">
-        <img src="/images/images/logo1.png" alt="${escapeHtml(t(language, 'header.brandAlt'))}" />
+        <img data-admin-trigger src="/images/images/logo1.png" alt="${escapeHtml(t(language, 'header.brandAlt'))}" />
       </figure>
       <div class="home-intro">
         <div>
@@ -780,10 +892,13 @@ function renderCockpit() {
       </aside>
 
       <footer class="translator-status-strip" aria-label="${escapeHtml(t(language, 'translator.statusStripLabel'))}">
-        <span><i class="status-dot online"></i> ${escapeHtml(t(language, 'translator.status.internet'))}</span>
-        <span><i class="status-dot online"></i> ${escapeHtml(t(language, 'translator.status.aiCopilot'))}</span>
-        <span><i class="status-dot online"></i> ${escapeHtml(t(language, 'translator.status.translation'))}</span>
-        <span><i class="status-dot online"></i> ${escapeHtml(t(language, 'translator.status.voice'))}</span>
+        ${renderTranslatorStatus(t(language, 'translator.status.internet'), state.translatorInternetStatus)}
+        ${renderTranslatorStatus(t(language, 'translator.status.aiCopilot'), state.translatorAiStatus)}
+        ${renderTranslatorStatus(t(language, 'translator.status.translation'), state.translatorServiceStatus)}
+        ${renderTranslatorStatus(
+          t(language, 'translator.status.voice'),
+          'speechSynthesis' in window ? 'online' : 'offline',
+        )}
       </footer>
 
       ${renderOcrHistory()}
@@ -831,6 +946,21 @@ function renderEmailAssistant() {
 
   return `
     <form class="composer mail-composer" aria-label="Asistent redactare e-mail">
+      ${
+        state.adminReportActive
+          ? `<section class="admin-report-banner" aria-label="Raport administrativ Android">
+              <header>
+                <strong>Raport administrativ Android către Turn</strong>
+                <button id="closeAdminReport" type="button" aria-label="Închide raportul administrativ">×</button>
+              </header>
+              <p>Raportul poate fi completat manual. Capturile de ecran se atașează în aplicația externă de e-mail.</p>
+              <div class="admin-report-actions">
+                <button id="openAdminReportEmail" type="button" class="primary">Deschide aplicația de e-mail</button>
+                <button id="copyAdminReport" type="button">Copiază raportul</button>
+              </div>
+            </section>`
+          : ''
+      }
       <details class="module-section" open>
         <summary>${escapeHtml(t(uiLanguage, 'mail.recipient'))}</summary>
         <section class="recipient-panel" aria-label="${escapeHtml(t(uiLanguage, 'mail.recipientPanel'))}">
@@ -989,11 +1119,25 @@ function renderEmailAssistant() {
       }
 
       <details class="module-section" open>
+        <summary>${escapeHtml(t(uiLanguage, 'mail.attachments'))}</summary>
+        <section class="mail-attachments" aria-label="${escapeHtml(t(uiLanguage, 'mail.attachments'))}">
+          <label>
+            <span>${escapeHtml(t(uiLanguage, 'mail.attachmentChoose'))}</span>
+            <input id="mailAttachmentInput" type="file" multiple />
+          </label>
+          <small>${escapeHtml(t(uiLanguage, 'mail.attachmentLimits'))}</small>
+          ${mailAttachments.length === 0
+            ? `<p>${escapeHtml(t(uiLanguage, 'mail.noAttachments'))}</p>`
+            : `<ul>${mailAttachments.map((attachment) => `<li><span>${escapeHtml(attachment.name)} (${escapeHtml(formatAttachmentBytes(attachment.size))})</span><button type="button" data-remove-mail-attachment="${escapeHtml(attachment.id)}">${escapeHtml(t(uiLanguage, 'mail.attachmentRemove'))}</button></li>`).join('')}</ul>`}
+        </section>
+      </details>
+
+      <details class="module-section" open>
         <summary>${escapeHtml(t(uiLanguage, 'mail.sendOptions'))}</summary>
         <section class="send-panel" aria-label="${escapeHtml(t(uiLanguage, 'mail.sendOptions'))}">
         <div class="send-options">
           <button type="button" class="primary" data-send="email">${escapeHtml(t(uiLanguage, 'mail.sendEmail'))}</button>
-          <button type="button" data-planned-send="whatsapp" aria-disabled="true">${escapeHtml(t(uiLanguage, 'mail.sendWhatsapp'))}</button>
+          <button type="button" data-send="whatsapp">${escapeHtml(t(uiLanguage, 'mail.sendWhatsapp'))}</button>
         </div>
         </section>
       </details>
@@ -1014,9 +1158,9 @@ function renderEmailAssistant() {
         <dt>${escapeHtml(t(uiLanguage, 'mail.signature'))}</dt>
         <dd>${formatInlinePreview(preview.signature || '-')}</dd>
         <dt>${escapeHtml(t(uiLanguage, 'mail.attachments'))}</dt>
-        <dd>${escapeHtml(t(uiLanguage, 'mail.noAttachments'))}</dd>
+        <dd>${escapeHtml(mailAttachments.length > 0 ? mailAttachments.map((item) => item.name).join(', ') : t(uiLanguage, 'mail.noAttachments'))}</dd>
       </dl>
-      <p>${formatPreview(preview.body)}</p>
+      <p>${formatPreview(preview.body, t(uiLanguage, 'mail.previewPlaceholder'))}</p>
       ${
         preview.hasDrawnSignature && state.profile.drawnSignatureDataUrl
           ? `<img class="drawn-signature-preview email-signature-preview" src="${escapeHtml(state.profile.drawnSignatureDataUrl)}" alt="${escapeHtml(t(uiLanguage, 'profile.drawnSignatureAlt'))}" />`
@@ -1024,6 +1168,108 @@ function renderEmailAssistant() {
       }
       ${renderMailSecurityPanel()}
     </aside>
+  `;
+}
+
+function renderTranslatorStatus(label: string, availability: ServiceAvailability) {
+  const statusLabel =
+    availability === 'online'
+      ? audioMessage('disponibil', 'verfügbar', 'available')
+      : availability === 'offline'
+        ? audioMessage('indisponibil', 'nicht verfügbar', 'unavailable')
+        : audioMessage('se verifică', 'wird geprüft', 'checking');
+
+  return `<span title="${escapeHtml(`${label}: ${statusLabel}`)}"><i class="status-dot ${availability}"></i> ${escapeHtml(label)}<span class="visually-hidden">: ${escapeHtml(statusLabel)}</span></span>`;
+}
+
+function startTranslatorHealthChecks() {
+  const refresh = () => void refreshTranslatorHealth();
+  window.addEventListener('online', refresh);
+  window.addEventListener('offline', refresh);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refresh();
+  });
+  window.setInterval(refresh, 30_000);
+  refresh();
+}
+
+async function refreshTranslatorHealth() {
+  if (!navigator.onLine) {
+    updateTranslatorHealth('offline', 'offline', 'offline');
+    return;
+  }
+
+  updateTranslatorHealth('checking', 'checking', 'checking');
+  try {
+    const {
+      translationEndpointUrl,
+      translationFunctionalHealthEndpointUrl,
+      translationLiveEndpointUrl,
+      translationReadyEndpointUrl,
+    } = await import('./translationAdapter');
+    const [live, ready, translation] = await Promise.all([
+      fetchHealthEndpoint(translationLiveEndpointUrl),
+      fetchHealthEndpoint(translationReadyEndpointUrl),
+      fetchFunctionalTranslationHealth(translationFunctionalHealthEndpointUrl, translationEndpointUrl),
+    ]);
+    updateTranslatorHealth(
+      live ? 'online' : 'offline',
+      ready && translation ? 'online' : 'offline',
+      translation ? 'online' : 'offline',
+    );
+  } catch {
+    updateTranslatorHealth('offline', 'offline', 'offline');
+  }
+}
+
+function updateTranslatorHealth(
+  internet: ServiceAvailability,
+  ai: ServiceAvailability,
+  translation: ServiceAvailability,
+) {
+  lastTranslatorHealthCapturedAt = new Date().toISOString();
+  const changed =
+    state.translatorInternetStatus !== internet ||
+    state.translatorAiStatus !== ai ||
+    state.translatorServiceStatus !== translation;
+  state.translatorInternetStatus = internet;
+  state.translatorAiStatus = ai;
+  state.translatorServiceStatus = translation;
+  if (changed && state.view === 'cockpit') render();
+}
+
+function renderMaskedAdminMenu() {
+  return `
+    <section class="modal-backdrop masked-admin-backdrop" role="dialog" aria-modal="true" aria-labelledby="masked-admin-title">
+      <div class="masked-admin-menu">
+        <header>
+          <div>
+            <small>AGM · ACCES MASCAT</small>
+            <strong id="masked-admin-title">Meniu administrativ</strong>
+          </div>
+          <button id="closeMaskedAdmin" type="button" aria-label="Închide">×</button>
+        </header>
+        <label>
+          <span>Categorie incident</span>
+          <select id="adminReportModule">
+            ${adminIncidentCategories
+              .map((module) => `<option value="${module}" ${state.adminReportModule === module ? 'selected' : ''}>${module}</option>`)
+              .join('')}
+          </select>
+        </label>
+        <label>
+          <span>Descriere scurtă</span>
+          <textarea id="adminReportDescription" rows="3" maxlength="500" required
+            placeholder="Descrie simptomul observat, fără parole, tokenuri sau date personale."></textarea>
+        </label>
+        <div class="masked-admin-actions">
+          <button id="maskedOpenTurn" type="button">Deschide Turn</button>
+          <button id="maskedReportError" type="button" class="primary">Raportează eroare către Turn</button>
+          <button id="maskedCopyDiagnostics" type="button">Copiază datele tehnice</button>
+        </div>
+        <p>Raportarea nu include automat mesaje, profil, parole, tokenuri sau chei API.</p>
+      </div>
+    </section>
   `;
 }
 
@@ -1628,7 +1874,197 @@ function bindShared() {
     state.status = t(uiLanguage(), 'status.profileLanguageChanged', { language: languageLabel(language) });
     render();
   });
+
+  bindMaskedAdminAccess();
 }
+
+function bindMaskedAdminAccess() {
+  if (!isNativeAndroidApp()) return;
+
+  document.querySelectorAll<HTMLElement>('[data-admin-trigger]').forEach((trigger) => {
+    let timer: number | undefined;
+    let openedByLongPress = false;
+    let tapCount = 0;
+    let lastTapAt = 0;
+    const cancel = () => {
+      if (timer !== undefined) window.clearTimeout(timer);
+      timer = undefined;
+    };
+    const open = async () => {
+      cancel();
+      openedByLongPress = true;
+      tapCount = 0;
+      if (!(await authorizeAdminIncidentAccess())) return;
+      state.adminReportModule = adminReportModuleForView(state.view);
+      state.adminMenuOpen = true;
+      navigator.vibrate?.(35);
+      render();
+    };
+
+    trigger.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      cancel();
+      openedByLongPress = false;
+      timer = window.setTimeout(() => void open(), 900);
+    });
+    trigger.addEventListener('pointerup', (event) => {
+      event.preventDefault();
+      cancel();
+      if (openedByLongPress) return;
+      const now = Date.now();
+      tapCount = now - lastTapAt <= 700 ? tapCount + 1 : 1;
+      lastTapAt = now;
+      if (tapCount >= 5) void open();
+    });
+    trigger.addEventListener('pointercancel', cancel);
+    trigger.addEventListener('contextmenu', (event) => event.preventDefault());
+    trigger.addEventListener('selectstart', (event) => event.preventDefault());
+    trigger.addEventListener('dragstart', (event) => event.preventDefault());
+  });
+
+  document.querySelector<HTMLButtonElement>('#closeMaskedAdmin')?.addEventListener('click', closeMaskedAdminMenu);
+  document.querySelector<HTMLElement>('.masked-admin-backdrop')?.addEventListener('click', (event) => {
+    if (event.target === event.currentTarget) closeMaskedAdminMenu();
+  });
+  document.querySelector<HTMLSelectElement>('#adminReportModule')?.addEventListener('change', (event) => {
+    const module = (event.target as HTMLSelectElement).value as AdminReportModule;
+    if (adminIncidentCategories.includes(module)) state.adminReportModule = module;
+  });
+  document.querySelector<HTMLButtonElement>('#maskedOpenTurn')?.addEventListener('click', () => {
+    state.adminMenuOpen = false;
+    navigateToModule('turn');
+  });
+  document.querySelector<HTMLButtonElement>('#maskedReportError')?.addEventListener('click', () => {
+    const description = requiredAdminIncidentDescription();
+    if (description !== null) void prepareAdminErrorReport(description);
+  });
+  document.querySelector<HTMLButtonElement>('#maskedCopyDiagnostics')?.addEventListener('click', () => {
+    const description = requiredAdminIncidentDescription();
+    if (description !== null) void copySafeTechnicalReport(description);
+  });
+}
+
+async function authorizeAdminIncidentAccess() {
+  if (!state.adminAccessVerified || !state.adminSession) {
+    redirectToAdministratorLogin();
+    return false;
+  }
+  const valid = await validateAdministrator(state.adminSession);
+  if (!valid) {
+    state.adminAccessVerified = false;
+    state.adminSession = null;
+    window.sessionStorage.removeItem(ADMIN_SESSION_KEY);
+    redirectToAdministratorLogin();
+    return false;
+  }
+  return true;
+}
+
+function redirectToAdministratorLogin() {
+  state.adminMenuOpen = false;
+  state.status = 'Autentificarea administrativă este obligatorie pentru raportarea incidentelor.';
+  navigateToModule('turn');
+}
+
+function requiredAdminIncidentDescription() {
+  const input = document.querySelector<HTMLTextAreaElement>('#adminReportDescription');
+  if (!input) return null;
+  const description = input.value.trim();
+  input.setCustomValidity(description ? '' : 'Descrierea incidentului este obligatorie.');
+  if (!description) {
+    input.reportValidity();
+    return null;
+  }
+  return description;
+}
+
+function closeMaskedAdminMenu() {
+  state.adminMenuOpen = false;
+  render();
+}
+
+async function safeTechnicalReport(description: string) {
+  if (!(await authorizeAdminIncidentAccess())) return null;
+  const diagnostics = await collectSafeTechnicalDiagnostics().catch(() => ({
+    appVersion: APP_VERSION,
+    build: 'necunoscut',
+    phoneModel: 'necunoscut',
+    androidVersion: 'necunoscută',
+    connectionType: navigator.onLine ? 'online' : 'offline',
+  }));
+
+  const occurredAt = new Date().toISOString();
+  const report = createAdminIncidentReportV1({
+    source: 'android-diagnostics',
+    category: state.adminReportModule,
+    description,
+    occurredAt,
+    application: {
+      version: diagnostics.appVersion,
+      build: diagnostics.build,
+      platform: 'android',
+      deviceModel: diagnostics.phoneModel,
+      androidVersion: diagnostics.androidVersion,
+    },
+    diagnostics: {
+      internet: createAdminDiagnosticStatus(
+        navigator.onLine ? 'online' : 'offline',
+        'navigator.onLine',
+        occurredAt,
+        occurredAt,
+      ),
+      api: createAdminDiagnosticStatus(
+        state.translatorInternetStatus,
+        'health/live',
+        lastTranslatorHealthCapturedAt,
+        occurredAt,
+      ),
+      ai: createAdminDiagnosticStatus(
+        state.translatorAiStatus,
+        'health/ready + translation/health',
+        lastTranslatorHealthCapturedAt,
+        occurredAt,
+      ),
+      translation: createAdminDiagnosticStatus(
+        state.translatorServiceStatus,
+        'translation/health',
+        lastTranslatorHealthCapturedAt,
+        occurredAt,
+      ),
+    },
+    lastError: sanitizeTechnicalError(state.lastTechnicalError),
+  });
+  return { report, message: buildAdminBugReport(report) };
+}
+
+async function prepareAdminErrorReport(description: string) {
+  const prepared = await safeTechnicalReport(description);
+  if (!prepared) return;
+  const { report, message } = prepared;
+  state.recipient = TURN_REPORT_RECIPIENT;
+  state.subject = `${buildAdminBugSubject(state.adminReportModule)} · ${report.incidentId}`;
+  state.message = message;
+  state.emailComposeMode = 'manual';
+  state.selectedEmailTemplateId = '';
+  state.translatorEnabled = false;
+  state.mailTranslationState = 'not-requested';
+  state.useProfileDetails = false;
+  state.adminReportActive = true;
+  state.adminMenuOpen = false;
+  state.status = 'Raportul Android către Turn este pregătit și poate fi completat.';
+  navigateToModule('email');
+}
+
+async function copySafeTechnicalReport(description: string) {
+  const prepared = await safeTechnicalReport(description);
+  if (!prepared) return;
+  const { message } = prepared;
+  await copyPlainText(message);
+  state.status = 'Datele tehnice sigure au fost copiate.';
+  state.adminMenuOpen = false;
+  render();
+}
+
 
 function bindCommandPanel() {
   document.querySelectorAll<HTMLButtonElement>('[data-command]').forEach((control) => {
@@ -1794,7 +2230,7 @@ function changeTutorialStep(direction: number) {
 
 function closeTutorial(showContextualHints: boolean) {
   if (!state.tutorialOpenedFromHelp && state.tutorialDontShowAgain) {
-    window.localStorage.setItem(TUTORIAL_COMPLETION_KEY, new Date().toISOString());
+    tutorialRepository.markTutorialCompleted(new Date().toISOString());
   }
   state.tutorialOpen = false;
   state.tutorialOpenedFromHelp = false;
@@ -1805,18 +2241,18 @@ function closeTutorial(showContextualHints: boolean) {
 function closeContextualHints(showRoadmapInvitation: boolean) {
   state.contextualHint = null;
   state.roadmapInvitationOpen =
-    showRoadmapInvitation && !window.localStorage.getItem(ROADMAP_INVITATION_KEY);
+    showRoadmapInvitation && !tutorialRepository.isRoadmapInvitationDismissed();
   render();
 }
 
 function dismissRoadmapInvitation() {
-  window.localStorage.setItem(ROADMAP_INVITATION_KEY, new Date().toISOString());
+  tutorialRepository.dismissRoadmapInvitation(new Date().toISOString());
   state.roadmapInvitationOpen = false;
 }
 
 function closeEmailTutorial() {
   if (!state.emailTutorialOpenedFromHelp) {
-    window.localStorage.setItem(EMAIL_TUTORIAL_COMPLETION_KEY, new Date().toISOString());
+    tutorialRepository.markEmailTutorialCompleted(new Date().toISOString());
   }
   state.emailTutorialOpen = false;
   state.emailTutorialOpenedFromHelp = false;
@@ -1824,7 +2260,7 @@ function closeEmailTutorial() {
 }
 
 function completeEmailTutorial() {
-  window.localStorage.setItem(EMAIL_TUTORIAL_COMPLETION_KEY, new Date().toISOString());
+  tutorialRepository.markEmailTutorialCompleted(new Date().toISOString());
   state.emailTutorialOpen = false;
   state.emailTutorialOpenedFromHelp = false;
   state.status = t(uiLanguage(), 'tutorial.email.completed');
@@ -1871,6 +2307,20 @@ function bindTranslator() {
 }
 
 function bindEmailAssistant() {
+  document.querySelector<HTMLButtonElement>('#closeAdminReport')?.addEventListener('click', () => {
+    state.adminReportActive = false;
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#copyAdminReport')?.addEventListener('click', () => {
+    void copyPlainText(state.message).then(() => {
+      state.status = 'Raportul administrativ a fost copiat.';
+      render();
+    });
+  });
+  document.querySelector<HTMLButtonElement>('#openAdminReportEmail')?.addEventListener('click', () => {
+    void openAdminReportInExternalEmail();
+  });
+
   input('recipient', (value) => {
     state.recipient = value;
     markMailDraftChanged();
@@ -1992,7 +2442,26 @@ function bindEmailAssistant() {
     });
   });
 
-  document.querySelector<HTMLButtonElement>('[data-send="email"]')?.addEventListener('click', prepareEmailSend);
+  document.querySelector<HTMLInputElement>('#mailAttachmentInput')?.addEventListener('change', (event) => {
+    void addMailAttachments(Array.from((event.target as HTMLInputElement).files ?? []));
+  });
+  document.querySelectorAll<HTMLButtonElement>('[data-remove-mail-attachment]').forEach((button) => {
+    button.addEventListener('click', () => {
+      mailAttachments = mailAttachments.filter((attachment) => attachment.id !== button.dataset.removeMailAttachment);
+      markMailDraftChanged();
+      state.status = t(uiLanguage(), 'mail.status.attachmentRemoved');
+      render();
+    });
+  });
+
+  document.querySelector<HTMLButtonElement>('[data-send="email"]')?.addEventListener('click', () => {
+    pendingMailAction = 'email';
+    prepareEmailSend();
+  });
+  document.querySelector<HTMLButtonElement>('[data-send="whatsapp"]')?.addEventListener('click', () => {
+    pendingMailAction = 'whatsapp';
+    prepareEmailSend();
+  });
 
   document.querySelector<HTMLButtonElement>('#editSignature')?.addEventListener('click', () => {
     state.signatureEditorOpen = true;
@@ -2024,6 +2493,9 @@ function bindEmailAssistant() {
     markMailDraftChanged();
     state.status = t(uiLanguage(), state.translatorEnabled ? 'mail.status.localTranslatorOn' : 'mail.status.localTranslatorOff');
     render();
+    if (state.translatorEnabled && state.emailComposeMode === 'manual' && state.message.trim()) {
+      void translateEmailOnly();
+    }
   });
 
   document.querySelector<HTMLInputElement>('#useProfileDetails')?.addEventListener('change', (event) => {
@@ -2042,10 +2514,19 @@ function bindEmailAssistant() {
       }
 
       state.targetLanguage = language;
-      if (state.translatorEnabled) state.mailTranslationState = 'pending';
       applySelectedTemplateLanguage(language);
       markMailDraftChanged();
       state.status = mailStatus('resultLanguage', languageLabel(language));
+
+      if (state.emailComposeMode === 'manual' && state.message.trim()) {
+        state.translatorEnabled = true;
+        state.mailTranslationState = 'pending';
+        render();
+        void translateEmailOnly();
+        return;
+      }
+
+      if (state.translatorEnabled) state.mailTranslationState = 'pending';
       render();
     });
   });
@@ -2234,10 +2715,23 @@ function registerServiceWorker() {
   }
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
+    navigator.serviceWorker.register('/sw.js?v=agm-1.2.9', { updateViaCache: 'none' }).catch(() => {
       state.status = t(uiLanguage(), 'status.pwaUnavailable');
     });
   });
+}
+
+async function openAdminReportInExternalEmail() {
+  try {
+    const { openEmailComposer } = await import('./native-email');
+    await openEmailComposer(state.recipient, state.subject, state.message);
+    state.status = 'Aplicația de e-mail a fost deschisă. Atașează capturile înainte de trimitere.';
+  } catch (error) {
+    state.lastTechnicalError = sanitizeTechnicalError(error);
+    await copyPlainText(state.message);
+    state.status = 'Aplicația de e-mail nu este disponibilă. Raportul a fost copiat.';
+  }
+  render();
 }
 
 function initSignaturePad() {
@@ -2349,37 +2843,9 @@ async function improveText() {
 
 async function translateOriginalText() {
   await finishActiveTranslatorDictation();
-  const source = state.translatorText.trim();
-
-  if (!source) {
-    state.status = t(uiLanguage(), 'translator.status.enterText');
-    render();
-    return;
+  if (!state.translatorText.trim() || ensureLegalAcceptanceForExternalProcessing()) {
+    await translatorController.translate();
   }
-
-  if (!ensureLegalAcceptanceForExternalProcessing()) {
-    return;
-  }
-
-  const sourceLanguage = detectMessageLanguage(source, state.profile.preferredLanguage);
-  const translation = await translateWithAdapter(source, sourceLanguage, state.translatorTargetLanguage);
-
-  if (!translation.available) {
-    state.status = t(uiLanguage(), 'translator.status.unavailable', {
-      language: languageLabel(state.translatorTargetLanguage),
-    });
-    state.translatorResult = t(uiLanguage(), 'translator.status.unavailableBody');
-    render();
-    return;
-  }
-
-  state.translatorResult = translation.text;
-  saveOcrHistoryAfterTranslation(source, translation.text);
-  state.status = t(uiLanguage(), 'translator.status.translated', {
-    language: languageLabel(state.translatorTargetLanguage),
-    provider: translation.provider,
-  });
-  render();
 }
 
 function openOcrImagePicker() {
@@ -2391,49 +2857,7 @@ function openOcrImagePicker() {
 }
 
 async function processOcrImage(file: File) {
-  if (!file.type.startsWith('image/')) {
-    state.status = t(uiLanguage(), 'ocr.status.unsupportedFile');
-    render();
-    return;
-  }
-
-  state.isOcrProcessing = true;
-  state.status = t(uiLanguage(), 'ocr.status.processing');
-  render();
-
-  try {
-    const imageDataUrl = await compressImageForHistory(file);
-    const ocrResult = await recognizeTextFromImage(file, state.profile.preferredLanguage);
-
-    if (!ocrResult.text) {
-      state.status = t(uiLanguage(), 'ocr.status.noText');
-      state.isOcrProcessing = false;
-      render();
-      return;
-    }
-
-    if (!ocrResult.isUsable) {
-      state.ocrImageDataUrl = imageDataUrl;
-      state.ocrExtractedText = '';
-      state.ocrConfidence = ocrResult.confidence;
-      state.isOcrProcessing = false;
-      state.status = t(uiLanguage(), 'ocr.status.lowQuality', { confidence: ocrResult.confidence });
-      render();
-      return;
-    }
-
-    state.ocrImageDataUrl = imageDataUrl;
-    state.ocrExtractedText = ocrResult.text;
-    state.ocrConfidence = ocrResult.confidence;
-    state.translatorText = ocrResult.text;
-    state.isOcrProcessing = false;
-    state.status = t(uiLanguage(), 'ocr.status.completed', { confidence: ocrResult.confidence });
-    render();
-  } catch {
-    state.isOcrProcessing = false;
-    state.status = t(uiLanguage(), 'ocr.status.failed');
-    render();
-  }
+  await ocrController.process(file);
 }
 
 async function compressImageForHistory(file: File) {
@@ -2464,50 +2888,11 @@ function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 function saveOcrHistoryAfterTranslation(extractedText: string, translatedText: string) {
-  if (!state.ocrImageDataUrl || !state.ocrExtractedText) {
-    return;
-  }
-
-  const item: OcrHistoryItem = {
-    id: createLocalId(),
-    createdAt: new Date().toISOString(),
-    sourceLanguage: detectMessageLanguage(extractedText, state.profile.preferredLanguage),
-    targetLanguage: state.translatorTargetLanguage,
-    imageDataUrl: state.ocrImageDataUrl,
-    extractedText: state.ocrExtractedText,
-    translatedText,
-  };
-
-  state.ocrHistory = [item, ...state.ocrHistory].slice(0, 8);
-  saveOcrHistory(window.localStorage, state.ocrHistory);
+  ocrController.saveTranslation(extractedText, translatedText);
 }
 
 function correctTranslatorText() {
-  const text = state.translatorText.trim();
-
-  if (!text) {
-    state.status = t(uiLanguage(), 'translator.status.enterText');
-    render();
-    return;
-  }
-
-  const sourceLanguage = detectMessageLanguage(text, state.profile.preferredLanguage);
-  const result = correctText({
-    text,
-    sourceLanguage,
-    targetLanguage: state.translatorTargetLanguage,
-    mode: 'correction',
-    sourceModule: 'translator',
-  });
-
-  state.translatorText = result.correctedText;
-  state.correctorText = result.originalText;
-  state.correctorResult = result;
-  state.status = t(uiLanguage(), 'translator.status.corrected', {
-    agent: result.agentId,
-    language: languageLabel(sourceLanguage),
-  });
-  render();
+  translatorController.correct();
 }
 
 async function translateEmailOnly() {
@@ -2932,7 +3317,8 @@ async function translateWithAdapter(text: string, sourceLanguage: LanguageCode, 
       sourceLanguage,
       targetLanguage,
     });
-  } catch {
+  } catch (error) {
+    state.lastTechnicalError = sanitizeTechnicalError(error);
     return {
       text,
       available: false,
@@ -2954,7 +3340,7 @@ function bindIncidentJournal() {
   document.querySelector<HTMLFormElement>('#incidentJournalFilters')?.addEventListener('submit', (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget as HTMLFormElement);
-    state.incidentFilters = {
+    incidentController.setFilters({
       query: String(data.get('query') || ''),
       module: String(data.get('module') || ''),
       severity: String(data.get('severity') || '') as IncidentJournalFilters['severity'],
@@ -2963,13 +3349,11 @@ function bindIncidentJournal() {
       dateFrom: String(data.get('dateFrom') || ''),
       dateTo: String(data.get('dateTo') || ''),
       version: String(data.get('version') || ''),
-    };
-    render();
+    });
   });
 
   document.querySelector<HTMLButtonElement>('#clearIncidentFilters')?.addEventListener('click', () => {
-    state.incidentFilters = emptyIncidentFilters();
-    render();
+    incidentController.clearFilters();
   });
 
   document.querySelector<HTMLButtonElement>('#newJournalIncident')?.addEventListener('click', () => {
@@ -3003,9 +3387,8 @@ function bindIncidentJournal() {
       if (!incident) return;
       const note = window.prompt('Motivul redeschiderii incidentului:')?.trim();
       if (!note) return;
-      const reopened = transitionIncident(incident, 'reopened', currentIncidentActor(), note);
-      state.incidents = state.incidents.map((item) => item.id === reopened.id ? reopened : item);
-      saveIncidentJournal(window.localStorage, state.incidents);
+      const reopened = incidentController.reopen(incident.id, note);
+      if (!reopened) return;
       state.status = `Incident ${reopened.id} redeschis și păstrat în istoric.`;
       render();
     });
@@ -3021,7 +3404,7 @@ function bindIncidentJournal() {
   });
 
   document.querySelector<HTMLButtonElement>('#exportIncidentJournal')?.addEventListener('click', () => {
-    const blob = new Blob([exportIncidentAudit(state.incidents)], { type: 'application/json;charset=utf-8' });
+    const blob = new Blob([incidentController.exportAudit()], { type: 'application/json;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
@@ -3040,11 +3423,7 @@ function bindIncidentJournal() {
       const draft = incidentDraftFromForm(data);
       const existing = state.incidents.find((item) => item.id === String(data.get('id') || ''));
       const note = String(data.get('historyNote') || '').trim();
-      const saved = existing
-        ? updateIncident(existing, draft, currentIncidentActor(), note)
-        : createIncident(draft, currentIncidentActor());
-      state.incidents = [saved, ...state.incidents.filter((item) => item.id !== saved.id)].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
-      saveIncidentJournal(window.localStorage, state.incidents);
+      const saved = incidentController.save(draft, existing?.id || '', note);
       dialog?.close();
       state.status = `Incident ${saved.id} salvat în jurnal.`;
       render();
@@ -3152,11 +3531,10 @@ async function copyCorrectedText() {
     return;
   }
 
-  try {
-    await navigator.clipboard.writeText(text);
+  const copyMethod = await copyPlainText(text);
+  if (copyMethod === 'clipboard') {
     state.status = t(uiLanguage(), 'textCorrector.status.copied');
-  } catch {
-    fallbackCopy(text);
+  } else {
     state.status = t(uiLanguage(), 'textCorrector.status.copiedFallback');
   }
 
@@ -3207,11 +3585,10 @@ function clearTextCorrector() {
 async function copyEmail() {
   const content = finalEmailText();
 
-  try {
-    await navigator.clipboard.writeText(content);
+  const copyMethod = await copyPlainText(content);
+  if (copyMethod === 'clipboard') {
     state.status = t(uiLanguage(), 'mail.status.copied');
-  } catch {
-    fallbackCopy(content);
+  } else {
     state.status = t(uiLanguage(), 'mail.status.copiedFallback');
   }
 
@@ -3337,115 +3714,29 @@ function mailRecipientContext() {
 }
 
 function openContactManager() {
-  state.contactManagerOpen = true;
-  state.contactEditingId = '';
-  state.contactErrors = [];
-  state.contactDraft = recipientContactDraft();
-  state.status = t(uiLanguage(), 'status.contactsOpen');
-  render();
+  contactManagerController.open(recipientContactDraft());
 }
 
 function saveCurrentRecipientAsContact() {
   const draft = recipientContactDraft();
-  const { contacts, result } = addContact(state.contacts, draft);
-
-  if (!result.valid) {
-    state.contactManagerOpen = true;
-    state.contactDraft = draft;
-    state.contactErrors = localizeContactValidationMessages(result.messages);
-    state.status = state.contactErrors[0] ?? t(uiLanguage(), 'contact.status.cannotSave');
-    render();
-    return;
-  }
-
-  state.contacts = contacts;
-  saveContacts(window.localStorage, state.contacts);
-  state.contactErrors = [];
-  state.status = t(uiLanguage(), 'contact.status.savedFromRecipient');
-  render();
+  contactManagerController.saveRecipient(draft);
 }
 
 function saveContactFromManager() {
   const draft = readContactDraftFromForm();
-  const output = state.contactEditingId ? editContact(state.contacts, state.contactEditingId, draft) : addContact(state.contacts, draft);
-
-  if (!output.result.valid) {
-    state.contactDraft = draft;
-    state.contactErrors = localizeContactValidationMessages(output.result.messages);
-    state.status = state.contactErrors[0] ?? t(uiLanguage(), 'contact.status.cannotSave');
-    render();
-    return;
-  }
-
-  state.contacts = output.contacts;
-  saveContacts(window.localStorage, state.contacts);
-  state.contactEditingId = '';
-  state.contactDraft = emptyContactDraft();
-  state.contactErrors = [];
-  state.status = t(uiLanguage(), 'contact.status.saved');
-  render();
+  contactManagerController.save(draft);
 }
 
 function selectContactForMail(contactId: string) {
-  const contact = state.contacts.find((item) => item.id === contactId);
-
-  if (!contact) {
-    state.status = t(uiLanguage(), 'contact.status.missing');
-    render();
-    return;
-  }
-
-  if (!contact.email.trim()) {
-    state.status = t(uiLanguage(), 'contact.status.missingEmail');
-    render();
-    return;
-  }
-
-  state.recipient = contact.email;
-  state.contactManagerOpen = false;
-  markMailDraftChanged();
-  state.status = t(uiLanguage(), 'status.recipientSelected', { contact: contactDisplayNameForLanguage(contact, uiLanguage()) });
-  render();
+  contactManagerController.selectForMail(contactId);
 }
 
 function editContactInManager(contactId: string) {
-  const contact = state.contacts.find((item) => item.id === contactId);
-
-  if (!contact) {
-    state.status = t(uiLanguage(), 'contact.status.missing');
-    render();
-    return;
-  }
-
-  state.contactEditingId = contact.id;
-  state.contactDraft = {
-    name: contact.name,
-    company: contact.company,
-    email: contact.email,
-    phone: contact.phone,
-    whatsapp: contact.whatsapp,
-    address: contact.address,
-    notes: contact.notes,
-    categories: contact.categories,
-    favorite: contact.favorite,
-  };
-  state.contactErrors = [];
-  state.status = t(uiLanguage(), 'contact.status.editing', { contact: contactDisplayNameForLanguage(contact, uiLanguage()) });
-  render();
+  contactManagerController.edit(contactId);
 }
 
 function deleteContactFromManager(contactId: string) {
-  state.contacts = removeContact(state.contacts, contactId);
-  saveContacts(window.localStorage, state.contacts);
-
-  if (state.contactEditingId === contactId) {
-    state.contactEditingId = '';
-    state.contactDraft = emptyContactDraft();
-  }
-
-  state.contactErrors = [];
-  state.status = t(uiLanguage(), 'contact.status.deleted');
-  render();
+  contactManagerController.remove(contactId);
 }
 
 function recipientContactDraft(): ContactDraft {
@@ -3621,7 +3912,7 @@ function renderMailSecurityPanel() {
           ? `
             <div class="mail-confirmation">
               <strong>${escapeHtml(t(uiLanguage, 'mail.mandatoryConfirmation'))}</strong>
-              <p>${escapeHtml(t(uiLanguage, 'mail.reviewBeforeSending'))}</p>
+              <p>${escapeHtml(t(uiLanguage, pendingMailAction === 'whatsapp' ? 'mail.reviewBeforeSharing' : 'mail.reviewBeforeSending'))}</p>
               <div class="actions">
                 <button id="confirmMailPreview" type="button" class="primary">${escapeHtml(t(uiLanguage, 'mail.confirmReviewed'))}</button>
                 <button id="editMailPreview" type="button">${escapeHtml(t(uiLanguage, 'mail.edit'))}</button>
@@ -3654,31 +3945,7 @@ function mailClearStatus() {
 }
 
 function prepareEmailSend() {
-  if (!mailTranslationAllowsSend(state.translatorEnabled, state.mailTranslationState)) {
-    state.mailReviewOpen = false;
-    state.status = t(
-      uiLanguage(),
-      state.mailTranslationState === 'failed'
-        ? 'mail.status.translationFailedSendBlocked'
-        : 'mail.status.translationRequiredSendBlocked',
-    );
-    render();
-    return;
-  }
-  const security = evaluateMailDraftSecurity(currentMailDraft());
-
-  state.mailSecurityMessages = security.messages;
-
-  if (security.status === 'blocked') {
-    state.mailReviewOpen = false;
-    state.status = localizeMailSecurityMessage(security.messages[0] ?? t(uiLanguage(), 'mail.status.securityBlocked'));
-    render();
-    return;
-  }
-
-  state.mailReviewOpen = true;
-  state.status = t(uiLanguage(), 'mail.securityCheck');
-  render();
+  mailController.prepareSend();
 }
 
 async function confirmMailPreview() {
@@ -3698,15 +3965,26 @@ async function confirmMailPreview() {
   const preview = currentMailPreview();
 
   try {
-    const { openEmailComposer } = await import('./native-email');
-    await openEmailComposer(preview.recipient, preview.subject, preview.body);
+    const { openEmailComposer, openControlledShare } = await import('./native-email');
+    const attachments = mailAttachments.map(({ name, mimeType, size, base64 }) => ({ name, mimeType, size, base64 }));
+    if (pendingMailAction === 'whatsapp') {
+      await openControlledShare(preview.subject, preview.body, attachments);
+    } else {
+      await openEmailComposer(preview.recipient, preview.subject, preview.body, attachments);
+    }
     state.mailReviewOpen = false;
-    state.status = t(uiLanguage(), 'mail.status.emailClientOpened');
+    state.status = t(uiLanguage(), pendingMailAction === 'whatsapp' ? 'mail.status.shareSheetOpened' : 'mail.status.emailClientOpened');
   } catch (error) {
     const code = typeof error === 'object' && error && 'code' in error ? String(error.code) : '';
     state.status = t(
       uiLanguage(),
-      code === 'EMAIL_CLIENT_UNAVAILABLE' ? 'mail.status.emailClientUnavailable' : 'mail.status.emailClientFailed',
+      code === 'EMAIL_CLIENT_UNAVAILABLE'
+        ? 'mail.status.emailClientUnavailable'
+        : code === 'EMAIL_ATTACHMENTS_UNAVAILABLE'
+          ? 'mail.status.attachmentsUnavailable'
+          : code === 'SHARE_UNAVAILABLE'
+            ? 'mail.status.shareUnavailable'
+            : 'mail.status.emailClientFailed',
     );
   }
 
@@ -3720,7 +3998,7 @@ function finalEmailText(includeHeaders = true) {
     includeHeaders ? `${t(uiLanguage(), 'mail.subject')}: ${preview.subject || '-'}` : '',
     includeHeaders ? `${t(uiLanguage(), 'mail.language')}: ${languageLabel(preview.language)}` : '',
     includeHeaders ? `${t(uiLanguage(), 'mail.style')}: ${mailToneLabel(uiLanguage(), preview.tone)}` : '',
-    includeHeaders ? `${t(uiLanguage(), 'mail.attachments')}: ${t(uiLanguage(), 'mail.noAttachments')}` : '',
+    includeHeaders ? `${t(uiLanguage(), 'mail.attachments')}: ${mailAttachments.length > 0 ? mailAttachments.map((item) => item.name).join(', ') : t(uiLanguage(), 'mail.noAttachments')}` : '',
     includeHeaders ? '' : '',
     preview.body,
     preview.hasDrawnSignature ? `\n${t(uiLanguage(), 'mail.status.signatureImageNote')}` : '',
@@ -3730,57 +4008,44 @@ function finalEmailText(includeHeaders = true) {
 }
 
 function clearEmail() {
-  state.recipient = '';
-  state.subject = '';
-  state.message = '';
-  state.mailTranslationState = state.translatorEnabled ? 'pending' : 'not-requested';
-  state.mailReviewOpen = false;
-  state.mailSecurityMessages = [];
-  state.status = mailClearStatus();
+  mailAttachments = [];
+  mailController.clear();
+}
+
+async function addMailAttachments(files: File[]) {
+  if (files.length === 0) return;
+  try {
+    const additions = await filesToMailAttachments(files);
+    const next = [...mailAttachments, ...additions];
+    const validation = validateMailAttachments(next);
+    if (!validation.ok) {
+      state.status = t(uiLanguage(), `mail.status.attachment.${validation.reason}`);
+      render();
+      return;
+    }
+    mailAttachments = next;
+    markMailDraftChanged();
+    state.status = t(uiLanguage(), 'mail.status.attachmentsAdded');
+  } catch {
+    state.status = t(uiLanguage(), 'mail.status.attachmentReadFailed');
+  }
   render();
 }
 
 function clearTranslator() {
-  state.translatorText = '';
-  state.translatorResult = '';
-  state.ocrImageDataUrl = '';
-  state.ocrExtractedText = '';
-  state.ocrConfidence = 0;
-  state.status = t(uiLanguage(), 'translator.status.cleared');
-  render();
+  translatorController.clear();
 }
 
 async function copyTranslatorResult() {
-  const text = state.translatorResult.trim() || state.translatorText.trim();
-
-  if (!text) {
-    state.status = t(uiLanguage(), 'translator.status.noCopyText');
-    render();
-    return;
-  }
-
-  try {
-    await navigator.clipboard.writeText(text);
-    state.status = t(uiLanguage(), 'translator.status.copied');
-  } catch {
-    fallbackCopy(text);
-    state.status = t(uiLanguage(), 'translator.status.copiedFallback');
-  }
-
-  render();
+  await translatorController.copyResult();
 }
 
 function clearOcrHistory() {
-  state.ocrHistory = [];
-  saveOcrHistory(window.localStorage, state.ocrHistory);
-  state.status = t(uiLanguage(), 'ocr.status.historyCleared');
-  render();
+  ocrController.clearHistory();
 }
 
 function enableEmailTranslation() {
-  state.translatorEnabled = true;
-  state.status = t(uiLanguage(), 'translator.status.emailTranslatorEnabled');
-  render();
+  mailController.enableTranslation();
 }
 
 function showPlannedCommand(message: string) {
@@ -3804,37 +4069,13 @@ function acceptLegalNotice() {
     }),
   );
   state.status = t(uiLanguage(), 'legal.status.accepted');
-  state.tutorialOpen = !readTutorialCompletion(window.localStorage);
+  state.tutorialOpen = !tutorialRepository.isTutorialCompleted();
   state.tutorialOpenedFromHelp = false;
   render();
 }
 
 function createEmailFromTranslation() {
-  const translatedText = state.translatorResult.trim() || state.translatorText.trim();
-
-  if (!translatedText) {
-    state.status = t(uiLanguage(), 'translator.status.noEmailText');
-    render();
-    return;
-  }
-
-  state.message = translatedText;
-  state.targetLanguage = state.translatorTargetLanguage;
-  state.emailComposeMode = 'manual';
-  state.selectedEmailTemplateId = '';
-  state.mailReviewOpen = false;
-  state.mailSecurityMessages = [];
-  navigateToModule('email');
-  state.status = t(uiLanguage(), 'translator.status.emailCreated');
-  render();
-}
-
-function readTutorialCompletion(storage: Storage) {
-  return Boolean(storage.getItem(TUTORIAL_COMPLETION_KEY));
-}
-
-function readEmailTutorialCompletion(storage: Storage) {
-  return Boolean(storage.getItem(EMAIL_TUTORIAL_COMPLETION_KEY));
+  translatorController.createEmail();
 }
 
 function readLegalAcceptance(storage: Storage) {
@@ -3859,28 +4100,6 @@ function readLegalAcceptance(storage: Storage) {
   } catch {
     return false;
   }
-}
-
-function readOcrHistory(storage: Storage): OcrHistoryItem[] {
-  const stored = storage.getItem(OCR_HISTORY_KEY);
-
-  if (!stored) {
-    return [];
-  }
-
-  try {
-    const parsed = JSON.parse(stored) as OcrHistoryItem[];
-
-    return Array.isArray(parsed)
-      ? parsed.filter((item) => item.id && item.createdAt && item.imageDataUrl).slice(0, 8)
-      : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveOcrHistory(storage: Storage, items: OcrHistoryItem[]) {
-  storage.setItem(OCR_HISTORY_KEY, JSON.stringify(items.slice(0, 8)));
 }
 
 function createLocalId() {
@@ -3913,10 +4132,8 @@ function deleteContactData() {
 }
 
 function deleteOcrHistoryData() {
-  window.localStorage.removeItem(OCR_HISTORY_KEY);
-  window.localStorage.removeItem(TUTORIAL_COMPLETION_KEY);
-  window.localStorage.removeItem(EMAIL_TUTORIAL_COMPLETION_KEY);
-  window.localStorage.removeItem(ROADMAP_INVITATION_KEY);
+  ocrHistoryRepository.clear();
+  tutorialRepository.clearForOcrHistoryDeletion();
   state.ocrImageDataUrl = '';
   state.ocrExtractedText = '';
   state.ocrConfidence = 0;
@@ -3953,7 +4170,7 @@ function resetAllLocalData() {
   window.localStorage.removeItem(profileLanguageKey);
   window.localStorage.removeItem(contactStorageKey);
   window.localStorage.removeItem(LEGAL_ACCEPTANCE_KEY);
-  window.localStorage.removeItem(OCR_HISTORY_KEY);
+  ocrHistoryRepository.clear();
   state.profile = defaultProfile();
   state.contacts = [];
   state.contactManagerOpen = false;
@@ -3974,6 +4191,7 @@ function resetAllLocalData() {
   state.correctorResult = null;
   state.mailReviewOpen = false;
   state.mailSecurityMessages = [];
+  mailAttachments = [];
   state.legalAcceptanceAccepted = false;
   state.targetLanguage = state.profile.preferredLanguage;
   state.translatorTargetLanguage = state.profile.preferredLanguage;
@@ -4041,18 +4259,6 @@ function resetProfile() {
   saveProfile(window.localStorage, state.profile);
   state.status = t(uiLanguage(), 'profile.status.reset');
   render();
-}
-
-function fallbackCopy(content: string) {
-  const area = document.createElement('textarea');
-  area.value = content;
-  area.setAttribute('readonly', 'true');
-  area.style.position = 'fixed';
-  area.style.opacity = '0';
-  document.body.appendChild(area);
-  area.select();
-  document.execCommand('copy');
-  document.body.removeChild(area);
 }
 
 function setProfileLanguage(preferredLanguage: LanguageCode) {
@@ -4134,7 +4340,9 @@ function navigateToModule(view: ViewName) {
   if (window.location.pathname === route) {
     state.view = view;
     state.emailTutorialOpen =
-      view === 'email' && state.legalAcceptanceAccepted && !readEmailTutorialCompletion(window.localStorage);
+      view === 'email' &&
+      state.legalAcceptanceAccepted &&
+      !tutorialRepository.isEmailTutorialCompleted();
     state.emailTutorialStep = 0;
     state.status = moduleStatus(view);
     render();
@@ -4144,7 +4352,9 @@ function navigateToModule(view: ViewName) {
   window.history.pushState({}, '', route);
   state.view = view;
   state.emailTutorialOpen =
-    view === 'email' && state.legalAcceptanceAccepted && !readEmailTutorialCompletion(window.localStorage);
+    view === 'email' &&
+    state.legalAcceptanceAccepted &&
+    !tutorialRepository.isEmailTutorialCompleted();
   state.emailTutorialStep = 0;
   state.status = moduleStatus(view);
   render();
@@ -4155,60 +4365,11 @@ function viewFromCurrentRoute(): ViewName {
   const pathRoute = window.location.pathname.replace(/^\/?/, '').toLocaleLowerCase();
   const route = hashRoute && !isTurnSectionFragment(hashRoute) ? hashRoute : pathRoute;
 
-  if (!route || route === 'home') {
-    return 'home';
-  }
-
-  if (route === 'cockpit' || route === 'translator' || route === 'traducator') {
-    return 'cockpit';
-  }
-
   const premiumView = premiumViewFromRoute(route);
   if (premiumView) {
     return premiumView;
   }
-
-  if (route === 'email' || route === 'email-assistant' || route === 'ag-011-009') {
-    return 'email';
-  }
-
-  if (route === 'corrector' || route === 'text-corrector' || route === 'ag-011-011') {
-    return 'corrector';
-  }
-
-  if (route === 'turn' || route === 'turn-command-center' || route === 'command-center' || route === 'ag-017') {
-    return 'turn';
-  }
-
-  if (route === 'legal' || route === 'terms' || route === 'privacy' || route === 'compliance') {
-    return 'legal';
-  }
-
-  if (route === 'about' || route === 'despre') {
-    return 'about';
-  }
-
-  if (route === 'roadmap' || route === 'foaie-de-parcurs') {
-    return 'roadmap';
-  }
-
-  if (route === 'licenses' || route === 'open-source' || route === 'third-party-notices') {
-    return 'licenses';
-  }
-
-  if (route === 'cockpit') {
-    return 'cockpit';
-  }
-
-  if (route === 'profile' || route === 'profil' || route === 'ag-011-010') {
-    return 'profile';
-  }
-
-  return 'home';
-}
-
-function isTurnSectionFragment(fragment: string) {
-  return fragment.toLocaleLowerCase().startsWith('turn-') || fragment.toLocaleLowerCase() === 'incident-journal';
+  return shellViewFromRoute(route) ?? 'home';
 }
 
 function routeForView(view: ViewName) {
@@ -4217,43 +4378,7 @@ function routeForView(view: ViewName) {
     return premiumRoute;
   }
 
-  if (view === 'home') {
-    return '/';
-  }
-
-  if (view === 'email') {
-    return '/email';
-  }
-
-  if (view === 'profile') {
-    return '/profile';
-  }
-
-  if (view === 'corrector') {
-    return '/corrector';
-  }
-
-  if (view === 'turn') {
-    return '/turn';
-  }
-
-  if (view === 'roadmap') {
-    return '/roadmap';
-  }
-
-  if (view === 'legal') {
-    return '/legal';
-  }
-
-  if (view === 'about') {
-    return '/about';
-  }
-
-  if (view === 'licenses') {
-    return '/licenses';
-  }
-
-  return '/';
+  return routeForShellView(view) ?? '/';
 }
 
 function languageButtons(name: string, selectedLanguage: LanguageCode) {
@@ -4291,14 +4416,6 @@ function speechLocale(language: LanguageCode) {
   return 'ro-RO';
 }
 
-function formatPreview(value: string, placeholder = t(uiLanguage(), 'mail.previewPlaceholder')) {
-  return escapeHtml(value || placeholder).replace(/\n/g, '<br />');
-}
-
-function formatInlinePreview(value: string) {
-  return escapeHtml(value).replace(/\n/g, '<br />');
-}
-
 function normalizeMailTone(value: unknown): MailTone | null {
   return value === 'formal' || value === 'business' || value === 'friendly' || value === 'short' || value === 'polite' ? value : null;
 }
@@ -4317,13 +4434,4 @@ function normalizeTextCorrectorMode(value: unknown): TextCorrectorMode | null {
 
 function normalizeTextCorrectorSourceModule(value: unknown): TextCorrectorSourceModule | null {
   return textCorrectorSourceModules().some((sourceModule) => sourceModule === value) ? (value as TextCorrectorSourceModule) : null;
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
 }

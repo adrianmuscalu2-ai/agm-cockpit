@@ -5,9 +5,9 @@ import { PrismaService } from '../prisma/prisma.service';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findByEmail(email: string) {
-    return this.prisma.user.findFirst({
-      where: { email },
+  async findByEmail(email: string) {
+    const users = await this.prisma.user.findMany({
+      where: { email: { equals: email.trim(), mode: 'insensitive' } },
       include: {
         roles: {
           include: {
@@ -15,7 +15,10 @@ export class UsersService {
           },
         },
       },
+      take: 2,
     });
+
+    return users.length === 1 ? users[0] : null;
   }
 
   findById(id: string) {

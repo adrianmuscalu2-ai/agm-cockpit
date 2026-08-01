@@ -30,6 +30,9 @@ if (!translationApiBaseUrl) {
 }
 
 export const translationEndpointUrl = `${translationApiBaseUrl}/translation/actions/translate-text`;
+export const translationLiveEndpointUrl = `${translationApiBaseUrl}/health/live`;
+export const translationReadyEndpointUrl = `${translationApiBaseUrl}/health/ready`;
+export const translationFunctionalHealthEndpointUrl = `${translationApiBaseUrl}/translation/health`;
 
 export async function translateText(request: TranslateRequest): Promise<TranslateResult> {
   const apiResult = await translateWithAgmApi(request);

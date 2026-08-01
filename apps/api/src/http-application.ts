@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 import { configuredCorsOrigins } from './config/environment';
+import { API_CORE_CONTRACT } from './api-core.contract';
 
 export function configureHttpApplication(app: Awaited<ReturnType<typeof NestFactory.create>>, config: ConfigService) {
   const expressApplication = app.getHttpAdapter().getInstance() as {
@@ -20,7 +21,7 @@ export function configureHttpApplication(app: Awaited<ReturnType<typeof NestFact
       return callback(null, false);
     },
   });
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix(API_CORE_CONTRACT.globalPrefix);
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

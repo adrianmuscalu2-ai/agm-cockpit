@@ -15,6 +15,7 @@ import {
 } from '../src/incident-journal';
 import { monitoringAgents } from '../src/monitoring-department';
 import { turnDepartments } from '../src/turn-command-center';
+import { createWebBuildDefinition } from '../web-build-definition.mjs';
 import {
   createOrganizationAgent,
   turnOrganizationAgents,
@@ -22,7 +23,6 @@ import {
 
 const htmlEntry = readFileSync(new URL('../before-departure.html', import.meta.url), 'utf8');
 const mainSource = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
-const viteConfig = readFileSync(new URL('../vite.config.mjs', import.meta.url), 'utf8');
 const premiumSource = readFileSync(new URL('../src/premium-foundation.ts', import.meta.url), 'utf8');
 const controllerSource = readFileSync(new URL('../src/pre-departure/pre-departure.controller.ts', import.meta.url), 'utf8');
 const turnOperationsSource = readFileSync(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
@@ -39,7 +39,10 @@ assert.ok(htmlEntry.includes('id="before-departure-app"'));
 assert.ok(htmlEntry.includes('/src/pre-departure/pre-departure.entry.ts'));
 assert.equal(mainSource.includes('href="/before-departure.html"'), false);
 assert.equal(mainSource.includes('data-e6-entry="before-departure"'), false);
-assert.ok(viteConfig.includes("beforeDeparture: 'before-departure.html'"));
+assert.equal(
+  createWebBuildDefinition().build.rollupOptions.input.beforeDeparture,
+  'before-departure.html',
+);
 assert.ok(premiumSource.includes('before-departure'));
 assert.ok(controllerSource.includes("root.addEventListener('click'"));
 assert.ok(controllerSource.includes("root.addEventListener('change'"));

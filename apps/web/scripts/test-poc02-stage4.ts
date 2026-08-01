@@ -12,6 +12,7 @@ import {
 } from '../src/poc02-after-departure/after-departure.evaluator';
 import { renderAfterDepartureView } from '../src/poc02-after-departure/after-departure.view';
 import { readFileSync } from 'node:fs';
+import { createWebBuildDefinition } from '../web-build-definition.mjs';
 
 for (const language of ['ro', 'de', 'en'] as const) {
   assert.equal(scenarioOptions(language).length, 8);
@@ -123,9 +124,12 @@ for (const scenario of Object.keys(afterDeparturePolicies) as Array<keyof typeof
   }
 }
 
-const viteConfig = readFileSync(new URL('../vite.config.mjs', import.meta.url), 'utf8');
-assert.ok(viteConfig.includes('data-poc02-entry="after-departure"'));
-assert.ok(viteConfig.includes('href="/after-departure.html"'));
+const transformedIndex = createWebBuildDefinition().plugins[0].transformIndexHtml(
+  '<html><body></body></html>',
+  { path: '/index.html' },
+);
+assert.ok(transformedIndex.includes('data-poc02-entry="after-departure"'));
+assert.ok(transformedIndex.includes('href="/after-departure.html"'));
 
 const mainSource = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
 const premiumSource = readFileSync(new URL('../src/premium-foundation.ts', import.meta.url), 'utf8');

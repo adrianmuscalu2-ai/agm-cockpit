@@ -114,7 +114,7 @@ const closed = apply(confirmed, { type: 'CLOSE_SESSION' }, 'E6-T16');
 const reset = apply(closed, { type: 'RESET_CONFIRMED' }, 'E6-T17');
 assert.deepEqual(reset, initial);
 const restored = apply(reset, { type: 'RESTORE_SESSION', session: ready }, 'E6-T18');
-assert.deepEqual(restored, ready);
+assert.deepEqual(restored, { ...ready, confirmation: undefined });
 assert.notEqual(restored.answers, ready.answers);
 
 const repairedDirectly = apply(

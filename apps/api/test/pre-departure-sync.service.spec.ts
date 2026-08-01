@@ -58,6 +58,23 @@ describe('PreDepartureSyncService', () => {
     expect(prisma.preDepartureSession.create).not.toHaveBeenCalled();
   });
 
+  it('rejects reuse of one idempotency identity with a different pair', async () => {
+    const prisma = {
+      preDepartureSession: {
+        findFirst: jest.fn().mockResolvedValue(record),
+        create: jest.fn(),
+      },
+    };
+    const service = new PreDepartureSyncService(prisma as never);
+    await expect(service.create({
+      ...payload,
+      idempotencyKey: '88888888-8888-4888-8888-888888888888',
+    }, ctx)).rejects.toMatchObject({
+      response: { code: 'PRE_DEPARTURE_IDEMPOTENCY_CONFLICT' },
+    });
+    expect(prisma.preDepartureSession.create).not.toHaveBeenCalled();
+  });
+
   it('rejects an update when the expected server revision is stale', async () => {
     const transaction = {
       preDepartureSession: { findFirst: jest.fn().mockResolvedValue(record) },
@@ -67,5 +84,30 @@ describe('PreDepartureSyncService', () => {
     };
     const service = new PreDepartureSyncService(prisma as never);
     await expect(service.update(record.id, payload, 1, ctx)).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it('claims the expected revision atomically before replacing answers', async () => {
+    const updated = { ...record, serverRevision: 3 };
+    const transaction = {
+      preDepartureSession: {
+        findFirst: jest.fn().mockResolvedValueOnce(record).mockResolvedValueOnce(updated),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      },
+      preDepartureAnswer: {
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+        createMany: jest.fn(),
+      },
+    };
+    const prisma = {
+      $transaction: jest.fn((callback: (tx: typeof transaction) => unknown) => callback(transaction)),
+    };
+    const service = new PreDepartureSyncService(prisma as never);
+    await expect(service.update(record.id, payload, 2, ctx)).resolves.toMatchObject({ serverRevision: 3 });
+    expect(transaction.preDepartureSession.updateMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: { id: record.id, companyId: ctx.companyId, serverRevision: 2 },
+    }));
+    expect(transaction.preDepartureSession.updateMany.mock.invocationCallOrder[0]).toBeLessThan(
+      transaction.preDepartureAnswer.deleteMany.mock.invocationCallOrder[0],
+    );
   });
 });

@@ -1,4 +1,4 @@
-import { type AgentGovernanceRecord } from './agent-governance.registry';
+import { type AgentGovernanceRecord } from './agent-governance.contract';
 import { type OperationalIncident } from './incident-journal';
 import { monitoringHealthSources } from './operations-health';
 

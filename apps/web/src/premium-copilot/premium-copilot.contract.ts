@@ -22,4 +22,7 @@ export type PremiumCopilotMission = {
   capability: PremiumCopilotCapability;
   userRequest: string;
   proposedAction: string;
+  contextRefs: readonly string[];
+  usesPersonalData: false;
+  producesExternalEffect: false;
 };

@@ -99,7 +99,10 @@ function clean(item: FieldReportItem): FieldReportItem {
   const itemSources = [...new Set(item.sources)];
   const photoRoles = [...new Set(item.photoRoles)];
   let certainty = item.certainty;
-  if (certainty === 'observed' && (!itemSources.includes('photo') || photoRoles.length === 0)) certainty = 'probable';
+  if (
+    certainty === 'observed' &&
+    (!itemSources.includes('photo') || itemSources.some((source) => source !== 'photo') || photoRoles.length === 0)
+  ) certainty = 'probable';
   return {
     id: item.id.replace(/[^a-zA-Z0-9-]/g, '').slice(0, 80),
     statement: normalize(item.statement),

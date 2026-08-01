@@ -1,0 +1,40 @@
+name: agm-production
+
+services:
+  api:
+    image: agm-api@sha256:b949e5dd986a4b654f4af8f58b891d714593f46ac84702e90dae623488e44a3e
+    pull_policy: never
+    container_name: agm-production-api
+    restart: unless-stopped
+    env_file:
+      - /opt/agm/production/secrets/agm-production.env
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/v1/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      org.opencontainers.image.revision: 9956eb188fdd988bf0d7af93241c3c43962d9b39
+      agm.environment: production
+      agm.database.container: agm-postgres
+      agm.database.volume: app_agm_postgres_data
+    networks:
+      - agm_production_database
+
+networks:
+  agm_production_database:
+    external: true
+    name: app_default
+
