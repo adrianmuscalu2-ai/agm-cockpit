@@ -78,6 +78,9 @@ import {
 import { isNativeAudioAvailable, NativeAudio, type MicrophonePermissionState } from './native-audio';
 import { changeAdministratorPin, unlockAdministrator, validateAdministrator, type AdminSession } from './admin-auth';
 import { premiumStatusKey, renderPremiumView, usesPremiumLayout } from './premium-app';
+import { renderPremiumAccessView } from './premium-access/premium-access.view';
+import { bindPremiumAccessRuntime } from './premium-access/premium-access.runtime';
+import { isPremiumNavigationAllowed } from './premium-access/premium-access.navigation';
 import { isPremiumView, premiumRouteForView, premiumViewFromRoute, type PremiumViewName } from './premium-routes';
 import { bindOperationsHealthChecks } from './operations-health';
 import { bindTurnBackToTop } from './turn-navigation';
@@ -128,6 +131,7 @@ type SpeechWindow = Window & {
 
 type ViewName =
   | 'home'
+  | 'access'
   | PremiumViewName
   | 'cockpit'
   | 'email'
@@ -583,6 +587,10 @@ function renderCurrentView() {
     return renderHome();
   }
 
+  if (state.view === 'access') {
+    return renderPremiumAccessView(uiLanguage(), escapeHtml);
+  }
+
   const premiumView = renderPremiumView(state.view, (key) => t(uiLanguage(), key), escapeHtml);
   if (premiumView !== undefined) {
     return premiumView;
@@ -640,6 +648,11 @@ function renderHome() {
         <p>${escapeHtml(t(language, 'home.description'))}</p>
       </div>
       <nav class="home-actions" aria-label="${escapeHtml(t(language, 'home.actionsLabel'))}">
+        <a href="/access" data-module="access" class="home-action" aria-label="Access & Entitlements">
+          <span class="home-action-icon" aria-hidden="true">A</span>
+          <strong>Acces</strong>
+          <small>Basic și Premium</small>
+        </a>
         <a href="/translator" data-module="cockpit" class="home-action home-action-primary home-action-translator">
           <span class="home-action-icon" aria-hidden="true">⇄</span>
           <strong>${escapeHtml(t(language, 'nav.translator'))}</strong>
@@ -1838,6 +1851,7 @@ function renderLegalCard(titleKey: string, bodyKey: string, extra = '') {
 }
 
 function bindShared() {
+  bindPremiumAccessRuntime();
   document.querySelectorAll<HTMLElement>('[data-module]').forEach((control) => {
     control.addEventListener('click', (event) => {
       event.preventDefault();
@@ -1845,6 +1859,7 @@ function bindShared() {
 
       if (
         nextView !== 'home' &&
+        nextView !== 'access' &&
         !isPremiumView(nextView) &&
         nextView !== 'cockpit' &&
         nextView !== 'email' &&
@@ -1856,6 +1871,11 @@ function bindShared() {
         nextView !== 'roadmap' &&
         nextView !== 'licenses'
       ) {
+        return;
+      }
+
+      if (isPremiumView(nextView) && !isPremiumNavigationAllowed(nextView)) {
+        navigateToModule('access');
         return;
       }
 
@@ -4295,6 +4315,10 @@ function moduleStatus(view: ViewName) {
     return t(uiLanguage(), 'home.status');
   }
 
+  if (view === 'access') {
+    return 'Access & Entitlements — separare activă, enforcement online în pregătire.';
+  }
+
   if (view === 'email') {
     return t(uiLanguage(), 'module.status.email');
   }
@@ -4367,8 +4391,9 @@ function viewFromCurrentRoute(): ViewName {
 
   const premiumView = premiumViewFromRoute(route);
   if (premiumView) {
-    return premiumView;
+    return isPremiumNavigationAllowed(premiumView) ? premiumView : 'access';
   }
+
   return shellViewFromRoute(route) ?? 'home';
 }
 

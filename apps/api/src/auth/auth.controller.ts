@@ -7,6 +7,7 @@ import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Throttle } from '@nestjs/throttler';
 import { AUTH_CONTRACT } from './auth.contract';
+import { evaluateAccessEntitlements } from './access-entitlements.contract';
 
 @Controller('auth')
 export class AuthController {
@@ -28,5 +29,15 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   me(@CurrentUser() user: RequestContext) {
     return responseEnvelope(user);
+  }
+
+  @Get('entitlements')
+  @UseGuards(JwtAuthGuard)
+  entitlements(@CurrentUser() user: RequestContext) {
+    return responseEnvelope(evaluateAccessEntitlements({
+      subjectId: user.userId,
+      roles: user.roles,
+      evaluatedAt: new Date(),
+    }));
   }
 }

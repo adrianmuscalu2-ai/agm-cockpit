@@ -72,6 +72,7 @@ assert.ok(moduleContract.includes('dispose?(context:'));
 
 const expectedViews = [
   'home',
+  'access',
   'premium',
   'premiumTeam',
   'premiumLoadSafety',

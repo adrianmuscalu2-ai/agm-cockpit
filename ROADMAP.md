@@ -39,6 +39,13 @@ Roadmap-ul nu înlocuiește arhitectura AGM. El organizează dezvoltarea pe baza
 
 ## Status Legend
 
+> **Reconciliere de stare — 2 august 2026:** tabelele funcționale din secțiunile
+> 1–3 păstrează statutul de planificare al checkpoint-ului în care au fost aprobate.
+> Ele nu suprascriu închiderile ulterioare. Starea curentă a implementării este
+> publicată în `ARCHITECTURE_STATUS.md`, iar dovada canonică pentru fiecare modul
+> se află în `evidence/governance/modules/<ID>/v1.0/`. Roadmap-ul rămâne autoritatea
+> pentru ordine și scop; Architecture Status este autoritatea pentru progresul curent.
+
 | Status | Meaning |
 | --- | --- |
 | Validated | Decizie aprobată de Turn/Mentor. |

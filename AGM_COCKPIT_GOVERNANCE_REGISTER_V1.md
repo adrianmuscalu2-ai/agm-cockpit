@@ -115,9 +115,19 @@ Nicio stare nu poate fi sărită. O remediere urgentă poate utiliza flux accele
 
 ## 7. Catalogul modulelor aplicației
 
-**Legendă stare:** `BASELINE` înseamnă că există implementare/dovezi anterioare; nu echivalează automat cu PASS în noul lifecycle. `INVENTARIAT` înseamnă că modulul a fost identificat, dar Planul de Modul v1 nu este încă aprobat.
+**Legendă stare istorică:** valorile din ultima coloană consemnează starea la
+adoptarea inițială a registrului. `BASELINE` înseamnă că existau implementare și
+dovezi anterioare; `INVENTARIAT` înseamnă că modulul fusese identificat. Aceste
+valori nu trebuie interpretate ca stare curentă după constituirea dosarelor v1.0.
 
-| ID | Modul / responsabilitate | Limite și interfețe principale | Profil | Owner | Monitor specific | Stare guvernanță |
+**Reconciliere la 2 august 2026:** starea curentă este cea din
+`ARCHITECTURE_STATUS.md` și din dosarul individual
+`evidence/governance/modules/<ID>/v1.0/`. APP-001–APP-015, API-001–API-008,
+PRE-001–PRE-008, DATA-001 și OPS-001–OPS-004 sunt `PASS / CLOSED`. OPS-005 rămâne
+`PLANNED / INACTIVE; NO-GO`. Mențiunile `BASELINE; PLAN PENDING` de mai jos sunt
+checkpoint-uri istorice, nu restanțe active.
+
+| ID | Modul / responsabilitate | Limite și interfețe principale | Profil | Owner | Monitor specific | Stare la adoptarea registrului |
 |---|---|---|---|---|---|---|
 | APP-001 | App Shell & Navigation — bootstrap, rutare, lifecycle vizual | view registry, state, i18n, toate modulele UI | GOV-FE | Frontend & Website Owner | MON-004/005/009 | BASELINE; PLAN PENDING |
 | APP-002 | Traducător contextual — traducere și compunere controlată | UI ↔ Translation Adapter ↔ API-003; outbox | GOV-AI | AI & Localization Owner | MON-006/004/005 | BASELINE; PLAN PENDING |

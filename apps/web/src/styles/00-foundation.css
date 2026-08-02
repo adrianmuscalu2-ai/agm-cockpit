@@ -507,6 +507,35 @@ textarea {
   min-width: 0;
 }
 
+.premium-access-view [data-access-login] {
+  width: min(720px, calc(100% - 32px));
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0 clamp(16px, 5vw, 72px) 24px;
+}
+
+.premium-access-view [data-access-login] .premium-module-content {
+  display: grid;
+  gap: 12px;
+}
+
+.premium-access-view [data-access-login] label {
+  display: grid;
+  gap: 6px;
+  color: #dceaf5;
+  font-weight: 700;
+}
+
+.premium-access-view [data-access-login] input,
+.premium-access-view [data-access-login] button {
+  width: 100%;
+  min-width: 0;
+}
+
+.premium-access-view [data-access-login] .premium-back {
+  max-width: none;
+}
+
 .premium-module h2,
 .premium-team-agent h2 {
   margin: 2px 0 7px;

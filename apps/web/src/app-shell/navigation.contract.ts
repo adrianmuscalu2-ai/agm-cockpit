@@ -15,6 +15,7 @@ type ShellRouteDefinition = {
 
 export const shellRouteRegistry: readonly ShellRouteDefinition[] = [
   { view: 'home', canonicalRoute: '/', aliases: ['', 'home'] },
+  { view: 'access', canonicalRoute: '/access', aliases: ['access', 'acces', 'entitlements'] },
   { view: 'cockpit', canonicalRoute: '/translator', aliases: ['cockpit', 'translator', 'traducator'] },
   { view: 'email', canonicalRoute: '/email', aliases: ['email', 'email-assistant', 'ag-011-009'] },
   { view: 'profile', canonicalRoute: '/profile', aliases: ['profile', 'profil', 'ag-011-010'] },
@@ -39,4 +40,3 @@ export function isTurnSectionFragment(fragment: string) {
   const normalized = fragment.toLocaleLowerCase();
   return normalized.startsWith('turn-') || normalized === 'incident-journal';
 }
-

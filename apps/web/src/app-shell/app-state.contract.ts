@@ -22,6 +22,7 @@ import type {
 
 export type AppViewName =
   | 'home'
+  | 'access'
   | PremiumViewName
   | 'cockpit'
   | 'email'

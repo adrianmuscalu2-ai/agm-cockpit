@@ -25,8 +25,8 @@ const reconstructedCss = cssModules
   .reduce((output, content) => Buffer.concat([output, content]), Buffer.alloc(0));
 assert.equal(
   createHash('sha256').update(reconstructedCss).digest('hex').toUpperCase(),
-  '2A676A4ED84022E5801150155B2F6E317892A15E45522F4CA3A972F4D8D39A4A',
-  'The modular CSS must reconstruct the exact pre-SR-14 cascade.',
+  '2EA2E7A27C547C227091BCF31FD581C7A070CADB3526F2EE534B8045DFA96238',
+  'The modular CSS must reconstruct the approved Access/Premium cascade.',
 );
 
 assert.deepEqual([...supportedUiLanguages], ['ro', 'de', 'en']);
