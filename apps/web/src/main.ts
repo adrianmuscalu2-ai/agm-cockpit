@@ -34,6 +34,12 @@ import {
   supportedLanguages,
 } from './emailLanguage';
 import {
+  basicLanguageRegistry,
+  moreLanguagesLabels,
+  quickLanguagesLabels,
+  normalizeQuickLanguages,
+} from './language-registry';
+import {
   type ProfileSettings,
   defaultProfile,
   normalizeLanguage,
@@ -403,17 +409,7 @@ function render() {
           <nav class="module-strip" aria-label="${escapeHtml(t(language, 'nav.moduleStripLabel'))}">
             <label class="profile-chip" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
               <span>${escapeHtml(t(language, 'nav.profile'))}</span>
-              <select id="quickProfileLanguage" aria-label="${escapeHtml(t(language, 'header.quickProfileAria'))}">
-                ${supportedLanguages
-                  .map(
-                    (code) => `
-                      <option value="${code}" ${state.profile.preferredLanguage === code ? 'selected' : ''}>
-                        ${escapeHtml(languageLabel(code))}
-                      </option>
-                    `,
-                  )
-                  .join('')}
-              </select>
+              ${renderQuickLanguageControls('header')}
             </label>
             <div class="module-nav">
               <button data-module="home" type="button">
@@ -559,9 +555,7 @@ function renderHomeHeader() {
       <div class="home-profile-control">
         <label class="home-language-control" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
           <span class="visually-hidden">${escapeHtml(t(language, 'header.quickProfileAria'))}</span>
-          <select id="quickProfileLanguage" aria-label="${escapeHtml(t(language, 'header.quickProfileAria'))}">
-            ${supportedLanguages.map((code) => `<option value="${code}" ${state.profile.preferredLanguage === code ? 'selected' : ''}>${escapeHtml(code.toUpperCase())}</option>`).join('')}
-          </select>
+          ${renderQuickLanguageControls('home')}
         </label>
         <button data-module="home" type="button"><span>Acasă</span></button>
         <button data-module="basic" type="button"><span>${escapeHtml(t(language, 'home.basic'))}</span></button>
@@ -694,7 +688,8 @@ function renderCurrentView() {
   }
 
   if (state.view === 'access') {
-    return renderPremiumAccessView(uiLanguage(), escapeHtml);
+    const language = uiLanguage();
+    return renderPremiumAccessView(language === 'ro' || language === 'de' ? language : 'en', escapeHtml);
   }
 
   const premiumView = renderPremiumView(state.view, (key) => t(uiLanguage(), key), escapeHtml);
@@ -2291,8 +2286,19 @@ function bindShared() {
     });
   });
 
-  document.querySelector<HTMLSelectElement>('#quickProfileLanguage')?.addEventListener('change', (event) => {
-    const language = normalizeLanguage((event.target as HTMLSelectElement).value);
+  document.querySelectorAll<HTMLElement>('[data-quick-language]').forEach((control) => {
+    control.addEventListener('click', () => {
+      const language = normalizeLanguage(control.dataset.quickLanguage);
+      if (!language) return;
+      setProfileLanguage(language);
+      state.status = t(uiLanguage(), 'status.profileLanguageChanged', { language: languageLabel(language) });
+      render();
+    });
+  });
+
+  document.querySelectorAll<HTMLSelectElement>('[data-more-language]').forEach((control) => {
+    control.addEventListener('change', () => {
+    const language = normalizeLanguage(control.value);
 
     if (!language) {
       return;
@@ -2301,6 +2307,7 @@ function bindShared() {
     setProfileLanguage(language);
     state.status = t(uiLanguage(), 'status.profileLanguageChanged', { language: languageLabel(language) });
     render();
+    });
   });
 
   bindMaskedAdminAccess();
@@ -2871,6 +2878,13 @@ function bindEmailAssistant() {
     state.adminReportActive = false;
     render();
   });
+  document.querySelector<HTMLSelectElement>('[data-language-more="translatorTargetLanguage"]')?.addEventListener('change', (event) => {
+    const language = normalizeLanguage((event.target as HTMLSelectElement).value);
+    if (!language) return;
+    state.translatorTargetLanguage = language;
+    state.status = t(uiLanguage(), 'translator.status.resultLanguageChanged', { language: languageLabel(language) });
+    render();
+  });
   document.querySelector<HTMLButtonElement>('#copyAdminReport')?.addEventListener('click', () => {
     void copyPlainText(state.message).then(() => {
       state.status = 'Raportul administrativ a fost copiat.';
@@ -3090,6 +3104,13 @@ function bindEmailAssistant() {
       render();
     });
   });
+  document.querySelector<HTMLSelectElement>('[data-language-more="targetLanguage"]')?.addEventListener('change', (event) => {
+    const language = normalizeLanguage((event.target as HTMLSelectElement).value);
+    if (!language) return;
+    state.targetLanguage = language;
+    state.status = mailStatus('resultLanguage', languageLabel(language));
+    render();
+  });
 
   document.querySelector<HTMLButtonElement>('#confirmMailPreview')?.addEventListener('click', confirmMailPreview);
   document.querySelector<HTMLButtonElement>('#editMailPreview')?.addEventListener('click', () => {
@@ -3277,6 +3298,35 @@ function registerServiceWorker() {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js?v=agm-1.3.0', { updateViaCache: 'none' }).catch(() => {
       state.status = t(uiLanguage(), 'status.pwaUnavailable');
+    });
+  });
+  document.querySelector<HTMLSelectElement>('[data-language-more="correctorTargetLanguage"]')?.addEventListener('change', (event) => {
+    const language = normalizeLanguage((event.target as HTMLSelectElement).value);
+    if (!language) return;
+    state.translatorTargetLanguage = language;
+    state.status = t(uiLanguage(), 'textCorrector.status.languageChanged', { language: languageLabel(language) });
+    render();
+  });
+
+  document.querySelector<HTMLSelectElement>('[data-language-more="profilePreferredLanguage"]')?.addEventListener('change', (event) => {
+    const preferredLanguage = normalizeLanguage((event.target as HTMLSelectElement).value);
+    if (!preferredLanguage) return;
+    setProfileLanguage(preferredLanguage);
+    state.status = t(uiLanguage(), 'profile.status.languageSaved', { language: languageLabel(preferredLanguage) });
+    render();
+  });
+
+  document.querySelectorAll<HTMLSelectElement>('[data-favorite-language-slot]').forEach((control) => {
+    control.addEventListener('change', () => {
+      const selected = [...document.querySelectorAll<HTMLSelectElement>('[data-favorite-language-slot]')]
+        .map((item) => normalizeLanguage(item.value))
+        .filter((item): item is LanguageCode => item !== null);
+      state.profile = {
+        ...state.profile,
+        favoriteLanguages: normalizeQuickLanguages(selected, state.profile.preferredLanguage),
+      };
+      saveProfile(window.localStorage, state.profile);
+      render();
     });
   });
 }
@@ -5264,6 +5314,7 @@ function saveProfileFromForm() {
     vehicleNumber: vehicleNumber ?? state.profile.vehicleNumber,
     address: address ?? state.profile.address,
     preferredLanguage: state.profile.preferredLanguage,
+    favoriteLanguages: state.profile.favoriteLanguages,
     defaultSignature: defaultSignature || state.profile.defaultSignature || defaultProfile().defaultSignature,
     drawnSignatureDataUrl: state.profile.drawnSignatureDataUrl,
   };
@@ -5289,7 +5340,7 @@ function setProfileLanguage(preferredLanguage: LanguageCode) {
   state.targetLanguage = preferredLanguage;
   state.translatorTargetLanguage = preferredLanguage;
   applySelectedTemplateLanguage(preferredLanguage);
-  saveProfile(window.localStorage, state.profile);
+  state.profile = saveProfile(window.localStorage, state.profile);
 }
 
 function emailSignature(language: LanguageCode): string {
@@ -5422,7 +5473,9 @@ function routeForView(view: ViewName) {
 }
 
 function languageButtons(name: string, selectedLanguage: LanguageCode) {
-  return supportedLanguages
+  const favorites = normalizeQuickLanguages(state.profile.favoriteLanguages, selectedLanguage);
+  const remaining = supportedLanguages.filter((code) => !favorites.includes(code));
+  return favorites
     .map(
       (code) => `
         <button
@@ -5437,7 +5490,36 @@ function languageButtons(name: string, selectedLanguage: LanguageCode) {
         </button>
       `,
     )
-    .join('');
+    .join('') + `
+      <label class="language-more-control">
+        <span>${escapeHtml(moreLanguagesLabels[uiLanguage()])}</span>
+        <select data-language-more="${name}">
+          <option value="">${escapeHtml(moreLanguagesLabels[uiLanguage()])}</option>
+          ${remaining.map((code) => `<option value="${code}" ${selectedLanguage === code ? 'selected' : ''}>${escapeHtml(languageLabel(code))}</option>`).join('')}
+        </select>
+      </label>
+      ${name === 'profilePreferredLanguage' ? `<fieldset class="favorite-language-settings">
+        <legend>${escapeHtml(quickLanguagesLabels[uiLanguage()])}</legend>
+        ${favorites.map((favorite, index) => `<select data-favorite-language-slot="${index}" aria-label="${escapeHtml(quickLanguagesLabels[uiLanguage()])} ${index + 1}">
+          ${supportedLanguages.map((code) => `<option value="${code}" ${favorite === code ? 'selected' : ''}>${escapeHtml(languageLabel(code))}</option>`).join('')}
+        </select>`).join('')}
+      </fieldset>` : ''}
+    `;
+}
+
+function renderQuickLanguageControls(surface: 'header' | 'home') {
+  const language = uiLanguage();
+  const favorites = normalizeQuickLanguages(state.profile.favoriteLanguages, state.profile.preferredLanguage);
+  const remaining = supportedLanguages.filter((code) => !favorites.includes(code));
+  return `<span class="quick-language-controls" data-language-surface="${surface}">
+    <span class="quick-language-buttons" aria-label="${escapeHtml(quickLanguagesLabels[language])}">
+      ${favorites.map((code) => `<button type="button" data-quick-language="${code}" class="${state.profile.preferredLanguage === code ? 'active' : ''}" aria-pressed="${state.profile.preferredLanguage === code}">${escapeHtml(code.toUpperCase())}</button>`).join('')}
+    </span>
+    <select data-more-language aria-label="${escapeHtml(moreLanguagesLabels[language])}">
+      <option value="">${escapeHtml(moreLanguagesLabels[language])}</option>
+      ${remaining.map((code) => `<option value="${code}" ${state.profile.preferredLanguage === code ? 'selected' : ''}>${escapeHtml(languageLabel(code))}</option>`).join('')}
+    </select>
+  </span>`;
 }
 
 function languageLabel(language: LanguageCode) {
@@ -5445,15 +5527,7 @@ function languageLabel(language: LanguageCode) {
 }
 
 function speechLocale(language: LanguageCode) {
-  if (language === 'de') {
-    return 'de-DE';
-  }
-
-  if (language === 'en') {
-    return 'en-US';
-  }
-
-  return 'ro-RO';
+  return basicLanguageRegistry[language].speechLocale;
 }
 
 function normalizeMailTone(value: unknown): MailTone | null {

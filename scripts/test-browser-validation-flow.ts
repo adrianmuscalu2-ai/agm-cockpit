@@ -16,11 +16,11 @@ for (const field of [
 }
 
 for (const requirement of [
-  'ChatGPT Desktop + Integrated Browser',
+  'AGM unattended Playwright + Chromium runner',
   'An ordinary Chrome window is not a controlled audit session',
-  'same audit conversation',
   'resume the interrupted audit automatically',
   'HOLD is permitted only when the recovery sequence has been exhausted',
+  'pnpm audit:wave1-browser',
 ]) {
   assert.ok(runbook.includes(requirement), `Runbook missing requirement: ${requirement}`);
 }
@@ -30,4 +30,3 @@ assert.match(runbook, /restart, update, or reinstall/i);
 assert.match(runbook, /navigation and capture/i);
 
 console.log('AGM Browser validation permanent flow contract: PASS');
-

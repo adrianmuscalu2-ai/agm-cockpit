@@ -1,5 +1,6 @@
 import { createWorker, PSM } from 'tesseract.js';
 import { type LanguageCode } from './emailLanguage';
+import { basicLanguageRegistry } from './language-registry';
 
 export type OcrRecognitionResult = {
   text: string;
@@ -7,17 +8,10 @@ export type OcrRecognitionResult = {
   isUsable: boolean;
 };
 
-const ocrLanguageByAgmLanguage: Record<LanguageCode, string> = {
-  ro: 'ron',
-  de: 'deu',
-  en: 'eng',
-};
-
 export async function recognizeTextFromImage(image: Blob | File, language: LanguageCode): Promise<OcrRecognitionResult> {
   const preparedImages = await prepareImagesForOcr(image);
-  const supportedLanguages: LanguageCode[] = ['ro', 'de', 'en'];
-  const languages = [language, ...supportedLanguages]
-    .map((code) => ocrLanguageByAgmLanguage[code])
+  const languages = [language, 'en' as const]
+    .map((code) => basicLanguageRegistry[code].ocrCode)
     .filter((code, index, all) => all.indexOf(code) === index)
     .join('+');
   const worker = await createWorker(languages);

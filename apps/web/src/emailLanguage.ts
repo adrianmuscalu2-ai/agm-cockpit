@@ -1,12 +1,16 @@
-export type LanguageCode = 'ro' | 'en' | 'de';
+import {
+  basicLanguageCodes,
+  basicLanguageRegistry,
+  type BasicLanguageCode,
+} from './language-registry';
 
-export const supportedLanguages: LanguageCode[] = ['ro', 'de', 'en'];
+export type LanguageCode = BasicLanguageCode;
 
-export const languageLabels: Record<LanguageCode, string> = {
-  ro: 'Romana',
-  en: 'English',
-  de: 'Deutsch',
-};
+export const supportedLanguages: readonly LanguageCode[] = basicLanguageCodes;
+
+export const languageLabels: Record<LanguageCode, string> = Object.fromEntries(
+  basicLanguageCodes.map((code) => [code, basicLanguageRegistry[code].nativeLabel]),
+) as Record<LanguageCode, string>;
 
 export interface TranslationResult {
   text: string;
@@ -100,6 +104,10 @@ export function professionalizeMessage(text: string, language: LanguageCode, sig
     return `Guten Tag,\n\n${polishSentence(core, 'de')}\n\nBitte teilen Sie mir mit, falls weitere Informationen benoetigt werden.\n\n${closing}`;
   }
 
+  if (language !== 'ro') {
+    return `Hello,\n\n${polishSentence(core, 'en')}\n\nPlease let me know if any additional information is required.\n\n${closing}`;
+  }
+
   return `Buna ziua,\n\n${polishSentence(core, 'ro')}\n\nVa rog sa imi transmiteti daca sunt necesare informatii suplimentare.\n\n${closing}`;
 }
 
@@ -111,6 +119,12 @@ export function localizedDefaultClosing(language: LanguageCode): string {
   if (language === 'en') {
     return 'Kind regards';
   }
+
+  const closingByLanguage: Partial<Record<LanguageCode, string>> = {
+    fr: 'Cordialement', nl: 'Met vriendelijke groet', ru: 'С уважением',
+    pl: 'Z poważaniem', tr: 'Saygılarımla', sq: 'Me respekt',
+  };
+  if (closingByLanguage[language]) return closingByLanguage[language]!;
 
   return 'Cu stimă';
 }
@@ -168,6 +182,13 @@ export function detectMessageLanguage(text: string, fallbackLanguage: LanguageCo
     return 'en';
   }
 
+  if (/[А-Яа-яЁё]/u.test(source)) return 'ru';
+  if (/\b(je|vous|véhicule|transport|documents|merci|bonjour)\b/u.test(lower)) return 'fr';
+  if (/\b(ik|voertuig|vervoer|documenten|bedankt|locatie)\b/u.test(lower)) return 'nl';
+  if (/\b(pojazd|transport|dokumenty|dziękuję|lokalizacja)\b/u.test(lower)) return 'pl';
+  if (/\b(araç|taşıma|belgeler|teşekkür|konum)\b/u.test(lower)) return 'tr';
+  if (/\b(automjet|transport|dokumente|faleminderit|vendndodhje)\b/u.test(lower)) return 'sq';
+
   return fallbackLanguage;
 }
 
@@ -196,12 +217,19 @@ function getDictionary(targetLanguage: LanguageCode): Record<string, string> {
     return romanianDictionary;
   }
 
-  return englishDictionary;
+  if (targetLanguage === 'en') return englishDictionary;
+  return {};
 }
 
 function defaultIntent(language: LanguageCode): string {
   if (language === 'en') return 'I am contacting you regarding the vehicle transport.';
   if (language === 'de') return 'ich kontaktiere Sie bezueglich des Fahrzeugtransports.';
+  if (language === 'fr') return 'Je vous contacte au sujet du transport du véhicule.';
+  if (language === 'nl') return 'Ik neem contact met u op over het voertuigtransport.';
+  if (language === 'ru') return 'Я связываюсь с вами по поводу перевозки автомобиля.';
+  if (language === 'pl') return 'Kontaktuję się w sprawie transportu pojazdu.';
+  if (language === 'tr') return 'Araç taşımacılığı hakkında sizinle iletişime geçiyorum.';
+  if (language === 'sq') return 'Po ju kontaktoj në lidhje me transportin e automjetit.';
   return 'va contactez in legatura cu transportul vehiculului.';
 }
 

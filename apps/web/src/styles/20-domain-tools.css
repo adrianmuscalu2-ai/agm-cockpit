@@ -922,6 +922,52 @@ dd {
   font-weight: 800;
 }
 
+.quick-language-controls,
+.quick-language-buttons,
+.favorite-language-settings {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.quick-language-buttons button {
+  min-width: 2.8rem;
+  padding: 0.38rem 0.55rem;
+  border: 1px solid rgba(95, 187, 255, 0.45);
+  border-radius: 0.55rem;
+}
+
+.quick-language-buttons button.active {
+  color: #07111d;
+  background: #71d8ff;
+  border-color: #71d8ff;
+}
+
+.quick-language-controls select,
+.language-more-control select,
+.favorite-language-settings select {
+  min-height: 2.35rem;
+  max-width: 13rem;
+}
+
+.language-more-control {
+  display: grid;
+  gap: 0.35rem;
+  min-width: min(100%, 15rem);
+}
+
+.favorite-language-settings {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(95, 187, 255, 0.25);
+  border-radius: 0.75rem;
+}
+
+.favorite-language-settings legend {
+  padding-inline: 0.35rem;
+}
+
 .knowledge-package-meta {
   margin-bottom: 12px !important;
   color: #55e29e !important;

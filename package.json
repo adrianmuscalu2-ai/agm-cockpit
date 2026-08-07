@@ -24,6 +24,7 @@
     "db:seed": "tsx prisma/seed/seed.ts",
     "db:studio": "prisma studio",
     "audit:ui-live": "node scripts/ui-live-audit.mjs",
+    "audit:wave1-browser": "node scripts/validate-wave1-browser.mjs",
     "test:surface-sync": "node scripts/validate-product-surface.mjs",
     "test:browser-validation-flow": "tsx scripts/test-browser-validation-flow.ts"
   },

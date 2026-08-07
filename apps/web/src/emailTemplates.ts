@@ -1,4 +1,5 @@
 import { type LanguageCode } from './emailLanguage';
+import { supportedLanguages } from './emailLanguage';
 
 export type MessageCategory = 'transport' | 'clients' | 'logistics' | 'documents' | 'emergencies';
 
@@ -16,7 +17,8 @@ export interface EmailTemplate {
   translations: Record<LanguageCode, EmailTemplateContent>;
 }
 
-type LocalizedContent = Record<LanguageCode, [subject: string, message: string]>;
+type BaseLanguageCode = Extract<LanguageCode, 'ro' | 'de' | 'en'>;
+type LocalizedContent = Record<BaseLanguageCode, [subject: string, message: string]>;
 
 function template(id: string, category: MessageCategory, variables: string[], content: LocalizedContent): EmailTemplate {
   return {
@@ -25,11 +27,14 @@ function template(id: string, category: MessageCategory, variables: string[], co
     variables,
     subject: content.ro[0],
     message: content.ro[1],
-    translations: {
-      ro: { subject: content.ro[0], message: content.ro[1] },
-      de: { subject: content.de[0], message: content.de[1] },
-      en: { subject: content.en[0], message: content.en[1] },
-    },
+    translations: Object.fromEntries(
+      supportedLanguages.map((language) => {
+        const localized = language === 'ro' || language === 'de' || language === 'en'
+          ? content[language]
+          : content.en;
+        return [language, { subject: localized[0], message: localized[1] }];
+      }),
+    ) as Record<LanguageCode, EmailTemplateContent>,
   };
 }
 

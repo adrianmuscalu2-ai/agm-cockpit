@@ -1,0 +1,81 @@
+import type { LanguageCode } from '../emailLanguage';
+
+type Wave1Language = Exclude<LanguageCode, 'ro' | 'de' | 'en'>;
+type CriticalCopy = Record<string, string>;
+
+const common = {
+  fr: {
+    'home.title': 'Accueil', 'home.basic': 'Basic', 'nav.profile': 'Profil',
+    'nav.email': 'Assistant e-mail', 'translator.title': 'Traducteur AGM',
+    'profile.preferredLanguage': 'Langue préférée', 'profile.save': 'Enregistrer le profil',
+    'mail.moduleName': 'Assistant e-mail', 'mail.sendEmail': 'Envoyer par e-mail',
+    'ocr.page.translate': 'Envoyer au traducteur', 'ready.ok': 'OK', 'ready.ready': 'PRÊT',
+    'common.close': 'Fermer', 'app.ready': 'AGM est prêt.',
+    'status.profileLanguageChanged': 'Langue changée en {language}.',
+    'profile.status.languageSaved': 'Langue préférée enregistrée : {language}.',
+    'language.more': 'Plus de langues', 'language.favorites': 'Langues rapides',
+    'language.favoritesHelp': 'Choisissez jusqu’à 3 langues rapides.',
+  },
+  nl: {
+    'home.title': 'Home', 'home.basic': 'Basic', 'nav.profile': 'Profiel',
+    'nav.email': 'E-mailassistent', 'translator.title': 'AGM Vertaler',
+    'profile.preferredLanguage': 'Voorkeurstaal', 'profile.save': 'Profiel opslaan',
+    'mail.moduleName': 'E-mailassistent', 'mail.sendEmail': 'Per e-mail verzenden',
+    'ocr.page.translate': 'Naar vertaler sturen', 'ready.ok': 'OK', 'ready.ready': 'GEREED',
+    'common.close': 'Sluiten', 'app.ready': 'AGM is gereed.',
+    'status.profileLanguageChanged': 'Taal gewijzigd naar {language}.',
+    'profile.status.languageSaved': 'Voorkeurstaal opgeslagen: {language}.',
+    'language.more': 'Meer talen', 'language.favorites': 'Snelle talen',
+    'language.favoritesHelp': 'Kies maximaal 3 snelle talen.',
+  },
+  ru: {
+    'home.title': 'Главная', 'home.basic': 'Basic', 'nav.profile': 'Профиль',
+    'nav.email': 'Почтовый помощник', 'translator.title': 'Переводчик AGM',
+    'profile.preferredLanguage': 'Предпочитаемый язык', 'profile.save': 'Сохранить профиль',
+    'mail.moduleName': 'Почтовый помощник', 'mail.sendEmail': 'Отправить по e-mail',
+    'ocr.page.translate': 'Отправить в переводчик', 'ready.ok': 'OK', 'ready.ready': 'ГОТОВО',
+    'common.close': 'Закрыть', 'app.ready': 'AGM готов.',
+    'status.profileLanguageChanged': 'Язык изменён на {language}.',
+    'profile.status.languageSaved': 'Предпочитаемый язык сохранён: {language}.',
+    'language.more': 'Другие языки', 'language.favorites': 'Быстрые языки',
+    'language.favoritesHelp': 'Выберите до 3 быстрых языков.',
+  },
+  pl: {
+    'home.title': 'Strona główna', 'home.basic': 'Basic', 'nav.profile': 'Profil',
+    'nav.email': 'Asystent e-mail', 'translator.title': 'Tłumacz AGM',
+    'profile.preferredLanguage': 'Preferowany język', 'profile.save': 'Zapisz profil',
+    'mail.moduleName': 'Asystent e-mail', 'mail.sendEmail': 'Wyślij e-mailem',
+    'ocr.page.translate': 'Wyślij do tłumacza', 'ready.ok': 'OK', 'ready.ready': 'GOTOWE',
+    'common.close': 'Zamknij', 'app.ready': 'AGM jest gotowy.',
+    'status.profileLanguageChanged': 'Zmieniono język na {language}.',
+    'profile.status.languageSaved': 'Zapisano preferowany język: {language}.',
+    'language.more': 'Więcej języków', 'language.favorites': 'Szybkie języki',
+    'language.favoritesHelp': 'Wybierz maksymalnie 3 szybkie języki.',
+  },
+  tr: {
+    'home.title': 'Ana sayfa', 'home.basic': 'Basic', 'nav.profile': 'Profil',
+    'nav.email': 'E-posta Asistanı', 'translator.title': 'AGM Çevirmen',
+    'profile.preferredLanguage': 'Tercih edilen dil', 'profile.save': 'Profili kaydet',
+    'mail.moduleName': 'E-posta Asistanı', 'mail.sendEmail': 'E-posta ile gönder',
+    'ocr.page.translate': 'Çevirmene gönder', 'ready.ok': 'OK', 'ready.ready': 'HAZIR',
+    'common.close': 'Kapat', 'app.ready': 'AGM hazır.',
+    'status.profileLanguageChanged': 'Dil {language} olarak değiştirildi.',
+    'profile.status.languageSaved': 'Tercih edilen dil kaydedildi: {language}.',
+    'language.more': 'Daha fazla dil', 'language.favorites': 'Hızlı diller',
+    'language.favoritesHelp': 'En fazla 3 hızlı dil seçin.',
+  },
+  sq: {
+    'home.title': 'Kreu', 'home.basic': 'Basic', 'nav.profile': 'Profili',
+    'nav.email': 'Asistenti i emailit', 'translator.title': 'Përkthyesi AGM',
+    'profile.preferredLanguage': 'Gjuha e preferuar', 'profile.save': 'Ruaj profilin',
+    'mail.moduleName': 'Asistenti i emailit', 'mail.sendEmail': 'Dërgo me email',
+    'ocr.page.translate': 'Dërgo te përkthyesi', 'ready.ok': 'OK', 'ready.ready': 'GATI',
+    'common.close': 'Mbyll', 'app.ready': 'AGM është gati.',
+    'status.profileLanguageChanged': 'Gjuha u ndryshua në {language}.',
+    'profile.status.languageSaved': 'Gjuha e preferuar u ruajt: {language}.',
+    'language.more': 'Më shumë gjuhë', 'language.favorites': 'Gjuhë të shpejta',
+    'language.favoritesHelp': 'Zgjidhni deri në 3 gjuhë të shpejta.',
+  },
+} satisfies Record<Wave1Language, CriticalCopy>;
+
+export const wave1BasicI18nDictionary = common;

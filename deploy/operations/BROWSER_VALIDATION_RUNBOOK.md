@@ -11,19 +11,22 @@
 | Activity | Required surface |
 |---|---|
 | Development, code, build, technical tests | VS Code / Codex IDE |
-| Controlled visual validation | ChatGPT Desktop + Integrated Browser |
-| Local target | `localhost` or `127.0.0.1` opened in Integrated Browser |
+| Controlled visual validation | AGM unattended Playwright + Chromium runner |
+| Optional interactive probe | Codex Desktop + Integrated Browser |
+| Local target | Dynamically discovered local URL opened by the unattended runner |
 
-An ordinary Chrome window is not a controlled audit session.
+An ordinary Chrome window is not a controlled audit session. The isolated AGM
+Chromium session is controlled by the authorized runner and is distinct from a
+user Chrome profile.
 
 ## Mandatory preflight
 
 Before every audit, release, or visual validation:
 
-1. confirm Browser plugin is enabled and callable;
-2. confirm Integrated Browser Control is available in ChatGPT Desktop;
-3. create or select a controllable Integrated Browser session in the same audit conversation;
-4. open the target local control route;
+1. confirm the unattended Browser runner and Chromium executable are callable;
+2. detect an existing healthy target or start Web on an OS-allocated free port;
+3. create an isolated controllable Browser session;
+4. open the discovered local control route and verify HTTP 200;
 5. perform one navigation action and capture the rendered page;
 6. record the four-field result below and continue only when every field is PASS.
 
@@ -42,21 +45,20 @@ not replace the controlled probe.
 ## Automatic recovery sequence
 
 When any preflight field fails, Release & Operations routes recovery to the
-Browser Validation Agent:
+Browser Validation Agent without Product Owner intervention:
 
-1. verify the Browser plugin remains installed and enabled;
-2. verify ChatGPT Desktop **Settings > Browser** and site permissions;
-3. reactivate Browser control if disabled;
-4. open a fresh Integrated Browser in the same audit conversation (`@Browser`
-   or `Ctrl+Shift+B` on Windows);
-5. reopen the local target route;
+1. verify Playwright and the managed Chromium executable;
+2. discover or bootstrap Web and capture its actual runtime URL;
+3. verify HTTP 200;
+4. create a fresh isolated Chromium context;
+5. reopen the discovered target route;
 6. repeat navigation and capture;
 7. if all four fields pass, resume the interrupted audit automatically;
 8. otherwise record every attempted mechanism and issue HOLD.
 
-Do not substitute standalone Playwright, Computer Use, Chrome, HTTP-only checks,
-or a Browser opened in another conversation for the Integrated Browser session
-bound to the audit conversation.
+Run `pnpm audit:wave1-browser` for the Wave 1 release surface. An Integrated
+Browser probe may supplement this evidence but cannot replace or block the
+unattended runner.
 
 ## Restart, update, or reinstall
 
@@ -73,4 +75,3 @@ Owner escalation is not permitted for a recoverable technical condition. Route
 to Product Owner only for product decisions, scope changes, major risk,
 irreversible actions, real authority conflict, or a non-recoverable capability
 block after documented recovery.
-

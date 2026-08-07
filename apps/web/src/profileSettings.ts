@@ -1,4 +1,5 @@
 import { type LanguageCode } from './emailLanguage';
+import { isBasicLanguageCode, normalizeQuickLanguages } from './language-registry';
 
 export interface ProfileSettings {
   displayName: string;
@@ -8,6 +9,7 @@ export interface ProfileSettings {
   vehicleNumber: string;
   address: string;
   preferredLanguage: LanguageCode;
+  favoriteLanguages: LanguageCode[];
   defaultSignature: string;
   drawnSignatureDataUrl: string;
 }
@@ -30,6 +32,7 @@ export function defaultProfile(): ProfileSettings {
     vehicleNumber: '',
     address: '',
     preferredLanguage: 'ro',
+    favoriteLanguages: ['ro', 'de', 'en'],
     defaultSignature: 'Cu stima',
     drawnSignatureDataUrl: '',
   };
@@ -80,6 +83,10 @@ export function normalizeProfile(
     vehicleNumber: normalizeText(profile.vehicleNumber),
     address: normalizeText(profile.address),
     preferredLanguage: normalizeLanguage(profile.preferredLanguage) ?? fallbackLanguage,
+    favoriteLanguages: normalizeQuickLanguages(
+      profile.favoriteLanguages,
+      normalizeLanguage(profile.preferredLanguage) ?? fallbackLanguage,
+    ),
     defaultSignature: defaultSignature || defaults.defaultSignature,
     drawnSignatureDataUrl: normalizeDrawnSignature(profile.drawnSignatureDataUrl),
   };
@@ -103,5 +110,5 @@ export function readPreferredLanguage(storage: ProfileStorage): LanguageCode {
 }
 
 export function normalizeLanguage(value: unknown): LanguageCode | null {
-  return value === 'en' || value === 'de' || value === 'ro' ? value : null;
+  return isBasicLanguageCode(value) ? value : null;
 }

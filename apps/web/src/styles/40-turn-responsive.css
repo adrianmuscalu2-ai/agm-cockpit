@@ -1,4 +1,16 @@
 @media (max-width: 700px) {
+  .quick-language-controls {
+    width: 100%;
+  }
+
+  .quick-language-buttons {
+    flex: 1 1 auto;
+  }
+
+  .quick-language-controls select {
+    flex: 1 1 10rem;
+    max-width: 100%;
+  }
   .monitoring-department > header { flex-direction: column; }
   .monitoring-agent-grid { grid-template-columns: 1fr; }
   .monitoring-department { margin-bottom: 7rem; }

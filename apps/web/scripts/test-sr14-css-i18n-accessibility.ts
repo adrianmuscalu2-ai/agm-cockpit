@@ -25,18 +25,19 @@ const reconstructedCss = cssModules
   .reduce((output, content) => Buffer.concat([output, content]), Buffer.alloc(0));
 assert.equal(
   createHash('sha256').update(reconstructedCss).digest('hex').toUpperCase(),
-  '151472DE153BBB720111BD15CBE481C4355202DE8BE60945DAFD9F68E566D680',
+  '4507BE92FB1586A1D8374A505786059B88B82D8EAE89ABC78B1732D0B4CB5245',
   'The modular CSS must reconstruct the approved Access/Premium cascade.',
 );
 
-assert.deepEqual([...supportedUiLanguages], ['ro', 'de', 'en']);
+assert.deepEqual([...supportedUiLanguages], ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq']);
 assert.equal(i18nCatalogRegistry.length, 4);
-for (const catalog of i18nCatalogRegistry) {
+assert.deepEqual([...i18nCatalogRegistry[0].languages], [...supportedUiLanguages], 'app language coverage');
+for (const catalog of i18nCatalogRegistry.slice(1)) {
   assert.deepEqual([...catalog.languages], ['ro', 'de', 'en'], `${catalog.id} language coverage`);
 }
 
-assertCatalogParity('app', appI18nDictionary);
-assertCatalogParity('premium', premiumI18nDictionary);
+assertCatalogParity('app', appI18nDictionary as Record<string, Record<string, string>>, ['ro', 'de', 'en']);
+assertCatalogParity('premium', premiumI18nDictionary, ['ro', 'de', 'en']);
 assertTopologyParity('pre-departure', preDepartureCopy);
 assertTopologyParity('after-departure', afterDepartureCopy);
 
@@ -93,9 +94,10 @@ console.log('SR-14 exact CSS cascade, RO/DE/EN completeness and accessibility sm
 function assertCatalogParity(
   name: string,
   catalog: Record<string, Record<string, string>>,
+  languages: readonly string[] = supportedUiLanguages,
 ) {
   const referenceKeys = Object.keys(catalog.ro).sort();
-  for (const language of supportedUiLanguages) {
+  for (const language of languages) {
     const entries = catalog[language];
     assert.deepEqual(Object.keys(entries).sort(), referenceKeys, `${name}/${language} keys`);
     for (const key of referenceKeys) {
@@ -111,7 +113,7 @@ function assertCatalogParity(
 
 function assertTopologyParity(name: string, catalog: Record<string, unknown>) {
   const referencePaths = leafPaths(catalog.ro).sort();
-  for (const language of supportedUiLanguages) {
+  for (const language of ['ro', 'de', 'en']) {
     assert.deepEqual(leafPaths(catalog[language]).sort(), referencePaths, `${name}/${language} topology`);
   }
 }

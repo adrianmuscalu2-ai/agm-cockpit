@@ -5,6 +5,29 @@ const page = pages.find((candidate) => candidate.type === 'page' && !candidate.u
 if (!page) throw new Error('AGM Android WebView page not found.');
 
 const expressions = {
+  wave1: `JSON.stringify({
+    url: location.href,
+    language: document.documentElement.lang,
+    innerWidth,
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+    bodyScrollWidth: document.body.scrollWidth,
+    quickLanguages: [...document.querySelectorAll('[data-quick-language]')].map((item) => item.textContent.trim()),
+    moreLanguages: [...document.querySelectorAll('[data-more-language] option')].map((item) => item.textContent.trim())
+  })`,
+  'wave1-links': `JSON.stringify([...document.querySelectorAll('a, button')].map((item) => ({
+    text: item.textContent.trim().replace(/\\s+/g, ' '),
+    href: item.getAttribute('href'),
+    action: item.getAttribute('data-basic-action')
+  })).filter((item) => /email|ocr|translator|перев|почт/i.test(item.text) || item.action === 'ocr'))`,
+  'wave1-open-email': `(() => { document.querySelector('a[href="/email"]')?.click(); return location.href; })()`,
+  'wave1-email': `JSON.stringify({ url: location.href, language: document.documentElement.lang,
+    targetLanguages: [...document.querySelectorAll('select option')].map((item) => item.textContent.trim()).filter((text) => /Français|Nederlands|Русский|Polski|Türkçe|Shqip/.test(text)),
+    hasComposer: Boolean(document.querySelector('textarea, [contenteditable="true"]')) })`,
+  'wave1-open-ocr': `(() => { history.pushState({}, '', '/basic'); dispatchEvent(new PopStateEvent('popstate')); setTimeout(() => document.querySelector('[data-basic-action="ocr"]')?.click(), 100); return true; })()`,
+  'wave1-ocr': `JSON.stringify({ url: location.href, language: document.documentElement.lang,
+    languages: [...document.querySelectorAll('select option')].map((item) => item.textContent.trim()).filter((text) => /Français|Nederlands|Русский|Polski|Türkçe|Shqip/.test(text)),
+    hasFileInput: Boolean(document.querySelector('input[type="file"]')) })`,
   inspect: `JSON.stringify({
     url: location.href,
     script: [...document.scripts].map((item) => item.src).find((src) => src.includes('/assets/main-')) ?? '',
