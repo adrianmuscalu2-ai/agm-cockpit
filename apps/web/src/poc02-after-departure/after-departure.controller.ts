@@ -87,6 +87,15 @@ export function mountAfterDepartureApp(
       render();
     });
 
+    root.querySelector<HTMLButtonElement>('#shareAfterDepartureWhatsapp')?.addEventListener('click', async () => {
+      if (!state.assessment || !navigator.share) return;
+      const result = state.assessment;
+      await navigator.share({
+        title: 'AGM · După plecare',
+        text: `AGM · După plecare\nScenariu: ${state.scenario}\nStare: ${result.state}\nPrioritate: ${result.priority}`,
+      });
+    });
+
     root.querySelectorAll<HTMLButtonElement>('[data-after-departure-transition]').forEach((button) => {
       button.addEventListener('click', () => {
         if (!state.assessment) return;

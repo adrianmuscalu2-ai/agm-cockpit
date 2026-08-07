@@ -5,6 +5,8 @@ export interface ProfileSettings {
   phone: string;
   email: string;
   company: string;
+  vehicleNumber: string;
+  address: string;
   preferredLanguage: LanguageCode;
   defaultSignature: string;
   drawnSignatureDataUrl: string;
@@ -25,6 +27,8 @@ export function defaultProfile(): ProfileSettings {
     phone: '',
     email: '',
     company: '',
+    vehicleNumber: '',
+    address: '',
     preferredLanguage: 'ro',
     defaultSignature: 'Cu stima',
     drawnSignatureDataUrl: '',
@@ -73,6 +77,8 @@ export function normalizeProfile(
     phone: normalizeText(profile.phone),
     email: normalizeText(profile.email),
     company: normalizeText(profile.company),
+    vehicleNumber: normalizeText(profile.vehicleNumber),
+    address: normalizeText(profile.address),
     preferredLanguage: normalizeLanguage(profile.preferredLanguage) ?? fallbackLanguage,
     defaultSignature: defaultSignature || defaults.defaultSignature,
     drawnSignatureDataUrl: normalizeDrawnSignature(profile.drawnSignatureDataUrl),

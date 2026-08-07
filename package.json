@@ -1,6 +1,6 @@
 {
   "name": "agm",
-  "version": "0.1.0",
+  "version": "1.3.0",
   "private": true,
   "description": "AGM AI-assisted vehicle transport management system",
   "scripts": {
@@ -23,7 +23,9 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed/seed.ts",
     "db:studio": "prisma studio",
-    "audit:ui-live": "node scripts/ui-live-audit.mjs"
+    "audit:ui-live": "node scripts/ui-live-audit.mjs",
+    "test:surface-sync": "node scripts/validate-product-surface.mjs",
+    "test:browser-validation-flow": "tsx scripts/test-browser-validation-flow.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed/seed.ts"

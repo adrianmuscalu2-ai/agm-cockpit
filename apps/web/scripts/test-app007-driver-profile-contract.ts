@@ -41,12 +41,16 @@ const normalized = saveProfile(normalizedStorage, {
   phone: '  +40 123  ',
   email: '  driver@example.com  ',
   company: '  AGM  ',
+  vehicleNumber: '  B 123 AGM  ',
+  address: '  Berlin  ',
   preferredLanguage: 'ro',
   defaultSignature: '  Cu respect  ',
   drawnSignatureDataUrl: validSignature,
 });
 assert.equal(normalized.displayName, 'Adrian Muscalu');
 assert.equal(normalized.email, 'driver@example.com');
+assert.equal(normalized.vehicleNumber, 'B 123 AGM');
+assert.equal(normalized.address, 'Berlin');
 assert.equal(normalized.drawnSignatureDataUrl, validSignature);
 assert.deepEqual(readProfile(normalizedStorage), normalized);
 

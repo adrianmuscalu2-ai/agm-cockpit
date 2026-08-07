@@ -23,7 +23,7 @@ export const securingRecommendationSchema = {
       additionalProperties: false,
       properties: {
         estimatedCount: { type: ['integer', 'null'] },
-        recommendedCount: { type: ['integer', 'null'] },
+        recommendedCount: { type: 'null' },
         observations: { type: 'array', items: observationSchema },
       },
       required: ['estimatedCount', 'recommendedCount', 'observations'],

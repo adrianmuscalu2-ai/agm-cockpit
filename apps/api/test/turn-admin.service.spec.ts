@@ -29,6 +29,15 @@ describe('API-007 TurnAdminService', () => {
         }),
         create: jest.fn(),
       },
+      $transaction: jest.fn(async (operation: (transaction: unknown) => unknown) => operation({
+        $executeRawUnsafe: jest.fn().mockResolvedValue(0),
+        turnAdminCredential: {
+          update: jest.fn(async ({ data }: { data: Partial<typeof credential> }) => {
+            credential = { ...credential, ...data };
+            return { ...credential };
+          }),
+        },
+      })),
     };
     jwt = {
       signAsync: jest.fn().mockResolvedValue('safe-test-token'),

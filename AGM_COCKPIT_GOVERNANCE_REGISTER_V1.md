@@ -58,6 +58,7 @@ Fiecare înregistrare trebuie să dețină obligatoriu:
 | Technical Lead / Maintenance | `agent-codex` | proiectare tehnică, implementare și mentenanță controlată | nu validează independent propria schimbare |
 | QA Validator | `agent-qa` — **PROPUS** | teste funcționale, regresie, Browser și Android | trebuie să fie diferit de implementator; activarea cere aprobarea prezentului registru și înscriere în registrul agenților |
 | Chief Inspector | `agent-inspector` | verificare independentă, arhitectură și verdict | nu execută remedierea verificată |
+| Infrastructure Reuse Coordinator | `infrastructure-reuse-coordinator` | verifică fundația TURN și emite Infrastructure Reuse Report înainte de proiectare | nu implementează, nu aprobă și nu modifică arhitectura sau registrele |
 | Documentation Owner | `documentation` | documentație curentă și legături către dovezi | nu modifică verdictul tehnic |
 | AGM Chronicler | `agent-agm-chronicler` | cronologie, decizii și arhivă oficială | nu rescrie istoricul validat |
 | Version Guardian | `version-guardian` | commit, tag, artefact, checksum și baseline | nu aprobă conținutul funcțional |
@@ -210,6 +211,7 @@ PASS tehnic, PASS QA, PASS Inspector și PASS operațional sunt verdicturi disti
 Oricare dintre următoarele blochează aprobarea sau publicarea:
 
 - owner, QA, Inspector, monitor, mentenanță sau documentație neatribuite;
+- Infrastructure Reuse Report absent pentru un modul nou sau o extindere materială;
 - Plan de Modul lipsă ori neaprobat;
 - contracte de interfață neclare sau contradictorii;
 - teste obligatorii absente/eșuate ori regresii neexplicate;
@@ -268,6 +270,7 @@ ID și denumire:
 Versiune plan:
 Mandat:
 Stare curentă:
+Infrastructure Reuse Report (ID, concluzie și referințe canonice):
 
 1. Obiectiv și rol
 2. În afara domeniului
@@ -285,6 +288,21 @@ Stare curentă:
 14. Dosar și locație de arhivă
 15. Aprobări: Owner / Architecture / QA / Inspector / Turn
 ```
+
+### Poarta obligatorie pre-design
+
+Înainte de proiectarea unei funcții noi sau a unei extinderi materiale,
+`infrastructure-reuse-coordinator` interoghează TURN și emite raportul conform
+`TURN_INFRASTRUCTURE_REUSE_REPORT_CONTRACT_V1.md`. Architecture nu începe
+proiectarea până când raportul nu are una dintre concluziile:
+
+- `FOUNDATION FOUND` — fundația se reutilizează;
+- `FOUNDATION PARTIAL` — fundația se extinde fără structură paralelă;
+- `FOUNDATION NOT FOUND` — lipsa este demonstrată și poate intra în proiectare.
+
+Incidentele, remedierile minore și mentenanța aflate în limitele unui serviciu
+existent pot referi un raport încă valabil; analiza nu se repetă fără schimbare de
+scope, contract sau risc.
 
 ## 14. Controlul modificărilor registrului
 

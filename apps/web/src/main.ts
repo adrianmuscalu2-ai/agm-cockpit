@@ -9,6 +9,13 @@ import {
   type OcrHistoryItem,
 } from './storage/ocr-history.repository';
 import { createTutorialRepository } from './storage/tutorial.repository';
+import { createIndexedDbOcrArchiveStore, createOcrArchiveRepository } from './storage/ocr-archive.repository';
+import {
+  dataUrlToBlob,
+  migrateOcrHistoryV1ToV2,
+  OCR_ARCHIVE_V2_MIGRATION_MARKER,
+} from './storage/ocr-archive.migration';
+import type { OcrDocument } from './ocr/ocr-document.contract';
 import { escapeHtml, formatInlinePreview, formatPreview } from './text-format';
 import { emailContacts } from './emailContacts';
 import {
@@ -55,6 +62,31 @@ import { attachIncidentsLegacyFacade, createIncidentsState } from './app-shell/i
 import { type AgmContact, type ContactCategory, type ContactDraft } from './contact-manager/contact-manager.types';
 import { t, uiLanguageFromProfile } from './i18n/app-i18n';
 import { recognizeTextFromImage } from './ocr-translator';
+import {
+  analyzeTransportDocument,
+  formatTransportDocumentResult,
+  type TransportDocumentAnalysisResult,
+} from './basic-photo-analysis/transport-document.analysis';
+import {
+  analyzeTachographText,
+  formatTachographResult,
+  type TachographAnalysisResult,
+} from './basic-photo-analysis/tachograph.analysis';
+import {
+  analyzeDashboardText,
+  formatDashboardTextResult,
+  type DashboardTextAnalysisResult,
+} from './basic-photo-analysis/dashboard-text.analysis';
+import {
+  analyzeLegislationText,
+  formatLegislationResult,
+  type LegislationAnalysisResult,
+} from './basic-photo-analysis/legislation.analysis';
+import {
+  analyzeCargoSafetyText,
+  formatCargoSafetyResult,
+  type CargoSafetyAnalysisResult,
+} from './basic-photo-analysis/cargo-safety.analysis';
 import { availableTextCorrectorAgentIds, correctText } from './text-corrector/text-corrector.service';
 import {
   type TextCorrectorMode,
@@ -62,6 +94,8 @@ import {
   type TextCorrectorSourceModule,
 } from './text-corrector/text-corrector.types';
 import { renderTurnCommandCenter } from './turn-command-center.view';
+import { publishedLegalKnowledge } from './legal-knowledge/legal-knowledge.registry';
+import { basicKnowledgeDestinationFromRoute, packagesForBasicKnowledgeDestination } from './legal-knowledge/knowledge-navigation.registry';
 import {
   createIncident,
   emptyIncidentFilters,
@@ -76,13 +110,16 @@ import {
   type IncidentStatus,
 } from './incident-journal';
 import { isNativeAudioAvailable, NativeAudio, type MicrophonePermissionState } from './native-audio';
-import { changeAdministratorPin, unlockAdministrator, validateAdministrator, type AdminSession } from './admin-auth';
+import { changeAdministratorPin, localAdministratorBypassActive, localAdministratorSession, unlockAdministrator, validateAdministrator, type AdminSession } from './admin-auth';
 import { premiumStatusKey, renderPremiumView, usesPremiumLayout } from './premium-app';
 import { renderPremiumAccessView } from './premium-access/premium-access.view';
 import { bindPremiumAccessRuntime } from './premium-access/premium-access.runtime';
 import { isPremiumNavigationAllowed } from './premium-access/premium-access.navigation';
 import { isPremiumView, premiumRouteForView, premiumViewFromRoute, type PremiumViewName } from './premium-routes';
 import { bindOperationsHealthChecks } from './operations-health';
+import { operationsHealthEvent, reconcileOperationsHealthIncident } from './operations-health-incidents';
+import { bindSecretTelemetry, reconcileSecretTelemetryIncident } from './secret-telemetry';
+import { bindProductionPreflight, reconcileProductionPreflightIncident } from './production-preflight';
 import { bindTurnBackToTop } from './turn-navigation';
 import { bindTurnOrganizationChart } from './turn-organization-chart';
 import {
@@ -131,6 +168,8 @@ type SpeechWindow = Window & {
 
 type ViewName =
   | 'home'
+  | 'basic'
+  | 'ocr'
   | 'access'
   | PremiumViewName
   | 'cockpit'
@@ -145,12 +184,13 @@ type ViewName =
 type EmailComposeMode = 'general' | 'manual';
 type ServiceAvailability = 'checking' | 'online' | 'offline';
 
-const APP_VERSION = 'A.G.M. Cockpit 1.2.9';
+const APP_VERSION = 'A.G.M. Cockpit 1.3.0';
 const PRIVACY_POLICY_VERSION = 'privacy-v2026.07.13';
 const TERMS_VERSION = 'terms-v2026.07.13';
 const LEGAL_ACCEPTANCE_KEY = `agm.legal.acceptance.${PRIVACY_POLICY_VERSION}.${TERMS_VERSION}`;
 const ADMIN_SESSION_KEY = 'agm.admin.session';
 const ocrHistoryRepository = createOcrHistoryRepository(window.localStorage);
+const ocrArchiveRepository = createOcrArchiveRepository(createIndexedDbOcrArchiveStore(window.indexedDB));
 const tutorialRepository = createTutorialRepository(window.localStorage);
 const initialProfile = readProfile(window.localStorage);
 const initialContacts = readContacts(window.localStorage);
@@ -199,6 +239,21 @@ const mailState = createMailState({
 });
 let mailAttachments: MailAttachment[] = [];
 let pendingMailAction: 'email' | 'whatsapp' = 'email';
+let basicPhotoAnalysisMode: 'transport-document' | 'tachograph' | 'dashboard-text' | 'dashboard-warning' | 'legislation' | 'cargo-safety' | null = null;
+type DashboardWarningVisionResult = { status: 'identified' | 'uncertain'; observations: string[]; candidateId?: string; candidateLabel?: string; confidence: number; severity?: 'critical' | 'warning' | 'information'; explanation?: string; recommendedAction?: string; knowledgeReference?: { route: string }; limitations: string[]; provenance: { observation: string; identification: string; explanation: string; severity: string } };
+let dashboardWarningVisionResult: DashboardWarningVisionResult | null = null;
+let dashboardWarningConfirmed = false;
+let dashboardWarningProcessing = false;
+let transportDocumentTextConfirmed = false;
+let transportDocumentAnalysis: TransportDocumentAnalysisResult | null = null;
+let tachographTextConfirmed = false;
+let tachographAnalysis: TachographAnalysisResult | null = null;
+let dashboardTextConfirmed = false;
+let dashboardTextAnalysis: DashboardTextAnalysisResult | null = null;
+let legislationTextConfirmed = false;
+let legislationAnalysis: LegislationAnalysisResult | null = null;
+let cargoSafetyTextConfirmed = false;
+let cargoSafetyAnalysis: CargoSafetyAnalysisResult | null = null;
 const state = attachMailLegacyFacade(attachTranslatorLegacyFacade(attachContactsLegacyFacade(attachOcrLegacyFacade(attachIncidentsLegacyFacade({
   view: viewFromCurrentRoute(),
   profile: initialProfile,
@@ -209,8 +264,8 @@ const state = attachMailLegacyFacade(attachTranslatorLegacyFacade(attachContacts
   isListening: false,
   voiceInputState: 'inactive' as 'inactive' | 'listening' | 'processing' | 'error',
   voicePlaybackState: 'stopped' as 'stopped' | 'playing' | 'error',
-  adminSession: readAdminSession(),
-  adminAccessVerified: false,
+  adminSession: localAdministratorBypassActive ? localAdministratorSession : readAdminSession(),
+  adminAccessVerified: localAdministratorBypassActive,
   adminChangePinOpen: false,
   adminMenuOpen: false,
   adminReportActive: false,
@@ -233,6 +288,7 @@ const state = attachMailLegacyFacade(attachTranslatorLegacyFacade(attachContacts
 
 let activeTranslatorVoiceInput: Promise<void> | null = null;
 let lastTranslatorHealthCapturedAt: string | null = null;
+let lastRenderedProductionPreflightAt: string | null = null;
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
 
@@ -341,7 +397,7 @@ function render() {
   const language = uiLanguage();
   const premiumLayout = usesPremiumLayout(state.view);
   app.innerHTML = `
-    <main class="shell view-${state.view}">
+    <main class="shell view-${state.view} ${visualSceneClass()}">
       <section class="workspace" aria-labelledby="page-title">
         ${state.view === 'home' ? renderHomeHeader() : premiumLayout ? '' : `<header class="topbar">
           <nav class="module-strip" aria-label="${escapeHtml(t(language, 'nav.moduleStripLabel'))}">
@@ -364,17 +420,13 @@ function render() {
                 <span class="nav-code">HOME</span>
                 <span>${escapeHtml(t(language, 'home.title'))}</span>
               </button>
-              <button data-module="cockpit" type="button" class="${state.view === 'cockpit' ? 'active' : ''}">
-                <span class="nav-code">${escapeHtml(t(language, 'nav.cockpitCode'))}</span>
-                <span>${escapeHtml(t(language, 'nav.translator'))}</span>
+              <button data-module="basic" type="button" class="${state.view === 'basic' || state.view === 'ocr' || state.view === 'cockpit' || state.view === 'email' ? 'active' : ''}">
+                <span class="nav-code">BASIC</span>
+                <span>${escapeHtml(t(language, 'home.basic'))}</span>
               </button>
-              <button data-module="email" type="button" class="${state.view === 'email' ? 'active' : ''}">
-                <span class="nav-code">${escapeHtml(t(language, 'nav.emailCode'))}</span>
-                <span>${escapeHtml(t(language, 'nav.email'))}</span>
-              </button>
-              <button data-module="profile" type="button" class="${state.view === 'profile' ? 'active' : ''}">
-                <span class="nav-code">${escapeHtml(t(language, 'nav.profileCode'))}</span>
-                <span>${escapeHtml(t(language, 'nav.profileModule'))}</span>
+              <button data-module="premium" type="button">
+                <span class="nav-code">PREMIUM</span>
+                <span>Premium</span>
               </button>
             </div>
             <div class="ready-badge header-ready">
@@ -393,6 +445,8 @@ function render() {
         ${renderCurrentView()}
 
         ${state.view === 'cockpit' || state.view === 'home' || premiumLayout ? '' : renderCommandPanel()}
+
+        ${renderGlobalQuickActions()}
 
         <footer class="status" role="status">
           <span>${escapeHtml(state.status)}</span>
@@ -420,6 +474,8 @@ function render() {
     bindProfile();
   } else if (state.view === 'cockpit') {
     bindTranslator();
+  } else if (state.view === 'ocr') {
+    bindOcrPage();
   } else if (state.view === 'email') {
     bindEmailAssistant();
   } else if (state.view === 'corrector') {
@@ -427,7 +483,33 @@ function render() {
   } else if (state.view === 'turn') {
     bindIncidentJournal();
     bindProjectCatalog();
-    bindOperationsHealthChecks();
+    bindOperationsHealthChecks((source, snapshot) => {
+      const event = operationsHealthEvent(source, snapshot);
+      if (!event) return;
+      const reconciled = reconcileOperationsHealthIncident(state.incidents, event);
+      if (reconciled === state.incidents) return;
+      state.incidents = reconciled;
+      saveIncidentJournal(window.localStorage, state.incidents);
+      render();
+    });
+    bindSecretTelemetry((snapshot) => {
+      const reconciled = reconcileSecretTelemetryIncident(state.incidents, snapshot);
+      if (reconciled === state.incidents) return;
+      state.incidents = reconciled;
+      saveIncidentJournal(window.localStorage, state.incidents);
+      render();
+    });
+    bindProductionPreflight((snapshot) => {
+      const snapshotChanged = lastRenderedProductionPreflightAt !== snapshot.checkedAt;
+      lastRenderedProductionPreflightAt = snapshot.checkedAt;
+      const reconciled = reconcileProductionPreflightIncident(state.incidents, snapshot);
+      const incidentsChanged = reconciled !== state.incidents;
+      if (incidentsChanged) {
+        state.incidents = reconciled;
+        saveIncidentJournal(window.localStorage, state.incidents);
+      }
+      if (incidentsChanged || snapshotChanged) render();
+    });
     bindTurnOrganizationChart();
     bindTurnBackToTop();
   }
@@ -436,6 +518,21 @@ function render() {
   bindLegalAcceptance();
   bindTutorial();
   bindContactManager();
+}
+
+function visualSceneClass() {
+  const path = window.location.pathname.toLowerCase();
+  if (state.view === 'ocr' && basicPhotoAnalysisMode === null) return 'scene-ocr-generic';
+  if (state.view === 'ocr' && basicPhotoAnalysisMode === 'transport-document') return 'scene-document';
+  if (state.view === 'ocr' && basicPhotoAnalysisMode === 'tachograph') return 'scene-tachograph-analysis';
+  if (state.view === 'ocr' && basicPhotoAnalysisMode === 'dashboard-text') return 'scene-dashboard-text-analysis';
+  if (state.view === 'ocr' && basicPhotoAnalysisMode === 'legislation') return 'scene-legislation-analysis';
+  if (state.view === 'ocr' && basicPhotoAnalysisMode === 'cargo-safety') return 'scene-cargo-safety-analysis';
+  if (path.includes('/knowledge/tahograf')) return 'scene-tachograph';
+  if (path.includes('/knowledge/legislatie')) return 'scene-legislation';
+  if (path.includes('/knowledge/ancorarea-marfii')) return 'scene-cargo';
+  if (path.includes('/knowledge/martori-bord')) return 'scene-dashboard';
+  return '';
 }
 
 function bindProjectCatalog() {
@@ -457,7 +554,7 @@ function renderHomeHeader() {
     <header class="home-topbar">
       <button class="home-brand" data-module="home" data-admin-trigger type="button" aria-label="${escapeHtml(t(language, 'home.title'))}">
         <strong>A.G.M.</strong>
-        <span>Basic 1.2.6</span>
+        <span>Cockpit 1.3.0</span>
       </button>
       <div class="home-profile-control">
         <label class="home-language-control" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
@@ -466,10 +563,9 @@ function renderHomeHeader() {
             ${supportedLanguages.map((code) => `<option value="${code}" ${state.profile.preferredLanguage === code ? 'selected' : ''}>${escapeHtml(code.toUpperCase())}</option>`).join('')}
           </select>
         </label>
-        <button data-module="profile" type="button" title="${escapeHtml(t(language, 'nav.profileModule'))}">
-          <span>${escapeHtml(t(language, 'nav.profileModule'))}</span>
-          <strong>${escapeHtml(state.profile.displayName)}</strong>
-        </button>
+        <button data-module="home" type="button"><span>Acasă</span></button>
+        <button data-module="basic" type="button"><span>${escapeHtml(t(language, 'home.basic'))}</span></button>
+        <button data-module="premium" type="button"><span>Premium</span></button>
       </div>
     </header>
   `;
@@ -485,6 +581,8 @@ const contextualHintTargets = ['translator-speak', 'translator-translate', 'tran
 
 registerServiceWorker();
 render();
+void hydrateOcrArchive();
+activateInitialQuickAction();
 startTranslatorHealthChecks();
 void restoreAdministratorAccess();
 
@@ -587,6 +685,14 @@ function renderCurrentView() {
     return renderHome();
   }
 
+  if (state.view === 'basic') {
+    return renderBasicHub();
+  }
+
+  if (state.view === 'ocr') {
+    return renderOcrPage();
+  }
+
   if (state.view === 'access') {
     return renderPremiumAccessView(uiLanguage(), escapeHtml);
   }
@@ -626,7 +732,7 @@ function renderCurrentView() {
 
   if (state.view === 'turn') {
     return state.adminAccessVerified
-      ? `${renderTurnCommandCenter({ language: uiLanguage(), appVersion: APP_VERSION, incidents: state.incidents, incidentFilters: state.incidentFilters })}${renderChangeAdminPin()}`
+      ? `${localAdministratorBypassActive ? '<p class="status admin-local-access">Acces local de dezvoltare — PIN dezactivat până la pregătirea lansării.</p>' : ''}${renderTurnCommandCenter({ language: uiLanguage(), appVersion: APP_VERSION, incidents: state.incidents, incidentFilters: state.incidentFilters })}${renderChangeAdminPin()}`
       : renderAdministratorLogin();
   }
 
@@ -648,31 +754,26 @@ function renderHome() {
         <p>${escapeHtml(t(language, 'home.description'))}</p>
       </div>
       <nav class="home-actions" aria-label="${escapeHtml(t(language, 'home.actionsLabel'))}">
-        <a href="/access" data-module="access" class="home-action" aria-label="Access & Entitlements">
-          <span class="home-action-icon" aria-hidden="true">A</span>
-          <strong>Acces</strong>
-          <small>Basic și Premium</small>
+        <a href="/basic" data-module="basic" class="home-action home-action-primary home-action-translator">
+          <span class="home-action-icon" aria-hidden="true">B</span>
+          <strong>${escapeHtml(t(language, 'home.basic'))}</strong>
+          <small>${escapeHtml(t(language, 'home.basicDescription'))}</small>
         </a>
-        <a href="/translator" data-module="cockpit" class="home-action home-action-primary home-action-translator">
-          <span class="home-action-icon" aria-hidden="true">⇄</span>
-          <strong>${escapeHtml(t(language, 'nav.translator'))}</strong>
-          <small>${escapeHtml(t(language, 'home.translatorDescription'))}</small>
-        </a>
-        <a href="/email" data-module="email" class="home-action home-action-email">
-          <span class="home-action-icon" aria-hidden="true">✉︎</span>
-          <strong>${escapeHtml(t(language, 'nav.email'))}</strong>
-          <small>${escapeHtml(t(language, 'home.emailDescription'))}</small>
+        <a href="/profile" data-module="profile" class="home-action home-action-email">
+          <span class="home-action-icon" aria-hidden="true">◎</span>
+          <strong>${escapeHtml(t(language, 'nav.profileModule'))}</strong>
+          <small>${escapeHtml(t(language, 'home.profileDescription'))}</small>
         </a>
         <a href="/premium" data-module="premium" class="home-action home-action-premium" aria-describedby="premium-planned">
           <span class="home-action-icon" aria-hidden="true">★</span>
           <strong>Premium</strong>
           <small id="premium-planned">${escapeHtml(t(language, 'home.planned'))}</small>
         </a>
-        <button type="button" class="home-action home-action-voice" disabled aria-describedby="voice-planned">
+        <a href="/premium" data-module="premium" class="home-action home-action-voice" aria-describedby="voice-premium">
           <span class="home-action-icon" aria-hidden="true"></span>
           <strong>${escapeHtml(t(language, 'home.voice'))}</strong>
-          <small id="voice-planned">${escapeHtml(t(language, 'home.plannedPremium'))}</small>
-        </button>
+          <small id="voice-premium">${escapeHtml(t(language, 'home.voicePremium'))}</small>
+        </a>
       </nav>
     </section>
   `;
@@ -735,6 +836,18 @@ function renderCommandPanel() {
 }
 
 function commandPanelForView(view: ViewName) {
+  if (view === 'ocr') {
+    const copy = ocrPageCopy();
+    return {
+      moduleName: copy.title,
+      commands: [
+        { id: 'ocr-camera', label: copy.camera, description: copy.capture, primary: true },
+        { id: 'ocr-file', label: copy.file, description: copy.capture },
+        { id: 'ocr-translator', label: copy.translate, description: copy.result },
+      ],
+    };
+  }
+
   if (view === 'email') {
     const language = uiLanguage();
     return {
@@ -1184,6 +1297,238 @@ function renderEmailAssistant() {
   `;
 }
 
+function renderBasicHub() {
+  const language = uiLanguage();
+
+  return `
+    <section class="home-view basic-hub" aria-labelledby="basic-hub-title">
+      <div class="home-intro">
+        <div><span>AGM BASIC</span><h1 id="basic-hub-title">${escapeHtml(t(language, 'home.basic'))}</h1></div>
+        <p>${escapeHtml(t(language, 'home.basicHubDescription'))}</p>
+      </div>
+      <nav class="home-actions" aria-label="${escapeHtml(t(language, 'home.basicActionsLabel'))}">
+        ${renderBasicModule('cockpit', '/translator', '⇄', 'Traducător contextual', 'Traduce și adaptează mesaje pentru situații reale de transport')}
+        ${renderBasicModule('email', '/email', '✉︎', 'Email Assistant', 'Dictează, ajustează, traduce și pregătește e-mailuri profesionale')}
+        ${renderBasicAction('transport-document', '▤', 'Analizează document de transport', 'Fotografie, confirmare OCR și răspuns contextual cu acțiuni recomandate')}
+        ${renderBasicAction('tachograph-analysis', '◷', 'Analizează tahograf', 'Fotografie, confirmare OCR și explicație contextuală a mesajului afișat')}
+        ${renderBasicAction('dashboard-text-analysis', '▰', 'Analizează mesaj din bord', 'Fotografie, confirmare OCR și acțiune prudentă pentru mesajul textual afișat')}
+        ${renderBasicAction('dashboard-warning-analysis', '!', 'Identifică martor din bord', 'Fotografie, analiză Vision, confirmare și acțiune prudentă cu referință Knowledge')}
+        ${renderBasicAction('legislation-analysis', '⚖', 'Analizează situație legislativă', 'Fotografie, confirmare OCR și orientare contextuală din sursele juridice publicate')}
+        ${renderBasicAction('cargo-safety-analysis', '⌁', 'Analizează siguranța încărcăturii', 'Fotografie, confirmare OCR și acțiune prudentă pe baza etichetelor sau instrucțiunilor vizibile')}
+        ${renderBasicAction('ocr', '▣', t(language, 'roadmap.item.ocr.title'), t(language, 'roadmap.item.ocr.body'))}
+        ${renderBasicModule('legal', '/legal', '⌁', 'Ancorarea mărfii', 'Reguli validate, limite de siguranță și escaladare prudentă')}
+      </nav>
+    </section>
+  `;
+}
+
+function ocrPageCopy() {
+  const language = uiLanguage();
+  return {
+    title: t(language, 'ocr.page.title'), description: t(language, 'ocr.page.description'),
+    capture: t(language, 'ocr.page.capture'), camera: t(language, 'ocr.page.camera'), file: t(language, 'ocr.page.file'),
+    result: t(language, 'ocr.page.result'), placeholder: t(language, 'ocr.page.placeholder'), copy: t(language, 'ocr.page.copy'),
+    translate: t(language, 'ocr.page.translate'), save: t(language, 'ocr.page.save'), clear: t(language, 'ocr.page.clear'),
+    archive: t(language, 'ocr.page.archive'), empty: t(language, 'ocr.page.empty'), open: t(language, 'ocr.page.open'),
+    clearArchive: t(language, 'ocr.page.clearArchive'), local: t(language, 'ocr.page.local'),
+  };
+}
+
+function renderOcrPage() {
+  if (basicPhotoAnalysisMode === 'dashboard-warning') return renderDashboardWarningAnalysisPage();
+  const copy = ocrPageCopy();
+  const isTransportDocumentFlow = basicPhotoAnalysisMode === 'transport-document';
+  const isTachographFlow = basicPhotoAnalysisMode === 'tachograph';
+  const isDashboardTextFlow = basicPhotoAnalysisMode === 'dashboard-text';
+  const isLegislationFlow = basicPhotoAnalysisMode === 'legislation';
+  const isCargoSafetyFlow = basicPhotoAnalysisMode === 'cargo-safety';
+  const isContextAnalysisFlow = isTransportDocumentFlow || isTachographFlow || isDashboardTextFlow || isLegislationFlow || isCargoSafetyFlow;
+  const analysisTitle = isTransportDocumentFlow ? 'Analiză document de transport' : isTachographFlow ? 'Analiză Tahograf' : isDashboardTextFlow ? 'Analiză mesaj textual din bord' : isLegislationFlow ? 'Analiză situație legislativă' : isCargoSafetyFlow ? 'Analiză siguranța încărcăturii' : copy.title;
+  const analysisDescription = isTransportDocumentFlow
+    ? 'Fotografiază documentul, confirmă textul extras și primește un răspuns contextual înainte de orice acțiune.'
+    : isTachographFlow
+      ? 'Fotografiază mesajul tahografului, confirmă textul extras și primește explicația și acțiunea recomandată.'
+      : isDashboardTextFlow
+        ? 'Fotografiază mesajul textual din bord, confirmă textul extras și primește o explicație prudentă și acțiunea recomandată.'
+      : isLegislationFlow
+        ? 'Fotografiază sau încarcă textul relevant, confirmă extragerea OCR și primește orientare contextuală din sursele juridice publicate.'
+      : isCargoSafetyFlow
+        ? 'Fotografiază eticheta sau instrucțiunea relevantă, confirmă textul extras și primește explicația și acțiunea prudentă recomandată.'
+      : copy.description;
+  const textConfirmed = isTransportDocumentFlow ? transportDocumentTextConfirmed : isTachographFlow ? tachographTextConfirmed : isDashboardTextFlow ? dashboardTextConfirmed : isLegislationFlow ? legislationTextConfirmed : isCargoSafetyFlow ? cargoSafetyTextConfirmed : false;
+  return `
+    <section class="translator-hud ocr-page ocr-theme-${isTachographFlow ? 'tachograph' : isDashboardTextFlow ? 'dashboard' : isLegislationFlow ? 'legislation' : isCargoSafetyFlow ? 'cargo' : isTransportDocumentFlow ? 'document' : 'generic'}" aria-labelledby="ocr-page-title" ${state.isOcrProcessing ? 'aria-busy="true"' : ''}>
+      <header class="translator-hud-title">
+        <div><strong id="ocr-page-title">${escapeHtml(analysisTitle)}</strong></div>
+        <p>${escapeHtml(analysisDescription)}</p>
+      </header>
+      ${isContextAnalysisFlow ? renderBasicAnalysisSteps(textConfirmed, Boolean(isTransportDocumentFlow ? transportDocumentAnalysis : isTachographFlow ? tachographAnalysis : isDashboardTextFlow ? dashboardTextAnalysis : isLegislationFlow ? legislationAnalysis : cargoSafetyAnalysis)) : ''}
+      <section class="cockpit-input" aria-labelledby="ocr-capture-title">
+        <h2 id="ocr-capture-title">${escapeHtml(copy.capture)}</h2>
+        <div class="quick-actions actions">
+          <button id="ocrTakePhoto" type="button" ${state.isOcrProcessing ? 'disabled' : ''}>${escapeHtml(copy.camera)}</button>
+          <button id="ocrChooseImage" type="button" ${state.isOcrProcessing ? 'disabled' : ''}>${escapeHtml(copy.file)}</button>
+        </div>
+        <input id="ocrCameraInput" class="visually-hidden" type="file" accept="image/*" capture="environment" />
+        <input id="ocrFileInput" class="visually-hidden" type="file" accept="image/*" />
+        <small>${escapeHtml(copy.local)}</small>
+      </section>
+      ${state.ocrImageDataUrl ? `<section class="ocr-preview-panel" aria-label="${escapeHtml(t(uiLanguage(), 'ocr.previewTitle'))}"><img src="${escapeHtml(state.ocrImageDataUrl)}" alt="${escapeHtml(t(uiLanguage(), 'ocr.imageAlt'))}" /><div><strong>${escapeHtml(t(uiLanguage(), 'ocr.previewTitle'))}</strong><p>${escapeHtml(t(uiLanguage(), 'ocr.confidence', { confidence: state.ocrConfidence }))}</p></div></section>` : ''}
+      <section class="cockpit-input ocr-result-editor" aria-labelledby="ocr-result-title">
+        <label class="message-field"><span id="ocr-result-title">${escapeHtml(isContextAnalysisFlow ? 'Text extras — verifică și corectează' : copy.result)}</span><textarea id="ocrExtractedText" rows="10" placeholder="${escapeHtml(copy.placeholder)}">${escapeHtml(state.ocrExtractedText)}</textarea></label>
+        ${isContextAnalysisFlow && state.ocrExtractedText.trim() ? `<p class="basic-confirmation-status ${textConfirmed ? 'confirmed' : ''}">${textConfirmed ? 'Text confirmat. Analiza poate fi executată.' : 'Confirmă textul după ce ai verificat mesajul și valorile importante.'}</p>` : ''}
+        <div class="quick-actions actions">
+          ${isTransportDocumentFlow ? `<button id="confirmTransportDocumentText" type="button" ${state.ocrExtractedText.trim() ? '' : 'disabled'}>${transportDocumentTextConfirmed ? 'Text confirmat' : 'Confirmă textul'}</button><button id="analyzeTransportDocument" class="primary" type="button" ${transportDocumentTextConfirmed ? '' : 'disabled'}>Analizează documentul</button>` : ''}
+          ${isTachographFlow ? `<button id="confirmTachographText" type="button" ${state.ocrExtractedText.trim() ? '' : 'disabled'}>${tachographTextConfirmed ? 'Text confirmat' : 'Confirmă textul'}</button><button id="analyzeTachograph" class="primary" type="button" ${tachographTextConfirmed ? '' : 'disabled'}>Analizează tahograful</button>` : ''}
+          ${isDashboardTextFlow ? `<button id="confirmDashboardText" type="button" ${state.ocrExtractedText.trim() ? '' : 'disabled'}>${dashboardTextConfirmed ? 'Text confirmat' : 'Confirmă textul'}</button><button id="analyzeDashboardText" class="primary" type="button" ${dashboardTextConfirmed ? '' : 'disabled'}>Analizează mesajul</button>` : ''}
+          ${isLegislationFlow ? `<button id="confirmLegislationText" type="button" ${state.ocrExtractedText.trim() ? '' : 'disabled'}>${legislationTextConfirmed ? 'Text confirmat' : 'Confirmă textul'}</button><button id="analyzeLegislation" class="primary" type="button" ${legislationTextConfirmed ? '' : 'disabled'}>Analizează situația</button>` : ''}
+          ${isCargoSafetyFlow ? `<button id="confirmCargoSafetyText" type="button" ${state.ocrExtractedText.trim() ? '' : 'disabled'}>${cargoSafetyTextConfirmed ? 'Text confirmat' : 'Confirmă textul'}</button><button id="analyzeCargoSafety" class="primary" type="button" ${cargoSafetyTextConfirmed ? '' : 'disabled'}>Analizează încărcătura</button>` : ''}
+          <button id="ocrCopyText" type="button" ${state.ocrExtractedText.trim() ? '' : 'disabled'}>${escapeHtml(copy.copy)}</button>
+          <button id="ocrSendTranslator" type="button" ${state.ocrExtractedText.trim() ? '' : 'disabled'}>${escapeHtml(copy.translate)}</button>
+          <button id="ocrSaveArchive" class="primary" type="button" ${state.ocrImageDataUrl && state.ocrExtractedText.trim() ? '' : 'disabled'}>${escapeHtml(copy.save)}</button>
+          <button id="ocrClearResult" type="button" ${state.ocrImageDataUrl || state.ocrExtractedText ? '' : 'disabled'}>${escapeHtml(copy.clear)}</button>
+        </div>
+      </section>
+      ${isTransportDocumentFlow && transportDocumentAnalysis ? renderTransportDocumentAnalysis(transportDocumentAnalysis) : ''}
+      ${isTachographFlow && tachographAnalysis ? renderTachographAnalysis(tachographAnalysis) : ''}
+      ${isDashboardTextFlow && dashboardTextAnalysis ? renderDashboardTextAnalysis(dashboardTextAnalysis) : ''}
+      ${isLegislationFlow && legislationAnalysis ? renderLegislationAnalysis(legislationAnalysis) : ''}
+      ${isCargoSafetyFlow && cargoSafetyAnalysis ? renderCargoSafetyAnalysis(cargoSafetyAnalysis) : ''}
+      <section class="ocr-history ocr-archive" aria-labelledby="ocr-archive-title">
+        <header><strong id="ocr-archive-title">${escapeHtml(copy.archive)} (${state.ocrHistory.length})</strong>${state.ocrHistory.length ? `<button id="clearOcrHistory" type="button">${escapeHtml(copy.clearArchive)}</button>` : ''}</header>
+        ${state.ocrHistory.length ? `<div class="ocr-history-list">${state.ocrHistory.map((item) => `<article class="ocr-history-item"><img src="${escapeHtml(item.imageDataUrl)}" alt="${escapeHtml(t(uiLanguage(), 'ocr.imageAlt'))}" /><div><strong>${escapeHtml(new Date(item.createdAt).toLocaleString(uiLanguage()))}</strong><p>${escapeHtml(item.extractedText)}</p><button type="button" data-ocr-open="${escapeHtml(item.id)}">${escapeHtml(copy.open)}</button><button type="button" data-ocr-delete="${escapeHtml(item.id)}">Șterge</button></div></article>`).join('')}</div>` : `<p>${escapeHtml(copy.empty)}</p>`}
+      </section>
+    </section>`;
+}
+
+function renderBasicModule(view: ViewName, href: string, icon: string, title: string, description: string) {
+  const knowledgeRoute = view === 'legal'
+    ? basicKnowledgeRouteForTitle(title)
+    : undefined;
+  const effectiveHref = knowledgeRoute ?? href;
+  return `<a href="${effectiveHref}" data-module="${view}" class="home-action basic-tool-card"><span class="home-action-icon" aria-hidden="true">${icon}</span><span class="basic-tool-copy"><strong>${escapeHtml(title)}</strong><small>${escapeHtml(description)}</small></span><span class="basic-tool-footer"><em class="basic-stage basic-stage-valid">Validat</em><span class="basic-open">Deschide</span></span></a>`;
+}
+
+function basicKnowledgeRouteForTitle(title: string): string | undefined {
+  if (title.startsWith('Legisla')) return '/knowledge/legislatie';
+  if (title.startsWith('Martori')) return '/knowledge/martori-bord';
+  if (title === 'Tahograf') return '/knowledge/tahograf';
+  if (title.startsWith('Ancorarea')) return '/knowledge/ancorarea-marfii';
+  return undefined;
+}
+
+function renderBasicAction(action: 'ocr' | 'transport-document' | 'tachograph-analysis' | 'dashboard-text-analysis' | 'dashboard-warning-analysis' | 'legislation-analysis' | 'cargo-safety-analysis', icon: string, title: string, description: string) {
+  return `<button type="button" data-basic-action="${action}" class="home-action basic-tool-card"><span class="home-action-icon" aria-hidden="true">${icon}</span><span class="basic-tool-copy"><strong>${escapeHtml(title)}</strong><small>${escapeHtml(description)}</small></span><span class="basic-tool-footer"><em class="basic-stage basic-stage-valid">Validat</em><span class="basic-open">Deschide</span></span></button>`;
+}
+
+function renderDashboardWarningAnalysisPage() {
+  const result = dashboardWarningVisionResult;
+  const identified = result?.status === 'identified';
+  const severity = result?.severity === 'critical' ? 'CRITIC' : result?.severity === 'warning' ? 'AVERTIZARE' : 'INFORMARE';
+  return `<section class="translator-hud ocr-page ocr-theme-dashboard dashboard-warning-analysis" aria-labelledby="dashboard-warning-title" ${dashboardWarningProcessing ? 'aria-busy="true"' : ''}>
+    <header class="translator-hud-title"><div><strong id="dashboard-warning-title">Identifică martor din bord</strong></div><p>Fotografia este analizată înaintea bibliotecii. Confirmă rezultatul numai dacă simbolul corespunde imaginii.</p></header>
+    <ol class="basic-analysis-steps"><li class="${state.ocrImageDataUrl ? 'complete' : 'active'}"><span>1</span>Fotografie</li><li class="${result ? 'complete' : state.ocrImageDataUrl ? 'active' : ''}"><span>2</span>Vision</li><li class="${dashboardWarningConfirmed ? 'complete' : identified ? 'active' : ''}"><span>3</span>Confirmare</li><li class="${dashboardWarningConfirmed ? 'active' : ''}"><span>4</span>Explicație și acțiune</li></ol>
+    <section class="cockpit-input"><h2>Fotografiază martorul</h2><div class="quick-actions actions"><button id="ocrTakePhoto" type="button" ${dashboardWarningProcessing ? 'disabled' : ''}>Fotografiază</button><button id="ocrChooseImage" type="button" ${dashboardWarningProcessing ? 'disabled' : ''}>Alege imagine</button></div><input id="ocrCameraInput" class="visually-hidden" type="file" accept="image/*" capture="environment" /><input id="ocrFileInput" class="visually-hidden" type="file" accept="image/*" /><small>Imaginea este sanitizată, analizată numai pentru această cerere și nu este arhivată automat.</small></section>
+    ${state.ocrImageDataUrl ? `<section class="ocr-preview-panel"><img src="${escapeHtml(state.ocrImageDataUrl)}" alt="Fotografia martorului" /><div><strong>${dashboardWarningProcessing ? 'Analiză Vision în curs…' : 'Fotografie pregătită'}</strong></div></section>` : ''}
+    ${result ? `<section class="transport-document-analysis dashboard-warning-result"><span class="basic-stage ${identified ? 'basic-stage-valid' : ''}">${identified ? `Candidat · ${Math.round(result.confidence * 100)}%` : 'Rezultat insuficient'}</span><h2>${escapeHtml(identified ? result.candidateLabel ?? 'Candidat vizual' : 'Martorul nu poate fi identificat sigur')}</h2>
+      ${result.observations.length ? `<h3>Ce a observat Vision</h3><ul>${result.observations.map((x) => `<li>${escapeHtml(x)}</li>`).join('')}</ul>` : ''}
+      ${identified && !dashboardWarningConfirmed ? `<p>Compară simbolul, culoarea și starea lui cu fotografia. Confirmarea ta este obligatorie înaintea explicației și severității.</p><div class="quick-actions actions"><button id="confirmDashboardWarning" class="primary" type="button">Confirm că simbolul corespunde</button><button id="retryDashboardWarning" type="button">Nu corespunde — recapturează</button></div>` : ''}
+      ${identified && dashboardWarningConfirmed ? `<p class="basic-confirmation-status confirmed">Confirmat de utilizator</p><h3>Severitate prudentă</h3><strong>${escapeHtml(severity)}</strong><h3>Ce înseamnă</h3><p>${escapeHtml(result.explanation ?? '')}</p><h3>Ce faci acum</h3><p>${escapeHtml(result.recommendedAction ?? '')}</p><a class="basic-open" href="${escapeHtml(result.knowledgeReference?.route ?? '/knowledge/martori-bord')}">Deschide referința Knowledge</a>` : ''}
+      <h3>Limitări</h3><ul>${result.limitations.map((x) => `<li>${escapeHtml(x)}</li>`).join('')}</ul><small>Proveniență: observație ${escapeHtml(result.provenance.observation)} · identificare ${escapeHtml(result.provenance.identification)} · explicație ${escapeHtml(result.provenance.explanation)} · severitate ${escapeHtml(result.provenance.severity)}</small></section>` : ''}
+  </section>`;
+}
+
+function renderBasicAnalysisSteps(textConfirmed: boolean, analyzed: boolean) {
+  const hasPhoto = Boolean(state.ocrImageDataUrl);
+  const hasText = Boolean(state.ocrExtractedText.trim());
+  return `<ol class="basic-analysis-steps" aria-label="Etapele analizei documentului">
+    <li class="${hasPhoto ? 'complete' : 'active'}"><span>1</span>Fotografie</li>
+    <li class="${textConfirmed ? 'complete' : hasText ? 'active' : ''}"><span>2</span>Confirmare</li>
+    <li class="${analyzed ? 'complete' : textConfirmed ? 'active' : ''}"><span>3</span>Analiză</li>
+    <li class="${analyzed ? 'active' : ''}"><span>4</span>Răspuns și acțiune</li>
+  </ol>`;
+}
+
+function renderTachographAnalysis(result: TachographAnalysisResult) {
+  const statusLabel = result.status === 'identified' ? 'Identificat' : result.status === 'partial' ? 'Parțial' : 'Incert';
+  return `<section class="transport-document-analysis tachograph-analysis" aria-labelledby="tachograph-analysis-title" role="status">
+    <header><div><span>AGM BASIC · TAHOGRAF</span><h2 id="tachograph-analysis-title">${escapeHtml(result.summary)}</h2></div><strong class="analysis-status analysis-status-${result.status}">${statusLabel} · ${result.confidence}%</strong></header>
+    <section><h3>Ce am identificat</h3>${result.facts.length ? `<dl>${result.facts.map((item) => `<div><dt>${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.value)}</dd></div>`).join('')}</dl>` : '<p>Nu există date identificate suficient de sigur.</p>'}</section>
+    <section><h3>Ce înseamnă</h3><p>${escapeHtml(result.explanation)}</p></section>
+    <section class="analysis-actions-list"><h3>Ce faci acum</h3><ol>${result.recommendedActions.map((action) => `<li>${escapeHtml(action)}</li>`).join('')}</ol></section>
+    ${result.warnings.length ? `<section class="analysis-warnings"><h3>Atenție</h3><ul>${result.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join('')}</ul></section>` : ''}
+    <details><summary>Limite și referință Knowledge</summary><ul>${result.limitations.map((limit) => `<li>${escapeHtml(limit)}</li>`).join('')}</ul><p>Referință: ${escapeHtml(result.knowledgeReferences.join(', '))}</p><a class="basic-open" href="/knowledge/tahograf">Deschide regulile Knowledge publicate</a></details>
+    <div class="analysis-result-actions"><button id="tachographAnalysisToTranslator" type="button">Trimite la Traducător</button><button id="tachographAnalysisToEmail" type="button">Pregătește Email</button><button id="tachographAnalysisCopy" type="button">Copiază răspunsul</button><button id="tachographAnalysisRetry" type="button">Refă fotografia</button></div>
+  </section>`;
+}
+
+function renderDashboardTextAnalysis(result: DashboardTextAnalysisResult) {
+  const statusLabel = result.status === 'identified' ? 'Identificat' : result.status === 'partial' ? 'Parțial' : 'Incert';
+  return `<section class="transport-document-analysis dashboard-text-analysis" aria-labelledby="dashboard-text-analysis-title" role="status">
+    <header><div><span>AGM BASIC · MESAJ DIN BORD</span><h2 id="dashboard-text-analysis-title">${escapeHtml(result.summary)}</h2></div><strong class="analysis-status analysis-status-${result.status}">${statusLabel} · ${result.confidence}%</strong></header>
+    <section><h3>Ce am identificat</h3>${result.facts.length ? `<dl>${result.facts.map((item) => `<div><dt>${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.value)}</dd></div>`).join('')}</dl>` : '<p>Nu există date identificate suficient de sigur.</p>'}</section>
+    <section><h3>Ce înseamnă</h3><p>${escapeHtml(result.explanation)}</p></section>
+    <section class="analysis-actions-list"><h3>Ce faci acum</h3><ol>${result.recommendedActions.map((action) => `<li>${escapeHtml(action)}</li>`).join('')}</ol></section>
+    ${result.warnings.length ? `<section class="analysis-warnings"><h3>Atenție</h3><ul>${result.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join('')}</ul></section>` : ''}
+    <details><summary>Limite și referință Knowledge</summary><ul>${result.limitations.map((limit) => `<li>${escapeHtml(limit)}</li>`).join('')}</ul><p>Referință: ${escapeHtml(result.knowledgeReferences.join(', '))}</p></details>
+    <div class="analysis-result-actions"><button id="dashboardTextAnalysisToTranslator" type="button">Trimite la Traducător</button><button id="dashboardTextAnalysisToEmail" type="button">Pregătește Email</button><button id="dashboardTextAnalysisCopy" type="button">Copiază răspunsul</button><button id="dashboardTextAnalysisRetry" type="button">Refă fotografia</button></div>
+  </section>`;
+}
+
+function renderLegislationAnalysis(result: LegislationAnalysisResult) {
+  const statusLabel = result.status === 'identified' ? 'Identificat' : result.status === 'partial' ? 'Parțial' : 'Incert';
+  return `<section class="transport-document-analysis legislation-analysis" aria-labelledby="legislation-analysis-title" role="status">
+    <header><div><span>AGM BASIC · LEGISLAȚIE</span><h2 id="legislation-analysis-title">${escapeHtml(result.summary)}</h2></div><strong class="analysis-status analysis-status-${result.status}">${statusLabel} · ${result.confidence}%</strong></header>
+    <section><h3>Ce am identificat</h3>${result.facts.length ? `<dl>${result.facts.map((item) => `<div><dt>${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.value)}</dd></div>`).join('')}</dl>` : '<p>Textul confirmat nu conține încă suficiente elemente pentru încadrare.</p>'}</section>
+    <section><h3>Ce înseamnă</h3><p>${escapeHtml(result.explanation)}</p></section>
+    <section class="analysis-actions-list"><h3>Ce faci acum</h3><ol>${result.recommendedActions.map((action) => `<li>${escapeHtml(action)}</li>`).join('')}</ol></section>
+    ${result.warnings.length ? `<section class="analysis-warnings"><h3>Atenție</h3><ul>${result.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join('')}</ul></section>` : ''}
+    <details><summary>Limite și referință Knowledge</summary><ul>${result.limitations.map((limit) => `<li>${escapeHtml(limit)}</li>`).join('')}</ul><p>Referință: ${escapeHtml(result.knowledgeReferences.join(', '))}</p><a class="basic-open" href="/knowledge/legislatie">Deschide sursele Knowledge publicate</a></details>
+    <div class="analysis-result-actions"><button id="legislationAnalysisToTranslator" type="button">Trimite la Traducător</button><button id="legislationAnalysisToEmail" type="button">Pregătește Email</button><button id="legislationAnalysisCopy" type="button">Copiază răspunsul</button><button id="legislationAnalysisRetry" type="button">Refă fotografia</button></div>
+  </section>`;
+}
+
+function renderCargoSafetyAnalysis(result: CargoSafetyAnalysisResult) {
+  const statusLabel = result.status === 'identified' ? 'Identificat' : result.status === 'partial' ? 'Parțial' : 'Incert';
+  return `<section class="transport-document-analysis cargo-safety-analysis" aria-labelledby="cargo-safety-analysis-title" role="status">
+    <header><div><span>AGM BASIC · SIGURANȚA ÎNCĂRCĂTURII</span><h2 id="cargo-safety-analysis-title">${escapeHtml(result.summary)}</h2></div><strong class="analysis-status analysis-status-${result.status}">${statusLabel} · ${result.confidence}%</strong></header>
+    <section><h3>Ce am identificat</h3>${result.facts.length ? `<dl>${result.facts.map((item) => `<div><dt>${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.value)}</dd></div>`).join('')}</dl>` : '<p>Textul confirmat nu conține suficiente date pentru evaluare.</p>'}</section>
+    <section><h3>Ce înseamnă</h3><p>${escapeHtml(result.explanation)}</p></section>
+    <section class="analysis-actions-list"><h3>Ce faci acum</h3><ol>${result.recommendedActions.map((action) => `<li>${escapeHtml(action)}</li>`).join('')}</ol></section>
+    ${result.warnings.length ? `<section class="analysis-warnings"><h3>Atenție</h3><ul>${result.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join('')}</ul></section>` : ''}
+    <details><summary>Limite și referință Knowledge</summary><ul>${result.limitations.map((limit) => `<li>${escapeHtml(limit)}</li>`).join('')}</ul><p>Referință: ${escapeHtml(result.knowledgeReferences.join(', '))}</p></details>
+    <div class="analysis-result-actions"><button id="cargoSafetyAnalysisToTranslator" type="button">Trimite la Traducător</button><button id="cargoSafetyAnalysisToEmail" type="button">Pregătește Email</button><button id="cargoSafetyAnalysisCopy" type="button">Copiază răspunsul</button><button id="cargoSafetyAnalysisRetry" type="button">Refă fotografia</button></div>
+  </section>`;
+}
+
+function renderTransportDocumentAnalysis(result: TransportDocumentAnalysisResult) {
+  const statusLabel = result.status === 'identified' ? 'Identificat' : result.status === 'partial' ? 'Parțial' : 'Incert';
+  return `<section class="transport-document-analysis" aria-labelledby="transport-analysis-title" role="status">
+    <header><div><span>AGM BASIC · DOCUMENT TRANSPORT</span><h2 id="transport-analysis-title">${escapeHtml(result.summary)}</h2></div><strong class="analysis-status analysis-status-${result.status}">${statusLabel} · ${result.confidence}%</strong></header>
+    <section><h3>Ce am identificat</h3>${result.facts.length ? `<dl>${result.facts.map((item) => `<div><dt>${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.value)}</dd></div>`).join('')}</dl>` : '<p>Nu există câmpuri identificate suficient de sigur.</p>'}</section>
+    <section><h3>Ce înseamnă</h3><p>${escapeHtml(result.explanation)}</p></section>
+    <section class="analysis-actions-list"><h3>Ce faci acum</h3><ol>${result.recommendedActions.map((action) => `<li>${escapeHtml(action)}</li>`).join('')}</ol></section>
+    ${result.warnings.length ? `<section class="analysis-warnings"><h3>Atenție</h3><ul>${result.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join('')}</ul></section>` : ''}
+    <details><summary>Limite și sursă</summary><ul>${result.limitations.map((limit) => `<li>${escapeHtml(limit)}</li>`).join('')}</ul><p>Referință: ${escapeHtml(result.knowledgeReferences.join(', '))}</p></details>
+    <div class="analysis-result-actions"><button id="transportAnalysisToTranslator" type="button">Trimite la Traducător</button><button id="transportAnalysisToEmail" type="button">Pregătește Email</button><button id="transportAnalysisCopy" type="button">Copiază răspunsul</button><button id="transportAnalysisRetry" type="button">Refă fotografia</button></div>
+  </section>`;
+}
+
+function renderBasicPlanned(icon: string, title: string, description: string) {
+  return `<button type="button" class="home-action basic-tool-card basic-planned" disabled><span class="home-action-icon" aria-hidden="true">${icon}</span><span class="basic-tool-copy"><strong>${escapeHtml(title)}</strong><small>${escapeHtml(description)}</small></span><span class="basic-tool-footer"><em class="basic-stage basic-stage-planned">Planificat</em><span class="basic-open">În pregătire</span></span></button>`;
+}
+
+function renderGlobalQuickActions() {
+  const language = uiLanguage();
+  return `
+    <nav class="global-quick-actions" aria-label="Acces rapid global">
+      <button type="button" data-global-action="ocr"><span aria-hidden="true">▣</span>${escapeHtml(t(language, 'translator.command.ocr'))}</button>
+      <button type="button" data-global-action="email"><span aria-hidden="true">✉</span>Email</button>
+      <button type="button" data-global-action="microphone"><span aria-hidden="true">●</span>Microfon</button>
+    </nav>
+  `;
+}
+
 function renderTranslatorStatus(label: string, availability: ServiceAvailability) {
   const statusLabel =
     availability === 'online'
@@ -1523,6 +1868,16 @@ function renderProfile() {
         <input id="profileCompany" type="text" autocomplete="organization" value="${escapeHtml(state.profile.company)}" />
         </label>
 
+        <label>
+        <span>${escapeHtml(t(language, 'profile.vehicleNumber'))}</span>
+        <input id="profileVehicleNumber" type="text" autocomplete="off" value="${escapeHtml(state.profile.vehicleNumber)}" />
+        </label>
+
+        <label>
+        <span>${escapeHtml(t(language, 'profile.address'))}</span>
+        <input id="profileAddress" type="text" autocomplete="street-address" value="${escapeHtml(state.profile.address)}" />
+        </label>
+
         <fieldset class="language-choice" data-active-language="${state.profile.preferredLanguage}">
         <legend>${escapeHtml(t(language, 'profile.preferredLanguage'))}</legend>
         ${languageButtons('profilePreferredLanguage', state.profile.preferredLanguage)}
@@ -1631,18 +1986,36 @@ function renderLegalAcceptanceNotice() {
 
 function renderLegalCenter() {
   const language = uiLanguage();
+  const publishedKnowledge = publishedLegalKnowledge();
+  const knowledgeDestination = basicKnowledgeDestinationFromRoute(window.location.pathname);
+  const visibleKnowledge = knowledgeDestination
+    ? packagesForBasicKnowledgeDestination(knowledgeDestination, publishedKnowledge)
+    : publishedKnowledge;
 
   return `
     <section class="legal-center" aria-label="${escapeHtml(t(language, 'legal.ariaLabel'))}">
-      <header class="profile-heading">
+      ${knowledgeDestination ? '' : `<header class="profile-heading">
         <div>
           <h1>${escapeHtml(t(language, 'legal.moduleName'))}</h1>
           <p>${escapeHtml(t(language, 'legal.description'))}</p>
         </div>
         <span>${escapeHtml(t(language, 'legal.currentBadge'))}</span>
-      </header>
+      </header>`}
 
-      <div class="legal-grid">
+      ${knowledgeDestination ? `
+        <header class="profile-heading knowledge-destination-heading">
+          <div>
+            <span>AGM KNOWLEDGE</span>
+            <h2>${escapeHtml(knowledgeDestination.title)}</h2>
+            <p>Alege situația. Vezi mai întâi ce trebuie să faci; regula juridică rămâne disponibilă în detalii.</p>
+          </div>
+          <button type="button" data-module="basic">Înapoi la AGM Basic</button>
+        </header>
+        ${knowledgeDestination.id === 'dashboard-warnings' ? `<section class="legal-card dashboard-warning-photo-first"><h2>Analizează o fotografie</h2><p>Knowledge este referință. Identificarea începe întotdeauna cu fotografia și Vision.</p><button type="button" data-basic-action="dashboard-warning-analysis" class="primary">Fotografiază martorul</button></section>` : ''}
+        ${knowledgeDestination.id === 'legislation' ? `<section class="legal-card dashboard-warning-photo-first"><h2>Analizează o situație legislativă</h2><p>Începe cu fotografia documentului sau a textului relevant. Confirmă OCR-ul, apoi primești explicația contextuală și acțiunea recomandată. Knowledge rămâne sursă separată.</p><button type="button" data-basic-action="legislation-analysis" class="primary">Fotografiază și analizează</button></section>` : ''}
+        ${knowledgeDestination.id === 'tachograph' ? `<section class="legal-card dashboard-warning-photo-first"><h2>Analizează tahograful</h2><p>Începe cu fotografia ecranului sau mesajului. Confirmă textul OCR înainte de interpretare; Knowledge rămâne referință și nu generează identificarea.</p><button type="button" data-basic-action="tachograph-analysis" class="primary">Fotografiază tahograful</button></section>` : ''}
+        ${knowledgeDestination.id === 'cargo-securing' ? `<section class="legal-card dashboard-warning-photo-first"><h2>Analizează ancorarea mărfii</h2><p>Începe cu fotografia etichetei sau a instrucțiunii relevante. Confirmă textul OCR, apoi primești explicația contextuală și acțiunea prudentă recomandată. Knowledge rămâne referință separată și nu calculează automat numărul de chingi.</p><button type="button" data-basic-action="cargo-safety-analysis" class="primary">Fotografiază și analizează</button></section>` : ''}
+      ` : `<div class="legal-grid">
         ${renderLegalCard('legal.termsTitle', 'legal.termsBody')}
         ${renderLegalCard('legal.privacyTitle', 'legal.privacyBody')}
         ${renderLegalCard('legal.aiTitle', 'legal.aiBody')}
@@ -1654,7 +2027,28 @@ function renderLegalCenter() {
         ${renderLegalCard('legal.versionTitle', 'legal.versionBody', `${APP_VERSION} | ${PRIVACY_POLICY_VERSION} | ${TERMS_VERSION}`)}
         ${renderLegalCard('legal.impressumTitle', 'legal.impressumBody')}
         ${renderLegalCard('legal.licensesTitle', 'legal.licensesBody')}
-      </div>
+      </div>`}
+
+      ${visibleKnowledge.length === 0 ? '' : `
+        <section class="legal-grid" aria-label="AGM Knowledge">
+          ${visibleKnowledge.map((knowledgePackage) => `
+            <article class="legal-card">
+              <h2>${escapeHtml(knowledgePackage.title)}</h2>
+              <p class="knowledge-package-meta">Validat · versiunea ${escapeHtml(knowledgePackage.version)}</p>
+              ${knowledgePackage.items.map((entry) => `
+                <details>
+                  <summary>${escapeHtml(entry.topic)}</summary>
+                  <p class="knowledge-driver-action"><strong>Ce faci:</strong> ${escapeHtml(entry.practicalExplanation)}</p>
+                  <details class="knowledge-legal-detail">
+                    <summary>Vezi regula juridică</summary>
+                    <p>${escapeHtml(entry.legalRule)}</p>
+                  </details>
+                </details>
+              `).join('')}
+            </article>
+          `).join('')}
+        </section>
+      `}
 
       ${renderDataManagementPanel()}
     </section>
@@ -1852,6 +2246,12 @@ function renderLegalCard(titleKey: string, bodyKey: string, extra = '') {
 
 function bindShared() {
   bindPremiumAccessRuntime();
+  document.querySelectorAll<HTMLButtonElement>('[data-global-action]').forEach((control) => {
+    control.addEventListener('click', () => activateGlobalAction(control.dataset.globalAction));
+  });
+  document.querySelectorAll<HTMLButtonElement>('[data-basic-action]').forEach((control) => {
+    control.addEventListener('click', () => activateBasicAction(control.dataset.basicAction));
+  });
   document.querySelectorAll<HTMLElement>('[data-module]').forEach((control) => {
     control.addEventListener('click', (event) => {
       event.preventDefault();
@@ -1859,6 +2259,8 @@ function bindShared() {
 
       if (
         nextView !== 'home' &&
+        nextView !== 'basic' &&
+        nextView !== 'ocr' &&
         nextView !== 'access' &&
         !isPremiumView(nextView) &&
         nextView !== 'cockpit' &&
@@ -1879,6 +2281,12 @@ function bindShared() {
         return;
       }
 
+      const requestedRoute = control instanceof HTMLAnchorElement ? control.getAttribute('href') : null;
+      if (nextView === 'legal' && requestedRoute?.startsWith('/knowledge/')) {
+        navigateToRoute(nextView, requestedRoute);
+        return;
+      }
+
       navigateToModule(nextView);
     });
   });
@@ -1896,6 +2304,135 @@ function bindShared() {
   });
 
   bindMaskedAdminAccess();
+}
+
+function activateGlobalAction(action: string | undefined) {
+  if (action === 'email') {
+    navigateToModule('email');
+    return;
+  }
+  if (action === 'ocr') {
+    basicPhotoAnalysisMode = null;
+    transportDocumentTextConfirmed = false;
+    transportDocumentAnalysis = null;
+    tachographTextConfirmed = false;
+    tachographAnalysis = null;
+    dashboardTextConfirmed = false;
+    dashboardTextAnalysis = null;
+    legislationTextConfirmed = false;
+    legislationAnalysis = null;
+    cargoSafetyTextConfirmed = false;
+    cargoSafetyAnalysis = null;
+    cargoSafetyTextConfirmed = false;
+    cargoSafetyAnalysis = null;
+    navigateToModule('ocr');
+    return;
+  }
+  if (action === 'microphone') {
+    navigateToModule('cockpit');
+    window.requestAnimationFrame(() => void startVoiceInput());
+  }
+}
+
+function activateInitialQuickAction() {
+  const action = new URLSearchParams(window.location.search).get('quick');
+  if (!['ocr', 'email', 'microphone'].includes(action ?? '')) return;
+  window.history.replaceState({}, '', window.location.pathname);
+  window.requestAnimationFrame(() => activateGlobalAction(action ?? undefined));
+}
+
+function activateBasicAction(action: string | undefined) {
+  if (action === 'transport-document') {
+    basicPhotoAnalysisMode = 'transport-document';
+    transportDocumentTextConfirmed = false;
+    transportDocumentAnalysis = null;
+    tachographTextConfirmed = false;
+    tachographAnalysis = null;
+    dashboardTextConfirmed = false;
+    dashboardTextAnalysis = null;
+    legislationTextConfirmed = false;
+    legislationAnalysis = null;
+    cargoSafetyTextConfirmed = false;
+    cargoSafetyAnalysis = null;
+    state.ocrImageDataUrl = '';
+    state.ocrExtractedText = '';
+    state.ocrConfidence = 0;
+    navigateToModule('ocr');
+    return;
+  }
+  if (action === 'tachograph-analysis') {
+    basicPhotoAnalysisMode = 'tachograph';
+    tachographTextConfirmed = false;
+    tachographAnalysis = null;
+    legislationTextConfirmed = false;
+    legislationAnalysis = null;
+    state.ocrImageDataUrl = '';
+    state.ocrExtractedText = '';
+    state.ocrConfidence = 0;
+    navigateToModule('ocr');
+    return;
+  }
+  if (action === 'dashboard-text-analysis') {
+    basicPhotoAnalysisMode = 'dashboard-text';
+    dashboardTextConfirmed = false;
+    dashboardTextAnalysis = null;
+    legislationTextConfirmed = false;
+    legislationAnalysis = null;
+    state.ocrImageDataUrl = '';
+    state.ocrExtractedText = '';
+    state.ocrConfidence = 0;
+    navigateToModule('ocr');
+    return;
+  }
+  if (action === 'dashboard-warning-analysis') {
+    basicPhotoAnalysisMode = 'dashboard-warning';
+    dashboardWarningVisionResult = null; dashboardWarningConfirmed = false; dashboardWarningProcessing = false;
+    state.ocrImageDataUrl = ''; state.ocrExtractedText = ''; state.ocrConfidence = 0;
+    navigateToModule('ocr'); return;
+  }
+  if (action === 'legislation-analysis') {
+    basicPhotoAnalysisMode = 'legislation';
+    transportDocumentTextConfirmed = false;
+    transportDocumentAnalysis = null;
+    tachographTextConfirmed = false;
+    tachographAnalysis = null;
+    dashboardTextConfirmed = false;
+    dashboardTextAnalysis = null;
+    legislationTextConfirmed = false;
+    legislationAnalysis = null;
+    cargoSafetyTextConfirmed = false;
+    cargoSafetyAnalysis = null;
+    state.ocrImageDataUrl = '';
+    state.ocrExtractedText = '';
+    state.ocrConfidence = 0;
+    navigateToModule('ocr');
+    return;
+  }
+  if (action === 'cargo-safety-analysis') {
+    basicPhotoAnalysisMode = 'cargo-safety';
+    transportDocumentTextConfirmed = false;
+    transportDocumentAnalysis = null;
+    tachographTextConfirmed = false;
+    tachographAnalysis = null;
+    dashboardTextConfirmed = false;
+    dashboardTextAnalysis = null;
+    legislationTextConfirmed = false;
+    legislationAnalysis = null;
+    cargoSafetyTextConfirmed = false;
+    cargoSafetyAnalysis = null;
+    state.ocrImageDataUrl = '';
+    state.ocrExtractedText = '';
+    state.ocrConfidence = 0;
+    navigateToModule('ocr');
+    return;
+  }
+  if (action === 'ocr') {
+    activateGlobalAction('ocr');
+    return;
+  }
+  if (action === 'microphone') {
+    activateGlobalAction('microphone');
+  }
 }
 
 function bindMaskedAdminAccess() {
@@ -2090,6 +2627,9 @@ function bindCommandPanel() {
   document.querySelectorAll<HTMLButtonElement>('[data-command]').forEach((control) => {
     control.addEventListener('click', () => {
       const command = control.dataset.command;
+      if (command === 'ocr-camera') document.querySelector<HTMLButtonElement>('#ocrTakePhoto')?.click();
+      if (command === 'ocr-file') document.querySelector<HTMLButtonElement>('#ocrChooseImage')?.click();
+      if (command === 'ocr-translator') document.querySelector<HTMLButtonElement>('#ocrSendTranslator')?.click();
 
       if (command === 'translator-speak') startVoiceInput();
       if (command === 'translator-ocr') openOcrImagePicker();
@@ -2735,9 +3275,416 @@ function registerServiceWorker() {
   }
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js?v=agm-1.2.9', { updateViaCache: 'none' }).catch(() => {
+    navigator.serviceWorker.register('/sw.js?v=agm-1.3.0', { updateViaCache: 'none' }).catch(() => {
       state.status = t(uiLanguage(), 'status.pwaUnavailable');
     });
+  });
+}
+
+function bindOcrPage() {
+  const processInput = (input: HTMLInputElement | null) => {
+    input?.addEventListener('change', () => {
+      const file = input.files?.[0];
+      if (file) void processOcrImage(file);
+    });
+  };
+  const openPicker = (selector: string) => {
+    if (!ensureLegalAcceptanceForCamera()) return;
+    document.querySelector<HTMLInputElement>(selector)?.click();
+  };
+
+  document.querySelector<HTMLButtonElement>('#ocrTakePhoto')?.addEventListener('click', () => openPicker('#ocrCameraInput'));
+  document.querySelector<HTMLButtonElement>('#ocrChooseImage')?.addEventListener('click', () => openPicker('#ocrFileInput'));
+  processInput(document.querySelector<HTMLInputElement>('#ocrCameraInput'));
+  processInput(document.querySelector<HTMLInputElement>('#ocrFileInput'));
+  document.querySelector<HTMLButtonElement>('#confirmDashboardWarning')?.addEventListener('click', () => { dashboardWarningConfirmed = true; render(); });
+  document.querySelector<HTMLButtonElement>('#retryDashboardWarning')?.addEventListener('click', () => { dashboardWarningVisionResult = null; dashboardWarningConfirmed = false; state.ocrImageDataUrl = ''; render(); });
+
+  input('ocrExtractedText', (value) => {
+    state.ocrExtractedText = value;
+    transportDocumentTextConfirmed = false;
+    transportDocumentAnalysis = null;
+    tachographTextConfirmed = false;
+    tachographAnalysis = null;
+    dashboardTextConfirmed = false;
+    dashboardTextAnalysis = null;
+    legislationTextConfirmed = false;
+    legislationAnalysis = null;
+    const hasConfirmedSource = value.trim().length > 0;
+    const transportConfirmation = document.querySelector<HTMLButtonElement>('#confirmTransportDocumentText');
+    const tachographConfirmation = document.querySelector<HTMLButtonElement>('#confirmTachographText');
+    const dashboardTextConfirmation = document.querySelector<HTMLButtonElement>('#confirmDashboardText');
+    const legislationConfirmation = document.querySelector<HTMLButtonElement>('#confirmLegislationText');
+    const cargoSafetyConfirmation = document.querySelector<HTMLButtonElement>('#confirmCargoSafetyText');
+    const transportAnalysisButton = document.querySelector<HTMLButtonElement>('#analyzeTransportDocument');
+    const tachographAnalysisButton = document.querySelector<HTMLButtonElement>('#analyzeTachograph');
+    const dashboardTextAnalysisButton = document.querySelector<HTMLButtonElement>('#analyzeDashboardText');
+    const legislationAnalysisButton = document.querySelector<HTMLButtonElement>('#analyzeLegislation');
+    const cargoSafetyAnalysisButton = document.querySelector<HTMLButtonElement>('#analyzeCargoSafety');
+    if (transportConfirmation) transportConfirmation.disabled = !hasConfirmedSource;
+    if (tachographConfirmation) tachographConfirmation.disabled = !hasConfirmedSource;
+    if (dashboardTextConfirmation) dashboardTextConfirmation.disabled = !hasConfirmedSource;
+    if (legislationConfirmation) legislationConfirmation.disabled = !hasConfirmedSource;
+    if (cargoSafetyConfirmation) cargoSafetyConfirmation.disabled = !hasConfirmedSource;
+    if (transportAnalysisButton) transportAnalysisButton.disabled = true;
+    if (tachographAnalysisButton) tachographAnalysisButton.disabled = true;
+    if (dashboardTextAnalysisButton) dashboardTextAnalysisButton.disabled = true;
+    if (legislationAnalysisButton) legislationAnalysisButton.disabled = true;
+    if (cargoSafetyAnalysisButton) cargoSafetyAnalysisButton.disabled = true;
+  });
+  document.querySelector<HTMLButtonElement>('#confirmTransportDocumentText')?.addEventListener('click', () => {
+    if (!state.ocrExtractedText.trim()) return;
+    transportDocumentTextConfirmed = true;
+    transportDocumentAnalysis = null;
+    state.status = 'Textul OCR a fost confirmat. Poți analiza documentul.';
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#analyzeTransportDocument')?.addEventListener('click', () => {
+    if (!transportDocumentTextConfirmed || !state.ocrExtractedText.trim()) return;
+    transportDocumentAnalysis = analyzeTransportDocument(state.ocrExtractedText, state.ocrConfidence);
+    state.status = transportDocumentAnalysis.summary;
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#confirmTachographText')?.addEventListener('click', () => {
+    if (!state.ocrExtractedText.trim()) return;
+    tachographTextConfirmed = true;
+    tachographAnalysis = null;
+    state.status = 'Textul tahografului a fost confirmat. Poți executa analiza.';
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#analyzeTachograph')?.addEventListener('click', () => {
+    if (!tachographTextConfirmed || !state.ocrExtractedText.trim()) return;
+    tachographAnalysis = analyzeTachographText(state.ocrExtractedText, state.ocrConfidence);
+    state.status = tachographAnalysis.summary;
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#confirmDashboardText')?.addEventListener('click', () => {
+    if (!state.ocrExtractedText.trim()) return;
+    dashboardTextConfirmed = true;
+    dashboardTextAnalysis = null;
+    state.status = 'Mesajul textual din bord a fost confirmat. Poți executa analiza.';
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#analyzeDashboardText')?.addEventListener('click', () => {
+    if (!dashboardTextConfirmed || !state.ocrExtractedText.trim()) return;
+    dashboardTextAnalysis = analyzeDashboardText(state.ocrExtractedText, state.ocrConfidence);
+    state.status = dashboardTextAnalysis.summary;
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#confirmLegislationText')?.addEventListener('click', () => {
+    if (!state.ocrExtractedText.trim()) return;
+    legislationTextConfirmed = true;
+    legislationAnalysis = null;
+    state.status = 'Textul juridic a fost confirmat. Poți executa analiza contextuală.';
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#analyzeLegislation')?.addEventListener('click', () => {
+    if (!legislationTextConfirmed || !state.ocrExtractedText.trim()) return;
+    legislationAnalysis = analyzeLegislationText(state.ocrExtractedText, state.ocrConfidence);
+    state.status = legislationAnalysis.summary;
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#confirmCargoSafetyText')?.addEventListener('click', () => {
+    if (!state.ocrExtractedText.trim()) return;
+    cargoSafetyTextConfirmed = true;
+    cargoSafetyAnalysis = null;
+    state.status = 'Textul despre încărcătură a fost confirmat. Poți executa analiza.';
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#analyzeCargoSafety')?.addEventListener('click', () => {
+    if (!cargoSafetyTextConfirmed || !state.ocrExtractedText.trim()) return;
+    cargoSafetyAnalysis = analyzeCargoSafetyText(state.ocrExtractedText, state.ocrConfidence);
+    state.status = cargoSafetyAnalysis.summary;
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#ocrCopyText')?.addEventListener('click', () => {
+    void copyPlainText(state.ocrExtractedText).then(() => {
+      state.status = ocrPageCopy().copy;
+      render();
+    });
+  });
+  document.querySelector<HTMLButtonElement>('#ocrSendTranslator')?.addEventListener('click', () => {
+    state.translatorText = state.ocrExtractedText;
+    navigateToModule('cockpit');
+  });
+  document.querySelector<HTMLButtonElement>('#ocrSaveArchive')?.addEventListener('click', () => {
+    if (!state.ocrImageDataUrl || !state.ocrExtractedText.trim()) return;
+    void saveCurrentOcrDocument();
+  });
+  document.querySelector<HTMLButtonElement>('#ocrClearResult')?.addEventListener('click', () => {
+    state.ocrImageDataUrl = '';
+    state.ocrExtractedText = '';
+    state.ocrConfidence = 0;
+    transportDocumentTextConfirmed = false;
+    transportDocumentAnalysis = null;
+    tachographTextConfirmed = false;
+    tachographAnalysis = null;
+    dashboardTextConfirmed = false;
+    dashboardTextAnalysis = null;
+    legislationTextConfirmed = false;
+    legislationAnalysis = null;
+    cargoSafetyTextConfirmed = false;
+    cargoSafetyAnalysis = null;
+    render();
+  });
+  document.querySelector<HTMLButtonElement>('#transportAnalysisToTranslator')?.addEventListener('click', () => {
+    if (!transportDocumentAnalysis) return;
+    state.translatorText = formatTransportDocumentResult(transportDocumentAnalysis);
+    navigateToModule('cockpit');
+  });
+  document.querySelector<HTMLButtonElement>('#transportAnalysisToEmail')?.addEventListener('click', () => {
+    if (!transportDocumentAnalysis) return;
+    state.subject = 'Verificare document de transport';
+    state.message = formatTransportDocumentResult(transportDocumentAnalysis);
+    state.emailComposeMode = 'manual';
+    markMailDraftChanged();
+    navigateToModule('email');
+  });
+  document.querySelector<HTMLButtonElement>('#transportAnalysisCopy')?.addEventListener('click', () => {
+    if (!transportDocumentAnalysis) return;
+    void copyPlainText(formatTransportDocumentResult(transportDocumentAnalysis)).then(() => {
+      state.status = 'Răspunsul contextual a fost copiat.';
+      render();
+    });
+  });
+  document.querySelector<HTMLButtonElement>('#transportAnalysisRetry')?.addEventListener('click', () => {
+    state.ocrImageDataUrl = '';
+    state.ocrExtractedText = '';
+    state.ocrConfidence = 0;
+    transportDocumentTextConfirmed = false;
+    transportDocumentAnalysis = null;
+    render();
+    document.querySelector<HTMLInputElement>('#ocrCameraInput')?.click();
+  });
+  document.querySelector<HTMLButtonElement>('#tachographAnalysisToTranslator')?.addEventListener('click', () => {
+    if (!tachographAnalysis) return;
+    state.translatorText = formatTachographResult(tachographAnalysis);
+    navigateToModule('cockpit');
+  });
+  document.querySelector<HTMLButtonElement>('#tachographAnalysisToEmail')?.addEventListener('click', () => {
+    if (!tachographAnalysis) return;
+    state.subject = 'Verificare mesaj tahograf';
+    state.message = formatTachographResult(tachographAnalysis);
+    state.emailComposeMode = 'manual';
+    markMailDraftChanged();
+    navigateToModule('email');
+  });
+  document.querySelector<HTMLButtonElement>('#tachographAnalysisCopy')?.addEventListener('click', () => {
+    if (!tachographAnalysis) return;
+    void copyPlainText(formatTachographResult(tachographAnalysis)).then(() => {
+      state.status = 'Răspunsul Tahograf a fost copiat.';
+      render();
+    });
+  });
+  document.querySelector<HTMLButtonElement>('#tachographAnalysisRetry')?.addEventListener('click', () => {
+    state.ocrImageDataUrl = '';
+    state.ocrExtractedText = '';
+    state.ocrConfidence = 0;
+    tachographTextConfirmed = false;
+    tachographAnalysis = null;
+    render();
+    document.querySelector<HTMLInputElement>('#ocrCameraInput')?.click();
+  });
+  document.querySelector<HTMLButtonElement>('#dashboardTextAnalysisToTranslator')?.addEventListener('click', () => {
+    if (!dashboardTextAnalysis) return;
+    state.translatorText = formatDashboardTextResult(dashboardTextAnalysis);
+    navigateToModule('cockpit');
+  });
+  document.querySelector<HTMLButtonElement>('#dashboardTextAnalysisToEmail')?.addEventListener('click', () => {
+    if (!dashboardTextAnalysis) return;
+    state.subject = 'Verificare mesaj textual din bord';
+    state.message = formatDashboardTextResult(dashboardTextAnalysis);
+    state.emailComposeMode = 'manual';
+    markMailDraftChanged();
+    navigateToModule('email');
+  });
+  document.querySelector<HTMLButtonElement>('#dashboardTextAnalysisCopy')?.addEventListener('click', () => {
+    if (!dashboardTextAnalysis) return;
+    void copyPlainText(formatDashboardTextResult(dashboardTextAnalysis)).then(() => {
+      state.status = 'Răspunsul pentru mesajul din bord a fost copiat.';
+      render();
+    });
+  });
+  document.querySelector<HTMLButtonElement>('#dashboardTextAnalysisRetry')?.addEventListener('click', () => {
+    state.ocrImageDataUrl = '';
+    state.ocrExtractedText = '';
+    state.ocrConfidence = 0;
+    dashboardTextConfirmed = false;
+    dashboardTextAnalysis = null;
+    render();
+    document.querySelector<HTMLInputElement>('#ocrCameraInput')?.click();
+  });
+  document.querySelector<HTMLButtonElement>('#legislationAnalysisToTranslator')?.addEventListener('click', () => {
+    if (!legislationAnalysis) return;
+    state.translatorText = formatLegislationResult(legislationAnalysis);
+    navigateToModule('cockpit');
+  });
+  document.querySelector<HTMLButtonElement>('#legislationAnalysisToEmail')?.addEventListener('click', () => {
+    if (!legislationAnalysis) return;
+    state.subject = 'Verificare situație legislativă';
+    state.message = formatLegislationResult(legislationAnalysis);
+    state.emailComposeMode = 'manual';
+    markMailDraftChanged();
+    navigateToModule('email');
+  });
+  document.querySelector<HTMLButtonElement>('#legislationAnalysisCopy')?.addEventListener('click', () => {
+    if (!legislationAnalysis) return;
+    void copyPlainText(formatLegislationResult(legislationAnalysis)).then(() => {
+      state.status = 'Răspunsul legislativ contextual a fost copiat.';
+      render();
+    });
+  });
+  document.querySelector<HTMLButtonElement>('#legislationAnalysisRetry')?.addEventListener('click', () => {
+    state.ocrImageDataUrl = '';
+    state.ocrExtractedText = '';
+    state.ocrConfidence = 0;
+    legislationTextConfirmed = false;
+    legislationAnalysis = null;
+    render();
+    document.querySelector<HTMLInputElement>('#ocrCameraInput')?.click();
+  });
+  document.querySelector<HTMLButtonElement>('#cargoSafetyAnalysisToTranslator')?.addEventListener('click', () => {
+    if (!cargoSafetyAnalysis) return;
+    state.translatorText = formatCargoSafetyResult(cargoSafetyAnalysis);
+    navigateToModule('cockpit');
+  });
+  document.querySelector<HTMLButtonElement>('#cargoSafetyAnalysisToEmail')?.addEventListener('click', () => {
+    if (!cargoSafetyAnalysis) return;
+    state.subject = 'Verificare siguranța încărcăturii';
+    state.message = formatCargoSafetyResult(cargoSafetyAnalysis);
+    state.emailComposeMode = 'manual';
+    markMailDraftChanged();
+    navigateToModule('email');
+  });
+  document.querySelector<HTMLButtonElement>('#cargoSafetyAnalysisCopy')?.addEventListener('click', () => {
+    if (!cargoSafetyAnalysis) return;
+    void copyPlainText(formatCargoSafetyResult(cargoSafetyAnalysis)).then(() => {
+      state.status = 'Răspunsul pentru siguranța încărcăturii a fost copiat.';
+      render();
+    });
+  });
+  document.querySelector<HTMLButtonElement>('#cargoSafetyAnalysisRetry')?.addEventListener('click', () => {
+    state.ocrImageDataUrl = '';
+    state.ocrExtractedText = '';
+    state.ocrConfidence = 0;
+    cargoSafetyTextConfirmed = false;
+    cargoSafetyAnalysis = null;
+    render();
+    document.querySelector<HTMLInputElement>('#ocrCameraInput')?.click();
+  });
+  document.querySelector<HTMLButtonElement>('#clearOcrHistory')?.addEventListener('click', clearOcrHistory);
+  document.querySelectorAll<HTMLButtonElement>('[data-ocr-open]').forEach((control) => {
+    control.addEventListener('click', () => {
+      const item = state.ocrHistory.find((entry) => entry.id === control.dataset.ocrOpen);
+      if (!item) return;
+      state.ocrImageDataUrl = item.imageDataUrl;
+      state.ocrExtractedText = item.extractedText;
+      state.ocrConfidence = 0;
+      transportDocumentTextConfirmed = false;
+      transportDocumentAnalysis = null;
+      tachographTextConfirmed = false;
+      tachographAnalysis = null;
+      dashboardTextConfirmed = false;
+      dashboardTextAnalysis = null;
+      legislationTextConfirmed = false;
+      legislationAnalysis = null;
+      cargoSafetyTextConfirmed = false;
+      cargoSafetyAnalysis = null;
+      render();
+    });
+  });
+  document.querySelectorAll<HTMLButtonElement>('[data-ocr-delete]').forEach((control) => {
+    control.addEventListener('click', () => {
+      const id = control.dataset.ocrDelete;
+      if (id) void deleteOcrDocument(id);
+    });
+  });
+}
+
+async function hydrateOcrArchive() {
+  try {
+    await migrateOcrHistoryV1ToV2({
+      legacyItems: initialOcrHistory,
+      archive: ocrArchiveRepository,
+      markers: window.localStorage,
+    });
+    state.ocrHistory = await legacyItemsFromArchive(await ocrArchiveRepository.list({ limit: 100 }));
+    if (state.view === 'ocr') render();
+  } catch {
+    // IndexedDB can be unavailable in private/restricted contexts. The already
+    // loaded v1 history remains readable and explicit saves fall back to v1.
+    state.ocrHistory = initialOcrHistory;
+    if (state.view === 'ocr') render();
+  }
+}
+
+async function saveCurrentOcrDocument() {
+  const imageDataUrl = state.ocrImageDataUrl;
+  const extractedText = state.ocrExtractedText.trim();
+  if (!imageDataUrl || !extractedText) return;
+  const id = createLocalId();
+  const createdAt = new Date().toISOString();
+  const sourceLanguage = detectMessageLanguage(extractedText, state.profile.preferredLanguage);
+  const legacyItem: OcrHistoryItem = {
+    id, createdAt, sourceLanguage, targetLanguage: state.translatorTargetLanguage,
+    imageDataUrl, extractedText, translatedText: '',
+  };
+  try {
+    const image = dataUrlToBlob(imageDataUrl);
+    await ocrArchiveRepository.create({
+      id,
+      createdAt,
+      source: { kind: 'file', mimeType: image.type || 'image/jpeg', byteSize: image.size },
+      image,
+      thumbnail: image,
+      extractedText,
+      editedText: extractedText,
+      confidence: state.ocrConfidence,
+      sourceLanguage,
+      status: 'reviewed',
+      pinned: false,
+    });
+    state.ocrHistory = await legacyItemsFromArchive(await ocrArchiveRepository.list({ limit: 100 }));
+  } catch {
+    // Safe compatibility fallback; v1 is used only when v2 persistence failed.
+    state.ocrHistory = [legacyItem, ...state.ocrHistory].slice(0, 8);
+    ocrHistoryRepository.save(state.ocrHistory);
+    window.localStorage.removeItem(OCR_ARCHIVE_V2_MIGRATION_MARKER);
+  }
+  state.status = ocrPageCopy().save;
+  render();
+}
+
+async function deleteOcrDocument(id: string) {
+  try {
+    await ocrArchiveRepository.delete(id);
+    state.ocrHistory = state.ocrHistory.filter((item) => item.id !== id);
+  } catch {
+    // A v1 fallback item can still be deleted from its owning repository.
+    state.ocrHistory = state.ocrHistory.filter((item) => item.id !== id);
+    ocrHistoryRepository.save(state.ocrHistory);
+  }
+  render();
+}
+
+async function legacyItemsFromArchive(documents: OcrDocument[]): Promise<OcrHistoryItem[]> {
+  return Promise.all(documents.map(async (document) => ({
+    id: document.id,
+    createdAt: document.createdAt,
+    sourceLanguage: document.sourceLanguage,
+    targetLanguage: document.translation?.targetLanguage ?? state.translatorTargetLanguage,
+    imageDataUrl: await blobToDataUrl(document.thumbnail),
+    extractedText: document.editedText || document.extractedText,
+    translatedText: document.translation?.text ?? '',
+  })));
+}
+
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ''));
+    reader.onerror = () => reject(reader.error ?? new Error('Could not read OCR image.'));
+    reader.readAsDataURL(blob);
   });
 }
 
@@ -2877,7 +3824,35 @@ function openOcrImagePicker() {
 }
 
 async function processOcrImage(file: File) {
+  if (basicPhotoAnalysisMode === 'dashboard-warning') { await processDashboardWarningImage(file); return; }
+  transportDocumentTextConfirmed = false;
+  transportDocumentAnalysis = null;
+  tachographTextConfirmed = false;
+  tachographAnalysis = null;
+  dashboardTextConfirmed = false;
+  dashboardTextAnalysis = null;
+  legislationTextConfirmed = false;
+  legislationAnalysis = null;
+  cargoSafetyTextConfirmed = false;
+  cargoSafetyAnalysis = null;
   await ocrController.process(file);
+}
+
+async function processDashboardWarningImage(file: File) {
+  dashboardWarningProcessing = true; dashboardWarningConfirmed = false; dashboardWarningVisionResult = null;
+  state.ocrImageDataUrl = await readFileAsDataUrl(file); render();
+  const form = new FormData();
+  form.append('image', file);
+  form.append('request', JSON.stringify({ consent: { confirmed: true, purpose: 'dashboard-warning-analysis', policyVersion: 'dashboard-warning-privacy-v0.1', providerPolicyVersion: 'provider-review-required-v0.1', consentedAt: new Date().toISOString() } }));
+  try {
+    const base = import.meta.env.DEV ? 'http://127.0.0.1:3000/api/v1' : '/api/v1';
+    const response = await fetch(`${base}/dashboard-warning-analysis`, { method: 'POST', body: form });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json() as { data?: DashboardWarningVisionResult };
+    dashboardWarningVisionResult = payload.data ?? null;
+  } catch {
+    dashboardWarningVisionResult = { status: 'uncertain', observations: [], confidence: 0, limitations: ['Serviciul Vision nu este disponibil. Nu se poate produce identificare sau severitate. Încearcă din nou sau recapturează.'], provenance: { observation: 'vision', identification: 'none', explanation: 'none', severity: 'none' } };
+  } finally { dashboardWarningProcessing = false; render(); }
 }
 
 async function compressImageForHistory(file: File) {
@@ -2908,7 +3883,10 @@ function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 function saveOcrHistoryAfterTranslation(extractedText: string, translatedText: string) {
-  ocrController.saveTranslation(extractedText, translatedText);
+  // Translation never archives implicitly. Persistence remains an explicit
+  // action on the OCR page.
+  void extractedText;
+  void translatedText;
 }
 
 function correctTranslatorText() {
@@ -3137,6 +4115,7 @@ function renderAdministratorLogin() {
 }
 
 function renderChangeAdminPin() {
+  if (localAdministratorBypassActive) return '';
   if (!state.adminChangePinOpen) return '';
   return `<section class="modal-backdrop" role="dialog" aria-modal="true"><form id="changeAdminPinForm" class="admin-login">
     <h2>Schimbă PIN-ul AGM</h2>
@@ -3232,6 +4211,7 @@ async function speakTranslation() {
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = speechLocale(state.translatorTargetLanguage);
+  utterance.rate = 1.1;
   utterance.onerror = (event) => {
     console.error('[AGM Audio] Browser TTS error', event.error);
     state.voicePlaybackState = 'error';
@@ -3274,6 +4254,7 @@ async function speakEmailMessage() {
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = speechLocale(state.targetLanguage);
+  utterance.rate = 1.1;
   window.speechSynthesis.speak(utterance);
   state.status = t(uiLanguage(), 'mail.status.speaking', { language: languageLabel(state.targetLanguage) });
   render();
@@ -4060,7 +5041,12 @@ async function copyTranslatorResult() {
   await translatorController.copyResult();
 }
 
-function clearOcrHistory() {
+async function clearOcrHistory() {
+  try {
+    await ocrArchiveRepository.clear();
+  } catch {
+    // Keep the established v1 repository available as a restricted-context fallback.
+  }
   ocrController.clearHistory();
 }
 
@@ -4151,7 +5137,12 @@ function deleteContactData() {
   render();
 }
 
-function deleteOcrHistoryData() {
+async function deleteOcrHistoryData() {
+  try {
+    await ocrArchiveRepository.clear();
+  } catch {
+    // Legal deletion continues below for every available local store.
+  }
   ocrHistoryRepository.clear();
   tutorialRepository.clearForOcrHistoryDeletion();
   state.ocrImageDataUrl = '';
@@ -4185,12 +5176,17 @@ function deleteLegalAcceptance() {
   render();
 }
 
-function resetAllLocalData() {
+async function resetAllLocalData() {
   window.localStorage.removeItem(profileStorageKey);
   window.localStorage.removeItem(profileLanguageKey);
   window.localStorage.removeItem(contactStorageKey);
   window.localStorage.removeItem(LEGAL_ACCEPTANCE_KEY);
   ocrHistoryRepository.clear();
+  try {
+    await ocrArchiveRepository.clear();
+  } catch {
+    // Continue resetting the remaining local application data.
+  }
   state.profile = defaultProfile();
   state.contacts = [];
   state.contactManagerOpen = false;
@@ -4256,6 +5252,8 @@ function saveProfileFromForm() {
   const phone = document.querySelector<HTMLInputElement>('#profilePhone')?.value.trim();
   const email = document.querySelector<HTMLInputElement>('#profileEmail')?.value.trim();
   const company = document.querySelector<HTMLInputElement>('#profileCompany')?.value.trim();
+  const vehicleNumber = document.querySelector<HTMLInputElement>('#profileVehicleNumber')?.value.trim();
+  const address = document.querySelector<HTMLInputElement>('#profileAddress')?.value.trim();
   const defaultSignature = document.querySelector<HTMLTextAreaElement>('#profileSignature')?.value.trim();
 
   state.profile = {
@@ -4263,6 +5261,8 @@ function saveProfileFromForm() {
     phone: phone ?? state.profile.phone,
     email: email ?? state.profile.email,
     company: company ?? state.profile.company,
+    vehicleNumber: vehicleNumber ?? state.profile.vehicleNumber,
+    address: address ?? state.profile.address,
     preferredLanguage: state.profile.preferredLanguage,
     defaultSignature: defaultSignature || state.profile.defaultSignature || defaultProfile().defaultSignature,
     drawnSignatureDataUrl: state.profile.drawnSignatureDataUrl,
@@ -4313,6 +5313,14 @@ function profileHasContactDetails(profile: ProfileSettings) {
 function moduleStatus(view: ViewName) {
   if (view === 'home') {
     return t(uiLanguage(), 'home.status');
+  }
+
+  if (view === 'basic') {
+    return t(uiLanguage(), 'home.basicStatus');
+  }
+
+  if (view === 'ocr') {
+    return ocrPageCopy().local;
   }
 
   if (view === 'access') {
@@ -4395,6 +5403,13 @@ function viewFromCurrentRoute(): ViewName {
   }
 
   return shellViewFromRoute(route) ?? 'home';
+}
+
+function navigateToRoute(view: ViewName, route: string) {
+  window.history.pushState({}, '', route);
+  state.view = view;
+  state.status = moduleStatus(view);
+  render();
 }
 
 function routeForView(view: ViewName) {

@@ -278,6 +278,9 @@ export function renderPreDepartureShell(state: PreDepartureViewState | PreDepart
         <nav class="pre-departure-navigation" aria-label="AGM navigation">
           <a href="/premium" class="pre-departure-home pre-departure-home-primary">← Premium</a>
           <a href="/" class="pre-departure-home">Cockpit AGM</a>
+          <a href="/translator?quick=ocr" class="pre-departure-home">Cameră OCR</a>
+          <a href="/email?quick=email" class="pre-departure-home">Email</a>
+          <a href="/translator?quick=microphone" class="pre-departure-home">Microfon</a>
         </nav>
       </header>
 
@@ -346,6 +349,7 @@ export function renderPreDepartureShell(state: PreDepartureViewState | PreDepart
           <button type="button" data-pre-departure-action="confirm" ${canCompleteAssessment || canConfirmReadiness ? '' : 'disabled'}>${escapeHtml(canConfirmReadiness ? copy.confirmReady : copy.reviewAssessment)}</button>
           <button type="button" data-pre-departure-action="close" ${viewState.session.state === 'CONFIRMED' ? '' : 'disabled'}>${escapeHtml(copy.close)}</button>
           <button type="button" data-pre-departure-action="export-report" class="secondary" ${viewState.session.state === 'CONFIRMED' || viewState.session.state === 'CLOSED' ? '' : 'disabled'}>${escapeHtml(copy.exportReport)}</button>
+          <button type="button" data-pre-departure-action="share-whatsapp" class="secondary" ${viewState.session.state === 'CONFIRMED' || viewState.session.state === 'CLOSED' ? '' : 'disabled'}>WhatsApp Share</button>
         </div>
         ${
           viewState.session.state === 'READY_TO_CONFIRM' ||

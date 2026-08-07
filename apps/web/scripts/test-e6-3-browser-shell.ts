@@ -110,19 +110,19 @@ assert.deepEqual(
 );
 assert.equal(
   operationsHealthConfiguration.operationsServices.find((service) => service.id === 'server-backup')?.staticStatus,
-  'NOT CONFIGURED',
+  'NOT APPLICABLE',
 );
 assert.equal(
-  operationsHealthConfiguration.operationsServices.find((service) => service.id === 'android')?.staticStatus,
-  'NOT IMPLEMENTED',
+  operationsHealthConfiguration.operationsServices.find((service) => service.id === 'android')?.kind,
+  'http',
 );
 assert.equal(
   operationsHealthConfiguration.operationsServices.find((service) => service.id === 'server-backup')?.displayStatus,
-  'BACKUP ENDPOINT NOT CONFIGURED',
+  'NOT APPLICABLE · SINGLE-WRITER',
 );
 assert.equal(
-  operationsHealthConfiguration.operationsServices.find((service) => service.id === 'android')?.displayStatus,
-  'CLIENT ONLINE · TELEMETRY NOT CONFIGURED',
+  operationsHealthConfiguration.operationsServices.find((service) => service.id === 'android')?.url,
+  '/__agm/telemetry/android',
 );
 assert.ok(incidentJournalSource.includes("preventiveMeasure: 'Rulare pnpm audit:ui-live"));
 assert.ok(incidentJournalSource.includes("status: 'archived'"));

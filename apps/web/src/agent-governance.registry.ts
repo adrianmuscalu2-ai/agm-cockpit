@@ -9,6 +9,9 @@ export type {
 export const agentGovernanceRegistry: AgentGovernanceRecord[] = [
   ...monitoringAgentGovernanceRecords,
   {
+    id: 'secret-credentials-guardian', code: 'SECRET-CREDENTIALS-GUARDIAN', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'security-legal', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.monitoring', displayName: 'Secret & Credentials Guardian', displayRole: 'Secret lifecycle authority', displayResponsibilities: 'Validates secret references and lifecycle metadata without exposing secret values.',
+  },
+  {
     id: 'version-guardian', code: 'VERSION-GUARDIAN', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'release-operations', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.validated', displayName: 'Version Guardian', displayRole: 'Release & traceability control', displayResponsibilities: 'Protects baselines and records branches, commits, checkpoints and deployments.',
   },
   {
@@ -51,6 +54,18 @@ export const agentGovernanceRegistry: AgentGovernanceRecord[] = [
     status: 'active',
     lastValidationKey: 'agentRegistry.inspector.validation',
     lastActivityKey: 'agentRegistry.inspector.activity',
+    reliabilityKey: 'agentRegistry.reliability.validated',
+  },
+  {
+    id: 'infrastructure-reuse-coordinator',
+    code: 'INFRA-REUSE-COORDINATOR',
+    nameKey: 'agentRegistry.reuseCoordinator.name',
+    roleKey: 'agentRegistry.reuseCoordinator.role',
+    responsibilitiesKey: 'agentRegistry.reuseCoordinator.responsibilities',
+    ownerDepartmentId: 'qa-validation',
+    status: 'active',
+    lastValidationKey: 'agentRegistry.reuseCoordinator.validation',
+    lastActivityKey: 'agentRegistry.reuseCoordinator.activity',
     reliabilityKey: 'agentRegistry.reliability.validated',
   },
   {

@@ -67,6 +67,7 @@ function renderResult(result: SecuringRecommendation, translate: Translator, esc
         <article><span>${escapeHtml(translate('premium.loadSafety.recommendation.visibleCount'))}</span><strong>${escapeHtml(String(estimated))}</strong></article>
         <article><span>${escapeHtml(translate('premium.loadSafety.recommendation.recommendedCount'))}</span><strong>${escapeHtml(String(recommended))}</strong></article>
       </section>
+      <aside class="load-safety-disclaimer" role="alert"><strong>!</strong><p>${escapeHtml(translate('premium.loadSafety.recommendation.mandatoryStop'))}</p></aside>
       ${resultSection('visible', result.visibleStraps.observations, translate, escapeHtml)}
       ${resultSection('advice', result.recommendations, translate, escapeHtml)}
       ${resultSection('lcStf', result.lcStf, translate, escapeHtml)}

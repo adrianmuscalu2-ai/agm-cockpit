@@ -197,6 +197,17 @@ Titular interimar: **Turn Commander**, până la nominalizarea separată.
 - nu prescrie unilateral soluția tehnică;
 - nu declară singur validarea tehnică.
 
+### Research & Technology Intelligence
+
+Capabilitate permanentă în Product & Portfolio, nu departament separat.
+
+- urmărește piața, concurența și tehnologiile relevante pentru AGM;
+- consemnează sursa, data, relevanța, riscul și orizontul recomandărilor;
+- transmite oportunitățile către Product Owner și Mentor;
+- consultă Architecture Guardian pentru fezabilitate și impact tehnic;
+- nu transformă cercetarea în backlog, mandat sau implementare fără decizia
+  Product Ownerului și autorizarea Turn Commanderului.
+
 ## Articolul 7 – Engineering
 
 ### Misiune
@@ -295,6 +306,18 @@ Limitări:
 - verifică Browser, Android, API și regresiile;
 - păstrează diferența dintre HTTP availability și validarea vizuală/funcțională;
 - raportează Inspectorului.
+
+### Infrastructure Reuse Coordinator
+
+Agent permanent read-only sub coordonarea Chief Inspectorului.
+
+- interoghează TURN înaintea proiectării unei funcții noi sau extinderi materiale;
+- verifică departamentele, agenții, serviciile, contractele și registrele canonice;
+- identifică fundația reutilizabilă, suprapunerile și responsabilitățile absente;
+- emite `Infrastructure Reuse Report` către Product Owner, Architecture Guardian
+  și Turn Commander;
+- nu implementează, nu aprobă și nu modifică arhitectura sau registrele;
+- nu substituie avizul Architecture Guardian ori verdictul Inspectorului.
 
 ### Legal & Compliance
 
@@ -582,6 +605,7 @@ Nivelul cel mai ridicat aplicabil guvernează întreaga operațiune.
 ```text
 Cerință/incident
 → Owner de domeniu: clasificare și impact
+→ Infrastructure Reuse Coordinator: raport de reutilizare pentru funcție nouă sau extindere materială
 → Architecture/Security/Data consultate după caz
 → Inspector: criterii de validare
 → Turn Commander: mandat sau respingere
@@ -764,6 +788,7 @@ structura fără amendarea contractului.
 | SVC-018 | Version/Artefact Registry | Version Guardian | Version Guardian | Inspector | Version Guardian |
 | SVC-019 | Legal/Compliance | Security Governance Owner | Agent Legal | Inspector/Turn | Documentation |
 | SVC-020 | Telemetrie (`planned/inactive`) | Release & Operations | neatribuit până la activare | Inspector | Documentation |
+| SVC-021 | Infrastructure Reuse Control | Chief Inspector | Infrastructure Reuse Coordinator | Architecture Guardian pentru consistență / Turn review | Documentation |
 
 ### Regula catalogului
 
@@ -951,6 +976,7 @@ tehnice până la mandatul separat de aliniere.
 | `documentation` | Documentation Owner | rol permanent / Department Owner | Knowledge & Documentation | active |
 | `agent-codex` | Atlas/Codex Technical Lead and Executor | agent permanent | Engineering | active |
 | `agent-inspector` | Chief Inspector / Independent Validator | autoritate independentă | Independent Assurance | active |
+| `infrastructure-reuse-coordinator` | Infrastructure Reuse Coordinator | agent permanent read-only | Independent Assurance | active |
 | `agent-mentor` | Mentor / Strategic Advisor | rol permanent | Product & Portfolio | active |
 | `agent-legal` | Legal & Compliance | rol permanent | Security, Secrets & Compliance | monitoring |
 | `agent-linguistic-ro-de` | Agent lingvistic RO–DE | agent permanent planificat | Engineering | planned |

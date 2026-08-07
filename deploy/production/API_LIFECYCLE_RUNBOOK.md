@@ -7,7 +7,7 @@ deployment mandate.
 
 - API container: `agm-production-api`
 - API image:
-  `agm-api@sha256:b949e5dd986a4b654f4af8f58b891d714593f46ac84702e90dae623488e44a3e`
+  `agm-api@sha256:c232624416236ede00aa992369e8c519668694399fff1d9266de19da0db4d43c`
 - OCI revision: `9956eb188fdd988bf0d7af93241c3c43962d9b39`
 - PostgreSQL container: `agm-postgres`
 - PostgreSQL volume: `app_agm_postgres_data`
@@ -71,4 +71,3 @@ Enabling before the approved image is loaded and deployment gates pass is prohib
 - no PostgreSQL service or volume is declared;
 - API host binding is `127.0.0.1:3000`;
 - unit is disabled/inactive before deployment.
-

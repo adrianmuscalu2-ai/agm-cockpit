@@ -2,12 +2,17 @@ name: agm-production
 
 services:
   api:
-    image: agm-api@sha256:b949e5dd986a4b654f4af8f58b891d714593f46ac84702e90dae623488e44a3e
+    image: agm-api@sha256:c232624416236ede00aa992369e8c519668694399fff1d9266de19da0db4d43c
     pull_policy: never
     container_name: agm-production-api
     restart: unless-stopped
     env_file:
       - /opt/agm/production/secrets/agm-production.env
+    environment:
+      AGM_TURN_ADMIN_ACCESS_MODE: open-pre-release
+      AGM_PRODUCTION_PREFLIGHT_REPORT_PATH: /run/agm/production-preflight.latest.json
+    volumes:
+      - /opt/agm/production/runtime/production-preflight.latest.json:/run/agm/production-preflight.latest.json:ro
     ports:
       - "127.0.0.1:3000:3000"
     healthcheck:
@@ -26,7 +31,7 @@ services:
     security_opt:
       - no-new-privileges:true
     labels:
-      org.opencontainers.image.revision: 9956eb188fdd988bf0d7af93241c3c43962d9b39
+      org.opencontainers.image.revision: rc-20260806-2ed15a86
       agm.environment: production
       agm.database.container: agm-postgres
       agm.database.volume: app_agm_postgres_data
@@ -37,4 +42,3 @@ networks:
   agm_production_database:
     external: true
     name: app_default
-

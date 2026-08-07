@@ -73,6 +73,9 @@ export function renderAfterDepartureView(state: AfterDepartureViewState) {
           <nav class="after-departure-navigation" aria-label="AGM navigation">
             <a href="/premium" class="after-departure-back-primary">${escapeHtml(copy.backPremium)}</a>
             <a href="/">${escapeHtml(copy.backCockpit)}</a>
+            <a href="/translator?quick=ocr">Cameră OCR</a>
+            <a href="/email?quick=email">Email</a>
+            <a href="/translator?quick=microphone">Microfon</a>
           </nav>
         </div>
       </header>
@@ -137,6 +140,7 @@ export function renderAfterDepartureView(state: AfterDepartureViewState) {
             ${['EMERGENCY', 'ASSESSED', 'AWAITING_CONFIRMATION'].includes(result.state) ? `<button type="button" data-after-departure-transition="ESCALATED">${escapeHtml(copy.escalate)}</button>` : ''}
             ${['ASSESSED', 'ESCALATED'].includes(result.state) ? `<button type="button" data-after-departure-transition="SAFE_TO_CONTINUE">${escapeHtml(copy.stabilize)}</button>` : ''}
             ${result.state !== 'CLOSED' && result.state !== 'EMERGENCY' ? `<button type="button" class="secondary" data-after-departure-transition="CLOSED">${escapeHtml(copy.close)}</button>` : ''}
+            <button type="button" class="secondary" id="shareAfterDepartureWhatsapp">WhatsApp Share</button>
           </div>
         </section>
       ` : ''}

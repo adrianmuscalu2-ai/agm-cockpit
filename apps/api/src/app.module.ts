@@ -18,6 +18,9 @@ import { TurnAdminModule } from './turn-admin/turn-admin.module';
 import { validateEnvironment } from './config/environment';
 import { PreDepartureSyncModule } from './pre-departure-sync/pre-departure-sync.module';
 import { API_CORE_CONTRACT } from './api-core.contract';
+import { SecretTelemetryModule } from './secret-telemetry/secret-telemetry.module';
+import { ProductionPreflightModule } from './production-preflight/production-preflight.module';
+import { DashboardWarningAnalysisModule } from './dashboard-warning-analysis/dashboard-warning-analysis.module';
 
 @Module({
   imports: [
@@ -44,6 +47,9 @@ import { API_CORE_CONTRACT } from './api-core.contract';
     TranslationModule,
     TurnAdminModule,
     PreDepartureSyncModule,
+    SecretTelemetryModule,
+    ProductionPreflightModule,
+    DashboardWarningAnalysisModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

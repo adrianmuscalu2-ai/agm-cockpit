@@ -25,7 +25,7 @@ const reconstructedCss = cssModules
   .reduce((output, content) => Buffer.concat([output, content]), Buffer.alloc(0));
 assert.equal(
   createHash('sha256').update(reconstructedCss).digest('hex').toUpperCase(),
-  '2EA2E7A27C547C227091BCF31FD581C7A070CADB3526F2EE534B8045DFA96238',
+  '151472DE153BBB720111BD15CBE481C4355202DE8BE60945DAFD9F68E566D680',
   'The modular CSS must reconstruct the approved Access/Premium cascade.',
 );
 
@@ -58,6 +58,33 @@ for (const [surface, source] of [
   assert.match(source, /aria-live=|role="status"|role="dialog"/, `${surface} needs live/dialog semantics`);
 }
 assert.ok(main.includes('aria-modal="true"'));
+for (const key of [
+  'ocr.page.title',
+  'ocr.page.description',
+  'ocr.page.capture',
+  'ocr.page.camera',
+  'ocr.page.file',
+  'ocr.page.result',
+  'ocr.page.placeholder',
+  'ocr.page.copy',
+  'ocr.page.translate',
+  'ocr.page.save',
+  'ocr.page.clear',
+  'ocr.page.archive',
+  'ocr.page.empty',
+  'ocr.page.open',
+  'ocr.page.clearArchive',
+  'ocr.page.local',
+]) {
+  assert.ok(main.includes(`'${key}'`), `OCR page must use ${key}`);
+}
+assert.match(main, /class="translator-hud ocr-page"[^>]*aria-labelledby="ocr-page-title"/);
+assert.match(main, /aria-busy=/);
+assert.match(main, /<textarea id="ocrExtractedText"/);
+const domainCss = readFileSync(new URL('../src/styles/20-domain-tools.css', import.meta.url), 'utf8');
+assert.match(domainCss, /\.ocr-page/);
+assert.match(domainCss, /@media \(max-width: 520px\)/);
+assert.match(domainCss, /:focus-visible/);
 assert.ok(preDepartureShell.includes('aria-pressed='));
 assert.ok(afterDepartureView.includes('<label'));
 

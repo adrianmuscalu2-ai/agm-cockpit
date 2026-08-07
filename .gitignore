@@ -12,6 +12,7 @@ coverage/
 *.log
 .codex-*.log
 *.tsbuildinfo
+*.traineddata
 .tmp/
 .tmp-video-tools/
 .video-work/

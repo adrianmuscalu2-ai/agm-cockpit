@@ -1,4 +1,5 @@
 import type { IncidentCategory, IncidentEnvironment, IncidentSeverity, OperationalIncident } from '../incident-journal';
+import { activateIncidentRoute, routeIncident } from '../incident-routing.registry';
 
 export type MonitoringEventKind = 'failure' | 'recovery';
 
@@ -40,6 +41,8 @@ export function monitoringFailureToIncident(event: MonitoringEvent): Operational
   if (event.kind !== 'failure' || !validateMonitoringEvent(event)) {
     throw new Error('A valid failure event is required');
   }
+  const route = routeIncident(event);
+  const activations = route ? activateIncidentRoute(route) : [];
   return {
     id: event.incidentId,
     occurredAt: event.occurredAt,
@@ -53,7 +56,7 @@ export function monitoringFailureToIncident(event: MonitoringEvent): Operational
     cause: 'În analiză',
     attemptedSolutions: '',
     appliedSolution: '',
-    owner: 'Monitoring & Operations',
+    owner: route ? `${route.owner} / executor: ${route.executor} / validator: ${route.validator}` : 'Monitoring & Operations',
     fixedInVersion: '',
     tests: '',
     humanValidation: '',
@@ -66,7 +69,7 @@ export function monitoringFailureToIncident(event: MonitoringEvent): Operational
       action: 'monitoring-detected',
       actor: event.monitorCode,
       toStatus: 'new',
-      note: `${event.observedResult} | Acțiune: ${event.recommendedAction}`,
+      note: `${event.observedResult} | Acțiune: ${event.recommendedAction}${route ? ` | Routing: ${route.id} | Activări: ${activations.map((item) => `${item.agentId}:${item.status}`).join(', ')}` : ''}`,
     }],
   };
 }

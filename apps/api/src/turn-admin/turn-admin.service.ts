@@ -30,7 +30,7 @@ export class TurnAdminService {
       const lockedUntil = failedAttempts >= TURN_ADMIN_CONTRACT.maxFailedAttempts
         ? new Date(Date.now() + TURN_ADMIN_CONTRACT.lockMinutes * 60_000)
         : null;
-      await this.prisma.turnAdminCredential.update({ where: { id: CREDENTIAL_ID }, data: { failedAttempts, lockedUntil } });
+      await this.updateCredential({ failedAttempts, lockedUntil });
       if (lockedUntil) {
         this.audit('unlock', 'locked', 'attempt-limit');
         throw new HttpException('Prea multe încercări. Acces blocat 15 minute.', HttpStatus.TOO_MANY_REQUESTS);
@@ -39,7 +39,9 @@ export class TurnAdminService {
       throw new UnauthorizedException(`PIN incorect. Încercări rămase: ${TURN_ADMIN_CONTRACT.maxFailedAttempts - failedAttempts}.`);
     }
 
-    await this.prisma.turnAdminCredential.update({ where: { id: CREDENTIAL_ID }, data: { failedAttempts: 0, lockedUntil: null } });
+    if (credential.failedAttempts !== 0 || credential.lockedUntil !== null) {
+      await this.updateCredential({ failedAttempts: 0, lockedUntil: null });
+    }
     this.audit('unlock', 'allowed');
     return {
       accessToken: await this.jwt.signAsync(
@@ -58,10 +60,7 @@ export class TurnAdminService {
       throw new UnauthorizedException('PIN-ul curent este incorect.');
     }
     const passwordHash = await bcrypt.hash(newPin, 12);
-    await this.prisma.turnAdminCredential.update({
-      where: { id: CREDENTIAL_ID },
-      data: { passwordHash, failedAttempts: 0, lockedUntil: null },
-    });
+    await this.updateCredential({ passwordHash, failedAttempts: 0, lockedUntil: null });
     this.audit('change-pin', 'allowed');
     return { changed: true };
   }
@@ -78,6 +77,15 @@ export class TurnAdminService {
     const passwordHash = this.config.get<string>('AGM_TURN_ADMIN_PIN_HASH');
     if (!passwordHash) throw new UnauthorizedException('PIN-ul administrativ AGM nu este configurat.');
     return this.prisma.turnAdminCredential.create({ data: { id: CREDENTIAL_ID, passwordHash } });
+  }
+
+  private async updateCredential(data: { passwordHash?: string; failedAttempts?: number; lockedUntil?: Date | null }) {
+    return this.prisma.$transaction(async (transaction) => {
+      // Credential writes are deliberately scoped to this transaction. The shared
+      // database role remains read-only for every other application operation.
+      await transaction.$executeRawUnsafe('SET TRANSACTION READ WRITE');
+      return transaction.turnAdminCredential.update({ where: { id: CREDENTIAL_ID }, data });
+    });
   }
 
   private async verifyToken(authorization: string | undefined, action: Extract<TurnAdminAuditAction, 'validate' | 'change-pin'>) {

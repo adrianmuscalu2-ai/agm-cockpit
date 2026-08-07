@@ -38,6 +38,7 @@ export const turnAgents: TurnCommandItem[] = [
   { id: 'legal', titleKey: 'turn.agent.legal', descriptionKey: 'turn.agent.legalDesc', status: 'stable' },
   { id: 'integration', titleKey: 'turn.agent.integration', descriptionKey: 'turn.agent.integrationDesc', status: 'active' },
   { id: 'documentation', titleKey: 'turn.agent.documentation', descriptionKey: 'turn.agent.documentationDesc', status: 'active' },
+  { id: 'infrastructure-reuse-coordinator', titleKey: 'turn.agent.reuseCoordinator', descriptionKey: 'turn.agent.reuseCoordinatorDesc', status: 'active' },
   { id: 'ai-governance', titleKey: 'turn.agent.aiGovernance', descriptionKey: 'turn.agent.aiGovernanceDesc', status: 'planned' },
   { id: 'release', titleKey: 'turn.agent.release', descriptionKey: 'turn.agent.releaseDesc', status: 'planned' },
 ];

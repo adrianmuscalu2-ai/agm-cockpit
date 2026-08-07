@@ -63,7 +63,8 @@ export function parseSecuringRecommendation(value: string | undefined): Securing
         estimatedCount: visuallyGroundedCount
           ? recommendation.visibleStraps.estimatedCount
           : null,
-        recommendedCount: recommendation.visibleStraps.recommendedCount,
+        // Normative counts require verified inputs that the visual flow does not collect.
+        recommendedCount: null,
         observations: visibleObservations,
       },
       recommendations: recommendation.recommendations.map(cleanObservation),

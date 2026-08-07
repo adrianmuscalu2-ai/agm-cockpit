@@ -50,7 +50,7 @@ export class SecuringRecommendationProvider {
                   'estimatedCount is exclusively a count from the pixels in the image. Never copy or reconcile it with availableStraps or any other user-declared number.',
                   'A visible-strap count observation must use only visual as its source. If user-declared data influenced it, estimatedCount must be null.',
                   'Use observed certainty only for facts directly visible in the image. User-declared facts must not be labeled observed.',
-                  'recommendedCount must be null unless weight, cargo type, dimensions, vehicle, securing method, friction information, and usable equipment provide enough data. Do not perform or imitate a normative calculation.',
+                  'recommendedCount must always be null. Do not perform or imitate a normative calculation.',
                   'Discuss apparent strap distribution, positioning, uniform tension, anchoring angles, anchor points, edge protection, anti-slip materials, and longitudinal/lateral stops.',
                   'Every conclusion needs a simple educational explanation and one or more truthful sources.',
                   'Use certainty observed only for directly visible facts, probable only for supported inference, and undetermined when the image or data is insufficient.',

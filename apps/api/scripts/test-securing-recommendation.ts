@@ -55,6 +55,12 @@ const groundedVisibleCount = parseSecuringRecommendation(JSON.stringify({
 assert.equal(groundedVisibleCount?.visibleStraps.estimatedCount, 3);
 assert.equal(groundedVisibleCount?.visibleStraps.recommendedCount, null);
 
+const numericCountIsBlocked = parseSecuringRecommendation(JSON.stringify({
+  visibleStraps: { estimatedCount: 2, recommendedCount: 8, observations: [] },
+  recommendations: [], lcStf: [], additionalElements: [], missingData: [],
+}));
+assert.equal(numericCountIsBlocked?.visibleStraps.recommendedCount, null);
+
 console.log('Securing recommendation safety tests: PASS');
 
 assert.deepEqual(parseFieldRoles('["front-oblique","rear-oblique"]', 2), ['front-oblique', 'rear-oblique']);

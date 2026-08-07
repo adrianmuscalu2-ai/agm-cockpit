@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import {
   APP_SHELL_NAVIGATION_CONTRACT,
   isTurnSectionFragment,
@@ -7,6 +6,7 @@ import {
   shellRouteRegistry,
   shellViewFromRoute,
 } from '../src/app-shell/navigation.contract';
+import { readFileSync } from 'node:fs';
 import { appViewModuleRegistry } from '../src/app-shell/view-module.registry';
 
 assert.equal(APP_SHELL_NAVIGATION_CONTRACT.id, 'APP-001');
@@ -24,6 +24,7 @@ assert.equal(shellViewFromRoute('/unknown'), undefined);
 assert.equal(isTurnSectionFragment('turn-monitoring'), true);
 assert.equal(isTurnSectionFragment('incident-journal'), true);
 assert.equal(isTurnSectionFragment('email'), false);
+
 
 const main = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
 assert.match(main, /window\.addEventListener\('popstate'/);

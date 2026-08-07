@@ -1,6 +1,8 @@
 import { type AgentGovernanceRecord } from './agent-governance.contract';
 import { type OperationalIncident } from './incident-journal';
 import { monitoringHealthSources } from './operations-health';
+import { renderStatusLight } from './turn-status-lights';
+import { renderSecretTelemetryPanel } from './secret-telemetry';
 
 type MonitoringAgent = {
   id: string;
@@ -42,8 +44,8 @@ export const monitoringAgents: MonitoringAgent[] = [
   },
   {
     id: 'monitor-android', code: 'MON-005', name: 'Agent Monitorizare Android',
-    component: 'Client Android AGM', sourceId: 'android', source: 'Android operațional + ADB/UI LIVE',
-    responsibilities: 'Separă funcționarea clientului Android de lipsa telemetriei continue.',
+    component: 'Client Android AGM', sourceId: 'android', source: 'Collector Android local autorizat · ADB heartbeat',
+    responsibilities: 'Monitorizează disponibilitatea dispozitivului Android fără a colecta identificatori.',
     intervention: 'Conectează ADB și rulează validarea pe dispozitiv fără a expune date.', incidentTerms: ['android'],
   },
   {
@@ -85,7 +87,7 @@ export const monitoringAgents: MonitoringAgent[] = [
   {
     id: 'monitor-security', code: 'MON-012', name: 'Agent de Securitate',
     component: 'Acces, secrete, configurații și integritate', sourceId: 'security',
-    source: 'API ready + CORS + controale locale fără secrete', responsibilities: 'Monitorizează accesul Turn, PIN, tentative, CORS, rute, fișiere critice, loguri și capturi.',
+    source: 'Secret Guardian telemetry v1 · metadate sigure', responsibilities: 'Monitorizează accesul Turn, PIN, tentative, CORS, rute, fișiere critice, loguri și capturi.',
     intervention: 'Blochează publicarea, rotește credentialele expuse și deschide incident de securitate.',
     incidentTerms: ['securitate', 'security', 'cors', 'acces'],
     securityChecks: [
@@ -107,13 +109,11 @@ export const monitoringAgentGovernanceRecords: AgentGovernanceRecord[] =
     roleKey: 'agentRegistry.codex.role',
     responsibilitiesKey: 'agentRegistry.codex.responsibilities',
     ownerDepartmentId: 'monitoring',
-    status: agent.sourceId === 'telemetry' ? 'planned' : 'monitoring',
+    status: 'monitoring',
     lastValidationKey: 'agentRegistry.codex.validation',
     lastActivityKey: 'agentRegistry.codex.activity',
     reliabilityKey:
-      agent.sourceId === 'telemetry'
-        ? 'agentRegistry.reliability.planned'
-        : 'agentRegistry.reliability.monitoring',
+      'agentRegistry.reliability.monitoring',
     displayName: agent.name,
     displayRole: agent.component,
     displayResponsibilities: agent.responsibilities,
@@ -144,6 +144,8 @@ export function renderMonitoringDepartment(incidents: OperationalIncident[]) {
       const source = monitoringHealthSources.find((item) => item.id === agent.sourceId);
       const incident = incidentFor(agent, active);
       const isIncidentAgent = agent.id === 'monitor-incidents';
+      const initialAgentStatus = source?.kind === 'http' || source?.kind === 'aggregate' || isIncidentAgent ? 'ACTIVE' : 'DEGRADED';
+      const initialTargetStatus = isIncidentAgent ? 'HEALTHY' : 'UNKNOWN';
       const initialStatus = isIncidentAgent
         ? active.length ? `${active.length} ACTIVE` : 'NO ACTIVE INCIDENTS'
         : source?.displayStatus ?? source?.staticStatus ?? 'CHECKING';
@@ -156,6 +158,11 @@ export function renderMonitoringDepartment(incidents: OperationalIncident[]) {
         <div class="operation-service-head"><strong class="operation-service-title"><span class="operation-service-icon">${initialClass === 'online' ? '🟢' : '⚪'}</span> ${escapeHtml(agent.name)}</strong><span class="operation-service-status">${escapeHtml(initialStatus)}</span></div>
         <p class="monitoring-agent-component"><strong>Componentă:</strong> ${escapeHtml(agent.component)}</p>
         <dl>
+          <div><dt>Agent status</dt><dd>${renderStatusLight('agent', initialAgentStatus, 'operation-agent-status')}</dd></div>
+          <div><dt>Target status</dt><dd>${renderStatusLight('target', initialTargetStatus, 'operation-target-status')}</dd></div>
+          <div><dt>Incident status</dt><dd>${renderStatusLight('incident', incident?.status, 'operation-incident-status')}</dd></div>
+          <div><dt>Data freshness</dt><dd class="operation-service-freshness">${isIncidentAgent ? 'LIVE' : 'UNKNOWN'}</dd></div>
+          <div><dt>Vârsta datelor</dt><dd class="operation-service-age">${isIncidentAgent ? '0s' : '—'}</dd></div>
           <div><dt>Ultima verificare</dt><dd class="operation-service-checked">${isIncidentAgent ? new Date().toLocaleString() : '—'}</dd></div>
           <div><dt>Timp răspuns</dt><dd class="operation-service-latency">${isIncidentAgent ? 'N/A' : '—'}</dd></div>
           <div><dt>Sursa datelor</dt><dd>${escapeHtml(agent.source)}</dd></div>
@@ -165,7 +172,8 @@ export function renderMonitoringDepartment(incidents: OperationalIncident[]) {
           <div><dt>Ultima schimbare</dt><dd class="operation-service-changed">${isIncidentAgent ? new Date().toLocaleString() : '—'}</dd></div>
         </dl>
         ${agent.securityChecks ? `<details class="security-monitor-checks"><summary>Controale Agent de Securitate</summary><ul>${agent.securityChecks.map((check) => `<li>${escapeHtml(check)}</li>`).join('')}</ul><p>Nicio valoare secretă nu este colectată sau afișată.</p></details>` : ''}
-        <div class="operation-actions">${source?.kind === 'http' ? `<button type="button" data-operation-recheck="${escapeHtml(source.id)}">Reverifică</button>` : '<button type="button" disabled>Reverificare indisponibilă</button>'}<a href="#incident-journal">Jurnal tehnic</a><a href="#turn-procedures">Procedură</a></div>
+        ${agent.id === 'monitor-security' ? renderSecretTelemetryPanel() : ''}
+        <div class="operation-actions">${source?.kind === 'http' || source?.kind === 'aggregate' ? `<button type="button" data-operation-recheck="${escapeHtml(source.id)}">Reverifică</button>` : '<button type="button" disabled>Reverificare indisponibilă</button>'}<a href="#incident-journal">Jurnal tehnic</a><a href="#turn-procedures">Procedură</a></div>
       </article>`;
     }).join('')}</div>
   </section>`;

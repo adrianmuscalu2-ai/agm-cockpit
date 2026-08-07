@@ -6,6 +6,7 @@ assert.equal(normalizeOcrText('  Încărcare\u0000   finalizată  \n\n  Rampe 12
 assert.equal(normalizeOcrText('\u200B\uFFFD\n---\nText valid'), 'Text valid');
 assert.equal(isUsableOcrResult('Document transport 123', 85), true);
 assert.equal(isUsableOcrResult('Text', 39), false);
+assert.equal(isUsableOcrResult('027 3\nMechanic\nN\nm dl\nE', 40), false);
 assert.equal(isUsableOcrResult('a b c d e f g h i j k l', 90), false);
 
 function state(): OcrControllerState {

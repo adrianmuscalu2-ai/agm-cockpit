@@ -12,7 +12,7 @@ RemainAfterExit=yes
 User=root
 Group=root
 WorkingDirectory=/opt/agm/production
-ExecStartPre=/usr/bin/docker image inspect agm-api@sha256:b949e5dd986a4b654f4af8f58b891d714593f46ac84702e90dae623488e44a3e
+ExecStartPre=/usr/bin/docker image inspect agm-api@sha256:c232624416236ede00aa992369e8c519668694399fff1d9266de19da0db4d43c
 ExecStartPre=/usr/bin/docker inspect agm-postgres
 ExecStart=/usr/bin/docker compose --project-name agm-production --file /opt/agm/production/compose.production.yml up --detach --no-build --no-deps api
 ExecStop=/usr/bin/docker compose --project-name agm-production --file /opt/agm/production/compose.production.yml stop --timeout 30 api
@@ -23,4 +23,3 @@ NoNewPrivileges=true
 
 [Install]
 WantedBy=multi-user.target
-

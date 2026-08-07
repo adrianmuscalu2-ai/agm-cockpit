@@ -1,5 +1,7 @@
 export const appViewModuleRegistry = [
   { id: 'home', view: 'home', owner: 'shell', activation: 'legacy-main', lifecycle: ['render', 'bind'] },
+  { id: 'basic', view: 'basic', owner: 'shell', activation: 'legacy-main', lifecycle: ['render', 'bind'] },
+  { id: 'ocr', view: 'ocr', owner: 'ocr', activation: 'legacy-main', lifecycle: ['render', 'bind'] },
   { id: 'access', view: 'access', owner: 'shell', activation: 'legacy-main', lifecycle: ['render', 'bind'] },
   { id: 'premium', view: 'premium', owner: 'shell', activation: 'legacy-main', lifecycle: ['render', 'bind'] },
   { id: 'premium-team', view: 'premiumTeam', owner: 'shell', activation: 'legacy-main', lifecycle: ['render', 'bind'] },

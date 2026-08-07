@@ -71,9 +71,9 @@
       "id": "server-backup",
       "label": "Server Backup",
       "kind": "static",
-      "staticStatus": "NOT CONFIGURED",
-      "displayStatus": "BACKUP ENDPOINT NOT CONFIGURED",
-      "source": "Registru infrastructură · fără endpoint backup"
+      "staticStatus": "NOT APPLICABLE",
+      "displayStatus": "NOT APPLICABLE · SINGLE-WRITER",
+      "source": "Topologie Production validată · Hetzner single-writer, standby fără trafic Production"
     },
     {
       "id": "api",
@@ -96,10 +96,11 @@
     {
       "id": "android",
       "label": "Android",
-      "kind": "static",
-      "staticStatus": "NOT IMPLEMENTED",
-      "displayStatus": "CLIENT ONLINE · TELEMETRY NOT CONFIGURED",
-      "source": "Android operațional și UI LIVE PASS · telemetrie runtime continuă neconfigurată"
+      "kind": "http",
+      "url": "/__agm/telemetry/android",
+      "evaluator": "ready",
+      "healthyStatus": "READY",
+      "source": "Collector Android local autorizat · ADB heartbeat fără identificatori de dispozitiv"
     },
     {
       "id": "ai",
@@ -143,21 +144,21 @@
     {
       "id": "telemetry",
       "label": "Telemetrie",
-      "kind": "static",
-      "staticStatus": "NOT IMPLEMENTED",
-      "displayStatus": "MONITORING PENDING",
-      "source": "Registru monitorizare · colector continuu neimplementat",
+      "kind": "aggregate",
+      "healthyStatus": "READY",
+      "source": "Collector central Turn · snapshoturi health persistate și reconciliate",
+      "dependencies": ["server-primary", "api", "browser", "android", "ai", "databases", "cloudflare-public", "security"],
       "showInOperations": false
     },
     {
       "id": "security",
-      "label": "Securitate",
+      "label": "Secret & Credentials Guardian",
       "kind": "http",
-      "url": "https://api.agmcockpit.com/api/v1/health/ready",
-      "evaluator": "ready",
+      "url": "https://api.agmcockpit.com/api/v1/security/secrets/health",
+      "evaluator": "http",
       "healthyStatus": "READY",
-      "source": "API ready + CORS + controale locale fără expunere de secrete",
-      "showInOperations": false
+      "source": "Secret Guardian telemetry v1 · metadate sigure",
+      "showInOperations": true
     }
   ]
 }

@@ -94,7 +94,7 @@ const leadership: TurnOrganizationAgent[] = [
     id: 'adrian-turn-commander', name: 'ADRIAN – TURN COMMANDER', kind: 'leader', departmentId: 'leadership',
     coordinatorId: 'mentor', reportsToId: 'mentor', responsibility: 'Comandă, prioritizare și aprobare finală.',
     accessLevel: 'strategic', procedure: 'Aprobă direcția, checkpoint-urile și intervențiile majore.',
-    escalationLevel: 'L4', subordinateAgentIds: ['atlas-operations', 'chief-monitoring-inspector'],
+    escalationLevel: 'L4', subordinateAgentIds: ['atlas-operations', 'chief-monitoring-inspector', 'secret-credentials-guardian'],
   },
   {
     id: 'atlas-operations', name: 'ATLAS – Coordonare Operațională', kind: 'coordinator',
@@ -111,6 +111,14 @@ const leadership: TurnOrganizationAgent[] = [
     escalationLevel: 'L3', subordinateAgentIds: monitoringAgents.map((agent) => agent.id),
   },
 ];
+
+const secretGuardianNode: TurnOrganizationAgent = {
+  id: 'secret-credentials-guardian', name: 'SECRET & CREDENTIALS GUARDIAN', kind: 'agent',
+  departmentId: 'leadership', coordinatorId: 'adrian-turn-commander', reportsToId: 'adrian-turn-commander',
+  responsibility: 'Gestionează ciclul de viață și validează metadatele secretelor fără a divulga valori.',
+  accessLevel: 'oversight', procedure: 'Raportează exclusiv CONFIGURED, MISSING, INVALID sau ROTATION REQUIRED și deschide incidentul corelat.',
+  escalationLevel: 'L3', subordinateAgentIds: [],
+};
 
 const operationalUnits: TurnOrganizationAgent[] = atlasUnits.map(([id, name, responsibility]) => ({
   id: `unit-${id}`,
@@ -142,6 +150,7 @@ const monitoringNodes: TurnOrganizationAgent[] = monitoringAgents.map((agent) =>
 
 export const turnOrganizationAgents: TurnOrganizationAgent[] = [
   ...leadership,
+  secretGuardianNode,
   ...operationalUnits,
   ...monitoringNodes,
 ];
@@ -187,7 +196,7 @@ export function renderTurnOrganizationChart() {
     <nav class="turn-org-department-selector" aria-label="Selectează departamentul">${turnOrganizationDepartments.map((department) => `<button type="button" data-turn-org-department="${department.id}">${escapeHtml(department.name)}</button>`).join('')}</nav>
     <div class="turn-org-layout">
       <div class="turn-org-tree">
-        <details open data-org-branch="leadership"><summary>Nivelul 1 · Conducere</summary>${nodeButton(mentor)}<div class="turn-org-connector">↓</div>${nodeButton(adrian)}</details>
+        <details open data-org-branch="leadership"><summary>Nivelul 1 · Conducere</summary>${nodeButton(mentor)}<div class="turn-org-connector">↓</div>${nodeButton(adrian)}<div class="turn-org-connector">↓</div>${nodeButton(secretGuardianNode)}</details>
         <details open data-org-branch="coordination"><summary>Nivelul 2 · Coordonare</summary><div class="turn-org-peer-row">${nodeButton(atlas)}${nodeButton(inspector)}</div></details>
         <details open data-org-branch="operational-coordination"><summary>Nivelul 3 · Subordonare Atlas</summary><div class="turn-org-node-grid">${operationalUnits.map(nodeButton).join('')}</div></details>
         <details open data-org-branch="monitoring"><summary>Nivelul 3 · Subordonare Inspector Șef Monitorizare</summary><div class="turn-org-node-grid">${monitoringNodes.map(nodeButton).join('')}</div></details>

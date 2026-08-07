@@ -42,10 +42,15 @@ export function createOcrController(dependencies: {
         const imageDataUrl = await dependencies.compress(file);
         const result = await dependencies.recognize(file, state.profile.preferredLanguage);
         if (!result.text) {
+          ocr.ocrImageDataUrl = imageDataUrl;
+          ocr.ocrExtractedText = '';
+          ocr.ocrConfidence = 0;
           state.status = dependencies.message('ocr.status.noText');
         } else if (!result.isUsable) {
           ocr.ocrImageDataUrl = imageDataUrl;
-          ocr.ocrExtractedText = '';
+          // Keep uncertain OCR visible so the user can compare it with the
+          // photograph, correct it, and explicitly confirm it before analysis.
+          ocr.ocrExtractedText = result.text;
           ocr.ocrConfidence = result.confidence;
           state.status = dependencies.message('ocr.status.lowQuality', { confidence: result.confidence });
         } else {
@@ -55,7 +60,8 @@ export function createOcrController(dependencies: {
           state.translatorText = result.text;
           state.status = dependencies.message('ocr.status.completed', { confidence: result.confidence });
         }
-      } catch {
+      } catch (error) {
+        console.error('[AGM OCR] Image processing failed.', error);
         state.status = dependencies.message('ocr.status.failed');
       } finally {
         ocr.isOcrProcessing = false;

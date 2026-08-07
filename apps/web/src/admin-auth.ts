@@ -1,6 +1,14 @@
 const env = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env;
 const developmentApiBaseUrl = import.meta.env.DEV ? 'http://127.0.0.1:3000/api/v1' : undefined;
 const apiBaseUrl = (env?.VITE_AGM_API_BASE_URL?.trim() || developmentApiBaseUrl)?.replace(/\/$/, '');
+const localHostname = typeof window !== 'undefined' && ['127.0.0.1', 'localhost'].includes(window.location.hostname);
+const preReleaseOpenAccess = env?.VITE_AGM_TURN_ACCESS_MODE?.trim().toLowerCase() === 'open-pre-release';
+
+export const localAdministratorBypassActive = (import.meta.env.DEV && localHostname) || preReleaseOpenAccess;
+export const localAdministratorSession: AdminSession = {
+  accessToken: 'agm-local-development-access',
+  expiresInSeconds: 86_400,
+};
 
 if (!apiBaseUrl) {
   throw new Error('VITE_AGM_API_BASE_URL is required outside development.');
@@ -31,6 +39,7 @@ async function request(path: string, options: RequestInit = {}) {
 }
 
 export async function unlockAdministrator(pin: string): Promise<AdminSession> {
+  if (localAdministratorBypassActive) return localAdministratorSession;
   const normalizedPin = pin.trim();
   if (!normalizedPin) throw new Error('Introdu PIN-ul administrativ.');
   return await request('unlock', {
@@ -39,6 +48,7 @@ export async function unlockAdministrator(pin: string): Promise<AdminSession> {
 }
 
 export async function validateAdministrator(session: AdminSession): Promise<boolean> {
+  if (localAdministratorBypassActive && session.accessToken === localAdministratorSession.accessToken) return true;
   try {
     await request('validate', { method: 'POST', headers: authorization(session) });
     return true;
@@ -46,6 +56,7 @@ export async function validateAdministrator(session: AdminSession): Promise<bool
 }
 
 export async function changeAdministratorPin(session: AdminSession, currentPin: string, newPin: string) {
+  if (localAdministratorBypassActive) throw new Error('Schimbarea PIN-ului este dezactivată în modul local fără PIN.');
   await request('change-pin', {
     method: 'POST',
     headers: { ...authorization(session), 'Content-Type': 'application/json' },

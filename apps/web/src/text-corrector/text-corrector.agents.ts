@@ -115,6 +115,8 @@ function replacementsFor(language: LanguageCode): Array<[RegExp, string]> {
   }
 
   return [
+    [/\bbun[aă] ziua[,]?\s+(?:camion|camioane|camionul)\s+preg[aă]tit\b/giu, 'bună ziua, camionul este pregătit'],
+    [/\b(?:camion|camioane|camionul)\s+preg[aă]tit\b/giu, 'camionul este pregătit'],
     [/\bami\b/gi, 'am'],
     [/\bsalutare\b/gi, 'buna ziua'],
     [/\bmasina\b/gi, 'vehiculul'],

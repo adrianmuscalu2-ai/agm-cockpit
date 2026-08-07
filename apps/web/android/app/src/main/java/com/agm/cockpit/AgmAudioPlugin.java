@@ -12,6 +12,7 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.speech.tts.Voice;
 import android.util.Log;
 
 import com.getcapacitor.JSObject;
@@ -24,6 +25,8 @@ import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 
 @CapacitorPlugin(
@@ -32,6 +35,7 @@ import java.util.Locale;
 )
 public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextToSpeech.OnInitListener {
     private static final String TAG = "AGM-Audio";
+    private static final String GOOGLE_TTS_ENGINE = "com.google.android.tts";
     private SpeechRecognizer speechRecognizer;
     private PluginCall listeningCall;
     private TextToSpeech textToSpeech;
@@ -136,7 +140,13 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         pendingSpeechText = text;
         pendingSpeechLanguage = language;
         if (textToSpeech == null) {
-            textToSpeech = new TextToSpeech(getContext(), this);
+            if (isPackageInstalled(GOOGLE_TTS_ENGINE)) {
+                Log.i(TAG, "Using Google Speech Services for AGM voice playback");
+                textToSpeech = new TextToSpeech(getContext(), this, GOOGLE_TTS_ENGINE);
+            } else {
+                Log.i(TAG, "Google Speech Services unavailable; using the device default TTS engine");
+                textToSpeech = new TextToSpeech(getContext(), this);
+            }
         } else {
             speakPendingText();
         }
@@ -173,9 +183,62 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
             rejectPendingSpeech("TTS language is unavailable: " + pendingSpeechLanguage, "TTS_LANGUAGE_UNAVAILABLE");
             return;
         }
+        selectPreferredVoice(locale);
+        int pitchResult = textToSpeech.setPitch(0.82f);
+        if (pitchResult == TextToSpeech.ERROR) {
+            Log.w(TAG, "Could not apply the AGM adult voice pitch");
+        }
+        int speechRateResult = textToSpeech.setSpeechRate(0.95f);
+        if (speechRateResult == TextToSpeech.ERROR) {
+            Log.w(TAG, "Could not apply the AGM reduced TTS speech rate");
+        }
         int result = textToSpeech.speak(pendingSpeechText, TextToSpeech.QUEUE_FLUSH, null, "agm-tts");
         if (result == TextToSpeech.ERROR) {
             rejectPendingSpeech("Android Text-to-Speech could not start", "TTS_START_FAILED");
+        }
+    }
+
+    private void selectPreferredVoice(Locale locale) {
+        if (textToSpeech.getVoices() == null) return;
+
+        List<Voice> matchingVoices = new ArrayList<>();
+        for (Voice voice : textToSpeech.getVoices()) {
+            if (!locale.getLanguage().equals(voice.getLocale().getLanguage())) continue;
+            if (voice.getFeatures().contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)) continue;
+            matchingVoices.add(voice);
+        }
+
+        matchingVoices.sort(
+            Comparator
+                .comparingInt((Voice voice) -> adultMaleVoicePreference(voice, locale)).reversed()
+                .thenComparing(Voice::getName)
+        );
+
+        if (!matchingVoices.isEmpty()) {
+            Voice selectedVoice = matchingVoices.get(0);
+            if (textToSpeech.setVoice(selectedVoice) == TextToSpeech.SUCCESS) {
+                Log.i(TAG, "Selected AGM adult TTS voice=" + selectedVoice.getName() + "; locale=" + locale.toLanguageTag());
+            }
+        }
+    }
+
+    private int adultMaleVoicePreference(Voice voice, Locale locale) {
+        String name = voice.getName().toLowerCase(Locale.ROOT);
+        int score = voice.getQuality();
+        if (name.contains("male")) score += 2000;
+        if (Locale.GERMAN.getLanguage().equals(locale.getLanguage()) && name.contains("de-de-x-deb")) score += 1000;
+        if (Locale.ENGLISH.getLanguage().equals(locale.getLanguage()) && name.contains("en-us-x-iom")) score += 1000;
+        if ("ro".equals(locale.getLanguage()) && name.contains("ro-ro-x-vfv")) score += 1000;
+        if (!voice.isNetworkConnectionRequired()) score += 100;
+        return score;
+    }
+
+    private boolean isPackageInstalled(String packageName) {
+        try {
+            getContext().getPackageManager().getPackageInfo(packageName, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException error) {
+            return false;
         }
     }
 

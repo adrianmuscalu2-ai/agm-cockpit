@@ -1,0 +1,57 @@
+import type { KnowledgeItem, KnowledgePackage } from './knowledge.contract';
+
+const checked = '2026-08-02';
+const due = '2026-11-02';
+const jurisdiction = 'CMR/e-CMR numai pentru ruta și statele aplicabile; ADR, vama și dreptul național se verifică separat';
+const ref = (sourceId: string, locator: string) => ({ sourceId, locator });
+const make = (id: string, topic: string, legalRule: string, practicalExplanation: string, example: string, mistake: string, sourceReferences: KnowledgeItem['sourceReferences']): KnowledgeItem => ({
+  id, topic, legalRule, practicalExplanation, examples: [example], commonMistakes: [mistake], sourceReferences,
+  jurisdiction, verifiedAt: checked, reviewDueAt: due,
+});
+
+export const transportDocumentsKnowledgePackage: KnowledgePackage = {
+  id: 'KB-LEGAL-TRANSPORT-DOCS-001', domain: 'legislation.transport-documents', title: 'Documente de transport — CMR și e-CMR',
+  jurisdiction, verifiedAt: checked, reviewDueAt: due, version: '0.1.3', status: 'published',
+  sources: [
+    { id: 'UN-CMR-001', title: 'UN Treaty Collection — Convenția CMR', url: 'https://treaties.un.org/pages/ViewDetails.aspx?chapter=11&clang=_en&mtdsg_no=XI-B-11&src=TREATY', official: true, reachable: true, checkedAt: checked, reviewDueAt: due },
+    { id: 'UN-ECMR-001', title: 'UNECE — Protocolul adițional e-CMR', url: 'https://unece.org/DAM/trans/conventn/e-CMRe.pdf', official: true, reachable: true, checkedAt: checked, reviewDueAt: due },
+    { id: 'UN-ECMR-STATUS', title: 'UN Treaty Collection — statut e-CMR', url: 'https://treaties.un.org/Pages/ViewDetails.aspx?chapter=11&clang=_en&mtdsg_no=XI-B-11-b&src=TREATY', official: true, reachable: true, checkedAt: checked, reviewDueAt: due },
+    { id: 'EU-EFTI-001', title: 'Regulamentul (UE) 2020/1056 — consolidat 09.01.2025', url: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02020R1056-20250109', official: true, reachable: true, checkedAt: checked, reviewDueAt: due },
+  ],
+  items: [
+    make('DOC-000', 'Domeniu CMR', 'CMR se aplică transportului rutier contra cost când preluarea și livrarea din contract sunt în țări diferite și cel puțin una este stat contractant, indiferent de domiciliul ori naționalitatea părților. Sunt excluse transporturile poștale sub convenții internaționale, funerare și mutările de mobilier.', 'Verifică ruta, statele și tipul transportului.', 'O cursă internă nu devine CMR doar fiindcă operatorul este străin.', 'Orice transport cu camion este considerat automat CMR.', [ref('UN-CMR-001', 'art. 1')]),
+    make('DOC-001', 'Rolul CMR', 'Lipsa, neregularitatea sau pierderea scrisorii nu afectează existența ori valabilitatea contractului.', 'Folosește CMR ca document probator, nu ca autorizație universală.', 'Pierderea exemplarului se escaladează, dar contractul nu dispare.', 'CMR este confundat cu toate permisele speciale.', [ref('UN-CMR-001', 'art. 4')]),
+    make('DOC-002', 'CMR pe hârtie: exemplare și semnături', 'CMR pe hârtie are trei originale semnate: expeditor, marfă și transportator. Tipărirea/ștampilarea semnăturilor este permisă numai de legea țării întocmirii. Se pot cere scrisori separate pentru fiecare vehicul, tip ori lot.', 'Confirmă exemplarul care însoțește marfa și semnăturile; regula foilor nu se transpune literal la e-CMR.', 'Două vehicule cu loturi distincte pot cere scrisori separate.', 'O fotografie incompletă este folosită ca unic exemplar.', [ref('UN-CMR-001', 'art. 5')]),
+    make('DOC-003', 'Date obligatorii', 'Art. 6(1) cere data/locul, expeditorul, transportatorul, preluarea/livrarea, destinatarul, natura și ambalarea mărfii, inclusiv denumirea recunoscută a mărfurilor periculoase, coletele/marcajele, masa/cantitatea, costurile, formalitățile și mențiunea CMR.', 'Compară documentul cu marfa și comanda; escaladează golurile sau contradicțiile.', 'Destinatarul diferă de comandă: se cere clarificare trasabilă.', 'Un câmp comercial necunoscut este completat din memorie.', [ref('UN-CMR-001', 'art. 6(1)')]),
+    make('DOC-004', 'Date suplimentare și alte mențiuni', 'Art. 6(2) cere, când se aplică, transbordarea, costurile expeditorului, rambursul, valoarea/interesul, asigurarea, termenul și documentele predate. Separat, art. 6(3) permite alte mențiuni convenite.', 'Stabilește ce element art. 6(2) se aplică; adaugă alte mențiuni numai prin acord.', 'Rambursul aplicabil se înscrie; o notă internă opțională este separată.', 'Toate câmpurile suplimentare sunt tratate ca facultative.', [ref('UN-CMR-001', 'art. 6(2)'), ref('UN-CMR-001', 'art. 6(3)')]),
+    make('DOC-005', 'Verificare la preluare și rezerve', 'Transportatorul verifică numărul, marcajele și numerele coletelor și starea aparentă. Lipsa mijloacelor rezonabile permite rezerve motivate. Rezervele nu obligă expeditorul fără acceptare expresă. Expeditorul poate cere verificarea masei/cantității ori conținutului, cu rezultatul înscris și cheltuielile sale.', 'Descrie concret diferența, consemnează acceptarea expresă și folosește fotografia doar suplimentar.', '„Ambalaj rupt, colet 4” este concret; „sub rezerva controlului” nu.', 'Fotografia fără rezervă și acceptare este considerată suficientă.', [ref('UN-CMR-001', 'art. 8')]),
+    make('DOC-006', 'Efect probator', 'CMR este dovadă prima facie; fără rezerve se prezumă starea aparentă bună și concordanța coletelor.', 'Leagă rezervele și dovezile de documentul corect.', 'Zece colete fără rezervă generează prezumția preluării lor.', 'Lipsa rezervelor este considerată fără efect.', [ref('UN-CMR-001', 'art. 9')]),
+    make('DOC-007', 'Vamă și formalități', 'Expeditorul furnizează documentele/informațiile și răspunde pentru lipsa ori neregularitatea lor. Transportatorul nu le verifică exactitatea/suficiența, dar răspunde pentru pierderea ori folosirea incorectă a celor încredințate; despăgubirea nu depășește suma datorată la pierderea mărfii.', 'Șoferul confirmă predarea și escaladează lipsurile, fără a certifica validitatea juridică.', 'Lipsește un document enumerat: operatorul este contactat înainte de plecare.', 'Șoferului i se atribuie automat verificarea juridică.', [ref('UN-CMR-001', 'art. 11')]),
+    make('DOC-008', 'Dreptul de dispoziție și instrucțiuni', 'Expeditorul dispune până la predarea celui de-al doilea exemplar ori exercitarea art. 13(1); destinatarul numai în condițiile art. 12(3). Exercitarea cere primul exemplar, noile instrucțiuni și despăgubirea transportatorului. Instrucțiunea trebuie să fie executabilă, să nu perturbe sau prejudicieze alte expediții și să nu dividă expediția.', 'Verifică titularul, exemplarul, fezabilitatea și notifică imediat imposibilitatea executării.', 'Schimbarea destinației dintr-un mesaj neverificat se escaladează.', 'Instrucțiunea informală se execută direct.', [ref('UN-CMR-001', 'art. 12')]),
+    make('DOC-009', 'Livrare și rezerve la destinație', 'Destinatarul poate cere al doilea exemplar și marfa contra dovezii. Pentru daună aparentă: rezervă cel târziu la predare; neaparentă: scris, 7 zile de la livrare, fără duminici/sărbători; întârziere: scris, 21 zile de la punerea la dispoziție. După verificarea comună, proba contrară rezultatului este admisibilă numai pentru daună neaparentă și numai dacă destinatarul formulează rezervă scrisă în același termen de 7 zile. Rezerva nu dovedește singură răspunderea.', 'Identifică persoana și consemnează data/ora, starea, rezerva sau refuzul.', 'Deteriorarea vizibilă se consemnează la livrare.', 'Se semnează fără identificare și fără observații.', [ref('UN-CMR-001', 'art. 13'), ref('UN-CMR-001', 'art. 30')]),
+    make('DOC-010', 'e-CMR', 'e-CMR conform are aceeași valoare și efect. Art. 3 cere semnătură electronică fiabilă legată de document ori altă metodă permisă de legea țării întocmirii; art. 4 cere integritate și modificări trasabile; art. 5 cere proceduri convenite pentru emitere, acces, completare, modificare, reproducere și prezentare.', 'Verifică statele concrete, procedurile părților și accesul la document și istoric.', 'La control se poate reproduce și prezenta documentul cu istoricul.', 'Orice PDF scanat este considerat e-CMR.', [ref('UN-ECMR-001', 'art. 2'), ref('UN-ECMR-001', 'art. 3'), ref('UN-ECMR-001', 'art. 4'), ref('UN-ECMR-001', 'art. 5'), ref('UN-ECMR-STATUS', 'status of parties')]),
+    make('DOC-011', 'eFTI versus e-CMR', 'eFTI privește informațiile reglementate art. 2 schimbate între operatori și cu autorități. Operatorii nu trebuie în general să folosească electronic; acceptarea autorităților operează în condițiile Regulamentului. eFTI nu creează/înlocuiește CMR, iar conformitatea eFTI nu dovedește e-CMR.', 'Identifică instrumentul și scopul platformei.', 'Datele eFTI pot exista fără un e-CMR conform.', 'Orice document electronic este echivalat cu e-CMR.', [ref('EU-EFTI-001', 'art. 1–5')]),
+    make('DOC-012', 'Răspunderea pentru date', 'Expeditorul răspunde pentru inexactitatea/insuficiența datelor art. 6(1)(b),(d),(e),(f),(g),(h),(j), art. 6(2) și a altor instrucțiuni. Dacă transportatorul le înscrie la cererea expeditorului, se prezumă că acționează în numele lui, până la proba contrară.', 'Nu inventa date; consemnează cine a transmis modificarea.', 'Schimbarea masei se face prin flux autorizat și trasabil.', 'Persoana care tastează preia automat răspunderea.', [ref('UN-CMR-001', 'art. 7')]),
+    make('DOC-013', 'Ambalare defectuoasă', 'Expeditorul răspunde pentru daunele/cheltuielile ambalării defectuoase, exceptând defectul aparent ori cunoscut la preluare fără rezervă a transportatorului.', 'Inspectează starea aparentă și înscrie rezerva.', 'Paletul vizibil instabil se descrie înainte de plecare.', 'Ambalajul evident defect este acceptat fără rezervă.', [ref('UN-CMR-001', 'art. 10')]),
+    make('DOC-014', 'Impedimente la transport sau livrare', 'Dacă nu obține instrucțiuni în timp rezonabil și poate continua diferit, transportatorul ia măsuri în interesul persoanei îndreptățite. La livrare instrucțiunile vin de regulă de la expeditor, ori destinatar după art. 12(3); la refuz, expeditorul poate dispune fără primul exemplar, iar destinatarul poate cere livrarea până la instrucțiuni contrare. Cheltuielile se rambursează, exceptând culpa transportatorului; descărcarea/custodia sunt permise, iar vânzarea numai în condițiile art. 16(3)–(4).', 'Notifică, cere instrucțiuni trasabile și documentează măsurile/costurile; nu abandona, returna ori vinde informal.', 'Destinația este blocată: operatorul este notificat și se urmează măsurile CMR.', 'Șoferul decide unilateral alt loc de livrare.', [ref('UN-CMR-001', 'art. 14–16')]),
+  ],
+  history: [
+    { version: '0.1.0', changedAt: checked, author: 'Documentation Owner', summary: 'Candidat inițial, blocat.' },
+    { version: '0.1.1', changedAt: checked, author: 'Documentation Owner', summary: 'Corecții Domain, Legal și QA.' },
+    { version: '0.1.2', changedAt: checked, author: 'Documentation Owner', summary: 'ID-uri stabile restaurate; art. 7, 11, 14–16 și 30 completate.' },
+    { version: '0.1.3', changedAt: checked, author: 'Documentation Owner', summary: 'Regula verificării comune art. 30(2) corectată; testul ID-topic întărit.' },
+  ],
+  validation: {
+    domainReviewed: true,
+    legalReviewed: true,
+    qaReviewed: true,
+    domainValidator: 'Domain Owner — Independent Review',
+    legalValidator: 'Agent Legal — Independent Review',
+    qaValidator: 'QA Editorial Independent',
+    domainReviewedAt: checked,
+    legalReviewedAt: checked,
+    qaReviewedAt: checked,
+    holdReasons: [],
+    contradictions: [],
+  },
+};

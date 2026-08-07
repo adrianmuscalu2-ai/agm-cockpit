@@ -14,7 +14,7 @@ const ocrLanguageByAgmLanguage: Record<LanguageCode, string> = {
 };
 
 export async function recognizeTextFromImage(image: Blob | File, language: LanguageCode): Promise<OcrRecognitionResult> {
-  const preparedImage = await prepareImageForOcr(image);
+  const preparedImages = await prepareImagesForOcr(image);
   const supportedLanguages: LanguageCode[] = ['ro', 'de', 'en'];
   const languages = [language, ...supportedLanguages]
     .map((code) => ocrLanguageByAgmLanguage[code])
@@ -27,15 +27,18 @@ export async function recognizeTextFromImage(image: Blob | File, language: Langu
       tessedit_pageseg_mode: PSM.AUTO,
       preserve_interword_spaces: '1',
     });
-    const result = await worker.recognize(preparedImage);
-    const text = normalizeOcrText(result.data.text);
-    const confidence = Math.round(result.data.confidence);
+    const firstResult = await recognizePreparedImage(worker, preparedImages.grayscale);
+    if (firstResult.isUsable) return firstResult;
 
-    return {
-      text,
-      confidence,
-      isUsable: isUsableOcrResult(text, confidence),
-    };
+    // Small LCD messages are often a tiny, isolated text region in a much larger
+    // dashboard photo. A high-contrast sparse-text pass gives Tesseract a second
+    // chance without inventing or supplementing any OCR content.
+    await worker.setParameters({
+      tessedit_pageseg_mode: PSM.SPARSE_TEXT,
+      preserve_interword_spaces: '1',
+    });
+    const displayResult = await recognizePreparedImage(worker, preparedImages.highContrast);
+    return preferOcrResult(firstResult, displayResult);
   } finally {
     await worker.terminate();
   }
@@ -59,7 +62,7 @@ export function isUsableOcrResult(text: string, confidence: number) {
   const fragmentRatio = tokens.filter((token) => token.length === 1).length / Math.max(1, tokens.length);
   const averageTokenLength = tokens.reduce((total, token) => total + token.length, 0) / Math.max(1, tokens.length);
 
-  if (confidence < 40 || usefulCharacters.length < 3 || meaningfulTokens.length === 0) {
+  if (confidence <= 40 || usefulCharacters.length < 3 || meaningfulTokens.length === 0) {
     return false;
   }
 
@@ -72,10 +75,36 @@ export function isUsableOcrResult(text: string, confidence: number) {
     return false;
   }
 
+  // Short camera noise can contain one plausible word surrounded by isolated
+  // glyphs. Treat that shape as uncertain so the user must correct/confirm it.
+  if (tokens.length >= 4 && fragmentRatio > 0.45 && averageTokenLength < 3) {
+    return false;
+  }
+
   return true;
 }
 
-async function prepareImageForOcr(image: Blob | File): Promise<Blob> {
+async function recognizePreparedImage(
+  worker: Awaited<ReturnType<typeof createWorker>>,
+  image: Blob,
+): Promise<OcrRecognitionResult> {
+  const result = await worker.recognize(image);
+  const text = normalizeOcrText(result.data.text);
+  const confidence = Math.round(result.data.confidence);
+  return { text, confidence, isUsable: isUsableOcrResult(text, confidence) };
+}
+
+function preferOcrResult(first: OcrRecognitionResult, second: OcrRecognitionResult) {
+  if (second.isUsable && !first.isUsable) return second;
+  if (first.isUsable && !second.isUsable) return first;
+  const firstUsefulLength = (first.text.match(/[\p{L}\p{N}]/gu) ?? []).length;
+  const secondUsefulLength = (second.text.match(/[\p{L}\p{N}]/gu) ?? []).length;
+  return secondUsefulLength > firstUsefulLength || (
+    secondUsefulLength === firstUsefulLength && second.confidence > first.confidence
+  ) ? second : first;
+}
+
+async function prepareImagesForOcr(image: Blob | File): Promise<{ grayscale: Blob; highContrast: Blob }> {
   const bitmap = await createImageBitmap(image);
 
   try {
@@ -87,7 +116,7 @@ async function prepareImageForOcr(image: Blob | File): Promise<Blob> {
 
     const context = canvas.getContext('2d', { willReadFrequently: true });
     if (!context) {
-      return image;
+      return { grayscale: image, highContrast: image };
     }
 
     context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
@@ -95,9 +124,48 @@ async function prepareImageForOcr(image: Blob | File): Promise<Blob> {
     applyAdaptiveGrayscale(pixels.data);
     context.putImageData(pixels, 0, 0);
 
-    return (await canvasToBlob(canvas)) ?? image;
+    const grayscale = (await canvasToBlob(canvas)) ?? image;
+    applyOtsuThreshold(pixels.data);
+    context.putImageData(pixels, 0, 0);
+    const highContrast = (await canvasToBlob(canvas)) ?? grayscale;
+    return { grayscale, highContrast };
   } finally {
     bitmap.close();
+  }
+}
+
+function applyOtsuThreshold(pixels: Uint8ClampedArray) {
+  const histogram = new Uint32Array(256);
+  for (let index = 0; index < pixels.length; index += 4) histogram[pixels[index]] += 1;
+
+  const pixelCount = pixels.length / 4;
+  let totalSum = 0;
+  for (let value = 0; value < 256; value += 1) totalSum += value * histogram[value];
+
+  let backgroundWeight = 0;
+  let backgroundSum = 0;
+  let bestVariance = -1;
+  let threshold = 127;
+  for (let value = 0; value < 256; value += 1) {
+    backgroundWeight += histogram[value];
+    if (backgroundWeight === 0) continue;
+    const foregroundWeight = pixelCount - backgroundWeight;
+    if (foregroundWeight === 0) break;
+    backgroundSum += value * histogram[value];
+    const backgroundMean = backgroundSum / backgroundWeight;
+    const foregroundMean = (totalSum - backgroundSum) / foregroundWeight;
+    const variance = backgroundWeight * foregroundWeight * (backgroundMean - foregroundMean) ** 2;
+    if (variance > bestVariance) {
+      bestVariance = variance;
+      threshold = value;
+    }
+  }
+
+  for (let index = 0; index < pixels.length; index += 4) {
+    const value = pixels[index] <= threshold ? 0 : 255;
+    pixels[index] = value;
+    pixels[index + 1] = value;
+    pixels[index + 2] = value;
   }
 }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'agm-cockpit-1.2.9';
+const CACHE_NAME = 'agm-cockpit-1.3.0';
 const APP_SHELL = ['/', '/manifest.webmanifest', '/images/images/logo1.png'];
 
 self.addEventListener('install', (event) => {

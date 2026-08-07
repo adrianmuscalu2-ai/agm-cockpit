@@ -36,4 +36,13 @@ const empty = correctText({
 assert.equal(empty.correctedText, '');
 assert.ok(empty.warnings.includes('textCorrector.warning.mvpAgent'));
 
+const dictatedTransportPhrase = correctText({
+  text: 'Bună ziua camioane pregătit',
+  sourceLanguage: 'ro',
+  targetLanguage: 'de',
+  mode: 'correction',
+  sourceModule: 'translator',
+});
+assert.equal(dictatedTransportPhrase.correctedText, 'Bună ziua, camionul este pregătit.');
+
 console.log('APP-006 Text Corrector routing, normalization, provenance and modes: PASS');

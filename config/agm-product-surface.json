@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "product": "AGM Cockpit",
+  "latestHistoricalBaseline": "1.2.9",
+  "historicalBaselines": ["1.2.6", "1.2.9"],
+  "appVersionLabel": "A.G.M. Cockpit 1.3.0",
+  "browserApplicationAvailability": "not-open",
+  "apiUrl": "https://api.agmcockpit.com/api/v1",
+  "androidDownloadPath": "/downloads/AGM-Cockpit-Android-1.3.0.apk",
+  "accessPremiumCandidate": "f448a16",
+  "currentDevelopmentVersion": "1.3.0",
+  "publicReleaseStatus": "not-open",
+  "websiteStatus": "local-only"
+}

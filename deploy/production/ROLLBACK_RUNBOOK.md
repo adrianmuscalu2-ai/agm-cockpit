@@ -4,7 +4,7 @@ Status: prepared for controlled rehearsal; production execution requires separat
 
 ## Immutable identities
 
-- API image: `agm-api@sha256:b949e5dd986a4b654f4af8f58b891d714593f46ac84702e90dae623488e44a3e`
+- API image: `agm-api@sha256:c232624416236ede00aa992369e8c519668694399fff1d9266de19da0db4d43c`
 - OCI revision: `9956eb188fdd988bf0d7af93241c3c43962d9b39`
 - Compose project: `agm-production`
 - API container: `agm-production-api`

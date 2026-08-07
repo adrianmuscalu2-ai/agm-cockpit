@@ -9,6 +9,9 @@ import { operationsHealthSources } from './operations-health';
 import { renderMonitoringDepartment } from './monitoring-department';
 import { renderTurnOrganizationChart } from './turn-organization-chart';
 import { turnCommandCenterContract } from './turn-command-center.contract';
+import { currentProductionPreflightSnapshot, renderProductionPreflight } from './production-preflight';
+import { activateIncidentRoute, routeIncident } from './incident-routing.registry';
+import { renderStatusLight } from './turn-status-lights';
 import {
   type TurnCommandItem,
   type TurnHealthStatus,
@@ -48,11 +51,12 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       data-module-contract="${turnCommandCenterContract.version}"
       data-operation-mode="${turnCommandCenterContract.mode}"
     >
-      ${renderCentralAlertPanel(incidents)}
+      ${renderExecutionReadinessGate(incidents)}
+      ${renderActiveOperationsIncident(incidents)}
+      ${renderProductionPreflight()}
       ${renderOperationsCenter(incidents)}
       ${renderMonitoringDepartment(incidents)}
       ${renderTurnOrganizationChart()}
-      ${renderOperationsProcedures()}
       <header class="turn-hero">
         <div>
           <span class="turn-kicker">${escapeHtml(t(language, 'turn.code'))}</span>
@@ -143,13 +147,52 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
   `;
 }
 
-function renderOperationsProcedures() {
-  return `<section class="operations-procedures turn-card" id="turn-procedures"><header><strong>Proceduri operaționale</strong><p>Runbook pentru incidentul „Server principal indisponibil”.</p></header><ol><li>Confirmă health-check-ul și identifică durata incidentului.</li><li>Deschide incidentul și notifică responsabilul Release & Operations.</li><li>Verifică serviciile Docker și endpointul API.</li><li>Activează serverul backup numai după aprobarea Inspectorului.</li><li>Confirmă funcționarea pe backup și monitorizează revenirea serverului principal.</li><li>Revino controlat pe principal, verifică stabilitatea și arhivează istoricul.</li></ol></section>`;
+export function renderActiveOperationsIncident(incidents: OperationalIncident[]) {
+  const active = incidents
+    .filter((incident) => !['validated', 'archived'].includes(incident.status))
+    .sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || b.updatedAt.localeCompare(a.updatedAt));
+  const incident = active[0];
+  if (!incident) return `<section class="active-operations-incident normal" id="turn-alerts"><header><div><span class="turn-kicker">TURN · OPERATIONS</span><h2>Niciun incident activ</h2></div>${renderStatusLight('incident', undefined)}</header><p>Incidentele închise sunt disponibile exclusiv în jurnal și arhivă.</p></section>`;
+
+  const route = routeIncident(incident);
+  const snapshot = currentProductionPreflightSnapshot();
+  const passed = snapshot?.checks.filter((check) => check.status === 'PASS').length ?? 0;
+  const total = snapshot?.checks.length ?? 0;
+  const activations = route ? activateIncidentRoute(route) : [];
+
+  return `<section class="active-operations-incident ${escapeHtml(incident.severity)}" id="turn-alerts" aria-live="polite">
+    <header><div><span class="turn-kicker">INCIDENT OPERAȚIONAL ACTIV</span><h2>${escapeHtml(incident.id)} · ${escapeHtml(incident.module)}</h2><p>${escapeHtml(incident.symptom)}</p></div>${renderStatusLight('incident', incident.status)}</header>
+    <div class="active-incident-grid">
+      <article><strong>Responsabilități activate</strong><dl><div><dt>Owner</dt><dd>${escapeHtml(route?.owner ?? incident.owner)}</dd></div><div><dt>Executor</dt><dd>${escapeHtml(route?.executor ?? 'Nedesemnat')}</dd></div><div><dt>Guardian</dt><dd>${escapeHtml(route?.guardian ?? 'Nedesemnat')}</dd></div><div><dt>Validator</dt><dd>${escapeHtml(route?.validator ?? 'Nedesemnat')}</dd></div></dl><p>${activations.length} activări corelate automat.</p></article>
+      <article><strong>Production în timp real</strong><p class="recovery-progress">${snapshot ? `${passed}/${total} verificări PASS · ${snapshot.overallStatus}` : 'Telemetrie preflight indisponibilă'}</p><progress max="${Math.max(total, 1)}" value="${passed}">${passed}/${total}</progress><small>${snapshot ? `Ultima verificare: ${escapeHtml(new Date(snapshot.checkedAt).toLocaleString())}` : 'Starea nu este dedusă.'}</small></article>
+      <article id="turn-procedures"><strong>Procedura incidentului curent</strong>${route ? `<p>${escapeHtml(route.recoveryChannel)}</p><ol>${route.procedure.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ol><small>${escapeHtml(route.privilegedAction)}</small>` : '<p>Nu există încă o rută executabilă pentru acest incident. Escaladare către Turn Operations.</p>'}</article>
+    </div>
+    <nav class="central-alert-actions"><a href="#production-preflight">Preflight</a><a href="#incident-journal">Jurnal tehnic</a><a href="#turn-monitoring">Monitorizare</a></nav>
+  </section>`;
+}
+
+export function renderExecutionReadinessGate(incidents: OperationalIncident[]) {
+  const active = incidents.filter((incident) => !['validated', 'archived'].includes(incident.status));
+  const snapshot = currentProductionPreflightSnapshot();
+  const preflightPass = Boolean(snapshot && snapshot.overallStatus === 'READY' && snapshot.checks.every((check) => check.status === 'PASS'));
+  const routes = active.map(routeIncident).filter((route): route is NonNullable<typeof route> => Boolean(route));
+  const agents = new Map<string, { role: string; status: 'PASS' | 'HOLD' }>();
+  routes.flatMap(activateIncidentRoute).forEach((activation) => agents.set(`${activation.agentId}:${activation.role}`, { role: `${activation.agentId} · ${activation.role}`, status: 'HOLD' }));
+  if (!routes.length) {
+    ['release-operations · owner', 'secret-credentials-guardian · guardian', 'agent-inspector · validator', 'monitor-incidents · monitor'].forEach((role) => agents.set(role, { role, status: preflightPass ? 'PASS' : 'HOLD' }));
+  }
+  const ready = executionGateReady(incidents, snapshot) && [...agents.values()].every((agent) => agent.status === 'PASS');
+  return `<section class="execution-readiness-gate ${ready ? 'ready' : 'hold'}" id="turn-execution-gate"><header><div><span class="turn-kicker">POARTĂ OBLIGATORIE PRE-EXECUȚIE</span><h2>${ready ? 'GO ELIGIBLE' : 'HOLD — EXECUȚIA ESTE BLOCATĂ'}</h2></div>${renderStatusLight('incident', active[0]?.status)}</header><p>${ready ? 'Condițiile procedurale sunt PASS; execuția este permisă fără autorizare manuală suplimentară a Product Owner-ului.' : 'Gate-ul rămâne blocat numai de incidente confirmate curent sau de Production Preflight neconform.'}</p><div class="execution-agent-verdicts">${[...agents.values()].map((agent) => `<span class="${agent.status.toLowerCase()}">${escapeHtml(agent.role)} · ${agent.status}</span>`).join('')}</div><div class="gate-status-lights">${renderStatusLight('agent', 'AVAILABLE')}${renderStatusLight('target', snapshot?.overallStatus === 'READY' ? 'READY' : snapshot ? 'DEGRADED' : 'UNKNOWN')}</div><dl><div><dt>Production Preflight</dt><dd>${snapshot ? escapeHtml(snapshot.overallStatus) : 'NOT REPORTED'}</dd></div><div><dt>Autorizare execuție</dt><dd>${ready ? 'PERMISĂ AUTOMAT PRIN PROCEDURĂ' : 'INTERZISĂ'}</dd></div></dl></section>`;
+}
+
+export function executionGateReady(incidents: OperationalIncident[], snapshot = currentProductionPreflightSnapshot()) {
+  const preflightPass = Boolean(snapshot && snapshot.overallStatus === 'READY' && snapshot.checks.every((check) => check.status === 'PASS'));
+  return incidents.every((incident) => ['validated', 'archived'].includes(incident.status)) && preflightPass;
 }
 
 export function renderOperationsCenter(incidents: OperationalIncident[]) {
   const active = incidents.filter((incident) => !['validated', 'archived'].includes(incident.status));
-  return `<section class="operations-center" id="turn-operations" aria-labelledby="operations-center-title"><header><div><span class="turn-kicker">TURN · OPERATIONS</span><h2 id="operations-center-title">Operations Center</h2><p>Starea ecosistemului AGM, cu sursa și momentul ultimei verificări.</p></div><span class="operations-source">Health-check automat · interval 30s · timeout 5s · surse comune UI LIVE</span></header><div class="operations-grid">${operationsHealthSources.map((service) => { const incident = active.find((item) => item.module.toLocaleLowerCase().includes(service.label.toLocaleLowerCase().split(' ')[0])); const initialStatus = service.kind === 'static' ? service.staticStatus ?? 'NOT CONFIGURED' : 'DEGRADED'; const displayStatus = service.displayStatus ?? initialStatus; const state = service.kind === 'static' ? (initialStatus === 'NOT IMPLEMENTED' ? 'not-implemented' : 'unconfigured') : 'attention'; return `<article class="operation-service ${state}" data-operation-id="${escapeHtml(service.id)}"><div class="operation-service-head"><strong class="operation-service-title"><span class="operation-service-icon">⚪</span> ${escapeHtml(service.label)}</strong><span class="operation-service-status">${escapeHtml(displayStatus)}</span></div><dl><div><dt>Ultima verificare</dt><dd class="operation-service-checked">—</dd></div><div><dt>Timp răspuns</dt><dd class="operation-service-latency">—</dd></div><div><dt>Ultima schimbare</dt><dd class="operation-service-changed">—</dd></div><div><dt>Incident activ</dt><dd>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">${escapeHtml(incident.id)}</a>` : 'Niciun incident activ'}</dd></div></dl>${incident ? `<p class="operation-cause">${escapeHtml(incident.symptom)}</p>` : `<span class="operation-source-note">Sursă: ${escapeHtml(service.source)}</span>`}<div class="operation-actions"><button type="button" data-operation-recheck="${escapeHtml(service.id)}" ${service.kind === 'http' ? '' : 'disabled'}>Reverifică</button><a href="#turn-procedures">SOP</a><a href="#incident-journal">Jurnal</a>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">Incident</a>` : ''}</div></article>`; }).join('')}</div></section>`;
+  return `<section class="operations-center" id="turn-operations" aria-labelledby="operations-center-title"><header><div><span class="turn-kicker">TURN · OPERATIONS</span><h2 id="operations-center-title">Operations Center</h2><p>Starea ecosistemului AGM, cu agentul, ținta și incidentul afișate independent.</p></div><span class="operations-source">Health-check automat · interval 30s · stale după 90s · timeout 5s</span></header><div class="operations-grid">${operationsHealthSources.map((service) => { const incident = active.find((item) => item.module.toLocaleLowerCase().includes(service.label.toLocaleLowerCase().split(' ')[0])); const initialStatus = service.kind === 'static' ? service.staticStatus ?? 'NOT CONFIGURED' : 'UNKNOWN'; const displayStatus = service.displayStatus ?? initialStatus; const state = service.kind === 'static' ? (initialStatus === 'NOT IMPLEMENTED' ? 'not-implemented' : 'unconfigured') : 'attention'; return `<article class="operation-service ${state}" data-operation-id="${escapeHtml(service.id)}"><div class="operation-service-head"><strong class="operation-service-title"><span class="operation-service-icon">⚪</span> ${escapeHtml(service.label)}</strong><span class="operation-service-status">${escapeHtml(displayStatus)}</span></div><dl><div><dt>Agent status</dt><dd>${renderStatusLight('agent', service.kind === 'http' ? 'ACTIVE' : 'DEGRADED', 'operation-agent-status')}</dd></div><div><dt>Target status</dt><dd>${renderStatusLight('target', 'UNKNOWN', 'operation-target-status')}</dd></div><div><dt>Incident status</dt><dd>${renderStatusLight('incident', incident?.status, 'operation-incident-status')}</dd></div><div><dt>Data freshness</dt><dd class="operation-service-freshness">UNKNOWN</dd></div><div><dt>Vârsta datelor</dt><dd class="operation-service-age">—</dd></div><div><dt>Ultima verificare</dt><dd class="operation-service-checked">—</dd></div><div><dt>Timp răspuns</dt><dd class="operation-service-latency">—</dd></div><div><dt>Sursa</dt><dd>${escapeHtml(service.source)}</dd></div><div><dt>Ultima schimbare</dt><dd class="operation-service-changed">—</dd></div><div><dt>Incident asociat</dt><dd>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">${escapeHtml(incident.id)}</a>` : 'Niciun incident activ'}</dd></div></dl>${incident ? `<p class="operation-cause">${escapeHtml(incident.symptom)}</p>` : ''}<div class="operation-actions"><button type="button" data-operation-recheck="${escapeHtml(service.id)}" ${service.kind === 'http' ? '' : 'disabled'}>Reverifică</button><a href="#turn-procedures">SOP</a><a href="#incident-journal">Jurnal</a>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">Incident</a>` : ''}</div></article>`; }).join('')}</div></section>`;
 }
 
 export function renderCentralAlertPanel(incidents: OperationalIncident[]) {

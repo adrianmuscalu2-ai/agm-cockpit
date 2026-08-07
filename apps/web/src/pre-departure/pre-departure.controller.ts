@@ -440,6 +440,18 @@ export function mountPreDepartureShell(root: HTMLElement) {
       return;
     }
 
+    if (action === 'share-whatsapp') {
+      const text = `AGM · Înainte de plecare\nStare: ${session.state}\nContexte: ${session.contexts.join(', ')}\nConfirmare: ${session.confirmation?.confirmedAt ?? '-'}`;
+      if (!navigator.share) {
+        feedback = 'Partajarea nu este disponibilă pe acest dispozitiv.';
+      } else {
+        await navigator.share({ title: 'AGM · Înainte de plecare', text });
+        feedback = 'Panoul Share a fost deschis. Selectează WhatsApp și confirmă personal trimiterea.';
+      }
+      draw();
+      return;
+    }
+
     if (action === 'close') {
       const next = transitionPreDeparture(session, { type: 'CLOSE_SESSION' });
       if (!next.applied) return;

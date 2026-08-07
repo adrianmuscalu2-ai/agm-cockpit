@@ -1,0 +1,12 @@
+tunnel: 1c7d88b4-f2bb-40bb-82b0-37da35ee30a9
+credentials-file: /etc/cloudflared/1c7d88b4-f2bb-40bb-82b0-37da35ee30a9.json
+
+ingress:
+  - hostname: api.agmcockpit.com
+    path: ^/api/v1(/.*)?$
+    service: http://127.0.0.1:3000
+  - hostname: api.agmcockpit.com
+    service: http://127.0.0.1:4173
+  - hostname: app.agmcockpit.com
+    service: http://127.0.0.1:4173
+  - service: http_status:404

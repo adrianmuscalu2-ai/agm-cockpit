@@ -17,6 +17,18 @@ await controller.process(new File(['x'], 'x.png', { type: 'image/png' }));
 assert.equal(state.translatorText, 'Text');
 assert.equal(state.ocrConfidence, 98);
 assert.equal(state.isOcrProcessing, false);
+
+const uncertainController = createOcrController({
+  state, render: () => undefined, compress: async () => 'uncertain-image',
+  recognize: async () => ({ text: 'card not valld 48', confidence: 46, isUsable: false }),
+  message: (key) => key, detectLanguage: () => 'en', createId: () => 'id-low',
+  now: () => '2026-08-04T00:00:00.000Z', persist: () => undefined,
+});
+await uncertainController.process(new File(['x'], 'lcd.jpg', { type: 'image/jpeg' }));
+assert.equal(state.ocrExtractedText, 'card not valld 48');
+assert.equal(state.ocrConfidence, 46);
+assert.equal(state.status, 'ocr.status.lowQuality');
+
 controller.saveTranslation('Text', 'Text DE');
 assert.equal(state.ocrHistory.length, 1);
 controller.clearHistory();
