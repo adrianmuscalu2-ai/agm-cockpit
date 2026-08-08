@@ -1,14 +1,31 @@
 @media (max-width: 700px) {
   .quick-language-controls {
     width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
 
   .quick-language-buttons {
-    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(3rem, 1fr));
+    width: 100%;
+    gap: 0.4rem;
+  }
+
+  .quick-language-buttons button {
+    width: 100%;
+    min-width: 0;
+    min-height: 2.5rem;
+    padding: 0.4rem 0.25rem;
+    font-size: 0.9rem;
+    line-height: 1;
+    white-space: nowrap;
+    overflow-wrap: normal;
   }
 
   .quick-language-controls select {
-    flex: 1 1 10rem;
+    width: 100%;
     max-width: 100%;
   }
   .monitoring-department > header { flex-direction: column; }
@@ -707,18 +724,17 @@
 
   .module-strip {
     display: grid;
-    grid-template-columns: minmax(104px, 0.36fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 8px;
     padding: 7px;
   }
 
   .module-nav {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 7px;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
-    scrollbar-width: none;
-    scroll-snap-type: inline proximity;
+    width: 100%;
+    overflow: visible;
   }
 
   .module-nav::-webkit-scrollbar,
@@ -727,8 +743,8 @@
   }
 
   .module-nav button {
-    flex: 0 0 96px;
-    scroll-snap-align: start;
+    width: 100%;
+    min-width: 0;
   }
 
   .profile-chip {
@@ -742,12 +758,21 @@
 
   .module-nav button {
     min-height: 48px;
-    padding: 9px 10px;
+    padding: 9px 5px;
     overflow-wrap: normal;
+    justify-items: center;
+    font-size: 0.82rem;
   }
 
   .nav-code {
-    font-size: 10px;
+    display: none;
+  }
+
+  .module-nav button > span:last-child {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .ready-badge strong {

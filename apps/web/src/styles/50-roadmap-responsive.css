@@ -73,17 +73,20 @@
   }
 
   .home-language-control {
-    flex-basis: 56px;
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
   }
 
   .home-profile-control {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     width: 100%;
-    justify-content: space-between;
     gap: 6px;
   }
 
   .home-profile-control select {
-    width: 56px;
+    width: 100%;
     padding-inline: 6px;
   }
 
@@ -95,6 +98,9 @@
     border-left: 0;
     border: 1px solid #24435d;
     border-radius: 7px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .home-profile-control strong {
