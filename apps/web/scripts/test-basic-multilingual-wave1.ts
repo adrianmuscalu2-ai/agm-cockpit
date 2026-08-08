@@ -35,6 +35,23 @@ for (const language of ['fr', 'nl', 'ru', 'pl', 'tr', 'sq'] as const) {
   assert.ok(appI18nDictionary[language]?.['language.favorites']);
 }
 
+const basicPrefixes = ['home.', 'basic.', 'advanced.', 'warning.', 'nav.', 'header.', 'language.', 'translator.', 'mail.', 'ocr.', 'profile.', 'contact.', 'textCorrector.', 'tutorial.', 'roadmap.', 'legal.', 'about.', 'module.', 'app.', 'command.', 'common.', 'ready.', 'status.'];
+const basicKeys = Object.keys(appI18nDictionary.en ?? {}).filter((key) => basicPrefixes.some((prefix) => key.startsWith(prefix)));
+for (const language of expected) {
+  const catalog = appI18nDictionary[language] ?? {};
+  const missing = basicKeys.filter((key) => !catalog[key]?.trim());
+  assert.deepEqual(missing, [], `${language} missing Basic i18n keys: ${missing.join(', ')}`);
+}
+for (const language of ['fr', 'nl', 'ru', 'pl', 'tr', 'sq'] as const) {
+  const catalog = appI18nDictionary[language] ?? {};
+  const unjustifiedEnglish = basicKeys.filter((key) => {
+    const value = catalog[key]?.trim();
+    const english = appI18nDictionary.en?.[key]?.trim();
+    return value === english && Boolean(english && english.length >= 30 && english.trim().split(/\s+/).length >= 5) && !/(A\.G\.M\.|AGM|Google Play|Capacitor|Vite|TypeScript|Tesseract|WhatsApp)/.test(english);
+  });
+  assert.ok(unjustifiedEnglish.length <= 3, `${language} has unjustified EN fallbacks: ${unjustifiedEnglish.join(', ')}`);
+}
+
 const profile = normalizeProfile({ ...defaultProfile(), preferredLanguage: 'ru', favoriteLanguages: ['fr', 'ru', 'pl', 'tr'] });
 assert.equal(profile.preferredLanguage, 'ru');
 assert.deepEqual(profile.favoriteLanguages, ['fr', 'ru', 'pl']);
@@ -56,5 +73,14 @@ const main = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
 assert.match(main, /normalizeQuickLanguages/);
 assert.match(main, /data-more-language/);
 assert.doesNotMatch(main, /\['ro', 'de', 'en', 'fr'/);
+const basicHubSource = main.slice(main.indexOf('function renderBasicHub'), main.indexOf('function ocrPageCopy'));
+for (const literal of ['Traducător contextual', 'Analizează document', 'Analizează tahograf', 'Validat</em>', 'Deschide</span>', 'Ancorarea mărfii']) {
+  assert.ok(!basicHubSource.includes(literal), `Hardcoded Basic user text remains: ${literal}`);
+}
+const advancedSource = main.slice(main.indexOf('function renderOcrPage'), main.indexOf('function renderBasicPlanned'));
+for (const literal of ['Text extras —', 'Text confirmat.', 'Confirmă textul', 'Ce am identificat', 'Ce înseamnă', 'Ce faci acum', 'Severitate prudentă', 'Limitări', 'Trimite la Traducător', 'Pregătește Email', 'Refă fotografia', 'Fotografiază martorul']) {
+  assert.ok(!advancedSource.includes(literal), `Hardcoded advanced user text remains: ${literal}`);
+}
+assert.ok(!main.includes("limitations: ['Serviciul Vision nu este disponibil."), 'Hardcoded Vision fallback remains');
 
 console.log('AGM Basic multilingual Wave 1 contract: PASS');

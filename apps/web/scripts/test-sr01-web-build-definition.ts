@@ -17,10 +17,7 @@ const transformed = definition.plugins[0].transformIndexHtml(source, {
   path: '/index.html',
 });
 assert.match(transformed, /data-poc02-entry="after-departure"/);
-assert.match(
-  transformed,
-  /POC 02 · După Plecare \/ Nach der Abfahrt \/ After Departure/,
-);
+assert.match(transformed, />\s*POC 02\s*<\/a>/);
 assert.equal(
   definition.plugins[0].transformIndexHtml(source, {
     path: '/before-departure.html',

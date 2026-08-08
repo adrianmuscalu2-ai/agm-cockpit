@@ -26,7 +26,7 @@ function createAfterDepartureEntryPlugin() {
         '</body>',
         `<nav aria-label="POC 02" style="display:flex;justify-content:center;padding:12px;background:#071018">
           <a href="/after-departure.html" data-poc02-entry="after-departure" style="color:#bfeeff;font:600 14px/1.4 system-ui;text-decoration:none">
-            POC 02 · După Plecare / Nach der Abfahrt / After Departure
+            POC 02
           </a>
         </nav></body>`,
       );

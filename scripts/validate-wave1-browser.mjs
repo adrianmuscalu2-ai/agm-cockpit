@@ -20,6 +20,20 @@ const record = (name, pass, detail = '') => {
   if (!pass) throw new Error(`${name}: ${detail}`);
 };
 
+async function dismissTransientUi(page) {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const control = page.locator('#acceptLegalNotice:visible, #skipRoadmapInvitation:visible, #closeTutorial:visible, [data-command="tutorial-close"]:visible').first();
+    if (!(await control.count())) break;
+    await control.click();
+    await page.waitForTimeout(100);
+  }
+}
+
+async function waitForStableDom(page) {
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await page.waitForTimeout(150);
+}
+
 async function discoverOrStartTarget() {
   if (process.env.AGM_BROWSER_LOCAL_URL) {
     return { url: new URL(process.env.AGM_BROWSER_LOCAL_URL).toString(), process: null, source: 'environment' };
@@ -72,9 +86,10 @@ try {
   record('BROWSER BOOTSTRAP', true, 'isolated Chromium session created');
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ro-RO' });
   const page = await context.newPage();
+  const runtimeErrors = [];
+  page.on('pageerror', (error) => runtimeErrors.push(error.message));
   await page.goto(target.url, { waitUntil: 'networkidle' });
-  const accept = page.locator('#acceptLegalNotice');
-  if (await accept.isVisible().catch(() => false)) await accept.click();
+  await dismissTransientUi(page);
   record('BROWSER SESSION', (await page.title()).includes('A.G.M.'), await page.title());
   record('TARGET PAGE', (await page.locator('#app').count()) === 1, page.url());
 
@@ -85,16 +100,40 @@ try {
   const optionValues = await more.locator('option').evaluateAll((items) => items.map((item) => item.value).filter(Boolean));
   record('NINE LANGUAGE UI', languageCodes.every((code) => [...optionValues, 'ro', 'de', 'en'].includes(code)), optionValues.join(','));
 
-  for (const code of wave1Codes) {
-    const currentMore = page.locator('.quick-language-controls:visible').first().locator('[data-more-language]');
-    const label = await currentMore.locator(`option[value="${code}"]`).textContent();
-    record(`LANGUAGE ${code.toUpperCase()}`, label?.trim() === expectedLabels[code], label ?? 'missing');
-    await currentMore.selectOption(code);
+  const visualLanguageViolations = [];
+  for (const code of languageCodes) {
+    const currentSurface = page.locator('.quick-language-controls:visible').first();
+    const currentQuick = currentSurface.locator(`[data-quick-language="${code}"]`);
+    if (await currentQuick.count()) {
+      await currentQuick.click();
+    } else {
+      const currentMore = currentSurface.locator('[data-more-language]');
+      const label = await currentMore.locator(`option[value="${code}"]`).textContent();
+      if (wave1Codes.includes(code)) record(`LANGUAGE ${code.toUpperCase()}`, label?.trim() === expectedLabels[code], label ?? 'missing');
+      await currentMore.selectOption(code);
+    }
     await page.waitForFunction((language) => document.documentElement.lang === language, code);
+    await page.goto(new URL('/basic', target.url).toString(), { waitUntil: 'networkidle' });
+    await dismissTransientUi(page);
+    await waitForStableDom(page);
+    const visibleText = await page.locator('body').innerText();
+    const englishMarkers = [
+      'The Basic module', 'All essential tools', 'Quick guide', 'How to use',
+      'Capture, local recognition', 'Active mode', 'Create email',
+    ];
+    const romanianMarkers = [
+      'Analizează', 'Validat', 'Deschide', 'După Plecare',
+    ];
+    const forbiddenMarkers = code === 'ro' ? englishMarkers : code === 'en' ? romanianMarkers : [...englishMarkers, ...romanianMarkers];
+    const visibleLines = visibleText.split('\n').map((line) => line.trim());
+    const foreignMarkers = forbiddenMarkers.filter((marker) => marker === 'Validat' ? visibleLines.includes(marker) : visibleText.includes(marker));
+    if (foreignMarkers.length) visualLanguageViolations.push(`${code}: ${foreignMarkers.join(', ')}`);
+    await page.screenshot({ path: path.join(evidenceDir, `basic-language-${code}.png`), fullPage: true });
   }
   await page.reload({ waitUntil: 'networkidle' });
   const persistedQuick = await page.locator('.quick-language-controls:visible').first().locator('[data-quick-language]').allTextContents();
   record('LANGUAGE FAVORITES / PERSISTENCE', persistedQuick.length === 3 && persistedQuick.includes('SQ'), persistedQuick.join('/'));
+  record('VISUAL LANGUAGE COHERENCE', visualLanguageViolations.length === 0, visualLanguageViolations.join(' | '));
 
   for (const [route, name, selector] of [
     ['/translator', 'MULTILINGUAL TRANSLATOR', 'textarea'],
@@ -102,7 +141,12 @@ try {
     ['/ocr', 'MULTILINGUAL OCR', 'input[type="file"]'],
   ]) {
     await page.goto(new URL(route, target.url).toString(), { waitUntil: 'networkidle' });
-    record(name, (await page.locator(selector).count()) > 0, route);
+    await dismissTransientUi(page);
+    await waitForStableDom(page);
+    await page.screenshot({ path: path.join(evidenceDir, `route-${route.slice(1)}.png`), fullPage: true });
+    const selectorCount = await page.locator(selector).count();
+    const diagnostic = selectorCount ? route : `${route}; ${String(await page.locator('body').innerText()).slice(0, 120).replaceAll('\n', ' ')}; ${runtimeErrors.slice(-2).join(' | ')}`;
+    record(name, selectorCount > 0, diagnostic);
   }
 
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 1024, height: 768 }]) {
