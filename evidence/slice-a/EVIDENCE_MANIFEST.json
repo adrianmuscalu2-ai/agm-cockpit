@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "scope": "premium.required-document.slice-a",
+  "updatedAt": "2026-08-11T18:40:00+02:00",
+  "productOwnerAcceptance": {
+    "status": "GRANTED",
+    "decision": "VERTICAL SLICE A — PASS / CLOSED",
+    "acceptedAt": "2026-08-11T18:40:00+02:00",
+    "browserReleaseGate": "PASS",
+    "iabLimitation": "OPEN / NON-BLOCKING / OPTIONAL INTERACTIVE EVIDENCE",
+    "sliceB": "NOT STARTED / NOT AUTHORIZED"
+  },
+  "revision": {
+    "gitCommit": "b241722e879bd68ee2f7367cb3338d854d00b54b",
+    "branch": "feature/basic-multilingual-wave1",
+    "workingTree": "dirty-authorized-slice-a-changes",
+    "buildId": "beforeDeparture-BkRMsct7.js+beforeDeparture-BxzQfD-A.css",
+    "javascriptSha256": "F01AB9DF854DDF35A89E2AD0AEC5A9C7A812E98EAFDBD52E4445DA45B57A2CC7",
+    "cssSha256": "DBFB726537F402DD91129C5B79464DDFCB781B6FB22FBC690269771DB67F864D"
+  },
+  "androidValidationBuild": {
+    "mode": "LOCAL VALIDATION / NOT FOR DISTRIBUTION",
+    "api": "http://127.0.0.1:3002/api/v1 via adb reverse",
+    "device": "Samsung SM-S931B",
+    "apkSha256": "815CBB0D67AFB8F6C20E3E5FE005B969929A8D8100E2ED73EAA1E6B5B9D0D542",
+    "javascriptBuildId": "beforeDeparture-BkOmbtG2.js",
+    "javascriptSha256": "F31096DC05F5B630152C142405EC75E333F608306D0342133326D47206DD444F",
+    "cssSha256": "DBFB726537F402DD91129C5B79464DDFCB781B6FB22FBC690269771DB67F864D"
+  },
+  "androidCandidateBuild": {
+    "mode": "PRODUCTION API / PHYSICAL CANDIDATE INSTALLED",
+    "api": "https://api.agmcockpit.com/api/v1",
+    "webViewOrigin": "https://app.agmcockpit.com",
+    "device": "Samsung SM-S931B / installed 2026-08-11 after scenario-I status correction",
+    "apkSha256": "1708FD980D32AFF5A4917127DF61179714DA5BBFAA4FAC7F5AFF03ADFFD6F747",
+    "javascriptBuildId": "beforeDeparture-BkRMsct7.js",
+    "javascriptSha256": "F01AB9DF854DDF35A89E2AD0AEC5A9C7A812E98EAFDBD52E4445DA45B57A2CC7",
+    "cssSha256": "DBFB726537F402DD91129C5B79464DDFCB781B6FB22FBC690269771DB67F864D"
+  },
+  "continuity": {
+    "completedEvidence": "PRESERVED",
+    "interruptedAtomicTest": "RETRY_ONLY",
+    "pendingEvidence": "CONTINUE",
+    "fullValidationReset": "NOT_AUTHORIZED"
+  },
+  "visualSignature": "EDCDA41B5A95A7EA15F329F4550D1FF570612A5D92AF65307A069B6480225960",
+  "activeHandoff": null,
+  "desktopRunnerReports": [
+    "evidence/slice-a/desktop/2026-08-11T16-18-24-110Z/report.json",
+    "evidence/slice-a/desktop/2026-08-11T16-22-16-080Z/report.json"
+  ],
+  "closureReview": "PASS / ANDROID COMPLETE / DESKTOP CONTROLLED PLAYWRIGHT COMPLETE",
+  "evidence": [
+    {"id":"domain-contract","platform":"node","scenario":"domain and state-machine contract","checkpoint":"completed","proof":"pnpm --filter @agm/web test:situation-router","result":"PASS","at":"2026-08-10","tool":"tsx/node"},
+    {"id":"web-build","platform":"windows","scenario":"TypeScript and production web build","checkpoint":"completed","proof":"237 modules; hashed assets recorded in revision","result":"PASS","at":"2026-08-10","tool":"pnpm/vite"},
+    {"id":"evidence-chain","platform":"node","scenario":"original -> OCR -> human confirmation references and hashes","checkpoint":"completed","proof":"test-premium-situation-router.ts","result":"PASS","at":"2026-08-10","tool":"tsx/node"},
+    {"id":"ocr-without-provenance","platform":"node","scenario":"OCR without provenance is rejected","checkpoint":"completed","proof":"test-premium-situation-router.ts","result":"PASS","at":"2026-08-10","tool":"tsx/node"},
+    {"id":"legacy-valid","platform":"node","scenario":"valid legacy import preserves answers/issues and association","checkpoint":"completed","proof":"test-premium-situation-router.ts","result":"PASS","at":"2026-08-10","tool":"tsx/node"},
+    {"id":"legacy-idempotency","platform":"node","scenario":"deterministic marker and repeated import without duplication","checkpoint":"completed","proof":"test-premium-situation-router.ts","result":"PASS","at":"2026-08-10","tool":"tsx/node"},
+    {"id":"legacy-ambiguous","platform":"node","scenario":"ambiguous legacy payload -> RECOVERY_REQUIRED; source read-only","checkpoint":"completed","proof":"test-premium-situation-router.ts","result":"PASS","at":"2026-08-10","tool":"tsx/node"},
+    {"id":"scenario-a","platform":"desktop+android","scenario":"A present/readable/valid -> READY","checkpoint":"completed","proof":"Android evidence preserved. Desktop real Chromium rendered terminal READY and disabled terminal control; desktop/2026-08-11T16-18-24-110Z/scenario-a.png and report.json.","result":"PASS","at":"2026-08-11T18:18:35+02:00","tool":"Samsung SM-S931B + Controlled AGM Playwright/Chromium 151"},
+    {"id":"scenario-b","platform":"desktop+android","scenario":"B missing document -> BLOCKED","checkpoint":"completed","proof":"Android evidence preserved. Desktop real Chromium rendered Plecare blocată and disabled READY; desktop/2026-08-11T16-18-24-110Z/scenario-b.png and report.json.","result":"PASS","at":"2026-08-11T18:18:40+02:00","tool":"Samsung SM-S931B + Controlled AGM Playwright/Chromium 151"},
+    {"id":"scenario-c","platform":"node","scenario":"C original present/OCR missing -> READY refused","checkpoint":"completed-domain","proof":"test-premium-situation-router.ts","result":"PASS","at":"2026-08-10","tool":"tsx/node"},
+    {"id":"scenario-d","platform":"node","scenario":"D OCR present/human confirmation missing -> READY refused","checkpoint":"completed-domain","proof":"test-premium-situation-router.ts","result":"PASS","at":"2026-08-10","tool":"tsx/node"},
+    {"id":"scenario-e","platform":"android","scenario":"E unreadable -> issue/remediation","checkpoint":"completed-current-build","proof":"Real OCR followed by human confirmation, readable=false, blocking severity and remediation text rendered Departure blocked with READY disabled. Screenshot android-scenario-e-unreadable-blocked.png SHA-256 7C882213AD2008A04AA3F8C8664643AC650C3F895DE72981F58002CF9296EEC0.","result":"PASS","at":"2026-08-11T17:20:00+02:00","tool":"Samsung SM-S931B + ADB/WebView CDP + screencap"},
+    {"id":"scenario-f","platform":"node","scenario":"F expired -> BLOCKED classification","checkpoint":"completed-domain","proof":"test-premium-situation-router.ts","result":"PASS","at":"2026-08-10","tool":"tsx/node"},
+    {"id":"scenario-g","platform":"node","scenario":"G expires within approved 30-day window -> warning","checkpoint":"completed-domain","proof":"test-premium-situation-router.ts; roadmap RN-2.1","result":"PASS","at":"2026-08-10","tool":"tsx/node"},
+    {"id":"scenario-h","platform":"desktop+android","scenario":"H edited OCR confirmed with provenance","checkpoint":"completed","proof":"Android evidence preserved. Desktop displayed edited confirmation and verified separate initial OCR and provenance chain; desktop/2026-08-11T16-18-24-110Z/scenario-h.png and report.json.","result":"PASS","at":"2026-08-11T18:18:45+02:00","tool":"Samsung SM-S931B + Controlled AGM Playwright/Chromium 151"},
+    {"id":"scenario-i","platform":"android","scenario":"I deleted/corrupt IndexedDB original -> RECOVERY_REQUIRED","checkpoint":"completed-current-build-after-atomic-defect-correction","proof":"Original test blob deleted from IndexedDB, OCR invoked, UI entered RECOVERY_REQUIRED with localized original-missing message and no stale OCR-running status. Screenshot android-scenario-i-original-missing-recovery-fixed.png SHA-256 79A3AA200CDDEA840E2E412B6E6AA8811566830B3BA424B5D71A2B9B314F22C8.","result":"PASS","at":"2026-08-11T17:13:00+02:00","tool":"Samsung SM-S931B + ADB/WebView CDP + IndexedDB atomic deletion + screencap"},
+    {"id":"scenario-j","platform":"android","scenario":"J refresh at every stage","checkpoint":"completed-current-build","proof":"Reload checkpoints preserved document selection revision 1, available revision 2, original revision 3, OCR revision 6, human confirmation revision 8, readable/valid revision 10; application force-stop/relaunch preserved terminal RESOLVED revision 11 and READY checkmark. Screenshot android-scenario-j-refresh-restart.png SHA-256 9D6FCA915E1BA9E495D58F6FD4980CE9B2C843658E54E109F882F249143ADF96.","result":"PASS","at":"2026-08-11T17:31:00+02:00","tool":"Samsung SM-S931B + ADB/WebView CDP + force-stop/relaunch + screencap"},
+    {"id":"scenario-k","platform":"desktop+android","scenario":"K browser/application restart resume","checkpoint":"completed","proof":"Android force-stop evidence preserved. Desktop reload plus controlled page restart retained case; desktop/2026-08-11T16-18-24-110Z/scenario-k.png and report.json.","result":"PASS","at":"2026-08-11T18:18:56+02:00","tool":"Samsung SM-S931B + Controlled AGM Playwright/Chromium 151"},
+    {"id":"scenario-l","platform":"desktop+android","scenario":"L language change preserves operational state","checkpoint":"completed","proof":"Android evidence preserved. Desktop RO->SQ retained identical case ID/revision and rendered Albanian UI; desktop/2026-08-11T16-22-16-080Z/scenario-l.png and report.json.","result":"PASS","at":"2026-08-11T18:22:29+02:00","tool":"Samsung SM-S931B + Controlled AGM Playwright/Chromium 151"},
+    {"id":"scenario-m","platform":"node","scenario":"M offline local save/SYNC_PENDING","checkpoint":"completed-remediation-test","proof":"test-required-document-remediation.ts: offline transition, ordered shared outbox, refresh/restart persistence","result":"PASS","at":"2026-08-10T04:53:24+02:00","tool":"tsx/node"},
+    {"id":"scenario-n","platform":"node","scenario":"N reconnect single sync/no duplication","checkpoint":"completed-remediation-test","proof":"test-required-document-remediation.ts: unique flush, repeated reconnect idle, receipt prevents resend, conflict recovery","result":"PASS","at":"2026-08-10T04:53:24+02:00","tool":"tsx/node"},
+    {"id":"scenario-o","platform":"desktop+android","scenario":"O feature-flag rollback restores legacy projection","checkpoint":"completed","proof":"Android evidence preserved. Desktop flag OFF showed legacy projection; ON restored identical recovery case; desktop/2026-08-11T16-22-16-080Z/scenario-o.png and report.json.","result":"PASS","at":"2026-08-11T18:22:36+02:00","tool":"Samsung SM-S931B + Controlled AGM Playwright/Chromium 151"},
+    {"id":"sync-conflict-recovery","platform":"android","scenario":"server stream conflict does not overwrite and enters RECOVERY_REQUIRED","checkpoint":"completed-current-build","proof":"Production EventStore returned STREAM_VERSION_CONFLICT; client preserved the case and rendered localized recovery state. Screenshot android-scenario-conflict-recovery-sq.png SHA-256 E27396615CD78C148E8B636F7D9203A75F9228B93253882C16D43ED502C4CFDD.","result":"PASS","at":"2026-08-11T15:05:00+02:00","tool":"Samsung SM-S931B + ADB/CDP + screencap"},
+    {"id":"i18n-render-9x2","platform":"node+source-audit","scenario":"RO/DE/EN/FR/NL/RU/PL/TR/SQ share visible OCR/Camera/import/IndexedDB/sync/recovery semantics","checkpoint":"automated-remediation-pass-visual-layout-pending","proof":"test-required-document-remediation.ts validates every required status key in all languages and rejects identified hardcoded UI text","result":"PASS","at":"2026-08-10T04:53:24+02:00","tool":"tsx/node+source audit"},
+    {"id":"affected-remediation-tests","platform":"node+windows","scenario":"limited remediation regression suite and build","checkpoint":"completed-current-build-after-scenario-i-correction","proof":"test:slice-a-remediation and test:situation-router PASS; web build 247 modules PASS; Android Gradle assembleDebug PASS. Current Slice A asset beforeDeparture-BkRMsct7.js SHA-256 F01AB9DF854DDF35A89E2AD0AEC5A9C7A812E98EAFDBD52E4445DA45B57A2CC7; APK SHA-256 1708FD980D32AFF5A4917127DF61179714DA5BBFAA4FAC7F5AFF03ADFFD6F747.","result":"PASS","at":"2026-08-11T17:36:00+02:00","tool":"pnpm.cmd/tsx/vite/Gradle"},
+    {"id":"desktop-current-build","platform":"desktop","scenario":"complete Slice A visual matrix","checkpoint":"completed-a-b-h-k-l-o","proof":"A/B/H/K PASS in desktop/2026-08-11T16-18-24-110Z/report.json; atomic L/O retry PASS in desktop/2026-08-11T16-22-16-080Z/report.json. Six screenshots and JSONL logs complete.","result":"PASS","at":"2026-08-11T18:22:43+02:00","tool":"Controlled AGM Playwright/Chromium 151"},
+    {"id":"android-current-build","platform":"Samsung SM-S931B","scenario":"complete Slice A physical Android matrix","checkpoint":"completed-current-build-with-preserved-unaffected-evidence","proof":"Current APK 1708FD980D32AFF5A4917127DF61179714DA5BBFAA4FAC7F5AFF03ADFFD6F747 installed. Newly required atomic scenarios E/I/J passed with current-build captures. Prior A/B/H/K/L/O evidence remains attributable because the only subsequent product change clears stale OCR_STARTED specifically on original verification failure. The pre-validation SYNC_CONFLICT case was restored after isolated tests.","result":"PASS","at":"2026-08-11T17:36:00+02:00","tool":"Android SDK ADB + WebView CDP + physical screenshots"}
+  ],
+  "finalVerdict": "SLICE A — PASS / CLOSED",
+  "verdict": "SLICE A — PASS / CLOSED / PRODUCT OWNER ACCEPTANCE GRANTED"
+}

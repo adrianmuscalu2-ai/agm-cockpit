@@ -92,7 +92,7 @@ const limitations = {
   ],
 } as const;
 
-const escalationLabels: Record<Exclude<AfterDepartureLanguage, 'ro'>, Record<string, string>> = {
+const escalationLabels: Partial<Record<Exclude<AfterDepartureLanguage, 'ro'>, Record<string, string>>> = {
   de: {
     autoritate: 'Behörde', operator: 'Betreiber', 'serviciu-urgență': 'Notdienst',
     'asistență-tehnică': 'Pannendienst', 'responsabil-operațional': 'Betriebsverantwortlicher',
@@ -109,7 +109,7 @@ const escalationLabels: Record<Exclude<AfterDepartureLanguage, 'ro'>, Record<str
   },
 };
 
-const factLabels: Record<Exclude<AfterDepartureLanguage, 'ro'>, Record<string, string>> = {
+const factLabels: Partial<Record<Exclude<AfterDepartureLanguage, 'ro'>, Record<string, string>>> = {
   de: {
     authorityRequest: 'Anforderung der Behörde', approximateLocation: 'ungefährer Standort',
     injuriesKnown: 'Status verletzter Personen', observedSymptom: 'beobachtetes Symptom',
@@ -151,19 +151,20 @@ export function localizeAssessmentContent(
     };
   }
 
-  const content = (language === 'de' ? de : en)[assessment.scenario];
+  const supportedLanguage = language === 'de' ? 'de' : 'en';
+  const content = (supportedLanguage === 'de' ? de : en)[assessment.scenario];
   const actions =
     assessment.state === 'UNSAFE_TO_INTERACT'
-      ? unsafeActions[language]
+      ? unsafeActions[supportedLanguage]
       : assessment.state === 'EMERGENCY' && assessment.scenario !== 'incident'
-        ? emergencyActions[language]
+        ? emergencyActions[supportedLanguage]
         : content.actions;
 
   return {
     actions,
     prohibited: content.prohibited,
-    limitations: limitations[language],
-    escalation: assessment.escalation.map((item) => escalationLabels[language][item] ?? item),
-    missingFacts: assessment.missingFacts.map((item) => factLabels[language][item] ?? item),
+    limitations: limitations[supportedLanguage],
+    escalation: assessment.escalation.map((item) => escalationLabels[language]?.[item] ?? escalationLabels.en?.[item] ?? item),
+    missingFacts: assessment.missingFacts.map((item) => factLabels[language]?.[item] ?? factLabels.en?.[item] ?? item),
   };
 }

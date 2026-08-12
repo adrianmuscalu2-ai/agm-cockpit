@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 const read = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const agents = read('AGENTS.md');
 const runbook = read('deploy/operations/BROWSER_VALIDATION_RUNBOOK.md');
+const preflight = read('scripts/rescue-browser-preflight.mjs');
 
 for (const field of [
   'Browser Plugin Status',
@@ -21,6 +22,12 @@ for (const requirement of [
   'resume the interrupted audit automatically',
   'HOLD is permitted only when the recovery sequence has been exhausted',
   'pnpm audit:wave1-browser',
+  'pnpm rescue:browser-preflight',
+  'Product Owner amendment — 2026-08-11',
+  'optional interactive evidence',
+  'Fitness owns `5173` permanently',
+  'AGM Cockpit owns `5174`',
+  'Do not repeat Browser PASS daily',
 ]) {
   assert.ok(runbook.includes(requirement), `Runbook missing requirement: ${requirement}`);
 }
@@ -28,5 +35,12 @@ for (const requirement of [
 assert.match(agents, /Continue automatically after recovery PASS/i);
 assert.match(runbook, /restart, update, or reinstall/i);
 assert.match(runbook, /navigation and capture/i);
+assert.match(preflight, /configuredBackends/);
+assert.match(preflight, /runtimeBackends/);
+assert.match(preflight, /SESSION_ATTACHMENT_MISSING/);
+assert.match(preflight, /helperProcessActive/);
+assert.match(preflight, /versionMismatch/);
+assert.match(preflight, /REQUIRED_AUTOMATIC_ROUTE/);
+assert.match(preflight, /IAB PROBE ONCE/);
 
 console.log('AGM Browser validation permanent flow contract: PASS');

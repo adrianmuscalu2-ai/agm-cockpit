@@ -1,0 +1,4 @@
+FROM agm-api:premium-foundation-candidate-20260810-r2
+COPY apps/api/dist/auth/access-entitlements.contract.js /app/apps/api/dist/auth/access-entitlements.contract.js
+LABEL org.opencontainers.image.revision="premium-foundation-20260810-r3"
+LABEL agm.change.id="AGM-CHG-20260810-PREMIUM-FOUNDATION-R3-COMPAT"

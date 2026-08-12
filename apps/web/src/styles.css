@@ -4,3 +4,98 @@
 @import './styles/30-operations.css';
 @import './styles/40-turn-responsive.css';
 @import './styles/50-roadmap-responsive.css';
+.premium-assistant-view .premium-intro,
+.premium-assistant-view .premium-module {
+  width: min(960px, calc(100% - 2rem));
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+.premium-assistant-view .premium-module {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.premium-assistant-view [hidden] {
+  display: none !important;
+}
+
+.premium-assistant-panel textarea {
+  display: block;
+  width: 100%;
+  min-height: 9rem;
+  margin-block: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(80, 185, 255, 0.45);
+  border-radius: 0.8rem;
+  background: rgba(3, 13, 23, 0.92);
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+}
+
+.premium-assistant-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
+
+.premium-assistant-controls button {
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+}
+
+.premium-assistant-view [data-assistant-response] {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.premium-assistant-view [data-assistant-history] {
+  display: grid;
+  gap: .75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.premium-assistant-view [data-assistant-history] li {
+  border: 1px solid rgba(83, 170, 224, .28);
+  border-radius: 14px;
+  padding: .8rem 1rem;
+  background: rgba(3, 15, 25, .72);
+}
+
+.premium-assistant-view [data-assistant-history] li[data-role="user"] {
+  margin-left: clamp(0rem, 8vw, 4rem);
+}
+
+.premium-assistant-view [data-assistant-history] li[data-role="assistant"] {
+  margin-right: clamp(0rem, 8vw, 4rem);
+  border-color: rgba(223, 184, 65, .4);
+}
+
+.premium-assistant-view [data-assistant-history] p {
+  margin: .35rem 0 0;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 640px) {
+  .premium-assistant-view .premium-intro,
+  .premium-assistant-view .premium-module {
+    width: calc(100% - 20px);
+    margin-inline: 0;
+    margin-left: 10px;
+  }
+
+  .premium-assistant-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .premium-assistant-controls button {
+    width: 100%;
+    min-height: 3.5rem;
+  }
+}

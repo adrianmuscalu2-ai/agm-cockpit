@@ -16,6 +16,7 @@ assert.match(variables, /targetSdkVersion = 36/);
 assert.match(capacitor, /appId: 'com\.agm\.cockpit'/);
 assert.match(capacitor, /webDir: 'dist'/);
 assert.match(capacitor, /androidScheme: 'https'/);
+assert.match(capacitor, /hostname: 'app\.agmcockpit\.com'/);
 assert.match(appGradle, /defaultConfig\s*\{[\s\S]*manifestPlaceholders = \[usesCleartextTraffic: "false"\]/);
 assert.match(appGradle, /debug\s*\{[\s\S]*manifestPlaceholders = \[usesCleartextTraffic: "true"\]/);
 

@@ -3,6 +3,7 @@ export const AUTH_CONTRACT = {
   version: 'auth-users.v1',
   tokenScope: 'user',
   defaultExpiresIn: '1h',
+  refreshSessionDays: 30,
   activeStatus: 'Active',
   loginThrottle: {
     limit: 5,
@@ -10,4 +11,3 @@ export const AUTH_CONTRACT = {
     blockDurationMs: 60_000,
   },
 } as const;
-

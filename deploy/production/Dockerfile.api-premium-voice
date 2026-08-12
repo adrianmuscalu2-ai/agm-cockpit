@@ -1,0 +1,11 @@
+FROM agm-api:premium-foundation-20260810-r3
+
+USER root
+COPY apps/api/dist/app.module.js /app/apps/api/dist/app.module.js
+COPY apps/api/dist/auth/access-entitlements.contract.js /app/apps/api/dist/auth/access-entitlements.contract.js
+COPY apps/api/dist/premium-assistant /app/apps/api/dist/premium-assistant
+RUN chmod -R a+rX /app/apps/api/dist/premium-assistant
+USER node
+
+LABEL org.opencontainers.image.revision="premium-voice-20260811-r2"
+LABEL agm.change.id="AGM-CHG-20260811-PREMIUM-VOICE"

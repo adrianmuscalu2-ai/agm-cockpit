@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-12T08-54-00-525Z",
+  "status": "FAIL",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "buildContext": {
+    "revision": "b241722e879bd68ee2f7367cb3338d854d00b54b"
+  },
+  "target": "http://127.0.0.1:5174",
+  "iab": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "results": [
+    {
+      "id": "c0-single-surface",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:54:07.495Z",
+      "finishedAt": "2026-08-12T08:54:08.027Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-54-00-525Z\\c0-single-surface.png",
+      "detail": "Single Android-first Copilot surface; microphone, OCR, text and speaker visible"
+    },
+    {
+      "id": "c0-confirmed-intent-safety",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:54:08.028Z",
+      "finishedAt": "2026-08-12T08:54:08.382Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-54-00-525Z\\c0-confirmed-intent-safety.png",
+      "detail": "Transcript remained editable until explicit confirmation; deterministic safety intent selected"
+    },
+    {
+      "id": "c0-unsafe-refresh-recovery",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:54:08.382Z",
+      "finishedAt": "2026-08-12T08:54:13.191Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-54-00-525Z\\c0-unsafe-refresh-recovery.png",
+      "detail": "Unsafe safety gate persisted through refresh; normal continuation remained blocked"
+    },
+    {
+      "id": "c0-feature-flag-rollback",
+      "status": "FAIL",
+      "startedAt": "2026-08-12T08:54:13.191Z",
+      "finishedAt": "2026-08-12T08:54:52.723Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "detail": "TimeoutError: page.waitForSelector: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.premium-user-workspace') to be visible\u001b[22m\n"
+    }
+  ],
+  "fatal": "TimeoutError: page.waitForSelector: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.premium-user-workspace') to be visible\u001b[22m\n"
+}

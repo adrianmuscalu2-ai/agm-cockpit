@@ -808,6 +808,8 @@
     padding: 8px 4px;
     font-size: clamp(10px, 3vw, 12px);
     line-height: 1.15;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
   }
 }

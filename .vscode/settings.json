@@ -33,10 +33,17 @@
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "java.jdt.ls.java.home": "C:\\Program Files\\Android\\Android Studio\\jbr",
+  "java.import.gradle.java.home": "C:\\Program Files\\Android\\Android Studio\\jbr",
+  "gradle.java.home": "C:\\Program Files\\Android\\Android Studio\\jbr",
   "terminal.integrated.profiles.windows": {
     "PowerShell": {
       "source": "PowerShell",
-      "icon": "terminal-powershell"
+      "icon": "terminal-powershell",
+      "env": {
+        "JAVA_HOME": "C:\\Program Files\\Android\\Android Studio\\jbr",
+        "PATH": "C:\\Program Files\\Android\\Android Studio\\jbr\\bin;${env:PATH}"
+      }
     },
     "Command Prompt": {
       "path": [

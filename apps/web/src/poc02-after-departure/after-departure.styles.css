@@ -6,12 +6,31 @@
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; background: radial-gradient(circle at top, #12334a, #071018 50%); }
+body {
+  position: relative;
+  isolation: isolate;
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #071018;
+}
+body::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  background-image:
+    linear-gradient(rgba(3, 10, 16, .58), rgba(3, 10, 16, .7)),
+    url("../../../../agmcockpit-website/public/images/atmosphere/agm-premium-hero-v3.png");
+  background-position: center, right center;
+  background-size: auto, max(200vw, 177.78vh) auto;
+  background-repeat: no-repeat;
+}
 button, input, select { font: inherit; }
 button, select, input { min-height: 44px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
 .after-departure-shell { width: min(980px, 100%); margin: 0 auto; padding: max(20px, env(safe-area-inset-top)) 16px max(32px, env(safe-area-inset-bottom)); }
-.after-departure-header { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; margin-bottom: 20px; padding: 22px; border: 1px solid #22465b; border-top: 4px solid #59d2ff; border-radius: 18px; background: rgba(9, 28, 40, .94); box-shadow: 0 14px 40px rgba(0, 0, 0, .2); }
+.after-departure-header { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; margin-bottom: 20px; padding: 22px; border: 1px solid #22465b; border-top: 4px solid #59d2ff; border-radius: 18px; background: rgba(9, 28, 40, .86); backdrop-filter: blur(2px); box-shadow: 0 14px 40px rgba(0, 0, 0, .2); }
 .after-departure-header span { color: #59d2ff; font-size: .78rem; font-weight: 800; letter-spacing: .12em; }
 .after-departure-header h1 { margin: 6px 0; font-size: clamp(2rem, 6vw, 3.5rem); }
 .after-departure-header p { color: #b8cbd8; max-width: 640px; }
@@ -20,7 +39,7 @@ button, select, input { min-height: 44px; }
 .after-departure-navigation { display: flex; gap: 10px; flex-wrap: wrap; }
 .after-departure-navigation a:not(.after-departure-back-primary) { background: transparent; }
 .after-departure-back-primary { font-weight: 800; }
-.after-departure-panel, .after-departure-result, .offline-banner { border: 1px solid #22465b; border-radius: 18px; padding: 18px; margin: 14px 0; background: rgba(9, 28, 40, .94); box-shadow: 0 14px 40px rgba(0, 0, 0, .2); }
+.after-departure-panel, .after-departure-result, .offline-banner { border: 1px solid #22465b; border-radius: 18px; padding: 18px; margin: 14px 0; background: rgba(9, 28, 40, .86); backdrop-filter: blur(2px); box-shadow: 0 14px 40px rgba(0, 0, 0, .2); }
 .offline-banner { border-color: #d89b2b; color: #ffe7b3; }
 .after-departure-panel h2, .after-departure-result h2 { font-size: 1rem; margin: 8px 0 12px; }
 .choice-row, .action-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
@@ -40,6 +59,15 @@ fieldset p, .draft-notice { color: #a9bfcc; }
 .result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .result-grid article, .after-departure-result aside { background: #0c2534; border-radius: 12px; padding: 12px; }
 li { margin: 7px 0; }
+.road-control-router-enabled agm-road-control ~ .after-departure-panel,
+.road-control-router-enabled agm-road-control ~ .after-departure-result { display: none; }
+agm-road-control { display: block; }
+.after-field-batch-enabled agm-after-field-batch ~ agm-road-control,.after-field-batch-enabled agm-after-field-batch ~ .after-departure-panel,.after-field-batch-enabled agm-after-field-batch ~ .after-departure-result{display:none}.after-field-batch-enabled.show-road-control agm-road-control{display:block}.after-field-batch textarea{width:100%;min-height:120px;border:1px solid #416579;border-radius:10px;padding:10px;color:#fff;background:#0b202c}.after-field-batch header p{color:#59d2ff;font-weight:800}.after-field-batch a{color:#fff}
+.road-control-title { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.road-control-title h2 { font-size:clamp(1.5rem,5vw,2.4rem); }
+.road-control-flow textarea { width:100%; min-height:110px; border:1px solid #416579; border-radius:10px; padding:10px; color:#fff; background:#0b202c; }
+.after-departure-file { display:flex; min-height:48px; align-items:center; justify-content:center; padding:10px 16px; border:1px solid #2a91b8; border-radius:12px; cursor:pointer; }
+.after-departure-file input { position:absolute; width:1px; height:1px; opacity:0; }
 
 @media (max-width: 640px) {
   .after-departure-header { display: grid; }

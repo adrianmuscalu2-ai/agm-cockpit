@@ -73,6 +73,18 @@ const main = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
 assert.match(main, /normalizeQuickLanguages/);
 assert.match(main, /data-more-language/);
 assert.doesNotMatch(main, /\['ro', 'de', 'en', 'fr'/);
+const translatorBindings = main.slice(main.indexOf('function bindTranslator'), main.indexOf('function bindEmailAssistant'));
+assert.match(
+  translatorBindings,
+  /data-language-more="translatorTargetLanguage"[\s\S]*addEventListener\('change'/,
+  'Translator must bind the More languages selector on the Translator route.',
+);
+const emailBindings = main.slice(main.indexOf('function bindEmailAssistant'), main.indexOf('function bindProfile'));
+assert.doesNotMatch(
+  emailBindings,
+  /data-language-more="translatorTargetLanguage"/,
+  'Translator language selection must not depend on the Email Assistant route.',
+);
 const basicHubSource = main.slice(main.indexOf('function renderBasicHub'), main.indexOf('function ocrPageCopy'));
 for (const literal of ['Traducător contextual', 'Analizează document', 'Analizează tahograf', 'Validat</em>', 'Deschide</span>', 'Ancorarea mărfii']) {
   assert.ok(!basicHubSource.includes(literal), `Hardcoded Basic user text remains: ${literal}`);

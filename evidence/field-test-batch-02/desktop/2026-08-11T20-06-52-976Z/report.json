@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-11T20-06-52-976Z",
+  "status": "FAIL",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "target": "http://127.0.0.1:5174/",
+  "route": "http://127.0.0.1:5174/after-departure.html",
+  "viewport": "412x915 Android-first",
+  "results": [],
+  "noFabricatedPass": false,
+  "fatal": "Error: locator.click: Error: strict mode violation: locator('[data-safe=\"false\"]') resolved to 2 elements:\n    1) <button data-safe=\"false\" class=\"secondary\">Nu</button> aka getByRole('button', { name: 'Nu' })\n    2) <button type=\"button\" data-safe=\"false\" class=\"secondary\">Nu</button> aka locator('agm-road-control').getByText('Nu')\n\nCall log:\n\u001b[2m  - waiting for locator('[data-safe=\"false\"]')\u001b[22m\n",
+  "finishedAt": "2026-08-11T20:07:02.982Z"
+}

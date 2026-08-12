@@ -120,6 +120,12 @@ import { changeAdministratorPin, localAdministratorBypassActive, localAdministra
 import { premiumStatusKey, renderPremiumView, usesPremiumLayout } from './premium-app';
 import { renderPremiumAccessView } from './premium-access/premium-access.view';
 import { bindPremiumAccessRuntime } from './premium-access/premium-access.runtime';
+import { bindCommunicationRuntime } from './premium-communications/communication.runtime';
+import { bindPremiumAssistantRuntime } from './premium-voice-shell/premium-assistant.runtime';
+import { bindCarMoverRuntime } from './car-mover/car-mover.runtime';
+import './car-mover/car-mover.css';
+import { bindCopilotRuntime } from './premium-copilot/copilot.runtime';
+import './premium-copilot/copilot.css';
 import { isPremiumNavigationAllowed } from './premium-access/premium-access.navigation';
 import { isPremiumView, premiumRouteForView, premiumViewFromRoute, type PremiumViewName } from './premium-routes';
 import { bindOperationsHealthChecks } from './operations-health';
@@ -692,7 +698,7 @@ function renderCurrentView() {
     return renderPremiumAccessView(language === 'ro' || language === 'de' ? language : 'en', escapeHtml);
   }
 
-  const premiumView = renderPremiumView(state.view, (key) => t(uiLanguage(), key), escapeHtml);
+  const premiumView = renderPremiumView(state.view, (key) => t(uiLanguage(), key), escapeHtml, uiLanguage());
   if (premiumView !== undefined) {
     return premiumView;
   }
@@ -764,7 +770,7 @@ function renderHome() {
           <strong>Premium</strong>
           <small id="premium-planned">${escapeHtml(t(language, 'home.planned'))}</small>
         </a>
-        <a href="/premium" data-module="premium" class="home-action home-action-voice" aria-describedby="voice-premium">
+        <a href="/premium/voice" data-module="premiumVoice" class="home-action home-action-voice" aria-describedby="voice-premium">
           <span class="home-action-icon" aria-hidden="true"></span>
           <strong>${escapeHtml(t(language, 'home.voice'))}</strong>
           <small id="voice-premium">${escapeHtml(t(language, 'home.voicePremium'))}</small>
@@ -2212,6 +2218,10 @@ function renderLegalCard(titleKey: string, bodyKey: string, extra = '') {
 
 function bindShared() {
   bindPremiumAccessRuntime();
+  bindCommunicationRuntime();
+  bindPremiumAssistantRuntime();
+  bindCarMoverRuntime();
+  bindCopilotRuntime();
   document.querySelectorAll<HTMLButtonElement>('[data-global-action]').forEach((control) => {
     control.addEventListener('click', () => activateGlobalAction(control.dataset.globalAction));
   });
@@ -2830,6 +2840,14 @@ function bindTranslator() {
     });
   });
 
+  document.querySelector<HTMLSelectElement>('[data-language-more="translatorTargetLanguage"]')?.addEventListener('change', (event) => {
+    const language = normalizeLanguage((event.target as HTMLSelectElement).value);
+    if (!language) return;
+    state.translatorTargetLanguage = language;
+    state.status = t(uiLanguage(), 'translator.status.resultLanguageChanged', { language: languageLabel(language) });
+    render();
+  });
+
   document.querySelector<HTMLButtonElement>('#translateText')?.addEventListener('click', () => {
     void translateOriginalText();
   });
@@ -2847,13 +2865,6 @@ function bindTranslator() {
 function bindEmailAssistant() {
   document.querySelector<HTMLButtonElement>('#closeAdminReport')?.addEventListener('click', () => {
     state.adminReportActive = false;
-    render();
-  });
-  document.querySelector<HTMLSelectElement>('[data-language-more="translatorTargetLanguage"]')?.addEventListener('change', (event) => {
-    const language = normalizeLanguage((event.target as HTMLSelectElement).value);
-    if (!language) return;
-    state.translatorTargetLanguage = language;
-    state.status = t(uiLanguage(), 'translator.status.resultLanguageChanged', { language: languageLabel(language) });
     render();
   });
   document.querySelector<HTMLButtonElement>('#copyAdminReport')?.addEventListener('click', () => {
@@ -4049,7 +4060,7 @@ async function startNativeVoiceInput() {
     }
 
     const stateListener = await NativeAudio.addListener('speechState', (event) => {
-      state.voiceInputState = event.state;
+      state.voiceInputState = event.state === 'speechDetected' ? 'listening' : event.state;
       state.status = audioMessage(event.state === 'processing' ? 'Microfon: procesare voce…' : 'Microfon activ. Vorbește acum.', event.state === 'processing' ? 'Mikrofon: Sprache wird verarbeitet…' : 'Mikrofon aktiv. Jetzt sprechen.', event.state === 'processing' ? 'Microphone: processing speech…' : 'Microphone active. Speak now.');
       console.info('[AGM Audio] Native speech state', event.state);
       render();
@@ -4095,7 +4106,7 @@ async function startEmailVoiceInput() {
       return;
     }
     const listener = await NativeAudio.addListener('speechState', (event) => {
-      state.voiceInputState = event.state;
+      state.voiceInputState = event.state === 'speechDetected' ? 'listening' : event.state;
       state.status = event.state === 'processing'
         ? audioMessage('E-mail: procesare voce…', 'E-Mail: Sprache wird verarbeitet…', 'Email: processing speech…')
         : t(uiLanguage(), 'translator.status.microphoneActive');

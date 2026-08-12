@@ -1,4 +1,4 @@
-import { afterDepartureCopy, type AfterDepartureLanguage } from './after-departure.i18n';
+import { afterDepartureCopy, afterDepartureLanguageLabels, afterDepartureLanguages, type AfterDepartureLanguage } from './after-departure.i18n';
 import {
   presentAssessment,
   requiredFactsForScenario,
@@ -29,7 +29,7 @@ const escapeHtml = (value: string) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 
-const factLabels: Record<string, Record<AfterDepartureLanguage, string>> = {
+const factLabels: Record<string, Partial<Record<AfterDepartureLanguage, string>>> = {
   authorityRequest: { ro: 'Solicitarea autorității', de: 'Anforderung der Behörde', en: 'Authority request' },
   approximateLocation: { ro: 'Loc aproximativ', de: 'Ungefährer Standort', en: 'Approximate location' },
   injuriesKnown: { ro: 'Situația persoanelor', de: 'Situation der Personen', en: 'People/injuries status' },
@@ -67,7 +67,7 @@ export function renderAfterDepartureView(state: AfterDepartureViewState) {
           <label>
             <span class="visually-hidden">Language</span>
             <select id="afterDepartureLanguage" aria-label="Language">
-              ${(['ro', 'de', 'en'] as const).map((language) => `<option value="${language}" ${state.language === language ? 'selected' : ''}>${language.toUpperCase()}</option>`).join('')}
+              ${afterDepartureLanguages.map((language) => `<option value="${language}" ${state.language === language ? 'selected' : ''}>${escapeHtml(afterDepartureLanguageLabels[language])}</option>`).join('')}
             </select>
           </label>
           <nav class="after-departure-navigation" aria-label="AGM navigation">
@@ -81,6 +81,9 @@ export function renderAfterDepartureView(state: AfterDepartureViewState) {
       </header>
 
       ${state.online ? '' : `<aside class="offline-banner" role="status">${escapeHtml(copy.offline)}</aside>`}
+
+      <agm-after-field-batch></agm-after-field-batch>
+      <agm-road-control hidden></agm-road-control>
 
       <section class="after-departure-panel" aria-labelledby="safety-title">
         <h2 id="safety-title">${escapeHtml(copy.safeQuestion)}</h2>
@@ -107,7 +110,7 @@ export function renderAfterDepartureView(state: AfterDepartureViewState) {
           <p>${escapeHtml(copy.factHint)}</p>
           ${requiredFacts.map((fact) => `
             <label class="field">
-              <span>${escapeHtml(factLabels[fact]?.[state.language] ?? fact)}</span>
+              <span>${escapeHtml(factLabels[fact]?.[state.language] ?? factLabels[fact]?.en ?? fact)}</span>
               <input data-after-departure-fact="${fact}" value="${escapeHtml(String(state.facts[fact] ?? ''))}" autocomplete="off" />
             </label>
           `).join('')}

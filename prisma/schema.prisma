@@ -8,41 +8,62 @@ datasource db {
 }
 
 model Company {
-  id                  String           @id @default(uuid()) @db.Uuid
-  companyName         String
-  countryCode         String           @db.VarChar(2)
-  defaultCurrencyCode String           @db.VarChar(3)
-  timezone            String           @default("Europe/Berlin")
-  isActive            Boolean          @default(true)
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
-  users               User[]
-  roles               Role[]
-  lifecycleStates     LifecycleState[]
-  transports          TransportJob[]
-  preDepartureSessions PreDepartureSession[]
+  id                         String                      @id @default(uuid()) @db.Uuid
+  companyName                String
+  countryCode                String                      @db.VarChar(2)
+  defaultCurrencyCode        String                      @db.VarChar(3)
+  timezone                   String                      @default("Europe/Berlin")
+  isActive                   Boolean                     @default(true)
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
+  users                      User[]
+  roles                      Role[]
+  lifecycleStates            LifecycleState[]
+  transports                 TransportJob[]
+  preDepartureSessions       PreDepartureSession[]
+  operationalEventStreams    OperationalEventStream[]
+  operationalEvents          OperationalEvent[]
+  communicationConversations CommunicationConversation[]
+  communicationMessages      CommunicationMessage[]
+  carMoverVehicleSubjects    CarMoverVehicleSubject[]
+  carMoverJobs               CarMoverJob[]
 }
 
 model User {
-  id                   String     @id @default(uuid()) @db.Uuid
-  companyId            String     @db.Uuid
-  company              Company    @relation(fields: [companyId], references: [id])
+  id                   String                @id @default(uuid()) @db.Uuid
+  companyId            String                @db.Uuid
+  company              Company               @relation(fields: [companyId], references: [id])
   displayName          String
   email                String
   passwordHash         String
   phoneNumber          String?
-  status               String     @default("Active")
-  personalDataStatus   String     @default("Active")
+  status               String                @default("Active")
+  personalDataStatus   String                @default("Active")
   anonymizedAt         DateTime?
   retentionUntil       DateTime?
   legalRetentionReason String?
-  createdAt            DateTime   @default(now())
-  updatedAt            DateTime   @updatedAt
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
   lastLoginAt          DateTime?
   roles                UserRole[]
+  authSessions         AuthSession[]
   preDepartureSessions PreDepartureSession[]
 
   @@unique([companyId, email])
+}
+
+model AuthSession {
+  id         String    @id @default(uuid()) @db.Uuid
+  companyId  String    @db.Uuid
+  userId     String    @db.Uuid
+  tokenHash  String    @unique @db.VarChar(64)
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  lastUsedAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, userId, expiresAt])
 }
 
 model Role {
@@ -209,10 +230,15 @@ model AuditEvent {
   requestId          String        @db.Uuid
   correlationId      String        @db.Uuid
   metadata           Json?
+  productId          String        @default("agm-cockpit") @db.VarChar(48)
+  moduleId           String        @default("cockpit-core") @db.VarChar(80)
+  subjectType        String        @default("TransportJob") @db.VarChar(64)
+  subjectId          String?       @db.Uuid
 
   @@index([transportJobId, occurredAt])
   @@index([correlationId])
   @@index([validationReportId])
+  @@index([companyId, productId, subjectType, subjectId, occurredAt])
 }
 
 model EvidenceMetadata {
@@ -333,4 +359,161 @@ model PreDepartureAnswer {
 
   @@unique([sessionId, checkId])
   @@index([companyId, status])
+}
+
+model OperationalEventStream {
+  id             String             @id @default(uuid()) @db.Uuid
+  companyId      String             @db.Uuid
+  company        Company            @relation(fields: [companyId], references: [id])
+  streamId       String             @db.Uuid
+  aggregateType  String             @db.VarChar(64)
+  currentVersion Int                @default(-1)
+  projection     Json?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  events         OperationalEvent[]
+  productId      String             @default("agm-cockpit") @db.VarChar(48)
+  moduleId       String             @default("premium-operations") @db.VarChar(80)
+  subjectType    String             @default("TripContext") @db.VarChar(64)
+  subjectId      String?            @db.Uuid
+
+  @@unique([companyId, streamId])
+  @@index([companyId, updatedAt])
+  @@index([companyId, productId, subjectType, subjectId])
+}
+
+model OperationalEvent {
+  id               String                 @id @default(uuid()) @db.Uuid
+  companyId        String                 @db.Uuid
+  company          Company                @relation(fields: [companyId], references: [id])
+  streamRecordId   String                 @db.Uuid
+  stream           OperationalEventStream @relation(fields: [streamRecordId], references: [id], onDelete: Cascade)
+  eventId          String                 @db.Uuid
+  idempotencyKey   String                 @db.Uuid
+  schemaVersion    String                 @db.VarChar(40)
+  eventType        String                 @db.VarChar(120)
+  eventVersion     Int
+  aggregateVersion Int
+  deviceId         String                 @db.Uuid
+  deviceSequence   Int
+  operationId      String                 @db.Uuid
+  correlationId    String                 @db.Uuid
+  occurredAt       DateTime
+  recordedAt       DateTime
+  payload          Json
+  envelope         Json
+  createdAt        DateTime               @default(now())
+  productId        String                 @default("agm-cockpit") @db.VarChar(48)
+  moduleId         String                 @default("premium-operations") @db.VarChar(80)
+  subjectType      String                 @default("TripContext") @db.VarChar(64)
+  subjectId        String?                @db.Uuid
+
+  @@unique([companyId, eventId])
+  @@unique([companyId, idempotencyKey])
+  @@unique([streamRecordId, aggregateVersion])
+  @@unique([streamRecordId, deviceId, deviceSequence])
+  @@index([companyId, streamRecordId, aggregateVersion])
+  @@index([companyId, occurredAt])
+  @@index([companyId, productId, subjectType, subjectId, occurredAt])
+}
+
+model CarMoverVehicleSubject {
+  id              String        @id @default(uuid()) @db.Uuid
+  companyId       String        @db.Uuid
+  company         Company       @relation(fields: [companyId], references: [id])
+  productId       String        @default("agm-car-mover") @db.VarChar(48)
+  vehicleClass    String        @db.VarChar(48)
+  vehicleType     String        @db.VarChar(80)
+  make            String?       @db.VarChar(120)
+  model           String?       @db.VarChar(120)
+  vin             String?       @db.VarChar(32)
+  registration    String?       @db.VarChar(32)
+  details         Json?
+  createdByUserId String        @db.Uuid
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  jobs            CarMoverJob[]
+
+  @@index([companyId, productId, vehicleClass])
+  @@index([companyId, productId, vin])
+  @@index([companyId, productId, registration])
+}
+
+model CarMoverJob {
+  id                   String                 @id @default(uuid()) @db.Uuid
+  companyId            String                 @db.Uuid
+  company              Company                @relation(fields: [companyId], references: [id])
+  productId            String                 @default("agm-car-mover") @db.VarChar(48)
+  moduleId             String                 @default("jobs") @db.VarChar(80)
+  subjectType          String                 @default("CarMoverJob") @db.VarChar(64)
+  vehicleSubjectId     String                 @db.Uuid
+  vehicleSubject       CarMoverVehicleSubject @relation(fields: [vehicleSubjectId], references: [id])
+  pickupSnapshot       Json
+  destinationSnapshot  Json
+  sourceType           String                 @default("manual") @db.VarChar(48)
+  sourceReference      String?                @db.VarChar(160)
+  currentState         String                 @default("DRAFT") @db.VarChar(32)
+  lifecycleVersion     Int                    @default(0)
+  createdByUserId      String                 @db.Uuid
+  assignedDriverUserId String?                @db.Uuid
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  @@unique([companyId, productId, sourceType, sourceReference])
+  @@index([companyId, productId, currentState, updatedAt])
+  @@index([companyId, productId, vehicleSubjectId])
+}
+
+model CommunicationConversation {
+  id               String                 @id @default(uuid()) @db.Uuid
+  companyId        String                 @db.Uuid
+  company          Company                @relation(fields: [companyId], references: [id])
+  channel          String                 @db.VarChar(16)
+  provider         String                 @db.VarChar(32)
+  externalThreadId String?                @db.VarChar(240)
+  participantKey   String                 @db.VarChar(320)
+  displayLabel     String?                @db.VarChar(160)
+  tripId           String?                @db.Uuid
+  status           String                 @default("open") @db.VarChar(24)
+  lastMessageAt    DateTime
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  messages         CommunicationMessage[]
+
+  @@unique([companyId, channel, provider, participantKey, externalThreadId])
+  @@index([companyId, channel, lastMessageAt])
+  @@index([companyId, tripId, lastMessageAt])
+}
+
+model CommunicationMessage {
+  id                String                    @id @default(uuid()) @db.Uuid
+  companyId         String                    @db.Uuid
+  company           Company                   @relation(fields: [companyId], references: [id])
+  conversationId    String                    @db.Uuid
+  conversation      CommunicationConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  channel           String                    @db.VarChar(16)
+  provider          String                    @db.VarChar(32)
+  direction         String                    @db.VarChar(12)
+  clientMessageId   String?                   @db.Uuid
+  providerMessageId String?                   @db.VarChar(240)
+  providerEventId   String?                   @db.VarChar(240)
+  fromAddress       String                    @db.VarChar(320)
+  toAddress         String                    @db.VarChar(320)
+  subject           String?                   @db.VarChar(500)
+  bodyText          String
+  status            String                    @db.VarChar(24)
+  occurredAt        DateTime
+  statusUpdatedAt   DateTime
+  retryCount        Int                       @default(0)
+  lastErrorCode     String?                   @db.VarChar(80)
+  metadata          Json?
+  createdByUserId   String?                   @db.Uuid
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+
+  @@unique([companyId, clientMessageId])
+  @@unique([companyId, channel, provider, providerMessageId])
+  @@unique([companyId, channel, provider, providerEventId])
+  @@index([companyId, conversationId, occurredAt])
+  @@index([companyId, status, statusUpdatedAt])
 }

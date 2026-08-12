@@ -10,6 +10,7 @@ import type { TripContext } from './trip-context.types';
 const CONTEXT_KEY = 'agm.premium.trip-context.v1';
 const EVENTS_KEY = 'agm.premium.operational-events.v1';
 const OUTBOX_KEY = 'agm.premium.operational-outbox.v1';
+const RESOLVED_CONFLICTS_KEY = 'agm.premium.operational-conflicts.v1';
 
 type StoragePort = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
@@ -67,6 +68,23 @@ export function createLocalOperationalContextPorts(storage: StoragePort): Operat
       storage.setItem(OUTBOX_KEY, JSON.stringify(events.map((event) =>
         event.eventId === eventId ? { ...event, sync: { ...event.sync, status: 'conflict' as const } } : event,
       )));
+    },
+    async resolveConflict(eventId, strategy) {
+      const events = readArray<OperationalEventV1>(storage, OUTBOX_KEY);
+      const event = events.find((candidate) => candidate.eventId === eventId);
+      if (!event || event.sync.status !== 'conflict') throw new Error('OPERATIONAL_CONFLICT_REQUIRED');
+      if (strategy === 'retry-local') {
+        storage.setItem(OUTBOX_KEY, JSON.stringify(events.map((candidate) => candidate.eventId === eventId
+          ? { ...candidate, sync: { ...candidate.sync, status: 'pending' as const } } : candidate)));
+        return;
+      }
+      const archive = readArray<{ event: OperationalEventV1; strategy: 'accept-server'; resolvedAt: string }>(storage, RESOLVED_CONFLICTS_KEY);
+      storage.setItem(RESOLVED_CONFLICTS_KEY, JSON.stringify([...archive, { event, strategy, resolvedAt: new Date().toISOString() }]));
+      storage.setItem(OUTBOX_KEY, JSON.stringify(events.filter((candidate) => candidate.eventId !== eventId)));
+    },
+    async resolvedConflicts(tripId) {
+      return readArray<{ event: OperationalEventV1; strategy: 'accept-server'; resolvedAt: string }>(storage, RESOLVED_CONFLICTS_KEY)
+        .filter((record) => record.event.tripId === tripId);
     },
   };
 

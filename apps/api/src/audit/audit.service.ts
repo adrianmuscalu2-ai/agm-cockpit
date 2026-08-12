@@ -19,6 +19,10 @@ interface CreateAuditEventInput {
   afterSnapshot?: unknown;
   validationReportId?: string;
   metadata?: unknown;
+  productId?: string;
+  moduleId?: string;
+  subjectType?: string;
+  subjectId?: string;
 }
 
 @Injectable()
@@ -42,6 +46,10 @@ export class AuditService {
         requestId: ctx.requestId || randomUUID(),
         correlationId: ctx.correlationId || randomUUID(),
         metadata: input.metadata as never,
+        productId: input.productId,
+        moduleId: input.moduleId,
+        subjectType: input.subjectType,
+        subjectId: input.subjectId,
       },
     });
   }

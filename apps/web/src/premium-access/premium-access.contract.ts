@@ -4,6 +4,9 @@ export const premiumCapabilityIds = [
   'premium.command-center',
   'premium.team',
   'premium.load-safety',
+  'premium.communications',
+  'premium.voice-assistant',
+  'car-mover.jobs',
 ] as const;
 
 export type AccessTier = (typeof accessTiers)[number];

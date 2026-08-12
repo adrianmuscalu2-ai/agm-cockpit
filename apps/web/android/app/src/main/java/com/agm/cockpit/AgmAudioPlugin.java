@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -46,6 +48,13 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     private long speechStartedAt;
     private long lastVoiceActivityAt;
     private long endOfSpeechAt;
+    private static final long AGM_ENDPOINT_TIMEOUT_MS = 2300L;
+    private final Handler endpointHandler = new Handler(Looper.getMainLooper());
+    private final Runnable endpointStop = () -> {
+        if (speechRecognizer == null || listeningCall == null) return;
+        Log.i(TAG, "AGM endpoint timeout reached; stopping recognition after " + AGM_ENDPOINT_TIMEOUT_MS + "ms");
+        speechRecognizer.stopListening();
+    };
 
     @PluginMethod
     public void checkMicrophonePermission(PluginCall call) {
@@ -96,7 +105,12 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, language);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false);
+            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+            // Slightly faster endpointing requested after the physical C0
+            // comparison. Values stay close to Android defaults and preserve
+            // enough pause for natural Romanian/German phrases.
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 900L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 650L);
             listeningCall = call;
             call.setKeepAlive(true);
             recognitionStartedAt = SystemClock.elapsedRealtime();
@@ -188,9 +202,11 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         if (pitchResult == TextToSpeech.ERROR) {
             Log.w(TAG, "Could not apply the AGM adult voice pitch");
         }
-        int speechRateResult = textToSpeech.setSpeechRate(0.95f);
+        // Restore the original validated Android cadence. The later 0.95
+        // override made operational dialogue perceptibly slow.
+        int speechRateResult = textToSpeech.setSpeechRate(1.08f);
         if (speechRateResult == TextToSpeech.ERROR) {
-            Log.w(TAG, "Could not apply the AGM reduced TTS speech rate");
+            Log.w(TAG, "Could not apply the AGM baseline TTS speech rate");
         }
         int result = textToSpeech.speak(pendingSpeechText, TextToSpeech.QUEUE_FLUSH, null, "agm-tts");
         if (result == TextToSpeech.ERROR) {
@@ -299,6 +315,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     }
 
     private void destroyRecognizer() {
+        endpointHandler.removeCallbacks(endpointStop);
         if (speechRecognizer != null) { speechRecognizer.destroy(); speechRecognizer = null; }
     }
 
@@ -337,6 +354,8 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         speechStartedAt = SystemClock.elapsedRealtime();
         lastVoiceActivityAt = speechStartedAt;
         Log.i(TAG, "Speech detected");
+        JSObject event = new JSObject(); event.put("state", "speechDetected"); notifyListeners("speechState", event);
+        armEndpointTimer();
     }
     @Override public void onEndOfSpeech() {
         endOfSpeechAt = SystemClock.elapsedRealtime();
@@ -344,9 +363,23 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         JSObject event = new JSObject(); event.put("state", "processing"); notifyListeners("speechState", event);
     }
     @Override public void onRmsChanged(float rmsdB) {
-        if (speechStartedAt > 0 && rmsdB > 2.0f) lastVoiceActivityAt = SystemClock.elapsedRealtime();
+        if (speechStartedAt > 0 && rmsdB > 5.0f) {
+            lastVoiceActivityAt = SystemClock.elapsedRealtime();
+            armEndpointTimer();
+        }
     }
     @Override public void onBufferReceived(byte[] buffer) {}
-    @Override public void onPartialResults(Bundle partialResults) {}
+    @Override public void onPartialResults(Bundle partialResults) {
+        ArrayList<String> matches = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+        if (matches != null && !matches.isEmpty() && !matches.get(0).trim().isEmpty()) {
+            lastVoiceActivityAt = SystemClock.elapsedRealtime();
+            armEndpointTimer();
+        }
+    }
     @Override public void onEvent(int eventType, Bundle params) {}
+
+    private void armEndpointTimer() {
+        endpointHandler.removeCallbacks(endpointStop);
+        endpointHandler.postDelayed(endpointStop, AGM_ENDPOINT_TIMEOUT_MS);
+    }
 }

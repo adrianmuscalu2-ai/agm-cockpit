@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-11T17-31-44-268Z",
+  "status": "PASS",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "startedAt": "2026-08-11T17:31:53.683Z",
+  "finishedAt": "2026-08-11T17:32:05.324Z",
+  "target": "http://127.0.0.1:5174/",
+  "route": "http://127.0.0.1:5174/after-departure.html",
+  "viewport": "412x915 Android-first Desktop emulation",
+  "iab": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "results": [
+    {
+      "id": "safety-gate",
+      "status": "PASS",
+      "startedAt": "2026-08-11T17:31:53.045Z",
+      "finishedAt": "2026-08-11T17:31:53.683Z",
+      "url": "http://127.0.0.1:5174/after-departure.html",
+      "screenshot": "evidence\\slice-b\\desktop\\2026-08-11T17-31-44-268Z\\safety-gate.png",
+      "detail": "unsafe response locks request, evidence and communication controls"
+    },
+    {
+      "id": "road-control-flow",
+      "status": "PASS",
+      "startedAt": "2026-08-11T17:31:53.684Z",
+      "finishedAt": "2026-08-11T17:31:56.401Z",
+      "url": "http://127.0.0.1:5174/after-departure.html",
+      "screenshot": "evidence\\slice-b\\desktop\\2026-08-11T17-31-44-268Z\\road-control-flow.png",
+      "detail": "safe stop, authority request, contextual evidence, OCR review, translation, PREPARE/HUMAN_CONFIRM and RESOLVED passed"
+    },
+    {
+      "id": "i18n-9-state",
+      "status": "PASS",
+      "startedAt": "2026-08-11T17:31:56.401Z",
+      "finishedAt": "2026-08-11T17:31:58.334Z",
+      "url": "http://127.0.0.1:5174/after-departure.html",
+      "screenshot": "evidence\\slice-b\\desktop\\2026-08-11T17-31-44-268Z\\i18n-9-state.png",
+      "detail": "nine localized UI variants rendered; state remained RESOLVED"
+    }
+  ],
+  "noFabricatedPass": true,
+  "fatal": null
+}

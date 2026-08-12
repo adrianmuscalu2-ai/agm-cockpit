@@ -3,6 +3,7 @@ export * from './local-adapters';
 export * from './operational-event';
 export * from './ports';
 export * from './recovery';
+export * from './server-sync';
 export * from './trip-context.machine';
 export * from './trip-context.service';
 export * from './trip-context.types';

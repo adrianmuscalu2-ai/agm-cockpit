@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-12T08-49-53-840Z",
+  "status": "FAIL",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "buildContext": {
+    "revision": "b241722e879bd68ee2f7367cb3338d854d00b54b"
+  },
+  "target": "http://127.0.0.1:5174",
+  "iab": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "results": [
+    {
+      "id": "c0-single-surface",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:50:01.124Z",
+      "finishedAt": "2026-08-12T08:50:01.645Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-49-53-840Z\\c0-single-surface.png",
+      "detail": "Single Android-first Copilot surface; microphone, OCR, text and speaker visible"
+    },
+    {
+      "id": "c0-confirmed-intent-safety",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:50:01.645Z",
+      "finishedAt": "2026-08-12T08:50:02.120Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-49-53-840Z\\c0-confirmed-intent-safety.png",
+      "detail": "Transcript remained editable until explicit confirmation; deterministic safety intent selected"
+    },
+    {
+      "id": "c0-unsafe-refresh-recovery",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:50:02.121Z",
+      "finishedAt": "2026-08-12T08:50:08.769Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-49-53-840Z\\c0-unsafe-refresh-recovery.png",
+      "detail": "Unsafe safety gate persisted through refresh; normal continuation remained blocked"
+    },
+    {
+      "id": "c0-feature-flag-rollback",
+      "status": "FAIL",
+      "startedAt": "2026-08-12T08:50:08.772Z",
+      "finishedAt": "2026-08-12T08:50:13.074Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "detail": "Error: Legacy projection not restored"
+    }
+  ],
+  "fatal": "Error: Legacy projection not restored"
+}

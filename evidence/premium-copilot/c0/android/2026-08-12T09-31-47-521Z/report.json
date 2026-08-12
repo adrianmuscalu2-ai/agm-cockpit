@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-12T09-31-47-521Z",
+  "status": "FAIL",
+  "device": "Samsung SM-S931B",
+  "package": "com.agm.cockpit",
+  "apkSha256": "87E7AE98602287165E0EFEA2AD8901F3A9C590FE85C40566F848CE61ADC37E5D",
+  "results": [],
+  "fatal": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded."
+}

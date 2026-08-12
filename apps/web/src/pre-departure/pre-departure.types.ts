@@ -52,7 +52,7 @@ export type PreDepartureSession = {
     readonly confirmedAt: string;
     readonly statementVersion: 'pre-departure-confirmation-v1';
   };
-  readonly language?: 'ro' | 'de' | 'en';
+  readonly language?: 'ro' | 'de' | 'en' | 'fr' | 'nl' | 'ru' | 'pl' | 'tr' | 'sq';
 };
 
 export type PreDepartureEvent =

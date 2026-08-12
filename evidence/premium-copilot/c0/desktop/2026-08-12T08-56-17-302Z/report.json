@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-12T08-56-17-302Z",
+  "status": "PASS",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "buildContext": {
+    "revision": "b241722e879bd68ee2f7367cb3338d854d00b54b"
+  },
+  "target": "http://127.0.0.1:5174",
+  "iab": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "results": [
+    {
+      "id": "c0-single-surface",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:56:25.545Z",
+      "finishedAt": "2026-08-12T08:56:26.612Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-56-17-302Z\\c0-single-surface.png",
+      "detail": "Single Android-first Copilot surface; microphone, OCR, text and speaker visible"
+    },
+    {
+      "id": "c0-confirmed-intent-safety",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:56:26.613Z",
+      "finishedAt": "2026-08-12T08:56:27.073Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-56-17-302Z\\c0-confirmed-intent-safety.png",
+      "detail": "Transcript remained editable until explicit confirmation; deterministic safety intent selected"
+    },
+    {
+      "id": "c0-unsafe-refresh-recovery",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:56:27.073Z",
+      "finishedAt": "2026-08-12T08:56:33.292Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-56-17-302Z\\c0-unsafe-refresh-recovery.png",
+      "detail": "Unsafe safety gate persisted through refresh; normal continuation remained blocked"
+    },
+    {
+      "id": "c0-feature-flag-rollback",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:56:33.292Z",
+      "finishedAt": "2026-08-12T08:56:34.248Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-56-17-302Z\\c0-feature-flag-rollback.png",
+      "detail": "Nondestructive feature-flag rollback restored the prior Premium projection"
+    }
+  ]
+}

@@ -10,6 +10,9 @@ export const premiumCapabilityIds = [
   'premium.command-center',
   'premium.team',
   'premium.load-safety',
+  'premium.communications',
+  'premium.voice-assistant',
+  'car-mover.jobs',
 ] as const;
 
 export type PremiumCapabilityId = (typeof premiumCapabilityIds)[number];
@@ -32,11 +35,14 @@ export function evaluateAccessEntitlements(input: {
   evaluatedAt: Date;
 }): AccessEntitlementSnapshot {
   const premium = input.roles.includes(ACCESS_ENTITLEMENTS_CONTRACT.premiumRole);
+  const carMover = input.roles.some((role) => ['CAR_MOVER_ACCESS', 'PRODUCT_OWNER', 'OWNER'].includes(role));
   return {
     subjectId: input.subjectId,
     tier: premium ? 'premium' : 'basic',
     status: 'active',
-    capabilities: premium ? premiumCapabilityIds : [],
+    capabilities: premium
+      ? premiumCapabilityIds.filter((capability) => capability !== 'car-mover.jobs' || carMover)
+      : [],
     evaluatedAt: input.evaluatedAt.toISOString(),
     policyVersion: ACCESS_ENTITLEMENTS_CONTRACT.version,
   };

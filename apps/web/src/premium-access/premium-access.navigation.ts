@@ -6,6 +6,9 @@ const capabilityForView: Record<PremiumViewName, PremiumCapabilityId> = {
   premium: 'premium.command-center',
   premiumTeam: 'premium.team',
   premiumLoadSafety: 'premium.load-safety',
+  premiumCommunications: 'premium.communications',
+  premiumVoice: 'premium.voice-assistant',
+  carMover: 'car-mover.jobs',
 };
 
 let verifiedSnapshot: AccessEntitlementSnapshot | undefined;

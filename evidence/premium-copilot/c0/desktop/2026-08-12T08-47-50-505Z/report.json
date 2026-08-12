@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-12T08-47-50-505Z",
+  "status": "FAIL",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "buildContext": {
+    "revision": "b241722e879bd68ee2f7367cb3338d854d00b54b"
+  },
+  "target": "http://127.0.0.1:5174",
+  "iab": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "results": [
+    {
+      "id": "c0-single-surface",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:47:57.549Z",
+      "finishedAt": "2026-08-12T08:47:58.104Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-47-50-505Z\\c0-single-surface.png",
+      "detail": "Single Android-first Copilot surface; microphone, OCR, text and speaker visible"
+    },
+    {
+      "id": "c0-confirmed-intent-safety",
+      "status": "PASS",
+      "startedAt": "2026-08-12T08:47:58.104Z",
+      "finishedAt": "2026-08-12T08:47:58.664Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\desktop\\2026-08-12T08-47-50-505Z\\c0-confirmed-intent-safety.png",
+      "detail": "Transcript remained editable until explicit confirmation; deterministic safety intent selected"
+    },
+    {
+      "id": "c0-unsafe-refresh-recovery",
+      "status": "FAIL",
+      "startedAt": "2026-08-12T08:47:58.664Z",
+      "finishedAt": "2026-08-12T08:48:34.473Z",
+      "url": "http://127.0.0.1:5174/premium",
+      "detail": "TimeoutError: locator.isDisabled: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-assistant-transcript]')\u001b[22m\n"
+    }
+  ],
+  "fatal": "TimeoutError: locator.isDisabled: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-assistant-transcript]')\u001b[22m\n"
+}

@@ -1,113 +1,32 @@
 import { renderPremiumShell } from './premium-shell';
+import type { BasicLanguageCode } from './language-registry';
+import { copilotEnabled } from './premium-copilot/copilot.contract';
+import { renderCopilot } from './premium-copilot/copilot.view';
 
 type PremiumTranslator = (key: string) => string;
 
-type PremiumModule = {
-  id: string;
-  marker: string;
-  titleKey: string;
-  descriptionKey: string;
-  href?: string;
-  view?: string;
-};
+const approvedUserWorkspaces = [
+  { title: 'Pre-Departure', href: '/before-departure.html' },
+  { title: 'Journey Operations Workspace', href: '/after-departure.html' },
+  { title: 'Vorbește cu AGM', href: '/premium/voice', module: 'premiumVoice' },
+] as const;
 
-const premiumModules: PremiumModule[] = [
-  {
-    id: 'ai-friend',
-    marker: 'AI',
-    titleKey: 'premium.module.aiFriend.title',
-    descriptionKey: 'premium.module.aiFriend.description',
-  },
-  {
-    id: 'transport-assistant',
-    marker: 'TR',
-    titleKey: 'premium.module.transport.title',
-    descriptionKey: 'premium.module.transport.description',
-  },
-  {
-    id: 'before-departure',
-    marker: 'BD',
-    titleKey: 'premium.module.beforeDeparture.title',
-    descriptionKey: 'premium.module.beforeDeparture.description',
-    href: '/before-departure.html',
-    view: 'beforeDeparture',
-  },
-  {
-    id: 'after-departure',
-    marker: 'AD',
-    titleKey: 'premium.module.afterDeparture.title',
-    descriptionKey: 'premium.module.afterDeparture.description',
-    href: '/after-departure.html',
-    view: 'afterDeparture',
-  },
-  {
-    id: 'load-safety',
-    marker: 'LS',
-    titleKey: 'premium.module.loadSafety.title',
-    descriptionKey: 'premium.module.loadSafety.description',
-    href: '/premium/ladungssicherung',
-    view: 'premiumLoadSafety',
-  },
-  {
-    id: 'smart-communication',
-    marker: 'CM',
-    titleKey: 'premium.module.communication.title',
-    descriptionKey: 'premium.module.communication.description',
-  },
-  {
-    id: 'driver-journal',
-    marker: 'JR',
-    titleKey: 'premium.module.journal.title',
-    descriptionKey: 'premium.module.journal.description',
-  },
-];
-
-export function renderPremiumFoundation(translate: PremiumTranslator, escapeHtml: (value: string) => string) {
-  const modules = premiumModules
-    .map(
-      (module) => `
-        <article class="premium-module" aria-labelledby="premium-${module.id}-title">
-          <span class="premium-module-marker" aria-hidden="true">${module.marker}</span>
-          <div class="premium-module-content">
-            <h2 id="premium-${module.id}-title">${escapeHtml(translate(module.titleKey))}</h2>
-            <p>${escapeHtml(translate(module.descriptionKey))}</p>
-            ${
-              module.href && module.view
-                ? `<a class="premium-module-action" href="${module.href}"${module.view.startsWith('premium') ? ` data-module="${module.view}"` : ''}>${escapeHtml(translate('premium.module.open'))}</a>`
-                : `<span class="premium-module-status">${escapeHtml(translate('premium.module.unavailable'))}</span>`
-            }
-          </div>
-        </article>
-      `,
-    )
-    .join('');
+export function renderPremiumFoundation(translate: PremiumTranslator, escapeHtml: (value: string) => string, language:BasicLanguageCode='ro') {
+  if(typeof window!=='undefined'&&copilotEnabled(window.localStorage))return renderCopilot(language,escapeHtml);
+  const workspaces = approvedUserWorkspaces.map((workspace) => `
+    <article class="premium-module premium-user-workspace">
+      <div class="premium-module-content">
+        <h2>${escapeHtml(workspace.title)}</h2>
+        <a class="premium-module-action" href="${workspace.href}"${'module' in workspace ? ` data-module="${workspace.module}"` : ''}>${escapeHtml(translate('premium.module.open'))}</a>
+      </div>
+    </article>
+  `).join('');
 
   return renderPremiumShell({
-    viewClass: 'premium-view',
-    labelledBy: 'premium-title',
-    brandHref: '/',
-    brandModule: 'home',
+    viewClass: 'premium-view', labelledBy: 'premium-title', brandHref: '/', brandModule: 'home',
     brandAriaLabel: escapeHtml(translate('premium.backToBasic')),
     navigation: `<a href="/" data-module="home" class="premium-back">${escapeHtml(translate('premium.backToBasic'))}</a>`,
-    content: `
-      <div class="premium-intro">
-        <span>${escapeHtml(translate('premium.eyebrow'))}</span>
-        <h1 id="premium-title">${escapeHtml(translate('premium.title'))}</h1>
-        <p>${escapeHtml(translate('premium.description'))}</p>
-        <a href="/premium/team" data-module="premiumTeam" class="premium-team-entry">
-          <strong>${escapeHtml(translate('premium.team.entryTitle'))}</strong>
-          <span>${escapeHtml(translate('premium.team.entryDescription'))}</span>
-        </a>
-      </div>
-
-      <div class="premium-modules" aria-label="${escapeHtml(translate('premium.modulesLabel'))}">
-        ${modules}
-      </div>
-    `,
-    footer: `
-      <a href="/" data-module="home" class="premium-back premium-back-footer">
-        ${escapeHtml(translate('premium.backToBasic'))}
-      </a>
-    `,
+    content: `<div class="premium-intro"><span>${escapeHtml(translate('premium.eyebrow'))}</span><h1 id="premium-title">${escapeHtml(translate('premium.title'))}</h1><p>${escapeHtml(translate('premium.description'))}</p></div><section class="premium-modules premium-user-workspaces" aria-label="Premium operational workspaces">${workspaces}</section>`,
+    footer: `<a href="/" data-module="home" class="premium-back premium-back-footer">${escapeHtml(translate('premium.backToBasic'))}</a>`,
   });
 }

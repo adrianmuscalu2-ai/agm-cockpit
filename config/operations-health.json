@@ -71,9 +71,9 @@
       "id": "server-backup",
       "label": "Server Backup",
       "kind": "static",
-      "staticStatus": "NOT APPLICABLE",
-      "displayStatus": "NOT APPLICABLE · SINGLE-WRITER",
-      "source": "Topologie Production validată · Hetzner single-writer, standby fără trafic Production"
+      "staticStatus": "NOT CONFIGURED",
+      "displayStatus": "BACKUP ENDPOINT NOT CONFIGURED · TARGET UNKNOWN",
+      "source": "Registru infrastructură · niciun endpoint sau target backup configurat"
     },
     {
       "id": "api",
@@ -96,11 +96,10 @@
     {
       "id": "android",
       "label": "Android",
-      "kind": "http",
-      "url": "/__agm/telemetry/android",
-      "evaluator": "ready",
-      "healthyStatus": "READY",
-      "source": "Collector Android local autorizat · ADB heartbeat fără identificatori de dispozitiv"
+      "kind": "static",
+      "staticStatus": "NOT IMPLEMENTED",
+      "displayStatus": "OPERATIONAL CLIENT · CONTINUOUS TELEMETRY NOT CONFIGURED",
+      "source": "Dovadă Android ADB/UI acceptată · fără collector continuu"
     },
     {
       "id": "ai",
@@ -144,10 +143,10 @@
     {
       "id": "telemetry",
       "label": "Telemetrie",
-      "kind": "aggregate",
-      "healthyStatus": "READY",
-      "source": "Collector central Turn · snapshoturi health persistate și reconciliate",
-      "dependencies": ["server-primary", "api", "browser", "android", "ai", "databases", "cloudflare-public", "security"],
+      "kind": "static",
+      "staticStatus": "NOT IMPLEMENTED",
+      "displayStatus": "DEGRADED · MONITORING PENDING",
+      "source": "Registru monitorizare · collector continuu neimplementat",
       "showInOperations": false
     },
     {

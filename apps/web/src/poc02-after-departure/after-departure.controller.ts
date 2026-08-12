@@ -12,8 +12,10 @@ import {
   type AfterDepartureJourneyAdapter,
 } from './after-departure.journey-adapter';
 
+const PREMIUM_LANGUAGE_KEY = 'agm.premium.language';
+
 const initialState = (): AfterDepartureViewState => ({
-  language: normalizeAfterDepartureLanguage(window.localStorage.getItem('agm.poc02.language')),
+  language: normalizeAfterDepartureLanguage(window.localStorage.getItem(PREMIUM_LANGUAGE_KEY) ?? window.localStorage.getItem('agm.poc02.language')),
   scenario: 'road-control',
   safeToInteract: false,
   immediateDanger: false,
@@ -54,6 +56,7 @@ export function mountAfterDepartureApp(
       readFormState();
       state.language = normalizeAfterDepartureLanguage((event.target as HTMLSelectElement).value);
       window.localStorage.setItem('agm.poc02.language', state.language);
+      window.localStorage.setItem(PREMIUM_LANGUAGE_KEY, state.language);
       render();
     });
 

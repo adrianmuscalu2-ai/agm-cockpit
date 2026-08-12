@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-12T08-06-04-292Z",
+  "status": "FAIL",
+  "device": "Samsung SM-S931B",
+  "package": "com.agm.cockpit",
+  "apkSha256": "63B963B331A335C01796517A06DAB0A7FF225C5688ECAC63F46E0BE5ECBA5A4A",
+  "results": [],
+  "fatal": "TimeoutError: page.waitForSelector: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-car-mover-root]') to be visible\u001b[22m\n"
+}

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "batch": "FIELD_TEST_BATCH_02",
+  "revision": "b241722e879bd68ee2f7367cb3338d854d00b54b",
+  "recordedAt": "2026-08-11T23:43:32.0915554+02:00",
+  "productOwnerDecision": {
+    "technicalValidation": "PASS",
+    "androidFieldTestBuild": "READY",
+    "situations10Through22": "13/13 READY",
+    "fieldAcceptance": "PENDING",
+    "officialState": "READY_FOR_PRODUCT_OWNER_FIELD_TEST_NOT_CLOSED",
+    "acceptedApkSha256": "658271A2DD8AEF533E2848B7019E7B8DAB5BED430F3CD083D2662642F8F26B76",
+    "buildFrozenUntilConcreteDefect": true
+  },
+  "desktop": {
+    "status": "PASS",
+    "runner": "Controlled AGM Playwright/Chromium",
+    "scenarios": "13/13",
+    "report": "evidence/field-test-batch-02/desktop/2026-08-11T20-10-43-962Z/report.json",
+    "screenshots": "13/13",
+    "machineReadable": true
+  },
+  "android": {
+    "status": "PASS",
+    "device": "Samsung SM-S931B",
+    "serial": "RFCY70WDHXK",
+    "package": "com.agm.cockpit",
+    "apkSha256": "658271A2DD8AEF533E2848B7019E7B8DAB5BED430F3CD083D2662642F8F26B76",
+    "scenarios": "13/13",
+    "restartRecovery": "PASS",
+    "safetyStateRecovered": { "safe": true, "danger": false },
+    "automaticExternalSend": false,
+    "screenshot": "evidence/field-test-batch-02/android-13-of-13.png",
+    "screenshotSha256": "67581BA62A5FCD12C819D8C27878CB442E575F9F53661E0541A687159EC473DA"
+  },
+  "gates": {
+    "registry24Of24": "PASS",
+    "batch02Specific13Of13": "PASS",
+    "i18n9Of9": "PASS",
+    "humanConfirmation": "PASS",
+    "offlineOutboxReconnect": "PASS",
+    "noAutomaticExternalSend": "PASS",
+    "webBuild": "PASS",
+    "androidBuild": "PASS",
+    "typescript": "PASS",
+    "gitDiffCheck": "PASS"
+  },
+  "technicalEvidencePending": 0,
+  "productOwnerFieldAcceptance": "PENDING"
+}

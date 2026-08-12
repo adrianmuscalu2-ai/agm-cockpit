@@ -73,6 +73,11 @@ export function readIncidentJournal(storage: Storage): OperationalIncident[] {
         const official = byId.get(local.id);
         if (!official || local.updatedAt > official.updatedAt) {
           byId.set(local.id, local);
+        } else if (local.id === 'AGM-MON-ANDROID') {
+          const history = [...local.history, ...official.history].filter((entry, index, entries) =>
+            entries.findIndex((candidate) => candidate.at === entry.at && candidate.action === entry.action && candidate.actor === entry.actor) === index,
+          );
+          byId.set(local.id, { ...official, history });
         }
       });
     }
@@ -236,7 +241,7 @@ function escapeHtml(value: string) { return value.replace(/[&<>'"]/g, (character
 function createIncidentId(now: Date) { return `AGM-INC-${now.toISOString().slice(0, 10).replace(/-/g, '')}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`; }
 function normalizeIncident(item: OperationalIncident): OperationalIncident { return { ...item, environments: Array.isArray(item.environments) ? item.environments : [], relatedIncidentIds: Array.isArray(item.relatedIncidentIds) ? item.relatedIncidentIds : [], reusableSolution: Boolean(item.reusableSolution), history: Array.isArray(item.history) ? item.history : [] }; }
 
-function historicalIncidents(): OperationalIncident[] {
+export function historicalIncidents(): OperationalIncident[] {
   const resolved = (id: string, date: string, module: string, environments: IncidentEnvironment[], category: IncidentCategory, severity: IncidentSeverity, symptom: string, cause: string, solution: string, tests: string, preventive: string, relatedIncidentIds: string[] = []): OperationalIncident => ({
     id, occurredAt: date, updatedAt: date, module, environments, category, symptom, severity,
     reproduction: `Reprodus în mediile: ${environments.join(', ')}.`, cause, attemptedSolutions: 'Diagnosticare, verificarea configurației și testarea controlată a variantelor.', appliedSolution: solution,
@@ -245,6 +250,32 @@ function historicalIncidents(): OperationalIncident[] {
     history: [{ at: date, action: 'historical-import', actor: 'Turn Command Center', toStatus: 'validated', note: 'Incident istoric importat cu soluția și validarea existente.' }],
   });
   return [
+    {
+      id: 'AGM-MON-ANDROID',
+      occurredAt: '2026-08-07T16:00:00.000Z',
+      updatedAt: '2026-08-11T14:30:00.000Z',
+      module: 'Android client / monitoring',
+      environments: ['Android/APK', 'API', 'Wi-Fi/date mobile'],
+      category: 'technical',
+      symptom: 'Monitorul Android nu putea confirma starea țintei și incidentul persistent era afișat OPEN / ACTIVE.',
+      severity: 'major',
+      reproduction: 'Cardul Turn raporta agent DEGRADED și target UNKNOWN / NO TELEMETRY, iar copia persistentă AGM-MON-ANDROID rămânea activă.',
+      cause: 'Clientul Android nu era defect; sursa Android este statică și collectorul Production pentru heartbeat continuu nu este implementat, astfel încât incidentul vechi nu putea primi automat un eveniment recovery.',
+      attemptedSolutions: 'Audit read-only al sursei Turn, monitorului MON-005, jurnalului, ADB, WebView și endpointurilor publice Production.',
+      appliedSolution: 'Incidentul de produs a fost reconciliat ca validat pe dovada funcționării reale. Gap-ul de monitoring rămâne explicit DEGRADED / NO CONTINUOUS TELEMETRY, cu target UNKNOWN / NO TELEMETRY.',
+      owner: 'Turn Command Center / Monitoring / QA & Validation',
+      fixedInVersion: 'AGM-MON-ANDROID reconciliation 2026-08-11',
+      tests: 'Samsung SM-S931B ADB device; AGM Cockpit activ; Production API health din Android HTTP 200; auth refresh HTTP 201; force-stop/relaunch cu Premium, SQ și CMR persistente; API public live/ready HTTP 200; test:turn-live-state PASS.',
+      humanValidation: 'Product Owner a acceptat constatarea ANDROID PRODUCT — OPERATIONAL / PASS și a autorizat reconcilierea incidentului, fără declararea telemetriei ca HEALTHY.',
+      preventiveMeasure: 'Păstrarea Android Monitoring DEGRADED și target UNKNOWN până la existența unui collector Production real; lipsa telemetriei nu este clasificată drept defect Android.',
+      status: 'validated',
+      relatedIncidentIds: ['AGM-FU-20260725-UILIVE'],
+      reusableSolution: true,
+      history: [
+        { at: '2026-08-07T16:00:00.000Z', action: 'historical-monitoring-import', actor: 'Turn Command Center', toStatus: 'analysis', note: 'Incidentul persistent a consemnat lipsa unei ținte Android monitorizabile continuu.' },
+        { at: '2026-08-11T14:30:00.000Z', action: 'validated', actor: 'Product Owner / Turn Command Center / Monitoring', fromStatus: 'analysis', toStatus: 'validated', note: 'Clientul Android este operațional contra Production API; incidentul de produs este închis. Monitoringul rămâne DEGRADED și targetul UNKNOWN / NO TELEMETRY.' },
+      ],
+    },
     {
       id: 'AGM-INC-20260728-ANDROID-CORS',
       occurredAt: '2026-07-28T15:25:00.000Z',
@@ -302,27 +333,29 @@ function historicalIncidents(): OperationalIncident[] {
     {
       id: 'AGM-FU-20260728-CLOUDFLARED-PERSISTENCE',
       occurredAt: '2026-07-28T17:00:00.000Z',
-      updatedAt: '2026-07-28T18:01:34.000Z',
+      updatedAt: '2026-08-09T06:16:37.000Z',
       module: 'Cloudflare Production Hetzner',
       environments: ['Cloudflare'],
       category: 'infrastructure',
-      symptom: 'Conectorul Production Hetzner funcționează ca unitate systemd tranzitorie; un restart al serverului poate întrerupe ruta publică.',
+      symptom: 'Conectorul Production Hetzner funcționa ca unitate systemd tranzitorie; un restart al serverului putea întrerupe ruta publică.',
       severity: 'major',
       reproduction: 'Starea unității arată un lifecycle tranzitoriu, fără unitate persistentă aprobată și validată pentru boot.',
       cause: 'Deploymentul a activat conectorul printr-o unitate tranzitorie; permanentizarea a fost exclusă din mandatul de deployment.',
       attemptedSolutions: 'Riscul a fost documentat, serverul a fost pus sub interdicție de restart, iar fallback-ul PC a fost conservat.',
-      appliedSolution: 'Măsură temporară activă: fără restart Hetzner, monitorizarea conectorului și păstrarea fallback-ului. Remedierea permanentă necesită mandat separat.',
+      appliedSolution: 'Unitatea persistentă /etc/systemd/system/agm-production-cloudflared.service a fost creată, verificată și activată cu dependență de network-online și pornire multi-user; configurația tunelului a rămas neschimbată.',
       owner: 'Release & Operations / Crisis Coordination Cell',
-      fixedInVersion: 'PENDING – ciclu separat pentru unitatea systemd persistentă',
-      tests: 'Tunel Production healthy și trafic public funcțional după deployment; persistența la reboot nu este încă validată.',
-      humanValidation: 'Production este accesibilă extern; limitarea operațională a fost acceptată explicit la închiderea deploymentului.',
+      fixedInVersion: 'AGM-CHG-20260801-001',
+      tests: 'Controlled reboot PASS: host boot 2026-08-01 06:43:26 UTC, conector activ automat la 06:43:44 UTC, NRestarts=0; API live/ready și ruta publică au răspuns HTTP 200 după reboot.',
+      humanValidation: 'Închiderea operațională OPS-004 confirmă unitatea systemd persistentă și automatic recovery PASS, fără intervenție manuală.',
       preventiveMeasure: 'Crearea, verificarea, activarea și testarea controlată la reboot a unei unități systemd persistente înainte de eliminarea interdicției de restart.',
-      status: 'remediation',
+      status: 'validated',
       relatedIncidentIds: ['AGM-FU-20260725-CF1033'],
-      reusableSolution: false,
+      reusableSolution: true,
       history: [
         { at: '2026-07-28T17:00:00.000Z', action: 'created', actor: 'Turn Command Center', toStatus: 'remediation', note: 'Follow-up operațional deschis la închiderea deploymentului Production.' },
         { at: '2026-07-28T18:01:34.000Z', action: 'status-confirmed', actor: 'Release & Operations', fromStatus: 'remediation', toStatus: 'remediation', note: 'Production rămâne activă; restartul Hetzner rămâne interzis până la remedierea persistentă.' },
+        { at: '2026-08-01T06:43:44.000Z', action: 'validated', actor: 'Release & Operations / Independent Validator', fromStatus: 'remediation', toStatus: 'validated', note: 'AGM-CHG-20260801-001: unitate persistentă, controlled reboot și recuperare automată validate; API ready și ruta publică HTTP 200.' },
+        { at: '2026-08-09T06:16:37.000Z', action: 'registry-reconciled', actor: 'Rescue / Turn Command Center', fromStatus: 'validated', toStatus: 'validated', note: 'Registrul oficial a fost reconciliat cu dovada de closure; timestampul oficial înlocuiește copiile locale istorice rămase în remediation.' },
       ],
     },
     {

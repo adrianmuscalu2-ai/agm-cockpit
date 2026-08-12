@@ -2,7 +2,7 @@ import {
   createPreDepartureSession,
   transitionPreDeparture,
 } from './pre-departure.machine';
-import { normalizePreDepartureLanguage, preDepartureCopy } from './pre-departure.i18n';
+import { normalizePreDepartureLanguage, preDepartureCopy, type PreDepartureLanguage } from './pre-departure.i18n';
 import { renderPreDepartureShell, type PreDepartureViewState } from './pre-departure.shell';
 import type {
   PreDepartureAnswer,
@@ -23,6 +23,7 @@ import { createPreDepartureUuid } from './pre-departure.uuid';
 import { createPreDepartureJourneyFacade } from './pre-departure.facade';
 
 const STORAGE_KEY = 'agm.e6.pre-departure.session.v1';
+const PREMIUM_LANGUAGE_KEY = 'agm.premium.language';
 const SYNC_META_KEY = 'agm.pre-departure.sync-meta.v1';
 const journeyFacade = createPreDepartureJourneyFacade();
 
@@ -32,17 +33,20 @@ const baseChecks: readonly PreDepartureCheckId[] = ['vehicle', 'driver', 'docume
 const adrChecks: readonly PreDepartureCheckId[] = ['documents', 'cargo', 'adr'];
 const weatherChecks: readonly PreDepartureCheckId[] = ['vehicle', 'driver', 'route', 'weather'];
 
-const notApplicableReasons = {
+const notApplicableReasons: Record<PreDepartureLanguage, string> = {
   ro: 'Neaplicabil pentru contextul selectat',
   de: 'Für den ausgewählten Kontext nicht anwendbar',
   en: 'Not applicable for the selected context',
-} as const;
+  fr: 'Non applicable au contexte sélectionné', nl: 'Niet van toepassing op de geselecteerde context',
+  ru: 'Не применимо к выбранным условиям', pl: 'Nie dotyczy wybranego kontekstu',
+  tr: 'Seçilen bağlam için uygulanamaz', sq: 'Nuk zbatohet për kontekstin e zgjedhur',
+};
 
 export function applyPreDepartureAnswer(
   session: PreDepartureSession,
   checkId: PreDepartureCheckId,
   answerType: 'confirmed' | 'problem' | 'na',
-  language: keyof typeof notApplicableReasons,
+  language: PreDepartureLanguage,
 ) {
   const answer: PreDepartureAnswer =
     answerType === 'confirmed'
@@ -223,9 +227,13 @@ function render(root: HTMLElement, state: PreDepartureViewState) {
 }
 
 export function mountPreDepartureShell(root: HTMLElement) {
-  let language = normalizePreDepartureLanguage(window.localStorage.getItem('agm.pre-departure.language'));
+  let language = normalizePreDepartureLanguage(
+    window.localStorage.getItem(PREMIUM_LANGUAGE_KEY) ?? window.localStorage.getItem('agm.pre-departure.language'),
+  );
   let session = createPreDepartureSession();
   let feedback = '';
+
+  document.documentElement.lang = language;
 
   const restored = safeParse(window.localStorage.getItem(STORAGE_KEY));
   if (restored) {
@@ -283,7 +291,9 @@ export function mountPreDepartureShell(root: HTMLElement) {
 
     if (target.matches('[data-pre-departure-language]')) {
       language = normalizePreDepartureLanguage(target.value);
+      document.documentElement.lang = language;
       window.localStorage.setItem('agm.pre-departure.language', language);
+      window.localStorage.setItem(PREMIUM_LANGUAGE_KEY, language);
       persist(session, language);
       feedback = '';
       draw();
@@ -378,6 +388,7 @@ export function mountPreDepartureShell(root: HTMLElement) {
       language = normalizePreDepartureLanguage(stored.language);
       session = restoredResult.session;
       window.localStorage.setItem('agm.pre-departure.language', language);
+      window.localStorage.setItem(PREMIUM_LANGUAGE_KEY, language);
       feedback = preDepartureCopy[language].restoredFeedback;
       draw();
       return;

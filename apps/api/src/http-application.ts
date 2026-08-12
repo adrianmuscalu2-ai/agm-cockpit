@@ -16,6 +16,7 @@ export function configureHttpApplication(app: Awaited<ReturnType<typeof NestFact
   app.use(helmet());
   const allowedOrigins = new Set(configuredCorsOrigins(config.getOrThrow<string>('CORS_ALLOWED_ORIGINS')));
   app.enableCors({
+    credentials: true,
     origin(origin, callback) {
       if (!origin || allowedOrigins.has(origin)) return callback(null, true);
       return callback(null, false);

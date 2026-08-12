@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "scope": "premium.road-control.slice-b",
+  "updatedAt": "2026-08-11T21:00:00+02:00",
+  "revision": "b241722e879bd68ee2f7367cb3338d854d00b54b",
+  "visualBuildSha256": "59AB75342D0667626E1025D24A1D189C9D39BBF90A67C5D3301531DE03ED49A4",
+  "status": "PASS / CLOSED",
+  "productOwnerAcceptance": "GRANTED / FINAL / 2026-08-11",
+  "authorization": "Vertical Slice B final gate completion only; remaining 22 situations excluded",
+  "registry": ["required-document", "road-control"],
+  "evidence": [
+    {"id":"domain-state-foundation","result":"PASS","proof":"pnpm --filter @agm/web test:slice-b-road-control","tool":"tsx/node"},
+    {"id":"offline-outbox-order-restart","result":"PASS","proof":"test:slice-b-road-control: four deterministic revisions persisted in order across a fresh adapter","tool":"tsx/node"},
+    {"id":"reconnect-flush-dedup","result":"PASS","proof":"test:slice-b-road-control: unique flush, empty repeat flush, acknowledged operation not requeued","tool":"tsx/node"},
+    {"id":"no-automatic-external-send","result":"PASS","proof":"PREPARED then HUMAN_CONFIRMED snapshots only; MARK_SENT/RECORD_RECEIPT absent","tool":"tsx/node + Controlled Chromium"},
+    {"id":"conflict-recovery","result":"PASS","proof":"server conflict transitions case to RECOVERY_REQUIRED","tool":"tsx/node"},
+    {"id":"i18n-9-state","result":"PASS","proof":"RO/DE/EN/FR/NL/RU/PL/TR/SQ same semantic keys and controlled UI state persistence","tool":"tsx/node + Controlled Chromium"},
+    {"id":"slice-a-regression","result":"PASS","proof":"test:situation-router and test:slice-a-remediation","tool":"tsx/node"},
+    {"id":"web-build","result":"PASS","proof":"Vite production build; 250 modules; afterDeparture-Cci5u-cR.js","tool":"pnpm/vite"},
+    {"id":"desktop-controlled-runner","result":"PASS","proof":"desktop/2026-08-11T18-21-44-209Z/report.json and three screenshots","tool":"Controlled AGM Playwright/Chromium"},
+    {"id":"android-build","result":"PASS","proof":"official cached Gradle 8.14.3 offline assembleDebug; APK SHA256 37AC9B31FD5D4FEB001509CA1D696FE5C26E7EC8C35AD5AD4620D2F38C530377","tool":"Gradle 8.14.3 / Java 21"},
+    {"id":"physical-android","result":"PASS","proof":"android/2026-08-11T20-51-58+02-00/report.json; safety gate, road-control flow, offline/restart/language and no-auto-send on Samsung SM-S931B","tool":"ADB + Android WebView CDP"},
+    {"id":"git-diff-check","result":"PASS","proof":"git diff --check on Slice B/evidence/Android generated scope","tool":"git"}
+  ],
+  "browserPreflight": {
+    "Browser Plugin Status": "PASS",
+    "Integrated Browser Control Status": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "Browser Session Status": "PASS",
+    "Target Page Status": "PASS"
+  },
+  "iab": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE / NON-BLOCKING",
+  "sliceA": "PASS / CLOSED / PRESERVED",
+  "remainingSituations": "NOT IMPLEMENTED / NOT AUTHORIZED",
+  "verdict": "SLICE B — PASS / CLOSED"
+}

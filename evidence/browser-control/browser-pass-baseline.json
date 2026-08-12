@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "acceptedAt": "2026-08-09T05:36:37.335Z",
+  "canonical": {
+    "website": "https://app.agmcockpit.com/",
+    "cockpit": "http://127.0.0.1:5174/",
+    "email": "http://127.0.0.1:5174/email",
+    "fitness": "http://127.0.0.1:5173/"
+  },
+  "visualSignature": "EE7D8D77C09398C44F0F6523B2950592596D7EF48B8589C60A634FF4FA504254",
+  "evidenceHashes": {
+    "HANDOFF.md": "06635EF2E26863BB823824E17FBCBC4132103AF7C822E537813677ADBD09A14A",
+    "public-app-agmcockpit.png": "19AAA47B5EF63725C15F0C844AD22490722908A54966C167CEDC87089B51E150",
+    "local-5174-timeout-state.png": "4462ED8A9EC3C8F0E6AE94D6B2D9668F44AD0BE92ADC537FCF14CE456CCFB97C",
+    "local-5174-email.png": "6C78334FDCDFB02FD4B95E2E82E17DE70FC91CA8C0DB39EFEE1713ADA0A89E3D"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-11T16-18-24-110Z",
+  "status": "FAIL",
+  "startedAt": "2026-08-11T16:18:24.211Z",
+  "finishedAt": "2026-08-11T16:19:10.113Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "chromiumVersion": "151.0.7922.34",
+  "target": "http://127.0.0.1:5174/",
+  "route": "http://127.0.0.1:5174/before-departure.html",
+  "build": {
+    "gitCommit": "b241722e879bd68ee2f7367cb3338d854d00b54b",
+    "workingTree": "dirty",
+    "manifest": "evidence\\slice-a\\EVIDENCE_MANIFEST.json",
+    "manifestSha256": "E158AD4C983ADBDB17BF65FB85E8F2A7FB8E698132FC1FCCF55A2ED9228D29D4"
+  },
+  "iab": {
+    "status": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "blocking": false,
+    "proof": "Browser is not available: iab; discovered backends []"
+  },
+  "results": [
+    {
+      "scenario": "A",
+      "status": "PASS",
+      "startedAt": "2026-08-11T16:18:29.175Z",
+      "finishedAt": "2026-08-11T16:18:35.727Z",
+      "url": "http://127.0.0.1:5174/before-departure.html",
+      "screenshot": "evidence\\slice-a\\desktop\\2026-08-11T16-18-24-110Z\\scenario-a.png",
+      "detail": "present/readable/valid renders terminal READY"
+    },
+    {
+      "scenario": "B",
+      "status": "PASS",
+      "startedAt": "2026-08-11T16:18:35.727Z",
+      "finishedAt": "2026-08-11T16:18:40.831Z",
+      "url": "http://127.0.0.1:5174/before-departure.html",
+      "screenshot": "evidence\\slice-a\\desktop\\2026-08-11T16-18-24-110Z\\scenario-b.png",
+      "detail": "missing document renders blocked verdict and disabled READY"
+    },
+    {
+      "scenario": "H",
+      "status": "PASS",
+      "startedAt": "2026-08-11T16:18:40.832Z",
+      "finishedAt": "2026-08-11T16:18:45.621Z",
+      "url": "http://127.0.0.1:5174/before-departure.html",
+      "screenshot": "evidence\\slice-a\\desktop\\2026-08-11T16-18-24-110Z\\scenario-h.png",
+      "detail": "edited text visible; initial OCR and original->OCR->confirmation provenance preserved"
+    },
+    {
+      "scenario": "K",
+      "status": "PASS",
+      "startedAt": "2026-08-11T16:18:45.621Z",
+      "finishedAt": "2026-08-11T16:18:56.945Z",
+      "url": "http://127.0.0.1:5174/before-departure.html",
+      "screenshot": "evidence\\slice-a\\desktop\\2026-08-11T16-18-24-110Z\\scenario-k.png",
+      "detail": "reload and controlled page restart preserved selected document and confirmed case"
+    },
+    {
+      "scenario": "L",
+      "status": "FAIL",
+      "startedAt": "2026-08-11T16:18:56.945Z",
+      "finishedAt": "2026-08-11T16:19:01.987Z",
+      "url": "http://127.0.0.1:5174/before-departure.html",
+      "screenshot": "evidence\\slice-a\\desktop\\2026-08-11T16-18-24-110Z\\scenario-l-fail.png",
+      "detail": "Albanian UI not rendered"
+    }
+  ],
+  "requirements": {
+    "screenshotsComplete": false,
+    "machineReadableReport": true,
+    "noFabricatedPass": false
+  },
+  "fatal": "L: Albanian UI not rendered"
+}

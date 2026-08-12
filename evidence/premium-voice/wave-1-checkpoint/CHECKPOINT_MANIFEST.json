@@ -1,0 +1,36 @@
+{
+  "checkpoint": "PREMIUM VOICE WAVE 1",
+  "status": "PASS / FROZEN",
+  "acceptedAt": "2026-08-12T20:30:00+02:00",
+  "device": {
+    "model": "Samsung SM-S931B",
+    "adbSerial": "RFCY70WDHXK"
+  },
+  "apk": {
+    "sourcePath": "apps/web/android/app/build/outputs/apk/debug/app-debug.apk",
+    "archivePath": "artifacts/premium-voice-wave-1/AGM-Cockpit-Premium-Voice-Wave-1.apk",
+    "sha256": "09C22AEA8C7ACD3EF46F49B761B0992CDEB9D5C07E28472FF2704F4A47F6E38B",
+    "bytes": 590169649,
+    "versionName": "1.3.0",
+    "versionCode": 16,
+    "installedAt": "2026-08-12T20:27:09+02:00"
+  },
+  "audioConfiguration": {
+    "endpointTimeoutMs": 2300,
+    "completeSilenceHintMs": 900,
+    "possiblyCompleteSilenceHintMs": 650,
+    "rmsVoiceActivityThresholdDb": 5.0,
+    "ttsRate": 1.08,
+    "ttsPitch": 0.82
+  },
+  "scope": {
+    "wakePhrase": "NOT IMPLEMENTED",
+    "backgroundMicrophone": "NOT IMPLEMENTED",
+    "newEmailProvider": "NOT IMPLEMENTED",
+    "newWhatsAppProvider": "NOT IMPLEMENTED"
+  },
+  "rollback": {
+    "method": "Create a new branch/worktree from the checkpoint tag; do not reset a dirty working tree.",
+    "tag": "premium-voice-wave-1-pass-2026-08-12"
+  }
+}

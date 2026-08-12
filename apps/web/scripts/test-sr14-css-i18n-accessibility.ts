@@ -25,8 +25,8 @@ const reconstructedCss = cssModules
   .reduce((output, content) => Buffer.concat([output, content]), Buffer.alloc(0));
 assert.equal(
   createHash('sha256').update(reconstructedCss).digest('hex').toUpperCase(),
-  '4507BE92FB1586A1D8374A505786059B88B82D8EAE89ABC78B1732D0B4CB5245',
-  'The modular CSS must reconstruct the approved Access/Premium cascade.',
+  'D27B210081C5510D57CF65EB3F6899B54CC3319D48D4EE413BF91BFCA28069D3',
+  'The modular CSS must reconstruct the approved Access/Premium and Android Wave 1 cascade.',
 );
 
 assert.deepEqual([...supportedUiLanguages], ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq']);
@@ -79,7 +79,7 @@ for (const key of [
 ]) {
   assert.ok(main.includes(`'${key}'`), `OCR page must use ${key}`);
 }
-assert.match(main, /class="translator-hud ocr-page"[^>]*aria-labelledby="ocr-page-title"/);
+assert.match(main, /class="translator-hud ocr-page(?: [^"]+)?"[^>]*aria-labelledby="ocr-page-title"/);
 assert.match(main, /aria-busy=/);
 assert.match(main, /<textarea id="ocrExtractedText"/);
 const domainCss = readFileSync(new URL('../src/styles/20-domain-tools.css', import.meta.url), 'utf8');

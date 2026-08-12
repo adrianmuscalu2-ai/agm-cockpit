@@ -6,9 +6,10 @@ deployment mandate.
 ## Official identities
 
 - API container: `agm-production-api`
-- API image:
-  `agm-api@sha256:c232624416236ede00aa992369e8c519668694399fff1d9266de19da0db4d43c`
-- OCI revision: `9956eb188fdd988bf0d7af93241c3c43962d9b39`
+- API image: `agm-api:cors-credentials-20260810`
+- Immutable image ID:
+  `sha256:ae6c95ab5489fa279159074980a2c9ecb267ff924c2953e281f59402f38485ba`
+- OCI revision: `cors-credentials-20260810`
 - PostgreSQL container: `agm-postgres`
 - PostgreSQL volume: `app_agm_postgres_data`
 - Shared external Docker network: `app_default`

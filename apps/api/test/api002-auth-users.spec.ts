@@ -3,11 +3,21 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { AUTH_CONTRACT } from '../src/auth/auth.contract';
+import { AuthController } from '../src/auth/auth.controller';
 import { AuthService } from '../src/auth/auth.service';
 import { JwtStrategy } from '../src/auth/jwt.strategy';
 import { UsersService } from '../src/users/users.service';
 
 describe('API-002 Auth & Users contract', () => {
+  const prismaMock = () => ({
+    user: { update: jest.fn().mockResolvedValue(undefined) },
+    authSession: {
+      create: jest.fn().mockResolvedValue(undefined),
+      findUnique: jest.fn(),
+      update: jest.fn().mockResolvedValue(undefined),
+      updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+    },
+  });
   const activeUser = {
     id: 'user-1',
     companyId: 'company-1',
@@ -26,7 +36,8 @@ describe('API-002 Auth & Users contract', () => {
     const user = { ...activeUser, passwordHash: await bcrypt.hash('correct-password', 4) };
     const users = { findByEmail: jest.fn().mockResolvedValue(user) };
     const jwt = { signAsync: jest.fn().mockResolvedValue('token') };
-    const service = new AuthService(users as never, jwt as unknown as JwtService);
+    const prisma = prismaMock();
+    const service = new AuthService(users as never, jwt as unknown as JwtService, prisma as never);
 
     await expect(service.login('owner@agm.test', 'correct-password')).resolves.toMatchObject({
       accessToken: 'token',
@@ -38,6 +49,10 @@ describe('API-002 Auth & Users contract', () => {
       roles: ['OWNER'],
       scope: AUTH_CONTRACT.tokenScope,
     });
+    expect(prisma.authSession.create).toHaveBeenCalledWith({ data: expect.objectContaining({
+      companyId: 'company-1', userId: 'user-1', tokenHash: expect.stringMatching(/^[a-f0-9]{64}$/),
+      expiresAt: expect.any(Date),
+    }) });
   });
 
   it.each([
@@ -47,10 +62,84 @@ describe('API-002 Auth & Users contract', () => {
     const service = new AuthService(
       { findByEmail: jest.fn().mockResolvedValue(user) } as never,
       { signAsync: jest.fn() } as unknown as JwtService,
+      prismaMock() as never,
     );
     await expect(service.login('owner@agm.test', password)).rejects.toMatchObject({
       message: 'Invalid credentials.',
     });
+  });
+
+  it('restores only an active, unexpired, non-revoked refresh session and never persists the raw token', async () => {
+    const prisma = prismaMock();
+    prisma.authSession.findUnique.mockResolvedValue({
+      id: 'session-1', revokedAt: null, expiresAt: new Date(Date.now() + 60_000),
+      user: activeUser,
+    });
+    const jwt = { signAsync: jest.fn().mockResolvedValue('restored-access-token') };
+    const service = new AuthService({} as never, jwt as unknown as JwtService, prisma as never);
+    const restored = await service.refresh('raw-refresh-token');
+    expect(restored.accessToken).toBe('restored-access-token');
+    expect(prisma.authSession.findUnique).toHaveBeenCalledWith(expect.objectContaining({
+      where: { tokenHash: expect.stringMatching(/^[a-f0-9]{64}$/) },
+    }));
+    expect(JSON.stringify(prisma.authSession.findUnique.mock.calls)).not.toContain('raw-refresh-token');
+    expect(prisma.authSession.update).toHaveBeenCalledWith({ where: { id: 'session-1' }, data: { lastUsedAt: expect.any(Date) } });
+  });
+
+  it.each([
+    [undefined, undefined],
+    ['missing', null],
+    ['revoked', { id:'session-r', revokedAt:new Date(), expiresAt:new Date(Date.now()+60_000), user:activeUser }],
+    ['expired', { id:'session-e', revokedAt:null, expiresAt:new Date(Date.now()-1), user:activeUser }],
+    ['inactive-user', { id:'session-i', revokedAt:null, expiresAt:new Date(Date.now()+60_000), user:{ ...activeUser, status:'Disabled' } }],
+  ])('rejects invalid refresh sessions: %s', async (_label, session) => {
+    const prisma = prismaMock();
+    prisma.authSession.findUnique.mockResolvedValue(session);
+    const service = new AuthService({} as never, { signAsync: jest.fn() } as unknown as JwtService, prisma as never);
+    await expect(service.refresh(_label === undefined ? undefined : 'token')).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('revokes a refresh session idempotently on logout', async () => {
+    const prisma = prismaMock();
+    const service = new AuthService({} as never, { signAsync: jest.fn() } as unknown as JwtService, prisma as never);
+    await service.logout('raw-refresh-token');
+    expect(prisma.authSession.updateMany).toHaveBeenCalledWith({
+      where: { tokenHash: expect.stringMatching(/^[a-f0-9]{64}$/), revokedAt: null },
+      data: { revokedAt: expect.any(Date) },
+    });
+    await service.logout(undefined);
+    expect(prisma.authSession.updateMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the refresh token out of the response and applies the secure HttpOnly cookie contract', async () => {
+    const previousEnvironment = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+    try {
+      const auth = {
+        login: jest.fn().mockResolvedValue({
+          accessToken: 'access-token', rawRefreshToken: 'raw-refresh-secret',
+          user: { id:'user-1', companyId:'company-1', displayName:'Owner', email:'owner@agm.test', roles:['OWNER'] },
+        }),
+      };
+      const response = { cookie: jest.fn() };
+      const controller = new AuthController(auth as never);
+      const envelope = await controller.login({ email:'owner@agm.test', password:'not-recorded' }, response as never);
+      expect(JSON.stringify(envelope)).not.toContain('raw-refresh-secret');
+      expect(response.cookie).toHaveBeenCalledWith('agm_refresh', 'raw-refresh-secret', {
+        httpOnly:true, sameSite:'lax', secure:true,
+        maxAge:AUTH_CONTRACT.refreshSessionDays * 86400_000, path:'/api/v1/auth',
+      });
+    } finally { process.env.NODE_ENV = previousEnvironment; }
+  });
+
+  it('revokes and clears logout cookie on the same restricted path', async () => {
+    const auth = { logout: jest.fn().mockResolvedValue(undefined) };
+    const response = { clearCookie: jest.fn() };
+    const controller = new AuthController(auth as never);
+    await expect(controller.logout({ headers:{ cookie:'agm_refresh=opaque-value; other=value' } } as never, response as never))
+      .resolves.toEqual(expect.objectContaining({ data:{ loggedOut:true } }));
+    expect(auth.logout).toHaveBeenCalledWith('opaque-value');
+    expect(response.clearCookie).toHaveBeenCalledWith('agm_refresh', { path:'/api/v1/auth' });
   });
 
   it('rejects an ambiguous email instead of selecting a tenant arbitrarily', async () => {

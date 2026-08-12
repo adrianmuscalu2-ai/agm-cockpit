@@ -23,16 +23,24 @@ export function createPremiumAccessClient(input: {
 
   return {
     hasSession: () => Boolean(input.sessionStorage.getItem(USER_ACCESS_TOKEN_KEY)),
-    logout: () => input.sessionStorage.removeItem(USER_ACCESS_TOKEN_KEY),
+    logout: async () => { input.sessionStorage.removeItem(USER_ACCESS_TOKEN_KEY); await input.fetch(`${baseUrl}/auth/logout`, { method: 'POST', credentials: 'include' }).catch(() => undefined); },
     async login(email: string, password: string): Promise<UserIdentity> {
       const payload = await request<{ accessToken: string; user: UserIdentity }>('/auth/login', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password }),
       });
       if (!payload.accessToken.trim()) throw new PremiumAccessClientError('invalid-response');
       input.sessionStorage.setItem(USER_ACCESS_TOKEN_KEY, payload.accessToken);
       return payload.user;
+    },
+    async restore(): Promise<boolean> {
+      try {
+        const payload = await request<{ accessToken: string; user: UserIdentity }>('/auth/refresh', { method: 'POST', credentials: 'include' });
+        input.sessionStorage.setItem(USER_ACCESS_TOKEN_KEY, payload.accessToken);
+        return true;
+      } catch { input.sessionStorage.removeItem(USER_ACCESS_TOKEN_KEY); return false; }
     },
     async entitlements(): Promise<AccessEntitlementSnapshot> {
       const token = input.sessionStorage.getItem(USER_ACCESS_TOKEN_KEY);

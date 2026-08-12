@@ -21,6 +21,10 @@ import { API_CORE_CONTRACT } from './api-core.contract';
 import { SecretTelemetryModule } from './secret-telemetry/secret-telemetry.module';
 import { ProductionPreflightModule } from './production-preflight/production-preflight.module';
 import { DashboardWarningAnalysisModule } from './dashboard-warning-analysis/dashboard-warning-analysis.module';
+import { OperationalEventStoreModule } from './operational-event-store/operational-event-store.module';
+import { CommunicationModule } from './communications/communication.module';
+import { PremiumAssistantModule } from './premium-assistant/premium-assistant.module';
+import { CarMoverModule } from './car-mover/car-mover.module';
 
 @Module({
   imports: [
@@ -50,6 +54,10 @@ import { DashboardWarningAnalysisModule } from './dashboard-warning-analysis/das
     SecretTelemetryModule,
     ProductionPreflightModule,
     DashboardWarningAnalysisModule,
+    OperationalEventStoreModule,
+    CommunicationModule,
+    PremiumAssistantModule,
+    CarMoverModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

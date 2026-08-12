@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-12T08-13-46-756Z",
+  "status": "FAIL",
+  "device": "Samsung SM-S931B",
+  "package": "com.agm.cockpit",
+  "apkSha256": "63B963B331A335C01796517A06DAB0A7FF225C5688ECAC63F46E0BE5ECBA5A4A",
+  "apiMode": "controlled local validation; no Production Car Mover deployment",
+  "results": [],
+  "fatal": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded."
+}

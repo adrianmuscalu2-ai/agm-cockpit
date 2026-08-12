@@ -26,6 +26,7 @@ assert.ok(gradle.includes('usesCleartextTraffic: "true"'));
 
 assert.ok(capacitor.includes("appId: 'com.agm.cockpit'"));
 assert.ok(capacitor.includes("androidScheme: 'https'"));
+assert.ok(capacitor.includes("hostname: 'app.agmcockpit.com'"));
 assert.ok(capacitor.includes("webDir: 'dist'"));
 assert.ok(manifest.includes('android.permission.INTERNET'));
 assert.ok(manifest.includes('android.permission.ACCESS_NETWORK_STATE'));

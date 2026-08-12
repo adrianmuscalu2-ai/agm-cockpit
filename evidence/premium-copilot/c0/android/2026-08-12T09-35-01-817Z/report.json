@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-12T09-35-01-817Z",
+  "status": "PASS",
+  "device": "Samsung SM-S931B",
+  "package": "com.agm.cockpit",
+  "apkSha256": "87E7AE98602287165E0EFEA2AD8901F3A9C590FE85C40566F848CE61ADC37E5D",
+  "results": [
+    {
+      "id": "android-c0-single-surface",
+      "status": "PASS",
+      "startedAt": "2026-08-12T09:35:03.950Z",
+      "finishedAt": "2026-08-12T09:35:06.508Z",
+      "url": "https://app.agmcockpit.com/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\android\\2026-08-12T09-35-01-817Z\\android-c0-single-surface.png",
+      "detail": {
+        "device": "Samsung SM-S931B",
+        "viewport": {
+          "width": 384,
+          "height": 832,
+          "scrollWidth": 384
+        }
+      }
+    },
+    {
+      "id": "android-c0-safety-recovery",
+      "status": "PASS",
+      "startedAt": "2026-08-12T09:35:06.508Z",
+      "finishedAt": "2026-08-12T09:35:11.498Z",
+      "url": "https://app.agmcockpit.com/premium",
+      "screenshot": "evidence\\premium-copilot\\c0\\android\\2026-08-12T09-35-01-817Z\\android-c0-safety-recovery.png",
+      "detail": "Intent, safety block and recovery PASS"
+    }
+  ]
+}

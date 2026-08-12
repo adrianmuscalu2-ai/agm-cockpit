@@ -9,6 +9,10 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     ['20260702191656_add_incident_reports', 'b789bd03299bcaa3416463ff750ac3dbd35d0697d02d65d17f9f6ba17187fd85'],
     ['20260714090500_add_turn_admin_credential', 'b0e846c4b322d7e75fadaf46e3114f11ff11afa9095a6bdbad5b11a1c4e4a256'],
     ['20260726031500_add_pre_departure_sync', '3d5fbc30ca4b7395b5e1405df506d378d3b65e47f7bb397d30f929bfaa6d59a8'],
+    ['20260809091500_add_operational_event_store', '0ebc77106fabb315652abfdc3d34ce3a0028c38cdef3814dd8279bb68f171b04'],
+    ['20260809113000_add_bidirectional_communications', '9b8f3ba3fe2776ba311ea01c843b4f225f8075610802339b1a23d2b421df2cde'],
+    ['20260809205500_add_auth_sessions', '9ba11b673e72322a0014dfe9151836d07834af9923d1af4bb3401543f8e16954'],
+    ['20260812090000_add_car_mover_p0_01', '286028ebb33a10856f163ef02f295f40f9e2d329abcaee11d69e44f5a9981da8'],
   ] as const,
   criticalModels: [
     'Company',
@@ -26,6 +30,13 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     'FinancialLedger',
     'PreDepartureSession',
     'PreDepartureAnswer',
+    'OperationalEventStream',
+    'OperationalEvent',
+    'CommunicationConversation',
+    'CommunicationMessage',
+    'AuthSession',
+    'CarMoverVehicleSubject',
+    'CarMoverJob',
   ] as const,
   tenantScopedModels: [
     'User',
@@ -40,6 +51,12 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     'FinancialLedger',
     'PreDepartureSession',
     'PreDepartureAnswer',
+    'OperationalEventStream',
+    'OperationalEvent',
+    'CommunicationConversation',
+    'CommunicationMessage',
+    'AuthSession',
+    'CarMoverVehicleSubject',
+    'CarMoverJob',
   ] as const,
 } as const;
-

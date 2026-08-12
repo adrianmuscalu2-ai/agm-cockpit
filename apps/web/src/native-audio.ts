@@ -19,7 +19,7 @@ interface NativeAudioPlugin {
   speak(options: { text: string; language: string }): Promise<void>;
   stopSpeaking(): Promise<void>;
   openAppSettings(): Promise<void>;
-  addListener(eventName: 'speechState', listener: (event: { state: 'listening' | 'processing' }) => void): Promise<PluginListenerHandle>;
+  addListener(eventName: 'speechState', listener: (event: { state: 'listening' | 'speechDetected' | 'processing' }) => void): Promise<PluginListenerHandle>;
 }
 
 const NativeAudio = registerPlugin<NativeAudioPlugin>('AgmAudio');

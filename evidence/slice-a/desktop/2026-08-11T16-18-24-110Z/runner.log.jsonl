@@ -1,0 +1,33 @@
+{"at":"2026-08-11T16:18:24.211Z","event":"target-reused","target":"http://127.0.0.1:5174/"}
+{"at":"2026-08-11T16:18:29.681Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:30.283Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:33.537Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:33.537Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:35.727Z","event":"scenario-result","scenario":"A","status":"PASS","startedAt":"2026-08-11T16:18:29.175Z","finishedAt":"2026-08-11T16:18:35.727Z","url":"http://127.0.0.1:5174/before-departure.html","screenshot":"evidence\\slice-a\\desktop\\2026-08-11T16-18-24-110Z\\scenario-a.png","detail":"present/readable/valid renders terminal READY"}
+{"at":"2026-08-11T16:18:35.857Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:36.643Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:38.948Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:38.948Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:40.831Z","event":"scenario-result","scenario":"B","status":"PASS","startedAt":"2026-08-11T16:18:35.727Z","finishedAt":"2026-08-11T16:18:40.831Z","url":"http://127.0.0.1:5174/before-departure.html","screenshot":"evidence\\slice-a\\desktop\\2026-08-11T16-18-24-110Z\\scenario-b.png","detail":"missing document renders blocked verdict and disabled READY"}
+{"at":"2026-08-11T16:18:40.989Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:42.226Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:43.101Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:43.302Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:45.621Z","event":"scenario-result","scenario":"H","status":"PASS","startedAt":"2026-08-11T16:18:40.832Z","finishedAt":"2026-08-11T16:18:45.621Z","url":"http://127.0.0.1:5174/before-departure.html","screenshot":"evidence\\slice-a\\desktop\\2026-08-11T16-18-24-110Z\\scenario-h.png","detail":"edited text visible; initial OCR and original->OCR->confirmation provenance preserved"}
+{"at":"2026-08-11T16:18:45.819Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:46.362Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:48.248Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:48.274Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:49.079Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:49.134Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:55.262Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:55.287Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:56.945Z","event":"scenario-result","scenario":"K","status":"PASS","startedAt":"2026-08-11T16:18:45.621Z","finishedAt":"2026-08-11T16:18:56.945Z","url":"http://127.0.0.1:5174/before-departure.html","screenshot":"evidence\\slice-a\\desktop\\2026-08-11T16-18-24-110Z\\scenario-k.png","detail":"reload and controlled page restart preserved selected document and confirmed case"}
+{"at":"2026-08-11T16:18:57.179Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:57.321Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:58.144Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:58.280Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:18:59.161Z","event":"browser-console","type":"debug","message":"[vite] connecting..."}
+{"at":"2026-08-11T16:18:59.533Z","event":"browser-console","type":"debug","message":"[vite] connected."}
+{"at":"2026-08-11T16:19:01.987Z","event":"scenario-result","scenario":"L","status":"FAIL","startedAt":"2026-08-11T16:18:56.945Z","finishedAt":"2026-08-11T16:19:01.987Z","url":"http://127.0.0.1:5174/before-departure.html","screenshot":"evidence\\slice-a\\desktop\\2026-08-11T16-18-24-110Z\\scenario-l-fail.png","detail":"Albanian UI not rendered"}
+{"at":"2026-08-11T16:19:01.987Z","event":"fatal","message":"L: Albanian UI not rendered"}

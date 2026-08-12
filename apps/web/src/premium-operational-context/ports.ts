@@ -17,6 +17,8 @@ export interface OperationalOutboxPort {
   pending(tripId: string): Promise<readonly OperationalEventV1[]>;
   acknowledge(eventId: string): Promise<void>;
   markConflict(eventId: string): Promise<void>;
+  resolveConflict(eventId: string, strategy: 'retry-local' | 'accept-server'): Promise<void>;
+  resolvedConflicts(tripId: string): Promise<readonly { event: OperationalEventV1; strategy: 'accept-server'; resolvedAt: string }[]>;
 }
 
 export interface OperationalSyncPort {

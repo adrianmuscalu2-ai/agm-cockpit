@@ -127,7 +127,7 @@ per rută sunt implementate și validate. Producția nu a fost modificată.
 Schimbarea nu este încă declarată parte din baseline-ul oficial v1.2.9. Pentru
 oficializare mai sunt necesare:
 
-1. reconcilierea regresiei CSS SR-14;
+1. păstrarea scutului CSS SR-14 reconciliat la cascada Access/Premium și Android Wave 1;
 2. commit controlat și identificarea exactă a sursei;
 3. constituirea unui release candidate;
 4. retest Browser și Android;
@@ -142,11 +142,11 @@ La reconcilierea din 2 august 2026:
 - Web production build — PASS;
 - contract Access/Premium — PASS;
 - regresia structurală Web până la SR-12 — PASS;
-- SR-14 CSS parity — FAIL, deoarece stilurile Access/Premium au schimbat hash-ul
-  cascadei CSS față de baseline-ul protejat.
+- SR-14 CSS parity — PASS după reconcilierea P0 din 9 august 2026; hash-ul
+  protejat include cascada Access/Premium și ajustările Android Wave 1 validate.
 
-Eșecul SR-14 este o condiție de integrare a schimbării curente, nu o invalidare a
-baseline-ului oficial v1.2.9.
+Reconcilierea SR-14 nu modifică baseline-ul oficial v1.2.9 și nu redeschide
+candidatul Basic înghețat; ea protejează cascada succesoare deja validată.
 
 ## 8. Condiții rămase pentru AGM Basic publicabil
 
@@ -173,7 +173,30 @@ arhitecturale încă deschise includ EventStore server-side, versiunea eveniment
 proiecția comună UI, sincronizarea și recovery end-to-end și migrarea controlată a
 modulelor Premium rămase.
 
-## 10. Regula de actualizare
+## 10. Actualizare Premium — 11 august 2026
+
+Vertical Slice A (`required-document`) este `PASS / CLOSED`, cu Product Owner
+Acceptance acordat. Matricea Desktop A/B/H/K/L/O, Android Samsung SM-S931B,
+Evidence Manifest și Browser release gate sunt complete și acceptate.
+
+Controlled AGM Playwright/Chromium PASS este dovadă Browser oficială și
+suficientă. Integrated Browser `iab` rămâne o limitare externă
+`OPEN / NON-BLOCKING` și probă interactivă opțională.
+
+Vertical Slice B (`road-control`) este de asemenea `PASS / CLOSED`, cu Product
+Owner Acceptance acordat la 11 august 2026. Android pe Samsung SM-S931B,
+safety gate, fluxul Control rutier, offline/SYNC_PENDING, outbox, reconnect,
+deduplicare, restart/recovery, i18n 9/9, buildul Web și Evidence Manifest sunt
+complete și acceptate.
+
+Contractul extern rămâne obligatoriu:
+`PREPARE → HUMAN CONFIRM`. Reconnect, outbox și recovery nu pot transforma o
+pregătire într-o trimitere Email/WhatsApp automată.
+
+Vertical Slice A și Vertical Slice B sunt `PASS / CLOSED`. Celelalte 22 de
+situații sunt `NOT STARTED / NOT AUTHORIZED` și necesită mandate separate.
+
+## 11. Regula de actualizare
 
 Acest document se actualizează la fiecare închidere de modul, schimbare de baseline
 sau modificare a stării unei porți de release. Rapoartele istorice nu se rescriu;

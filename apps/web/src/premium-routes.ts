@@ -1,4 +1,4 @@
-export type PremiumViewName = 'premium' | 'premiumTeam' | 'premiumLoadSafety';
+export type PremiumViewName = 'premium' | 'premiumTeam' | 'premiumLoadSafety' | 'premiumCommunications' | 'premiumVoice' | 'carMover';
 
 type PremiumRouteDefinition = {
   view: PremiumViewName;
@@ -15,6 +15,9 @@ export const premiumRouteRegistry: readonly PremiumRouteDefinition[] = [
   { view: 'premium', route: '/premium' },
   { view: 'premiumTeam', route: '/premium/team' },
   { view: 'premiumLoadSafety', route: '/premium/ladungssicherung' },
+  { view: 'premiumCommunications', route: '/premium/communications' },
+  { view: 'premiumVoice', route: '/premium/voice' },
+  { view: 'carMover', route: '/car-mover' },
 ];
 
 export function premiumViewFromRoute(route: string): PremiumViewName | undefined {

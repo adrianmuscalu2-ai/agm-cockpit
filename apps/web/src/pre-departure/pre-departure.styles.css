@@ -22,12 +22,25 @@
 }
 
 body {
+  position: relative;
+  isolation: isolate;
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(244, 201, 93, 0.13), transparent 42%),
-    #071018;
+  background: #071018;
+}
+
+body::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  background-image:
+    linear-gradient(rgba(3, 10, 16, 0.58), rgba(3, 10, 16, 0.7)),
+    url("../../../../agmcockpit-website/public/images/atmosphere/agm-premium-hero-v3.png");
+  background-position: center, left center;
+  background-size: auto, max(200vw, 177.78vh) auto;
+  background-repeat: no-repeat;
 }
 
 button,
@@ -92,7 +105,8 @@ a {
 .pre-departure-limit {
   border: 1px solid rgba(116, 232, 197, 0.22);
   border-radius: 20px;
-  background: rgba(9, 28, 40, 0.92);
+  background: rgba(9, 28, 40, 0.86);
+  backdrop-filter: blur(2px);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
 }
 
@@ -267,6 +281,92 @@ h1 {
 
 .pre-departure-card {
   width: 100%;
+}
+
+.situation-router-enabled .pre-departure-shell > agm-required-document ~ .pre-departure-card,
+.situation-router-enabled .pre-departure-shell > agm-required-document ~ .pre-departure-limit {
+  display: none;
+}
+
+agm-required-document {
+  display: block;
+}
+
+.field-batch-enabled agm-required-document { display: none; }
+.field-batch-enabled.show-slice-a agm-field-test-batch { display: none; }
+.field-batch-enabled.show-slice-a agm-required-document { display: block; }
+agm-field-test-batch { display:block; }
+.field-batch-flow,.field-batch-active{display:grid;gap:16px}.field-batch-flow>header,.field-batch-toolbar,.field-batch-actions,.field-batch-choices{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.field-batch-toolbar label,.field-batch-active>label{display:grid;gap:8px;flex:1;min-width:220px}.field-batch-flow select,.field-batch-flow textarea{width:100%;min-height:46px;padding:10px 12px;border:1px solid rgba(124,230,192,.35);border-radius:10px;color:#eaf8ff;background:#071720;font:inherit}.field-batch-flow textarea{min-height:110px}.field-batch-flow fieldset{margin:0;padding:14px;border:1px solid rgba(124,230,192,.22);border-radius:14px}.field-batch-flow button,.field-batch-flow .after-departure-file{min-height:44px;padding:10px 14px;border:1px solid rgba(124,230,192,.45);border-radius:12px;color:#dff9f0;background:#0b202c;font-weight:750}.field-batch-flow button.selected{border-color:#f4c95d;background:#173b48}.field-batch-flow button:disabled{opacity:.45}.field-batch-active{padding:16px;border:1px solid rgba(244,201,93,.28);border-radius:16px;background:rgba(7,23,32,.88)}
+@media(max-width:640px){.field-batch-toolbar,.field-batch-actions,.field-batch-choices{display:grid;grid-template-columns:1fr}.field-batch-toolbar label{min-width:0}.field-batch-flow>header{align-items:flex-start}.field-batch-flow button{width:100%}}
+
+.required-document-flow {
+  display: grid;
+  gap: 18px;
+}
+
+.required-document-flow > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.required-document-flow > header .pre-departure-kicker {
+  margin: 0;
+}
+
+.required-document-flow label,
+.required-document-flow fieldset {
+  display: grid;
+  gap: 8px;
+}
+
+.required-document-flow fieldset {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid rgba(124, 230, 192, 0.22);
+  border-radius: 14px;
+}
+
+.required-document-flow input:not([type="checkbox"]),
+.required-document-flow select,
+.required-document-flow textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid rgba(124, 230, 192, 0.35);
+  border-radius: 10px;
+  color: #eaf8ff;
+  background: #071720;
+  font: inherit;
+}
+
+.required-document-flow textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.required-document-flow button,
+.required-document-flow .pre-departure-action-link {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid rgba(124, 230, 192, 0.45);
+  border-radius: 12px;
+  color: #dff9f0;
+  background: #0b202c;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.required-document-flow button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.required-document-flow [role="status"] {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 14px;
 }
 
 .pre-departure-card h2 {

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "batch": "AGM Cockpit Field Test Batch 01",
+  "device": "Samsung SM-S931B",
+  "deviceId": "RFCY70WDHXK",
+  "package": "com.agm.cockpit",
+  "apkSha256": "12DA371EABD8C83E9AF75822048396EB099D39560B23316843AABD58022A3CEF",
+  "validatedAt": "2026-08-11T21:40:00+02:00",
+  "status": "PASS",
+  "results": [
+    {"ordinal":1,"id":"trip-context","state":"RESOLVED","verdict":"READY_CONFIRMED","status":"PASS"},
+    {"ordinal":2,"id":"vehicle-safety","state":"RESOLVED","verdict":"READY_CONFIRMED","status":"PASS"},
+    {"ordinal":3,"id":"load-securing","state":"RESOLVED","verdict":"READY_CONFIRMED","status":"PASS"},
+    {"ordinal":4,"id":"tachograph-time","state":"RESOLVED","verdict":"READY_CONFIRMED","status":"PASS"},
+    {"ordinal":5,"id":"adr-compliance","state":"RESOLVED","verdict":"READY_CONFIRMED","status":"PASS"},
+    {"ordinal":6,"id":"route-compatibility","state":"RESOLVED","verdict":"READY_CONFIRMED","status":"PASS"},
+    {"ordinal":7,"id":"night-weather","state":"RESOLVED","verdict":"READY_CONFIRMED","status":"PASS"},
+    {"ordinal":8,"id":"driver-fitness","state":"RESOLVED","verdict":"READY_CONFIRMED","status":"PASS"},
+    {"ordinal":9,"id":"ready-gate","state":"RESOLVED","verdict":"READY_CONFIRMED","status":"PASS"}
+  ],
+  "persistence": {"casesAfterRestart":9,"languageAfterRestart":"sq","statePreserved":true},
+  "screenshots": [
+    {"path":"evidence/field-test-batch-01/android-9-of-9.png","sha256":"71D2E60C5B364B1131775B098668A5E62FDDB722534034286C4F8264AF06D819"},
+    {"path":"evidence/field-test-batch-01/android-restart-sq.png","sha256":"ACBD74C6AECA4AC150E20599187BAC6EBB2009BB6C2185125EFAA7EBA3218004"}
+  ]
+}

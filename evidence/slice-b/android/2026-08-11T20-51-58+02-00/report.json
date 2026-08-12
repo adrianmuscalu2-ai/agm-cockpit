@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "platform": "physical Android",
+  "device": "Samsung SM-S931B",
+  "deviceId": "RFCY70WDHXK",
+  "package": "com.agm.cockpit",
+  "apkSha256": "37AC9B31FD5D4FEB001509CA1D696FE5C26E7EC8C35AD5AD4620D2F38C530377",
+  "finishedAt": "2026-08-11T20:51:58+02:00",
+  "status": "PASS",
+  "results": [
+    {
+      "scenario": "safety gate",
+      "status": "PASS",
+      "evidence": {"unsafeInstruction": true, "requestExposed": false, "emergencyAction112": true}
+    },
+    {
+      "scenario": "road control progressive flow",
+      "status": "PASS",
+      "evidence": {"state": "RESOLVED", "externalEffect": "HUMAN_CONFIRMED", "automaticSend": false},
+      "screenshot": "evidence/slice-b/android-road-control-flow.png",
+      "screenshotSha256": "4C93C0326ABC9302DEAB9166F5B6E3C920F23D746989ACAB650A1B535B62F089"
+    },
+    {
+      "scenario": "offline persistence, restart and language",
+      "status": "PASS",
+      "evidence": {"language": "sq", "state": "QUALIFYING", "safelyStopped": true, "syncStatus": "SYNC_PENDING", "currentCaseOutboxOperations": 3, "uniqueOperationIds": 3, "revisions": [1,2,3], "stableAfterReload": true, "automaticSend": false},
+      "screenshot": "evidence/slice-b/android-offline-sq.png",
+      "screenshotSha256": "0AC66301A94DC2E79F65C8EB5F61E2936D2EF7D0E1CA68158E45169AFAB4E3BD"
+    }
+  ],
+  "notes": [
+    "Two interrupted runner attempts were not promoted to PASS and produced no evidence.",
+    "Reconnect/flush/receipt deduplication is covered by the deterministic automated gate; the physical test confirms no automatic external send and durable SYNC_PENDING recovery."
+  ]
+}

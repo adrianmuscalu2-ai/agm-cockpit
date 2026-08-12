@@ -25,6 +25,13 @@
     "db:studio": "prisma studio",
     "audit:ui-live": "node scripts/ui-live-audit.mjs",
     "audit:wave1-browser": "node scripts/validate-wave1-browser.mjs",
+    "audit:slice-a-desktop": "node scripts/validate-slice-a-desktop.mjs",
+    "audit:slice-b-desktop": "node scripts/validate-slice-b-desktop.mjs",
+    "audit:field-batch-01-desktop": "node scripts/validate-field-batch-01-desktop.mjs",
+    "audit:field-batch-02-desktop": "node scripts/validate-field-batch-02-desktop.mjs",
+    "audit:car-mover-p0-02-desktop": "node scripts/validate-car-mover-p0-02-desktop.mjs",
+    "rescue:browser-preflight": "node scripts/rescue-browser-preflight.mjs",
+    "audit:premium-copilot-c0": "node scripts/validate-premium-copilot-c0-desktop.mjs",
     "test:surface-sync": "node scripts/validate-product-surface.mjs",
     "test:browser-validation-flow": "tsx scripts/test-browser-validation-flow.ts"
   },

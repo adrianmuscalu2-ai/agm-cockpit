@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-11T16-22-16-080Z",
+  "status": "PASS",
+  "startedAt": "2026-08-11T16:22:16.180Z",
+  "finishedAt": "2026-08-11T16:22:43.369Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "chromiumVersion": "151.0.7922.34",
+  "target": "http://127.0.0.1:5174/",
+  "route": "http://127.0.0.1:5174/before-departure.html",
+  "requestedScenarios": [
+    "L",
+    "O"
+  ],
+  "build": {
+    "gitCommit": "b241722e879bd68ee2f7367cb3338d854d00b54b",
+    "workingTree": "dirty",
+    "manifest": "evidence\\slice-a\\EVIDENCE_MANIFEST.json",
+    "manifestSha256": "E158AD4C983ADBDB17BF65FB85E8F2A7FB8E698132FC1FCCF55A2ED9228D29D4"
+  },
+  "iab": {
+    "status": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "blocking": false,
+    "proof": "Browser is not available: iab; discovered backends []"
+  },
+  "results": [
+    {
+      "scenario": "L",
+      "status": "PASS",
+      "startedAt": "2026-08-11T16:22:19.362Z",
+      "finishedAt": "2026-08-11T16:22:29.029Z",
+      "url": "http://127.0.0.1:5174/before-departure.html",
+      "screenshot": "evidence\\slice-a\\desktop\\2026-08-11T16-22-16-080Z\\scenario-l.png",
+      "detail": "RO->SQ preserved case identity/revision and rendered localized UI"
+    },
+    {
+      "scenario": "O",
+      "status": "PASS",
+      "startedAt": "2026-08-11T16:22:29.029Z",
+      "finishedAt": "2026-08-11T16:22:36.665Z",
+      "url": "http://127.0.0.1:5174/before-departure.html",
+      "screenshot": "evidence\\slice-a\\desktop\\2026-08-11T16-22-16-080Z\\scenario-o.png",
+      "detail": "feature flag rollback shows legacy projection; reactivation restores identical recovery case"
+    }
+  ],
+  "requirements": {
+    "screenshotsComplete": true,
+    "machineReadableReport": true,
+    "noFabricatedPass": true
+  },
+  "fatal": null
+}

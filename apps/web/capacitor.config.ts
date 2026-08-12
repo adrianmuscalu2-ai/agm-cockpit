@@ -11,7 +11,8 @@ const config: CapacitorConfig = {
     allowMixedContent: allowLanHttp,
   },
   server: {
-    androidScheme: 'https',
+    hostname: 'app.agmcockpit.com',
+    androidScheme: allowLanHttp ? 'http' : 'https',
   },
 };
 
