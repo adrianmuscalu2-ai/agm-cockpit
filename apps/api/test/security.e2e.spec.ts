@@ -61,13 +61,14 @@ describe('API perimeter', () => {
   });
 
   it('throttles translation after twenty requests per minute', async () => {
-    const responses = await Promise.all(
-      Array.from({ length: 21 }, () =>
-        request(app.getHttpServer())
+    const responses = [];
+    for (let index = 0; index < 21; index += 1) {
+      responses.push(
+        await request(app.getHttpServer())
           .post('/api/v1/translation/actions/translate-text')
           .send({ text: 'Salut', sourceLanguage: 'ro', targetLanguage: 'de' }),
-      ),
-    );
+      );
+    }
     expect(responses.filter((response) => response.status === 201)).toHaveLength(20);
     expect(responses.filter((response) => response.status === 429)).toHaveLength(1);
   });
@@ -76,7 +77,10 @@ describe('API perimeter', () => {
     ['/api/v1/auth/login', { email: 'owner@agm.test', password: 'correct-password' }],
     ['/api/v1/turn-admin/unlock', { pin: '123456' }],
   ])('throttles sensitive endpoint %s after five requests', async (path, body) => {
-    const responses = await Promise.all(Array.from({ length: 6 }, () => request(app.getHttpServer()).post(path).send(body)));
+    const responses = [];
+    for (let index = 0; index < 6; index += 1) {
+      responses.push(await request(app.getHttpServer()).post(path).send(body));
+    }
     expect(responses.filter((response) => response.status === 429)).toHaveLength(1);
   });
 });
