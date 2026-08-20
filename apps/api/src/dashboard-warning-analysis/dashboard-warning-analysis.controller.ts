@@ -1,11 +1,13 @@
-import { BadRequestException, Body, Controller, HttpCode, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, HttpCode, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { responseEnvelope } from '../common/response';
 import { validateVisionConsent, type VisionConsentEvidence } from '../common/image-security/vision-request-security';
 import { DashboardWarningAnalysisService } from './dashboard-warning-analysis.service';
 
 @Controller('dashboard-warning-analysis')
+@UseGuards(JwtAuthGuard)
 export class DashboardWarningAnalysisController {
   constructor(private readonly service: DashboardWarningAnalysisService) {}
   @Post()

@@ -15,7 +15,7 @@ import {
 const PREMIUM_LANGUAGE_KEY = 'agm.premium.language';
 
 const initialState = (): AfterDepartureViewState => ({
-  language: normalizeAfterDepartureLanguage(window.localStorage.getItem(PREMIUM_LANGUAGE_KEY) ?? window.localStorage.getItem('agm.poc02.language')),
+  language: normalizeAfterDepartureLanguage(window.sessionStorage.getItem(PREMIUM_LANGUAGE_KEY) ?? window.sessionStorage.getItem('agm.poc02.language')),
   scenario: 'road-control',
   safeToInteract: false,
   immediateDanger: false,
@@ -55,8 +55,8 @@ export function mountAfterDepartureApp(
     root.querySelector<HTMLSelectElement>('#afterDepartureLanguage')?.addEventListener('change', (event) => {
       readFormState();
       state.language = normalizeAfterDepartureLanguage((event.target as HTMLSelectElement).value);
-      window.localStorage.setItem('agm.poc02.language', state.language);
-      window.localStorage.setItem(PREMIUM_LANGUAGE_KEY, state.language);
+      window.sessionStorage.setItem('agm.poc02.language', state.language);
+      window.sessionStorage.setItem(PREMIUM_LANGUAGE_KEY, state.language);
       render();
     });
 
@@ -79,7 +79,7 @@ export function mountAfterDepartureApp(
         externalActionRequested: state.externalActionRequested,
         facts: state.facts,
       });
-      void journeyAdapter.record(window.localStorage, state.assessment, state.online).catch((error) => {
+      void journeyAdapter.record(window.sessionStorage, state.assessment, state.online).catch((error) => {
         console.error('After-departure Journey recording failed.', error);
       });
       render();
@@ -106,7 +106,7 @@ export function mountAfterDepartureApp(
           state.assessment,
           button.dataset.afterDepartureTransition as AfterDepartureState,
         );
-        void journeyAdapter.record(window.localStorage, state.assessment, state.online).catch((error) => {
+        void journeyAdapter.record(window.sessionStorage, state.assessment, state.online).catch((error) => {
           console.error('After-departure Journey transition recording failed.', error);
         });
         render();

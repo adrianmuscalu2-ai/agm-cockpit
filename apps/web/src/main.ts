@@ -1,4 +1,5 @@
 import './styles.css';
+import { Capacitor } from '@capacitor/core';
 import { copyPlainText } from './platform/clipboard';
 import {
   fetchFunctionalTranslationHealth,
@@ -9,7 +10,8 @@ import {
   type OcrHistoryItem,
 } from './storage/ocr-history.repository';
 import { createTutorialRepository } from './storage/tutorial.repository';
-import { createIndexedDbOcrArchiveStore, createOcrArchiveRepository } from './storage/ocr-archive.repository';
+import { bindSensitiveSessionCleanup, purgeSensitiveLegacyLocalStorage } from './storage/sensitive-storage-policy';
+import { createEphemeralOcrArchiveStore, createOcrArchiveRepository, purgeLegacyPersistentOcr } from './storage/ocr-archive.repository';
 import {
   dataUrlToBlob,
   migrateOcrHistoryV1ToV2,
@@ -67,6 +69,9 @@ import { attachOcrLegacyFacade, createOcrState } from './app-shell/ocr-state.sto
 import { attachIncidentsLegacyFacade, createIncidentsState } from './app-shell/incidents-state.store';
 import { type AgmContact, type ContactCategory, type ContactDraft } from './contact-manager/contact-manager.types';
 import { t, uiLanguageFromProfile } from './i18n/app-i18n';
+import { dashboardWarningContainmentCopy, dashboardWarningVisionEnabled } from './dashboard-warning-vision.feature';
+import { USER_ACCESS_TOKEN_KEY } from './premium-access/premium-access.client';
+import { clearOriginalEvidence } from './premium-situation-router/required-document.evidence-store';
 import { recognizeTextFromImage } from './ocr-translator';
 import {
   analyzeTransportDocument,
@@ -127,13 +132,14 @@ import './car-mover/car-mover.css';
 import { bindCopilotRuntime } from './premium-copilot/copilot.runtime';
 import './premium-copilot/copilot.css';
 import { isPremiumNavigationAllowed } from './premium-access/premium-access.navigation';
-import { isPremiumView, premiumRouteForView, premiumViewFromRoute, type PremiumViewName } from './premium-routes';
+import { isPremiumView, premiumRouteForView, premiumViewFromRoute, normalizePremiumRoute, type PremiumViewName } from './premium-routes';
 import { bindOperationsHealthChecks } from './operations-health';
 import { operationsHealthEvent, reconcileOperationsHealthIncident } from './operations-health-incidents';
 import { bindSecretTelemetry, reconcileSecretTelemetryIncident } from './secret-telemetry';
 import { bindProductionPreflight, reconcileProductionPreflightIncident } from './production-preflight';
 import { bindTurnBackToTop } from './turn-navigation';
 import { bindTurnOrganizationChart } from './turn-organization-chart';
+import { bindP9TurnProjection } from './p9-turn-projection';
 import {
   TURN_REPORT_RECIPIENT,
   adminReportModuleForView,
@@ -201,14 +207,18 @@ const PRIVACY_POLICY_VERSION = 'privacy-v2026.07.13';
 const TERMS_VERSION = 'terms-v2026.07.13';
 const LEGAL_ACCEPTANCE_KEY = `agm.legal.acceptance.${PRIVACY_POLICY_VERSION}.${TERMS_VERSION}`;
 const ADMIN_SESSION_KEY = 'agm.admin.session';
-const ocrHistoryRepository = createOcrHistoryRepository(window.localStorage);
-const ocrArchiveRepository = createOcrArchiveRepository(createIndexedDbOcrArchiveStore(window.indexedDB));
+purgeSensitiveLegacyLocalStorage(window.localStorage);
+bindSensitiveSessionCleanup(window.sessionStorage);
+purgeLegacyPersistentOcr(window.indexedDB, window.localStorage);
+void clearOriginalEvidence();
+const ocrHistoryRepository = createOcrHistoryRepository(window.sessionStorage);
+const ocrArchiveRepository = createOcrArchiveRepository(createEphemeralOcrArchiveStore());
 const tutorialRepository = createTutorialRepository(window.localStorage);
-const initialProfile = readProfile(window.localStorage);
-const initialContacts = readContacts(window.localStorage);
+const initialProfile = readProfile(window.sessionStorage);
+const initialContacts = readContacts(window.sessionStorage);
 const initialOcrHistory = ocrHistoryRepository.read();
-const initialMessageLibraryPreferences = readMessageLibraryPreferences(window.localStorage);
-const initialIncidentJournal = readIncidentJournal(window.localStorage);
+const initialMessageLibraryPreferences = readMessageLibraryPreferences(window.sessionStorage);
+const initialIncidentJournal = readIncidentJournal(window.sessionStorage);
 
 const translatorState = createTranslatorState(initialProfile.preferredLanguage);
 const incidentsState = createIncidentsState({
@@ -377,11 +387,11 @@ const incidentController = createIncidentController({
 });
 
 function persistIncidentState() {
-  saveIncidentJournal(window.localStorage, state.incidents);
+  saveIncidentJournal(window.sessionStorage, state.incidents);
 }
 
 function persistContactState() {
-  saveContacts(window.localStorage, state.contacts);
+  saveContacts(window.sessionStorage, state.contacts);
 }
 
 function mailToneLabel(language: LanguageCode, tone: MailTone) {
@@ -491,14 +501,14 @@ function render() {
       const reconciled = reconcileOperationsHealthIncident(state.incidents, event);
       if (reconciled === state.incidents) return;
       state.incidents = reconciled;
-      saveIncidentJournal(window.localStorage, state.incidents);
+      saveIncidentJournal(window.sessionStorage, state.incidents);
       render();
     });
     bindSecretTelemetry((snapshot) => {
       const reconciled = reconcileSecretTelemetryIncident(state.incidents, snapshot);
       if (reconciled === state.incidents) return;
       state.incidents = reconciled;
-      saveIncidentJournal(window.localStorage, state.incidents);
+      saveIncidentJournal(window.sessionStorage, state.incidents);
       render();
     });
     bindProductionPreflight((snapshot) => {
@@ -508,11 +518,12 @@ function render() {
       const incidentsChanged = reconciled !== state.incidents;
       if (incidentsChanged) {
         state.incidents = reconciled;
-        saveIncidentJournal(window.localStorage, state.incidents);
+        saveIncidentJournal(window.sessionStorage, state.incidents);
       }
       if (incidentsChanged || snapshotChanged) render();
     });
     bindTurnOrganizationChart();
+    void bindP9TurnProjection();
     bindTurnBackToTop();
   }
   bindCommandPanel();
@@ -1300,6 +1311,7 @@ function renderEmailAssistant() {
 
 function renderBasicHub() {
   const language = uiLanguage();
+  const dashboardWarningVisionAvailable = dashboardWarningVisionEnabled(import.meta.env.VITE_DASHBOARD_WARNING_VISION_ENABLED);
 
   return `
     <section class="home-view basic-hub" aria-labelledby="basic-hub-title">
@@ -1313,7 +1325,9 @@ function renderBasicHub() {
         ${renderBasicAction('transport-document', '▤', t(language, 'basic.card.transportDocument.title'), t(language, 'basic.card.transportDocument.description'))}
         ${renderBasicAction('tachograph-analysis', '◷', t(language, 'basic.card.tachograph.title'), t(language, 'basic.card.tachograph.description'))}
         ${renderBasicAction('dashboard-text-analysis', '▰', t(language, 'basic.card.dashboardText.title'), t(language, 'basic.card.dashboardText.description'))}
-        ${renderBasicAction('dashboard-warning-analysis', '!', t(language, 'basic.card.dashboardWarning.title'), t(language, 'basic.card.dashboardWarning.description'))}
+        ${dashboardWarningVisionAvailable
+          ? renderBasicAction('dashboard-warning-analysis', '!', t(language, 'basic.card.dashboardWarning.title'), t(language, 'basic.card.dashboardWarning.description'))
+          : renderDashboardWarningKnowledgeCard(language)}
         ${renderBasicAction('legislation-analysis', '⚖', t(language, 'basic.card.legislation.title'), t(language, 'basic.card.legislation.description'))}
         ${renderBasicAction('cargo-safety-analysis', '⌁', t(language, 'basic.card.cargoSafety.title'), t(language, 'basic.card.cargoSafety.description'))}
         ${renderBasicAction('ocr', '▣', t(language, 'roadmap.item.ocr.title'), t(language, 'roadmap.item.ocr.body'))}
@@ -1418,6 +1432,11 @@ function basicKnowledgeRouteForTitle(title: string): string | undefined {
 function renderBasicAction(action: 'ocr' | 'transport-document' | 'tachograph-analysis' | 'dashboard-text-analysis' | 'dashboard-warning-analysis' | 'legislation-analysis' | 'cargo-safety-analysis', icon: string, title: string, description: string) {
   const language = uiLanguage();
   return `<button type="button" data-basic-action="${action}" class="home-action basic-tool-card"><span class="home-action-icon" aria-hidden="true">${icon}</span><span class="basic-tool-copy"><strong>${escapeHtml(title)}</strong><small>${escapeHtml(description)}</small></span><span class="basic-tool-footer"><em class="basic-stage basic-stage-valid">${escapeHtml(t(language, 'basic.validated'))}</em><span class="basic-open">${escapeHtml(t(language, 'basic.open'))}</span></span></button>`;
+}
+
+function renderDashboardWarningKnowledgeCard(language = uiLanguage()) {
+  const copy = dashboardWarningContainmentCopy(language);
+  return `<a href="/knowledge/martori-bord" data-module="legal" class="home-action basic-tool-card dashboard-warning-knowledge-card"><span class="home-action-icon" aria-hidden="true">!</span><span class="basic-tool-copy"><strong>${escapeHtml(copy.title)}</strong><small>${escapeHtml(copy.description)}</small></span><span class="basic-tool-footer"><em class="basic-stage">${escapeHtml(copy.action)}</em><span class="basic-open">${escapeHtml(copy.action)}</span></span></a>`;
 }
 
 function renderDashboardWarningAnalysisPage() {
@@ -1983,11 +2002,13 @@ function renderLegalCenter() {
           </div>
           <button type="button" data-module="basic">${escapeHtml(t(language, 'home.basic'))}</button>
         </header>
-        ${knowledgeDestination.id === 'dashboard-warnings' ? `<section class="legal-card dashboard-warning-photo-first"><h2>${escapeHtml(t(language, 'basic.card.dashboardWarning.title'))}</h2><p>${escapeHtml(t(language, 'basic.card.dashboardWarning.description'))}</p><button type="button" data-basic-action="dashboard-warning-analysis" class="primary">${escapeHtml(t(language, 'warning.takePhoto'))}</button></section>` : ''}
+        ${knowledgeDestination.id === 'dashboard-warnings' ? (() => { const copy = dashboardWarningContainmentCopy(language); return `<section class="legal-card dashboard-warning-photo-first"><h2>${escapeHtml(copy.title)}</h2><p>${escapeHtml(copy.description)}</p>${dashboardWarningVisionEnabled(import.meta.env.VITE_DASHBOARD_WARNING_VISION_ENABLED) ? `<button type="button" data-basic-action="dashboard-warning-analysis" class="primary">${escapeHtml(t(language, 'warning.takePhoto'))}</button>` : `<a href="/knowledge/martori-bord" data-module="legal" class="primary">${escapeHtml(copy.action)}</a>`}</section>`; })() : ''}
         ${knowledgeDestination.id === 'legislation' ? `<section class="legal-card dashboard-warning-photo-first"><h2>${escapeHtml(t(language, 'basic.card.legislation.title'))}</h2><p>${escapeHtml(t(language, 'basic.card.legislation.description'))}</p><button type="button" data-basic-action="legislation-analysis" class="primary">${escapeHtml(t(language, 'warning.takePhoto'))}</button></section>` : ''}
         ${knowledgeDestination.id === 'tachograph' ? `<section class="legal-card dashboard-warning-photo-first"><h2>${escapeHtml(t(language, 'basic.card.tachograph.title'))}</h2><p>${escapeHtml(t(language, 'basic.card.tachograph.description'))}</p><button type="button" data-basic-action="tachograph-analysis" class="primary">${escapeHtml(t(language, 'warning.takePhoto'))}</button></section>` : ''}
         ${knowledgeDestination.id === 'cargo-securing' ? `<section class="legal-card dashboard-warning-photo-first"><h2>${escapeHtml(t(language, 'basic.card.cargoSafety.title'))}</h2><p>${escapeHtml(t(language, 'basic.card.cargoSafety.description'))}</p><button type="button" data-basic-action="cargo-safety-analysis" class="primary">${escapeHtml(t(language, 'warning.takePhoto'))}</button></section>` : ''}
       ` : `<div class="legal-grid">
+        ${renderLegalCard('legal.operatorTitle', 'legal.operatorBody')}
+        ${renderLegalCard('legal.gdprTitle', 'legal.gdprBody')}
         ${renderLegalCard('legal.termsTitle', 'legal.termsBody')}
         ${renderLegalCard('legal.privacyTitle', 'legal.privacyBody')}
         ${renderLegalCard('legal.aiTitle', 'legal.aiBody')}
@@ -2219,8 +2240,8 @@ function renderLegalCard(titleKey: string, bodyKey: string, extra = '') {
 function bindShared() {
   bindPremiumAccessRuntime();
   bindCommunicationRuntime();
-  bindPremiumAssistantRuntime();
-  bindCarMoverRuntime();
+    bindPremiumAssistantRuntime();
+    bindCarMoverRuntime();
   bindCopilotRuntime();
   document.querySelectorAll<HTMLButtonElement>('[data-global-action]').forEach((control) => {
     control.addEventListener('click', () => activateGlobalAction(control.dataset.globalAction));
@@ -2373,6 +2394,7 @@ function activateBasicAction(action: string | undefined) {
     return;
   }
   if (action === 'dashboard-warning-analysis') {
+    if (!dashboardWarningVisionEnabled(import.meta.env.VITE_DASHBOARD_WARNING_VISION_ENABLED)) { window.location.assign('/knowledge/martori-bord'); return; }
     basicPhotoAnalysisMode = 'dashboard-warning';
     dashboardWarningVisionResult = null; dashboardWarningConfirmed = false; dashboardWarningProcessing = false;
     state.ocrImageDataUrl = ''; state.ocrExtractedText = ''; state.ocrConfidence = 0;
@@ -3031,7 +3053,7 @@ function bindEmailAssistant() {
       ...state.profile,
       defaultSignature: signature || defaultProfile().defaultSignature,
     };
-    saveProfile(window.localStorage, state.profile);
+    saveProfile(window.sessionStorage, state.profile);
     state.signatureEditorOpen = false;
     state.status = mailStatus('signatureSaved');
     render();
@@ -3239,7 +3261,7 @@ function bindProfile() {
       ...state.profile,
       drawnSignatureDataUrl: '',
     };
-    saveProfile(window.localStorage, state.profile);
+    saveProfile(window.sessionStorage, state.profile);
     state.status = t(uiLanguage(), 'profile.status.drawnSignatureDeleted');
     render();
   });
@@ -3258,7 +3280,7 @@ function registerServiceWorker() {
     return;
   }
 
-  if (import.meta.env.DEV) {
+  if (import.meta.env.DEV || Capacitor.isNativePlatform()) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         registrations.forEach((registration) => {
@@ -3307,7 +3329,7 @@ function registerServiceWorker() {
         ...state.profile,
         favoriteLanguages: normalizeQuickLanguages(selected, state.profile.preferredLanguage),
       };
-      saveProfile(window.localStorage, state.profile);
+      saveProfile(window.sessionStorage, state.profile);
       render();
     });
   });
@@ -3801,7 +3823,7 @@ function initSignaturePad() {
       ...state.profile,
       drawnSignatureDataUrl: canvas.toDataURL('image/png'),
     };
-    saveProfile(window.localStorage, state.profile);
+    saveProfile(window.sessionStorage, state.profile);
     state.signaturePadOpen = false;
     state.status = t(uiLanguage(), 'profile.status.drawnSignatureSaved');
     render();
@@ -3871,6 +3893,7 @@ async function processOcrImage(file: File) {
 }
 
 async function processDashboardWarningImage(file: File) {
+  if (!dashboardWarningVisionEnabled(import.meta.env.VITE_DASHBOARD_WARNING_VISION_ENABLED)) { window.location.assign('/knowledge/martori-bord'); return; }
   dashboardWarningProcessing = true; dashboardWarningConfirmed = false; dashboardWarningVisionResult = null;
   state.ocrImageDataUrl = await readFileAsDataUrl(file); render();
   const form = new FormData();
@@ -3878,7 +3901,12 @@ async function processDashboardWarningImage(file: File) {
   form.append('request', JSON.stringify({ consent: { confirmed: true, purpose: 'dashboard-warning-analysis', policyVersion: 'dashboard-warning-privacy-v0.1', providerPolicyVersion: 'provider-review-required-v0.1', consentedAt: new Date().toISOString() } }));
   try {
     const base = import.meta.env.DEV ? 'http://127.0.0.1:3000/api/v1' : '/api/v1';
-    const response = await fetch(`${base}/dashboard-warning-analysis`, { method: 'POST', body: form });
+    const token = sessionStorage.getItem(USER_ACCESS_TOKEN_KEY);
+    const response = await fetch(`${base}/dashboard-warning-analysis`, {
+      method: 'POST',
+      body: form,
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json() as { data?: DashboardWarningVisionResult };
     dashboardWarningVisionResult = payload.data ?? null;
@@ -4883,7 +4911,7 @@ function renderSelectedTemplateControls() {
 }
 
 function saveMessageLibraryState() {
-  saveMessageLibraryPreferences(window.localStorage, {
+  saveMessageLibraryPreferences(window.sessionStorage, {
     favorites: state.messageLibraryFavorites,
     recent: state.messageLibraryRecent,
   });
@@ -5150,6 +5178,7 @@ function createLocalId() {
 
 function deleteProfileData() {
   window.localStorage.removeItem(profileStorageKey);
+  window.sessionStorage.removeItem(profileStorageKey);
   state.profile = defaultProfile();
   state.targetLanguage = state.profile.preferredLanguage;
   state.translatorTargetLanguage = state.profile.preferredLanguage;
@@ -5159,6 +5188,7 @@ function deleteProfileData() {
 
 function deleteContactData() {
   window.localStorage.removeItem(contactStorageKey);
+  window.sessionStorage.removeItem(contactStorageKey);
   state.contacts = [];
   state.contactManagerOpen = false;
   state.contactSearch = '';
@@ -5209,15 +5239,24 @@ function deleteLegalAcceptance() {
 }
 
 async function resetAllLocalData() {
-  window.localStorage.removeItem(profileStorageKey);
-  window.localStorage.removeItem(profileLanguageKey);
-  window.localStorage.removeItem(contactStorageKey);
-  window.localStorage.removeItem(LEGAL_ACCEPTANCE_KEY);
+  for (let index = window.localStorage.length - 1; index >= 0; index -= 1) {
+    const key = window.localStorage.key(index);
+    if (key?.startsWith('agm.')) window.localStorage.removeItem(key);
+  }
+  for (let index = window.sessionStorage.length - 1; index >= 0; index -= 1) {
+    const key = window.sessionStorage.key(index);
+    if (key?.startsWith('agm.')) window.sessionStorage.removeItem(key);
+  }
   ocrHistoryRepository.clear();
   try {
     await ocrArchiveRepository.clear();
   } catch {
     // Continue resetting the remaining local application data.
+  }
+  try {
+    await clearOriginalEvidence();
+  } catch {
+    // Continue resetting in-memory state; the UI reports completion only after best-effort local cleanup.
   }
   state.profile = defaultProfile();
   state.contacts = [];
@@ -5300,7 +5339,7 @@ function saveProfileFromForm() {
     defaultSignature: defaultSignature || state.profile.defaultSignature || defaultProfile().defaultSignature,
     drawnSignatureDataUrl: state.profile.drawnSignatureDataUrl,
   };
-  saveProfile(window.localStorage, state.profile);
+  saveProfile(window.sessionStorage, state.profile);
   state.status = t(uiLanguage(), 'profile.status.saved', { language: languageLabel(state.profile.preferredLanguage) });
   render();
 }
@@ -5309,7 +5348,7 @@ function resetProfile() {
   state.profile = defaultProfile();
   state.targetLanguage = state.profile.preferredLanguage;
   state.translatorTargetLanguage = state.profile.preferredLanguage;
-  saveProfile(window.localStorage, state.profile);
+  saveProfile(window.sessionStorage, state.profile);
   state.status = t(uiLanguage(), 'profile.status.reset');
   render();
 }
@@ -5322,7 +5361,7 @@ function setProfileLanguage(preferredLanguage: LanguageCode) {
   state.targetLanguage = preferredLanguage;
   state.translatorTargetLanguage = preferredLanguage;
   applySelectedTemplateLanguage(preferredLanguage);
-  state.profile = saveProfile(window.localStorage, state.profile);
+  state.profile = saveProfile(window.sessionStorage, state.profile);
 }
 
 function emailSignature(language: LanguageCode): string {
@@ -5429,13 +5468,14 @@ function viewFromCurrentRoute(): ViewName {
   const hashRoute = window.location.hash.replace(/^#\/?/, '').toLocaleLowerCase();
   const pathRoute = window.location.pathname.replace(/^\/?/, '').toLocaleLowerCase();
   const route = hashRoute && !isTurnSectionFragment(hashRoute) ? hashRoute : pathRoute;
+  const normalizedRoute = normalizePremiumRoute(route);
 
-  const premiumView = premiumViewFromRoute(route);
+  const premiumView = premiumViewFromRoute(normalizedRoute);
   if (premiumView) {
     return isPremiumNavigationAllowed(premiumView) ? premiumView : 'access';
   }
 
-  return shellViewFromRoute(route) ?? 'home';
+  return shellViewFromRoute(normalizedRoute) ?? 'home';
 }
 
 function navigateToRoute(view: ViewName, route: string) {

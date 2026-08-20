@@ -14,10 +14,16 @@ export function configureHttpApplication(app: Awaited<ReturnType<typeof NestFact
   expressApplication.set('trust proxy', config.get<number>('TRUST_PROXY_HOPS', 0));
 
   app.use(helmet());
+  app.use((_request: unknown, response: { setHeader(name: string, value: string): void }, next: () => void) => {
+    response.setHeader('Cache-Control', 'no-store, max-age=0');
+    response.setHeader('CDN-Cache-Control', 'no-store');
+    response.setHeader('Vary', 'Origin, Access-Control-Request-Method, Access-Control-Request-Headers');
+    next();
+  });
   const allowedOrigins = new Set(configuredCorsOrigins(config.getOrThrow<string>('CORS_ALLOWED_ORIGINS')));
   app.enableCors({
     credentials: true,
-    origin(origin, callback) {
+    origin(origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
       if (!origin || allowedOrigins.has(origin)) return callback(null, true);
       return callback(null, false);
     },

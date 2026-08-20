@@ -30,9 +30,15 @@ describe('Premium assistant read-only contract', () => {
     const supplied = JSON.parse(body.input[1].content);
     expect(supplied.tenantBoundary).toBe('tenant-1');
     expect(supplied).not.toHaveProperty('tenantId');
+    expect(body.tools).toEqual([{ type: 'web_search' }]);
+    expect(body.tool_choice).toBe('auto');
+    expect(body.max_output_tokens).toBe(350);
     expect(body.input[0].content).toContain('Never claim to send messages');
     expect(body.input[0].content).toContain('telephone numbers');
-    expect(body.input[0].content).toContain('no live search or verified contact directory');
+    expect(body.input[0].content).toContain('live public-web search available');
+    expect(body.input[0].content).toContain('official and primary sources');
+    expect(body.input[0].content).toContain('Answer only the newest confirmedText');
+    expect(body.input[0].content).toContain('at most two compact');
     expect(body.input[0].content).toContain('do not repeat a question already answered');
   });
 

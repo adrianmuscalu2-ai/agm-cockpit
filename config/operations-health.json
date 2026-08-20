@@ -125,10 +125,10 @@
       "id": "cloudflare-public",
       "label": "Cloudflare / rute publice",
       "kind": "http",
-      "url": "https://app.agmcockpit.com/",
+      "url": "https://app.agmcockpit.com/turn",
       "evaluator": "http",
       "healthyStatus": "ONLINE",
-      "source": "Rută publică Cloudflare · app.agmcockpit.com",
+      "source": "MON-008 extern · https://app.agmcockpit.com/turn",
       "showInOperations": false
     },
     {
@@ -157,7 +157,7 @@
       "evaluator": "http",
       "healthyStatus": "READY",
       "source": "Secret Guardian telemetry v1 · metadate sigure",
-      "showInOperations": true
+      "showInOperations": false
     }
   ]
 }

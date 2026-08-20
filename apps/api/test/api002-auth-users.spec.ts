@@ -9,15 +9,20 @@ import { JwtStrategy } from '../src/auth/jwt.strategy';
 import { UsersService } from '../src/users/users.service';
 
 describe('API-002 Auth & Users contract', () => {
-  const prismaMock = () => ({
+  const prismaMock = () => {
+    const value:any = {
     user: { update: jest.fn().mockResolvedValue(undefined) },
     authSession: {
       create: jest.fn().mockResolvedValue(undefined),
       findUnique: jest.fn(),
       update: jest.fn().mockResolvedValue(undefined),
       updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
     },
-  });
+    };
+    value.$transaction=jest.fn((callback:any)=>callback(value));
+    return value;
+  };
   const activeUser = {
     id: 'user-1',
     companyId: 'company-1',
@@ -72,7 +77,7 @@ describe('API-002 Auth & Users contract', () => {
   it('restores only an active, unexpired, non-revoked refresh session and never persists the raw token', async () => {
     const prisma = prismaMock();
     prisma.authSession.findUnique.mockResolvedValue({
-      id: 'session-1', revokedAt: null, expiresAt: new Date(Date.now() + 60_000),
+      id: 'session-1', companyId:'company-1', userId:'user-1', familyId:'family-1', generation:0, revokedAt: null, expiresAt: new Date(Date.now() + 60_000),
       user: activeUser,
     });
     const jwt = { signAsync: jest.fn().mockResolvedValue('restored-access-token') };
@@ -83,7 +88,20 @@ describe('API-002 Auth & Users contract', () => {
       where: { tokenHash: expect.stringMatching(/^[a-f0-9]{64}$/) },
     }));
     expect(JSON.stringify(prisma.authSession.findUnique.mock.calls)).not.toContain('raw-refresh-token');
-    expect(prisma.authSession.update).toHaveBeenCalledWith({ where: { id: 'session-1' }, data: { lastUsedAt: expect.any(Date) } });
+    expect(restored).toEqual(expect.objectContaining({ rawRefreshToken: expect.any(String) }));
+    expect(prisma.authSession.updateMany).toHaveBeenCalledWith({
+      where: { id: 'session-1', tokenHash: expect.stringMatching(/^[a-f0-9]{64}$/), revokedAt: null, expiresAt: { gt: expect.any(Date) } },
+      data: { revokedAt:expect.any(Date), replacedAt:expect.any(Date), lastUsedAt: expect.any(Date) },
+    });
+    expect(prisma.authSession.create).toHaveBeenCalledWith({data:expect.objectContaining({familyId:'family-1',generation:1,tokenHash:expect.stringMatching(/^[a-f0-9]{64}$/)})});
+  });
+
+  it('detects replay of a rotated token and revokes the remaining session family',async()=>{
+    const prisma=prismaMock();
+    prisma.authSession.findUnique.mockResolvedValue({id:'old',familyId:'family-1',revokedAt:new Date(),expiresAt:new Date(Date.now()+60_000),user:activeUser});
+    const service=new AuthService({} as never,{signAsync:jest.fn()} as unknown as JwtService,prisma as never);
+    await expect(service.refresh('replayed-token')).rejects.toBeInstanceOf(UnauthorizedException);
+    expect(prisma.authSession.updateMany).toHaveBeenCalledWith({where:{familyId:'family-1',revokedAt:null},data:{revokedAt:expect.any(Date),reuseDetectedAt:expect.any(Date)}});
   });
 
   it.each([
@@ -126,7 +144,7 @@ describe('API-002 Auth & Users contract', () => {
       const envelope = await controller.login({ email:'owner@agm.test', password:'not-recorded' }, response as never);
       expect(JSON.stringify(envelope)).not.toContain('raw-refresh-secret');
       expect(response.cookie).toHaveBeenCalledWith('agm_refresh', 'raw-refresh-secret', {
-        httpOnly:true, sameSite:'lax', secure:true,
+        httpOnly:true, sameSite:'none', secure:true,
         maxAge:AUTH_CONTRACT.refreshSessionDays * 86400_000, path:'/api/v1/auth',
       });
     } finally { process.env.NODE_ENV = previousEnvironment; }

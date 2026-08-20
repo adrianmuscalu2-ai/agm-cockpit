@@ -1,5 +1,7 @@
 import {
   LoadSafetyApiError,
+  authorizationHeaders,
+  appendLoadSafetyConsent,
   loadSafetyEndpointUrl,
 } from '../load-safety.api';
 import type { LoadSafetyAnalysis } from '../load-safety.types';
@@ -32,10 +34,11 @@ export async function requestSecuringRecommendation(
   body.append('language', language);
   body.append('input', JSON.stringify(input));
   body.append('visualAnalysis', JSON.stringify(visualAnalysis));
+  appendLoadSafetyConsent(body, 'load-safety-recommendation');
 
   let response: Response;
   try {
-    response = await fetch(securingRecommendationEndpointUrl, { method: 'POST', body });
+    response = await fetch(securingRecommendationEndpointUrl, { method: 'POST', body, headers: authorizationHeaders() });
   } catch {
     throw new LoadSafetyApiError('network');
   }

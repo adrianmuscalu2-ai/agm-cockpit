@@ -22,6 +22,7 @@ export function operationsHealthEvent(source: OperationService, snapshot: Operat
   if (!contract || source.kind !== 'http') return null;
   const freshness = operationFreshness(snapshot, snapshot.checkedAt);
   if (freshness === 'STALE' || freshness === 'UNKNOWN') return null;
+  if (source.id === 'cloudflare-public' && !snapshot.confirmedOffline && snapshot.status !== 'ONLINE') return null;
   const failed = freshness === 'OFFLINE' || snapshot.status === 'DEGRADED';
   const at = snapshot.checkedAt.toISOString();
   return {

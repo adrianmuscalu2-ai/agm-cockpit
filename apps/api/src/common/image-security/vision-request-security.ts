@@ -8,9 +8,17 @@ export const VISION_CONSENT_POLICY = {
   maxFutureSkewMs: 60 * 1000,
 } as const;
 
+export const LOAD_SAFETY_CONSENT_POLICIES = {
+  'load-safety-analysis': { policyVersion: 'load-safety-privacy-v0.1', providerPolicyVersion: 'provider-review-required-v0.1' },
+  'load-safety-recommendation': { policyVersion: 'load-safety-privacy-v0.1', providerPolicyVersion: 'provider-review-required-v0.1' },
+  'load-safety-field-test': { policyVersion: 'load-safety-privacy-v0.1', providerPolicyVersion: 'provider-review-required-v0.1' },
+} as const;
+
+export type VisionConsentPurpose = typeof VISION_CONSENT_POLICY.purpose | keyof typeof LOAD_SAFETY_CONSENT_POLICIES;
+
 export type VisionConsentEvidence = {
   confirmed: true;
-  purpose: typeof VISION_CONSENT_POLICY.purpose;
+  purpose: VisionConsentPurpose;
   policyVersion: string;
   providerPolicyVersion: string;
   consentedAt: string;
@@ -50,6 +58,26 @@ export function validateVisionConsent(
     age > VISION_CONSENT_POLICY.maxAgeMs ||
     age < -VISION_CONSENT_POLICY.maxFutureSkewMs
   ) {
+    throw new VisionSecurityError('IMAGE_CONSENT_TIMESTAMP_INVALID');
+  }
+  return evidence;
+}
+
+export function validateVisionConsentForPurpose(
+  evidence: VisionConsentEvidence | undefined,
+  purpose: keyof typeof LOAD_SAFETY_CONSENT_POLICIES,
+  now = new Date(),
+): VisionConsentEvidence {
+  const policy = LOAD_SAFETY_CONSENT_POLICIES[purpose];
+  if (!evidence?.confirmed || evidence.purpose !== purpose) {
+    throw new VisionSecurityError('IMAGE_CONSENT_REQUIRED');
+  }
+  if (evidence.policyVersion !== policy.policyVersion || evidence.providerPolicyVersion !== policy.providerPolicyVersion) {
+    throw new VisionSecurityError('IMAGE_CONSENT_VERSION_INVALID');
+  }
+  const consentedAt = Date.parse(evidence.consentedAt);
+  const age = now.getTime() - consentedAt;
+  if (!Number.isFinite(consentedAt) || age > VISION_CONSENT_POLICY.maxAgeMs || age < -VISION_CONSENT_POLICY.maxFutureSkewMs) {
     throw new VisionSecurityError('IMAGE_CONSENT_TIMESTAMP_INVALID');
   }
   return evidence;

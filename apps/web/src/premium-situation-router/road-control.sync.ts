@@ -27,7 +27,7 @@ export function enqueueRoadControlTransition(storage:SliceStorage,value:Operatio
 export function flushRoadControlTransitions(input:{storage:SliceStorage;server?:OperationalEventServerPort}){
  return serialize(async()=>{const ports=createLocalOperationalContextPorts(input.storage);const context=await ports.repository.readActive();
   if(!context)return {status:'idle' as const,acknowledged:0,conflicts:0,projection:null};
-  const server=input.server??createHttpOperationalEventServer({baseUrl:apiBaseUrl(),token:()=>sessionStorage.getItem('agm.auth.accessToken')??localStorage.getItem('agm.auth.accessToken')});
+  const server=input.server??createHttpOperationalEventServer({baseUrl:apiBaseUrl(),token:()=>sessionStorage.getItem('agm.auth.accessToken')});
   return synchronizeOperationalOutbox({tripId:context.tripId,ports,server,maxAttempts:3});
  });
 }

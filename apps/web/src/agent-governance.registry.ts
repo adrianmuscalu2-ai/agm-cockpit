@@ -9,6 +9,9 @@ export type {
 export const agentGovernanceRegistry: AgentGovernanceRecord[] = [
   ...monitoringAgentGovernanceRecords,
   {
+    id: 'p9-copilot-control-plane', code: 'P9', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'ai-agents', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.validated', displayName: 'P9', displayRole: 'Copilot control-plane intern', displayResponsibilities: 'Runtime read-only promovat, proiectat din evidence operațional; Kill Switch și rollback rămân disponibile.',
+  },
+  {
     id: 'secret-credentials-guardian', code: 'SECRET-CREDENTIALS-GUARDIAN', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'security-legal', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.monitoring', displayName: 'Secret & Credentials Guardian', displayRole: 'Secret lifecycle authority', displayResponsibilities: 'Validates secret references and lifecycle metadata without exposing secret values.',
   },
   {

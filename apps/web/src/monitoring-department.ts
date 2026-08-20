@@ -63,7 +63,7 @@ export const monitoringAgents: MonitoringAgent[] = [
   {
     id: 'monitor-cloudflare', code: 'MON-008', name: 'Agent Monitorizare Cloudflare / rute publice',
     component: 'Cloudflare și hostname-uri publice', sourceId: 'cloudflare-public',
-    source: 'Rută publică Cloudflare · app.agmcockpit.com', responsibilities: 'Verifică accesul public și latența rutei Cloudflare.',
+    source: 'MON-008 extern · https://app.agmcockpit.com/turn', responsibilities: 'Afișează disponibilitatea canonică MON-008 și păstrează separat rezultatul probei, freshness și latența.',
     intervention: 'Verifică DNS, tunnel, ingress și origin fără afișarea credentialelor.', incidentTerms: ['cloudflare', 'rută publică'],
   },
   {
@@ -165,6 +165,9 @@ export function renderMonitoringDepartment(incidents: OperationalIncident[]) {
           <div><dt>Vârsta datelor</dt><dd class="operation-service-age">${isIncidentAgent ? '0s' : '—'}</dd></div>
           <div><dt>Ultima verificare</dt><dd class="operation-service-checked">${isIncidentAgent ? new Date().toLocaleString() : '—'}</dd></div>
           <div><dt>Timp răspuns</dt><dd class="operation-service-latency">${isIncidentAgent ? 'N/A' : '—'}</dd></div>
+          <div><dt>Rezultat probă</dt><dd class="operation-service-outcome">${isIncidentAgent ? 'NOT_AVAILABLE' : '—'}</dd></div>
+          <div><dt>URL efectiv</dt><dd class="operation-service-effective-url">${source?.url ? escapeHtml(source.url) : 'N/A'}</dd></div>
+          <div><dt>Ultimul succes</dt><dd class="operation-service-last-success">—</dd></div>
           <div><dt>Sursa datelor</dt><dd>${escapeHtml(agent.source)}</dd></div>
           <div><dt>Incident activ</dt><dd>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">${escapeHtml(incident.id)}</a>` : 'Niciun incident activ'}</dd></div>
           <div><dt>Responsabilitate</dt><dd>${escapeHtml(agent.responsibilities)}</dd></div>

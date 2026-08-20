@@ -4,6 +4,7 @@ export const AUTH_CONTRACT = {
   tokenScope: 'user',
   defaultExpiresIn: '1h',
   refreshSessionDays: 30,
+  revokedSessionRetentionDays: 7,
   activeStatus: 'Active',
   loginThrottle: {
     limit: 5,

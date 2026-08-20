@@ -20,6 +20,26 @@ export type OcrArchiveStore = {
 
 export type OcrArchiveRepository = ReturnType<typeof createOcrArchiveRepository>;
 
+/** Session-only store for sensitive OCR images and extracted document text. */
+export function createEphemeralOcrArchiveStore(): OcrArchiveStore {
+  const documents = new Map<string, OcrDocument>();
+  return {
+    async list() { return [...documents.values()]; },
+    async get(id) { return documents.get(id); },
+    async put(document) { documents.set(document.id, structuredClone(document)); },
+    async delete(id) { documents.delete(id); },
+    async clear() { documents.clear(); },
+  };
+}
+
+export function purgeLegacyPersistentOcr(indexedDb: IDBFactory, storage: Storage) {
+  storage.removeItem('agm.ocr.history.v1');
+  storage.removeItem('agm.ocr.archive.migration.v2');
+  const request = indexedDb.deleteDatabase(OCR_ARCHIVE_DATABASE_NAME);
+  request.onerror = () => undefined;
+  request.onblocked = () => undefined;
+}
+
 export function createOcrArchiveRepository(
   store: OcrArchiveStore,
   options: { now?: () => string } = {},
@@ -186,4 +206,3 @@ function assertOcrDocument(document: OcrDocument) {
     throw new TypeError('Invalid OCR document.');
   }
 }
-

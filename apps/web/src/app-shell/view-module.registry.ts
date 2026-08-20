@@ -8,7 +8,6 @@ export const appViewModuleRegistry = [
   { id: 'premium-load-safety', view: 'premiumLoadSafety', owner: 'shell', activation: 'legacy-main', lifecycle: ['render', 'bind'] },
   { id: 'premium-communications', view: 'premiumCommunications', owner: 'shell', activation: 'legacy-main', lifecycle: ['render', 'bind'] },
   { id: 'premium-voice', view: 'premiumVoice', owner: 'shell', activation: 'legacy-main', lifecycle: ['render', 'bind'] },
-  { id: 'car-mover', view: 'carMover', owner: 'shell', activation: 'legacy-main', lifecycle: ['render', 'bind'] },
   { id: 'cockpit', view: 'cockpit', owner: 'translator', activation: 'legacy-main', lifecycle: ['render', 'bind'] },
   { id: 'email', view: 'email', owner: 'mail', activation: 'legacy-main', lifecycle: ['render', 'bind'] },
   { id: 'profile', view: 'profile', owner: 'profile', activation: 'legacy-main', lifecycle: ['render', 'bind'] },

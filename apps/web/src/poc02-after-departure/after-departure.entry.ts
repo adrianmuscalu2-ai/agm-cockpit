@@ -2,6 +2,10 @@ import './after-departure.styles.css';
 import '../premium-situation-router/road-control.component';
 import '../premium-situation-router/after-field-batch.component';
 import { mountAfterDepartureApp } from './after-departure.controller';
+import { bindSensitiveSessionCleanup, purgeSensitiveLegacyLocalStorage } from '../storage/sensitive-storage-policy';
+
+purgeSensitiveLegacyLocalStorage(window.localStorage);
+bindSensitiveSessionCleanup(window.sessionStorage);
 
 const root = document.querySelector<HTMLElement>('#after-departure-app');
 

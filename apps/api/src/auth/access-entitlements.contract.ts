@@ -40,9 +40,7 @@ export function evaluateAccessEntitlements(input: {
     subjectId: input.subjectId,
     tier: premium ? 'premium' : 'basic',
     status: 'active',
-    capabilities: premium
-      ? premiumCapabilityIds.filter((capability) => capability !== 'car-mover.jobs' || carMover)
-      : [],
+    capabilities: premium ? premiumCapabilityIds.filter((capability) => capability !== 'car-mover.jobs' || carMover) : [],
     evaluatedAt: input.evaluatedAt.toISOString(),
     policyVersion: ACCESS_ENTITLEMENTS_CONTRACT.version,
   };

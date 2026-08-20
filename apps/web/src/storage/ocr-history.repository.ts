@@ -12,6 +12,7 @@ export type OcrHistoryItem = {
 };
 
 type OcrHistoryStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+const OCR_HISTORY_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 export function createOcrHistoryRepository(storage: OcrHistoryStorage) {
   return {
@@ -27,7 +28,7 @@ export function createOcrHistoryRepository(storage: OcrHistoryStorage) {
 
         return Array.isArray(parsed)
           ? parsed
-              .filter((item) => item.id && item.createdAt && item.imageDataUrl)
+              .filter((item) => item.id && item.createdAt && item.imageDataUrl && Date.parse(item.createdAt) >= Date.now() - OCR_HISTORY_TTL_MS)
               .slice(0, 8)
           : [];
       } catch {
@@ -38,7 +39,7 @@ export function createOcrHistoryRepository(storage: OcrHistoryStorage) {
     save(items: OcrHistoryItem[]) {
       storage.setItem(
         storageKeys.ocrHistory,
-        JSON.stringify(items.slice(0, 8)),
+        JSON.stringify(items.filter((item) => Date.parse(item.createdAt) >= Date.now() - OCR_HISTORY_TTL_MS).slice(0, 8)),
       );
     },
 

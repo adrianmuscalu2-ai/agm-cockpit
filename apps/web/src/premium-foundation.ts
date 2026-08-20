@@ -8,6 +8,7 @@ type PremiumTranslator = (key: string) => string;
 const approvedUserWorkspaces = [
   { title: 'Pre-Departure', href: '/before-departure.html' },
   { title: 'Journey Operations Workspace', href: '/after-departure.html' },
+  { title: 'AGM Car Mover', href: '/car-mover', module: 'carMover' },
   { title: 'Vorbește cu AGM', href: '/premium/voice', module: 'premiumVoice' },
 ] as const;
 

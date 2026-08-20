@@ -8,4 +8,5 @@ export type LoadSafetyUiState = {
   analysis?: LoadSafetyAnalysis;
   statusKey: string;
   processing: boolean;
+  externalProcessingConsent: boolean;
 };

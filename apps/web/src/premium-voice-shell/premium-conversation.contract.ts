@@ -8,6 +8,7 @@ export const premiumConversationIntents = [
   'prepare-message',
   'prepare-document',
   'navigate-context',
+  'navigate-to-car-mover',
   'correct-previous-input',
   'continue-conversation',
   'unknown',
@@ -48,12 +49,27 @@ export type PremiumConversationAssistantTurn = {
 export type PremiumConversationActionProposal = {
   id: string;
   respondsToTurnId: string;
-  capability: 'prepare-translation' | 'prepare-message' | 'prepare-document' | 'navigate-context';
+  capability: 'prepare-translation' | 'prepare-message' | 'prepare-document' | 'navigate-context' | 'navigate-to-car-mover';
   summary: string;
   payloadPreview: string;
   producesExternalEffect: false;
   requiresHumanConfirmation: true;
 };
+
+export function detectPremiumConversationIntent(text: string): PremiumConversationIntent {
+  const normalized = text
+    .toLocaleLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+  if (!normalized || /\b(nu|not|dont|don't|nein|kein)\b.*\b(car mover|masina|car)\b/.test(normalized)) return 'unknown';
+  if (
+    /\bcar mover\b/.test(normalized) ||
+    /\b(des(ch|chide)|vreau|du ma|muta|move|open|take me|fahrzeug|offne)\b.*\b(masina|car|car mover|fahrzeug)\b/.test(normalized)
+  ) return 'navigate-to-car-mover';
+  return 'unknown';
+}
 
 export const premiumConversationBoundaries = {
   acceptsNaturalLanguage: true,

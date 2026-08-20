@@ -3,7 +3,11 @@ package com.agm.cockpit;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
+import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Handler;
@@ -41,6 +45,9 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     private SpeechRecognizer speechRecognizer;
     private PluginCall listeningCall;
     private TextToSpeech textToSpeech;
+    private AudioManager audioManager;
+    private AudioFocusRequest audioFocusRequest;
+    private boolean ownsAudioFocus;
     private PluginCall pendingSpeechCall;
     private String pendingSpeechText;
     private String pendingSpeechLanguage;
@@ -208,10 +215,49 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         if (speechRateResult == TextToSpeech.ERROR) {
             Log.w(TAG, "Could not apply the AGM baseline TTS speech rate");
         }
-        int result = textToSpeech.speak(pendingSpeechText, TextToSpeech.QUEUE_FLUSH, null, "agm-tts");
+        AudioAttributes speechAttributes = new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build();
+        textToSpeech.setAudioAttributes(speechAttributes);
+        requestSpeechAudioFocus(speechAttributes);
+        Bundle speechParameters = new Bundle();
+        speechParameters.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f);
+        int result = textToSpeech.speak(pendingSpeechText, TextToSpeech.QUEUE_FLUSH, speechParameters, "agm-tts");
         if (result == TextToSpeech.ERROR) {
             rejectPendingSpeech("Android Text-to-Speech could not start", "TTS_START_FAILED");
         }
+    }
+
+    private void requestSpeechAudioFocus(AudioAttributes speechAttributes) {
+        audioManager = (AudioManager) getContext().getSystemService(android.content.Context.AUDIO_SERVICE);
+        if (audioManager == null) return;
+        int result;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            audioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                .setAudioAttributes(speechAttributes)
+                .setOnAudioFocusChangeListener(focusChange -> Log.i(TAG, "TTS audio focus=" + focusChange))
+                .setWillPauseWhenDucked(false)
+                .build();
+            result = audioManager.requestAudioFocus(audioFocusRequest);
+        } else {
+            result = audioManager.requestAudioFocus(
+                focusChange -> Log.i(TAG, "TTS audio focus=" + focusChange),
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+            );
+        }
+        ownsAudioFocus = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+        Log.i(TAG, "TTS audio focus granted=" + ownsAudioFocus);
+    }
+
+    private void abandonSpeechAudioFocus() {
+        if (!ownsAudioFocus || audioManager == null) return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && audioFocusRequest != null) {
+            audioManager.abandonAudioFocusRequest(audioFocusRequest);
+        }
+        ownsAudioFocus = false;
+        audioFocusRequest = null;
     }
 
     private void selectPreferredVoice(Locale locale) {
@@ -261,6 +307,10 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     @PluginMethod
     public void stopSpeaking(PluginCall call) {
         if (textToSpeech != null) textToSpeech.stop();
+        // TextToSpeech.stop() does not emit onDone consistently. Resolve the
+        // Capacitor call explicitly so a newly started question cannot remain
+        // chained to the interrupted answer.
+        resolvePendingSpeech();
         Log.i(TAG, "TTS playback stopped");
         call.resolve();
     }
@@ -324,6 +374,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     }
 
     private void resolvePendingSpeech() {
+        abandonSpeechAudioFocus();
         PluginCall call = pendingSpeechCall;
         pendingSpeechCall = null;
         pendingSpeechText = null;
@@ -333,6 +384,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
 
     private void rejectPendingSpeech(String message, String code) {
         Log.e(TAG, message);
+        abandonSpeechAudioFocus();
         PluginCall call = pendingSpeechCall;
         pendingSpeechCall = null;
         pendingSpeechText = null;
@@ -342,6 +394,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
 
     @Override protected void handleOnDestroy() {
         destroyRecognizer();
+        abandonSpeechAudioFocus();
         if (textToSpeech != null) { textToSpeech.stop(); textToSpeech.shutdown(); textToSpeech = null; }
         super.handleOnDestroy();
     }

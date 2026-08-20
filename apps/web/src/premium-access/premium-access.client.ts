@@ -2,6 +2,9 @@ import type { AccessEntitlementSnapshot } from './premium-access.contract';
 
 export const USER_ACCESS_TOKEN_KEY = 'agm.auth.accessToken';
 
+// One-time fail-closed migration: access tokens are session-only.
+globalThis.localStorage?.removeItem(USER_ACCESS_TOKEN_KEY);
+
 type StoragePort = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 type FetchPort = typeof fetch;
 
@@ -47,6 +50,7 @@ export function createPremiumAccessClient(input: {
       if (!token) throw new PremiumAccessClientError('unauthenticated');
       try {
         return await request<AccessEntitlementSnapshot>('/auth/entitlements', {
+          cache: 'no-store',
           headers: { Authorization: `Bearer ${token}` },
         });
       } catch (error) {

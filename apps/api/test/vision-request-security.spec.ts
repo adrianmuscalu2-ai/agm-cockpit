@@ -1,6 +1,8 @@
 import {
   createVisionSecurityEvent,
   validateVisionConsent,
+  validateVisionConsentForPurpose,
+  LOAD_SAFETY_CONSENT_POLICIES,
   VISION_CONSENT_POLICY,
   VisionSecurityError,
 } from '../src/common/image-security/vision-request-security';
@@ -15,6 +17,14 @@ describe('Vision request privacy and audit contract', () => {
 
   it('rejects absent consent', () => {
     expectSecurityCode(() => validateVisionConsent(undefined, now), 'IMAGE_CONSENT_REQUIRED');
+  });
+
+  it('validates exact-purpose Load Safety consent and rejects cross-purpose reuse', () => {
+    const purpose = 'load-safety-analysis' as const;
+    const policy = LOAD_SAFETY_CONSENT_POLICIES[purpose];
+    const evidence = { confirmed: true, purpose, ...policy, consentedAt: '2026-08-03T11:59:00.000Z' } as const;
+    expect(validateVisionConsentForPurpose(evidence, purpose, now)).toEqual(evidence);
+    expectSecurityCode(() => validateVisionConsentForPurpose(evidence, 'load-safety-field-test', now), 'IMAGE_CONSENT_REQUIRED');
   });
 
   it('rejects a stale policy version', () => {

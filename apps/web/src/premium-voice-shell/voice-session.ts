@@ -9,7 +9,10 @@ export type VoiceSessionTelemetry = {
   speechDetectedAt?: number;
   finalTranscriptAt?: number;
   engineRequestAt?: number;
+  engineResponseAt?: number;
+  engineLatencyMs?: number;
   ttsStartedAt?: number;
+  transcriptToTtsMs?: number;
   nativeTiming?: Record<string, number>;
 };
 
@@ -30,7 +33,16 @@ export class VoiceSessionController {
   markSpeech() { if (this.telemetry && !this.telemetry.speechDetectedAt) this.telemetry.speechDetectedAt = performance.now(); }
   markTranscript(nativeTiming?: Record<string, number>) { if (this.telemetry) { this.telemetry.finalTranscriptAt = performance.now(); this.telemetry.nativeTiming = nativeTiming; } }
   markEngineRequest() { if (this.telemetry) this.telemetry.engineRequestAt = performance.now(); }
-  markTts() { if (this.telemetry) this.telemetry.ttsStartedAt = performance.now(); }
+  markEngineResponse() {
+    if (!this.telemetry) return;
+    this.telemetry.engineResponseAt = performance.now();
+    if (this.telemetry.engineRequestAt !== undefined) this.telemetry.engineLatencyMs = Math.round(this.telemetry.engineResponseAt - this.telemetry.engineRequestAt);
+  }
+  markTts() {
+    if (!this.telemetry) return;
+    this.telemetry.ttsStartedAt = performance.now();
+    if (this.telemetry.finalTranscriptAt !== undefined) this.telemetry.transcriptToTtsMs = Math.round(this.telemetry.ttsStartedAt - this.telemetry.finalTranscriptAt);
+  }
   snapshot() { return this.telemetry ? structuredClone(this.telemetry) : undefined; }
   private set(state: VoiceSessionState) { this.value = state; this.onState(state); }
 }

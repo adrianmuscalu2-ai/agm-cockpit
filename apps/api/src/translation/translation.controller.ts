@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Header, Post } from '@nestjs/common';
 import { responseEnvelope } from '../common/response';
 import { TranslateTextDto } from './dto/translate-text.dto';
 import { TranslationService } from './translation.service';
@@ -10,6 +10,9 @@ export class TranslationController {
   constructor(private readonly translationService: TranslationService) {}
 
   @Get('health')
+  @Header('Cache-Control', 'no-store, max-age=0')
+  @Header('CDN-Cache-Control', 'no-store')
+  @Header('Vary', 'Origin')
   @Throttle({ default: {
     limit: TRANSLATION_CONTRACT.healthThrottle.limit,
     ttl: TRANSLATION_CONTRACT.healthThrottle.ttlMs,

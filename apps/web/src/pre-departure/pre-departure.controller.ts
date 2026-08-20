@@ -126,7 +126,7 @@ function safeParse(value: string | null): PersistedSession | null {
 }
 
 function persist(session: PreDepartureSession, language: string) {
-  window.localStorage.setItem(
+  window.sessionStorage.setItem(
     STORAGE_KEY,
     JSON.stringify({
       ...session,
@@ -136,11 +136,11 @@ function persist(session: PreDepartureSession, language: string) {
   const meta = readSyncMeta();
   const updatedAt = new Date().toISOString();
   const clientRevision = meta.clientRevision + 1;
-  window.localStorage.setItem(
+  window.sessionStorage.setItem(
     SYNC_META_KEY,
     JSON.stringify({ ...meta, clientRevision, updatedAt }),
   );
-  enqueuePreDepartureSync(window.localStorage, {
+  enqueuePreDepartureSync(window.sessionStorage, {
     clientSessionId: meta.clientSessionId,
     serverRevision: meta.serverRevision,
     payload: {
@@ -168,7 +168,7 @@ function persist(session: PreDepartureSession, language: string) {
       closedAt: session.state === 'CLOSED' ? updatedAt : undefined,
     },
   });
-  void journeyFacade.handoff(window.localStorage, session, navigator.onLine).catch((error) => {
+  void journeyFacade.handoff(window.sessionStorage, session, navigator.onLine).catch((error) => {
     console.error('Pre-departure operational context recording failed.', error);
   });
   void syncPendingPreDeparture();
@@ -176,13 +176,10 @@ function persist(session: PreDepartureSession, language: string) {
 
 async function syncPendingPreDeparture() {
   const apiBaseUrl = import.meta.env.VITE_AGM_API_BASE_URL?.trim();
-  const accessToken =
-    window.sessionStorage.getItem('agm.auth.accessToken') ??
-    window.localStorage.getItem('agm.auth.accessToken') ??
-    undefined;
+  const accessToken = window.sessionStorage.getItem('agm.auth.accessToken') ?? undefined;
   if (!apiBaseUrl) return;
   await flushPreDepartureOutbox({
-    storage: window.localStorage,
+    storage: window.sessionStorage,
     online: navigator.onLine,
     apiBaseUrl,
     accessToken,
@@ -191,7 +188,7 @@ async function syncPendingPreDeparture() {
 
 function readSyncMeta() {
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(SYNC_META_KEY) ?? '{}') as Record<string, unknown>;
+    const parsed = JSON.parse(window.sessionStorage.getItem(SYNC_META_KEY) ?? '{}') as Record<string, unknown>;
     if (
       typeof parsed.clientSessionId === 'string' &&
       typeof parsed.idempotencyKey === 'string' &&
@@ -228,14 +225,14 @@ function render(root: HTMLElement, state: PreDepartureViewState) {
 
 export function mountPreDepartureShell(root: HTMLElement) {
   let language = normalizePreDepartureLanguage(
-    window.localStorage.getItem(PREMIUM_LANGUAGE_KEY) ?? window.localStorage.getItem('agm.pre-departure.language'),
+    window.sessionStorage.getItem(PREMIUM_LANGUAGE_KEY) ?? window.sessionStorage.getItem('agm.pre-departure.language'),
   );
   let session = createPreDepartureSession();
   let feedback = '';
 
   document.documentElement.lang = language;
 
-  const restored = safeParse(window.localStorage.getItem(STORAGE_KEY));
+  const restored = safeParse(window.sessionStorage.getItem(STORAGE_KEY));
   if (restored) {
     language = normalizePreDepartureLanguage(restored.language);
     const restoredResult = transitionPreDeparture(session, { type: 'RESTORE_SESSION', session: restored });
@@ -249,7 +246,7 @@ export function mountPreDepartureShell(root: HTMLElement) {
       language,
       session,
       online: navigator.onLine,
-      saved: Boolean(window.localStorage.getItem(STORAGE_KEY)),
+      saved: Boolean(window.sessionStorage.getItem(STORAGE_KEY)),
       feedback,
     };
     render(root, viewState);
@@ -292,8 +289,8 @@ export function mountPreDepartureShell(root: HTMLElement) {
     if (target.matches('[data-pre-departure-language]')) {
       language = normalizePreDepartureLanguage(target.value);
       document.documentElement.lang = language;
-      window.localStorage.setItem('agm.pre-departure.language', language);
-      window.localStorage.setItem(PREMIUM_LANGUAGE_KEY, language);
+      window.sessionStorage.setItem('agm.pre-departure.language', language);
+      window.sessionStorage.setItem(PREMIUM_LANGUAGE_KEY, language);
       persist(session, language);
       feedback = '';
       draw();
@@ -373,7 +370,7 @@ export function mountPreDepartureShell(root: HTMLElement) {
     }
 
     if (action === 'restore') {
-      const stored = safeParse(window.localStorage.getItem(STORAGE_KEY));
+      const stored = safeParse(window.sessionStorage.getItem(STORAGE_KEY));
       if (!stored) {
         feedback = preDepartureCopy[language].missingSavedFeedback;
         draw();
@@ -387,8 +384,8 @@ export function mountPreDepartureShell(root: HTMLElement) {
       }
       language = normalizePreDepartureLanguage(stored.language);
       session = restoredResult.session;
-      window.localStorage.setItem('agm.pre-departure.language', language);
-      window.localStorage.setItem(PREMIUM_LANGUAGE_KEY, language);
+      window.sessionStorage.setItem('agm.pre-departure.language', language);
+      window.sessionStorage.setItem(PREMIUM_LANGUAGE_KEY, language);
       feedback = preDepartureCopy[language].restoredFeedback;
       draw();
       return;
@@ -396,12 +393,12 @@ export function mountPreDepartureShell(root: HTMLElement) {
 
     if (action === 'reset') {
       if (!window.confirm(preDepartureCopy[language].resetQuestion)) return;
-      void journeyFacade.reset(window.localStorage).catch((error) => {
+      void journeyFacade.reset(window.sessionStorage).catch((error) => {
         console.error('Pre-departure operational reset audit failed.', error);
       });
       session = createPreDepartureSession();
-      window.localStorage.removeItem(STORAGE_KEY);
-      window.localStorage.removeItem(SYNC_META_KEY);
+      window.sessionStorage.removeItem(STORAGE_KEY);
+      window.sessionStorage.removeItem(SYNC_META_KEY);
       feedback = preDepartureCopy[language].resetFeedback;
       draw();
       return;
@@ -482,7 +479,7 @@ export function mountPreDepartureShell(root: HTMLElement) {
   window.addEventListener('offline', syncConnectivity);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
-      const stored = safeParse(window.localStorage.getItem(STORAGE_KEY));
+      const stored = safeParse(window.sessionStorage.getItem(STORAGE_KEY));
       if (stored) {
         const restoredResult = transitionPreDeparture(createPreDepartureSession(), {
           type: 'RESTORE_SESSION',

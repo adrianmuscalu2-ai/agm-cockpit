@@ -18,7 +18,7 @@ export function bindPremiumAccessRuntime() {
   const password = form?.elements.namedItem('password') as HTMLInputElement | null;
   const remember = root.querySelector<HTMLInputElement>('[data-access-remember]');
   const passwordToggle = root.querySelector<HTMLButtonElement>('[data-password-toggle]');
-  const rememberedEmail = window.localStorage.getItem(REMEMBERED_EMAIL_KEY);
+  const rememberedEmail = window.sessionStorage.getItem(REMEMBERED_EMAIL_KEY);
   if (email && rememberedEmail) email.value = rememberedEmail;
   if (remember) remember.checked = Boolean(rememberedEmail);
   passwordToggle?.addEventListener('click', () => {
@@ -35,8 +35,8 @@ export function bindPremiumAccessRuntime() {
     setState(root, 'checking', 'Verificare în curs…');
     try {
       await client.login(String(data.get('email') ?? ''), String(data.get('password') ?? ''));
-      if (remember?.checked) window.localStorage.setItem(REMEMBERED_EMAIL_KEY, String(data.get('email') ?? '').trim());
-      else window.localStorage.removeItem(REMEMBERED_EMAIL_KEY);
+      if (remember?.checked) window.sessionStorage.setItem(REMEMBERED_EMAIL_KEY, String(data.get('email') ?? '').trim());
+      else window.sessionStorage.removeItem(REMEMBERED_EMAIL_KEY);
       form.reset();
       await refresh(root, client);
     } catch (error) {

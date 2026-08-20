@@ -1,4 +1,4 @@
-import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
+import { Controller, Get, Header, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PrismaService } from './prisma/prisma.service';
@@ -10,11 +10,17 @@ export class HealthController {
   constructor(private readonly prisma: PrismaService, private readonly config: ConfigService) {}
 
   @Get()
+  @Header('Cache-Control', 'no-store, max-age=0')
+  @Header('CDN-Cache-Control', 'no-store')
+  @Header('Vary', 'Origin')
   getHealth() {
     return this.live();
   }
 
   @Get('live')
+  @Header('Cache-Control', 'no-store, max-age=0')
+  @Header('CDN-Cache-Control', 'no-store')
+  @Header('Vary', 'Origin')
   live() {
     return {
       data: {
@@ -29,6 +35,9 @@ export class HealthController {
   }
 
   @Get('ready')
+  @Header('Cache-Control', 'no-store, max-age=0')
+  @Header('CDN-Cache-Control', 'no-store')
+  @Header('Vary', 'Origin')
   async ready() {
     const dependencies = {
       database: 'unavailable',

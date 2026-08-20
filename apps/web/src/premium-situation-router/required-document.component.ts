@@ -16,11 +16,11 @@ class RequiredDocumentElement extends HTMLElement {
   private diagnosticsOpen=false;
   private readonly reconnect=()=>void this.flushSync();
   connectedCallback() {
-    if (localStorage.getItem(FLAG) === 'false') { this.hidden = true; return; }
+    if (sessionStorage.getItem(FLAG) === 'false') { this.hidden = true; return; }
     document.documentElement.classList.add('situation-router-enabled');
-    const languageValue = localStorage.getItem('agm.premium.language') ?? 'ro';
+    const languageValue = sessionStorage.getItem('agm.premium.language') ?? 'ro';
     const language:BasicLanguageCode = isBasicLanguageCode(languageValue) ? languageValue : 'ro';
-    const restored = restoreOperationalCase(localStorage);
+    const restored = restoreOperationalCase(sessionStorage);
     this.value = restored?.situationId === 'required-document' ? restored : createOperationalCase(crypto.randomUUID(),'required-document',language);
     window.addEventListener('online',this.reconnect);
     this.render();
@@ -28,18 +28,18 @@ class RequiredDocumentElement extends HTMLElement {
   disconnectedCallback(){window.removeEventListener('online',this.reconnect);}
   private commit(next:OperationalCase) {
     this.value={...next,data:{...next.data,syncStatus:'SYNC_PENDING'}};
-    saveOperationalCase(localStorage,this.value);this.render();
-    void enqueueRequiredDocumentTransition(localStorage,this.value,navigator.onLine).then(()=>{if(navigator.onLine)void this.flushSync();}).catch(()=>this.localStatus('SYNC_PENDING'));
+    saveOperationalCase(sessionStorage,this.value);this.render();
+    void enqueueRequiredDocumentTransition(sessionStorage,this.value,navigator.onLine).then(()=>{if(navigator.onLine)void this.flushSync();}).catch(()=>this.localStatus('SYNC_PENDING'));
   }
-  private localStatus(syncStatus:string){this.value={...this.value,data:{...this.value.data,syncStatus}};saveOperationalCase(localStorage,this.value);this.render();}
+  private localStatus(syncStatus:string){this.value={...this.value,data:{...this.value.data,syncStatus}};saveOperationalCase(sessionStorage,this.value);this.render();}
   private async flushSync(){
     this.localStatus('RECONNECTING');
-    const result=await flushRequiredDocumentTransitions({storage:localStorage,value:this.value});
-    this.value=applyRequiredDocumentSyncResult(this.value,result);saveOperationalCase(localStorage,this.value);this.render();
+    const result=await flushRequiredDocumentTransitions({storage:sessionStorage,value:this.value});
+    this.value=applyRequiredDocumentSyncResult(this.value,result);saveOperationalCase(sessionStorage,this.value);this.render();
   }
   private set(values:Record<string,unknown>) { this.commit(transitionOperationalCase(this.value,{type:'SET_DATA',values})); }
   private render() {
-    const selectedLanguage=localStorage.getItem('agm.premium.language');
+    const selectedLanguage=sessionStorage.getItem('agm.premium.language');
     const displayLanguage:BasicLanguageCode=isBasicLanguageCode(selectedLanguage)?selectedLanguage:this.value.language;
     const c=requiredDocumentCopy[displayLanguage]; const d=this.value.data;
     const hasOriginal=this.value.evidence.some((e)=>e.kind==='original');

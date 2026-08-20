@@ -9,6 +9,7 @@ type Escaper = (value: string) => string;
 export const loadSafetyUiState: LoadSafetyUiState = {
   statusKey: 'premium.loadSafety.status.ready',
   processing: false,
+  externalProcessingConsent: false,
 };
 
 export function renderLoadSafetyView(translate: Translator, escapeHtml: Escaper) {
@@ -31,6 +32,7 @@ export function renderLoadSafetyContent(translate: Translator, escapeHtml: Escap
       <span>${escapeHtml(translate('premium.loadSafety.eyebrow'))}</span>
       <h1 id="load-safety-title">${escapeHtml(translate('premium.loadSafety.title'))}</h1>
       <p>${escapeHtml(translate('premium.loadSafety.description'))}</p>
+      <label class="load-safety-consent"><input id="loadSafetyExternalProcessingConsent" type="checkbox" ${state.externalProcessingConsent ? 'checked' : ''} /> Sunt de acord ca fotografiile selectate să fie transmise furnizorului AI extern exclusiv pentru analiza solicitată. Confirm că am dreptul să le transmit.</label>
     </section>
     ${renderFieldTest(translate, escapeHtml)}
     <div class="load-safety-workspace">

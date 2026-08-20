@@ -1,4 +1,5 @@
 import type { LoadSafetyAnalysis } from './load-safety.types';
+import { USER_ACCESS_TOKEN_KEY } from '../premium-access/premium-access.client';
 
 type LoadSafetyApiEnvelope = {
   data?: {
@@ -32,10 +33,11 @@ export async function analyzeLoadSafetyImage(image: File, language: string): Pro
   const body = new FormData();
   body.append('image', image, image.name);
   body.append('language', language);
+  appendLoadSafetyConsent(body, 'load-safety-analysis');
 
   let response: Response;
   try {
-    response = await fetch(loadSafetyEndpointUrl, { method: 'POST', body });
+    response = await fetch(loadSafetyEndpointUrl, { method: 'POST', body, headers: authorizationHeaders() });
   } catch {
     throw new LoadSafetyApiError('network');
   }
@@ -51,4 +53,23 @@ export async function analyzeLoadSafetyImage(image: File, language: string): Pro
   }
 
   return payload.data.analysis;
+}
+
+export function authorizationHeaders(): HeadersInit {
+  const token = globalThis.sessionStorage?.getItem(USER_ACCESS_TOKEN_KEY);
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export type LoadSafetyConsentPurpose = 'load-safety-analysis' | 'load-safety-recommendation' | 'load-safety-field-test';
+
+export function appendLoadSafetyConsent(body: FormData, purpose: LoadSafetyConsentPurpose) {
+  const confirmed = globalThis.document?.querySelector<HTMLInputElement>('#loadSafetyExternalProcessingConsent')?.checked === true;
+  if (!confirmed) return;
+  body.append('consent', JSON.stringify({
+    confirmed: true,
+    purpose,
+    policyVersion: 'load-safety-privacy-v0.1',
+    providerPolicyVersion: 'provider-review-required-v0.1',
+    consentedAt: new Date().toISOString(),
+  }));
 }

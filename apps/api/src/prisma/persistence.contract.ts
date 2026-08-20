@@ -13,6 +13,7 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     ['20260809113000_add_bidirectional_communications', '9b8f3ba3fe2776ba311ea01c843b4f225f8075610802339b1a23d2b421df2cde'],
     ['20260809205500_add_auth_sessions', '9ba11b673e72322a0014dfe9151836d07834af9923d1af4bb3401543f8e16954'],
     ['20260812090000_add_car_mover_p0_01', '286028ebb33a10856f163ef02f295f40f9e2d329abcaee11d69e44f5a9981da8'],
+    ['20260816090000_refresh_families_and_dsar', 'eb5f0e24b2ea16d163ac3b75a6398ad899992bf6bb25f8d2c83c2b26a28556eb'],
   ] as const,
   criticalModels: [
     'Company',
@@ -37,6 +38,7 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     'AuthSession',
     'CarMoverVehicleSubject',
     'CarMoverJob',
+    'DataSubjectRequest',
   ] as const,
   tenantScopedModels: [
     'User',
@@ -58,5 +60,6 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     'AuthSession',
     'CarMoverVehicleSubject',
     'CarMoverJob',
+    'DataSubjectRequest',
   ] as const,
 } as const;

@@ -11,7 +11,8 @@ const config: CapacitorConfig = {
     allowMixedContent: allowLanHttp,
   },
   server: {
-    hostname: 'app.agmcockpit.com',
+    // Isolate packaged assets from the public website Service Worker scope.
+    hostname: 'localhost',
     androidScheme: allowLanHttp ? 'http' : 'https',
   },
 };

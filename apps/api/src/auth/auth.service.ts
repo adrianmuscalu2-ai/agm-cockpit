@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { createHash, randomBytes } from 'crypto';
+import { createHash, randomBytes, randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { AUTH_CONTRACT } from './auth.contract';
@@ -11,6 +11,7 @@ export class AuthService {
   constructor(private readonly users: UsersService, private readonly jwt: JwtService, private readonly prisma: PrismaService) {}
 
   async login(email: string, password: string) {
+    await this.purgeExpiredSessions();
     const user = await this.users.findByEmail(email);
     if (!user || user.status !== AUTH_CONTRACT.activeStatus || !(await bcrypt.compare(password, user.passwordHash))) throw new UnauthorizedException('Invalid credentials.');
     await this.prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
@@ -20,18 +21,50 @@ export class AuthService {
   async refresh(rawToken: string | undefined) {
     if (!rawToken) throw new UnauthorizedException();
     const session = await this.prisma.authSession.findUnique({ where: { tokenHash: hash(rawToken) }, include: { user: { include: { roles: { include: { role: true } } } } } });
-    if (!session || session.revokedAt || session.expiresAt <= new Date() || session.user.status !== AUTH_CONTRACT.activeStatus) throw new UnauthorizedException();
-    await this.prisma.authSession.update({ where: { id: session.id }, data: { lastUsedAt: new Date() } });
-    return this.accessPayload(session.user);
+    if (!session) throw new UnauthorizedException();
+    if (session.revokedAt) {
+      await this.prisma.authSession.updateMany({
+        where: { familyId: session.familyId, revokedAt: null },
+        data: { revokedAt: new Date(), reuseDetectedAt: new Date() },
+      });
+      throw new UnauthorizedException();
+    }
+    if (session.expiresAt <= new Date() || session.user.status !== AUTH_CONTRACT.activeStatus) throw new UnauthorizedException();
+    const nextRawRefreshToken = randomBytes(48).toString('base64url');
+    const now = new Date();
+    const rotated = await this.prisma.$transaction(async (tx) => {
+      const claimed = await tx.authSession.updateMany({
+        where: { id: session.id, tokenHash: hash(rawToken), revokedAt: null, expiresAt: { gt: now } },
+        data: { revokedAt: now, replacedAt: now, lastUsedAt: now },
+      });
+      if (claimed.count !== 1) return false;
+      await tx.authSession.create({ data: {
+        companyId: session.companyId, userId: session.userId, familyId: session.familyId,
+        generation: session.generation + 1, tokenHash: hash(nextRawRefreshToken), expiresAt: session.expiresAt,
+      } });
+      return true;
+    });
+    if (!rotated) {
+      await this.prisma.authSession.updateMany({ where: { familyId: session.familyId, revokedAt: null }, data: { revokedAt: now, reuseDetectedAt: now } });
+      throw new UnauthorizedException();
+    }
+    return { ...(await this.accessPayload(session.user)), rawRefreshToken: nextRawRefreshToken };
   }
 
   async logout(rawToken: string | undefined) {
     if (rawToken) await this.prisma.authSession.updateMany({ where: { tokenHash: hash(rawToken), revokedAt: null }, data: { revokedAt: new Date() } });
   }
 
+  async purgeExpiredSessions(now = new Date()) {
+    const revokedBefore = new Date(now.getTime() - AUTH_CONTRACT.revokedSessionRetentionDays * 86400_000);
+    return this.prisma.authSession.deleteMany({
+      where: { OR: [{ expiresAt: { lte: now } }, { revokedAt: { lte: revokedBefore } }] },
+    });
+  }
+
   private async issue(user: any) {
     const rawRefreshToken = randomBytes(48).toString('base64url');
-    await this.prisma.authSession.create({ data: { companyId: user.companyId, userId: user.id, tokenHash: hash(rawRefreshToken), expiresAt: new Date(Date.now() + AUTH_CONTRACT.refreshSessionDays * 86400_000) } });
+    await this.prisma.authSession.create({ data: { companyId: user.companyId, userId: user.id, familyId: randomUUID(), generation: 0, tokenHash: hash(rawRefreshToken), expiresAt: new Date(Date.now() + AUTH_CONTRACT.refreshSessionDays * 86400_000) } });
     return { ...(await this.accessPayload(user)), rawRefreshToken };
   }
 

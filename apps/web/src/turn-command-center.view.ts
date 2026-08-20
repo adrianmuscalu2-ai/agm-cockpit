@@ -8,6 +8,7 @@ import { operationalClosureRegistry } from './operational-closure.registry';
 import { operationsHealthSources } from './operations-health';
 import { renderMonitoringDepartment } from './monitoring-department';
 import { renderTurnOrganizationChart } from './turn-organization-chart';
+import { renderP9TurnProjection } from './p9-turn-projection';
 import { turnCommandCenterContract } from './turn-command-center.contract';
 import { currentProductionPreflightSnapshot, renderProductionPreflight } from './production-preflight';
 import { activateIncidentRoute, routeIncident } from './incident-routing.registry';
@@ -51,12 +52,6 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       data-module-contract="${turnCommandCenterContract.version}"
       data-operation-mode="${turnCommandCenterContract.mode}"
     >
-      ${renderExecutionReadinessGate(incidents)}
-      ${renderActiveOperationsIncident(incidents)}
-      ${renderProductionPreflight()}
-      ${renderOperationsCenter(incidents)}
-      ${renderMonitoringDepartment(incidents)}
-      ${renderTurnOrganizationChart()}
       <header class="turn-hero">
         <div>
           <span class="turn-kicker">${escapeHtml(t(language, 'turn.code'))}</span>
@@ -69,6 +64,27 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
           <small>Surse: ${turnCommandCenterContract.dataSources.map(escapeHtml).join(' · ')}</small>
         </div>
       </header>
+
+      <nav class="turn-module-nav" aria-label="Turn modules">
+        ${[
+          ['Agent Directory', 'turn-dashboard'],
+          ['Organigramă', 'turn-structure'],
+          ['Monitoring', 'turn-monitoring'],
+          ['Agents', 'turn-agents'],
+          ['Missions', 'turn-missions'],
+          ['Alerts', 'turn-alerts'],
+          ['Incidents', 'incident-journal'],
+          ['Registers', 'turn-registers'],
+          ['Architecture', 'turn-architecture'],
+          ['Modules', 'turn-modules'],
+          ['Documentation', 'turn-documentation'],
+          ['System', 'turn-system'],
+        ]
+          .map(([label, target]) => `<a href="#${target}">${label}</a>`)
+          .join('')}
+      </nav>
+
+      ${renderApprovedTurnDashboard(language)}
 
       <section class="turn-metrics" aria-label="${escapeHtml(t(language, 'turn.metrics'))}">
         ${renderTurnMetric(language, 'turn.metric.departments', String(activeDepartments), 'turn.metric.departmentsDesc')}
@@ -84,34 +100,19 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
         )}
       </section>
 
-      <nav class="turn-module-nav" aria-label="Turn modules">
-        ${[
-          ['Dashboard', 'turn-dashboard'],
-          ['Monitoring', 'turn-monitoring'],
-          ['Structura Turnului', 'turn-structure'],
-          ['Organization', 'turn-organization'],
-          ['Agents', 'turn-agents'],
-          ['Missions', 'turn-missions'],
-          ['Alerts', 'turn-alerts'],
-          ['Incidents', 'incident-journal'],
-          ['Registers', 'turn-registers'],
-          ['Architecture', 'turn-architecture'],
-          ['Modules', 'turn-modules'],
-          ['Documentation', 'turn-documentation'],
-          ['System', 'turn-system'],
-        ]
-          .map(([label, target]) => `<a href="#${target}">${label}</a>`)
-          .join('')}
-      </nav>
+      ${renderExecutionReadinessGate(incidents)}
+      ${renderActiveOperationsIncident(incidents)}
+      ${renderProductionPreflight()}
+      ${renderOperationsCenter(incidents)}
+      ${renderMonitoringDepartment(incidents)}
 
       <section class="turn-grid">
         ${renderProjectCatalogCard()}
         ${renderPlatformMapCard()}
         ${renderRegistersSection(language, incidents)}
-        ${renderTurnSection(language, 'turn.section.departments', 'turn.section.departmentsDesc', turnDepartments, 'turn-dashboard')}
+        ${renderTurnSection(language, 'turn.section.departments', 'turn.section.departmentsDesc', turnDepartments, 'turn-departments')}
         ${renderTurnSection(language, 'turn.section.agents', 'turn.section.agentsDesc', turnAgents, 'turn-agents')}
         ${renderAgentGovernanceSection(language)}
-        ${renderOrganizationMapSection(language)}
         ${renderTurnSection(language, 'turn.section.modules', 'turn.section.modulesDesc', turnModules, 'turn-modules')}
         ${renderTurnMissionSection(language, 'turn.section.missions', 'turn.section.missionsDesc', turnMissions, 'turn-missions')}
         ${renderTurnMissionSection(language, 'turn.section.validations', 'turn.section.validationsDesc', turnAuditTrail)}
@@ -215,7 +216,90 @@ function renderOrganizationMapSection(language: UiLanguage) {
     grouped.set(agent.ownerDepartmentId, list);
   });
   const departmentLabel = (id: string) => id.replace(/[-]/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
-  return `<article class="turn-card organization-map-card" id="turn-organization"><header><strong>Harta organizațională AGM</strong><p>Departamente, agenți, responsabilități și fluxuri de colaborare.</p></header><div class="organization-map"><div class="organization-root"><strong>Product Owner / AGM</strong><span>Aprobă direcția și închiderea etapelor</span></div>${[...grouped.entries()].map(([department, agents]) => `<section class="organization-department"><h3>${escapeHtml(departmentLabel(department))}</h3><div class="organization-agents">${agents.map((agent) => `<details class="organization-agent"><summary><strong>${escapeHtml(agent.displayName ?? t(language, agent.nameKey))}</strong><span>${escapeHtml(agent.status)}</span></summary><dl><div><dt>Rol</dt><dd>${escapeHtml(agent.displayRole ?? t(language, agent.roleKey))}</dd></div><div><dt>Responsabilități</dt><dd>${escapeHtml(agent.displayResponsibilities ?? t(language, agent.responsibilitiesKey))}</dd></div><div><dt>Flux</dt><dd>Primește → execută → raportează → verifică</dd></div></dl></details>`).join('')}</div></section>`).join('')}</div></article>`;
+  return `<article class="turn-card organization-map-card" id="turn-organization"><header><div><span class="turn-kicker">TURN · AGENT DIRECTORY</span><strong>Rețeaua operațională AGM</strong><p>31 agenți aprobați și P9, grupați pe departamente, niveluri și responsabilități.</p></div>${renderStatusLight('agent', 'ACTIVE', 'turn-network-status')}</header><div class="organization-map"><div class="organization-root"><strong>Product Owner / AGM</strong><span>Aprobă direcția și închiderea etapelor</span></div>${[...grouped.entries()].map(([department, agents]) => `<section class="organization-department"><h3>${escapeHtml(departmentLabel(department))}</h3><div class="organization-agents">${agents.map((agent) => `<details class="organization-agent" data-agent-directory-id="${escapeHtml(agent.id)}"><summary><strong>${escapeHtml(agent.displayName ?? t(language, agent.nameKey))}</strong><span class="turn-status ${agent.status === 'monitoring' ? 'watch' : agent.status === 'planned' ? 'planned' : 'active'}">${escapeHtml(agent.status)}</span></summary><dl><div><dt>Rol</dt><dd>${escapeHtml(agent.displayRole ?? t(language, agent.roleKey))}</dd></div><div><dt>Responsabilități</dt><dd>${escapeHtml(agent.displayResponsibilities ?? t(language, agent.responsibilitiesKey))}</dd></div><div><dt>Flux</dt><dd>Primește → execută → raportează → verifică</dd></div></dl></details>`).join('')}</div></section>`).join('')}</div></article>`;
+}
+
+function agentDisplayName(language: UiLanguage, agent: AgentGovernanceRecord) {
+  return agent.displayName ?? t(language, agent.nameKey);
+}
+
+function agentDisplayRole(language: UiLanguage, agent: AgentGovernanceRecord) {
+  return agent.displayRole ?? t(language, agent.roleKey);
+}
+
+function departmentDisplayName(id: string) {
+  const names: Record<string, string> = {
+    'ai-agents': 'Rețeaua AI',
+    'architecture-platform': 'Arhitectură & Platformă',
+    'backend-infrastructure': 'Backend & Infrastructură',
+    'documentation-knowledge': 'Documentație & Cunoaștere',
+    'frontend-experience': 'Frontend & Experiență',
+    'maintenance-quality-evolution': 'Mentenanță, Calitate & Evoluție',
+    monitoring: 'Monitorizare independentă',
+    'product-roadmap': 'Produs & Roadmap',
+    'qa-validation': 'QA & Validare',
+    'release-operations': 'Release & Operations',
+    'security-legal': 'Securitate & Legal',
+  };
+  return names[id] ?? id.replace(/-/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function renderApprovedTurnDashboard(language: UiLanguage) {
+  const approvedAgents = agentGovernanceRegistry.filter((agent) => agent.id !== 'p9-copilot-control-plane');
+  const statusCounts = agentGovernanceRegistry.reduce(
+    (counts, agent) => ({ ...counts, [agent.status]: (counts[agent.status] ?? 0) + 1 }),
+    {} as Record<string, number>,
+  );
+  const departments = [...new Set(agentGovernanceRegistry.map((agent) => agent.ownerDepartmentId))];
+  const aiAgents = agentGovernanceRegistry.filter((agent) => agent.ownerDepartmentId === 'ai-agents');
+  const p9 = aiAgents.find((agent) => agent.id === 'p9-copilot-control-plane');
+  const independentMonitor = agentGovernanceRegistry.find((agent) => agent.id === 'monitor-incidents');
+
+  return `<section class="turn-agent-dashboard" id="turn-dashboard" aria-labelledby="turn-dashboard-title" data-agent-count="${approvedAgents.length}" data-p9-count="${p9 ? 1 : 0}">
+    <header class="turn-dashboard-header">
+      <div><span class="turn-kicker">TURN · COMMAND & GOVERNANCE BOARD</span><h2 id="turn-dashboard-title">Dashboardul Turnului</h2><p>Bord unic pentru comandă, intrare în tură, arhitectură, guvernanță și evidența completă a agenților AGM.</p></div>
+      <div class="turn-dashboard-verdict"><span class="turn-light active" aria-hidden="true"></span><strong>${approvedAgents.length} AGENȚI + P9</strong><small>Registru canonic · vedere read-only</small></div>
+    </header>
+
+    <section class="turn-entry-panel" aria-labelledby="turn-entry-title">
+      <header><div><span class="turn-kicker">PANOU DE INTRARE</span><h3 id="turn-entry-title">Starea tuturor agenților</h3></div><dl><div><dt>Activi</dt><dd>${statusCounts.active ?? 0}</dd></div><div><dt>Monitorizare</dt><dd>${statusCounts.monitoring ?? 0}</dd></div><div><dt>Planificați</dt><dd>${statusCounts.planned ?? 0}</dd></div></dl></header>
+      <div class="turn-agent-light-grid">${agentGovernanceRegistry.map((agent) => `<div class="turn-agent-light" data-entry-agent-id="${escapeHtml(agent.id)}" title="${escapeHtml(agentDisplayRole(language, agent))}"><span class="turn-light ${escapeHtml(agent.status)}" aria-hidden="true"></span><span><strong>${escapeHtml(agent.code)}</strong><small>${escapeHtml(agentDisplayName(language, agent))}</small></span><b>${escapeHtml(agent.status)}</b></div>`).join('')}</div>
+    </section>
+
+    <section class="turn-wide-board" aria-labelledby="turn-architecture-title">
+      <header><div><span class="turn-kicker">ARHITECTURĂ ȘI GUVERNANȚĂ</span><h3 id="turn-architecture-title">Lanțul complet de autoritate</h3></div><span>4 niveluri · ${departments.length} domenii</span></header>
+      <div class="turn-command-chain">
+        <article class="authority product-owner"><small>NIVEL 1 · AUTORITATE</small><strong>PRODUCT OWNER / TURN COMMANDER</strong><p>Direcție, prioritizare și acceptare fizică finală.</p></article>
+        <span class="chain-arrow">→</span>
+        <article class="authority atlas"><small>NIVEL 2 · EXECUȚIE</small><strong>ATLAS · COORDONARE OPERAȚIONALĂ</strong><p>Planifică, orchestrează și raportează implementarea.</p></article>
+        <span class="chain-arrow">→</span>
+        <article class="authority departments"><small>NIVEL 3 · RESPONSABILITATE</small><strong>${departments.length} DOMENII OPERAȚIONALE</strong><p>Execută prin proceduri, acces controlat și escaladare.</p></article>
+      </div>
+      <div class="turn-governance-rails">
+        <article><strong>Guvernanță obligatorie</strong><p>Mandat → owner → executor → guardian → validator → evidence → acceptare Product Owner.</p></article>
+        <article><strong>Separarea atribuțiilor</strong><p>Atlas coordonează execuția; monitorizarea verifică independent și nu își validează propria activitate.</p></article>
+        <article><strong>Regulă de escaladare</strong><p>L1 observație · L2 incident operațional · L3 Inspector/Atlas · L4 Turn Commander.</p></article>
+        <article><strong>Control de schimbare</strong><p>Read-only implicit; intervențiile cer trasabilitate, rollback și dovadă verificabilă.</p></article>
+      </div>
+      <div class="turn-network-grid">${departments.map((department) => {
+        const agents = agentGovernanceRegistry.filter((agent) => agent.ownerDepartmentId === department);
+        return `<article class="turn-network-department ${department === 'ai-agents' ? 'ai-network' : ''}"><header><strong>${escapeHtml(departmentDisplayName(department))}</strong><span>${agents.length}</span></header><div>${agents.map((agent) => `<span class="network-agent ${agent.id === 'p9-copilot-control-plane' ? 'p9-network-node' : ''}"><i class="turn-light ${escapeHtml(agent.status)}"></i><b>${escapeHtml(agent.code)}</b><small>${escapeHtml(agentDisplayName(language, agent))}</small></span>`).join('')}</div>${department === 'ai-agents' && p9 ? `<aside class="p9-network-position"><strong>P9 · CONTROL-PLANE INTERN</strong><span>Poziție: Rețeaua AI → orchestrare Copilot → execuție read-only</span><small>Kill Switch · rollback · evidence operațional</small>${renderP9TurnProjection()}</aside>` : ''}</article>`;
+      }).join('')}</div>
+    </section>
+
+    <section class="turn-independent-monitor" aria-labelledby="turn-independent-monitor-title">
+      <div class="independent-monitor-seal"><span class="turn-light monitoring"></span><strong>CONTROL INDEPENDENT</strong></div>
+      <div><span class="turn-kicker">RAPORTEAZĂ DIRECT TURN COMMANDER-ULUI</span><h3 id="turn-independent-monitor-title">Inspector Șef Monitorizare · ${escapeHtml(independentMonitor?.code ?? 'MON-010')}</h3><p>Monitorizează independent Turnul, corelează alertele, deschide incidente și verifică închiderea fără a intra în lanțul de execuție Atlas.</p></div>
+      <dl><div><dt>Independență</dt><dd>Oversight</dd></div><div><dt>Escaladare</dt><dd>L3 → L4</dd></div><div><dt>Autovalidare</dt><dd>Interzisă</dd></div></dl>
+    </section>
+
+    <section class="turn-agent-register" aria-labelledby="turn-agent-register-title">
+      <header><div><span class="turn-kicker">REGISTRU CANONIC COMPLET</span><h3 id="turn-agent-register-title">Tabelul celor 31 de agenți</h3></div><strong>${agentGovernanceRegistry.length} poziții</strong></header>
+      <div class="turn-agent-table-wrap"><table><thead><tr><th>#</th><th>Semnal</th><th>Cod</th><th>Agent</th><th>Rol</th><th>Departament</th><th>Stare</th></tr></thead><tbody>${approvedAgents.map((agent, index) => `<tr data-agent-row-id="${escapeHtml(agent.id)}"><td>${index + 1}</td><td><span class="turn-light ${escapeHtml(agent.status)}" aria-label="${escapeHtml(agent.status)}"></span></td><td><code>${escapeHtml(agent.code)}</code></td><td><strong>${escapeHtml(agentDisplayName(language, agent))}</strong></td><td>${escapeHtml(agentDisplayRole(language, agent))}</td><td>${escapeHtml(departmentDisplayName(agent.ownerDepartmentId))}</td><td><span class="turn-status ${agent.status === 'monitoring' ? 'watch' : agent.status === 'planned' ? 'planned' : 'active'}">${escapeHtml(agent.status)}</span></td></tr>`).join('')}</tbody></table></div>
+    </section>
+
+    <div class="turn-dashboard-detail">${renderTurnOrganizationChart()}</div>
+  </section>`;
 }
 
 function renderProjectCatalogCard() {

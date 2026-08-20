@@ -7,11 +7,15 @@ import {
   ServiceUnavailableException,
   UploadedFile,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { PremiumCapabilityGuard } from '../auth/premium-capability.guard';
 import { responseEnvelope } from '../common/response';
+import { validateVisionConsentForPurpose, type VisionConsentEvidence } from '../common/image-security/vision-request-security';
 import { PremiumLoadSafetyProvider } from './premium-load-safety.provider';
 import type { UploadedImage } from './premium-load-safety.types';
 import { parseLoadSafetyAnalysisJson } from './premium-load-safety.validation';
@@ -26,6 +30,7 @@ const acceptedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const maxImageBytes = 8 * 1024 * 1024;
 
 @Controller('premium')
+@UseGuards(JwtAuthGuard, PremiumCapabilityGuard)
 export class PremiumLoadSafetyController {
   constructor(
     private readonly provider: PremiumLoadSafetyProvider,
@@ -44,7 +49,9 @@ export class PremiumLoadSafetyController {
   async analyze(
     @UploadedFile() image: UploadedImage | undefined,
     @Body('language') requestedLanguage?: string,
+    @Body('consent') rawConsent?: string,
   ) {
+    requireConsent(rawConsent, 'load-safety-analysis');
     if (!image || !acceptedImageTypes.has(image.mimetype)) {
       throw new BadRequestException('A JPEG, PNG, or WEBP image is required.');
     }
@@ -70,7 +77,9 @@ export class PremiumLoadSafetyController {
     @Body('language') requestedLanguage?: string,
     @Body('input') rawInput?: string,
     @Body('visualAnalysis') rawVisualAnalysis?: string,
+    @Body('consent') rawConsent?: string,
   ) {
+    requireConsent(rawConsent, 'load-safety-recommendation');
     if (!image || !acceptedImageTypes.has(image.mimetype)) {
       throw new BadRequestException('A JPEG, PNG, or WEBP image is required.');
     }
@@ -106,7 +115,9 @@ export class PremiumLoadSafetyController {
     @Body('roles') rawRoles?: string,
     @Body('input') rawInput?: string,
     @Body('language') requestedLanguage?: string,
+    @Body('consent') rawConsent?: string,
   ) {
+    requireConsent(rawConsent, 'load-safety-field-test');
     if (!photos || photos.length < 2 || photos.some((photo) => !acceptedImageTypes.has(photo.mimetype))) {
       throw new BadRequestException('Two required JPEG, PNG, or WEBP lateral views are required.');
     }
@@ -130,5 +141,13 @@ export class PremiumLoadSafetyController {
       report: finalizeFieldReport(report, input, language),
       provider: 'openai',
     });
+  }
+}
+
+function requireConsent(rawConsent: string | undefined, purpose: 'load-safety-analysis' | 'load-safety-recommendation' | 'load-safety-field-test') {
+  try {
+    validateVisionConsentForPurpose(JSON.parse(rawConsent ?? '{}') as VisionConsentEvidence, purpose);
+  } catch {
+    throw new BadRequestException('IMAGE_CONSENT_REQUIRED');
   }
 }

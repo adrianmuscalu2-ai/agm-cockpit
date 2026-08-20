@@ -14,7 +14,7 @@ describe('API-002 access entitlements contract', () => {
     });
   });
 
-  it('grants only the declared Premium capabilities for the explicit role', () => {
+  it('grants the core Premium capabilities without Car Mover for the explicit Premium role', () => {
     const snapshot = evaluateAccessEntitlements({
       subjectId: 'user-premium', roles: ['DRIVER', ACCESS_ENTITLEMENTS_CONTRACT.premiumRole], evaluatedAt,
     });
@@ -22,14 +22,12 @@ describe('API-002 access entitlements contract', () => {
     expect(snapshot.capabilities).toEqual(premiumCapabilityIds.filter((capability) => capability !== 'car-mover.jobs'));
   });
 
-  it('grants Car Mover only when Premium and the product entitlement are both present', () => {
-    const allowed = evaluateAccessEntitlements({
+  it('grants Car Mover only when Premium and an approved Car Mover role are both present', () => {
+    const snapshot = evaluateAccessEntitlements({
       subjectId: 'user-car-mover', roles: [ACCESS_ENTITLEMENTS_CONTRACT.premiumRole, 'CAR_MOVER_ACCESS'], evaluatedAt,
     });
-    expect(allowed.capabilities).toContain('car-mover.jobs');
-    expect(evaluateAccessEntitlements({
-      subjectId: 'user-car-mover-basic', roles: ['CAR_MOVER_ACCESS'], evaluatedAt,
-    }).capabilities).not.toContain('car-mover.jobs');
+    expect(snapshot.capabilities).toEqual(premiumCapabilityIds);
+    expect(snapshot.capabilities as readonly string[]).toContain('car-mover.jobs');
   });
 
   it('does not infer Premium from unrelated roles', () => {

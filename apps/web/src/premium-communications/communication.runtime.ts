@@ -54,7 +54,7 @@ async function refresh(root: HTMLElement, client: CommunicationClient) {
   } catch (error) { list.replaceChildren(Object.assign(document.createElement('li'), { textContent: humanError(error) })); }
 }
 
-function activeTripId() { try { return JSON.parse(localStorage.getItem('agm.premium.trip-context.v1') ?? 'null')?.tripId as string | undefined; } catch { return undefined; } }
-function recordTimeline(event: unknown) { const key='agm.premium.communication-timeline.v1';let values:unknown[]=[];try{values=JSON.parse(localStorage.getItem(key)??'[]');}catch{}localStorage.setItem(key,JSON.stringify([...values,event])); }
+function activeTripId() { try { return JSON.parse(sessionStorage.getItem('agm.premium.trip-context.v1') ?? 'null')?.tripId as string | undefined; } catch { return undefined; } }
+function recordTimeline(event: unknown) { const key='agm.premium.communication-timeline.v1';let values:unknown[]=[];try{values=JSON.parse(sessionStorage.getItem(key)??'[]');}catch{}sessionStorage.setItem(key,JSON.stringify([...values,event])); }
 function setStatus(element: HTMLElement|null, value: string) { if (element) element.textContent=value; }
 function humanError(error: unknown) { const value=error instanceof Error?error.message:'';if(value.includes('AUTH_REQUIRED')||value.includes(':401'))return 'Autentificare Premium necesară.';if(value.includes(':503')||value.includes('NOT_CONFIGURED'))return 'Canalul nu este încă configurat.';return 'Operația nu a reușit. Încercați din nou.'; }

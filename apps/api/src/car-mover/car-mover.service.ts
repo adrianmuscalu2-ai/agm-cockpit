@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CAR_MOVER_SCOPE, canTransitionCarMoverJob, type CarMoverJobFile, type CarMoverState } from './car-mover.contract';
 import type { CreateCarMoverJobDto } from './dto/create-car-mover-job.dto';
 import type { TransitionCarMoverJobDto } from './dto/transition-car-mover-job.dto';
+import type { RecordCarMoverProtocolDto } from './dto/record-car-mover-protocol.dto';
 
 @Injectable()
 export class CarMoverService {
@@ -50,12 +51,27 @@ export class CarMoverService {
     });
   }
 
+  async recordProtocol(id:string,dto:RecordCarMoverProtocolDto,ctx:RequestContext) {
+    this.authorize(ctx);
+    return this.prisma.$transaction(async tx=>{
+      const current=await tx.carMoverJob.findFirst({where:{id,companyId:ctx.companyId,productId:CAR_MOVER_SCOPE.productId}});
+      if(!current)throw new NotFoundException('Car Mover job not found.');
+      const allowed=dto.protocolType==='TAKEOVER'?['ACCEPTED','IN_PROGRESS']:['ARRIVED','HANDOVER_PENDING'];
+      if(!allowed.includes(current.currentState))throw new BadRequestException('Protocol is not allowed in the current state.');
+      const job=await tx.carMoverJob.update({where:{id},data:{lifecycleVersion:{increment:1}}});
+      const payload={protocolVersion:'car-mover-protocol.v1',...dto,currentState:current.currentState,photoCount:dto.photoDigests.length};
+      const event=await this.appendEvent(tx,id,job.lifecycleVersion,`CAR_MOVER_${dto.protocolType}_RECORDED`,payload,ctx);
+      const audit=await this.audit.create({actionCode:`car-mover-${dto.protocolType.toLowerCase()}-recorded`,entityType:CAR_MOVER_SCOPE.subjectType,entityId:id,reason:'Controlled Car Mover protocol confirmation.',afterSnapshot:payload,productId:CAR_MOVER_SCOPE.productId,moduleId:CAR_MOVER_SCOPE.moduleId,subjectType:CAR_MOVER_SCOPE.subjectType,subjectId:id},ctx,tx);
+      return {jobId:id,protocolType:dto.protocolType,lifecycleVersion:job.lifecycleVersion,eventId:event.eventId,auditEventId:audit.id};
+    });
+  }
+
   private authorize(ctx:RequestContext){if(!ctx.roles.some(role=>(CAR_MOVER_SCOPE.requiredRoles as readonly string[]).includes(role)))throw new ForbiddenException('Car Mover entitlement required.');}
 
   private async appendEvent(tx:Prisma.TransactionClient,jobId:string,version:number,eventType:string,payload:Record<string,unknown>,ctx:RequestContext){
     const stream=version===0
       ? await tx.operationalEventStream.create({data:{companyId:ctx.companyId,streamId:jobId,aggregateType:CAR_MOVER_SCOPE.subjectType,currentVersion:0,projection:{state:String(payload.state??'DRAFT'),version:0},productId:CAR_MOVER_SCOPE.productId,moduleId:CAR_MOVER_SCOPE.moduleId,subjectType:CAR_MOVER_SCOPE.subjectType,subjectId:jobId}})
-      : await tx.operationalEventStream.update({where:{companyId_streamId:{companyId:ctx.companyId,streamId:jobId}},data:{currentVersion:version,projection:{state:String(payload.to),version}}});
+      : await tx.operationalEventStream.update({where:{companyId_streamId:{companyId:ctx.companyId,streamId:jobId}},data:{currentVersion:version,projection:{state:String(payload.to??payload.currentState??payload.state),version}}});
     const eventId=randomUUID(),operationId=randomUUID(),now=new Date();
     const envelope={schemaVersion:'operational-event.v1',eventId,eventType,eventVersion:1,occurredAt:now.toISOString(),recordedAt:now.toISOString(),aggregateType:CAR_MOVER_SCOPE.subjectType,aggregateId:jobId,aggregateVersion:version,productId:CAR_MOVER_SCOPE.productId,moduleId:CAR_MOVER_SCOPE.moduleId,subjectType:CAR_MOVER_SCOPE.subjectType,subjectId:jobId,actor:{type:'user',id:ctx.userId},operationId,correlationId:ctx.correlationId,payload};
     return tx.operationalEvent.create({data:{companyId:ctx.companyId,streamRecordId:stream.id,eventId,idempotencyKey:operationId,schemaVersion:'operational-event.v1',eventType,eventVersion:1,aggregateVersion:version,deviceId:ctx.userId,deviceSequence:version+1,operationId,correlationId:ctx.correlationId,occurredAt:now,recordedAt:now,payload:payload as Prisma.InputJsonValue,envelope:envelope as Prisma.InputJsonValue,productId:CAR_MOVER_SCOPE.productId,moduleId:CAR_MOVER_SCOPE.moduleId,subjectType:CAR_MOVER_SCOPE.subjectType,subjectId:jobId}});

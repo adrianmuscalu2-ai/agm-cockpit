@@ -10,6 +10,13 @@ export type OperationStatus =
   | 'NOT APPLICABLE'
   | 'NOT IMPLEMENTED';
 
+export type OperationProbeOutcome =
+  | 'HTTP_STATUS'
+  | 'TIMEOUT'
+  | 'TRANSPORT_ERROR'
+  | 'STALE'
+  | 'NOT_AVAILABLE';
+
 export type OperationService = {
   id: string;
   label: string;
@@ -31,6 +38,11 @@ export type OperationSnapshot = {
   latencyMs: number | null;
   changedAt: Date;
   freshness: OperationFreshness;
+  outcome?: OperationProbeOutcome;
+  httpStatus?: number | null;
+  effectiveUrl?: string;
+  lastSuccessAt?: Date | null;
+  confirmedOffline?: boolean;
 };
 
 export type OperationFreshness = 'LIVE' | 'STALE' | 'UNKNOWN' | 'OFFLINE';
@@ -40,9 +52,10 @@ export type TargetAvailability = 'HEALTHY' | 'DEGRADED' | 'OFFLINE' | 'UNKNOWN' 
 export const operationFreshnessLimitMs = 90_000;
 
 export function operationFreshness(snapshot: OperationSnapshot, now = new Date()): OperationFreshness {
-  if (snapshot.status === 'OFFLINE') return 'OFFLINE';
   if (snapshot.freshness === 'UNKNOWN') return 'UNKNOWN';
-  return now.getTime() - snapshot.checkedAt.getTime() > operationFreshnessLimitMs ? 'STALE' : 'LIVE';
+  if (now.getTime() - snapshot.checkedAt.getTime() > operationFreshnessLimitMs) return 'STALE';
+  if (snapshot.status === 'OFFLINE') return 'OFFLINE';
+  return 'LIVE';
 }
 
 export function agentAvailability(source: OperationService): AgentAvailability {
@@ -131,6 +144,25 @@ function evaluateResponse(
   return source.healthyStatus ?? 'ONLINE';
 }
 
+export function classifyCloudflareHttpStatus(status: number) {
+  return {
+    outcome: 'HTTP_STATUS' as const,
+    status: status >= 200 && status < 400 ? 'ONLINE' as const : 'DEGRADED' as const,
+    confirmedOffline: false,
+  };
+}
+
+export function classifyCloudflareProbeError(error: unknown) {
+  const timeout = error instanceof DOMException
+    ? error.name === 'AbortError' || error.name === 'TimeoutError'
+    : Boolean(error && typeof error === 'object' && ['AbortError', 'TimeoutError'].includes(String((error as { name?: unknown }).name)));
+  return {
+    outcome: timeout ? 'TIMEOUT' as const : 'TRANSPORT_ERROR' as const,
+    status: 'DEGRADED' as const,
+    confirmedOffline: false,
+  };
+}
+
 function classForStatus(status: OperationStatus) {
   if (status === 'ONLINE' || status === 'READY') return 'online';
   if (status === 'DEGRADED') return 'degraded';
@@ -146,15 +178,39 @@ function iconForStatus(status: OperationStatus) {
   return '⚪';
 }
 
-function updateSnapshot(source: OperationService, status: OperationStatus, checkedAt: Date, latencyMs: number | null) {
-  const previous = snapshots.get(source.id);
-  const snapshot: OperationSnapshot = {
+export function nextOperationSnapshot(
+  previous: OperationSnapshot | undefined,
+  source: OperationService,
+  status: OperationStatus,
+  checkedAt: Date,
+  latencyMs: number | null,
+  detail: Partial<Pick<OperationSnapshot, 'outcome' | 'httpStatus' | 'effectiveUrl' | 'confirmedOffline'>> = {},
+): OperationSnapshot {
+  const successful = status === 'ONLINE' || status === 'READY';
+  return {
     status,
     checkedAt,
     latencyMs,
     changedAt: previous?.status === status ? previous.changedAt : checkedAt,
     freshness: sourceFreshness(status),
+    outcome: detail.outcome ?? (source.kind === 'http' ? 'HTTP_STATUS' : 'NOT_AVAILABLE'),
+    httpStatus: detail.httpStatus ?? null,
+    effectiveUrl: detail.effectiveUrl ?? source.url,
+    lastSuccessAt: successful ? checkedAt : previous?.lastSuccessAt ?? null,
+    confirmedOffline: detail.confirmedOffline ?? false,
   };
+}
+
+function updateSnapshot(
+  source: OperationService,
+  status: OperationStatus,
+  checkedAt: Date,
+  latencyMs: number | null,
+  detail: Partial<Pick<OperationSnapshot, 'outcome' | 'httpStatus' | 'effectiveUrl' | 'confirmedOffline'>> = {},
+) {
+  const previous = snapshots.get(source.id);
+  if (previous && checkedAt.getTime() < previous.checkedAt.getTime()) return;
+  const snapshot = nextOperationSnapshot(previous, source, status, checkedAt, latencyMs, detail);
   snapshots.set(source.id, snapshot);
   persistSnapshots();
   renderSnapshot(source, snapshot);
@@ -168,6 +224,7 @@ function persistSnapshots() {
       ...snapshot,
       checkedAt: snapshot.checkedAt.toISOString(),
       changedAt: snapshot.changedAt.toISOString(),
+      lastSuccessAt: snapshot.lastSuccessAt?.toISOString() ?? null,
     }])));
   } catch { /* Telemetry remains live when persistence is unavailable. */ }
 }
@@ -175,8 +232,13 @@ function persistSnapshots() {
 function restoreSnapshots() {
   if (typeof window === 'undefined' || snapshots.size) return;
   try {
-    const stored = JSON.parse(window.localStorage.getItem(telemetrySnapshotStorageKey) || '[]') as Array<[string, Omit<OperationSnapshot, 'checkedAt' | 'changedAt'> & { checkedAt: string; changedAt: string }]>;
-    stored.forEach(([id, snapshot]) => snapshots.set(id, { ...snapshot, checkedAt: new Date(snapshot.checkedAt), changedAt: new Date(snapshot.changedAt) }));
+    const stored = JSON.parse(window.localStorage.getItem(telemetrySnapshotStorageKey) || '[]') as Array<[string, Omit<OperationSnapshot, 'checkedAt' | 'changedAt' | 'lastSuccessAt'> & { checkedAt: string; changedAt: string; lastSuccessAt?: string | null }]>;
+    stored.forEach(([id, snapshot]) => snapshots.set(id, {
+      ...snapshot,
+      checkedAt: new Date(snapshot.checkedAt),
+      changedAt: new Date(snapshot.changedAt),
+      lastSuccessAt: snapshot.lastSuccessAt ? new Date(snapshot.lastSuccessAt) : null,
+    }));
   } catch { /* Invalid persisted telemetry is ignored and rebuilt from sources. */ }
 }
 
@@ -214,14 +276,21 @@ function renderSnapshot(source: OperationService, snapshot: OperationSnapshot) {
     const age = card.querySelector<HTMLElement>('.operation-service-age');
     const agent = card.querySelector<HTMLElement>('.operation-agent-status');
     const target = card.querySelector<HTMLElement>('.operation-target-status');
-    if (status) status.textContent = source.displayStatus ?? snapshot.status;
+    const outcome = card.querySelector<HTMLElement>('.operation-service-outcome');
+    const effectiveUrl = card.querySelector<HTMLElement>('.operation-service-effective-url');
+    const lastSuccess = card.querySelector<HTMLElement>('.operation-service-last-success');
+    const currentFreshness = operationFreshness(snapshot);
+    if (status) status.textContent = currentFreshness === 'STALE' ? 'STALE' : source.displayStatus ?? snapshot.status;
     if (icon) icon.textContent = iconForStatus(snapshot.status);
     if (checked) checked.textContent = snapshot.checkedAt.toLocaleString();
     if (latency) latency.textContent =
       snapshot.latencyMs === null ? 'N/A' : `${snapshot.latencyMs} ms`;
     if (changed) changed.textContent = snapshot.changedAt.toLocaleString();
-    if (freshness) freshness.textContent = operationFreshness(snapshot);
+    if (freshness) freshness.textContent = currentFreshness;
     if (age) age.textContent = ageLabel(snapshot);
+    if (outcome) outcome.textContent = currentFreshness === 'STALE' ? 'STALE' : snapshot.outcome ?? 'NOT_AVAILABLE';
+    if (effectiveUrl) effectiveUrl.textContent = snapshot.effectiveUrl ?? source.url ?? 'N/A';
+    if (lastSuccess) lastSuccess.textContent = snapshot.lastSuccessAt?.toLocaleString() ?? 'Niciun succes înregistrat';
     updateStatusLight(agent, 'agent', agentAvailability(source));
     updateStatusLight(target, 'target', targetAvailability(snapshot));
   });
@@ -254,19 +323,24 @@ async function checkSource(source: OperationService) {
     const body = contentType.includes('application/json')
       ? await response.json()
       : null;
-    updateSnapshot(
-      source,
-      evaluateResponse(source, response, body),
-      checkedAt,
-      Math.round(performance.now() - started),
-    );
-  } catch {
-    updateSnapshot(
-      source,
-      'OFFLINE',
-      checkedAt,
-      Math.round(performance.now() - started),
-    );
+    const evaluated = source.id === 'cloudflare-public'
+      ? classifyCloudflareHttpStatus(response.status)
+      : { status: evaluateResponse(source, response, body), outcome: 'HTTP_STATUS' as const, confirmedOffline: !response.ok };
+    updateSnapshot(source, evaluated.status, checkedAt, Math.round(performance.now() - started), {
+      outcome: evaluated.outcome,
+      httpStatus: response.status,
+      effectiveUrl: source.id === 'cloudflare-public' ? source.url : response.url || resolvedUrl(source),
+      confirmedOffline: evaluated.confirmedOffline,
+    });
+  } catch (error) {
+    const classified = source.id === 'cloudflare-public'
+      ? classifyCloudflareProbeError(error)
+      : { status: 'OFFLINE' as const, outcome: 'TRANSPORT_ERROR' as const, confirmedOffline: true };
+    updateSnapshot(source, classified.status, checkedAt, Math.round(performance.now() - started), {
+      outcome: classified.outcome,
+      effectiveUrl: resolvedUrl(source),
+      confirmedOffline: classified.confirmedOffline,
+    });
   } finally {
     window.clearTimeout(timeout);
   }

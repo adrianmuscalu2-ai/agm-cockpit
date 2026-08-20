@@ -21,6 +21,11 @@ export function clearVerifiedPremiumAccess() {
   verifiedSnapshot = undefined;
 }
 
+export function verifiedPremiumSubject(requiredCapability: PremiumCapabilityId, now = new Date()) {
+  const decision = decidePremiumAccess(verifiedSnapshot, requiredCapability, now);
+  return decision.outcome === 'allow' ? decision.snapshot.subjectId : undefined;
+}
+
 export function isPremiumNavigationAllowed(view: PremiumViewName, now = new Date()) {
   return decidePremiumAccess(verifiedSnapshot, capabilityForView[view], now).outcome === 'allow';
 }

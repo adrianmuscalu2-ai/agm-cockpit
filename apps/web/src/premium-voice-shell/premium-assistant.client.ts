@@ -30,7 +30,7 @@ export function createPremiumAssistantClient(input: {
 }) {
   const baseUrl = input.apiBaseUrl.trim().replace(/\/$/, '');
   return {
-    async respond(request: PremiumAssistantClientRequest): Promise<PremiumAssistantClientResponse> {
+    async respond(request: PremiumAssistantClientRequest, options: { signal?: AbortSignal } = {}): Promise<PremiumAssistantClientResponse> {
       const token = input.sessionStorage.getItem(USER_ACCESS_TOKEN_KEY);
       if (!token) throw new PremiumAssistantClientError('authentication-required');
       let response: Response;
@@ -40,8 +40,10 @@ export function createPremiumAssistantClient(input: {
           credentials: 'include',
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify(request),
+          signal: options.signal,
         });
-      } catch {
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') throw error;
         throw new PremiumAssistantClientError('network');
       }
       if (response.status === 401) throw new PremiumAssistantClientError('authentication-required');
@@ -62,4 +64,3 @@ export class PremiumAssistantClientError extends Error {
     super(`Premium assistant client failed: ${reason}`);
   }
 }
-

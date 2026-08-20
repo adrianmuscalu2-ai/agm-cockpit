@@ -1,4 +1,4 @@
-import { LoadSafetyApiError, loadSafetyEndpointUrl } from '../load-safety.api';
+import { appendLoadSafetyConsent, authorizationHeaders, LoadSafetyApiError, loadSafetyEndpointUrl } from '../load-safety.api';
 import type { FieldTestInput, FieldTestReport } from './field-test.types';
 import { fieldTestState } from './field-test.state';
 
@@ -16,10 +16,11 @@ export async function requestFieldTestReport(language: string, input: FieldTestI
   body.append('roles', JSON.stringify(photos.map((photo) => photo.role)));
   body.append('input', JSON.stringify(input));
   body.append('language', language);
+  appendLoadSafetyConsent(body, 'load-safety-field-test');
 
   let response: Response;
   try {
-    response = await fetch(fieldTestEndpointUrl, { method: 'POST', body });
+    response = await fetch(fieldTestEndpointUrl, { method: 'POST', body, headers: authorizationHeaders() });
   } catch {
     throw new LoadSafetyApiError('network');
   }

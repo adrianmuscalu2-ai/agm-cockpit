@@ -10,26 +10,26 @@ const KEY='agm.premium.operational-case.v1:road-control';
 const LANG='agm.premium.language';
 const escapeHtml=(value:string)=>value.replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]!));
 
-function restore():OperationalCase|null{try{const raw=localStorage.getItem(KEY);if(!raw)return null;const value=JSON.parse(raw) as OperationalCase;return value.schemaVersion===1&&value.situationId==='road-control'?value:null;}catch{return null;}}
+function restore():OperationalCase|null{try{const raw=sessionStorage.getItem(KEY);if(!raw)return null;const value=JSON.parse(raw) as OperationalCase;return value.schemaVersion===1&&value.situationId==='road-control'?value:null;}catch{return null;}}
 
 class RoadControlElement extends HTMLElement{
  private value!:OperationalCase;
  private onlineHandler=()=>void this.flushPending();
  connectedCallback(){
-  if(localStorage.getItem(FLAG)==='false'){this.hidden=true;return;}
+  if(sessionStorage.getItem(FLAG)==='false'){this.hidden=true;return;}
   document.documentElement.classList.add('road-control-router-enabled');
-  const selected=localStorage.getItem(LANG);const language:BasicLanguageCode=isBasicLanguageCode(selected)?selected:'ro';
+  const selected=sessionStorage.getItem(LANG);const language:BasicLanguageCode=isBasicLanguageCode(selected)?selected:'ro';
   this.value=restore()??createOperationalCase(crypto.randomUUID(),'road-control',language);
   window.addEventListener('online',this.onlineHandler);
   this.render();
   if(navigator.onLine)void this.flushPending();
  }
  disconnectedCallback(){window.removeEventListener('online',this.onlineHandler);}
- private commit(next:OperationalCase){this.value={...next,data:{...next.data,syncStatus:'SYNC_PENDING'}};localStorage.setItem(KEY,JSON.stringify(this.value));this.render();void enqueueRoadControlTransition(localStorage,this.value,navigator.onLine).then(()=>{if(navigator.onLine)return this.flushPending();}).catch(()=>undefined);}
- private async flushPending(){const result=await flushRoadControlTransitions({storage:localStorage}).catch(()=>({status:'offline' as const}));this.value=applyRoadControlSyncResult(this.value,result);localStorage.setItem(KEY,JSON.stringify(this.value));this.render();}
+ private commit(next:OperationalCase){this.value={...next,data:{...next.data,syncStatus:'SYNC_PENDING'}};sessionStorage.setItem(KEY,JSON.stringify(this.value));this.render();void enqueueRoadControlTransition(sessionStorage,this.value,navigator.onLine).then(()=>{if(navigator.onLine)return this.flushPending();}).catch(()=>undefined);}
+ private async flushPending(){const result=await flushRoadControlTransitions({storage:sessionStorage}).catch(()=>({status:'offline' as const}));this.value=applyRoadControlSyncResult(this.value,result);sessionStorage.setItem(KEY,JSON.stringify(this.value));this.render();}
  private set(values:Record<string,unknown>){this.commit(transitionOperationalCase(this.value,{type:'SET_DATA',values}));}
  private render(){
-  const selected=localStorage.getItem(LANG);const language:BasicLanguageCode=isBasicLanguageCode(selected)?selected:this.value.language;const c=roadControlCopy[language];const d=this.value.data;
+  const selected=sessionStorage.getItem(LANG);const language:BasicLanguageCode=isBasicLanguageCode(selected)?selected:this.value.language;const c=roadControlCopy[language];const d=this.value.data;
   const safe=d.safeToInteract===true;const unsafe=d.safeToInteract===false;const stopped=d.safelyStopped===true;const request=String(d.requestType??'');
   const original=this.value.evidence.find(item=>item.kind==='original');const ocr=this.value.evidence.find(item=>item.kind==='ocr-proposal');const confirmed=this.value.evidence.find(item=>item.kind==='human-confirmation');
   const effect=this.value.externalEffects.at(-1);const disposition=['RESOLVED','FOLLOW_UP_REQUIRED','ESCALATED'].includes(this.value.state)?this.value.state:null;
@@ -51,7 +51,7 @@ class RoadControlElement extends HTMLElement{
    </section>`:''}
    <footer><strong>${escapeHtml(c.status)}: ${escapeHtml(disposition??this.value.state)}</strong>${d.syncStatus==='SYNC_PENDING'?`<p role="status">${escapeHtml(c.offline)}</p>`:''}</footer>
   </section>`;
-  this.querySelector<HTMLSelectElement>('[data-language]')?.addEventListener('change',e=>{localStorage.setItem(LANG,(e.target as HTMLSelectElement).value);this.render();});
+  this.querySelector<HTMLSelectElement>('[data-language]')?.addEventListener('change',e=>{sessionStorage.setItem(LANG,(e.target as HTMLSelectElement).value);this.render();});
   this.querySelectorAll<HTMLButtonElement>('[data-safe]').forEach(button=>button.addEventListener('click',()=>this.commit(transitionOperationalCase(this.value,{type:'CONFIRM_SAFE_INTERACTION',safe:button.dataset.safe==='true'}))));
   this.querySelector<HTMLButtonElement>('[data-safe-stop]')?.addEventListener('click',()=>this.commit(transitionOperationalCase(this.value,{type:'CONFIRM_SAFE_STOP'})));
   this.querySelectorAll<HTMLButtonElement>('[data-request]').forEach(button=>button.addEventListener('click',()=>this.set({requestType:button.dataset.request,qualifiedAt:new Date().toISOString()})));
@@ -63,7 +63,7 @@ class RoadControlElement extends HTMLElement{
   this.querySelector<HTMLButtonElement>('[data-prepare]')?.addEventListener('click',()=>{const operationId=`road-control:${this.value.id}:${String(d.channel)}`;this.commit(transitionOperationalCase(this.value,{type:'PREPARE_EXTERNAL',effect:{operationId,channel:d.channel as 'email'|'whatsapp'}}));});
   this.querySelector<HTMLButtonElement>('[data-confirm-external]')?.addEventListener('click',()=>{if(effect)this.commit(transitionOperationalCase(this.value,{type:'CONFIRM_EXTERNAL',operationId:effect.operationId}));});
   this.querySelectorAll<HTMLButtonElement>('[data-disposition]').forEach(button=>button.addEventListener('click',()=>this.commit(transitionOperationalCase(this.value,{type:'SET_DISPOSITION',disposition:button.dataset.disposition as 'RESOLVED'|'FOLLOW_UP_REQUIRED'|'ESCALATED'}))));
-  this.querySelector<HTMLButtonElement>('[data-reset]')?.addEventListener('click',()=>{this.value=createOperationalCase(crypto.randomUUID(),'road-control',language);localStorage.setItem(KEY,JSON.stringify(this.value));this.render();});
+  this.querySelector<HTMLButtonElement>('[data-reset]')?.addEventListener('click',()=>{this.value=createOperationalCase(crypto.randomUUID(),'road-control',language);sessionStorage.setItem(KEY,JSON.stringify(this.value));this.render();});
  }
 }
 customElements.define('agm-road-control',RoadControlElement);

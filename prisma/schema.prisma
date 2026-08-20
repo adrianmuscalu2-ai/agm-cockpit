@@ -53,17 +53,73 @@ model User {
 }
 
 model AuthSession {
-  id         String    @id @default(uuid()) @db.Uuid
-  companyId  String    @db.Uuid
-  userId     String    @db.Uuid
-  tokenHash  String    @unique @db.VarChar(64)
-  expiresAt  DateTime
-  revokedAt  DateTime?
-  lastUsedAt DateTime  @default(now())
-  createdAt  DateTime  @default(now())
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String    @id @default(uuid()) @db.Uuid
+  companyId       String    @db.Uuid
+  userId          String    @db.Uuid
+  familyId        String    @db.Uuid
+  generation      Int       @default(0)
+  tokenHash       String    @unique @db.VarChar(64)
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  replacedAt      DateTime?
+  reuseDetectedAt DateTime?
+  lastUsedAt      DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([companyId, userId, expiresAt])
+  @@index([familyId, generation])
+}
+
+model DataSubjectRequest {
+  id                  String    @id @default(uuid()) @db.Uuid
+  companyId           String    @db.Uuid
+  requestedByUserId   String    @db.Uuid
+  requestType         String    @db.VarChar(24)
+  status              String    @default("RECEIVED") @db.VarChar(32)
+  requestedAt         DateTime  @default(now())
+  completedAt         DateTime?
+  refusalReason       String?   @db.VarChar(240)
+  exportSchemaVersion String?   @db.VarChar(40)
+  exportSha256        String?   @db.VarChar(64)
+  metadata            Json?
+
+  @@index([companyId, requestedByUserId, requestedAt])
+  @@index([status, requestedAt])
+}
+
+model DataRightsExternalRequest {
+  id                    String    @id @default(uuid()) @db.Uuid
+  companyId             String?   @db.Uuid
+  subjectUserId         String?   @db.Uuid
+  contactHash           String    @db.VarChar(64)
+  requestType           String    @db.VarChar(24)
+  status                String    @default("IDENTITY_PENDING") @db.VarChar(40)
+  verificationTokenHash String?   @db.VarChar(64)
+  verificationExpiresAt DateTime?
+  verifiedAt            DateTime?
+  notificationStatus    String    @default("PENDING") @db.VarChar(32)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  metadata              Json?
+
+  @@index([contactHash, createdAt])
+  @@index([status, verificationExpiresAt])
+}
+
+model SubjectDataIndex {
+  id           String   @id @default(uuid()) @db.Uuid
+  companyId    String?  @db.Uuid
+  subjectId    String   @db.Uuid
+  sourceTable  String   @db.VarChar(100)
+  sourceColumn String   @db.VarChar(100)
+  recordId     String   @db.VarChar(160)
+  matchKind    String   @db.VarChar(32)
+  discoveredAt DateTime @default(now())
+  locator      Json?
+
+  @@unique([subjectId, sourceTable, sourceColumn, recordId, matchKind])
+  @@index([companyId, subjectId, sourceTable])
 }
 
 model Role {

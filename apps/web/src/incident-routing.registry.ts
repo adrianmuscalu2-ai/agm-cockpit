@@ -1,5 +1,12 @@
-import type { MonitoringEvent } from './monitoring/monitoring-event.contract';
 import type { OperationalIncident } from './incident-journal';
+
+type MonitoringEventRoutingInput = {
+  monitorCode: string;
+  checkId: string;
+  component: string;
+  summary: string;
+  observedResult: string;
+};
 
 export type IncidentRouteId = 'production-access' | 'api-runtime' | 'public-routing' | 'secret-lifecycle';
 export type ActivationMode = 'automatic-readonly' | 'authorization-required';
@@ -51,8 +58,8 @@ export const incidentRoutingRegistry: IncidentRoute[] = [
   },
 ];
 
-function routeText(input: MonitoringEvent | OperationalIncident) { return 'monitorCode' in input ? `${input.monitorCode} ${input.checkId} ${input.component} ${input.summary} ${input.observedResult}`.toLowerCase() : `${input.module} ${input.category} ${input.symptom} ${input.cause}`.toLowerCase(); }
-export function routeIncident(input: MonitoringEvent | OperationalIncident): IncidentRoute | null { const text = routeText(input); return incidentRoutingRegistry.map((route) => ({ route, score: (route.match.monitorCodes.some((code) => text.includes(code.toLowerCase())) ? 1 : 0) + route.match.checkTerms.filter((term) => text.includes(term)).length * 10 })).filter((candidate) => candidate.score > 0).sort((a, b) => b.score - a.score)[0]?.route ?? null; }
+function routeText(input: MonitoringEventRoutingInput | OperationalIncident) { return 'monitorCode' in input ? `${input.monitorCode} ${input.checkId} ${input.component} ${input.summary} ${input.observedResult}`.toLowerCase() : `${input.module} ${input.category} ${input.symptom} ${input.cause}`.toLowerCase(); }
+export function routeIncident(input: MonitoringEventRoutingInput | OperationalIncident): IncidentRoute | null { const text = routeText(input); return incidentRoutingRegistry.map((route) => ({ route, score: (route.match.monitorCodes.some((code) => text.includes(code.toLowerCase())) ? 1 : 0) + route.match.checkTerms.filter((term) => text.includes(term)).length * 10 })).filter((candidate) => candidate.score > 0).sort((a, b) => b.score - a.score)[0]?.route ?? null; }
 export function activateIncidentRoute(route: IncidentRoute): AgentActivation[] { const activations = new Map<string, AgentActivation>(); const add = (agentId: string, role: AgentActivation['role'], privileged = false) => { if (!activations.has(`${agentId}:${role}`)) activations.set(`${agentId}:${role}`, { agentId, role, mode: privileged ? 'authorization-required' : 'automatic-readonly', status: privileged ? 'AWAITING AUTHORIZATION' : 'ACTIVE' }); }; add(route.owner, 'owner'); add(route.executor, 'executor', route.executionRequiresAuthorization); if (route.guardian) add(route.guardian, 'guardian', true); add(route.validator, 'validator'); route.monitors.forEach((agent) => add(agent, 'monitor')); route.consulted.forEach((agent) => add(agent, 'consulted')); return [...activations.values()]; }
 export function authorizeIncidentRoute(activations: AgentActivation[], authorization: TurnAuthorization) { if (!authorization.authorizationId.trim() || !authorization.actor.trim() || !authorization.authorizedAt.trim()) throw new Error('TURN_AUTHORIZATION_REQUIRED'); return activations.map((activation) => activation.mode === 'authorization-required' ? { ...activation, status: 'ACTIVE' as const } : activation); }
 export function assessProductOwnerEscalation(route: IncidentRoute, attempts: readonly RecoveryAttempt[], reservedReason?: Exclude<EscalationReason, 'INTERNAL_RECOVERY_EXHAUSTED'>) { if (reservedReason) return { allowed: true as const, reason: reservedReason }; if (attempts.some((attempt) => attempt.outcome === 'PASS')) return { allowed: false as const, reason: 'RECOVERED_INTERNAL' as const }; const attempted = new Set(attempts.map((attempt) => attempt.mechanism)); const relevant = attempts.filter((attempt) => route.recoveryMechanisms.includes(attempt.mechanism)); const exhausted = route.recoveryMechanisms.every((mechanism) => attempted.has(mechanism)) && relevant.every((attempt) => attempt.outcome !== 'PASS'); return exhausted ? { allowed: true as const, reason: 'INTERNAL_RECOVERY_EXHAUSTED' as const } : { allowed: false as const, reason: 'INTERNAL_RECOVERY_REQUIRED' as const }; }

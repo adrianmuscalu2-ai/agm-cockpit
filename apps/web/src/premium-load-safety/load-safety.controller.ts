@@ -30,6 +30,10 @@ if (appWindow && typeof document !== 'undefined' && !appWindow.__agmLoadSafetyCo
 
 async function onDocumentChange(event: Event) {
   const input = event.target as HTMLInputElement;
+  if (input.id === 'loadSafetyExternalProcessingConsent') {
+    loadSafetyUiState.externalProcessingConsent = input.checked;
+    return;
+  }
   if (input.dataset.fieldPhoto) {
     const operation = selectFieldPhoto(input);
     refresh();
