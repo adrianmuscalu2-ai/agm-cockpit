@@ -23,6 +23,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Generate ephemeral test JWT secret
+        run: echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - run: pnpm --filter @agm/api test -- --runInBand
       - run: pnpm --filter @agm/api build
       - run: pnpm --filter @agm/web build
