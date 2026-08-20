@@ -1,0 +1,73 @@
+name: AGM Production Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/agm-cockpit-api
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @agm/api test -- --runInBand
+      - run: pnpm --filter @agm/api build
+      - run: pnpm --filter @agm/web build
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.digest.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        id: image
+        with:
+          context: .
+          file: deploy/cloud/api.Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+      - name: Export immutable digest
+        id: digest
+        run: echo "digest=${{ steps.image.outputs.digest }}" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - name: Deploy approved digest through Release & Operations
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            export AGM_IMAGE="${{ env.IMAGE_NAME }}@${{ needs.publish.outputs.digest }}"
+            sudo systemctl set-environment AGM_IMAGE="$AGM_IMAGE"
+            sudo systemctl restart agm-production-api.service
+            sleep 5
+            sudo systemctl is-active --quiet agm-production-api.service
+            curl --fail --silent --show-error https://api.agmcockpit.com/api/v1/health/ready
