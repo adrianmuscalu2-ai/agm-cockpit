@@ -3,7 +3,7 @@ name: AGM Production Release
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, agm-canonical-20260820]
 
 permissions:
   contents: read
