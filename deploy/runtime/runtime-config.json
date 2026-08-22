@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "agm-runtime.v1",
+  "release": { "repository": "adrianmuscalu2-ai/agm-cockpit", "environment": "Production" },
+  "components": ["guardian", "turn", "release-operations", "validator", "telemetry", "bootstrap", "rollback"],
+  "secretReferences": ["AGM_SECRET_REF_GUARDIAN", "AGM_SECRET_REF_RELEASE", "AGM_SECRET_REF_VALIDATOR"],
+  "failClosed": true
+}

@@ -23,6 +23,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Generate Prisma client
+        run: pnpm db:generate
       - name: Generate ephemeral test JWT secret
         run: echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - name: Configure non-production test environment
@@ -75,3 +77,26 @@ jobs:
             sleep 5
             sudo systemctl is-active --quiet agm-production-api.service
             curl --fail --silent --show-error https://api.agmcockpit.com/api/v1/health/ready
+      - name: Provision approved Car Mover entitlement
+        env:
+          PROVISIONING_TOKEN: ${{ secrets.PRODUCTION_ROLE_PROVISIONING_TOKEN }}
+          TARGET_USER_ID: ${{ secrets.CAR_MOVER_TARGET_USER_ID }}
+        run: |
+          set -euo pipefail
+          test -n "$PROVISIONING_TOKEN"
+          test -n "$TARGET_USER_ID"
+          response=$(curl --fail --silent --show-error \
+            -X POST https://api.agmcockpit.com/api/v1/auth/role-provisioning/car-mover \
+            -H "Authorization: Bearer $PROVISIONING_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data "{\"targetUserId\":\"$TARGET_USER_ID\"}")
+          echo "$response" | jq -e '.data.role == "CAR_MOVER_ACCESS" and .data.active == true and (.data.auditEventId | type == "string")'
+      - name: Verify Car Mover entitlement
+        env:
+          PROVISIONING_TOKEN: ${{ secrets.PRODUCTION_ROLE_PROVISIONING_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer $PROVISIONING_TOKEN" \
+            https://api.agmcockpit.com/api/v1/auth/entitlements | \
+            jq -e '.data.capabilities | index("car-mover.jobs") != null'
