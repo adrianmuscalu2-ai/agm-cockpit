@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-23T20-10-19-842Z",
+  "status": "PASS",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "target": "http://127.0.0.1:5174",
+  "route": "/car-mover -> /car-mover/menu",
+  "revision": "b46164d9a4c90aa52ac83319320888ae5d57514f",
+  "iab": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "results": [
+    {
+      "id": "car-mover-entry",
+      "status": "PASS",
+      "startedAt": "2026-08-23T20:10:27.675Z",
+      "finishedAt": "2026-08-23T20:10:28.575Z",
+      "url": "http://127.0.0.1:5174/car-mover",
+      "screenshot": "evidence\\car-mover\\p0-02\\desktop\\2026-08-23T20-10-19-842Z\\car-mover-entry.png",
+      "detail": "Car Mover Premium entry hero and module action rendered in the first viewport"
+    },
+    {
+      "id": "desktop-class-agnostic",
+      "status": "PASS",
+      "startedAt": "2026-08-23T20:10:28.843Z",
+      "finishedAt": "2026-08-23T20:10:29.366Z",
+      "url": "http://127.0.0.1:5174/car-mover/menu",
+      "screenshot": "evidence\\car-mover\\p0-02\\desktop\\2026-08-23T20-10-19-842Z\\desktop-class-agnostic.png",
+      "detail": "Passenger car and tractor unit rendered in same operational list"
+    },
+    {
+      "id": "desktop-job-file",
+      "status": "PASS",
+      "startedAt": "2026-08-23T20:10:29.366Z",
+      "finishedAt": "2026-08-23T20:10:29.971Z",
+      "url": "http://127.0.0.1:5174/car-mover/menu",
+      "screenshot": "evidence\\car-mover\\p0-02\\desktop\\2026-08-23T20-10-19-842Z\\desktop-job-file.png",
+      "detail": "Read-only Job File and timeline rendered"
+    },
+    {
+      "id": "android-first-viewport",
+      "status": "PASS",
+      "startedAt": "2026-08-23T20:10:29.971Z",
+      "finishedAt": "2026-08-23T20:10:30.216Z",
+      "url": "http://127.0.0.1:5174/car-mover/menu",
+      "screenshot": "evidence\\car-mover\\p0-02\\desktop\\2026-08-23T20-10-19-842Z\\android-first-viewport.png",
+      "detail": "Manual intake remains visible and usable at 412x915"
+    }
+  ],
+  "fatal": null
+}
