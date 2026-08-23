@@ -30,7 +30,7 @@ const copy = {
 export function renderCarMoverLanding(language: BasicLanguageCode) {
   const text = language === 'ro' ? copy.ro : language === 'de' ? copy.de : copy.en;
   return `<section class="car-mover-entry" aria-labelledby="car-mover-entry-title">
-    <img class="car-mover-entry-image" src="/images/car-mover-entry-hero-v1.png" alt="" aria-hidden="true">
+    <img class="car-mover-entry-image" src="/images/car-mover-entry-hero-v2.png" alt="" aria-hidden="true">
     <div class="car-mover-entry-shade" aria-hidden="true"></div>
     <a class="car-mover-entry-back" href="/premium" data-module="premium">${text.back}</a>
     <div class="car-mover-entry-copy">
