@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import healthConfig from '../../../config/operations-health.json';
 import { agentAvailability, operationFreshness, operationStatusForHttpFailure, type OperationService, type OperationSnapshot } from '../src/operations-health';
+import { turnAgentLivePollIntervalMs } from '../src/turn-agent-live-state';
 
 const sources = healthConfig.operationsServices as OperationService[];
 const backup = sources.find((source) => source.id === 'server-backup')!;
@@ -27,6 +28,7 @@ assert.equal(operationFreshness(offline, new Date('2026-08-23T12:10:00.000Z')), 
 assert.equal(operationStatusForHttpFailure(429), 'UNKNOWN');
 assert.equal(operationStatusForHttpFailure(503), 'DEGRADED');
 assert.equal(operationStatusForHttpFailure(401), 'NOT VERIFIED');
+assert.equal(turnAgentLivePollIntervalMs, 2_000);
 
 const statusBoardSource = await readFile(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
 const operationsSource = await readFile(new URL('../src/operations-health.ts', import.meta.url), 'utf8');

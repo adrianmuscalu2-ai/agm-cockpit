@@ -16,6 +16,7 @@ export type TurnAgentRuntimeEvent = {
 
 const tokenKey = 'agm.auth.accessToken';
 let pollTimer: number | undefined;
+export const turnAgentLivePollIntervalMs = 2_000;
 let cursor: string | undefined;
 const seen = new Set<string>();
 const history: TurnAgentRuntimeEvent[] = [];
@@ -159,7 +160,7 @@ export function bindTurnAgentLiveState(fetcher: typeof fetch = fetch) {
     if (connection) connection.textContent = 'API UNAVAILABLE';
   });
   run();
-  pollTimer = window.setInterval(run, 1000);
+  pollTimer = window.setInterval(run, turnAgentLivePollIntervalMs);
   const trigger = document.querySelector<HTMLButtonElement>('[data-live-run-inspector]');
   trigger?.addEventListener('click', () => {
     trigger.disabled = true;
