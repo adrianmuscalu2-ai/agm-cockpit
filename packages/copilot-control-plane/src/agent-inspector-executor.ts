@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { isAbsolute, relative, resolve, sep } from 'node:path';
 
 export type InspectorExecutionContext = Readonly<{
   mandateId: string;
@@ -52,7 +52,10 @@ export async function executeAgentInspector(input: InspectorExecutionContext): P
     if (input.capabilities.join(',') !== 'evidence:read' || input.tools.join(',') !== 'filesystem:read') throw new Error('INSPECTOR_CAPABILITY_DENIED');
     const source = resolve(input.evidenceRoot, input.evidenceRef);
     const root = resolve(input.evidenceRoot);
-    if (!(source === root || source.startsWith(root + '\\'))) throw new Error('EVIDENCE_REF_OUTSIDE_ROOT');
+    const relativeSource = relative(root, source);
+    if (relativeSource === '..' || relativeSource.startsWith(`..${sep}`) || isAbsolute(relativeSource)) {
+      throw new Error('EVIDENCE_REF_OUTSIDE_ROOT');
+    }
     emit('WORKING', 'Reading and validating evidence reference.');
     const content = await readFile(source, 'utf8');
     const evidenceHash = createHash('sha256').update(content).digest('hex');
