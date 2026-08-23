@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import healthConfig from '../../../config/operations-health.json';
-import { agentAvailability, operationFreshness, type OperationService, type OperationSnapshot } from '../src/operations-health';
+import { agentAvailability, operationFreshness, operationStatusForHttpFailure, type OperationService, type OperationSnapshot } from '../src/operations-health';
 
 const sources = healthConfig.operationsServices as OperationService[];
 const backup = sources.find((source) => source.id === 'server-backup')!;
@@ -24,6 +24,9 @@ assert.deepEqual(telemetry.dependencies, ['server-primary', 'api', 'browser', 'a
 const old = new Date('2026-08-23T12:00:00.000Z');
 const offline: OperationSnapshot = { status: 'OFFLINE', checkedAt: old, changedAt: old, latencyMs: null, freshness: 'OFFLINE' };
 assert.equal(operationFreshness(offline, new Date('2026-08-23T12:10:00.000Z')), 'OFFLINE');
+assert.equal(operationStatusForHttpFailure(429), 'UNKNOWN');
+assert.equal(operationStatusForHttpFailure(503), 'DEGRADED');
+assert.equal(operationStatusForHttpFailure(401), 'NOT VERIFIED');
 
 const statusBoardSource = await readFile(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
 const operationsSource = await readFile(new URL('../src/operations-health.ts', import.meta.url), 'utf8');

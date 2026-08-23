@@ -162,7 +162,7 @@ function renderRealStatusBoard() {
   const componentRows = monitoringHealthSources.map((source) => {
     const snapshot = snapshots.get(source.id);
     const status = snapshot?.status ?? 'UNKNOWN / NO TELEMETRY';
-    const state = snapshot ? (snapshot.status === 'ONLINE' || snapshot.status === 'READY' ? 'operational' : snapshot.status === 'DEGRADED' ? 'degraded' : snapshot.status === 'NOT IMPLEMENTED' || snapshot.status === 'NOT VERIFIED' ? 'planned' : 'failed') : 'no-telemetry';
+    const state = snapshot ? (snapshot.status === 'ONLINE' || snapshot.status === 'READY' ? 'operational' : snapshot.status === 'DEGRADED' ? 'degraded' : snapshot.status === 'NOT IMPLEMENTED' || snapshot.status === 'NOT VERIFIED' ? 'planned' : snapshot.status === 'OFFLINE' ? 'failed' : 'no-telemetry') : 'no-telemetry';
     return `<li class="turn-status-row ${state}" data-live-component-id="${escapeHtml(source.id)}"><span>${escapeHtml(source.label)}</span><strong data-component-live-status>${escapeHtml(status)}</strong></li>`;
   }).join('');
   const agentRows = agents.map((agent) => `<li class="turn-status-row ${agent.generalStatus === 'ACTIVE' ? 'operational' : agent.generalStatus === 'PLANNED' ? 'planned' : agent.generalStatus === 'FAILED' ? 'failed' : 'degraded'}" data-live-agent-id="${escapeHtml(agent.turnAgentId ?? agent.panelAgentId)}"><span>${escapeHtml(agent.registryName !== 'UNMAPPED' ? agent.registryName : agent.displayName)}</span><strong data-agent-live-status>${escapeHtml(agent.generalStatus)}</strong></li>`).join('');

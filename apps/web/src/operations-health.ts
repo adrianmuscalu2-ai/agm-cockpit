@@ -7,6 +7,7 @@ export type OperationStatus =
   | 'READY'
   | 'DEGRADED'
   | 'OFFLINE'
+  | 'UNKNOWN'
   | 'NOT CONFIGURED'
   | 'NOT APPLICABLE'
   | 'NOT IMPLEMENTED'
@@ -142,8 +143,7 @@ function evaluateResponse(
   body: unknown,
 ): OperationStatus {
   if (!response.ok) {
-    if (response.status === 401 || response.status === 403) return 'NOT VERIFIED';
-    return response.status >= 500 ? 'DEGRADED' : 'OFFLINE';
+    return operationStatusForHttpFailure(response.status);
   }
   if (source.evaluator === 'ready') {
     return findStatus(body) === 'ready' ? source.healthyStatus ?? 'READY' : 'DEGRADED';
@@ -167,6 +167,12 @@ function evaluateResponse(
     return envelopeData(body)?.overallStatus === 'CONFIGURED' ? 'READY' : 'DEGRADED';
   }
   return source.healthyStatus ?? 'ONLINE';
+}
+
+export function operationStatusForHttpFailure(status: number): OperationStatus {
+  if (status === 401 || status === 403) return 'NOT VERIFIED';
+  if (status === 429) return 'UNKNOWN';
+  return 'DEGRADED';
 }
 
 export function classifyCloudflareHttpStatus(status: number) {
@@ -385,14 +391,20 @@ async function checkSource(source: OperationService) {
       httpStatus: response.status,
       effectiveUrl: source.id === 'cloudflare-public' ? source.url : response.url || resolvedUrl(source),
       confirmedOffline: evaluated.confirmedOffline,
-      reason: typeof data?.reason === 'string' ? data.reason : source.evaluator === 'guardian' ? String(data?.overallStatus ?? 'GUARDIAN_STATUS_UNKNOWN') : null,
+      reason: typeof data?.reason === 'string'
+        ? data.reason
+        : response.status === 429
+          ? 'RATE_LIMITED'
+          : source.evaluator === 'guardian'
+            ? String(data?.overallStatus ?? 'GUARDIAN_STATUS_UNKNOWN')
+            : null,
       lastSuccessAt: typeof data?.lastSuccessAt === 'string' ? new Date(data.lastSuccessAt) : undefined,
       lastFailureAt: typeof data?.lastFailureAt === 'string' ? new Date(data.lastFailureAt) : undefined,
     });
   } catch (error) {
     const classified = source.id === 'cloudflare-public'
       ? classifyCloudflareProbeError(error)
-      : { status: 'OFFLINE' as const, outcome: 'TRANSPORT_ERROR' as const, confirmedOffline: true };
+      : { status: 'UNKNOWN' as const, outcome: 'TRANSPORT_ERROR' as const, confirmedOffline: false };
     updateSnapshot(source, classified.status, checkedAt, Math.round(performance.now() - started), {
       outcome: classified.outcome,
       effectiveUrl: resolvedUrl(source),
