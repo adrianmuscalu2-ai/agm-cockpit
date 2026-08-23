@@ -10,8 +10,16 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(AgmAudioPlugin.class);
         registerPlugin(AgmEmailPlugin.class);
         registerPlugin(AgmDiagnosticsPlugin.class);
-        registerPlugin(AgmCapabilityPlugin.class);
         super.onCreate(savedInstanceState);
-        CookieManager.getInstance().setAcceptThirdPartyCookies(getBridge().getWebView(), true);
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+        cookieManager.setAcceptThirdPartyCookies(getBridge().getWebView(), true);
+        cookieManager.flush();
+    }
+
+    @Override
+    public void onPause() {
+        CookieManager.getInstance().flush();
+        super.onPause();
     }
 }

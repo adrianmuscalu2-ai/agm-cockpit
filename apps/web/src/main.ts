@@ -131,8 +131,9 @@ import { bindCarMoverRuntime } from './car-mover/car-mover.runtime';
 import './car-mover/car-mover.css';
 import { bindCopilotRuntime } from './premium-copilot/copilot.runtime';
 import './premium-copilot/copilot.css';
-import { isPremiumNavigationAllowed } from './premium-access/premium-access.navigation';
+import { isPremiumNavigationAllowed, registerVerifiedPremiumAccess } from './premium-access/premium-access.navigation';
 import { isPremiumView, premiumRouteForView, premiumViewFromRoute, normalizePremiumRoute, type PremiumViewName } from './premium-routes';
+import { authenticatedApiFetch } from './authenticated-api';
 import { bindOperationsHealthChecks } from './operations-health';
 import { operationsHealthEvent, reconcileOperationsHealthIncident } from './operations-health-incidents';
 import { bindSecretTelemetry, reconcileSecretTelemetryIncident } from './secret-telemetry';
@@ -214,6 +215,7 @@ purgeSensitiveLegacyLocalStorage(window.localStorage);
 bindSensitiveSessionCleanup(window.sessionStorage);
 purgeLegacyPersistentOcr(window.indexedDB, window.localStorage);
 void clearOriginalEvidence();
+await restorePremiumRouteAccess();
 const ocrHistoryRepository = createOcrHistoryRepository(window.sessionStorage);
 const ocrArchiveRepository = createOcrArchiveRepository(createEphemeralOcrArchiveStore());
 const tutorialRepository = createTutorialRepository(window.localStorage);
@@ -222,6 +224,17 @@ const initialContacts = readContacts(window.sessionStorage);
 const initialOcrHistory = ocrHistoryRepository.read();
 const initialMessageLibraryPreferences = readMessageLibraryPreferences(window.sessionStorage);
 const initialIncidentJournal = readIncidentJournal(window.sessionStorage);
+
+async function restorePremiumRouteAccess() {
+  if (!premiumViewFromRoute(window.location.pathname)) return;
+  try {
+    const response = await authenticatedApiFetch('/auth/entitlements', { cache:'no-store' });
+    const body = await response.json().catch(() => ({})) as { data?: Parameters<typeof registerVerifiedPremiumAccess>[0] };
+    if (response.ok && body.data) registerVerifiedPremiumAccess(body.data);
+  } catch {
+    // Premium route resolution remains fail-closed when restoration is unavailable.
+  }
+}
 
 const translatorState = createTranslatorState(initialProfile.preferredLanguage);
 const incidentsState = createIncidentsState({

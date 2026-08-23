@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "runId": "2026-08-23T15-03-00-221Z",
+  "status": "PASS",
+  "device": "Samsung SM-S931B",
+  "package": "com.agm.cockpit",
+  "apkSha256": "F76FCD5D87AE7BD0E37DE8C91F20A86F2EEBEC006DC07414AEC59CB497236FC1",
+  "apiMode": "authenticated Production API",
+  "results": [
+    {
+      "id": "android-production-premium-lifecycle-takeover-handover",
+      "status": "PASS",
+      "origin": "https://localhost",
+      "route": "/car-mover",
+      "vehicleClasses": [
+        "",
+        "PASSENGER_CAR",
+        "LIGHT_COMMERCIAL",
+        "VAN",
+        "TRUCK",
+        "TRACTOR_UNIT",
+        "OTHER_DRIVABLE_VEHICLE"
+      ],
+      "viewport": {
+        "width": 384,
+        "height": 832,
+        "scrollWidth": 384
+      },
+      "jobId": "9fce05b3-1826-40d5-982d-e29baaebbc83",
+      "state": "COMPLETED",
+      "timelineTypes": [
+        "CAR_MOVER_JOB_CREATED",
+        "CAR_MOVER_JOB_STATE_CHANGED",
+        "CAR_MOVER_JOB_STATE_CHANGED",
+        "CAR_MOVER_JOB_STATE_CHANGED",
+        "CAR_MOVER_TAKEOVER_RECORDED",
+        "CAR_MOVER_JOB_STATE_CHANGED",
+        "CAR_MOVER_JOB_STATE_CHANGED",
+        "CAR_MOVER_JOB_STATE_CHANGED",
+        "CAR_MOVER_HANDOVER_RECORDED",
+        "CAR_MOVER_JOB_STATE_CHANGED"
+      ],
+      "auditReferenceCount": 10,
+      "evidenceReferenceCount": 0,
+      "entitlementPolicy": "access-entitlements@1.0.0",
+      "screenshot": "evidence\\car-mover\\p0-02\\android\\2026-08-23T15-03-00-221Z\\android-car-mover-production-e2e.png"
+    },
+    {
+      "id": "android-production-restart-persistence",
+      "status": "PASS",
+      "origin": "https://localhost",
+      "route": "/car-mover",
+      "jobId": "9fce05b3-1826-40d5-982d-e29baaebbc83",
+      "state": "COMPLETED",
+      "screenshot": "evidence\\car-mover\\p0-02\\android\\2026-08-23T15-03-00-221Z\\android-car-mover-production-after-restart.png"
+    }
+  ],
+  "fatal": null
+}
