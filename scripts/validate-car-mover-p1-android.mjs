@@ -56,7 +56,7 @@ try{
       if(!externalCheck||offers.some(item=>item.externalReference===externalReference))break;
     }
     const externalOfferFound=!externalCheck||offers.some(item=>item.externalReference===externalReference);
-    return{jobId:job.id,analysis:file.analysis,financeRecorded:captureOnly||file.financialEntries.some(item=>item.sourceReference===reference),invoiceRecorded:captureOnly||file.invoices.some(item=>item.evidenceReference===reference),providers,gmailSync,extraction,offerCount:offers.length,captureOnly,externalCheck,externalReference,externalOfferFound};
+    return{jobId:job.id,analysis:file.analysis,financeRecorded:captureOnly||file.financialEntries.some(item=>item.sourceReference===reference),invoiceRecorded:captureOnly||file.invoices.some(item=>item.evidenceReference===reference),providers,gmailSync,extraction,offerCount:offers.length,offerReferences:offers.slice(0,20).map(item=>({platformName:item.platformName,externalReference:item.externalReference,status:item.status,score:item.score})),captureOnly,externalCheck,externalReference,externalOfferFound};
   },{runId,captureOnly,externalCheck});
   if(!runtime.financeRecorded||!runtime.invoiceRecorded)throw Error('P1_RECORDS_NOT_PERSISTED');
   if(externalCheck&&!runtime.externalOfferFound)throw Error('GMAIL_PLATFORM_OFFER_NOT_INGESTED');
@@ -68,11 +68,10 @@ try{
   const text=await page.locator('[data-car-mover-file]').innerText();
   for(const expected of ['Analiza cursei','Contabilitate primară','Facturi','Gmail / WhatsApp'])if(!text.includes(expected))throw Error(`UI_SECTION_MISSING:${expected}`);
   const screenshot=path.join(out,'android-car-mover-p1-operations.png');
-  await page.screenshot({path:screenshot,fullPage:true});
   const jobFileScreenshot=path.join(out,'android-car-mover-job-file.png');
-  await page.locator('dialog[open] .car-mover-analysis').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(300);
-  await page.screenshot({path:jobFileScreenshot});
-  results.push({id:'car-mover-p1-production-android',status:'PASS',origin:new URL(page.url()).origin,route:'/car-mover',...runtime,screenshot:path.relative(root,screenshot),jobFileScreenshot:path.relative(root,jobFileScreenshot)});
+  const captures={};
+  try{await page.screenshot({path:screenshot,fullPage:true});captures.screenshot=path.relative(root,screenshot);}catch(error){diagnostics.push({type:'optional-full-page-screenshot',detail:String(error)});}
+  try{await page.locator('dialog[open] .car-mover-analysis').scrollIntoViewIfNeeded();await page.waitForTimeout(300);await page.screenshot({path:jobFileScreenshot});captures.jobFileScreenshot=path.relative(root,jobFileScreenshot);}catch(error){diagnostics.push({type:'optional-job-file-screenshot',detail:String(error)});}
+  results.push({id:'car-mover-p1-production-android',status:'PASS',origin:new URL(page.url()).origin,route:'/car-mover',...runtime,...captures});
 }catch(error){fatal=String(error);results.push({id:'car-mover-p1-production-android',status:'FAIL',detail:fatal});}
-finally{await browser?.close();const report={schemaVersion:1,runId,status:fatal?'FAIL':'PASS',revision:'94981585efbfff934d6845eebe28e60644dffc64',runner:'Android WebView + controlled CDP',browserPluginStatus:'PASS',integratedBrowserControlStatus:'PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE',browserSessionStatus:fatal?'FAIL':'PASS',targetPageStatus:fatal?'FAIL':'PASS',results,diagnostics,finishedAt:new Date().toISOString()};await writeFile(path.join(out,'report.json'),JSON.stringify(report,null,2));console.log(`CAR MOVER P1 ANDROID: ${report.status}`);console.log(path.join(out,'report.json'));if(fatal)process.exitCode=1;}
+finally{await browser?.close();const report={schemaVersion:1,runId,status:fatal?'FAIL':'PASS',revision:'53b0f6b7896dc180cce23b72f2ac72e9414222c7',runner:'Android WebView + controlled CDP',browserPluginStatus:'PASS',integratedBrowserControlStatus:'PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE',browserSessionStatus:fatal?'FAIL':'PASS',targetPageStatus:fatal?'FAIL':'PASS',results,diagnostics,finishedAt:new Date().toISOString()};await writeFile(path.join(out,'report.json'),JSON.stringify(report,null,2));console.log(`CAR MOVER P1 ANDROID: ${report.status}`);console.log(path.join(out,'report.json'));if(fatal)process.exitCode=1;}

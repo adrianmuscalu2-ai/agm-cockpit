@@ -87,6 +87,20 @@ export class CarMoverService {
 
   async analyzeInboundOffers(ctx:RequestContext) {
     this.authorize(ctx);
+    const pending=await this.prisma.carMoverPlatformOffer.findMany({where:{companyId:ctx.companyId,status:'NEW'},orderBy:{createdAt:'asc'},take:200});
+    let reclassified=0;
+    for(const offer of pending){
+      const source=await this.prisma.communicationMessage.findFirst({where:{id:offer.sourceMessageId,companyId:ctx.companyId}});
+      if(!source)continue;
+      const current=parsePlatformOffer(`${source.subject??''}\n${source.bodyText}`,source.provider,source.fromAddress);
+      if(current.isOffer)continue;
+      await this.prisma.$transaction(async tx=>{
+        const updated=await tx.carMoverPlatformOffer.update({where:{id:offer.id},data:{status:'DISMISSED',version:{increment:1}}});
+        await this.appendOfferEvent(tx,offer.id,updated.version,'CAR_MOVER_PLATFORM_OFFER_RECLASSIFIED',{from:offer.status,to:'DISMISSED',reason:'PARSER_FALSE_POSITIVE_REJECTED'},ctx);
+        await this.audit.create({actionCode:'car-mover-platform-offer-reclassified',entityType:'CarMoverPlatformOffer',entityId:offer.id,reason:'Parser revalidation rejected a previously extracted false positive.',beforeSnapshot:offer,afterSnapshot:updated,productId:CAR_MOVER_SCOPE.productId,moduleId:'platform-alerts',subjectType:'CarMoverPlatformOffer',subjectId:offer.id},ctx,tx);
+      });
+      reclassified++;
+    }
     const messages=await this.prisma.communicationMessage.findMany({where:{companyId:ctx.companyId,direction:'inbound',channel:{in:['email','whatsapp']}},orderBy:{occurredAt:'desc'},take:200});
     let created=0,duplicates=0;
     for(const message of messages){
@@ -102,7 +116,7 @@ export class CarMoverService {
       });
       created++;
     }
-    return {scanned:messages.length,created,duplicates,automaticAcceptance:false};
+    return {scanned:messages.length,created,duplicates,reclassified,automaticAcceptance:false};
   }
 
   async listOffers(ctx:RequestContext){this.authorize(ctx);return this.prisma.carMoverPlatformOffer.findMany({where:{companyId:ctx.companyId},orderBy:[{status:'asc'},{score:'desc'},{createdAt:'desc'}]});}
@@ -191,12 +205,13 @@ export function parsePlatformOffer(text:string,provider:string,from:string){
   const route=compact.match(/(?:from|de la|von)\s+([^\n,;]+?)\s+(?:to|la|nach)\s+([^\n,;]+)/i)??compact.match(/([^\n,;]{2,80})\s*(?:→|->)\s*([^\n,;]{2,80})/);
   const amount=compact.match(/(?:€|eur\s*)\s*(\d+(?:[.,]\d{1,2})?)|(\d+(?:[.,]\d{1,2})?)\s*(?:€|eur)/i);
   const km=compact.match(/(\d{1,5})\s*km\b/i);
-  const reference=compact.match(/(?:order|auftrag|comand[aă]|ref(?:erence)?)[\s:#-]*([a-z0-9-]{3,40})/i);
+  const reference=compact.match(/(?:order|auftrag|comand[aă]|ref(?:erence)?)\b[\s:#-]+([a-z0-9-]{3,40})/i);
   const vehicle=compact.match(/(?:vehicle|fahrzeug|vehicul)[\s:=-]+([^\n,;]{2,120})/i);
   const signals=[Boolean(route),Boolean(amount),Boolean(reference),Boolean(vehicle),/pickup|abholung|preluare|delivery|livrare|transport|curs[ăa]/i.test(compact)];
   const confidence=Math.min(100,signals.filter(Boolean).length*20);
   const score=Math.min(100,(route?35:0)+(amount?25:0)+(km?15:0)+(vehicle?15:0)+(reference?10:0));
   const currencyCode=amount?'EUR':undefined;
   const offeredAmount=amount?String(amount[1]??amount[2]).replace(',','.'):undefined;
-  return {isOffer:signals.filter(Boolean).length>=2,platformName,externalReference:reference?.[1],pickupLabel:route?.[1]?.trim(),destinationLabel:route?.[2]?.trim(),pickupAt:undefined,vehicleDescription:vehicle?.[1]?.trim(),offeredAmount,currencyCode,estimatedKm:km?Number(km[1]):undefined,score,confidence,analysis:{contractVersion:'car-mover-offer-analysis.v1',signals:{route:Boolean(route),amount:Boolean(amount),distance:Boolean(km),vehicle:Boolean(vehicle),reference:Boolean(reference)},reason:score>=70?'Date suficiente pentru evaluare umană.':'Ofertă incompletă; necesită verificare.',automaticDecision:false,sourceProvider:provider,sourceAddressHash:createHash('sha256').update(from.toLowerCase()).digest('hex')}};
+  const isOffer=Boolean(route)&&(Boolean(amount)||Boolean(vehicle)||Boolean(reference));
+  return {isOffer,platformName,externalReference:reference?.[1],pickupLabel:route?.[1]?.trim(),destinationLabel:route?.[2]?.trim(),pickupAt:undefined,vehicleDescription:vehicle?.[1]?.trim(),offeredAmount,currencyCode,estimatedKm:km?Number(km[1]):undefined,score,confidence,analysis:{contractVersion:'car-mover-offer-analysis.v1',signals:{route:Boolean(route),amount:Boolean(amount),distance:Boolean(km),vehicle:Boolean(vehicle),reference:Boolean(reference)},reason:score>=70?'Date suficiente pentru evaluare umană.':'Ofertă incompletă; necesită verificare.',automaticDecision:false,sourceProvider:provider,sourceAddressHash:createHash('sha256').update(from.toLowerCase()).digest('hex')}};
 }

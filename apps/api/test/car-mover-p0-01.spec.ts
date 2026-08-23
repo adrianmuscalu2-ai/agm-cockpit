@@ -158,5 +158,6 @@ describe('Car Mover P0-01 foundation', () => {
     expect(proposal).toMatchObject({isOffer:true,platformName:'Onlogist',externalReference:'DE-4471',pickupLabel:'Berlin',offeredAmount:'480',currencyCode:'EUR',estimatedKm:292});
     expect(proposal.analysis.automaticDecision).toBe(false);
     expect(proposal.score).toBeGreaterThanOrEqual(70);
+    expect(parsePlatformOffer('Evidence references and delivery documentation are available.','gmail','service@example.com').isOffer).toBe(false);
   });
 });
