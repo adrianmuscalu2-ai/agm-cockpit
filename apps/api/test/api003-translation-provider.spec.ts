@@ -26,7 +26,7 @@ describe('API-003 Translation & AI Provider', () => {
 
   it('fails closed when the provider secret is absent', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => undefined);
-    const provider = new OpenAiTranslationProvider(new ConfigService({}));
+    const provider = new OpenAiTranslationProvider(new ConfigService({ OPENAI_API_KEY: '' }));
     await expect(provider.translate({ text: 'Salut', sourceLanguage: 'ro', targetLanguage: 'de' }))
       .resolves.toEqual({ text: 'Salut', available: false, provider: 'unavailable' });
   });
