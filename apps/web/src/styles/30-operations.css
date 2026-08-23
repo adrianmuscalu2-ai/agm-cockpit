@@ -180,6 +180,50 @@
   min-width: 0;
 }
 
+.turn-operational-protocol { padding: 1rem; border: 2px solid #75edc5; border-radius: 14px; background: linear-gradient(135deg, rgba(5, 39, 39, .96), rgba(5, 20, 31, .98)); box-shadow: 0 0 20px rgba(117, 237, 197, .12); }
+.turn-operational-protocol > header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }
+.turn-operational-protocol h2 { margin: .2rem 0; }
+.turn-operational-protocol p { color: #ccefe4; }
+.protocol-status { color: #75edc5; font-size: .75rem; font-weight: 800; white-space: nowrap; }
+.protocol-gates { padding: .7rem; border-left: 3px solid #75edc5; background: rgba(117, 237, 197, .08); line-height: 1.55; }
+.protocol-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin: .8rem 0; }
+.protocol-actions a { color: #d7efff; text-decoration: none; border: 1px solid rgba(117, 237, 197, .45); border-radius: 999px; padding: .45rem .7rem; font-size: .78rem; }
+.protocol-actions a:hover, .protocol-actions a:focus-visible { color: #061a20; background: #75edc5; }
+.protocol-actions .protocol-link { color: #061a20; background: #75edc5; font-weight: 800; }
+.turn-operational-protocol small { color: #9fc9c0; }
+.turn-reality-contract { padding: 1rem; border: 1px solid rgba(255, 211, 90, .55); border-radius: 14px; background: rgba(42, 32, 9, .72); }
+.turn-reality-contract > header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }
+.turn-reality-contract h2 { margin: .2rem 0; }
+.turn-reality-contract > header > strong { color: #ffd35a; font-size: .78rem; }
+.turn-reality-contract p { color: #f1dfaa; }
+.turn-reality-contract dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; margin: .8rem 0 0; }
+.turn-reality-contract dl div { padding: .65rem; border: 1px solid rgba(255, 211, 90, .22); border-radius: 8px; }
+.turn-reality-contract dt { color: #ffd35a; font-size: .7rem; text-transform: uppercase; }
+.turn-reality-contract dd { margin: .2rem 0 0; color: #f7ebc4; font-size: .8rem; }
+@media (max-width: 700px) { .turn-reality-contract > header { flex-direction: column; } .turn-reality-contract dl { grid-template-columns: 1fr; } }
+.turn-approved-agent-panel { padding: 1rem; border: 1px solid rgba(83, 185, 255, .45); border-radius: 14px; background: rgba(4, 18, 31, .92); }
+.turn-real-status-board { padding: 1rem; border: 1px solid rgba(255, 208, 0, .45); border-radius: 14px; background: rgba(4, 18, 31, .94); margin-bottom: 1rem; }
+.turn-real-status-board > header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }
+.turn-real-status-board h2 { margin: .2rem 0; }
+.turn-status-criteria { display: flex; flex-wrap: wrap; gap: .45rem .8rem; margin-top: .7rem; padding: .7rem; border: 1px solid rgba(127, 181, 255, .32); border-radius: 9px; background: rgba(9, 28, 50, .8); color: #d9eaff; font-size: .76rem; line-height: 1.4; }
+.turn-status-criteria strong { color: #fff; }
+.turn-status-board-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: .8rem; }
+.turn-status-board-grid article { border: 1px solid rgba(127, 181, 255, .22); border-radius: 10px; padding: .75rem; }
+.turn-status-board-grid h3 { margin: 0 0 .5rem; }
+.turn-status-board-grid ul { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow: auto; }
+.turn-status-row { display: flex; justify-content: space-between; gap: .75rem; padding: .35rem .45rem; border-bottom: 1px solid rgba(127, 181, 255, .12); font-size: .82rem; }
+.turn-status-row strong { white-space: nowrap; }
+.turn-status-row.operational strong { color: #00ff7f; }
+.turn-status-row.degraded strong { color: #ff9d38; }
+.turn-status-row.failed strong { color: #ff4545; }
+.turn-status-row.no-telemetry strong, .turn-status-row.unmapped strong { color: #aab4c8; }
+.turn-status-row.planned strong { color: #3f9bff; }
+@media (max-width: 700px) { .turn-real-status-board > header { flex-direction: column; } .turn-status-board-grid { grid-template-columns: 1fr; } }
+.turn-approved-agent-panel > header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }
+.turn-approved-agent-panel h2 { margin: .2rem 0; }
+.turn-approved-agent-panel iframe { display: block; width: 100%; height: 720px; margin-top: .8rem; border: 1px solid rgba(127, 181, 255, .28); border-radius: 10px; background: #050814; }
+@media (max-width: 700px) { .turn-approved-agent-panel > header { flex-direction: column; } .turn-approved-agent-panel iframe { height: 620px; } }
+
 .turn-module-nav {
   display: flex;
   flex-wrap: wrap;
@@ -442,3 +486,22 @@
 .production-preflight article p { flex-basis: 100%; margin: 0; }
 .production-preflight .configured > span { color: #70ffc1; }
 .production-preflight .attention > span { color: #ffb45c; }
+.turn-agent-live-state {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(63, 210, 255, .45);
+  border-radius: 12px;
+  background: rgba(2, 18, 29, .72);
+}
+.turn-agent-live-state > header { display: flex; justify-content: space-between; gap: 1rem; align-items: start; }
+.turn-agent-live-state > header h3 { margin: .2rem 0 0; }
+.turn-agent-live-state [data-live-connection] { color: #52e7ff; }
+.turn-agent-live-state ol { display: grid; gap: .45rem; margin: .8rem 0 0; padding: 0; list-style: none; }
+.turn-agent-live-state li { display: grid; grid-template-columns: minmax(7rem, auto) 1fr auto; gap: .4rem .8rem; align-items: center; padding: .55rem .7rem; border-left: 4px solid #52e7ff; background: rgba(255,255,255,.035); }
+.turn-agent-live-state li.operational { border-color: #32f29a; }
+.turn-agent-live-state li.failed { border-color: #ff4055; }
+.turn-agent-live-state li.degraded { border-color: #ff9d2e; }
+.turn-agent-live-state li small, .turn-agent-live-state li code { grid-column: 2 / -1; overflow-wrap: anywhere; }
+[data-runtime-lifecycle="STARTED"], [data-runtime-lifecycle="WORKING"] { outline: 1px solid rgba(82, 231, 255, .55); }
+[data-runtime-lifecycle="COMPLETED"] { outline: 1px solid rgba(50, 242, 154, .55); }
+[data-runtime-lifecycle="FAILED"] { outline: 1px solid rgba(255, 64, 85, .7); }

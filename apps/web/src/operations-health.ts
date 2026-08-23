@@ -8,7 +8,8 @@ export type OperationStatus =
   | 'OFFLINE'
   | 'NOT CONFIGURED'
   | 'NOT APPLICABLE'
-  | 'NOT IMPLEMENTED';
+  | 'NOT IMPLEMENTED'
+  | 'NOT VERIFIED';
 
 export type OperationProbeOutcome =
   | 'HTTP_STATUS'
@@ -83,6 +84,10 @@ const telemetrySnapshotStorageKey = 'agm.turn.telemetry-snapshots.v1';
 let pollTimer: number | undefined;
 let snapshotListener: ((source: OperationService, snapshot: OperationSnapshot) => void) | undefined;
 
+export function currentOperationSnapshots() {
+  return new Map(snapshots);
+}
+
 function resolvedUrl(source: OperationService) {
   if (source.url === 'self') return window.location.origin + '/';
   const env = (import.meta as ImportMeta & { env?: Record<string, string | boolean | undefined> }).env;
@@ -128,7 +133,10 @@ function evaluateResponse(
   response: Response,
   body: unknown,
 ): OperationStatus {
-  if (!response.ok) return response.status >= 500 ? 'DEGRADED' : 'OFFLINE';
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) return 'NOT VERIFIED';
+    return response.status >= 500 ? 'DEGRADED' : 'OFFLINE';
+  }
   if (source.evaluator === 'ready') {
     return findStatus(body) === 'ready' ? source.healthyStatus ?? 'READY' : 'DEGRADED';
   }
@@ -167,7 +175,7 @@ function classForStatus(status: OperationStatus) {
   if (status === 'ONLINE' || status === 'READY') return 'online';
   if (status === 'DEGRADED') return 'degraded';
   if (status === 'OFFLINE') return 'offline';
-  if (status === 'NOT IMPLEMENTED') return 'not-implemented';
+  if (status === 'NOT IMPLEMENTED' || status === 'NOT VERIFIED') return 'not-implemented';
   return 'unconfigured';
 }
 

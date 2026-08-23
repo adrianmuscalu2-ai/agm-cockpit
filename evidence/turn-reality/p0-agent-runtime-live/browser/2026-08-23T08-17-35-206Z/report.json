@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-23T08-17-35-206Z",
+  "status": "PASS",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "target": "http://127.0.0.1:5174/turn",
+  "api": "http://127.0.0.1:3000/api/v1/agent-runtime-events",
+  "completedMandateId": "p0-live-completed-browser-mt5jb0fa",
+  "failedMandateId": "p0-live-failed-browser-mt5jb0fa",
+  "results": [
+    {
+      "id": "live-no-refresh",
+      "status": "PASS",
+      "completedMandateId": "p0-live-completed-browser-mt5jb0fa",
+      "failedMandateId": "p0-live-failed-browser-mt5jb0fa",
+      "transitions": [
+        "agent-inspector · STARTED · mandat p0-live-completed-browser-mt5jb0fa",
+        "agent-inspector · WORKING · mandat p0-live-completed-browser-mt5jb0fa",
+        "agent-inspector · COMPLETED · mandat p0-live-completed-browser-mt5jb0fa",
+        "agent-inspector · STARTED · mandat p0-live-failed-browser-mt5jb0fa",
+        "agent-inspector · WORKING · mandat p0-live-failed-browser-mt5jb0fa",
+        "agent-inspector · FAILED · mandat p0-live-failed-browser-mt5jb0fa"
+      ],
+      "navigationCount": 1,
+      "screenshot": "evidence\\turn-reality\\p0-agent-runtime-live\\browser\\2026-08-23T08-17-35-206Z\\turn-agent-runtime-live.png"
+    },
+    {
+      "id": "persistent-after-reload",
+      "status": "PASS",
+      "screenshot": "evidence\\turn-reality\\p0-agent-runtime-live\\browser\\2026-08-23T08-17-35-206Z\\turn-agent-runtime-after-reload.png"
+    }
+  ],
+  "fatal": null,
+  "finishedAt": "2026-08-23T08:17:54.627Z"
+}

@@ -1,0 +1,27 @@
+AGM — PROTOCOL OPERAȚIONAL AUTONOM
+Recovery • Change • Release • Secrets • Runtime • Evidence
+Versiunea 1.0 — 21 august 2026
+
+OWNER APPROVED / OPERATIONAL BASELINE
+
+REGULA DE ÎNCHIDERE A MANDATELOR
+
+PASS INTERMEDIAR ≠ MANDAT ÎNCHIS.
+Root cause, patch, static PASS, build PASS, test local PASS, Pages/dev PASS și runtime intermediar PASS sunt gate-uri interne. Un mandat rămâne activ până când rezultatul este implementat, publicat, rutat în mediul final, verificat runtime, validat health/stability și demonstrat prin verdict final.
+
+Release & Operations este responsabil de finalizarea operațională: IMPLEMENTARE → VALIDARE TEHNICĂ → RELEASE & OPERATIONS → DEPLOY/PUBLICARE → RUTARE/CUSTOM DOMAIN/CACHE/CONFIGURARE → VERIFICARE RUNTIME FINALĂ → HEALTH → STABILITY → RESTART TEST → VERDICT FINAL → MANDAT ÎNCHIS.
+
+Blocajele tehnice remediabile fac parte din același mandat și nu creează mandate noi. Owner intervention este solicitată numai pentru decizii noi de scop, arhitectură majoră, risc major, acțiuni distructive, acces/secret imposibil de obținut autonom sau aprobări explicit owner-only.
+
+Canonical source: AGM_Protocol_Operational_Autonom_v1.0.docx (Owner attachment).
+This read-only Turn publication is the permanent operational pointer. The
+attached source document remains authoritative and must not be edited here.
+
+Mandatory execution order:
+READ-ONLY → KNOWN-GOOD → ROOT CAUSE → MINIMAL PATCH → STATIC PASS →
+RUNTIME PASS → HEALTH PASS → STABILITY → RESTART TEST → FINAL VERDICT
+
+Applies before recovery, incident, runtime change, Task Scheduler, Docker,
+secrets/DPAPI, API, restart, deploy, P9, Production, monitoring, and update
+recovery. Missing access is CONTEXT_MISMATCH until native context is checked.
+PASS requires current evidence. Normal target: OWNER ACTION: NONE.

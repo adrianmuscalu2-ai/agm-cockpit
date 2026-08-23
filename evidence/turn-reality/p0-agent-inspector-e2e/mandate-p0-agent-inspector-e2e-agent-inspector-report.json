@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "agm.agent-inspection.v1",
+  "mandateId": "mandate-p0-agent-inspector-e2e",
+  "agentId": "agent-inspector",
+  "dossierId": "dossier-p0-agent-inspector",
+  "evidenceRef": "evidence/turn-reality/TURN_AGENT_PANEL_INTEGRATION_2026-08-21.md",
+  "evidenceHash": "dd5b77676f1eceb5e99c2d02b93308e633caa463bbb968b486ca6467da26de18",
+  "verdict": "PASS",
+  "inspectedAt": "2026-08-23T07:52:39.628Z",
+  "checks": [
+    {
+      "id": "EVIDENCE_PRESENT",
+      "result": "PASS"
+    }
+  ]
+}

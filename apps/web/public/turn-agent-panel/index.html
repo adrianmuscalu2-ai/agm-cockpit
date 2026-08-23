@@ -1,0 +1,466 @@
+Exit code: 0
+Wall time: 1 seconds
+Output:
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>AGM · Sistem Planetar Turn</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #050814;
+    font-family: system-ui, sans-serif;
+    color: #e5f0ff;
+    display: flex;
+    height: 100vh;
+  }
+
+  #agm-root {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100%;
+  }
+
+  #agm-system {
+    position: relative;
+    width: 100%;
+    height: 620px;
+    flex: 0 0 620px;
+    background: radial-gradient(circle at center, #0b1630 0%, #02040a 60%, #000000 100%);
+    overflow: hidden;
+  }
+
+  #agm-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  #agm-panel {
+    border-top: 1px solid #1b2740;
+    background: #050814;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: minmax(220px, .7fr) minmax(420px, 1.3fr);
+    gap: 8px;
+  }
+
+  #agm-panel h2 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    color: #7fb5ff;
+  }
+
+  .field {
+    font-size: 13px;
+  }
+
+  .label {
+    color: #7f8ca8;
+  }
+
+  .value {
+    color: #e5f0ff;
+  }
+
+  /* Tooltip cosmic */
+  #agm-tooltip {
+    position: fixed;
+    pointer-events: none;
+    font-size: 11px;
+    background: rgba(5,8,20,0.9);
+    color: #e5f0ff;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #1b2740;
+    z-index: 999;
+    display: none;
+  }
+
+  /* Mini-map */
+  #agm-minimap {
+    margin-top: 12px;
+    border-top: 1px solid #1b2740;
+    padding-top: 8px;
+  }
+
+  #agm-minimap-title {
+    font-size: 11px;
+    color: #7fb5ff;
+    margin-bottom: 4px;
+  }
+  .status-legend { position: absolute; z-index: 4; top: 10px; left: 14px; right: 14px; margin: 0; padding: 5px 8px; border: 1px solid rgba(127,181,255,.35); border-radius: 8px; color: #d9eaff; background: rgba(9,28,50,.86); font: 10px/1.25 system-ui, sans-serif; }
+  #agm-criteria-minimaps { margin-top: 10px; border-top: 1px solid #1b2740; padding-top: 8px; font-size: 11px; color: #7fb5ff; }
+  #agm-system > #agm-criteria-minimaps { position: absolute; inset: 0; z-index: 2; margin: 0; padding: 0; border: 0; pointer-events: none; }
+  #agm-system > #agm-criteria-minimaps > strong { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+  .criteria-grid { position: absolute; inset: 0; display: block; margin: 0; }
+  .criteria-grid div { color: #b9c9e8; font-size: 9px; }
+  .criteria-grid > div { position: absolute; width: 150px; pointer-events: auto; }
+  .criteria-grid > div:nth-child(1) { top: 92px; left: 7%; }
+  .criteria-grid > div:nth-child(2) { top: 92px; right: 7%; }
+  .criteria-grid > div:nth-child(3) { top: 265px; left: 3%; }
+  .criteria-grid > div:nth-child(4) { top: 265px; right: 3%; }
+  .criteria-grid > div:nth-child(5) { bottom: 16px; left: 14%; }
+  .criteria-grid > div:nth-child(6) { bottom: 16px; right: 14%; }
+  .criteria-grid canvas { display: block; width: 150px; height: 110px; background: transparent; border: 0; border-radius: 0; }
+  @media (max-width: 800px) { #agm-system { height: 470px; flex-basis: 470px; } #agm-panel { grid-template-columns: 1fr; } #agm-system > #agm-criteria-minimaps > strong { top: 34px; } .criteria-grid > div { width: 112px; } .criteria-grid canvas { width: 112px; height: 82px; } .criteria-grid > div:nth-child(1) { top: 78px; left: 2%; } .criteria-grid > div:nth-child(2) { top: 78px; right: 2%; } .criteria-grid > div:nth-child(3) { top: 210px; left: 1%; } .criteria-grid > div:nth-child(4) { top: 210px; right: 1%; } .criteria-grid > div:nth-child(5) { bottom: 8px; left: 4%; } .criteria-grid > div:nth-child(6) { bottom: 8px; right: 4%; } }
+</style>
+</head>
+
+<body>
+<div id="agm-root">
+  <div class="status-legend" role="note"><strong>Criteriu vizual:</strong> culoarea planetelor reprezintă starea runtime normalizată — verde ACTIVE confirmat, galben monitorizare incompletă, portocaliu DEGRADED confirmat, roșu FAILED/OFFLINE, albastru PLANNED/UNMAPPED fără țintă operațională, gri NO TELEMETRY/UNKNOWN. Identitatea provine din registry; culoarea nu reprezintă rolul sau departamentul.</div>
+
+  <!-- Sistem Planetar -->
+  <div id="agm-system">
+    <canvas id="agm-canvas"></canvas>
+
+    <!-- Tooltip cosmic -->
+    <div id="agm-tooltip"></div>
+  </div>
+
+  <!-- Panou lateral -->
+  <aside id="agm-panel">
+    <h2>Agent · Detalii</h2>
+
+    <div class="field"><span class="label">Nume:</span> <span class="value" id="name">—</span></div>
+    <div class="field"><span class="label">Nivel:</span> <span class="value" id="level">—</span></div>
+    <div class="field"><span class="label">Stare:</span> <span class="value" id="state">—</span></div>
+    <div class="field"><span class="label">Departament:</span> <span class="value" id="dept">—</span></div>
+    <div class="field"><span class="label">Responsabilitate:</span> <span class="value" id="resp">—</span></div>
+    <div class="field"><span class="label">Escaladare:</span> <span class="value" id="esc">—</span></div>
+
+    <!-- Mini-map -->
+    <div id="agm-minimap">
+      <div id="agm-minimap-title">Mini-map agenți</div>
+      <canvas id="agm-minimap-canvas" width="160" height="160"></canvas>
+      <div id="agm-criteria-minimaps"><strong>Criterii separate</strong><div class="criteria-grid"><div><span>Operational</span><canvas id="criteria-map-0" width="96" height="96"></canvas></div><div><span>Telemetry</span><canvas id="criteria-map-1" width="96" height="96"></canvas></div><div><span>Procedural</span><canvas id="criteria-map-2" width="96" height="96"></canvas></div><div><span>Target / Component</span><canvas id="criteria-map-3" width="96" height="96"></canvas></div><div><span>Incidents</span><canvas id="criteria-map-4" width="96" height="96"></canvas></div><div><span>Freshness</span><canvas id="criteria-map-5" width="96" height="96"></canvas></div></div></div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURARE
+   ============================================================ */
+
+const canvas = document.getElementById("agm-canvas");
+const ctx = canvas.getContext("2d");
+const tooltip = document.getElementById("agm-tooltip");
+const criteriaMaps = document.getElementById("agm-criteria-minimaps");
+if (criteriaMaps) document.getElementById("agm-system")?.appendChild(criteriaMaps);
+
+const minimapCanvas = document.getElementById("agm-minimap-canvas");
+const minimapCtx = minimapCanvas.getContext("2d");
+
+function resize() {
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+const center = () => ({ x: canvas.width / 2, y: canvas.height / 2 });
+
+const ORBIT_RADII = { 1: 80, 2: 140, 3: 200 };
+
+const STATE_COLORS = {
+  active: "#19ff88",
+  degraded: "#ffad32",
+  critical: "#ff4040",
+  astral: "#b8c4d6",
+  planned: "#3f9bff"
+};
+
+const DEPT_GLOW = {
+  "Nucleu cosmic": "#7fffd4",
+  "AI & Agent Systems": "#00ffff",
+  "Security, Privacy & Legal": "#ff6b6b",
+  "Turn Command / Operations": "#ffd000",
+  "AI Governance": "#9b59ff",
+  "Departamentul de Monitorizare": "#00ff7f",
+  "Architecture & Platform": "#3f7bff",
+  "Frontend Experience": "#ff9f43",
+  "Backend & Infrastructure": "#1abc9c",
+  "Release & Operations": "#e74c3c",
+  "Documentation & Knowledge": "#f1c40f"
+};
+
+const ORBIT_SPEED = {
+  1: 0.0025,
+  2: 0.0018,
+  3: -0.0012,
+  4: 0.0009
+};
+
+/* ============================================================
+   AGENȚI + NUCLEU
+   ============================================================ */
+
+const core = [
+  { name: "Adrian · Turn Commander", level: 0, state: "fixed", department: "Nucleu cosmic", responsibility: "Identitate centrală", escalation: "L4", color: "#00ff7f" },
+  { name: "Mentor · Ghid cosmic", level: 0, state: "fixed", department: "Nucleu cosmic", responsibility: "Ghid cosmic", escalation: "L4", color: "#1f4fff" },
+  { name: "Orion · Product Owner cosmic", level: 0, state: "fixed", department: "Nucleu cosmic", responsibility: "Product Owner cosmic", escalation: "L4", color: "#3f7bff" }
+];
+
+const agents = [
+  { name: "Nexa · Copilot VSC", level: 1, state: "active", department: "AI & Agent Systems", responsibility: "Sfătuitor tehnic", escalation: "L2" },
+  { name: "Secret & Credentials Guardian", level: 1, state: "critical", department: "Security, Privacy & Legal", responsibility: "Protecția secretelor", escalation: "L3" },
+  { name: "Atlas · Coordonare Operațională", level: 1, state: "active", department: "Turn Command / Operations", responsibility: "Coordonare operațională", escalation: "L2" },
+  { name: "GeminII · Copilot dual", level: 1, state: "degraded", department: "AI Governance", responsibility: "Validări duble", escalation: "L2" },
+
+  { name: "Agent Monitorizare API", level: 2, state: "active", department: "Departamentul de Monitorizare", responsibility: "Monitorizare API", escalation: "L1" },
+  { name: "Agent Monitorizare Browser", level: 2, state: "active", department: "Departamentul de Monitorizare", responsibility: "Monitorizare Browser", escalation: "L1" },
+  { name: "Agent Monitorizare Android", level: 2, state: "degraded", department: "Departamentul de Monitorizare", responsibility: "Monitorizare Android", escalation: "L1" },
+  { name: "Agent Monitorizare Incidente", level: 2, state: "critical", department: "Departamentul de Monitorizare", responsibility: "Incidente", escalation: "L2" },
+
+  { name: "Architecture Guardian", level: 3, state: "active", department: "Architecture & Platform", responsibility: "Integritate arhitectură", escalation: "L2" },
+  { name: "Frontend Experience", level: 3, state: "active", department: "Frontend Experience", responsibility: "UI/UX", escalation: "L1" },
+  { name: "Backend & Infrastructure", level: 3, state: "active", department: "Backend & Infrastructure", responsibility: "Backend", escalation: "L1" },
+  { name: "Release & Operations", level: 3, state: "astral", department: "Release & Operations", responsibility: "Build & Release", escalation: "L2" },
+  { name: "Documentation & Knowledge", level: 3, state: "active", department: "Documentation & Knowledge", responsibility: "Documentație", escalation: "L1" }
+];
+
+const objects = [];
+
+/* ============================================================
+   GENERARE POZIȚII
+   ============================================================ */
+
+function init() {
+  const c = center();
+
+  core.forEach((obj, i) => {
+    objects.push({
+      ...obj,
+      type: "core",
+      x: c.x + (i - 1) * 18,
+      y: c.y,
+      radius: 10,
+      angle: 0,
+      color: obj.color
+    });
+  });
+
+  const grouped = {};
+  agents.forEach(a => {
+    if (!grouped[a.level]) grouped[a.level] = [];
+    grouped[a.level].push(a);
+  });
+
+  Object.keys(grouped).forEach(level => {
+    const group = grouped[level];
+    const step = (Math.PI * 2) / group.length;
+    const c = center();
+
+    group.forEach((agent, i) => {
+      const angle = i * step;
+      const r = ORBIT_RADII[level];
+
+      objects.push({
+        ...agent,
+        type: "agent",
+        x: c.x + Math.cos(angle) * r,
+        y: c.y + Math.sin(angle) * r,
+        radius: 8,
+        angle,
+        color: STATE_COLORS[agent.state]
+      });
+    });
+  });
+}
+
+init();
+
+/* ============================================================
+   MINI-MAP
+   ============================================================ */
+
+function drawMinimap() {
+  minimapCtx.clearRect(0, 0, 160, 160);
+  const cx = 80, cy = 80;
+
+  Object.values(ORBIT_RADII).forEach(r => {
+    minimapCtx.strokeStyle = "#1b2740";
+    minimapCtx.beginPath();
+    minimapCtx.arc(cx, cy, r * 0.35, 0, Math.PI * 2);
+    minimapCtx.stroke();
+  });
+
+  objects.forEach(obj => {
+    const r = (ORBIT_RADII[obj.level] || 0) * 0.35;
+    const x = cx + Math.cos(obj.angle) * r;
+    const y = cy + Math.sin(obj.angle) * r;
+
+    minimapCtx.fillStyle = obj.color;
+    minimapCtx.beginPath();
+    minimapCtx.arc(x, y, obj.type === "core" ? 4 : 3, 0, Math.PI * 2);
+    minimapCtx.fill();
+  });
+}
+
+function drawCriteriaMinimaps() {
+  const colors = { green: '#19ff88', yellow: '#ffd34d', orange: '#ff9d38', red: '#ff4040', blue: '#3f9bff', gray: '#b8c4d6', teal: '#00b8ff' };
+  const modes = ['operational','telemetry','procedural','target','incidents','freshness'];
+  modes.forEach((mode, index) => {
+    const canvas = document.getElementById('criteria-map-' + index), c = canvas?.getContext('2d');
+    if (!canvas || !c) return;
+    c.clearRect(0, 0, canvas.width, canvas.height); c.fillStyle = '#030611'; c.fillRect(0, 0, canvas.width, canvas.height);
+    [18, 32, 46].forEach(r => { c.strokeStyle = '#1b2740'; c.beginPath(); c.arc(60, 60, r, 0, Math.PI * 2); c.stroke(); });
+    objects.filter(o => o.type === 'agent').forEach((obj) => {
+      let color = colors.gray;
+      if (mode === 'operational') color = obj.generalStatus === 'ACTIVE' ? colors.green : obj.generalStatus === 'ATTENTION' ? colors.yellow : obj.generalStatus === 'DEGRADED' ? colors.orange : obj.generalStatus === 'FAILED' ? colors.red : colors.blue;
+      if (mode === 'telemetry') color = obj.telemetry === 'NO TELEMETRY' ? colors.blue : obj.runtimeStatus === 'STALE' ? colors.gray : colors.green;
+      if (mode === 'procedural') color = obj.proceduralStatus === 'ACTIVE' ? colors.green : obj.proceduralStatus === 'MONITORED' ? colors.teal : obj.proceduralStatus === 'ATTENTION' ? colors.yellow : obj.proceduralStatus === 'DEGRADED' ? colors.orange : obj.proceduralStatus === 'FAILED' ? colors.red : obj.proceduralStatus === 'PLANNED' ? colors.blue : colors.gray;
+      if (mode === 'target') color = obj.mappingStatus === 'UNMAPPED' ? colors.blue : colors.green;
+      if (mode === 'incidents') color = obj.runtimeStatus === 'FAILED' ? colors.red : colors.green;
+      if (mode === 'freshness') color = obj.freshness === 'UNKNOWN' ? colors.gray : obj.runtimeStatus === 'STALE' ? colors.yellow : colors.teal;
+      const radius = ({ 1: 18, 2: 32, 3: 46 }[obj.level] || 32);
+      const x = 60 + Math.cos(obj.angle) * radius, y = 60 + Math.sin(obj.angle) * radius;
+      c.fillStyle = color; c.shadowColor = color; c.shadowBlur = 7; c.beginPath(); c.arc(x, y, 3, 0, Math.PI * 2); c.fill(); c.shadowBlur = 0;
+    });
+  });
+}
+
+/* ============================================================
+   DESENARE SISTEM
+   ============================================================ */
+
+function draw() {
+  const c = center();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#050814";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  Object.values(ORBIT_RADII).forEach(r => {
+    ctx.strokeStyle = "#1b2740";
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(127,181,255,0.25)";
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+    ctx.stroke();
+  });
+
+  objects.forEach(obj => {
+    if (obj.type === "agent") {
+      const r = ORBIT_RADII[obj.level];
+      const speed = ORBIT_SPEED[obj.level];
+      obj.angle += speed;
+      obj.x = c.x + Math.cos(obj.angle) * r;
+      obj.y = c.y + Math.sin(obj.angle) * r;
+    }
+
+    let basePulse = obj.type === "core" ? 10 : 4;
+    let pulseSpeed = 0.003;
+
+    if (obj.state === "critical") {
+      basePulse += 2;
+      pulseSpeed = 0.005;
+    }
+
+    const pulse = basePulse + Math.sin(Date.now() * pulseSpeed) * (obj.type === "core" ? 6 : 3);
+
+    const glowColor = obj.color;
+
+    ctx.beginPath();
+    ctx.strokeStyle = glowColor;
+    ctx.globalAlpha = 0.35;
+    ctx.arc(obj.x, obj.y, obj.radius + pulse, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.beginPath();
+    ctx.fillStyle = obj.color;
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = obj.type === "core" ? 20 : 10;
+    ctx.arc(obj.x, obj.y, obj.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  });
+
+  drawMinimap();
+  drawCriteriaMinimaps();
+  requestAnimationFrame(draw);
+}
+
+draw();
+
+/* ============================================================
+   TOOLTIP + CLICK
+   ============================================================ */
+
+function dist(x1, y1, x2, y2) {
+  return Math.hypot(x1 - x2, y1 - y2);
+}
+
+canvas.addEventListener("mousemove", e => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  const hit = objects.find(o => dist(x, y, o.x, o.y) <= o.radius + 6);
+
+  if (hit) {
+    tooltip.style.display = "block";
+    tooltip.style.left = e.clientX + 12 + "px";
+    tooltip.style.top = e.clientY + 12 + "px";
+    tooltip.innerHTML = `
+      <div style="color:#7fb5ff;">${hit.name}</div>
+      <div style="color:#7f8ca8;">Nivel: ${hit.level}</div>
+      <div style="color:#7f8ca8;">Stare: ${hit.state}</div>
+      <div style="color:#7f8ca8;">Dept: ${hit.department}</div>
+    `;
+  } else {
+    tooltip.style.display = "none";
+  }
+});
+
+canvas.addEventListener("click", e => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  const hit = objects.find(o => dist(x, y, o.x, o.y) <= o.radius + 6);
+
+  if (hit) {
+    document.getElementById("name").textContent = hit.name;
+    document.getElementById("level").textContent = hit.level;
+    document.getElementById("state").textContent = hit.state;
+    document.getElementById("dept").textContent = hit.department;
+    document.getElementById("resp").textContent = hit.responsibility;
+    document.getElementById("esc").textContent = hit.escalation;
+  }
+});
+
+document.querySelectorAll('#agm-criteria-minimaps canvas').forEach((mini) => {
+  const criterion = mini.previousElementSibling?.textContent || 'Criterion';
+  mini.addEventListener('mousemove', (event) => {
+    const rect = mini.getBoundingClientRect();
+    const x = (event.clientX - rect.left) * mini.width / rect.width;
+    const y = (event.clientY - rect.top) * mini.height / rect.height;
+    const hit = objects.filter(o => o.type === 'agent').find(obj => { const r = ({ 1: 18, 2: 32, 3: 46 }[obj.level] || 32); return dist(x, y, 60 + Math.cos(obj.angle) * r, 60 + Math.sin(obj.angle) * r) < 8; });
+    mini.title = hit ? `${hit.name} · ${criterion} · ${hit.generalStatus || hit.runtimeStatus || 'UNKNOWN'}` : `${criterion} · hover/click agent`;
+  });
+  mini.addEventListener('click', (event) => {
+    const rect = mini.getBoundingClientRect();
+    const x = (event.clientX - rect.left) * mini.width / rect.width;
+    const y = (event.clientY - rect.top) * mini.height / rect.height;
+    const hit = objects.filter(o => o.type === 'agent').find(obj => { const r = ({ 1: 18, 2: 32, 3: 46 }[obj.level] || 32); return dist(x, y, 60 + Math.cos(obj.angle) * r, 60 + Math.sin(obj.angle) * r) < 8; });
+    const runtime = hit && window.__agmTurnModel?.agents?.find(agent => agent.panelAgentId === hit.panelAgentId || agent.displayName === hit.name);
+    if (runtime) showRuntimeDetails(runtime);
+  });
+});
+</script>
+
+<script src="/turn-agent-panel/bridge.js"></script>
+</body>
+</html>

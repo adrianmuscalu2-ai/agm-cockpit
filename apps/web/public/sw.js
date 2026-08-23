@@ -1,4 +1,4 @@
-const CACHE_NAME = 'agm-cockpit-1.3.0';
+const CACHE_NAME = 'agm-cockpit-1.3.0-turn-status-board-20260822';
 const APP_SHELL = ['/', '/manifest.webmanifest', '/images/images/logo1.png'];
 
 self.addEventListener('install', (event) => {

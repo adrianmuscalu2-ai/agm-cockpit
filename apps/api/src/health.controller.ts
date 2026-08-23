@@ -27,6 +27,7 @@ export class HealthController {
         status: 'ok',
         service: API_CORE_CONTRACT.service,
         check: 'live',
+        contracts: { agentRuntimeEvents: 'agent-runtime-events.v1.3' },
       },
       meta: {
         timestamp: new Date().toISOString(),

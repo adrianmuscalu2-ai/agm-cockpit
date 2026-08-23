@@ -23,6 +23,7 @@ model Company {
   preDepartureSessions       PreDepartureSession[]
   operationalEventStreams    OperationalEventStream[]
   operationalEvents          OperationalEvent[]
+  agentRuntimeEvents         AgentRuntimeEvent[]
   communicationConversations CommunicationConversation[]
   communicationMessages      CommunicationMessage[]
   carMoverVehicleSubjects    CarMoverVehicleSubject[]
@@ -471,6 +472,28 @@ model OperationalEvent {
   @@index([companyId, streamRecordId, aggregateVersion])
   @@index([companyId, occurredAt])
   @@index([companyId, productId, subjectType, subjectId, occurredAt])
+}
+
+model AgentRuntimeEvent {
+  id           String   @id @default(uuid()) @db.Uuid
+  companyId    String   @db.Uuid
+  company      Company  @relation(fields: [companyId], references: [id])
+  eventId      String   @db.Uuid
+  mandateId    String   @db.VarChar(160)
+  agentId      String   @db.VarChar(120)
+  dossierId    String   @db.VarChar(160)
+  lifecycle    String   @db.VarChar(24)
+  sequence     Int
+  occurredAt   DateTime
+  recordedAt   DateTime @default(now())
+  evidenceRef  String   @db.Text
+  outputRef    String?  @db.Text
+  evidenceHash String?  @db.VarChar(64)
+  detail       String   @db.Text
+
+  @@unique([companyId, eventId])
+  @@index([companyId, mandateId, agentId, lifecycle, sequence, occurredAt])
+  @@index([companyId, agentId, occurredAt])
 }
 
 model CarMoverVehicleSubject {

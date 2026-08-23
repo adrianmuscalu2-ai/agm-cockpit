@@ -25,6 +25,7 @@ import { CommunicationModule } from './communications/communication.module';
 import { PremiumAssistantModule } from './premium-assistant/premium-assistant.module';
 import { DataRightsModule } from './data-rights/data-rights.module';
 import { CarMoverModule } from './car-mover/car-mover.module';
+import { AgentRuntimeEventsModule } from './agent-runtime-events/agent-runtime-events.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { CarMoverModule } from './car-mover/car-mover.module';
     PremiumAssistantModule,
     DataRightsModule,
     CarMoverModule,
+    AgentRuntimeEventsModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

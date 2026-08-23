@@ -137,9 +137,11 @@ import { bindOperationsHealthChecks } from './operations-health';
 import { operationsHealthEvent, reconcileOperationsHealthIncident } from './operations-health-incidents';
 import { bindSecretTelemetry, reconcileSecretTelemetryIncident } from './secret-telemetry';
 import { bindProductionPreflight, reconcileProductionPreflightIncident } from './production-preflight';
+import { publishPanelAgentModel } from './turn-agent-panel.integration';
 import { bindTurnBackToTop } from './turn-navigation';
 import { bindTurnOrganizationChart } from './turn-organization-chart';
 import { bindP9TurnProjection } from './p9-turn-projection';
+import { bindTurnAgentLiveState } from './turn-agent-live-state';
 import {
   TURN_REPORT_RECIPIENT,
   adminReportModuleForView,
@@ -496,6 +498,7 @@ function render() {
     bindIncidentJournal();
     bindProjectCatalog();
     bindOperationsHealthChecks((source, snapshot) => {
+      publishPanelAgentModel();
       const event = operationsHealthEvent(source, snapshot);
       if (!event) return;
       const reconciled = reconcileOperationsHealthIncident(state.incidents, event);
@@ -504,6 +507,7 @@ function render() {
       saveIncidentJournal(window.sessionStorage, state.incidents);
       render();
     });
+    window.setTimeout(publishPanelAgentModel, 0);
     bindSecretTelemetry((snapshot) => {
       const reconciled = reconcileSecretTelemetryIncident(state.incidents, snapshot);
       if (reconciled === state.incidents) return;
@@ -524,6 +528,7 @@ function render() {
     });
     bindTurnOrganizationChart();
     void bindP9TurnProjection();
+    bindTurnAgentLiveState();
     bindTurnBackToTop();
   }
   bindCommandPanel();
@@ -3300,7 +3305,7 @@ function registerServiceWorker() {
   }
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js?v=agm-1.3.0', { updateViaCache: 'none' }).catch(() => {
+    navigator.serviceWorker.register('/sw.js?v=agm-1.3.0-turn-status-board-20260822', { updateViaCache: 'none' }).catch(() => {
       state.status = t(uiLanguage(), 'status.pwaUnavailable');
     });
   });
@@ -4202,7 +4207,7 @@ async function authenticateAdministrator() {
   const pin = document.querySelector<HTMLInputElement>('#adminPin')?.value ?? '';
   try {
     const session = await unlockAdministrator(pin);
-    window.sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
+    window.localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
     state.adminSession = session;
     state.adminAccessVerified = true;
     state.status = 'Acces administrativ autorizat.';
@@ -4227,14 +4232,14 @@ async function submitAdminPinChange() {
 
 function readAdminSession(): AdminSession | null {
   try {
-    return JSON.parse(window.sessionStorage.getItem(ADMIN_SESSION_KEY) ?? 'null') as AdminSession | null;
+    return JSON.parse(window.localStorage.getItem(ADMIN_SESSION_KEY) ?? 'null') as AdminSession | null;
   } catch { return null; }
 }
 
 async function restoreAdministratorAccess() {
   if (!state.adminSession) return;
   state.adminAccessVerified = await validateAdministrator(state.adminSession);
-  if (!state.adminAccessVerified) window.sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  if (!state.adminAccessVerified) window.localStorage.removeItem(ADMIN_SESSION_KEY);
   render();
 }
 

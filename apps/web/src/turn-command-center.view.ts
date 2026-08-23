@@ -5,7 +5,7 @@ import { type InspectorReport, inspectorReportFor, inspectorReports } from './in
 import { renderIncidentJournal, type IncidentJournalFilters, type OperationalIncident } from './incident-journal';
 import { renderMaintenanceDepartment } from './maintenance-department';
 import { operationalClosureRegistry } from './operational-closure.registry';
-import { operationsHealthSources } from './operations-health';
+import { monitoringHealthSources, operationsHealthSources } from './operations-health';
 import { renderMonitoringDepartment } from './monitoring-department';
 import { renderTurnOrganizationChart } from './turn-organization-chart';
 import { renderP9TurnProjection } from './p9-turn-projection';
@@ -13,6 +13,9 @@ import { turnCommandCenterContract } from './turn-command-center.contract';
 import { currentProductionPreflightSnapshot, renderProductionPreflight } from './production-preflight';
 import { activateIncidentRoute, routeIncident } from './incident-routing.registry';
 import { renderStatusLight } from './turn-status-lights';
+import { buildPanelAgentModel } from './turn-agent-panel.integration';
+import { currentOperationSnapshots } from './operations-health';
+import { renderTurnAgentLiveState } from './turn-agent-live-state';
 import {
   type TurnCommandItem,
   type TurnHealthStatus,
@@ -52,6 +55,8 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       data-module-contract="${turnCommandCenterContract.version}"
       data-operation-mode="${turnCommandCenterContract.mode}"
     >
+      ${renderRealStatusBoard()}
+
       <header class="turn-hero">
         <div>
           <span class="turn-kicker">${escapeHtml(t(language, 'turn.code'))}</span>
@@ -101,6 +106,9 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       </section>
 
       ${renderExecutionReadinessGate(incidents)}
+      ${renderTurnRealityContract()}
+      ${renderApprovedAgentPanel()}
+      ${renderOperationalProtocol()}
       ${renderActiveOperationsIncident(incidents)}
       ${renderProductionPreflight()}
       ${renderOperationsCenter(incidents)}
@@ -148,12 +156,50 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
   `;
 }
 
+function renderRealStatusBoard() {
+  const agents = buildPanelAgentModel();
+  const snapshots = currentOperationSnapshots();
+  const componentRows = monitoringHealthSources.map((source) => {
+    const snapshot = snapshots.get(source.id);
+    const status = snapshot?.status ?? 'UNKNOWN / NO TELEMETRY';
+    const state = snapshot ? (snapshot.status === 'ONLINE' || snapshot.status === 'READY' ? 'operational' : snapshot.status === 'DEGRADED' ? 'degraded' : snapshot.status === 'NOT IMPLEMENTED' || snapshot.status === 'NOT VERIFIED' ? 'planned' : 'failed') : 'no-telemetry';
+    return `<li class="turn-status-row ${state}"><span>${escapeHtml(source.label)}</span><strong>${escapeHtml(status)}</strong></li>`;
+  }).join('');
+  const agentRows = agents.map((agent) => `<li class="turn-status-row ${agent.generalStatus === 'ACTIVE' ? 'operational' : agent.generalStatus === 'PLANNED' ? 'planned' : agent.generalStatus === 'FAILED' ? 'failed' : 'degraded'}" data-live-agent-id="${escapeHtml(agent.turnAgentId ?? agent.panelAgentId)}"><span>${escapeHtml(agent.registryName !== 'UNMAPPED' ? agent.registryName : agent.displayName)}</span><strong data-agent-live-status>${escapeHtml(agent.generalStatus)}</strong></li>`).join('');
+  return `<section class="turn-real-status-board" id="turn-real-status" aria-labelledby="turn-real-status-title"><header><div><span class="turn-kicker">TURN · REAL STATUS BOARD</span><h2 id="turn-real-status-title">Stare reală la intrare</h2><p>Model comun cu panoul orbital și mini-map-ul; lipsa dovezii rămâne explicită.</p></div><span class="protocol-status">READ-ONLY · CURRENT SOURCES</span></header><div class="turn-status-criteria"><strong>Criteriu principal: STAREA AGENTULUI</strong><span>General = registry/status operațional al agentului; o eroare runtime confirmată poate degrada verdictul.</span><span>Telemetria, targetul, procedura, incidentul și freshness sunt criterii separate în mini-map-uri și detalii.</span><span>Verde ACTIVE · galben ATTENTION · portocaliu DEGRADED · roșu FAILED · albastru PLANNED/NOT VERIFIED · gri UNKNOWN.</span></div>${renderTurnAgentLiveState()}<div class="turn-status-board-grid"><article><h3>Agenți (${agents.length})</h3><ul>${agentRows}</ul></article><article><h3>Aplicație și componente</h3><ul>${componentRows}</ul></article></div></section>`;
+}
+
+function renderOperationalProtocol() {
+  return `<section class="turn-operational-protocol" id="turn-protocol" aria-labelledby="turn-protocol-title">
+    <header><div><span class="turn-kicker">AGM · OPERATIONAL BASELINE</span><h2 id="turn-protocol-title">PROTOCOL OPERAȚIONAL AGM</h2><p>OWNER APPROVED / OPERATIONAL BASELINE · Versiunea 1.0 · 21 august 2026</p></div><span class="protocol-status">MANDATORY · READ FIRST</span></header>
+    <p>Protocol obligatoriu înainte de recovery, incident, runtime, Task Scheduler, Docker, secrets/DPAPI, API, restart, deploy, P9, Production, monitorizare sau recovery după update.</p>
+    <p class="protocol-gates"><strong>Gate-uri:</strong> READ-ONLY → KNOWN-GOOD → ROOT CAUSE → MINIMAL PATCH → STATIC PASS → RUNTIME PASS → HEALTH PASS → STABILITY → RESTART TEST → FINAL VERDICT</p>
+    <div class="protocol-actions"><a class="protocol-link" href="/operations/AGM_Protocol_Operational_Autonom_v1.0.txt" target="_blank" rel="noreferrer">Deschide AGM Protocol Operațional Autonom v1.0</a><a href="#turn-operations">Recovery / Operations</a></div>
+    <small>Regulă: nu se improvizează; se consultă protocolul. PASS intermediar ≠ mandat închis: Release &amp; Operations duce rezultatul până la deploy, rutare, runtime, health, stability și verdict final. Țintă: OWNER ACTION: NONE.</small>
+  </section>`;
+}
+
+function renderTurnRealityContract() {
+  const live = monitoringHealthSources.filter((source) => source.kind === 'http').length;
+  const staticSources = monitoringHealthSources.filter((source) => source.kind === 'static').length;
+  const aggregate = monitoringHealthSources.filter((source) => source.kind === 'aggregate').length;
+  return `<section class="turn-reality-contract" id="turn-reality" aria-labelledby="turn-reality-title">
+    <header><div><span class="turn-kicker">TURN · DATA QUALITY</span><h2 id="turn-reality-title">Stare reală, nu status decorativ</h2></div><strong>LIVE COVERAGE: ${live} · STATIC: ${staticSources} · AGGREGATE: ${aggregate}</strong></header>
+    <p>Indicatorii HTTP sunt verificați automat la 30s și devin STALE după 90s. Sursele fără collector runtime rămân explicit configurate/static și nu pot produce PASS live.</p>
+    <dl><div><dt>Health / runtime</dt><dd>API live/ready și dependențe: telemetrie HTTP actuală</dd></div><div><dt>Agents / missions</dt><dd>registru de guvernanță; nu reprezintă disponibilitate runtime</dd></div><div><dt>Production</dt><dd>numai din Production Preflight cu timestamp și contract valid</dd></div><div><dt>Evidence</dt><dd>fără timestamp sau sursă actuală: UNKNOWN / NOT REPORTED</dd></div></dl>
+  </section>`;
+}
+
+function renderApprovedAgentPanel() {
+  return `<section class="turn-approved-agent-panel" id="turn-agent-panel" aria-labelledby="turn-agent-panel-title"><header><div><span class="turn-kicker">TURN · APPROVED VISUAL SOURCE</span><h2 id="turn-agent-panel-title">AGM TURN AGENT CONTROL PANEL</h2><p>Panoul orbital aprobat este păstrat; identitatea și starea sunt alimentate de modelul Turn normalizat.</p></div><span class="protocol-status">VISUAL SOURCE · INTEGRATED</span></header><iframe title="AGM Turn Agent Control Panel" src="/turn-agent-panel/index.html"></iframe></section>`;
+}
+
 export function renderActiveOperationsIncident(incidents: OperationalIncident[]) {
   const active = incidents
     .filter((incident) => !['validated', 'archived'].includes(incident.status))
     .sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || b.updatedAt.localeCompare(a.updatedAt));
   const incident = active[0];
-  if (!incident) return `<section class="active-operations-incident normal" id="turn-alerts"><header><div><span class="turn-kicker">TURN · OPERATIONS</span><h2>Niciun incident activ</h2></div>${renderStatusLight('incident', undefined)}</header><p>Incidentele închise sunt disponibile exclusiv în jurnal și arhivă.</p></section>`;
+  if (!incident) return `<section class="active-operations-incident normal" id="turn-alerts"><header><div><span class="turn-kicker">TURN · OPERATIONS</span><h2>Niciun incident activ</h2></div>${renderStatusLight('incident', undefined)}</header><p>Incidentele validate/archivate sunt istorice și nu blochează operațiunile curente.</p></section>`;
 
   const route = routeIncident(incident);
   const snapshot = currentProductionPreflightSnapshot();
