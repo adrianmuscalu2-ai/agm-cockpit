@@ -6,10 +6,10 @@ deployment mandate.
 ## Official identities
 
 - API container: `agm-production-api`
-- API image: `agm-api:cors-credentials-20260810`
-- Immutable image ID:
-  `sha256:ae6c95ab5489fa279159074980a2c9ecb267ff924c2953e281f59402f38485ba`
-- OCI revision: `cors-credentials-20260810`
+- API image: immutable OCI digest selected by the approved Production release.
+- Persisted release binding: `/opt/agm/production/release.env` (`AGM_IMAGE`).
+- The lifecycle unit and Compose resolve the same digest from that binding and fail
+  closed when it is absent.
 - PostgreSQL container: `agm-postgres`
 - PostgreSQL volume: `app_agm_postgres_data`
 - Shared external Docker network: `app_default`
@@ -25,7 +25,8 @@ not approved operational paths.
 
 ## Start
 
-After a separate deployment approval has loaded and verified the approved image:
+After a separate deployment approval has pulled the approved digest and persisted it
+in `/opt/agm/production/release.env`:
 
 ```text
 sudo systemctl start agm-production-api.service

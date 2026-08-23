@@ -2,7 +2,7 @@ name: agm-production
 
 services:
   api:
-    image: agm-api:premium-voice-20260811-r2
+    image: "${AGM_IMAGE:?AGM_IMAGE must be set by Release & Operations}"
     pull_policy: never
     container_name: agm-production-api
     restart: unless-stopped

@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 
 const read = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const compose = read('deploy/production/compose.production.yml');
+const service = read('deploy/production/agm-production-api.service');
 const lifecycle = read('deploy/production/API_LIFECYCLE_RUNBOOK.md');
 const pre = read('deploy/production/PRE_CHANGE_CHECKLIST.md');
 const post = read('deploy/production/POST_DEPLOYMENT_CHECKLIST.md');
@@ -10,10 +11,11 @@ const rollback = read('deploy/production/ROLLBACK_RUNBOOK.md');
 const roles = read('deploy/production/OPERATIONAL_ROLES.md');
 const environment = read('deploy/production/production.env.template');
 
-const image = compose.match(/image:\s*(agm-api@sha256:[a-f0-9]{64})/)?.[1];
-assert.ok(image, 'Production image must be pinned by digest');
-assert.ok(lifecycle.includes(image));
-assert.ok(rollback.includes(image));
+assert.match(compose, /image:\s*"\$\{AGM_IMAGE:\?AGM_IMAGE must be set by Release & Operations\}"/);
+assert.match(service, /EnvironmentFile=\/opt\/agm\/production\/release\.env/);
+assert.match(service, /ExecStartPre=\/usr\/bin\/docker image inspect \$\{AGM_IMAGE\}/);
+assert.ok(lifecycle.includes('/opt/agm/production/release.env'));
+assert.match(rollback, /API image: `agm-api@sha256:[a-f0-9]{64}`/);
 assert.doesNotMatch(compose, /^\s*build:/m);
 assert.doesNotMatch(compose, /^\s{2}postgres:/m);
 assert.doesNotMatch(compose, /^volumes:/m);

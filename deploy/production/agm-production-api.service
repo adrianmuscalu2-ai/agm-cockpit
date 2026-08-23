@@ -5,6 +5,7 @@ After=docker.service network-online.target
 Wants=network-online.target
 ConditionPathExists=/opt/agm/production/compose.production.yml
 ConditionPathExists=/opt/agm/production/secrets/agm-production.env
+ConditionPathExists=/opt/agm/production/release.env
 
 [Service]
 Type=oneshot
@@ -12,7 +13,8 @@ RemainAfterExit=yes
 User=root
 Group=root
 WorkingDirectory=/opt/agm/production
-ExecStartPre=/usr/bin/docker image inspect sha256:50aae585a32b76d52ad786ecddb450b4c38bc1c8078b960b0aa9f0ad4f0ba383
+EnvironmentFile=/opt/agm/production/release.env
+ExecStartPre=/usr/bin/docker image inspect ${AGM_IMAGE}
 ExecStartPre=/usr/bin/docker inspect agm-postgres
 ExecStart=/usr/bin/docker compose --project-name agm-production --file /opt/agm/production/compose.production.yml up --detach --no-build --no-deps api
 ExecStop=/usr/bin/docker compose --project-name agm-production --file /opt/agm/production/compose.production.yml stop --timeout 30 api
