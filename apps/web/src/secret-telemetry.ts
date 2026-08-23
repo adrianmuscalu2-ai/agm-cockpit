@@ -1,4 +1,5 @@
 import { createIncident, transitionIncident, updateIncident, type IncidentDraft, type OperationalIncident } from './incident-journal';
+import { apiBaseUrl, authenticatedApiFetch } from './authenticated-api';
 
 export const secretTelemetryContract = {
   version: 'secret-telemetry.v1', guardianId: 'secret-credentials-guardian',
@@ -51,13 +52,6 @@ export function reconcileSecretTelemetryIncident(incidents: OperationalIncident[
   return incidents.map((item) => item.id === restored.id ? restored : item);
 }
 
-function apiBaseUrl() {
-  const env = (import.meta as ImportMeta & { env?: Record<string, string | boolean | undefined> }).env;
-  const configured = typeof env?.VITE_AGM_API_BASE_URL === 'string' ? env.VITE_AGM_API_BASE_URL.trim() : '';
-  const development = env?.DEV ? '/api/v1' : '';
-  return (configured || development).replace(/\/$/, '');
-}
-
 export function bindSecretTelemetry(onSnapshot: (snapshot: SecretTelemetrySnapshot) => void) {
   const panels = [...document.querySelectorAll<HTMLElement>('[data-secret-telemetry]')];
   if (!panels.length) return;
@@ -65,7 +59,7 @@ export function bindSecretTelemetry(onSnapshot: (snapshot: SecretTelemetrySnapsh
     const base = apiBaseUrl();
     if (!base) return;
     try {
-      const response = await fetch(`${base}/security/secrets/health`, { cache: 'no-store', headers: { Accept: 'application/json' } });
+      const response = await authenticatedApiFetch('/security/secrets/health', { cache: 'no-store', headers: { Accept: 'application/json' } });
       if (!response.ok) throw new Error('SECRET_TELEMETRY_UNAVAILABLE');
       const snapshot = ((await response.json()) as { data?: SecretTelemetrySnapshot }).data;
       if (!snapshot || snapshot.contract !== secretTelemetryContract.version) throw new Error('SECRET_TELEMETRY_INVALID');

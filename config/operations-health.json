@@ -71,9 +71,9 @@
       "id": "server-backup",
       "label": "Server Backup",
       "kind": "static",
-      "staticStatus": "NOT CONFIGURED",
-      "displayStatus": "BACKUP ENDPOINT NOT CONFIGURED · TARGET UNKNOWN",
-      "source": "Registru infrastructură · niciun endpoint sau target backup configurat"
+      "staticStatus": "NOT VERIFIED",
+      "displayStatus": "PLANNED · LOCAL BACKUP DEFINED · LIVE HEARTBEAT NOT CONNECTED",
+      "source": "Arhitectură PostgreSQL backup local definită · release/timer și restore gate neverificate în runtime-ul curent · off-site target neconfigurat"
     },
     {
       "id": "api",
@@ -96,10 +96,12 @@
     {
       "id": "android",
       "label": "Android",
-      "kind": "static",
-      "staticStatus": "NOT IMPLEMENTED",
-      "displayStatus": "OPERATIONAL CLIENT · CONTINUOUS TELEMETRY NOT CONFIGURED",
-      "source": "Dovadă Android ADB/UI acceptată · fără collector continuu"
+      "kind": "http",
+      "url": "api:/operations/components/android/health",
+      "evaluator": "component",
+      "requiresAuth": true,
+      "healthyStatus": "ONLINE",
+      "source": "Component heartbeat v1 · Android foreground · persistent, tenant-bound · stale după 90s"
     },
     {
       "id": "ai",
@@ -143,20 +145,21 @@
     {
       "id": "telemetry",
       "label": "Telemetrie",
-      "kind": "static",
-      "staticStatus": "NOT IMPLEMENTED",
-      "displayStatus": "DEGRADED · MONITORING PENDING",
-      "source": "Registru monitorizare · collector continuu neimplementat",
+      "kind": "aggregate",
+      "healthyStatus": "READY",
+      "dependencies": ["server-primary", "api", "browser", "android", "security"],
+      "source": "Strat minim operațional · health + heartbeat + freshness; fără analytics",
       "showInOperations": false
     },
     {
       "id": "security",
       "label": "Secret & Credentials Guardian",
       "kind": "http",
-      "url": "https://api.agmcockpit.com/api/v1/security/secrets/health",
-      "evaluator": "http",
+      "url": "api:/security/secrets/health",
+      "evaluator": "guardian",
+      "requiresAuth": true,
       "healthyStatus": "READY",
-      "source": "Secret Guardian telemetry v1 · metadate sigure",
+      "source": "Secret Guardian telemetry v1 · metadate sigure · sesiune autorizată",
       "showInOperations": false
     }
   ]

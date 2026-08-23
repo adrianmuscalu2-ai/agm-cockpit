@@ -18,6 +18,7 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     ['20260816200000_refresh_auth_session_families', 'bea47e55612cb8537e03a58698e1d1c75ac3affd0189b633fdd56dd89229b3be'],
     ['20260823110000_add_agent_runtime_events', 'c6bf2c5f3be1b3526449b68eed5ba9ae2d653b1b473f8e62e351a086873105c7'],
     ['20260823110100_order_agent_runtime_events', 'b7f27a11313d09edbdf6d6878016591fb846f8a2f475abda5faf5e9f1297a43b'],
+    ['20260823143000_add_component_heartbeats', 'f27888104049ea24bac1d64cb13c502294017eac95f5836a69a4dd365bad92b8'],
   ] as const,
   criticalModels: [
     'Company',
@@ -44,6 +45,7 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     'CarMoverJob',
     'DataSubjectRequest',
     'AgentRuntimeEvent',
+    'ComponentHeartbeat',
   ] as const,
   tenantScopedModels: [
     'User',
@@ -67,5 +69,6 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     'CarMoverJob',
     'DataSubjectRequest',
     'AgentRuntimeEvent',
+    'ComponentHeartbeat',
   ] as const,
 } as const;

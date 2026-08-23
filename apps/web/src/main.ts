@@ -142,6 +142,7 @@ import { bindTurnBackToTop } from './turn-navigation';
 import { bindTurnOrganizationChart } from './turn-organization-chart';
 import { bindP9TurnProjection } from './p9-turn-projection';
 import { bindTurnAgentLiveState } from './turn-agent-live-state';
+import { bindAndroidComponentHeartbeat } from './component-heartbeat';
 import {
   TURN_REPORT_RECIPIENT,
   adminReportModuleForView,
@@ -2243,6 +2244,7 @@ function renderLegalCard(titleKey: string, bodyKey: string, extra = '') {
 }
 
 function bindShared() {
+  bindAndroidComponentHeartbeat();
   bindPremiumAccessRuntime();
   bindCommunicationRuntime();
     bindPremiumAssistantRuntime();

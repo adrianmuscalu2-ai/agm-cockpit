@@ -1,5 +1,6 @@
 import healthConfiguration from '../../../config/operations-health.json';
 import { updateStatusLight } from './turn-status-lights';
+import { authenticatedApiFetch, resolveApiUrl } from './authenticated-api';
 
 export type OperationStatus =
   | 'ONLINE'
@@ -23,7 +24,8 @@ export type OperationService = {
   label: string;
   kind: 'http' | 'static' | 'aggregate';
   url?: string;
-  evaluator?: 'http' | 'live' | 'ready' | 'dependency';
+  evaluator?: 'http' | 'live' | 'ready' | 'dependency' | 'component' | 'guardian';
+  requiresAuth?: boolean;
   dependency?: string;
   healthyStatus?: OperationStatus;
   staticStatus?: OperationStatus;
@@ -44,6 +46,8 @@ export type OperationSnapshot = {
   effectiveUrl?: string;
   lastSuccessAt?: Date | null;
   confirmedOffline?: boolean;
+  reason?: string | null;
+  lastFailureAt?: Date | null;
 };
 
 export type OperationFreshness = 'LIVE' | 'STALE' | 'UNKNOWN' | 'OFFLINE';
@@ -54,8 +58,8 @@ export const operationFreshnessLimitMs = 90_000;
 
 export function operationFreshness(snapshot: OperationSnapshot, now = new Date()): OperationFreshness {
   if (snapshot.freshness === 'UNKNOWN') return 'UNKNOWN';
-  if (now.getTime() - snapshot.checkedAt.getTime() > operationFreshnessLimitMs) return 'STALE';
   if (snapshot.status === 'OFFLINE') return 'OFFLINE';
+  if (now.getTime() - snapshot.checkedAt.getTime() > operationFreshnessLimitMs) return 'STALE';
   return 'LIVE';
 }
 
@@ -89,6 +93,7 @@ export function currentOperationSnapshots() {
 }
 
 function resolvedUrl(source: OperationService) {
+  if (source.url?.startsWith('api:')) return resolveApiUrl(source.url.slice(4));
   if (source.url === 'self') return window.location.origin + '/';
   const env = (import.meta as ImportMeta & { env?: Record<string, string | boolean | undefined> }).env;
   if (env?.DEV && source.url?.startsWith('https://api.agmcockpit.com/')) {
@@ -97,11 +102,14 @@ function resolvedUrl(source: OperationService) {
   if (env?.DEV && source.url?.startsWith('https://app.agmcockpit.com/')) {
     return source.url.replace('https://app.agmcockpit.com', '/production-app');
   }
-  if (source.id === 'security') {
-    const configured = typeof env?.VITE_AGM_API_BASE_URL === 'string' ? env.VITE_AGM_API_BASE_URL.trim().replace(/\/$/, '') : '';
-    if (configured) return `${configured}/security/secrets/health`;
-  }
   return source.url ?? '';
+}
+
+function envelopeData(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== 'object') return null;
+  const record = value as Record<string, unknown>;
+  const candidate = record.data && typeof record.data === 'object' ? record.data : record;
+  return candidate as Record<string, unknown>;
 }
 
 function findDependencies(value: unknown): Record<string, unknown> | null {
@@ -149,6 +157,15 @@ function evaluateResponse(
       ? source.healthyStatus ?? 'READY'
       : 'DEGRADED';
   }
+  if (source.evaluator === 'component') {
+    const status = envelopeData(body)?.status;
+    return status === 'ONLINE' || status === 'DEGRADED' || status === 'OFFLINE'
+      ? status
+      : 'NOT VERIFIED';
+  }
+  if (source.evaluator === 'guardian') {
+    return envelopeData(body)?.overallStatus === 'CONFIGURED' ? 'READY' : 'DEGRADED';
+  }
   return source.healthyStatus ?? 'ONLINE';
 }
 
@@ -192,7 +209,7 @@ export function nextOperationSnapshot(
   status: OperationStatus,
   checkedAt: Date,
   latencyMs: number | null,
-  detail: Partial<Pick<OperationSnapshot, 'outcome' | 'httpStatus' | 'effectiveUrl' | 'confirmedOffline'>> = {},
+  detail: Partial<Pick<OperationSnapshot, 'outcome' | 'httpStatus' | 'effectiveUrl' | 'confirmedOffline' | 'reason' | 'lastSuccessAt' | 'lastFailureAt'>> = {},
 ): OperationSnapshot {
   const successful = status === 'ONLINE' || status === 'READY';
   return {
@@ -204,7 +221,9 @@ export function nextOperationSnapshot(
     outcome: detail.outcome ?? (source.kind === 'http' ? 'HTTP_STATUS' : 'NOT_AVAILABLE'),
     httpStatus: detail.httpStatus ?? null,
     effectiveUrl: detail.effectiveUrl ?? source.url,
-    lastSuccessAt: successful ? checkedAt : previous?.lastSuccessAt ?? null,
+    lastSuccessAt: detail.lastSuccessAt !== undefined ? detail.lastSuccessAt : successful ? checkedAt : previous?.lastSuccessAt ?? null,
+    lastFailureAt: detail.lastFailureAt !== undefined ? detail.lastFailureAt : status === 'DEGRADED' || status === 'OFFLINE' ? checkedAt : previous?.lastFailureAt ?? null,
+    reason: detail.reason ?? null,
     confirmedOffline: detail.confirmedOffline ?? false,
   };
 }
@@ -214,7 +233,7 @@ function updateSnapshot(
   status: OperationStatus,
   checkedAt: Date,
   latencyMs: number | null,
-  detail: Partial<Pick<OperationSnapshot, 'outcome' | 'httpStatus' | 'effectiveUrl' | 'confirmedOffline'>> = {},
+  detail: Partial<Pick<OperationSnapshot, 'outcome' | 'httpStatus' | 'effectiveUrl' | 'confirmedOffline' | 'reason' | 'lastSuccessAt' | 'lastFailureAt'>> = {},
 ) {
   const previous = snapshots.get(source.id);
   if (previous && checkedAt.getTime() < previous.checkedAt.getTime()) return;
@@ -287,6 +306,7 @@ function renderSnapshot(source: OperationService, snapshot: OperationSnapshot) {
     const outcome = card.querySelector<HTMLElement>('.operation-service-outcome');
     const effectiveUrl = card.querySelector<HTMLElement>('.operation-service-effective-url');
     const lastSuccess = card.querySelector<HTMLElement>('.operation-service-last-success');
+    const lastFailure = card.querySelector<HTMLElement>('.operation-service-last-failure');
     const currentFreshness = operationFreshness(snapshot);
     if (status) status.textContent = currentFreshness === 'STALE' ? 'STALE' : source.displayStatus ?? snapshot.status;
     if (icon) icon.textContent = iconForStatus(snapshot.status);
@@ -296,9 +316,12 @@ function renderSnapshot(source: OperationService, snapshot: OperationSnapshot) {
     if (changed) changed.textContent = snapshot.changedAt.toLocaleString();
     if (freshness) freshness.textContent = currentFreshness;
     if (age) age.textContent = ageLabel(snapshot);
-    if (outcome) outcome.textContent = currentFreshness === 'STALE' ? 'STALE' : snapshot.outcome ?? 'NOT_AVAILABLE';
+    if (outcome) outcome.textContent = currentFreshness === 'STALE' ? 'STALE' : [snapshot.outcome ?? 'NOT_AVAILABLE', snapshot.reason].filter(Boolean).join(' · ');
     if (effectiveUrl) effectiveUrl.textContent = snapshot.effectiveUrl ?? source.url ?? 'N/A';
     if (lastSuccess) lastSuccess.textContent = snapshot.lastSuccessAt?.toLocaleString() ?? 'Niciun succes înregistrat';
+    if (lastFailure) lastFailure.textContent = snapshot.lastFailureAt
+      ? `${snapshot.lastFailureAt.toLocaleString()}${snapshot.reason ? ` · ${snapshot.reason}` : ''}`
+      : 'Niciun eșec înregistrat';
     updateStatusLight(agent, 'agent', agentAvailability(source));
     updateStatusLight(target, 'target', targetAvailability(snapshot));
   });
@@ -322,7 +345,7 @@ async function checkSource(source: OperationService) {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 5000);
   try {
-    const response = await fetch(resolvedUrl(source), {
+    const response = await (source.requiresAuth ? authenticatedApiFetch : fetch)(resolvedUrl(source), {
       signal: controller.signal,
       cache: 'no-store',
       headers: { Accept: 'application/json, text/html;q=0.9' },
@@ -334,11 +357,17 @@ async function checkSource(source: OperationService) {
     const evaluated = source.id === 'cloudflare-public'
       ? classifyCloudflareHttpStatus(response.status)
       : { status: evaluateResponse(source, response, body), outcome: 'HTTP_STATUS' as const, confirmedOffline: !response.ok };
-    updateSnapshot(source, evaluated.status, checkedAt, Math.round(performance.now() - started), {
+    const data = envelopeData(body);
+    const observedAt = source.evaluator === 'component' && typeof data?.lastSeenAt === 'string' ? new Date(data.lastSeenAt) : checkedAt;
+    const effectiveCheckedAt = Number.isNaN(observedAt.getTime()) ? checkedAt : observedAt;
+    updateSnapshot(source, evaluated.status, effectiveCheckedAt, Math.round(performance.now() - started), {
       outcome: evaluated.outcome,
       httpStatus: response.status,
       effectiveUrl: source.id === 'cloudflare-public' ? source.url : response.url || resolvedUrl(source),
       confirmedOffline: evaluated.confirmedOffline,
+      reason: typeof data?.reason === 'string' ? data.reason : source.evaluator === 'guardian' ? String(data?.overallStatus ?? 'GUARDIAN_STATUS_UNKNOWN') : null,
+      lastSuccessAt: typeof data?.lastSuccessAt === 'string' ? new Date(data.lastSuccessAt) : undefined,
+      lastFailureAt: typeof data?.lastFailureAt === 'string' ? new Date(data.lastFailureAt) : undefined,
     });
   } catch (error) {
     const classified = source.id === 'cloudflare-public'

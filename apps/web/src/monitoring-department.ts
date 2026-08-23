@@ -26,9 +26,9 @@ export const monitoringAgents: MonitoringAgent[] = [
   },
   {
     id: 'monitor-server-backup', code: 'MON-002', name: 'Agent Monitorizare Server Backup',
-    component: 'Server backup', sourceId: 'server-backup', source: 'Registru infrastructură · fără endpoint backup',
-    responsibilities: 'Confirmă existența și starea endpoint-ului de backup fără a deduce disponibilitatea.',
-    intervention: 'Configurează endpoint-ul numai după aprobarea Release & Operations.', incidentTerms: ['server backup', 'backup'],
+    component: 'Server backup', sourceId: 'server-backup', source: 'Arhitectură backup local definită · heartbeat runtime neconectat · off-site planificat',
+    responsibilities: 'Separă capabilitatea definită de execuția și restore gate-ul demonstrate; nu deduce disponibilitatea.',
+    intervention: 'Activează backup-ul numai prin Release & Operations, cu test controlat de backup și restore.', incidentTerms: ['server backup', 'backup'],
   },
   {
     id: 'monitor-api', code: 'MON-003', name: 'Agent Monitorizare API',
@@ -44,7 +44,7 @@ export const monitoringAgents: MonitoringAgent[] = [
   },
   {
     id: 'monitor-android', code: 'MON-005', name: 'Agent Monitorizare Android',
-    component: 'Client Android AGM', sourceId: 'android', source: 'Collector Android local autorizat · ADB heartbeat',
+    component: 'Client Android AGM', sourceId: 'android', source: 'Component heartbeat v1 · persistent și tenant-bound',
     responsibilities: 'Monitorizează disponibilitatea dispozitivului Android fără a colecta identificatori.',
     intervention: 'Conectează ADB și rulează validarea pe dispozitiv fără a expune date.', incidentTerms: ['android'],
   },
@@ -168,6 +168,7 @@ export function renderMonitoringDepartment(incidents: OperationalIncident[]) {
           <div><dt>Rezultat probă</dt><dd class="operation-service-outcome">${isIncidentAgent ? 'NOT_AVAILABLE' : '—'}</dd></div>
           <div><dt>URL efectiv</dt><dd class="operation-service-effective-url">${source?.url ? escapeHtml(source.url) : 'N/A'}</dd></div>
           <div><dt>Ultimul succes</dt><dd class="operation-service-last-success">—</dd></div>
+          <div><dt>Ultimul eșec / motiv</dt><dd class="operation-service-last-failure">—</dd></div>
           <div><dt>Sursa datelor</dt><dd>${escapeHtml(agent.source)}</dd></div>
           <div><dt>Incident activ</dt><dd>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">${escapeHtml(incident.id)}</a>` : 'Niciun incident activ'}</dd></div>
           <div><dt>Responsabilitate</dt><dd>${escapeHtml(agent.responsibilities)}</dd></div>

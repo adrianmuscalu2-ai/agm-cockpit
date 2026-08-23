@@ -110,7 +110,7 @@ assert.deepEqual(
 );
 assert.equal(
   operationsHealthConfiguration.operationsServices.find((service) => service.id === 'server-backup')?.staticStatus,
-  'NOT APPLICABLE',
+  'NOT VERIFIED',
 );
 assert.equal(
   operationsHealthConfiguration.operationsServices.find((service) => service.id === 'android')?.kind,
@@ -118,11 +118,11 @@ assert.equal(
 );
 assert.equal(
   operationsHealthConfiguration.operationsServices.find((service) => service.id === 'server-backup')?.displayStatus,
-  'NOT APPLICABLE · SINGLE-WRITER',
+  'PLANNED · LOCAL BACKUP DEFINED · LIVE HEARTBEAT NOT CONNECTED',
 );
 assert.equal(
   operationsHealthConfiguration.operationsServices.find((service) => service.id === 'android')?.url,
-  '/__agm/telemetry/android',
+  'api:/operations/components/android/health',
 );
 assert.ok(incidentJournalSource.includes("preventiveMeasure: 'Rulare pnpm audit:ui-live"));
 assert.ok(incidentJournalSource.includes("status: 'archived'"));
