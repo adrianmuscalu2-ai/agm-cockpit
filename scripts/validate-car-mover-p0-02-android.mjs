@@ -31,6 +31,14 @@ async function waitForAndroidPage() {
   throw Error('Android WebView did not return after application restart.');
 }
 
+async function waitForPath(page, expectedPath) {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    if (new URL(page.url()).pathname === expectedPath) return;
+    await page.waitForTimeout(250);
+  }
+  throw Error(`Android route did not become ${expectedPath}; current route is ${new URL(page.url()).pathname}.`);
+}
+
 async function forwardAndroidWebView() {
   const { stdout:androidPidOutput } = await runFile(adbPath, ['shell', 'pidof', 'com.agm.cockpit']);
   const androidPid = androidPidOutput.trim().split(/\s+/)[0];
@@ -126,7 +134,20 @@ try {
   const restartedPage = browser.contexts().flatMap((context) => context.pages()).find((item) => !item.url().includes('sw.js'));
   if (!restartedPage) throw Error('Android page unavailable after restart.');
   if (new URL(restartedPage.url()).origin !== 'https://localhost') throw Error(`Android origin changed after restart: ${new URL(restartedPage.url()).origin}`);
-  await restartedPage.evaluate(() => { history.pushState({}, '', '/car-mover'); dispatchEvent(new PopStateEvent('popstate')); });
+  await restartedPage.waitForSelector('main');
+  await restartedPage.waitForTimeout(1_500);
+  const restartPath = new URL(restartedPage.url()).pathname;
+  if (restartPath === '/') {
+    await restartedPage.locator('[data-module="premium"]').first().click();
+    await waitForPath(restartedPage, '/premium');
+  } else if (restartPath === '/car-mover') {
+    await restartedPage.locator('[data-module="premium"]').click();
+    await waitForPath(restartedPage, '/premium');
+  } else if (restartPath !== '/premium') {
+    throw Error(`Android restart returned to an unsupported route: ${restartPath}`);
+  }
+  await restartedPage.locator('[data-global-action="car-mover"]').click();
+  await waitForPath(restartedPage, '/car-mover');
   await restartedPage.waitForSelector('[data-car-mover-root]');
   await restartedPage.waitForSelector(`[data-job="${e2e.jobId}"]`);
   await restartedPage.locator(`[data-job="${e2e.jobId}"]`).click();
