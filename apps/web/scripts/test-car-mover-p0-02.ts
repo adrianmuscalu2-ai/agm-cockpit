@@ -13,6 +13,9 @@ assert.match(main,/<a href="\/car-mover" data-module="carMover" class="home-acti
 assert.match(main,/data-global-action="\$\{opensCarMover \? 'car-mover' : 'microphone'\}"/);
 assert.match(main,/if \(action === 'car-mover'\)/);
 assert.match(main,/isPremiumNavigationAllowed\('carMover'\)/);
+assert.match(main,/await restorePremiumAccessForNavigation\(\)/);
+assert.match(main,/async function restorePremiumAccessForNavigation\(\)[\s\S]*authenticatedApiFetch\('\/auth\/entitlements'/);
+assert.doesNotMatch(main,/async function restorePremiumAccessForNavigation\(\)[\s\S]{0,200}if \(!premiumViewFromRoute/);
 const runtime=readFileSync(resolve(import.meta.dirname,'../src/car-mover/car-mover.runtime.ts'),'utf8');
 assert.match(runtime,/carMoverClient\.create/);
 assert.match(runtime,/carMoverClient\.transition/);

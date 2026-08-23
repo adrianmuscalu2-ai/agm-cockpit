@@ -215,7 +215,7 @@ purgeSensitiveLegacyLocalStorage(window.localStorage);
 bindSensitiveSessionCleanup(window.sessionStorage);
 purgeLegacyPersistentOcr(window.indexedDB, window.localStorage);
 void clearOriginalEvidence();
-await restorePremiumRouteAccess();
+await restorePremiumAccessForNavigation();
 const ocrHistoryRepository = createOcrHistoryRepository(window.sessionStorage);
 const ocrArchiveRepository = createOcrArchiveRepository(createEphemeralOcrArchiveStore());
 const tutorialRepository = createTutorialRepository(window.localStorage);
@@ -225,14 +225,13 @@ const initialOcrHistory = ocrHistoryRepository.read();
 const initialMessageLibraryPreferences = readMessageLibraryPreferences(window.sessionStorage);
 const initialIncidentJournal = readIncidentJournal(window.sessionStorage);
 
-async function restorePremiumRouteAccess() {
-  if (!premiumViewFromRoute(window.location.pathname)) return;
+async function restorePremiumAccessForNavigation() {
   try {
     const response = await authenticatedApiFetch('/auth/entitlements', { cache:'no-store' });
     const body = await response.json().catch(() => ({})) as { data?: Parameters<typeof registerVerifiedPremiumAccess>[0] };
     if (response.ok && body.data) registerVerifiedPremiumAccess(body.data);
   } catch {
-    // Premium route resolution remains fail-closed when restoration is unavailable.
+    // Premium navigation remains fail-closed when restoration is unavailable.
   }
 }
 
