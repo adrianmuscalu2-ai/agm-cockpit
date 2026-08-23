@@ -5,6 +5,8 @@ import { premiumRouteForView, premiumViewFromRoute } from '../src/premium-routes
 
 assert.equal(premiumRouteForView('carMover'), '/car-mover');
 assert.equal(premiumViewFromRoute('/car-mover'), 'carMover');
+assert.equal(premiumRouteForView('carMoverMenu'), '/car-mover/menu');
+assert.equal(premiumViewFromRoute('/car-mover/menu'), 'carMoverMenu');
 const premiumApp=readFileSync(resolve(import.meta.dirname,'../src/premium-app.ts'),'utf8');
 const main=readFileSync(resolve(import.meta.dirname,'../src/main.ts'),'utf8');
 assert.match(premiumApp,/car-mover|carMover/i);

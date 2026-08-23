@@ -1529,7 +1529,7 @@ function renderBasicPlanned(icon: string, title: string, description: string) {
 
 function renderGlobalQuickActions() {
   const language = uiLanguage();
-  const opensCarMover = isPremiumView(state.view) && state.view !== 'carMover';
+  const opensCarMover = isPremiumView(state.view) && state.view !== 'carMover' && state.view !== 'carMoverMenu';
   return `
     <nav class="global-quick-actions" aria-label="${escapeHtml(t(language, 'home.actionsLabel'))}">
       <button type="button" data-global-action="ocr"><span aria-hidden="true">▣</span>${escapeHtml(t(language, 'translator.command.ocr'))}</button>

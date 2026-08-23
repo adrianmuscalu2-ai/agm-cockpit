@@ -9,6 +9,7 @@ const capabilityForView: Record<PremiumViewName, PremiumCapabilityId> = {
   premiumCommunications: 'premium.communications',
   premiumVoice: 'premium.voice-assistant',
   carMover: 'car-mover.jobs',
+  carMoverMenu: 'car-mover.jobs',
 };
 
 let verifiedSnapshot: AccessEntitlementSnapshot | undefined;

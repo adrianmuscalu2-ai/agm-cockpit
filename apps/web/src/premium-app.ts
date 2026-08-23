@@ -14,6 +14,7 @@ import { premiumVoiceShellModule } from './premium-voice-shell/premium-voice-she
 import { renderPremiumAssistantView } from './premium-voice-shell/premium-assistant.view';
 import type { BasicLanguageCode } from './language-registry';
 import { renderCarMoverView } from './car-mover/car-mover.view';
+import { renderCarMoverLanding } from './car-mover/car-mover.landing';
 
 type PremiumTranslator = (key: string) => string;
 type HtmlEscaper = (value: string) => string;
@@ -48,7 +49,8 @@ export function renderPremiumView(
 
   if (view === 'premiumCommunications') return renderCommunicationView();
   if (view === 'premiumVoice') return renderPremiumAssistantView(language, escapeHtml);
-  if (view === 'carMover') return renderCarMoverView(language);
+  if (view === 'carMover') return renderCarMoverLanding(language);
+  if (view === 'carMoverMenu') return renderCarMoverView(language);
 
   return undefined;
 }
@@ -58,7 +60,7 @@ export function premiumStatusKey(view: PremiumViewName) {
   if (view === 'premiumTeam') return 'premium.team.status';
   if (view === 'premiumCommunications') return 'premium.status';
   if (view === 'premiumVoice') return 'premium.status';
-  if (view === 'carMover') return 'premium.status';
+  if (view === 'carMover' || view === 'carMoverMenu') return 'premium.status';
   return 'premium.loadSafety.status.ready';
 }
 
