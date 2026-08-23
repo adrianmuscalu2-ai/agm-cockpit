@@ -66,6 +66,8 @@ export class CommunicationService {
     return this.prisma.communicationConversation.findMany({ where: { companyId: ctx.companyId, ...(channel ? { channel } : {}) }, orderBy: { lastMessageAt: 'desc' }, include: { messages: { orderBy: { occurredAt: 'asc' } } } });
   }
 
+  providerStatus(){ return this.providers.status(); }
+
   private async deliver(message: any, input: OutboundCommunication, duplicate: boolean) {
     const provider = this.provider(input.channel);
     await this.prisma.communicationMessage.update({ where: { id: message.id }, data: { status: 'sending', statusUpdatedAt: new Date() } });

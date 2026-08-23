@@ -29,6 +29,9 @@ model Company {
   communicationMessages      CommunicationMessage[]
   carMoverVehicleSubjects    CarMoverVehicleSubject[]
   carMoverJobs               CarMoverJob[]
+  carMoverFinancialEntries   CarMoverFinancialEntry[]
+  carMoverInvoices           CarMoverInvoice[]
+  carMoverPlatformOffers     CarMoverPlatformOffer[]
 }
 
 model User {
@@ -538,28 +541,110 @@ model CarMoverVehicleSubject {
 }
 
 model CarMoverJob {
-  id                   String                 @id @default(uuid()) @db.Uuid
-  companyId            String                 @db.Uuid
-  company              Company                @relation(fields: [companyId], references: [id])
-  productId            String                 @default("agm-car-mover") @db.VarChar(48)
-  moduleId             String                 @default("jobs") @db.VarChar(80)
-  subjectType          String                 @default("CarMoverJob") @db.VarChar(64)
-  vehicleSubjectId     String                 @db.Uuid
-  vehicleSubject       CarMoverVehicleSubject @relation(fields: [vehicleSubjectId], references: [id])
+  id                   String                   @id @default(uuid()) @db.Uuid
+  companyId            String                   @db.Uuid
+  company              Company                  @relation(fields: [companyId], references: [id])
+  productId            String                   @default("agm-car-mover") @db.VarChar(48)
+  moduleId             String                   @default("jobs") @db.VarChar(80)
+  subjectType          String                   @default("CarMoverJob") @db.VarChar(64)
+  vehicleSubjectId     String                   @db.Uuid
+  vehicleSubject       CarMoverVehicleSubject   @relation(fields: [vehicleSubjectId], references: [id])
   pickupSnapshot       Json
   destinationSnapshot  Json
-  sourceType           String                 @default("manual") @db.VarChar(48)
-  sourceReference      String?                @db.VarChar(160)
-  currentState         String                 @default("DRAFT") @db.VarChar(32)
-  lifecycleVersion     Int                    @default(0)
-  createdByUserId      String                 @db.Uuid
-  assignedDriverUserId String?                @db.Uuid
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
+  sourceType           String                   @default("manual") @db.VarChar(48)
+  sourceReference      String?                  @db.VarChar(160)
+  currentState         String                   @default("DRAFT") @db.VarChar(32)
+  lifecycleVersion     Int                      @default(0)
+  createdByUserId      String                   @db.Uuid
+  assignedDriverUserId String?                  @db.Uuid
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+  financialEntries     CarMoverFinancialEntry[]
+  invoices             CarMoverInvoice[]
+  platformOffers       CarMoverPlatformOffer[]
 
   @@unique([companyId, productId, sourceType, sourceReference])
   @@index([companyId, productId, currentState, updatedAt])
   @@index([companyId, productId, vehicleSubjectId])
+}
+
+model CarMoverFinancialEntry {
+  id              String      @id @default(uuid()) @db.Uuid
+  companyId       String      @db.Uuid
+  company         Company     @relation(fields: [companyId], references: [id])
+  jobId           String      @db.Uuid
+  job             CarMoverJob @relation(fields: [jobId], references: [id])
+  entryType       String      @db.VarChar(24)
+  category        String      @db.VarChar(64)
+  amount          Decimal     @db.Decimal(14, 2)
+  currencyCode    String      @db.VarChar(3)
+  occurredAt      DateTime
+  description     String?     @db.VarChar(500)
+  sourceReference String?     @db.VarChar(240)
+  reversalOfId    String?     @db.Uuid
+  createdByUserId String      @db.Uuid
+  createdAt       DateTime    @default(now())
+
+  @@index([companyId, jobId, occurredAt])
+  @@index([companyId, entryType, occurredAt])
+  @@index([companyId, reversalOfId])
+}
+
+model CarMoverInvoice {
+  id                          String      @id @default(uuid()) @db.Uuid
+  companyId                   String      @db.Uuid
+  company                     Company     @relation(fields: [companyId], references: [id])
+  jobId                       String      @db.Uuid
+  job                         CarMoverJob @relation(fields: [jobId], references: [id])
+  direction                   String      @db.VarChar(16)
+  invoiceNumber               String      @db.VarChar(120)
+  counterparty                String      @db.VarChar(240)
+  issueDate                   DateTime
+  dueDate                     DateTime?
+  amount                      Decimal     @db.Decimal(14, 2)
+  currencyCode                String      @db.VarChar(3)
+  status                      String      @default("RECORDED") @db.VarChar(24)
+  evidenceReference           String?     @db.VarChar(500)
+  externalAccountingReference String?     @db.VarChar(240)
+  exportStatus                String      @default("NOT_EXPORTED") @db.VarChar(32)
+  createdByUserId             String      @db.Uuid
+  createdAt                   DateTime    @default(now())
+  updatedAt                   DateTime    @updatedAt
+
+  @@unique([companyId, direction, invoiceNumber])
+  @@index([companyId, jobId, issueDate])
+  @@index([companyId, status, dueDate])
+}
+
+model CarMoverPlatformOffer {
+  id                   String       @id @default(uuid()) @db.Uuid
+  companyId            String       @db.Uuid
+  company              Company      @relation(fields: [companyId], references: [id])
+  sourceMessageId      String       @db.Uuid
+  channel              String       @db.VarChar(16)
+  platformName         String       @db.VarChar(80)
+  externalReference    String?      @db.VarChar(160)
+  pickupLabel          String?      @db.VarChar(240)
+  destinationLabel     String?      @db.VarChar(240)
+  pickupAt             DateTime?
+  vehicleDescription   String?      @db.VarChar(240)
+  offeredAmount        Decimal?     @db.Decimal(14, 2)
+  currencyCode         String?      @db.VarChar(3)
+  estimatedKm          Int?
+  score                Int          @default(0)
+  status               String       @default("NEW") @db.VarChar(24)
+  version              Int          @default(0)
+  extractionConfidence Int          @default(0)
+  analysis             Json
+  rawMessageSha256     String       @db.VarChar(64)
+  linkedJobId          String?      @db.Uuid
+  linkedJob            CarMoverJob? @relation(fields: [linkedJobId], references: [id])
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  @@unique([companyId, sourceMessageId])
+  @@index([companyId, status, score, createdAt])
+  @@index([companyId, linkedJobId])
 }
 
 model CommunicationConversation {

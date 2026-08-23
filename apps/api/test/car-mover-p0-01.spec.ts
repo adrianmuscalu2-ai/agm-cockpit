@@ -1,6 +1,7 @@
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { CarMoverService } from '../src/car-mover/car-mover.service';
+import { Prisma } from '@prisma/client';
+import { CarMoverService, parsePlatformOffer } from '../src/car-mover/car-mover.service';
 import { CAR_MOVER_SCOPE, canTransitionCarMoverJob } from '../src/car-mover/car-mover.contract';
 
 const companyA = randomUUID();
@@ -16,6 +17,9 @@ function createHarness() {
   const streams: any[] = [];
   const events: any[] = [];
   const audits: any[] = [];
+  const financialEntries: any[] = [];
+  const invoices: any[] = [];
+  const offers: any[] = [];
   const tx: any = {
     carMoverVehicleSubject: {
       create: async ({ data }: any) => { const row = { id: randomUUID(), ...data, createdAt: new Date(), updatedAt: new Date() }; vehicles.push(row); return row; },
@@ -23,7 +27,7 @@ function createHarness() {
     carMoverJob: {
       create: async ({ data }: any) => { const row = { id: randomUUID(), currentState: 'DRAFT', lifecycleVersion: 0, assignedDriverUserId: null, ...data, createdAt: new Date(), updatedAt: new Date() }; jobs.push(row); return row; },
       findFirst: async ({ where }: any) => jobs.find(row => row.id === where.id && row.companyId === where.companyId && row.productId === where.productId) ?? null,
-      update: async ({ where, data }: any) => { const row = jobs.find(item => item.id === where.id); if(data.currentState!==undefined)row.currentState=data.currentState; row.lifecycleVersion += data.lifecycleVersion.increment; if(data.assignedDriverUserId!==undefined)row.assignedDriverUserId=data.assignedDriverUserId; return row; },
+      update: async ({ where, data }: any) => { const row = jobs.find(item => item.id === where.id); if(data.currentState!==undefined)row.currentState=data.currentState; row.lifecycleVersion = typeof data.lifecycleVersion==='number'?data.lifecycleVersion:row.lifecycleVersion+(data.lifecycleVersion?.increment??0); if(data.assignedDriverUserId!==undefined)row.assignedDriverUserId=data.assignedDriverUserId; return row; },
     },
     operationalEventStream: {
       create: async ({ data }: any) => { const row = { id: randomUUID(), ...data }; streams.push(row); return row; },
@@ -36,6 +40,23 @@ function createHarness() {
     },
     auditEvent: {
       findMany: async ({ where }: any) => audits.filter(row => row.companyId === where.companyId && row.productId === where.productId && row.subjectId === where.subjectId),
+    },
+    carMoverFinancialEntry: {
+      create: async ({data}:any)=>{const row={id:randomUUID(),...data,amount:new Prisma.Decimal(data.amount),createdAt:new Date()};financialEntries.push(row);return row;},
+      findMany: async ({where}:any)=>financialEntries.filter(row=>row.companyId===where.companyId&&row.jobId===where.jobId),
+      findFirst: async ({where}:any)=>financialEntries.find(row=>row.companyId===where.companyId&&row.jobId===where.jobId&&(where.id===undefined||row.id===where.id)&&(where.reversalOfId===undefined||row.reversalOfId===where.reversalOfId))??null,
+    },
+    carMoverInvoice: {
+      create: async ({data}:any)=>{const row={id:randomUUID(),status:'RECORDED',exportStatus:'NOT_EXPORTED',...data,amount:new Prisma.Decimal(data.amount),createdAt:new Date(),updatedAt:new Date()};invoices.push(row);return row;},
+      findMany: async ({where}:any)=>invoices.filter(row=>row.companyId===where.companyId&&row.jobId===where.jobId),
+    },
+    communicationConversation:{findMany:async()=>[]},
+    communicationMessage:{findMany:async()=>[]},
+    carMoverPlatformOffer:{
+      create:async({data}:any)=>{const row={id:randomUUID(),status:'NEW',version:0,...data,createdAt:new Date(),updatedAt:new Date()};offers.push(row);return row;},
+      findFirst:async({where}:any)=>offers.find(row=>row.id===where.id&&row.companyId===where.companyId)??null,
+      findUnique:async({where}:any)=>offers.find(row=>row.companyId===where.companyId_sourceMessageId.companyId&&row.sourceMessageId===where.companyId_sourceMessageId.sourceMessageId)??null,
+      update:async({where,data}:any)=>{const row=offers.find(item=>item.id===where.id);row.status=data.status;row.linkedJobId=data.linkedJobId;row.version+=(data.version?.increment??0);return row;},
     },
   };
   const prisma: any = {
@@ -50,7 +71,7 @@ function createHarness() {
   const audit: any = {
     create: async (input: any, ctx: any) => { const row = { id: randomUUID(), companyId: ctx.companyId, productId: input.productId, moduleId: input.moduleId, subjectType: input.subjectType, subjectId: input.subjectId, occurredAt: new Date(), evidenceMetadataId: null }; audits.push(row); return row; },
   };
-  return { service: new CarMoverService(prisma, audit), vehicles, jobs, events, audits };
+  return { service: new CarMoverService(prisma, audit), vehicles, jobs, events, audits, financialEntries, invoices };
 }
 
 const intake = (vehicleClass: 'PASSENGER_CAR' | 'TRACTOR_UNIT', vehicleType: string) => ({
@@ -116,5 +137,26 @@ describe('Car Mover P0-01 foundation', () => {
     expect(canTransitionCarMoverJob('DRAFT', 'COMPLETED')).toBe(false);
     expect(canTransitionCarMoverJob('COMPLETED', 'READY')).toBe(false);
     expect(canTransitionCarMoverJob('CANCELLED', 'DRAFT')).toBe(false);
+  });
+
+  it('records immutable primary-accounting entries and invoice metadata in the existing Job File', async()=>{
+    const h=createHarness();
+    const created=await h.service.create(intake('PASSENGER_CAR','sedan'),context());
+    const occurredAt=new Date().toISOString();
+    await h.service.recordFinance(created.jobId,{entryType:'REVENUE',category:'transport',amount:'850.00',currencyCode:'EUR',occurredAt},context());
+    await h.service.recordFinance(created.jobId,{entryType:'COST',category:'fuel',amount:'125.50',currencyCode:'EUR',occurredAt},context());
+    await h.service.recordInvoice(created.jobId,{direction:'ISSUED',invoiceNumber:`INV-${randomUUID()}`,counterparty:'Test customer',issueDate:occurredAt,amount:'850.00',currencyCode:'EUR'},context());
+    const file=await h.service.getJobFile(created.jobId,context());
+    expect(file.analysis).toMatchObject({revenue:'850.00',cost:'125.50',margin:'724.50',currencyCode:'EUR',entryCount:2});
+    expect(file.financialEntries).toHaveLength(2);
+    expect(file.invoices).toHaveLength(1);
+    expect(h.events.map(row=>row.eventType)).toEqual(expect.arrayContaining(['CAR_MOVER_FINANCIAL_ENTRY_RECORDED','CAR_MOVER_INVOICE_RECORDED']));
+  });
+
+  it('extracts a reviewable course proposal from a real provider alert without automatic acceptance',()=>{
+    const proposal=parsePlatformOffer('ONLOGIST order DE-4471 from Berlin to Hamburg vehicle: VW Golf offer 480 EUR 292 km','gmail','alerts@onlogist.example');
+    expect(proposal).toMatchObject({isOffer:true,platformName:'Onlogist',externalReference:'DE-4471',pickupLabel:'Berlin',offeredAmount:'480',currencyCode:'EUR',estimatedKm:292});
+    expect(proposal.analysis.automaticDecision).toBe(false);
+    expect(proposal.score).toBeGreaterThanOrEqual(70);
   });
 });

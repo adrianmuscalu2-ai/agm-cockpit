@@ -29,4 +29,7 @@ export class CommunicationController {
   async list(@Query('channel') channel: string | undefined, @CurrentUser() user: RequestContext) {
     return responseEnvelope(await this.service.list(channel, user));
   }
+
+  @Get('providers/status')
+  status() { return responseEnvelope(this.service.providerStatus()); }
 }

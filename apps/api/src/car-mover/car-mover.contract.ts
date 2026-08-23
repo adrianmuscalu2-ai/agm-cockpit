@@ -28,4 +28,7 @@ export type CarMoverJobFile = {
   contractVersion:'car-mover-job-file.v1'; productId:'agm-car-mover'; moduleId:'jobs'; subjectType:'CarMoverJob'; subjectId:string;
   job:Record<string,unknown>; vehicle:Record<string,unknown>; timeline:readonly Record<string,unknown>[];
   evidenceReferences:readonly string[]; auditReferences:readonly string[];
+  financialEntries:readonly Record<string,unknown>[]; invoices:readonly Record<string,unknown>[];
+  communications:readonly Record<string,unknown>[];
+  analysis:{revenue:string;cost:string;payments:string;margin:string;currencyCode:string|null;entryCount:number};
 };

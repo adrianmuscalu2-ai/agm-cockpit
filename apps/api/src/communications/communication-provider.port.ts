@@ -4,4 +4,5 @@ export interface CommunicationProviderPort { readonly channel:CommunicationChann
 export class CommunicationProviderRegistry {
   constructor(private readonly providers:readonly CommunicationProviderPort[]){}
   for(channel:CommunicationChannel){const provider=this.providers.find((item)=>item.channel===channel);if(!provider||!provider.configured())throw new Error(`COMMUNICATION_PROVIDER_NOT_CONFIGURED:${channel}`);return provider;}
+  status(){return this.providers.map((provider)=>({channel:provider.channel,provider:provider.provider,configured:provider.configured()}));}
 }
