@@ -9,6 +9,10 @@ const premiumApp=readFileSync(resolve(import.meta.dirname,'../src/premium-app.ts
 const main=readFileSync(resolve(import.meta.dirname,'../src/main.ts'),'utf8');
 assert.match(premiumApp,/car-mover|carMover/i);
 assert.match(main,/bindCarMoverRuntime/);
+assert.match(main,/<a href="\/car-mover" data-module="carMover" class="home-action home-action-voice"/);
+assert.match(main,/data-global-action="\$\{opensCarMover \? 'car-mover' : 'microphone'\}"/);
+assert.match(main,/if \(action === 'car-mover'\)/);
+assert.match(main,/isPremiumNavigationAllowed\('carMover'\)/);
 const runtime=readFileSync(resolve(import.meta.dirname,'../src/car-mover/car-mover.runtime.ts'),'utf8');
 assert.match(runtime,/carMoverClient\.create/);
 assert.match(runtime,/carMoverClient\.transition/);

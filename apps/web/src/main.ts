@@ -800,7 +800,7 @@ function renderHome() {
           <strong>Premium</strong>
           <small id="premium-planned">${escapeHtml(t(language, 'home.planned'))}</small>
         </a>
-        <a href="/premium/voice" data-module="premiumVoice" class="home-action home-action-voice" aria-describedby="voice-premium">
+        <a href="/car-mover" data-module="carMover" class="home-action home-action-voice" aria-describedby="voice-premium">
           <span class="home-action-icon" aria-hidden="true"></span>
           <strong>${escapeHtml(t(language, 'home.voice'))}</strong>
           <small id="voice-premium">${escapeHtml(t(language, 'home.voicePremium'))}</small>
@@ -1530,11 +1530,12 @@ function renderBasicPlanned(icon: string, title: string, description: string) {
 
 function renderGlobalQuickActions() {
   const language = uiLanguage();
+  const opensCarMover = isPremiumView(state.view) && state.view !== 'carMover';
   return `
     <nav class="global-quick-actions" aria-label="${escapeHtml(t(language, 'home.actionsLabel'))}">
       <button type="button" data-global-action="ocr"><span aria-hidden="true">▣</span>${escapeHtml(t(language, 'translator.command.ocr'))}</button>
       <button type="button" data-global-action="email"><span aria-hidden="true">✉</span>${escapeHtml(t(language, 'nav.email'))}</button>
-      <button type="button" data-global-action="microphone"><span aria-hidden="true">●</span>${escapeHtml(t(language, 'translator.command.speak'))}</button>
+      <button type="button" data-global-action="${opensCarMover ? 'car-mover' : 'microphone'}"><span aria-hidden="true">●</span>${escapeHtml(t(language, opensCarMover ? 'home.voice' : 'translator.command.speak'))}</button>
     </nav>
   `;
 }
@@ -2336,6 +2337,11 @@ function bindShared() {
 }
 
 function activateGlobalAction(action: string | undefined) {
+  if (action === 'car-mover') {
+    if (isPremiumNavigationAllowed('carMover')) navigateToModule('carMover');
+    else navigateToModule('access');
+    return;
+  }
   if (action === 'email') {
     navigateToModule('email');
     return;
