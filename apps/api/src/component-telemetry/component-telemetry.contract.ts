@@ -14,6 +14,7 @@ export type ComponentHealthSnapshot = {
   lastSeenAt: string | null;
   lastSuccessAt: string | null;
   lastFailureAt: string | null;
+  lastFailureReason: string | null;
   reason: string;
   detail: string | null;
   freshness: 'LIVE' | 'OFFLINE' | 'UNKNOWN';

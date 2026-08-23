@@ -49,6 +49,7 @@ export type OperationSnapshot = {
   confirmedOffline?: boolean;
   reason?: string | null;
   lastFailureAt?: Date | null;
+  lastFailureReason?: string | null;
 };
 
 export type OperationFreshness = 'LIVE' | 'STALE' | 'UNKNOWN' | 'OFFLINE';
@@ -224,7 +225,7 @@ export function nextOperationSnapshot(
   status: OperationStatus,
   checkedAt: Date,
   latencyMs: number | null,
-  detail: Partial<Pick<OperationSnapshot, 'outcome' | 'httpStatus' | 'effectiveUrl' | 'confirmedOffline' | 'reason' | 'lastSuccessAt' | 'lastFailureAt'>> = {},
+  detail: Partial<Pick<OperationSnapshot, 'outcome' | 'httpStatus' | 'effectiveUrl' | 'confirmedOffline' | 'reason' | 'lastSuccessAt' | 'lastFailureAt' | 'lastFailureReason'>> = {},
 ): OperationSnapshot {
   const successful = status === 'ONLINE' || status === 'READY';
   return {
@@ -238,6 +239,7 @@ export function nextOperationSnapshot(
     effectiveUrl: detail.effectiveUrl ?? source.url,
     lastSuccessAt: detail.lastSuccessAt !== undefined ? detail.lastSuccessAt : successful ? checkedAt : previous?.lastSuccessAt ?? null,
     lastFailureAt: detail.lastFailureAt !== undefined ? detail.lastFailureAt : status === 'DEGRADED' || status === 'OFFLINE' ? checkedAt : previous?.lastFailureAt ?? null,
+    lastFailureReason: detail.lastFailureReason !== undefined ? detail.lastFailureReason : previous?.lastFailureReason ?? null,
     reason: detail.reason ?? null,
     confirmedOffline: detail.confirmedOffline ?? false,
   };
@@ -248,7 +250,7 @@ function updateSnapshot(
   status: OperationStatus,
   checkedAt: Date,
   latencyMs: number | null,
-  detail: Partial<Pick<OperationSnapshot, 'outcome' | 'httpStatus' | 'effectiveUrl' | 'confirmedOffline' | 'reason' | 'lastSuccessAt' | 'lastFailureAt'>> = {},
+  detail: Partial<Pick<OperationSnapshot, 'outcome' | 'httpStatus' | 'effectiveUrl' | 'confirmedOffline' | 'reason' | 'lastSuccessAt' | 'lastFailureAt' | 'lastFailureReason'>> = {},
 ) {
   const previous = snapshots.get(source.id);
   if (previous && checkedAt.getTime() < previous.checkedAt.getTime()) return;
@@ -267,6 +269,7 @@ function persistSnapshots() {
       checkedAt: snapshot.checkedAt.toISOString(),
       changedAt: snapshot.changedAt.toISOString(),
       lastSuccessAt: snapshot.lastSuccessAt?.toISOString() ?? null,
+      lastFailureAt: snapshot.lastFailureAt?.toISOString() ?? null,
     }])));
   } catch { /* Telemetry remains live when persistence is unavailable. */ }
 }
@@ -274,12 +277,13 @@ function persistSnapshots() {
 function restoreSnapshots() {
   if (typeof window === 'undefined' || snapshots.size) return;
   try {
-    const stored = JSON.parse(window.localStorage.getItem(telemetrySnapshotStorageKey) || '[]') as Array<[string, Omit<OperationSnapshot, 'checkedAt' | 'changedAt' | 'lastSuccessAt'> & { checkedAt: string; changedAt: string; lastSuccessAt?: string | null }]>;
+    const stored = JSON.parse(window.localStorage.getItem(telemetrySnapshotStorageKey) || '[]') as Array<[string, Omit<OperationSnapshot, 'checkedAt' | 'changedAt' | 'lastSuccessAt' | 'lastFailureAt'> & { checkedAt: string; changedAt: string; lastSuccessAt?: string | null; lastFailureAt?: string | null }]>;
     stored.forEach(([id, snapshot]) => snapshots.set(id, {
       ...snapshot,
       checkedAt: new Date(snapshot.checkedAt),
       changedAt: new Date(snapshot.changedAt),
       lastSuccessAt: snapshot.lastSuccessAt ? new Date(snapshot.lastSuccessAt) : null,
+      lastFailureAt: snapshot.lastFailureAt ? new Date(snapshot.lastFailureAt) : null,
     }));
   } catch { /* Invalid persisted telemetry is ignored and rebuilt from sources. */ }
 }
@@ -346,7 +350,7 @@ function renderSnapshot(source: OperationService, snapshot: OperationSnapshot) {
     if (effectiveUrl) effectiveUrl.textContent = snapshot.effectiveUrl ?? source.url ?? 'N/A';
     if (lastSuccess) lastSuccess.textContent = snapshot.lastSuccessAt?.toLocaleString() ?? 'Niciun succes înregistrat';
     if (lastFailure) lastFailure.textContent = snapshot.lastFailureAt
-      ? `${snapshot.lastFailureAt.toLocaleString()}${snapshot.reason ? ` · ${snapshot.reason}` : ''}`
+      ? `${snapshot.lastFailureAt.toLocaleString()}${snapshot.lastFailureReason ? ` · ${snapshot.lastFailureReason}` : ''}`
       : 'Niciun eșec înregistrat';
     updateStatusLight(agent, 'agent', agentAvailability(source));
     updateStatusLight(target, 'target', targetAvailability(snapshot));
@@ -402,6 +406,7 @@ async function checkSource(source: OperationService) {
           : null,
       lastSuccessAt: typeof data?.lastSuccessAt === 'string' ? new Date(data.lastSuccessAt) : undefined,
       lastFailureAt: typeof data?.lastFailureAt === 'string' ? new Date(data.lastFailureAt) : undefined,
+      lastFailureReason: typeof data?.lastFailureReason === 'string' ? data.lastFailureReason : undefined,
     });
   } catch (error) {
     const classified = source.id === 'cloudflare-public'

@@ -21,6 +21,7 @@ describe('ComponentTelemetryService', () => {
     }, checkedAt);
     expect(degraded.status).toBe('DEGRADED');
     expect(degraded.reason).toBe('CLIENT_CHECK_FAILED');
+    expect(degraded.lastFailureReason).toBe('CLIENT_CHECK_FAILED');
 
     const stale = service.snapshotFrom({
       componentId: 'android', reportedStatus: 'ONLINE', lastSeenAt: new Date('2026-08-23T12:00:00.000Z'),
