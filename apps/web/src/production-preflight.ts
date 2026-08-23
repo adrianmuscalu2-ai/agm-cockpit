@@ -27,6 +27,7 @@ export function renderProductionPreflight(snapshot?: ProductionPreflightSnapshot
 }
 
 let pollTimer: number | undefined;
+export const productionPreflightPollIntervalMs = 60_000;
 function apiBaseUrl() {
   const env = (import.meta as ImportMeta & { env?: Record<string, string | boolean | undefined> }).env;
   const configured = typeof env?.VITE_AGM_API_BASE_URL === 'string' ? env.VITE_AGM_API_BASE_URL.trim() : '';
@@ -53,7 +54,7 @@ export function bindProductionPreflight(onSnapshot: (snapshot: ProductionPreflig
   };
   void refresh();
   if (pollTimer !== undefined) window.clearInterval(pollTimer);
-  pollTimer = window.setInterval(() => void refresh(), 30_000);
+  pollTimer = window.setInterval(() => void refresh(), productionPreflightPollIntervalMs);
 }
 
 function renderActivations() {

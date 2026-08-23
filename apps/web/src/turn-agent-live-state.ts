@@ -16,7 +16,7 @@ export type TurnAgentRuntimeEvent = {
 
 const tokenKey = 'agm.auth.accessToken';
 let pollTimer: number | undefined;
-export const turnAgentLivePollIntervalMs = 2_000;
+export const turnAgentLivePollIntervalMs = 5_000;
 let cursor: string | undefined;
 const seen = new Set<string>();
 const history: TurnAgentRuntimeEvent[] = [];

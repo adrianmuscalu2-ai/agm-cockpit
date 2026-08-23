@@ -57,6 +57,7 @@ export type AgentAvailability = 'ACTIVE' | 'DEGRADED' | 'UNAVAILABLE';
 export type TargetAvailability = 'HEALTHY' | 'DEGRADED' | 'OFFLINE' | 'UNKNOWN' | 'NOT APPLICABLE';
 
 export const operationFreshnessLimitMs = 90_000;
+export const operationsHealthPollIntervalMs = 60_000;
 
 export function operationFreshness(snapshot: OperationSnapshot, now = new Date()): OperationFreshness {
   if (snapshot.freshness === 'UNKNOWN') return 'UNKNOWN';
@@ -467,7 +468,7 @@ export function bindOperationsHealthChecks(onSnapshot?: (source: OperationServic
   if (pollTimer !== undefined) window.clearInterval(pollTimer);
   pollTimer = window.setInterval(
     () => void runHealthCycle(),
-    30_000,
+    operationsHealthPollIntervalMs,
   );
 
   document.querySelectorAll<HTMLButtonElement>('[data-operation-recheck]').forEach((button) => {

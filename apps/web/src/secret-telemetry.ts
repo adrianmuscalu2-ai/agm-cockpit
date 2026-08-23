@@ -11,6 +11,7 @@ export type SecretMetadata = { id: string; status: SecretMetadataStatus; provide
 export type SecretTelemetrySnapshot = { contract: typeof secretTelemetryContract.version; guardian: typeof secretTelemetryContract.guardianId; monitor: typeof secretTelemetryContract.monitorId; overallStatus: 'CONFIGURED' | 'ATTENTION'; checkedAt: string; secrets: SecretMetadata[] };
 
 let pollTimer: number | undefined;
+export const secretTelemetryPollIntervalMs = 60_000;
 
 function escapeHtml(value: string) {
   return value.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character] || character);
@@ -81,5 +82,5 @@ export function bindSecretTelemetry(onSnapshot: (snapshot: SecretTelemetrySnapsh
   };
   void refresh();
   if (pollTimer !== undefined) window.clearInterval(pollTimer);
-  pollTimer = window.setInterval(() => void refresh(), 30_000);
+  pollTimer = window.setInterval(() => void refresh(), secretTelemetryPollIntervalMs);
 }

@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import healthConfig from '../../../config/operations-health.json';
-import { agentAvailability, nextOperationSnapshot, operationFreshness, operationStatusForHttpFailure, type OperationService, type OperationSnapshot } from '../src/operations-health';
+import { agentAvailability, nextOperationSnapshot, operationFreshness, operationsHealthPollIntervalMs, operationStatusForHttpFailure, type OperationService, type OperationSnapshot } from '../src/operations-health';
+import { productionPreflightPollIntervalMs } from '../src/production-preflight';
+import { secretTelemetryPollIntervalMs } from '../src/secret-telemetry';
 import { turnAgentLivePollIntervalMs } from '../src/turn-agent-live-state';
 
 const sources = healthConfig.operationsServices as OperationService[];
@@ -28,7 +30,10 @@ assert.equal(operationFreshness(offline, new Date('2026-08-23T12:10:00.000Z')), 
 assert.equal(operationStatusForHttpFailure(429), 'UNKNOWN');
 assert.equal(operationStatusForHttpFailure(503), 'DEGRADED');
 assert.equal(operationStatusForHttpFailure(401), 'NOT VERIFIED');
-assert.equal(turnAgentLivePollIntervalMs, 2_000);
+assert.equal(turnAgentLivePollIntervalMs, 5_000);
+assert.equal(operationsHealthPollIntervalMs, 60_000);
+assert.equal(secretTelemetryPollIntervalMs, 60_000);
+assert.equal(productionPreflightPollIntervalMs, 60_000);
 
 const previousFailure: OperationSnapshot = {
   status: 'UNKNOWN', checkedAt: old, changedAt: old, latencyMs: null, freshness: 'UNKNOWN',
