@@ -103,7 +103,7 @@ export function bindCarMoverRuntime() {
   }
 
   root.querySelector('[data-car-mover-refresh]')?.addEventListener('click', () => void load());
-  root.querySelector('[data-car-mover-analyze]')?.addEventListener('click',async()=>{try{const result=await carMoverClient.analyzeOffers();status.textContent=`${result.created} propuneri noi din ${result.scanned} mesaje verificate.`;await loadOffers();}catch(error){reportError(error);}});
+  root.querySelector('[data-car-mover-analyze]')?.addEventListener('click',async()=>{try{const result=await carMoverClient.analyzeOffers();status.textContent=`${result.sync.ingested} mesaje Gmail sincronizate · ${result.created} propuneri noi din ${result.scanned} mesaje verificate.`;await loadOffers();}catch(error){reportError(error);}});
   offersRoot.addEventListener('click',async(event)=>{const button=(event.target as HTMLElement).closest<HTMLButtonElement>('[data-review-offer]');if(!button?.dataset.reviewOffer)return;try{await carMoverClient.reviewOffer(button.dataset.reviewOffer,{status:button.dataset.offerStatus});await loadOffers();}catch(error){reportError(error);}});
   root.querySelector('[data-car-mover-close]')?.addEventListener('click', () => dialog.close());
   const createForm = root.querySelector<HTMLFormElement>('[data-car-mover-create]');

@@ -32,4 +32,10 @@ export class CommunicationController {
 
   @Get('providers/status')
   status() { return responseEnvelope(this.service.providerStatus()); }
+
+  @Post('sync/:channel')
+  async sync(@Param('channel') channel: 'email'|'whatsapp', @CurrentUser() user: RequestContext, @Headers('x-request-id') requestId?: string) {
+    const ctx = { ...user, requestId: requestIdFromHeader(requestId), correlationId: randomUUID() };
+    return responseEnvelope(await this.service.syncRecent(channel, ctx), ctx.requestId);
+  }
 }

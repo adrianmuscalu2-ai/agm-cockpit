@@ -9,6 +9,7 @@ const out=path.join(root,'evidence','car-mover','p1-operations','android',runId)
 const runFile=promisify(execFile);
 const adb=path.join(process.env.LOCALAPPDATA??'','Android','Sdk','platform-tools','adb.exe');
 const captureOnly=process.env.CAR_MOVER_CAPTURE_ONLY==='1';
+const externalCheck=process.env.CAR_MOVER_VALIDATE_GMAIL==='1';
 const results=[],diagnostics=[];let browser,fatal;
 await mkdir(out,{recursive:true});
 
@@ -25,7 +26,7 @@ try{
   page.on('requestfailed',request=>diagnostics.push({type:'requestfailed',url:request.url(),failure:request.failure()}));
   page.on('console',message=>diagnostics.push({type:'console',level:message.type(),text:message.text()}));
   if(new URL(page.url()).origin!=='https://localhost')throw Error(`ANDROID_ORIGIN_MISMATCH:${page.url()}`);
-  const runtime=await page.evaluate(async({runId,captureOnly})=>{
+  const runtime=await page.evaluate(async({runId,captureOnly,externalCheck})=>{
     const api='https://api.agmcockpit.com/api/v1';
     const fetchRetry=async(url,init)=>{let failure;for(let attempt=0;attempt<5;attempt++){try{return await fetch(url,init);}catch(error){failure=error;await new Promise(resolve=>setTimeout(resolve,1000));}}throw failure;};
     let token=sessionStorage.getItem('agm.auth.accessToken');
@@ -42,11 +43,23 @@ try{
     }
     const file=await call(`/car-mover/jobs/${job.id}`);
     const providers=await call('/communications/providers/status');
-    const extraction=await call('/car-mover/jobs/platform-offers/analyze',{method:'POST'});
-    const offers=await call('/car-mover/jobs/platform-offers/list');
-    return{jobId:job.id,analysis:file.analysis,financeRecorded:captureOnly||file.financialEntries.some(item=>item.sourceReference===reference),invoiceRecorded:captureOnly||file.invoices.some(item=>item.evidenceReference===reference),providers,extraction,offerCount:offers.length,captureOnly};
-  },{runId,captureOnly});
+    const externalReference=`AGM-${runId}`.replace(/[^A-Z0-9-]/gi,'').slice(0,36);
+    if(externalCheck){
+      await call('/communications/messages',{method:'POST',body:JSON.stringify({message:{contractVersion:'communication-message.v1',clientMessageId:crypto.randomUUID(),channel:'email',to:'agm.transporte.logistik@gmail.com',subject:`ONLOGIST order ${externalReference} from Berlin to Hamburg`,bodyText:`Vehicle: VW Golf offer 480 EUR 292 km. Reference: ${externalReference}`}})});
+    }
+    let gmailSync={scanned:0,ingested:0,duplicates:0},extraction={scanned:0,created:0,duplicates:0},offers=[];
+    for(let attempt=0;attempt<(externalCheck?6:1);attempt++){
+      if(attempt)await new Promise(resolve=>setTimeout(resolve,2500));
+      gmailSync=await call('/communications/sync/email',{method:'POST'});
+      extraction=await call('/car-mover/jobs/platform-offers/analyze',{method:'POST'});
+      offers=await call('/car-mover/jobs/platform-offers/list');
+      if(!externalCheck||offers.some(item=>item.externalReference===externalReference))break;
+    }
+    const externalOfferFound=!externalCheck||offers.some(item=>item.externalReference===externalReference);
+    return{jobId:job.id,analysis:file.analysis,financeRecorded:captureOnly||file.financialEntries.some(item=>item.sourceReference===reference),invoiceRecorded:captureOnly||file.invoices.some(item=>item.evidenceReference===reference),providers,gmailSync,extraction,offerCount:offers.length,captureOnly,externalCheck,externalReference,externalOfferFound};
+  },{runId,captureOnly,externalCheck});
   if(!runtime.financeRecorded||!runtime.invoiceRecorded)throw Error('P1_RECORDS_NOT_PERSISTED');
+  if(externalCheck&&!runtime.externalOfferFound)throw Error('GMAIL_PLATFORM_OFFER_NOT_INGESTED');
   await page.evaluate(()=>{history.pushState({},'','/car-mover');dispatchEvent(new PopStateEvent('popstate'));});
   await page.waitForSelector('[data-car-mover-root]');
   await page.waitForSelector('[data-car-mover-provider-status]');

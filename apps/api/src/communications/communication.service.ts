@@ -68,6 +68,18 @@ export class CommunicationService {
 
   providerStatus(){ return this.providers.status(); }
 
+  async syncRecent(channel: 'email'|'whatsapp', ctx: RequestContext) {
+    const provider = this.provider(channel);
+    if (!provider.readRecent) throw new ServiceUnavailableException({ code: 'COMMUNICATION_PROVIDER_SYNC_NOT_SUPPORTED', channel });
+    const messages = await provider.readRecent();
+    let ingested = 0, duplicates = 0;
+    for (const message of messages) {
+      const result = await this.ingest(message, ctx.companyId);
+      if (result.duplicate) duplicates++; else ingested++;
+    }
+    return { channel, provider: provider.provider, scanned: messages.length, ingested, duplicates };
+  }
+
   private async deliver(message: any, input: OutboundCommunication, duplicate: boolean) {
     const provider = this.provider(input.channel);
     await this.prisma.communicationMessage.update({ where: { id: message.id }, data: { status: 'sending', statusUpdatedAt: new Date() } });

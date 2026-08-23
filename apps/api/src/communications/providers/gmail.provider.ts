@@ -53,6 +53,15 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
     return Promise.all(ids.map(async (id) => this.toInbound(await this.getMessage(id), pushEventId)));
   }
 
+  async readRecent(): Promise<InboundCommunication[]> {
+    if (!this.configured()) throw new Error('COMMUNICATION_PROVIDER_NOT_CONFIGURED:email');
+    const query = encodeURIComponent('in:inbox newer_than:14d');
+    const response = await this.gmail(`/messages?q=${query}&maxResults=100`);
+    const list = await response.json() as { messages?: Array<{ id?: string }> };
+    const ids = [...new Set((list.messages ?? []).map((item) => item.id).filter((id): id is string => Boolean(id)))];
+    return Promise.all(ids.map(async (id) => this.toInbound(await this.getMessage(id), `gmail-sync:${id}`)));
+  }
+
   private async getMessage(id: string) {
     const response = await this.gmail(`/messages/${encodeURIComponent(id)}?format=full`);
     return response.json() as Promise<GmailMessage>;
