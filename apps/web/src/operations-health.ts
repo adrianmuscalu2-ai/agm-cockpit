@@ -114,6 +114,25 @@ function envelopeData(value: unknown): Record<string, unknown> | null {
   return candidate as Record<string, unknown>;
 }
 
+function nullableDateField(
+  record: Record<string, unknown> | null,
+  key: string,
+): Date | null | undefined {
+  if (!record || !Object.prototype.hasOwnProperty.call(record, key)) return undefined;
+  if (record[key] === null) return null;
+  if (typeof record[key] !== 'string') return undefined;
+  const value = new Date(record[key]);
+  return Number.isNaN(value.getTime()) ? undefined : value;
+}
+
+function nullableStringField(
+  record: Record<string, unknown> | null,
+  key: string,
+): string | null | undefined {
+  if (!record || !Object.prototype.hasOwnProperty.call(record, key)) return undefined;
+  return record[key] === null ? null : typeof record[key] === 'string' ? record[key] : undefined;
+}
+
 function findDependencies(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== 'object') return null;
   const record = value as Record<string, unknown>;
@@ -390,23 +409,26 @@ async function checkSource(source: OperationService) {
     const data = envelopeData(body);
     const observedAt = source.evaluator === 'component' && typeof data?.lastSeenAt === 'string' ? new Date(data.lastSeenAt) : checkedAt;
     const effectiveCheckedAt = Number.isNaN(observedAt.getTime()) ? checkedAt : observedAt;
+    const responseReason = typeof data?.reason === 'string'
+      ? data.reason
+      : !response.ok
+        ? response.status === 429
+          ? 'RATE_LIMITED'
+          : source.evaluator === 'guardian'
+            ? String(data?.overallStatus ?? 'GUARDIAN_STATUS_UNKNOWN')
+            : `HTTP_${response.status}`
+        : null;
+    const reportedLastFailureAt = nullableDateField(data, 'lastFailureAt');
+    const reportedLastFailureReason = nullableStringField(data, 'lastFailureReason');
     updateSnapshot(source, evaluated.status, effectiveCheckedAt, Math.round(performance.now() - started), {
       outcome: evaluated.outcome,
       httpStatus: response.status,
       effectiveUrl: source.id === 'cloudflare-public' ? source.url : response.url || resolvedUrl(source),
       confirmedOffline: evaluated.confirmedOffline,
-      reason: typeof data?.reason === 'string'
-        ? data.reason
-        : !response.ok
-          ? response.status === 429
-            ? 'RATE_LIMITED'
-            : source.evaluator === 'guardian'
-              ? String(data?.overallStatus ?? 'GUARDIAN_STATUS_UNKNOWN')
-              : `HTTP_${response.status}`
-          : null,
+      reason: responseReason,
       lastSuccessAt: typeof data?.lastSuccessAt === 'string' ? new Date(data.lastSuccessAt) : undefined,
-      lastFailureAt: typeof data?.lastFailureAt === 'string' ? new Date(data.lastFailureAt) : undefined,
-      lastFailureReason: typeof data?.lastFailureReason === 'string' ? data.lastFailureReason : undefined,
+      lastFailureAt: reportedLastFailureAt !== undefined ? reportedLastFailureAt : !response.ok ? checkedAt : undefined,
+      lastFailureReason: reportedLastFailureReason !== undefined ? reportedLastFailureReason : !response.ok ? responseReason : undefined,
     });
   } catch (error) {
     const classified = source.id === 'cloudflare-public'
@@ -416,6 +438,8 @@ async function checkSource(source: OperationService) {
       outcome: classified.outcome,
       effectiveUrl: resolvedUrl(source),
       confirmedOffline: classified.confirmedOffline,
+      lastFailureAt: checkedAt,
+      lastFailureReason: classified.outcome,
     });
   } finally {
     window.clearTimeout(timeout);

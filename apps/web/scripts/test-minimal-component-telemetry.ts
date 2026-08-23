@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import healthConfig from '../../../config/operations-health.json';
-import { agentAvailability, operationFreshness, operationStatusForHttpFailure, type OperationService, type OperationSnapshot } from '../src/operations-health';
+import { agentAvailability, nextOperationSnapshot, operationFreshness, operationStatusForHttpFailure, type OperationService, type OperationSnapshot } from '../src/operations-health';
 import { turnAgentLivePollIntervalMs } from '../src/turn-agent-live-state';
 
 const sources = healthConfig.operationsServices as OperationService[];
@@ -29,6 +29,21 @@ assert.equal(operationStatusForHttpFailure(429), 'UNKNOWN');
 assert.equal(operationStatusForHttpFailure(503), 'DEGRADED');
 assert.equal(operationStatusForHttpFailure(401), 'NOT VERIFIED');
 assert.equal(turnAgentLivePollIntervalMs, 2_000);
+
+const previousFailure: OperationSnapshot = {
+  status: 'UNKNOWN', checkedAt: old, changedAt: old, latencyMs: null, freshness: 'UNKNOWN',
+  lastFailureAt: old, lastFailureReason: 'TRANSPORT_ERROR',
+};
+const recoveredHeartbeat = nextOperationSnapshot(
+  previousFailure,
+  android,
+  'ONLINE',
+  new Date('2026-08-23T12:01:00.000Z'),
+  40,
+  { lastFailureAt: null, lastFailureReason: null },
+);
+assert.equal(recoveredHeartbeat.lastFailureAt, null);
+assert.equal(recoveredHeartbeat.lastFailureReason, null);
 
 const statusBoardSource = await readFile(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
 const operationsSource = await readFile(new URL('../src/operations-health.ts', import.meta.url), 'utf8');
