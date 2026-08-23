@@ -16,6 +16,8 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     ['20260816090000_refresh_families_and_dsar', 'a4e6fe50782e3f5affd7ad2c964c21136240237598be2eec052cd596ac71b744'],
     ['20260816190000_add_dsar_external_and_subject_index', '78ece7796aa97d6874203cbfdc9a7ddae3d9e897a9291de74422d51691cceae4'],
     ['20260816200000_refresh_auth_session_families', 'bea47e55612cb8537e03a58698e1d1c75ac3affd0189b633fdd56dd89229b3be'],
+    ['20260823110000_add_agent_runtime_events', 'c6bf2c5f3be1b3526449b68eed5ba9ae2d653b1b473f8e62e351a086873105c7'],
+    ['20260823110100_order_agent_runtime_events', 'b7f27a11313d09edbdf6d6878016591fb846f8a2f475abda5faf5e9f1297a43b'],
   ] as const,
   criticalModels: [
     'Company',
@@ -41,6 +43,7 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     'CarMoverVehicleSubject',
     'CarMoverJob',
     'DataSubjectRequest',
+    'AgentRuntimeEvent',
   ] as const,
   tenantScopedModels: [
     'User',
@@ -63,5 +66,6 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     'CarMoverVehicleSubject',
     'CarMoverJob',
     'DataSubjectRequest',
+    'AgentRuntimeEvent',
   ] as const,
 } as const;
