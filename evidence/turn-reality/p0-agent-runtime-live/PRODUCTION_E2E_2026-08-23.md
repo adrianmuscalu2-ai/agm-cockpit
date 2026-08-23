@@ -1,7 +1,7 @@
 # TURN P0 — First Real Agent Production E2E
 
-Checked at: 2026-08-23 12:31 Europe/Berlin  
-Production URL: `https://app.agmcockpit.com/turn`  
+Checked at: 2026-08-23 12:31 Europe/Berlin
+Production URL: `https://app.agmcockpit.com/turn`
 Result: `PASS`
 
 ## Release identity
@@ -59,4 +59,3 @@ The first Production attempt emitted `EVIDENCE_REF_OUTSIDE_ROOT` because the evi
 ## Final chain
 
 `REAL EXECUTOR → P3 → PERSISTENT API/EVENT SOURCE → TURN LIVE PANEL → RELOAD PERSISTENCE = PASS`
-
