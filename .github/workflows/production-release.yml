@@ -38,6 +38,7 @@ jobs:
           echo "DATABASE_URL=postgresql://ci:ci@127.0.0.1:5432/ci" >> "$GITHUB_ENV"
           echo "OPENAI_API_KEY=ci-$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - run: pnpm --filter @agm/api test -- --runInBand
+      - run: pnpm --filter @agm/copilot-control-plane build
       - run: pnpm --filter @agm/api build
       - run: pnpm --filter @agm/web build
 

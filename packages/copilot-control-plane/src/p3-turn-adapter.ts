@@ -78,12 +78,12 @@ export class ExecutableAgentRegistry {
 export const defaultExecutableAgentRegistry = new ExecutableAgentRegistry();
 defaultExecutableAgentRegistry.register('agent-inspector', executeAgentInspector);
 
-export async function executeP3AgentInspector(input: AdmissionRequest & Omit<InspectorExecutionContext, 'mandateId' | 'agentId' | 'dossierId' | 'now' | 'onLifecycle'> & { mandateId: string; now?: () => Date }, runtime: EphemeralDossierRuntime, adapter: P3TurnLifecycleAdapter, registry = defaultExecutableAgentRegistry) {
+export async function executeP3AgentInspector(input: Omit<AdmissionRequest, 'now'> & Omit<InspectorExecutionContext, 'mandateId' | 'agentId' | 'dossierId' | 'now' | 'onLifecycle'> & { mandateId: string; now: string }, runtime: EphemeralDossierRuntime, adapter: P3TurnLifecycleAdapter, registry = defaultExecutableAgentRegistry) {
   const target = registry.resolve(input.agentId);
   if (!target) throw new Error(`NOT_EXECUTABLE:${input.agentId}`);
   const session = runtime.start(input);
   try {
-    const result = await target({ mandateId: input.mandateId, agentId: 'agent-inspector', dossierId: input.dossierId, evidenceRef: input.evidenceRef, evidenceRoot: input.evidenceRoot, outputRoot: input.outputRoot, capabilities: ['evidence:read'], tools: ['filesystem:read'], now: input.now ? () => new Date(input.now) : undefined, onLifecycle: (event) => { adapter.ingest(event); } });
+    const result = await target({ mandateId: input.mandateId, agentId: 'agent-inspector', dossierId: input.dossierId, evidenceRef: input.evidenceRef, evidenceRoot: input.evidenceRoot, outputRoot: input.outputRoot, capabilities: ['evidence:read'], tools: ['filesystem:read'], now: () => new Date(input.now), onLifecycle: (event) => { adapter.ingest(event); } });
     return { session, result };
   } finally {
     await adapter.flush();

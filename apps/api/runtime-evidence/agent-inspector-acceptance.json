@@ -1,0 +1,7 @@
+{
+  "contract": "agm.turn.agent-inspector.production-acceptance.v1",
+  "subject": "P3 to persistent EventStore to live TURN",
+  "requiredLifecycle": ["STARTED", "WORKING", "COMPLETED"],
+  "evidencePolicy": "real-file-read-and-sha256",
+  "status": "READY_FOR_INSPECTION"
+}

@@ -67,6 +67,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@agm/copilot-control-plane':
+        specifier: workspace:*
+        version: link:../../packages/copilot-control-plane
       '@nestjs/common':
         specifier: ^11.2.1
         version: 11.2.1(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)

@@ -41,10 +41,23 @@ function escapeHtml(value: string) {
 
 export function renderTurnAgentLiveState() {
   return `<section class="turn-agent-live-state" data-turn-agent-live="loading" aria-live="polite" aria-atomic="false">
-    <header><div><span class="turn-kicker">P3 → EVENTSTORE/API → TURN</span><h3>Execuție reală agenți</h3></div><strong data-live-connection>CONNECTING</strong></header>
+    <header><div><span class="turn-kicker">P3 → EVENTSTORE/API → TURN</span><h3>Execuție reală agenți</h3></div><div class="turn-live-actions"><strong data-live-connection>CONNECTING</strong><button type="button" data-live-run-inspector>Rulează verificarea reală</button></div></header>
     <p data-live-current>Nicio execuție runtime încărcată.</p>
     <ol data-live-events></ol>
   </section>`;
+}
+
+async function runInspectorAcceptance(fetcher: typeof fetch) {
+  const token = sessionStorage.getItem(tokenKey);
+  if (!token) throw new Error('AGENT_RUNTIME_EXECUTION_AUTH_REQUIRED');
+  for (const expectedOutcome of ['COMPLETED', 'FAILED'] as const) {
+    const response = await fetcher(`${apiBaseUrl()}/agent-runtime-events/execute-inspector`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ expectedOutcome }),
+    });
+    if (!response.ok) throw new Error(`AGENT_RUNTIME_EXECUTION_HTTP_${response.status}`);
+  }
 }
 
 function renderHistory() {
@@ -124,4 +137,13 @@ export function bindTurnAgentLiveState(fetcher: typeof fetch = fetch) {
   });
   run();
   pollTimer = window.setInterval(run, 1000);
+  const trigger = document.querySelector<HTMLButtonElement>('[data-live-run-inspector]');
+  trigger?.addEventListener('click', () => {
+    trigger.disabled = true;
+    const connection = document.querySelector<HTMLElement>('[data-live-connection]');
+    if (connection) connection.textContent = 'EXECUTING REAL AGENT';
+    void runInspectorAcceptance(fetcher).then(() => run()).catch(() => {
+      if (connection) connection.textContent = 'EXECUTION FAILED';
+    }).finally(() => { trigger.disabled = false; });
+  }, { once: true });
 }

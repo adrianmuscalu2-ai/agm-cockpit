@@ -12,13 +12,16 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY apps/api/package.json apps/api/package.json
+COPY packages/copilot-control-plane/package.json packages/copilot-control-plane/package.json
 COPY prisma prisma
 
 RUN pnpm install --frozen-lockfile
 
 COPY apps/api apps/api
+COPY packages/copilot-control-plane packages/copilot-control-plane
 
 RUN pnpm exec prisma generate
+RUN pnpm --filter @agm/copilot-control-plane build
 RUN pnpm --filter @agm/api build
 
 FROM node:22-bookworm-slim AS runtime

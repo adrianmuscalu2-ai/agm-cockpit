@@ -495,6 +495,9 @@
 }
 .turn-agent-live-state > header { display: flex; justify-content: space-between; gap: 1rem; align-items: start; }
 .turn-agent-live-state > header h3 { margin: .2rem 0 0; }
+.turn-live-actions { display: flex; gap: .65rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.turn-live-actions button { border: 1px solid rgba(82, 231, 255, .7); border-radius: 999px; padding: .45rem .8rem; background: rgba(82, 231, 255, .09); color: #bff7ff; font: inherit; cursor: pointer; }
+.turn-live-actions button:disabled { opacity: .55; cursor: wait; }
 .turn-agent-live-state [data-live-connection] { color: #52e7ff; }
 .turn-agent-live-state ol { display: grid; gap: .45rem; margin: .8rem 0 0; padding: 0; list-style: none; }
 .turn-agent-live-state li { display: grid; grid-template-columns: minmax(7rem, auto) 1fr auto; gap: .4rem .8rem; align-items: center; padding: .55rem .7rem; border-left: 4px solid #52e7ff; background: rgba(255,255,255,.035); }

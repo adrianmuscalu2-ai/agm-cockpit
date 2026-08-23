@@ -1,0 +1,36 @@
+{
+  "contract": "agm.turn-agent-runtime-execution-endpoint-e2e.v1",
+  "checkedAt": "2026-08-23T09:26:32.679Z",
+  "apiBaseUrl": "http://127.0.0.1:3012/api/v1",
+  "actorRole": "company_owner",
+  "completed": {
+    "mandateId": "turn-production-completed-mt5lroq4-9cd514b0",
+    "agentId": "agent-inspector",
+    "expectedOutcome": "COMPLETED",
+    "lifecycle": [
+      "STARTED",
+      "WORKING",
+      "COMPLETED"
+    ],
+    "evidenceRef": "apps/api/runtime-evidence/agent-inspector-acceptance.json",
+    "outputRef": "C:\\Users\\adria\\AppData\\Local\\Temp\\agm-agent-inspector\\turn-production-completed-mt5lroq4-9cd514b0-agent-inspector-report.json",
+    "evidenceHash": "9af83a972f09be62fa238736f50d2c39e2567346c6457dc7cef197f7afa69f82",
+    "failure": null
+  },
+  "failed": {
+    "mandateId": "turn-production-failed-mt5lrouw-a725ac1b",
+    "agentId": "agent-inspector",
+    "expectedOutcome": "FAILED",
+    "lifecycle": [
+      "STARTED",
+      "WORKING",
+      "FAILED"
+    ],
+    "evidenceRef": "apps/api/runtime-evidence/agent-inspector-missing.json",
+    "outputRef": null,
+    "evidenceHash": null,
+    "failure": "ENOENT: no such file or directory, open 'C:\\Users\\adria\\Documents\\AGM\\apps\\api\\runtime-evidence\\agent-inspector-missing.json'"
+  },
+  "persistenceVerified": true,
+  "result": "PASS"
+}
