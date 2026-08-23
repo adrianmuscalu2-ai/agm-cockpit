@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import healthConfig from '../../../config/operations-health.json';
 import { agentAvailability, operationFreshness, type OperationService, type OperationSnapshot } from '../src/operations-health';
 
@@ -23,5 +24,15 @@ assert.deepEqual(telemetry.dependencies, ['server-primary', 'api', 'browser', 'a
 const old = new Date('2026-08-23T12:00:00.000Z');
 const offline: OperationSnapshot = { status: 'OFFLINE', checkedAt: old, changedAt: old, latencyMs: null, freshness: 'OFFLINE' };
 assert.equal(operationFreshness(offline, new Date('2026-08-23T12:10:00.000Z')), 'OFFLINE');
+
+const statusBoardSource = await readFile(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
+const operationsSource = await readFile(new URL('../src/operations-health.ts', import.meta.url), 'utf8');
+const monitoringSource = await readFile(new URL('../src/monitoring-department.ts', import.meta.url), 'utf8');
+assert.match(statusBoardSource, /data-live-component-id/);
+assert.match(statusBoardSource, /data-component-live-status/);
+assert.match(operationsSource, /realStatusBoardState/);
+assert.match(operationsSource, /\[data-live-component-id=/);
+assert.match(monitoringSource, /health \+ heartbeat \+ freshness/);
+assert.doesNotMatch(monitoringSource, /colector neimplementat/);
 
 console.log('Minimal component telemetry contract: PASS');

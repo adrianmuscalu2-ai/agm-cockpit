@@ -203,6 +203,15 @@ function iconForStatus(status: OperationStatus) {
   return '⚪';
 }
 
+function realStatusBoardState(snapshot: OperationSnapshot) {
+  if (operationFreshness(snapshot) === 'STALE') return 'no-telemetry';
+  if (snapshot.status === 'ONLINE' || snapshot.status === 'READY') return 'operational';
+  if (snapshot.status === 'DEGRADED') return 'degraded';
+  if (snapshot.status === 'OFFLINE') return 'failed';
+  if (snapshot.status === 'NOT IMPLEMENTED' || snapshot.status === 'NOT VERIFIED') return 'planned';
+  return 'no-telemetry';
+}
+
 export function nextOperationSnapshot(
   previous: OperationSnapshot | undefined,
   source: OperationService,
@@ -281,6 +290,17 @@ function ageLabel(snapshot: OperationSnapshot, now = new Date()) {
 }
 
 function renderSnapshot(source: OperationService, snapshot: OperationSnapshot) {
+  document.querySelectorAll<HTMLElement>(`[data-live-component-id="${source.id}"]`).forEach((row) => {
+    row.classList.remove('operational', 'degraded', 'failed', 'planned', 'no-telemetry');
+    row.classList.add(realStatusBoardState(snapshot));
+    const status = row.querySelector<HTMLElement>('[data-component-live-status]');
+    if (status) {
+      status.textContent = operationFreshness(snapshot) === 'STALE'
+        ? 'STALE'
+        : source.displayStatus ?? snapshot.status;
+    }
+  });
+
   const cards = document.querySelectorAll<HTMLElement>(
     `[data-operation-id="${source.id}"]`,
   );

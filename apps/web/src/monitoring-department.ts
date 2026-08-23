@@ -81,8 +81,8 @@ export const monitoringAgents: MonitoringAgent[] = [
   {
     id: 'monitor-telemetry', code: 'MON-011', name: 'Agent Monitorizare Telemetrie',
     component: 'Colectare telemetrie continuă', sourceId: 'telemetry',
-    source: 'Registru monitorizare · colector neimplementat', responsibilities: 'Semnalează explicit lipsa telemetriei fără a crea incident.',
-    intervention: 'Definește colectorul și politica de retenție înainte de activare.', incidentTerms: ['telemetrie'],
+    source: 'Strat minim operațional · health + heartbeat + freshness; fără analytics', responsibilities: 'Corelează health, heartbeat și freshness fără a transforma lipsa datelor în defect.',
+    intervention: 'Verifică sursa componentelor critice și păstrează UNKNOWN când nu există dovadă.', incidentTerms: ['telemetrie'],
   },
   {
     id: 'monitor-security', code: 'MON-012', name: 'Agent de Securitate',
