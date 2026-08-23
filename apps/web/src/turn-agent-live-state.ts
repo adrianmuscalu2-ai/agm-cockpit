@@ -22,6 +22,7 @@ const history: TurnAgentRuntimeEvent[] = [];
 const pendingVisualEvents: TurnAgentRuntimeEvent[] = [];
 let visualTimer: number | undefined;
 let currentRuntimeEvent: TurnAgentRuntimeEvent | undefined;
+let tokenRestore: Promise<string | undefined> | undefined;
 
 function apiBaseUrl() {
   const configured = import.meta.env.VITE_AGM_API_BASE_URL?.trim().replace(/\/$/, '');
@@ -47,8 +48,27 @@ export function renderTurnAgentLiveState() {
   </section>`;
 }
 
+async function accessToken(fetcher: typeof fetch) {
+  const current = sessionStorage.getItem(tokenKey);
+  if (current) return current;
+  if (!tokenRestore) {
+    tokenRestore = fetcher(`${apiBaseUrl()}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    }).then(async (response) => {
+      if (!response.ok) return undefined;
+      const payload = await response.json() as { data?: { accessToken?: string } };
+      const restored = payload.data?.accessToken?.trim();
+      if (restored) sessionStorage.setItem(tokenKey, restored);
+      return restored;
+    }).catch(() => undefined).finally(() => { tokenRestore = undefined; });
+  }
+  return tokenRestore;
+}
+
 async function runInspectorAcceptance(fetcher: typeof fetch) {
-  const token = sessionStorage.getItem(tokenKey);
+  const token = await accessToken(fetcher);
   if (!token) throw new Error('AGENT_RUNTIME_EXECUTION_AUTH_REQUIRED');
   for (const expectedOutcome of ['COMPLETED', 'FAILED'] as const) {
     const response = await fetcher(`${apiBaseUrl()}/agent-runtime-events/execute-inspector`, {
@@ -110,7 +130,7 @@ export function applyTurnAgentRuntimeEvents(events: readonly TurnAgentRuntimeEve
 async function poll(fetcher: typeof fetch) {
   const root = document.querySelector<HTMLElement>('[data-turn-agent-live]');
   if (!root) return;
-  const token = sessionStorage.getItem(tokenKey);
+  const token = await accessToken(fetcher);
   if (!token) {
     root.dataset.turnAgentLive = 'auth-required';
     const connection = root.querySelector<HTMLElement>('[data-live-connection]');
@@ -120,7 +140,10 @@ async function poll(fetcher: typeof fetch) {
   const query = new URLSearchParams({ limit: '200' });
   if (cursor) query.set('after', cursor);
   const response = await fetcher(`${apiBaseUrl()}/agent-runtime-events?${query}`, { cache: 'no-store', headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } });
-  if (!response.ok) throw new Error(`AGENT_RUNTIME_EVENTS_HTTP_${response.status}`);
+  if (!response.ok) {
+    if (response.status === 401) sessionStorage.removeItem(tokenKey);
+    throw new Error(`AGENT_RUNTIME_EVENTS_HTTP_${response.status}`);
+  }
   const payload = await response.json() as { data?: { events?: TurnAgentRuntimeEvent[]; cursor?: string | null } };
   applyTurnAgentRuntimeEvents(payload.data?.events ?? []);
   cursor = payload.data?.cursor ?? cursor;
