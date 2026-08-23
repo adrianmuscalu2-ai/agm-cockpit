@@ -393,11 +393,13 @@ async function checkSource(source: OperationService) {
       confirmedOffline: evaluated.confirmedOffline,
       reason: typeof data?.reason === 'string'
         ? data.reason
-        : response.status === 429
-          ? 'RATE_LIMITED'
-          : source.evaluator === 'guardian'
-            ? String(data?.overallStatus ?? 'GUARDIAN_STATUS_UNKNOWN')
-            : null,
+        : !response.ok
+          ? response.status === 429
+            ? 'RATE_LIMITED'
+            : source.evaluator === 'guardian'
+              ? String(data?.overallStatus ?? 'GUARDIAN_STATUS_UNKNOWN')
+              : `HTTP_${response.status}`
+          : null,
       lastSuccessAt: typeof data?.lastSuccessAt === 'string' ? new Date(data.lastSuccessAt) : undefined,
       lastFailureAt: typeof data?.lastFailureAt === 'string' ? new Date(data.lastFailureAt) : undefined,
     });
