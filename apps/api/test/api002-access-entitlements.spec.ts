@@ -14,17 +14,17 @@ describe('API-002 access entitlements contract', () => {
     });
   });
 
-  it('grants the core Premium capabilities without Car Mover for the explicit Premium role', () => {
+  it('grants all AGM Premium capabilities, including Car Mover, for the explicit Premium role', () => {
     const snapshot = evaluateAccessEntitlements({
       subjectId: 'user-premium', roles: ['DRIVER', ACCESS_ENTITLEMENTS_CONTRACT.premiumRole], evaluatedAt,
     });
     expect(snapshot.tier).toBe('premium');
-    expect(snapshot.capabilities).toEqual(premiumCapabilityIds.filter((capability) => capability !== 'car-mover.jobs'));
+    expect(snapshot.capabilities).toEqual(premiumCapabilityIds);
   });
 
-  it('grants Car Mover only when Premium and an approved Car Mover role are both present', () => {
+  it('does not require a separate Car Mover product role', () => {
     const snapshot = evaluateAccessEntitlements({
-      subjectId: 'user-car-mover', roles: [ACCESS_ENTITLEMENTS_CONTRACT.premiumRole, 'CAR_MOVER_ACCESS'], evaluatedAt,
+      subjectId: 'user-car-mover', roles: [ACCESS_ENTITLEMENTS_CONTRACT.premiumRole], evaluatedAt,
     });
     expect(snapshot.capabilities).toEqual(premiumCapabilityIds);
     expect(snapshot.capabilities as readonly string[]).toContain('car-mover.jobs');

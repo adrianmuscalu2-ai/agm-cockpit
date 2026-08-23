@@ -44,6 +44,8 @@ export class CarMoverService {
       if(!current)throw new NotFoundException('Car Mover job not found.');
       if(!canTransitionCarMoverJob(current.currentState as CarMoverState,dto.toState))throw new BadRequestException('Car Mover lifecycle transition denied.');
       if(dto.toState==='ASSIGNED'&&!dto.assignedDriverUserId)throw new BadRequestException('Assigned driver is required.');
+      if(dto.toState==='IN_PROGRESS')await this.requireProtocol(tx,id,ctx.companyId,'CAR_MOVER_TAKEOVER_RECORDED');
+      if(dto.toState==='COMPLETED')await this.requireProtocol(tx,id,ctx.companyId,'CAR_MOVER_HANDOVER_RECORDED');
       const job=await tx.carMoverJob.update({where:{id},data:{currentState:dto.toState,lifecycleVersion:{increment:1},assignedDriverUserId:dto.assignedDriverUserId??current.assignedDriverUserId}});
       const event=await this.appendEvent(tx,id,job.lifecycleVersion,'CAR_MOVER_JOB_STATE_CHANGED',{from:current.currentState,to:job.currentState,reason:dto.reason??null,assignedDriverUserId:job.assignedDriverUserId},ctx);
       const audit=await this.audit.create({actionCode:'car-mover-job-state-changed',entityType:CAR_MOVER_SCOPE.subjectType,entityId:id,reason:dto.reason??`${current.currentState} -> ${job.currentState}`,beforeSnapshot:current,afterSnapshot:job,productId:CAR_MOVER_SCOPE.productId,moduleId:CAR_MOVER_SCOPE.moduleId,subjectType:CAR_MOVER_SCOPE.subjectType,subjectId:id},ctx,tx);
@@ -67,6 +69,11 @@ export class CarMoverService {
   }
 
   private authorize(ctx:RequestContext){if(!ctx.roles.some(role=>(CAR_MOVER_SCOPE.requiredRoles as readonly string[]).includes(role)))throw new ForbiddenException('Car Mover entitlement required.');}
+
+  private async requireProtocol(tx:Prisma.TransactionClient,jobId:string,companyId:string,eventType:string){
+    const protocol=await tx.operationalEvent.findFirst({where:{companyId,productId:CAR_MOVER_SCOPE.productId,subjectType:CAR_MOVER_SCOPE.subjectType,subjectId:jobId,eventType}});
+    if(!protocol)throw new BadRequestException(eventType==='CAR_MOVER_TAKEOVER_RECORDED'?'Takeover protocol is required before starting the job.':'Handover protocol is required before completing the job.');
+  }
 
   private async appendEvent(tx:Prisma.TransactionClient,jobId:string,version:number,eventType:string,payload:Record<string,unknown>,ctx:RequestContext){
     const stream=version===0

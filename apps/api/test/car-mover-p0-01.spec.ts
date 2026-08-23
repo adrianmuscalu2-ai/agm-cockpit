@@ -6,7 +6,7 @@ import { CAR_MOVER_SCOPE, canTransitionCarMoverJob } from '../src/car-mover/car-
 const companyA = randomUUID();
 const companyB = randomUUID();
 const userId = randomUUID();
-const context = (companyId = companyA, roles = ['CAR_MOVER_ACCESS']) => ({
+const context = (companyId = companyA, roles = ['PREMIUM_ACCESS']) => ({
   requestId: randomUUID(), correlationId: randomUUID(), userId, companyId, roles,
 });
 
@@ -23,7 +23,7 @@ function createHarness() {
     carMoverJob: {
       create: async ({ data }: any) => { const row = { id: randomUUID(), currentState: 'DRAFT', lifecycleVersion: 0, assignedDriverUserId: null, ...data, createdAt: new Date(), updatedAt: new Date() }; jobs.push(row); return row; },
       findFirst: async ({ where }: any) => jobs.find(row => row.id === where.id && row.companyId === where.companyId && row.productId === where.productId) ?? null,
-      update: async ({ where, data }: any) => { const row = jobs.find(item => item.id === where.id); row.currentState = data.currentState; row.lifecycleVersion += data.lifecycleVersion.increment; row.assignedDriverUserId = data.assignedDriverUserId; return row; },
+      update: async ({ where, data }: any) => { const row = jobs.find(item => item.id === where.id); if(data.currentState!==undefined)row.currentState=data.currentState; row.lifecycleVersion += data.lifecycleVersion.increment; if(data.assignedDriverUserId!==undefined)row.assignedDriverUserId=data.assignedDriverUserId; return row; },
     },
     operationalEventStream: {
       create: async ({ data }: any) => { const row = { id: randomUUID(), ...data }; streams.push(row); return row; },
@@ -32,6 +32,7 @@ function createHarness() {
     operationalEvent: {
       create: async ({ data }: any) => { const row = { id: randomUUID(), ...data }; events.push(row); return row; },
       findMany: async ({ where }: any) => events.filter(row => row.companyId === where.companyId && row.productId === where.productId && row.subjectId === where.subjectId).sort((a,b) => a.aggregateVersion-b.aggregateVersion),
+      findFirst: async ({ where }: any) => events.find(row => row.companyId === where.companyId && row.productId === where.productId && row.subjectId === where.subjectId && row.eventType === where.eventType) ?? null,
     },
     auditEvent: {
       findMany: async ({ where }: any) => audits.filter(row => row.companyId === where.companyId && row.productId === where.productId && row.subjectId === where.subjectId),
@@ -83,12 +84,31 @@ describe('Car Mover P0-01 foundation', () => {
     const created = await h.service.create(intake('TRACTOR_UNIT', 'tractor-unit'), context());
     const driver = randomUUID();
     const states = ['READY','ASSIGNED','ACCEPTED','IN_PROGRESS','ARRIVED','HANDOVER_PENDING','COMPLETED'] as const;
-    for (const toState of states) await h.service.transition(created.jobId, { toState, assignedDriverUserId: toState === 'ASSIGNED' ? driver : undefined }, context());
+    for (const toState of states) {
+      if (toState === 'IN_PROGRESS') await h.service.recordProtocol(created.jobId, { protocolType:'TAKEOVER', odometerKm:120000, energyPercent:75, keyCount:2, conditionNotes:'Vehicle accepted.', photoDigests:['takeover-sha256'] }, context());
+      if (toState === 'COMPLETED') await h.service.recordProtocol(created.jobId, { protocolType:'HANDOVER', odometerKm:120412, energyPercent:62, keyCount:2, conditionNotes:'Vehicle delivered.', photoDigests:['handover-sha256'] }, context());
+      await h.service.transition(created.jobId, { toState, assignedDriverUserId: toState === 'ASSIGNED' ? driver : undefined }, context());
+    }
     const file = await h.service.getJobFile(created.jobId, context());
     expect((file.job as any).currentState).toBe('COMPLETED');
-    expect(file.timeline).toHaveLength(8);
-    expect(file.auditReferences).toHaveLength(8);
+    expect(file.timeline).toHaveLength(10);
+    expect(file.auditReferences).toHaveLength(10);
     expect(h.events.every(row => row.correlationId && row.productId === 'agm-car-mover' && row.moduleId === 'jobs')).toBe(true);
+  });
+
+  it('requires recorded takeover and handover evidence at the operational gates', async () => {
+    const h = createHarness();
+    const created = await h.service.create(intake('PASSENGER_CAR', 'sedan'), context());
+    const driver = randomUUID();
+    await h.service.transition(created.jobId, { toState:'READY' }, context());
+    await h.service.transition(created.jobId, { toState:'ASSIGNED', assignedDriverUserId:driver }, context());
+    await h.service.transition(created.jobId, { toState:'ACCEPTED' }, context());
+    await expect(h.service.transition(created.jobId, { toState:'IN_PROGRESS' }, context())).rejects.toThrow('Takeover protocol is required');
+    await h.service.recordProtocol(created.jobId, { protocolType:'TAKEOVER', odometerKm:1, keyCount:1, photoDigests:[] }, context());
+    await h.service.transition(created.jobId, { toState:'IN_PROGRESS' }, context());
+    await h.service.transition(created.jobId, { toState:'ARRIVED' }, context());
+    await h.service.transition(created.jobId, { toState:'HANDOVER_PENDING' }, context());
+    await expect(h.service.transition(created.jobId, { toState:'COMPLETED' }, context())).rejects.toThrow('Handover protocol is required');
   });
 
   it('denies lifecycle shortcuts and keeps terminal states terminal', () => {

@@ -2,7 +2,7 @@ export const CAR_MOVER_SCOPE = {
   productId: 'agm-car-mover',
   moduleId: 'jobs',
   subjectType: 'CarMoverJob',
-  requiredRoles: ['CAR_MOVER_ACCESS', 'PRODUCT_OWNER', 'OWNER'],
+  requiredRoles: ['PREMIUM_ACCESS'],
 } as const;
 
 export const vehicleClasses = ['PASSENGER_CAR','LIGHT_COMMERCIAL','VAN','TRUCK','TRACTOR_UNIT','OTHER_DRIVABLE_VEHICLE'] as const;

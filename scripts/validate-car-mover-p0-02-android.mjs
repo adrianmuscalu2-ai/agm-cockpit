@@ -1,5 +1,85 @@
-﻿import { chromium } from 'playwright';import{mkdir,writeFile}from'node:fs/promises';import path from'node:path';
-const root=process.cwd(),runId=new Date().toISOString().replace(/[:.]/g,'-'),out=path.join(root,'evidence','car-mover','p0-02','android',runId);await mkdir(out,{recursive:true});let browser,fatal=null;const results=[];
-try{const targets=await(await fetch('http://127.0.0.1:9222/json')).json();const target=targets.find(x=>x.type==='page'&&!x.url.includes('sw.js'));if(!target)throw Error('Android WebView unavailable');browser=await chromium.connectOverCDP('http://127.0.0.1:9222');const contexts=browser.contexts();const page=contexts.flatMap(c=>c.pages()).find(p=>!p.url().includes('sw.js'));if(!page)throw Error('Android page unavailable');await page.evaluate(async()=>{for(const registration of await navigator.serviceWorker.getRegistrations())await registration.unregister()});await page.route('**/api/v1/**',async route=>{const url=route.request().url();let data={};if(url.endsWith('/auth/login'))data={accessToken:'android-controlled-token',user:{id:'user',displayName:'Owner',email:'owner@example.test',roles:['PREMIUM_ACCESS','CAR_MOVER_ACCESS']}};else if(url.endsWith('/auth/entitlements'))data={subjectId:'user',tier:'premium',status:'active',capabilities:['premium.command-center','car-mover.jobs'],evaluatedAt:new Date().toISOString(),policyVersion:'access-entitlements@1.0.0'};else if(url.endsWith('/car-mover/jobs'))data=[];await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})})});await page.evaluate(()=>{localStorage.setItem('agm.legal.acceptance.privacy-v2026.07.13.terms-v2026.07.13',JSON.stringify({privacyPolicyVersion:'privacy-v2026.07.13',termsVersion:'terms-v2026.07.13',acceptedAt:new Date().toISOString()}));localStorage.setItem('agm.tutorial.completed.v1',new Date().toISOString());sessionStorage.setItem('agm.auth.accessToken','android-controlled-token');history.pushState({},'','/access');dispatchEvent(new PopStateEvent('popstate'))});await page.waitForFunction(()=>document.querySelector('[data-access-enforcement]')?.getAttribute('data-access-state')==='premium');await page.evaluate(()=>{history.pushState({},'','/car-mover');dispatchEvent(new PopStateEvent('popstate'))});await page.waitForSelector('[data-car-mover-root]');const form=page.locator('[data-car-mover-create]');if(!await form.isVisible())throw Error('Manual intake missing');const values=await page.locator('select[name=vehicleClass] option').evaluateAll(options=>options.map(o=>o.value));if(!values.includes('PASSENGER_CAR')||!values.includes('TRACTOR_UNIT'))throw Error('Vehicle classes missing');const viewport=await page.evaluate(()=>({width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth}));if(viewport.scrollWidth>viewport.width+1)throw Error('Android horizontal overflow');const screenshot=path.join(out,'android-car-mover.png');await page.screenshot({path:screenshot,fullPage:true});results.push({id:'android-route-intake-class-agnostic',status:'PASS',url:page.url(),viewport,vehicleClasses:values,screenshot:path.relative(root,screenshot)});}catch(e){fatal=String(e)}finally{await browser?.close();const report={schemaVersion:1,runId,status:fatal?'FAIL':'PASS',device:'Samsung SM-S931B',package:'com.agm.cockpit',apkSha256:'63B963B331A335C01796517A06DAB0A7FF225C5688ECAC63F46E0BE5ECBA5A4A',apiMode:'controlled local validation; no Production Car Mover deployment',results,fatal};await writeFile(path.join(out,'report.json'),JSON.stringify(report,null,2));console.log(`CAR MOVER P0-02 ANDROID: ${report.status}`);console.log(path.join(out,'report.json'));if(fatal)process.exitCode=1}
+import { chromium } from 'playwright';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 
+const root = process.cwd();
+const runId = new Date().toISOString().replace(/[:.]/g, '-');
+const out = path.join(root, 'evidence', 'car-mover', 'p0-02', 'android', runId);
+await mkdir(out, { recursive: true });
+let browser;
+let fatal = null;
+const results = [];
 
+try {
+  const targets = await (await fetch('http://127.0.0.1:9222/json')).json();
+  if (!targets.some((item) => item.type === 'page' && !item.url.includes('sw.js'))) throw Error('Android WebView unavailable');
+  browser = await chromium.connectOverCDP('http://127.0.0.1:9222');
+  const page = browser.contexts().flatMap((context) => context.pages()).find((item) => !item.url().includes('sw.js'));
+  if (!page) throw Error('Android page unavailable');
+  if (new URL(page.url()).origin !== 'https://localhost') throw Error(`Android origin isolation mismatch: ${new URL(page.url()).origin}`);
+
+  await page.evaluate(() => { history.pushState({}, '', '/access'); dispatchEvent(new PopStateEvent('popstate')); });
+  await page.waitForSelector('[data-access-enforcement]');
+  await page.waitForFunction(() => document.querySelector('[data-access-enforcement]')?.getAttribute('data-access-state') !== 'checking');
+  const accessState = await page.locator('[data-access-enforcement]').getAttribute('data-access-state');
+  if (accessState !== 'premium') throw Error(`Real Premium session required: ${accessState}`);
+
+  await page.evaluate(() => { history.pushState({}, '', '/car-mover'); dispatchEvent(new PopStateEvent('popstate')); });
+  await page.waitForSelector('[data-car-mover-root]');
+  const vehicleClasses = await page.locator('select[name=vehicleClass] option').evaluateAll((options) => options.map((option) => option.value));
+  if (vehicleClasses.filter(Boolean).length !== 6) throw Error('Six vehicle classes were not rendered.');
+
+  const e2e = await page.evaluate(async (executionId) => {
+    const token = sessionStorage.getItem('agm.auth.accessToken');
+    if (!token) throw Error('Authenticated Android session token missing.');
+    const apiBase = 'https://api.agmcockpit.com/api/v1';
+    const call = async (route, init = {}) => {
+      const response = await fetch(`${apiBase}${route}`, { ...init, headers:{ Authorization:`Bearer ${token}`, 'Content-Type':'application/json', ...(init.headers || {}) } });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw Error(`${route}: ${body.message || response.status}`);
+      return body.data;
+    };
+    const entitlement = await call('/auth/entitlements');
+    if (!entitlement.capabilities.includes('car-mover.jobs')) throw Error('car-mover.jobs missing from Premium entitlement.');
+    const created = await call('/car-mover/jobs', { method:'POST', body:JSON.stringify({ vehicle:{ vehicleClass:'PASSENGER_CAR', vehicleType:'production-e2e', make:'AGM', model:'Car Mover E2E', registration:`E2E-${executionId.slice(-8)}` }, pickup:{ label:'AGM Production E2E Start' }, destination:{ label:'AGM Production E2E Finish' }, sourceReference:`android-e2e-${executionId}` }) });
+    const transition = (toState, extra = {}) => call(`/car-mover/jobs/${created.jobId}/transitions`, { method:'POST', body:JSON.stringify({ toState, ...extra }) });
+    const protocol = (protocolType, odometerKm) => call(`/car-mover/jobs/${created.jobId}/protocols`, { method:'POST', body:JSON.stringify({ protocolType, odometerKm, energyPercent:80, keyCount:2, conditionNotes:`${protocolType} verified by Android Production E2E`, photoDigests:[`sha256:${executionId}:${protocolType}`] }) });
+    await transition('READY');
+    await transition('ASSIGNED', { assignedDriverUserId:entitlement.subjectId });
+    await transition('ACCEPTED');
+    await protocol('TAKEOVER', 1000);
+    await transition('IN_PROGRESS');
+    await transition('ARRIVED');
+    await transition('HANDOVER_PENDING');
+    await protocol('HANDOVER', 1042);
+    await transition('COMPLETED');
+    const file = await call(`/car-mover/jobs/${created.jobId}`);
+    return { jobId:created.jobId, state:file.job.currentState, timelineTypes:file.timeline.map((event) => event.eventType), auditReferenceCount:file.auditReferences.length, evidenceReferenceCount:file.evidenceReferences.length, entitlementPolicy:entitlement.policyVersion };
+  }, runId);
+
+  const expected = ['CAR_MOVER_JOB_CREATED','CAR_MOVER_JOB_STATE_CHANGED','CAR_MOVER_JOB_STATE_CHANGED','CAR_MOVER_JOB_STATE_CHANGED','CAR_MOVER_TAKEOVER_RECORDED','CAR_MOVER_JOB_STATE_CHANGED','CAR_MOVER_JOB_STATE_CHANGED','CAR_MOVER_JOB_STATE_CHANGED','CAR_MOVER_HANDOVER_RECORDED','CAR_MOVER_JOB_STATE_CHANGED'];
+  if (e2e.state !== 'COMPLETED' || JSON.stringify(e2e.timelineTypes) !== JSON.stringify(expected) || e2e.auditReferenceCount !== 10) throw Error('Production lifecycle/EventStore/audit verification failed.');
+
+  await page.evaluate(() => { history.pushState({}, '', '/car-mover'); dispatchEvent(new PopStateEvent('popstate')); });
+  await page.waitForSelector(`[data-job="${e2e.jobId}"]`);
+  await page.locator(`[data-job="${e2e.jobId}"]`).click();
+  await page.waitForSelector('[data-car-mover-dialog][open]');
+  const screenshot = path.join(out, 'android-car-mover-production-e2e.png');
+  await page.screenshot({ path:screenshot, fullPage:true });
+  const viewport = await page.evaluate(() => ({ width:innerWidth, height:innerHeight, scrollWidth:document.documentElement.scrollWidth }));
+  if (viewport.scrollWidth > viewport.width + 1) throw Error('Android horizontal overflow.');
+  results.push({ id:'android-production-premium-lifecycle-takeover-handover', status:'PASS', origin:'https://localhost', route:'/car-mover', vehicleClasses, viewport, ...e2e, screenshot:path.relative(root, screenshot) });
+} catch (error) {
+  fatal = String(error);
+} finally {
+  await browser?.close();
+  const apk = path.join(root, 'apps', 'web', 'android', 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk');
+  const apkSha256 = createHash('sha256').update(readFileSync(apk)).digest('hex').toUpperCase();
+  const report = { schemaVersion:2, runId, status:fatal ? 'FAIL' : 'PASS', device:'Samsung SM-S931B', package:'com.agm.cockpit', apkSha256, apiMode:'authenticated Production API', results, fatal };
+  await writeFile(path.join(out, 'report.json'), JSON.stringify(report, null, 2));
+  console.log(`CAR MOVER P0-02 ANDROID PRODUCTION: ${report.status}`);
+  console.log(path.join(out, 'report.json'));
+  if (fatal) process.exitCode = 1;
+}
