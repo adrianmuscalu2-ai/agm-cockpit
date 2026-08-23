@@ -112,6 +112,21 @@ The Turn current-state element changed without navigation or manual refresh. Aft
 
 ## Closure
 
+## Final user-tab synchronization
+
+At `2026-08-23T15:27:35+02:00`, the user's actual Chrome tab was inspected at `https://app.agmcockpit.com/turn?telemetry=3076a52`. It was serving the current bundle `/assets/main-49_jW9Y9.js`, but its in-memory view was still showing the initial `CONNECTING` state and a persisted stale `Android OFFLINE` value. The existing `Actualizează` action followed by a real page refresh reconciled the same tab with the live sources.
+
+The final visible state in the user tab is:
+
+- P3 live connection: `LIVE · PERSISTENT`;
+- Android: `ONLINE`;
+- Secret & Credentials Guardian: `READY`;
+- Telemetry: `READY`;
+- Server Backup: `PLANNED · LOCAL BACKUP DEFINED · LIVE HEARTBEAT NOT CONNECTED`;
+- persisted real `STARTED / WORKING / COMPLETED / FAILED` events visible in Turn.
+
+No architecture, runtime, telemetry, registry, Incident Engine, or Production release implementation was reopened. This was a final view-state reconciliation on the already validated build.
+
 `SERVER BACKUP — PLANNED / NOT ACTIVE / NO LIVE HEARTBEAT`
 
 `AGM TURN MINIMAL TELEMETRY — PRODUCTION PASS`
