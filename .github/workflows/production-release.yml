@@ -81,14 +81,34 @@ jobs:
           target: /tmp/agm-release-${{ github.run_id }}
       - name: Deploy approved digest through Release & Operations
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          GMAIL_OAUTH_CLIENT_ID: ${{ secrets.GMAIL_OAUTH_CLIENT_ID }}
+          GMAIL_OAUTH_CLIENT_SECRET: ${{ secrets.GMAIL_OAUTH_CLIENT_SECRET }}
+          GMAIL_OAUTH_REFRESH_TOKEN: ${{ secrets.GMAIL_OAUTH_REFRESH_TOKEN }}
+          GMAIL_FROM_ADDRESS: ${{ secrets.GMAIL_FROM_ADDRESS }}
         with:
           host: ${{ secrets.PRODUCTION_HOST }}
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          envs: GMAIL_OAUTH_CLIENT_ID,GMAIL_OAUTH_CLIENT_SECRET,GMAIL_OAUTH_REFRESH_TOKEN,GMAIL_FROM_ADDRESS
           script: |
             set -euo pipefail
+            test -n "$GMAIL_OAUTH_CLIENT_ID"
+            test -n "$GMAIL_OAUTH_CLIENT_SECRET"
+            test -n "$GMAIL_OAUTH_REFRESH_TOKEN"
+            test -n "$GMAIL_FROM_ADDRESS"
             export AGM_IMAGE="${{ env.IMAGE_NAME }}@${{ needs.publish.outputs.digest }}"
             release_root="/tmp/agm-release-${{ github.run_id }}/deploy/production"
+            secrets_file="/opt/agm/production/secrets/agm-production.env"
+            secrets_tmp="$(mktemp)"
+            sudo awk '!/^GMAIL_OAUTH_CLIENT_ID=|^GMAIL_OAUTH_CLIENT_SECRET=|^GMAIL_OAUTH_REFRESH_TOKEN=|^GMAIL_FROM_ADDRESS=/' "$secrets_file" > "$secrets_tmp"
+            printf '%s\n' \
+              "GMAIL_OAUTH_CLIENT_ID=$GMAIL_OAUTH_CLIENT_ID" \
+              "GMAIL_OAUTH_CLIENT_SECRET=$GMAIL_OAUTH_CLIENT_SECRET" \
+              "GMAIL_OAUTH_REFRESH_TOKEN=$GMAIL_OAUTH_REFRESH_TOKEN" \
+              "GMAIL_FROM_ADDRESS=$GMAIL_FROM_ADDRESS" >> "$secrets_tmp"
+            sudo install -o root -g root -m 0600 "$secrets_tmp" "$secrets_file"
+            rm -f "$secrets_tmp"
             sudo install -o root -g root -m 0644 "$release_root/compose.production.yml" /opt/agm/production/compose.production.yml
             sudo install -o root -g root -m 0644 "$release_root/agm-production-api.service" /etc/systemd/system/agm-production-api.service
             printf 'AGM_IMAGE=%s\n' "$AGM_IMAGE" | sudo tee /opt/agm/production/release.env >/dev/null
