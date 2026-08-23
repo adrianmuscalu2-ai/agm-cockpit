@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-23T19-13-03-041Z",
+  "status": "PASS",
+  "revision": "53b0f6b7896dc180cce23b72f2ac72e9414222c7",
+  "runner": "Android WebView + controlled CDP",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "results": [
+    {
+      "id": "car-mover-p1-production-android",
+      "status": "PASS",
+      "origin": "https://localhost",
+      "route": "/car-mover",
+      "jobId": "56c8553f-fb95-4374-879f-d951d4854d36",
+      "analysis": {
+        "revenue": "100.00",
+        "cost": "25.00",
+        "payments": "0.00",
+        "margin": "75.00",
+        "currencyCode": "EUR",
+        "entryCount": 2
+      },
+      "financeRecorded": true,
+      "invoiceRecorded": true,
+      "providers": [
+        {
+          "channel": "email",
+          "provider": "gmail",
+          "configured": true
+        },
+        {
+          "channel": "whatsapp",
+          "provider": "whatsapp-cloud",
+          "configured": false
+        }
+      ],
+      "gmailSync": {
+        "channel": "email",
+        "provider": "gmail",
+        "scanned": 18,
+        "ingested": 0,
+        "duplicates": 18
+      },
+      "extraction": {
+        "scanned": 17,
+        "created": 0,
+        "duplicates": 0,
+        "reclassified": 0,
+        "automaticAcceptance": false
+      },
+      "offerCount": 5,
+      "offerReferences": [
+        {
+          "platformName": "Gmail alert",
+          "externalReference": "erences",
+          "status": "DISMISSED",
+          "score": 45
+        },
+        {
+          "platformName": "Gmail alert",
+          "externalReference": "erences",
+          "status": "DISMISSED",
+          "score": 45
+        },
+        {
+          "platformName": "Gmail alert",
+          "externalReference": "erences",
+          "status": "DISMISSED",
+          "score": 45
+        },
+        {
+          "platformName": "Gmail alert",
+          "externalReference": "erences",
+          "status": "DISMISSED",
+          "score": 45
+        },
+        {
+          "platformName": "Gmail alert",
+          "externalReference": null,
+          "status": "DISMISSED",
+          "score": 35
+        }
+      ],
+      "captureOnly": true,
+      "externalCheck": false,
+      "externalReference": "AGM-2026-08-23T19-13-03-041Z",
+      "externalOfferFound": true,
+      "screenshot": "evidence\\car-mover\\p1-operations\\android\\2026-08-23T19-13-03-041Z\\android-car-mover-p1-operations.png"
+    }
+  ],
+  "diagnostics": [
+    {
+      "type": "optional-job-file-screenshot",
+      "detail": "TimeoutError: page.screenshot: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n"
+    }
+  ],
+  "finishedAt": "2026-08-23T19:13:40.451Z"
+}
