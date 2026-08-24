@@ -7,20 +7,23 @@ import { requestIdFromHeader } from '../common/request-ids';
 import { responseEnvelope } from '../common/response';
 import { AuthorityControlPlaneService } from './authority-control-plane.service';
 import { AssessAuthorityGateDto, CreateDecisionDto, CreateMandateDto, ExecuteRecoveryDto, HandoffLeaseDto, IssueLeaseDto, RevokeLeaseDto, ValidateWriteDto } from './dto';
+import { TurnAdminService } from '../turn-admin/turn-admin.service';
 
 @Controller('authority-control-plane')
 @UseGuards(JwtAuthGuard)
 export class AuthorityControlPlaneController {
-  constructor(private readonly service: AuthorityControlPlaneService) {}
+  constructor(private readonly service: AuthorityControlPlaneService, private readonly turnAdmin: TurnAdminService) {}
 
   @Get('dashboard')
-  async dashboard(@CurrentUser() user: RequestContext, @Headers('x-request-id') requestId?: string) {
+  async dashboard(@CurrentUser() user: RequestContext, @Headers('x-request-id') requestId?: string, @Headers('x-agm-turn-authorization') turnAuthorization?: string) {
+    await this.turnAdmin.requireOperationalAccess(turnAuthorization);
     const ctx = context(user, requestId);
     return responseEnvelope(await this.service.dashboard(ctx), ctx.requestId);
   }
 
   @Get('network-registry')
-  async registry(@CurrentUser() user: RequestContext, @Headers('x-request-id') requestId?: string) {
+  async registry(@CurrentUser() user: RequestContext, @Headers('x-request-id') requestId?: string, @Headers('x-agm-turn-authorization') turnAuthorization?: string) {
+    await this.turnAdmin.requireOperationalAccess(turnAuthorization);
     const ctx = context(user, requestId);
     return responseEnvelope(await this.service.registry(ctx), ctx.requestId);
   }

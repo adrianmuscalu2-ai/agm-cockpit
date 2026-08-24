@@ -71,6 +71,10 @@ export class TurnAdminService {
     return { valid: true };
   }
 
+  async requireOperationalAccess(authorization: string | undefined) {
+    await this.verifyToken(authorization, 'validate');
+  }
+
   private async getCredential() {
     const existing = await this.prisma.turnAdminCredential.findUnique({ where: { id: CREDENTIAL_ID } });
     if (existing) return existing;

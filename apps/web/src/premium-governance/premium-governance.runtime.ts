@@ -13,11 +13,11 @@ type Dashboard = {
 };
 type Envelope = { data?: Dashboard; message?: string | string[] };
 
-export function bindPremiumGovernanceRuntime() {
+export function bindPremiumGovernanceRuntime(turnAdminAccessToken?: string) {
   const dashboard = document.querySelector<HTMLElement>('[data-authority-dashboard]');
   const detail = document.querySelector<HTMLElement>('[data-agent-network-detail]');
   if (!dashboard && !detail) return;
-  void load().then((data) => {
+  void load(turnAdminAccessToken).then((data) => {
     if (dashboard) renderHero(dashboard, data);
     if (detail) renderDetail(detail, data);
   }).catch((error) => {
@@ -29,8 +29,12 @@ export function bindPremiumGovernanceRuntime() {
   });
 }
 
-async function load() {
-  const response = await authenticatedApiFetch('/authority-control-plane/dashboard', { cache: 'no-store' });
+async function load(turnAdminAccessToken?: string) {
+  if (!turnAdminAccessToken) throw new Error('Authority Control Plane este disponibil numai dupÄƒ deblocarea administrativÄƒ Turn.');
+  const response = await authenticatedApiFetch('/authority-control-plane/dashboard', {
+    cache: 'no-store',
+    headers: { 'X-AGM-Turn-Authorization': `Bearer ${turnAdminAccessToken}` },
+  });
   const envelope = await response.json().catch(() => ({})) as Envelope;
   if (!response.ok || !envelope.data) throw new Error('Nu s-a putut încărca starea reală AGM. Aplicația rămâne funcțională; doar telemetria este indisponibilă.');
   return envelope.data;

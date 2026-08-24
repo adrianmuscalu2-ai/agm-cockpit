@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AuthorityControlPlaneController } from './authority-control-plane.controller';
 import { AuthorityControlPlaneService } from './authority-control-plane.service';
+import { TurnAdminModule } from '../turn-admin/turn-admin.module';
 
 @Module({
+  imports: [TurnAdminModule],
   controllers: [AuthorityControlPlaneController],
   providers: [AuthorityControlPlaneService],
   exports: [AuthorityControlPlaneService],

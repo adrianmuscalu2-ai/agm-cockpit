@@ -2265,7 +2265,7 @@ function bindShared() {
   bindCommunicationRuntime();
     bindPremiumAssistantRuntime();
     bindCarMoverRuntime();
-  bindPremiumGovernanceRuntime();
+  bindPremiumGovernanceRuntime(state.adminAccessVerified ? state.adminSession?.accessToken : undefined);
   bindCopilotRuntime();
   document.querySelectorAll<HTMLButtonElement>('[data-global-action]').forEach((control) => {
     control.addEventListener('click', () => activateGlobalAction(control.dataset.globalAction));

@@ -74,6 +74,12 @@ describe('API-007 TurnAdminService', () => {
     expect(Logger.prototype.warn).not.toHaveBeenCalledWith(expect.stringContaining('user-token'));
   });
 
+  it('protects operational reads with the Turn administrative scope', async () => {
+    await expect(service.requireOperationalAccess('Bearer admin-token')).resolves.toBeUndefined();
+    jwt.verifyAsync.mockResolvedValue({ scope: 'user' });
+    await expect(service.requireOperationalAccess('Bearer user-token')).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
   it('changes the PIN only after session and current-PIN validation', async () => {
     await expect(service.changePin('Bearer admin-token', correctPin, '8642')).resolves.toEqual({ changed: true });
     expect(await bcrypt.compare('8642', credential.passwordHash)).toBe(true);
