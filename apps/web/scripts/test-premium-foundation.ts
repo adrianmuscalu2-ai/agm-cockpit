@@ -76,7 +76,9 @@ assert.doesNotMatch(premiumHtml ?? '', /HUB-0[0-7]|NO_ACTIVE_TRIP|available|part
   assert.equal((premiumHtml?.match(/class="premium-module premium-user-workspace"/g) ?? []).length, 4);
   assert.ok(premiumHtml?.includes('href="/car-mover" data-module="carMover"'));
   assert.ok(premiumHtml?.includes('href="/premium/voice"'));
-  assert.ok(premiumHtml?.includes('href="/premium/voice" data-module="premiumVoice"'));
+assert.ok(premiumHtml?.includes('href="/premium/voice" data-module="premiumVoice"'));
+assert.doesNotMatch(premiumHtml ?? '', /Authority Control Plane|data-authority-dashboard|premium\/network|data-agent-network-detail/);
+assert.equal(premiumViewFromRoute('/premium/network'), undefined);
 assert.ok(loadSafetyHtml?.includes('id="loadSafetyCameraInput"'));
 assert.ok(loadSafetyHtml?.includes('capture="environment"'));
 assert.ok(loadSafetyHtml?.includes('id="loadSafetyGalleryInput"'));

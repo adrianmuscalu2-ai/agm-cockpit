@@ -1,5 +1,5 @@
 import type { BasicLanguageCode } from './language-registry';
-import { renderPremiumGovernanceDashboard } from './premium-governance/premium-governance.view';
+import { renderPremiumUserDashboard } from './premium-governance/premium-governance.view';
 
 type PremiumTranslator = (key: string) => string;
 
@@ -8,5 +8,5 @@ export function renderPremiumFoundation(
   escapeHtml: (value: string) => string,
   _language: BasicLanguageCode = 'ro',
 ) {
-  return renderPremiumGovernanceDashboard(translate, escapeHtml);
+  return renderPremiumUserDashboard(translate, escapeHtml);
 }

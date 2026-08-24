@@ -4,7 +4,6 @@ import type { PremiumViewName } from '../premium-routes';
 
 const capabilityForView: Record<PremiumViewName, PremiumCapabilityId> = {
   premium: 'premium.command-center',
-  premiumNetwork: 'premium.command-center',
   premiumCopilot: 'premium.command-center',
   premiumTeam: 'premium.team',
   premiumLoadSafety: 'premium.load-safety',

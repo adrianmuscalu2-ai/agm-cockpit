@@ -130,6 +130,7 @@ import { bindPremiumAssistantRuntime } from './premium-voice-shell/premium-assis
 import { bindCarMoverRuntime } from './car-mover/car-mover.runtime';
 import { bindPremiumGovernanceRuntime } from './premium-governance/premium-governance.runtime';
 import './premium-governance/premium-governance.css';
+import './premium-governance/turn-authority-control-plane.css';
 import './car-mover/car-mover.css';
 import { bindCopilotRuntime } from './premium-copilot/copilot.runtime';
 import './premium-copilot/copilot.css';

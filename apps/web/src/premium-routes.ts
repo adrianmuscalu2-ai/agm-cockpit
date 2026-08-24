@@ -1,6 +1,5 @@
 export type PremiumViewName =
   | 'premium'
-  | 'premiumNetwork'
   | 'premiumCopilot'
   | 'premiumTeam'
   | 'premiumLoadSafety'
@@ -28,7 +27,6 @@ export const PRE_001_SHELL_CONTRACT = {
 
 export const premiumRouteRegistry: readonly PremiumRouteDefinition[] = [
   { view: 'premium', route: '/premium' },
-  { view: 'premiumNetwork', route: '/premium/network' },
   { view: 'premiumCopilot', route: '/premium/copilot' },
   { view: 'premiumTeam', route: '/premium/team' },
   { view: 'premiumLoadSafety', route: '/premium/ladungssicherung' },

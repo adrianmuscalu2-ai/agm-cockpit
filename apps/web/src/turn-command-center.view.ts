@@ -16,6 +16,7 @@ import { renderStatusLight } from './turn-status-lights';
 import { buildPanelAgentModel } from './turn-agent-panel.integration';
 import { currentOperationSnapshots } from './operations-health';
 import { renderTurnAgentLiveState } from './turn-agent-live-state';
+import { renderTurnAuthorityControlPlane } from './premium-governance/premium-governance.view';
 import {
   type TurnCommandItem,
   type TurnHealthStatus,
@@ -72,6 +73,8 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
 
       <nav class="turn-module-nav" aria-label="Turn modules">
         ${[
+          ['Authority Control Plane', 'turn-authority-control-plane'],
+          ['Premium Agent Network', 'turn-premium-network'],
           ['Agent Directory', 'turn-dashboard'],
           ['Organigramă', 'turn-structure'],
           ['Monitoring', 'turn-monitoring'],
@@ -88,6 +91,8 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
           .map(([label, target]) => `<a href="#${target}">${label}</a>`)
           .join('')}
       </nav>
+
+      ${renderTurnAuthorityControlPlane()}
 
       ${renderApprovedTurnDashboard(language)}
 

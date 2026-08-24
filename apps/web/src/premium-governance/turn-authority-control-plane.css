@@ -1,0 +1,18 @@
+.turn-authority-control-plane {
+  --agm-cyan: #58e8ff;
+  --agm-bg: #020c17;
+  --agm-panel: rgba(4, 25, 42, 0.88);
+  margin: 1.25rem 0 2rem;
+  padding: 1rem 0 2rem;
+  overflow: hidden;
+  color: #e8fbff;
+  border: 1px solid rgba(88, 232, 255, 0.3);
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 30%, #073754 0, #031421 42%, #01070d 100%);
+}
+
+.turn-authority-control-plane .premium-governance-heading h2 {
+  margin: 0.35rem 0;
+  font-size: clamp(1.8rem, 4vw, 3.4rem);
+  text-transform: uppercase;
+}

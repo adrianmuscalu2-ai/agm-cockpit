@@ -15,7 +15,6 @@ import { renderPremiumAssistantView } from './premium-voice-shell/premium-assist
 import type { BasicLanguageCode } from './language-registry';
 import { renderCarMoverMenu, renderCarMoverModule } from './car-mover/car-mover.view';
 import { renderCarMoverLanding } from './car-mover/car-mover.landing';
-import { renderPremiumNetworkDrilldown } from './premium-governance/premium-governance.view';
 import { renderCopilot } from './premium-copilot/copilot.view';
 
 type PremiumTranslator = (key: string) => string;
@@ -45,7 +44,6 @@ export function renderPremiumView(
     return renderPremiumTeamFoundation(translate, escapeHtml);
   }
 
-  if (view === 'premiumNetwork') return renderPremiumNetworkDrilldown();
   if (view === 'premiumCopilot') return renderCopilot(language, escapeHtml);
 
   if (view === 'premiumLoadSafety') {
@@ -69,7 +67,6 @@ export function renderPremiumView(
 export function premiumStatusKey(view: PremiumViewName) {
   if (view === 'premium') return 'premium.status';
   if (view === 'premiumTeam') return 'premium.team.status';
-  if (view === 'premiumNetwork') return 'premium.status';
   if (view === 'premiumCopilot') return 'premium.status';
   if (view === 'premiumCommunications') return 'premium.status';
   if (view === 'premiumVoice') return 'premium.status';
