@@ -3,13 +3,13 @@
 .env
 .env.*
 !.env.example
+!apps/web/.env.production
 **/node_modules
 **/dist
 !apps/api/dist/
 !apps/api/dist/auth/
 !apps/api/dist/auth/access-entitlements.contract.js
 apps/web/android
-apps/web/.env.production
 *.apk
 *.dump
 *.log

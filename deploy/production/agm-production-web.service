@@ -4,14 +4,16 @@ Requires=docker.service
 After=docker.service network-online.target
 Wants=network-online.target
 ConditionPathExists=/opt/agm/production/web
+ConditionPathExists=/opt/agm/production/web-release.env
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
 User=root
 Group=root
-ExecStartPre=/usr/bin/docker image inspect agm-web@sha256:e51dc53347c813f7d0db29340cc4a217a9de06c7d85231f6aa939cc107fdbf19
-ExecStart=/usr/bin/docker run --detach --name agm-production-web --restart unless-stopped --security-opt no-new-privileges:true --publish 127.0.0.1:4173:4173 --label agm.environment=production --label org.opencontainers.image.revision=turn-reconcile-20260807 agm-web@sha256:e51dc53347c813f7d0db29340cc4a217a9de06c7d85231f6aa939cc107fdbf19
+EnvironmentFile=/opt/agm/production/web-release.env
+ExecStartPre=/usr/bin/docker image inspect ${AGM_WEB_IMAGE}
+ExecStart=/usr/bin/docker run --detach --name agm-production-web --restart unless-stopped --security-opt no-new-privileges:true --publish 127.0.0.1:4173:4173 --label agm.environment=production --label org.opencontainers.image.revision=${AGM_WEB_REVISION} ${AGM_WEB_IMAGE}
 ExecStop=/usr/bin/docker stop --timeout 30 agm-production-web
 ExecStopPost=-/usr/bin/docker rm agm-production-web
 TimeoutStartSec=90

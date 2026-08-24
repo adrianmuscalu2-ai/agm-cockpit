@@ -20,6 +20,7 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     ['20260823110100_order_agent_runtime_events', 'b7f27a11313d09edbdf6d6878016591fb846f8a2f475abda5faf5e9f1297a43b'],
     ['20260823143000_add_component_heartbeats', 'f27888104049ea24bac1d64cb13c502294017eac95f5836a69a4dd365bad92b8'],
     ['20260823180000_add_car_mover_p1_operations', '670b5500cf4a0a811f717001b68b5c1822d22309ce2cf171c6879c25e5df2368'],
+    ['20260824153000_add_authority_control_plane', 'c508ef944c07ec8c5042ca67d68ded90c9a3d539abf55fa949fa71973c5df91a'],
   ] as const,
   criticalModels: [
     'Company',

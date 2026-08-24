@@ -13,8 +13,10 @@ import { renderCommunicationView } from './premium-communications/communication.
 import { premiumVoiceShellModule } from './premium-voice-shell/premium-voice-shell.module';
 import { renderPremiumAssistantView } from './premium-voice-shell/premium-assistant.view';
 import type { BasicLanguageCode } from './language-registry';
-import { renderCarMoverView } from './car-mover/car-mover.view';
+import { renderCarMoverMenu, renderCarMoverModule } from './car-mover/car-mover.view';
 import { renderCarMoverLanding } from './car-mover/car-mover.landing';
+import { renderPremiumNetworkDrilldown } from './premium-governance/premium-governance.view';
+import { renderCopilot } from './premium-copilot/copilot.view';
 
 type PremiumTranslator = (key: string) => string;
 type HtmlEscaper = (value: string) => string;
@@ -43,6 +45,9 @@ export function renderPremiumView(
     return renderPremiumTeamFoundation(translate, escapeHtml);
   }
 
+  if (view === 'premiumNetwork') return renderPremiumNetworkDrilldown();
+  if (view === 'premiumCopilot') return renderCopilot(language, escapeHtml);
+
   if (view === 'premiumLoadSafety') {
     return renderLoadSafetyView(translate, escapeHtml);
   }
@@ -50,7 +55,13 @@ export function renderPremiumView(
   if (view === 'premiumCommunications') return renderCommunicationView();
   if (view === 'premiumVoice') return renderPremiumAssistantView(language, escapeHtml);
   if (view === 'carMover') return renderCarMoverLanding(language);
-  if (view === 'carMoverMenu') return renderCarMoverView(language);
+  if (view === 'carMoverMenu') return renderCarMoverMenu(language);
+  if (view === 'carMoverPlanning') return renderCarMoverModule('planning', language);
+  if (view === 'carMoverActive') return renderCarMoverModule('active', language);
+  if (view === 'carMoverCompletion') return renderCarMoverModule('completion', language);
+  if (view === 'carMoverAccounting') return renderCarMoverModule('accounting', language);
+  if (view === 'carMoverGuide') return renderCarMoverModule('guide', language);
+  if (view === 'carMoverArchive') return renderCarMoverModule('archive', language);
 
   return undefined;
 }
@@ -58,9 +69,11 @@ export function renderPremiumView(
 export function premiumStatusKey(view: PremiumViewName) {
   if (view === 'premium') return 'premium.status';
   if (view === 'premiumTeam') return 'premium.team.status';
+  if (view === 'premiumNetwork') return 'premium.status';
+  if (view === 'premiumCopilot') return 'premium.status';
   if (view === 'premiumCommunications') return 'premium.status';
   if (view === 'premiumVoice') return 'premium.status';
-  if (view === 'carMover' || view === 'carMoverMenu') return 'premium.status';
+  if (view.startsWith('carMover')) return 'premium.status';
   return 'premium.loadSafety.status.ready';
 }
 

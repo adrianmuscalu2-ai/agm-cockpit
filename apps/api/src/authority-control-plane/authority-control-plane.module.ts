@@ -1,0 +1,10 @@
+import { Module } from '@nestjs/common';
+import { AuthorityControlPlaneController } from './authority-control-plane.controller';
+import { AuthorityControlPlaneService } from './authority-control-plane.service';
+
+@Module({
+  controllers: [AuthorityControlPlaneController],
+  providers: [AuthorityControlPlaneService],
+  exports: [AuthorityControlPlaneService],
+})
+export class AuthorityControlPlaneModule {}

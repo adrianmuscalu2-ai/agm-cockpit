@@ -128,6 +128,8 @@ import { bindPremiumAccessRuntime } from './premium-access/premium-access.runtim
 import { bindCommunicationRuntime } from './premium-communications/communication.runtime';
 import { bindPremiumAssistantRuntime } from './premium-voice-shell/premium-assistant.runtime';
 import { bindCarMoverRuntime } from './car-mover/car-mover.runtime';
+import { bindPremiumGovernanceRuntime } from './premium-governance/premium-governance.runtime';
+import './premium-governance/premium-governance.css';
 import './car-mover/car-mover.css';
 import { bindCopilotRuntime } from './premium-copilot/copilot.runtime';
 import './premium-copilot/copilot.css';
@@ -1529,7 +1531,7 @@ function renderBasicPlanned(icon: string, title: string, description: string) {
 
 function renderGlobalQuickActions() {
   const language = uiLanguage();
-  const opensCarMover = isPremiumView(state.view) && state.view !== 'carMover' && state.view !== 'carMoverMenu';
+  const opensCarMover = isPremiumView(state.view) && !state.view.startsWith('carMover');
   return `
     <nav class="global-quick-actions" aria-label="${escapeHtml(t(language, 'home.actionsLabel'))}">
       <button type="button" data-global-action="ocr"><span aria-hidden="true">▣</span>${escapeHtml(t(language, 'translator.command.ocr'))}</button>
@@ -2262,6 +2264,7 @@ function bindShared() {
   bindCommunicationRuntime();
     bindPremiumAssistantRuntime();
     bindCarMoverRuntime();
+  bindPremiumGovernanceRuntime();
   bindCopilotRuntime();
   document.querySelectorAll<HTMLButtonElement>('[data-global-action]').forEach((control) => {
     control.addEventListener('click', () => activateGlobalAction(control.dataset.globalAction));
@@ -5475,6 +5478,7 @@ function navigateToModule(view: ViewName) {
     state.emailTutorialStep = 0;
     state.status = moduleStatus(view);
     render();
+    if (view.startsWith('carMover')) window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     return;
   }
 
@@ -5487,6 +5491,7 @@ function navigateToModule(view: ViewName) {
   state.emailTutorialStep = 0;
   state.status = moduleStatus(view);
   render();
+  if (view.startsWith('carMover')) window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 }
 
 function viewFromCurrentRoute(): ViewName {
