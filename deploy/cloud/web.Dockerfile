@@ -12,6 +12,7 @@ COPY apps/web/package.json apps/web/package.json
 
 RUN pnpm install --frozen-lockfile
 
+COPY config/operations-health.json config/operations-health.json
 COPY apps/web apps/web
 
 RUN pnpm --filter @agm/web build
