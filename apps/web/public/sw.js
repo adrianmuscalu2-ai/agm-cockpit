@@ -1,5 +1,15 @@
-const CACHE_NAME = 'agm-cockpit-1.3.0-turn-status-board-20260822';
+const CACHE_NAME = 'agm-cockpit-1.3.0-browser-recovery-20260826';
 const APP_SHELL = ['/', '/manifest.webmanifest', '/images/images/logo1.png'];
+
+function isCacheableResponse(request, response) {
+  if (!response.ok || response.type === 'opaque') return false;
+
+  const contentType = response.headers.get('content-type') || '';
+  if (request.mode === 'navigate') return contentType.includes('text/html');
+  if (request.destination === 'script') return /javascript|ecmascript/i.test(contentType);
+  if (request.destination === 'style') return contentType.includes('text/css');
+  return true;
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -36,9 +46,9 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, event.request.mode === 'navigate' ? { cache: 'no-store' } : undefined)
       .then((response) => {
-        if (response.ok) {
+        if (isCacheableResponse(event.request, response)) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }

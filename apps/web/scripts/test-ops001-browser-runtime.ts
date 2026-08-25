@@ -12,9 +12,12 @@ const manifest = JSON.parse(readFileSync(new URL('../public/manifest.webmanifest
 assert.equal(redirects, '/* /index.html 200');
 assert.match(serviceWorker, /request\.mode === 'navigate'/);
 assert.match(serviceWorker, /caches\.match\('\/'\)/);
-assert.match(serviceWorker, /if \(response\.ok\)/);
-assert.match(serviceWorker, /isOperationalProbe/);
+assert.match(serviceWorker, /browser-recovery-20260826/);
+assert.match(serviceWorker, /isCacheableResponse/);
+assert.match(serviceWorker, /javascript\|ecmascript/);
+assert.match(serviceWorker, /text\/css/);
 assert.match(serviceWorker, /cache: 'no-store'/);
+assert.match(serviceWorker, /isOperationalProbe/);
 assert.equal(manifest.start_url, '/');
 assert.equal(manifest.scope, '/');
 assert.equal(manifest.display, 'standalone');
