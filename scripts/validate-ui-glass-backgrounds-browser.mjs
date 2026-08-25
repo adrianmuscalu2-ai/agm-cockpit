@@ -7,7 +7,7 @@ const root = process.cwd();
 const target = new URL(process.env.AGM_BROWSER_LOCAL_URL || 'http://127.0.0.1:5174/');
 const runId = new Date().toISOString().replace(/[:.]/g, '-');
 const output = path.join(root, 'evidence', 'ui-glass-backgrounds', runId);
-const routes = [
+const routeSpecs = [
   { route: '/basic', panel: '.basic-tool-card', asset: 'agm-basic-hero-v1.png', scene: 'basic' },
   { route: '/translator', panel: '.translator-hud .cockpit-input', asset: 'agm-cockpit-road-v3-mentor.png', scene: 'shell' },
   { route: '/email', panel: '.mail-composer .module-section', asset: 'agm-functions-ecosystem-v2.png', scene: 'shell' },
@@ -16,10 +16,16 @@ const routes = [
   { route: '/profile', panel: '.profile-panel', asset: 'agm-cockpit-road-v3-mentor.png', scene: 'shell' },
   { route: '/premium', panel: '.premium-module', asset: 'agm-premium-hero-v3.png', scene: 'premium' },
 ];
-const viewports = [
+const viewportSpecs = [
   { name: 'desktop', width: 1440, height: 1000 },
   { name: 'mobile', width: 412, height: 915 },
 ];
+const routes = process.env.AGM_BROWSER_ROUTE
+  ? routeSpecs.filter(({ route }) => route === process.env.AGM_BROWSER_ROUTE)
+  : routeSpecs;
+const viewports = process.env.AGM_BROWSER_VIEWPORT
+  ? viewportSpecs.filter(({ name }) => name === process.env.AGM_BROWSER_VIEWPORT)
+  : viewportSpecs;
 
 const report = {
   schemaVersion: 1,
@@ -41,6 +47,8 @@ function assert(condition, message) {
 }
 
 async function dismissTransientUi(page) {
+  const legalNotice = page.locator('#acceptLegalNotice:visible').first();
+  await legalNotice.waitFor({ state: 'visible', timeout: 2_500 }).catch(() => undefined);
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const control = page.locator('#acceptLegalNotice:visible, #skipRoadmapInvitation:visible, #closeTutorial:visible, [data-command="tutorial-close"]:visible').first();
     if (!(await control.count())) break;
@@ -90,7 +98,7 @@ try {
         };
       }, { panelSelector: spec.panel, scene: spec.scene });
       assert(metrics.sceneImage.includes(spec.asset), `${spec.route} missing canonical scene ${spec.asset}`);
-      assert(metrics.panelBackground === 'rgba(2, 12, 28, 0.12)', `${spec.route} panel background ${metrics.panelBackground}`);
+      assert(metrics.panelBackground === 'rgba(2, 12, 28, 0.06)', `${spec.route} panel background ${metrics.panelBackground}`);
       assert(metrics.panelBackdrop.includes('blur(9px)'), `${spec.route} panel backdrop ${metrics.panelBackdrop}`);
       assert(metrics.overflowX === 0, `${spec.route} horizontal overflow ${metrics.overflowX}px`);
       assert(metrics.panelWithinViewport, `${spec.route} panel outside ${viewport.name} viewport`);
