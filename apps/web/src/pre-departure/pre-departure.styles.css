@@ -37,7 +37,7 @@ body::before {
   content: "";
   background-image:
     linear-gradient(rgba(3, 10, 16, 0.58), rgba(3, 10, 16, 0.7)),
-    url("../../../../agmcockpit-website/public/images/atmosphere/agm-premium-hero-v3.png");
+    url("/images/atmosphere/agm-premium-hero-v3.png");
   background-position: center, left center;
   background-size: auto, max(200vw, 177.78vh) auto;
   background-repeat: no-repeat;
