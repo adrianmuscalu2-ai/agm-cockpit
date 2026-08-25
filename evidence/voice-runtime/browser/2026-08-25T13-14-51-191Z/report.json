@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-25T13-14-51-191Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "status": "PASS",
+  "results": [
+    {
+      "id": "model-request-preemption",
+      "status": "PASS",
+      "staleResponseAbsent": true,
+      "newestResponseVisible": true,
+      "priorRequestFailed": true,
+      "cancelLatencyMs": 0
+    },
+    {
+      "id": "audio-output-preemption",
+      "status": "PASS",
+      "oldAudioStopped": true,
+      "activeAudio": "RASPUNS FINAL PATRU",
+      "activeAudioCount": 1,
+      "state": "SPEAKING",
+      "latency": "MIC→speech — ms · VAD — ms · STT — ms · orchestrator 7 ms · model 40 ms · network 57 ms · TTS→audio 16 ms · transcript→audio 121 ms · MIC→audio — ms",
+      "telemetry": {
+        "cycleId": "c955e6a6-5311-4261-b59c-dbff36171a1d",
+        "listeningStartedAt": 6345.5,
+        "finalTranscriptAt": 6345.5,
+        "nativeTiming": {
+          "manualInputMs": 0
+        },
+        "engineRequestAt": 6345.699999999255,
+        "engineResponseAt": 6449.299999998882,
+        "engineLatencyMs": 104,
+        "serverTiming": {
+          "orchestratorMs": 7,
+          "modelMs": 40,
+          "serverTotalMs": 47
+        },
+        "networkLatencyMs": 57,
+        "ttsRequestedAt": 6450.199999999255,
+        "transcriptToTtsMs": 105,
+        "audioStartedAt": 6466.0999999996275,
+        "ttsStartedAt": 6466.0999999996275,
+        "ttsRequestToAudioStartMs": 16,
+        "transcriptToAudioStartMs": 121
+      }
+    }
+  ],
+  "browserContract": {
+    "plugin": "PASS",
+    "integratedControl": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "session": "PASS",
+    "target": "PASS"
+  },
+  "target": "http://127.0.0.1:63856",
+  "revision": "4b5871ad26e2032cec70f6c4b25ebe209e14cb15",
+  "finishedAt": "2026-08-25T13:15:00.814Z",
+  "assistantRequests": [
+    {
+      "text": "PRIMA întrebare lentă",
+      "receivedAt": 1787663695973,
+      "status": "FULFILLED",
+      "finishedAt": 1787663697592
+    },
+    {
+      "text": "A DOUA întrebare prioritară",
+      "receivedAt": 1787663696315,
+      "status": "FULFILLED",
+      "finishedAt": 1787663696416
+    },
+    {
+      "text": "TREIA întrebare pentru audio",
+      "receivedAt": 1787663698954,
+      "status": "FULFILLED",
+      "finishedAt": 1787663699027
+    },
+    {
+      "text": "A PATRA întrebare finală",
+      "receivedAt": 1787663699440,
+      "status": "FULFILLED",
+      "finishedAt": 1787663699517
+    }
+  ],
+  "failedAssistantRequests": [
+    {
+      "text": "{\"productId\":\"agm-cockpit\",\"moduleId\":\"premium-cockpit\",\"language\":\"ro\",\"confirmedText\":\"PRIMA întrebare lentă\",\"history\":[]}",
+      "failure": {
+        "errorText": "net::ERR_ABORTED"
+      }
+    }
+  ],
+  "console": [
+    {
+      "type": "warning",
+      "text": "Capacitor plugin \"AgmCapability\" already registered. Cannot register plugins twice."
+    }
+  ]
+}

@@ -5,7 +5,7 @@ export type MicrophonePermissionState = 'granted' | 'denied' | 'prompt' | 'promp
 interface NativeAudioPlugin {
   checkMicrophonePermission(): Promise<{ state: MicrophonePermissionState }>;
   requestMicrophonePermission(): Promise<{ state: MicrophonePermissionState }>;
-  startListening(options: { language: string }): Promise<{
+  startListening(options: { language: string; cycleId: string }): Promise<{
     text: string;
     timing?: {
       startToSpeechMs: number;
@@ -16,10 +16,11 @@ interface NativeAudioPlugin {
     };
   }>;
   stopListening(): Promise<void>;
-  speak(options: { text: string; language: string }): Promise<void>;
+  speak(options: { text: string; language: string; turnId: string }): Promise<void>;
   stopSpeaking(): Promise<void>;
   openAppSettings(): Promise<void>;
-  addListener(eventName: 'speechState', listener: (event: { state: 'listening' | 'speechDetected' | 'processing' }) => void): Promise<PluginListenerHandle>;
+  addListener(eventName: 'speechState', listener: (event: { state: 'listening' | 'speechDetected' | 'processing'; cycleId: string }) => void): Promise<PluginListenerHandle>;
+  addListener(eventName: 'ttsState', listener: (event: { state: 'speaking' | 'completed' | 'stopped'; turnId: string; requestToAudioStartMs?: number }) => void): Promise<PluginListenerHandle>;
 }
 
 const NativeAudio = registerPlugin<NativeAudioPlugin>('AgmAudio');

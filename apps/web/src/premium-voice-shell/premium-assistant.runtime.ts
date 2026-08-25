@@ -8,7 +8,7 @@ import { isPremiumNavigationAllowed } from '../premium-access/premium-access.nav
 import { detectPremiumConversationIntent, type PremiumConversationActionProposal } from './premium-conversation.contract';
 import { premiumConversationMessages } from './premium-conversation.i18n';
 
-type Recognition = { lang:string;interimResults:boolean;continuous:boolean;onresult:((event:any)=>void)|null;onerror:((event:any)=>void)|null;onend:(()=>void)|null;start():void;stop():void };
+type Recognition = { lang:string;interimResults:boolean;continuous:boolean;onresult:((event:any)=>void)|null;onerror:((event:any)=>void)|null;onend:(()=>void)|null;onspeechstart?:(()=>void)|null;onspeechend?:(()=>void)|null;start():void;stop():void;abort?():void };
 type RecognitionConstructor = new()=>Recognition;
 type HistoryTurn={role:'user'|'assistant';text:string};
 const HISTORY_KEY='agm.premium.assistant.history.v1';
@@ -36,37 +36,55 @@ export function bindPremiumAssistantRuntime(){
  const latency=root.querySelector<HTMLElement>('[data-assistant-latency]');const settings=root.querySelector<HTMLButtonElement>('[data-assistant-open-settings]');
  const retry=root.querySelector<HTMLButtonElement>('[data-assistant-retry]');let retryText='';
  const historyPanel=root.querySelector<HTMLElement>('[data-assistant-history-panel]')!;const historyList=root.querySelector<HTMLOListElement>('[data-assistant-history]')!;
- const actionPanel=root.querySelector<HTMLElement>('[data-assistant-action-panel]')!;const actionSummary=root.querySelector<HTMLElement>('[data-assistant-action-summary]')!;let pendingAction:PremiumConversationActionProposal|undefined;
+ const actionPanel=root.querySelector<HTMLElement>('[data-assistant-action-panel]');const actionSummary=root.querySelector<HTMLElement>('[data-assistant-action-summary]');let pendingAction:PremiumConversationActionProposal|undefined;
  const env=(import.meta as ImportMeta&{env?:Record<string,string|boolean|undefined>}).env;const configured=typeof env?.VITE_AGM_API_BASE_URL==='string'?env.VITE_AGM_API_BASE_URL.trim():'';const apiBase=configured||(env?.DEV===true?'/api/v1':'');
- const client=createPremiumAssistantClient({apiBaseUrl:apiBase,fetch:window.fetch.bind(window),sessionStorage});const history=loadHistory();let answerText='';let activeRequest:AbortController|undefined;let requestSequence=0;let recognition:Recognition|undefined;
+ const client=createPremiumAssistantClient({apiBaseUrl:apiBase,fetch:window.fetch.bind(window),sessionStorage});const history=loadHistory();let answerText='';let activeRequest:AbortController|undefined;let requestSequence=0;let recognition:Recognition|undefined;let activeTurnId:string|undefined;let activeBrowserSpeech:{turnId:string;resolve:()=>void}|undefined;
  const session=new VoiceSessionController(renderState);renderHistory();renderState('OFF');
 
  toggle.addEventListener('click',()=>void handleMicrophoneToggle());
  stop.addEventListener('click',()=>void turnOff());
  root.querySelector('[data-assistant-cancel]')?.addEventListener('click',()=>{transcript.value='';void turnOff();});
- root.querySelector('[data-assistant-confirm]')?.addEventListener('click',()=>void processTranscript(transcript.value.trim(),false));
- root.querySelector('[data-assistant-replay]')?.addEventListener('click',()=>void speak(answerText));
- root.querySelector('[data-assistant-stop-playback]')?.addEventListener('click',()=>void stopSpeaking());
+ root.querySelector('[data-assistant-confirm]')?.addEventListener('click',()=>void submitNewUserTurn(transcript.value.trim()));
+ root.querySelector('[data-assistant-replay]')?.addEventListener('click',()=>void replayAnswer());
+ root.querySelector('[data-assistant-stop-playback]')?.addEventListener('click',()=>void cancelPlaybackOnly());
  root.querySelector('[data-assistant-action-confirm]')?.addEventListener('click',()=>confirmPendingAction());
  root.querySelector('[data-assistant-action-reject]')?.addEventListener('click',()=>rejectPendingAction());
- retry?.addEventListener('click',()=>{const text=retryText||transcript.value.trim();if(text)void processTranscript(text,false);});
+ retry?.addEventListener('click',()=>{const text=retryText||transcript.value.trim();if(text)void submitNewUserTurn(text);});
  settings?.addEventListener('click',()=>void NativeAudio.openAppSettings());
  transcript.addEventListener('input',()=>void interruptForNewQuestion());
  window.addEventListener('agm-android-assistant-handoff',()=>void turnOff());
  window.addEventListener('offline',()=>{activeRequest?.abort();status.textContent=connectionText(language,false);});
  window.addEventListener('online',()=>{if(session.state()==='OFF'||session.state()==='STANDBY')status.textContent=connectionText(language,true);});
- if(isNativeAudioAvailable())void NativeAudio.addListener('speechState',event=>session.transition(event.state==='listening'?'LISTENING':event.state==='processing'?'TRANSCRIBING':'SPEECH_DETECTED'));
+ if(isNativeAudioAvailable()){
+  void NativeAudio.addListener('speechState',event=>{if(event.cycleId!==session.currentCycleId())return;if(event.state==='speechDetected')session.markSpeech();session.transition(event.state==='listening'?'LISTENING':event.state==='processing'?'TRANSCRIBING':'SPEECH_DETECTED');});
+  void NativeAudio.addListener('ttsState',event=>{if(event.turnId!==activeTurnId)return;if(event.state==='speaking')markAudioStarted(event.turnId,event.requestToAudioStartMs);});
+ }
 
  async function handleMicrophoneToggle(){
   if(!session.isEnabled()){await turnOn();return;}
-  if(['UNDERSTANDING','PREPARING','SPEAKING','TRANSCRIBING'].includes(session.state())){await interruptAndListen();return;}
+  if(isTurnActive()){await interruptAndListen();return;}
   await turnOff();
  }
- async function interruptAndListen(){await turnOff();await turnOn();}
+ async function interruptAndListen(){const token=await preemptCurrentTurn('microphone-restart');void conversationLoop(token);}
  async function interruptForNewQuestion(){
-  if(!['UNDERSTANDING','PREPARING','SPEAKING','TRANSCRIBING'].includes(session.state()))return;
-  activeRequest?.abort();activeRequest=undefined;requestSequence+=1;await stopCapture();await stopSpeaking();
-  session.transition(session.isEnabled()?'STANDBY':'OFF');
+  if(!isTurnActive())return;
+  await preemptCurrentTurn('new-user-input');
+ }
+
+ async function preemptCurrentTurn(reason:string){
+  const interruptedState=session.state();const token=session.interrupt();const sequence=++requestSequence;const startedAt=performance.now();
+  activeRequest?.abort();activeRequest=undefined;activeTurnId=undefined;
+  await Promise.allSettled([stopCapture(),stopSpeaking()]);
+  pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;retryText='';if(retry)retry.hidden=true;answerText='';response.textContent='';panel.hidden=true;
+  persistTelemetry({kind:'interrupt',reason,interruptedState,sequence,cancelLatencyMs:Math.round(performance.now()-startedAt),at:Date.now()});
+  return token;
+ }
+ function isTurnActive(){return Boolean(activeRequest||recognition||activeBrowserSpeech||activeTurnId)||['LISTENING','SPEECH_DETECTED','TRANSCRIBING','UNDERSTANDING','PREPARING','SPEAKING'].includes(session.state());}
+ async function submitNewUserTurn(text:string){
+  if(!text){status.textContent=m.emptyTranscript;return;}
+  const token=await preemptCurrentTurn('new-user-input');session.beginCycle();session.markTranscript({manualInputMs:0});
+  const completed=await processTranscript(text);if(!session.isGenerationCurrent(token)||!completed)return;
+  session.settle();if(session.isEnabled())void conversationLoop(token);
  }
 
  async function turnOn(){
@@ -75,46 +93,50 @@ export function bindPremiumAssistantRuntime(){
   if(settings)settings.hidden=true;
   const token=session.on();toggle.setAttribute('aria-pressed','true');void conversationLoop(token);
  }
- async function turnOff(){session.off();toggle.setAttribute('aria-pressed','false');activeRequest?.abort();activeRequest=undefined;requestSequence+=1;await stopCapture();await stopSpeaking();}
+ async function turnOff(){session.off();toggle.setAttribute('aria-pressed','false');requestSequence+=1;activeRequest?.abort();activeRequest=undefined;activeTurnId=undefined;await Promise.allSettled([stopCapture(),stopSpeaking()]);}
  async function conversationLoop(token:number){
   while(session.isCurrent(token)){
    try{
-    session.beginCycle();session.transition('LISTENING');const result=await recognizeOnce();if(!session.isCurrent(token))return;
+    session.beginCycle();session.transition('LISTENING');const cycleId=session.currentCycleId()!;const result=await recognizeOnce(cycleId);if(!session.isCurrent(token))return;
     const text=result.text.trim();if(!text)continue;session.markTranscript(result.timing);transcript.value=text;session.transition('UNDERSTANDING');
-    await processTranscript(text,true);if(session.isCurrent(token)){session.transition('STANDBY');await new Promise(resolve=>setTimeout(resolve,250));}
+    const completed=await processTranscript(text);if(!completed||!session.isCurrent(token))return;session.settle();await new Promise(resolve=>setTimeout(resolve,80));
    }catch(error){if(!session.isCurrent(token))return;session.transition('ERROR');status.textContent=String(error).includes('permission')?m.microphoneError:m.transcriptionError;await new Promise(resolve=>setTimeout(resolve,700));}
   }
  }
- async function recognizeOnce():Promise<{text:string;timing?:Record<string,number>}>{
-  if(isNativeAudioAvailable())return NativeAudio.startListening({language:basicLanguageRegistry[language].speechLocale});
+ async function recognizeOnce(cycleId:string):Promise<{text:string;timing?:Record<string,number>}>{
+  if(isNativeAudioAvailable())return NativeAudio.startListening({language:basicLanguageRegistry[language].speechLocale,cycleId});
   const speechWindow=window as unknown as{SpeechRecognition?:RecognitionConstructor;webkitSpeechRecognition?:RecognitionConstructor};const Constructor=speechWindow.SpeechRecognition??speechWindow.webkitSpeechRecognition;if(!Constructor)throw new Error('microphone');
-  return new Promise((resolve,reject)=>{recognition=new Constructor();recognition.lang=basicLanguageRegistry[language].speechLocale;recognition.interimResults=false;recognition.continuous=false;recognition.onresult=event=>resolve({text:String(event.results?.[0]?.[0]?.transcript??'')});recognition.onerror=reject;recognition.onend=()=>{};recognition.start();});
+  return new Promise((resolve,reject)=>{const startedAt=performance.now();let speechStartedAt=startedAt;let speechEndedAt=startedAt;recognition=new Constructor();recognition.lang=basicLanguageRegistry[language].speechLocale;recognition.interimResults=false;recognition.continuous=false;recognition.onspeechstart=()=>{speechStartedAt=performance.now();session.markSpeech();session.transition('SPEECH_DETECTED');};recognition.onspeechend=()=>{speechEndedAt=performance.now();session.transition('TRANSCRIBING');};recognition.onresult=event=>{const resultAt=performance.now();resolve({text:String(event.results?.[0]?.[0]?.transcript??''),timing:{startToSpeechMs:Math.round(speechStartedAt-startedAt),speechToEndMs:Math.round(speechEndedAt-speechStartedAt),silenceToEndMs:0,endToResultMs:Math.round(resultAt-speechEndedAt),totalRecognitionMs:Math.round(resultAt-startedAt)}});};recognition.onerror=reject;recognition.onend=()=>{};recognition.start();});
  }
- async function stopCapture(){try{if(isNativeAudioAvailable())await NativeAudio.stopListening();else recognition?.stop();}catch{}recognition=undefined;}
- async function processTranscript(confirmedText:string,automatic:boolean){
-  if(!confirmedText){status.textContent=m.emptyTranscript;return;}
-  if(!navigator.onLine){session.transition('ERROR');status.textContent=connectionText(language,false);return;}
+ async function stopCapture(){const current=recognition;recognition=undefined;try{if(isNativeAudioAvailable())await NativeAudio.stopListening();else if(current?.abort)current.abort();else current?.stop();}catch{}}
+ async function processTranscript(confirmedText:string):Promise<boolean>{
+  if(!confirmedText){status.textContent=m.emptyTranscript;return false;}
+  if(!navigator.onLine){session.transition('ERROR');status.textContent=connectionText(language,false);return false;}
     if(detectPremiumConversationIntent(confirmedText)==='navigate-to-car-mover'){
-    if(!isPremiumNavigationAllowed('carMover')){actionPanel.hidden=true;response.textContent='Accesul Car Mover nu este acordat. Deschid fluxul de acces.';panel.hidden=false;window.history.pushState({},'', '/access');window.dispatchEvent(new PopStateEvent('popstate'));return;}
+    if(!isPremiumNavigationAllowed('carMover')){if(actionPanel)actionPanel.hidden=true;response.textContent='Accesul Car Mover nu este acordat. Deschid fluxul de acces.';panel.hidden=false;window.history.pushState({},'', '/access');window.dispatchEvent(new PopStateEvent('popstate'));return true;}
      pendingAction={id:`action:${Date.now()}`,respondsToTurnId:`turn:${Date.now()}`,capability:'navigate-to-car-mover',summary:'Deschidere AGM Car Mover',payloadPreview:'/car-mover',producesExternalEffect:false,requiresHumanConfirmation:true};
-     actionSummary.textContent=`${premiumConversationMessages[language].actionPrepared} ${pendingAction.summary}?`;
-     actionPanel.hidden=false;response.textContent=actionSummary.textContent;panel.hidden=false;return;
+     const summary=`${premiumConversationMessages[language].actionPrepared} ${pendingAction.summary}?`;if(actionSummary)actionSummary.textContent=summary;
+     if(actionPanel)actionPanel.hidden=false;response.textContent=summary;panel.hidden=false;return true;
     }
-  if(retry)retry.hidden=true;retryText='';const sequence=++requestSequence;activeRequest?.abort();await stopSpeaking();const controller=new AbortController();activeRequest=controller;let timedOut=false;const timeout=window.setTimeout(()=>{timedOut=true;controller.abort();},18_000);session.transition('UNDERSTANDING');session.markEngineRequest();
+  if(retry)retry.hidden=true;retryText='';const sequence=++requestSequence;const turnId=`turn:${sequence}:${Date.now()}`;activeTurnId=turnId;activeRequest?.abort();await stopSpeaking();const controller=new AbortController();activeRequest=controller;let timedOut=false;const timeout=window.setTimeout(()=>{timedOut=true;controller.abort();},18_000);session.transition('UNDERSTANDING');session.markEngineRequest();
   try{
-   const context=readOperationalContext();const result=await client.respond({productId:'agm-cockpit',moduleId:context.situationId??'premium-cockpit',language,confirmedText,...context,history:history.slice(-8)},{signal:controller.signal});if(sequence!==requestSequence)return;session.markEngineResponse();
+   const context=readOperationalContext();const result=await client.respond({productId:'agm-cockpit',moduleId:context.situationId??'premium-cockpit',language,confirmedText,...context,history:history.slice(-4)},{signal:controller.signal});if(sequence!==requestSequence)return false;session.markEngineResponse(result.timing);
    const groundedText=enforceVerifiedContactBoundary(confirmedText,result.text,language);history.push({role:'user',text:confirmedText},{role:'assistant',text:groundedText});while(history.length>20)history.shift();saveHistory(history);renderHistory();answerText=groundedText;response.textContent=groundedText;panel.hidden=false;
-   session.transition('SPEAKING');session.markTts();const telemetry=session.snapshot();persistTelemetry(telemetry);if(latency&&telemetry){latency.textContent=`API ${telemetry.engineLatencyMs??'—'} ms · transcript → voice ${telemetry.transcriptToTtsMs??'—'} ms`;latency.hidden=false;}await speak(groundedText);
-  }catch(error){if(sequence!==requestSequence)return;if(controller.signal.aborted&&!timedOut)return;session.transition('ERROR');retryText=confirmedText;if(retry){retry.textContent=retryLabel(language);retry.hidden=false;}status.textContent=timedOut?timeoutText(language):error instanceof PremiumAssistantClientError&&error.reason==='network'?m.networkError:m.aiError;}finally{window.clearTimeout(timeout);if(sequence===requestSequence)activeRequest=undefined;}
+   session.transition('PREPARING');session.markTtsRequest();renderLatency(session.snapshot());const spoken=await speak(groundedText,sequence,turnId);if(sequence!==requestSequence)return false;activeTurnId=undefined;return spoken;
+  }catch(error){if(sequence!==requestSequence)return false;if(controller.signal.aborted&&!timedOut)return false;session.transition('ERROR');retryText=confirmedText;if(retry){retry.textContent=retryLabel(language);retry.hidden=false;}status.textContent=timedOut?timeoutText(language):error instanceof PremiumAssistantClientError&&error.reason==='network'?m.networkError:m.aiError;return false;}finally{window.clearTimeout(timeout);if(sequence===requestSequence){activeRequest=undefined;if(session.state()==='ERROR')activeTurnId=undefined;}}
  }
  function confirmPendingAction(){
   if(!pendingAction)return;
-  if(!isPremiumNavigationAllowed('carMover')){pendingAction=undefined;actionPanel.hidden=true;response.textContent='Accesul Car Mover nu este acordat. Deschid fluxul de acces.';panel.hidden=false;window.history.pushState({},'', '/access');window.dispatchEvent(new PopStateEvent('popstate'));return;}
-  pendingAction=undefined;actionPanel.hidden=true;window.history.pushState({},'', '/car-mover');window.dispatchEvent(new PopStateEvent('popstate'));
+  if(!isPremiumNavigationAllowed('carMover')){pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;response.textContent='Accesul Car Mover nu este acordat. Deschid fluxul de acces.';panel.hidden=false;window.history.pushState({},'', '/access');window.dispatchEvent(new PopStateEvent('popstate'));return;}
+  pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;window.history.pushState({},'', '/car-mover');window.dispatchEvent(new PopStateEvent('popstate'));
  }
- function rejectPendingAction(){pendingAction=undefined;actionPanel.hidden=true;response.textContent=premiumConversationMessages[language].actionRejected;panel.hidden=false;}
- async function speak(text:string){if(!text)return;try{session.transition('SPEAKING');if(isNativeAudioAvailable()){await NativeAudio.speak({text,language:basicLanguageRegistry[language].speechLocale});return;}if(!window.speechSynthesis)throw new Error();await new Promise<void>((resolve,reject)=>{window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.lang=basicLanguageRegistry[language].speechLocale;utterance.onend=()=>resolve();utterance.onerror=()=>reject();window.speechSynthesis.speak(utterance);});}catch{status.textContent=m.playbackError;}}
- async function stopSpeaking(){try{if(isNativeAudioAvailable())await NativeAudio.stopSpeaking();else window.speechSynthesis?.cancel();}catch{status.textContent=m.playbackError;}}
+ function rejectPendingAction(){pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;response.textContent=premiumConversationMessages[language].actionRejected;panel.hidden=false;}
+ async function replayAnswer(){if(!answerText)return;const text=answerText;const token=await preemptCurrentTurn('replay');session.beginCycle();session.markTranscript({manualReplayMs:0});const sequence=++requestSequence;const turnId=`replay:${sequence}:${Date.now()}`;activeTurnId=turnId;session.transition('PREPARING');session.markTtsRequest();await speak(text,sequence,turnId);if(sequence!==requestSequence||!session.isGenerationCurrent(token))return;activeTurnId=undefined;session.settle();if(session.isEnabled())void conversationLoop(token);}
+ async function cancelPlaybackOnly(){requestSequence+=1;activeTurnId=undefined;await stopSpeaking();session.settle();}
+ async function speak(text:string,sequence:number,turnId:string){if(!text)return false;try{if(isNativeAudioAvailable()){await NativeAudio.speak({text,language:basicLanguageRegistry[language].speechLocale,turnId});return sequence===requestSequence;}if(!window.speechSynthesis)throw new Error();await new Promise<void>((resolve,reject)=>{let settled=false;const finish=()=>{if(settled)return;settled=true;if(activeBrowserSpeech?.turnId===turnId)activeBrowserSpeech=undefined;resolve();};window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.lang=basicLanguageRegistry[language].speechLocale;utterance.onstart=()=>markAudioStarted(turnId);utterance.onend=finish;utterance.onerror=()=>{if(sequence!==requestSequence){finish();return;}reject(new Error('playback'));};activeBrowserSpeech={turnId,resolve:finish};window.speechSynthesis.speak(utterance);});return sequence===requestSequence;}catch{if(sequence===requestSequence)status.textContent=m.playbackError;return false;}}
+ async function stopSpeaking(){const browserSpeech=activeBrowserSpeech;activeBrowserSpeech=undefined;try{if(isNativeAudioAvailable())await NativeAudio.stopSpeaking();else{window.speechSynthesis?.cancel();browserSpeech?.resolve();}}catch{browserSpeech?.resolve();}}
+ function markAudioStarted(turnId:string,nativeRequestToStartMs?:number){if(turnId!==activeTurnId)return;session.markAudioStart(nativeRequestToStartMs);session.transition('SPEAKING');const telemetry=session.snapshot();persistTelemetry(telemetry);renderLatency(telemetry);}
+ function renderLatency(telemetry:ReturnType<VoiceSessionController['snapshot']>){if(!latency||!telemetry)return;const native=telemetry.nativeTiming??{};latency.textContent=`MIC→speech ${native.startToSpeechMs??'—'} ms · VAD ${native.silenceToEndMs??'—'} ms · STT ${native.endToResultMs??'—'} ms · orchestrator ${telemetry.serverTiming?.orchestratorMs??'—'} ms · model ${telemetry.serverTiming?.modelMs??telemetry.engineLatencyMs??'—'} ms · network ${telemetry.networkLatencyMs??'—'} ms · TTS→audio ${telemetry.ttsRequestToAudioStartMs??'—'} ms · transcript→audio ${telemetry.transcriptToAudioStartMs??'—'} ms · MIC→audio ${telemetry.micToAudioStartMs??'—'} ms`;latency.hidden=false;}
  function renderState(state:VoiceSessionState){runtimeRoot.dataset.voiceState=state;const visible=state==='LISTENING'?'LISTENING':state==='SPEECH_DETECTED'?'SPEECH_DETECTED':state==='SPEAKING'?'SPEAKING':state==='OFF'?'OFF':'PROCESSING';status.textContent=stateText[language][visible];toggle.classList.toggle('is-on',state!=='OFF');toggle.querySelector('span')!.textContent=state==='OFF'?'ASCULTARE ON':'ASCULTARE OFF';stop.hidden=true;}
  function renderHistory(){historyList.replaceChildren(...history.map(turn=>{const item=document.createElement('li');item.dataset.role=turn.role;const label=document.createElement('strong');label.textContent=turn.role==='assistant'?'AGM':m.transcript;const p=document.createElement('p');p.textContent=turn.text;item.append(label,p);return item;}));historyPanel.hidden=history.length===0;const last=[...history].reverse().find(turn=>turn.role==='assistant');if(last){answerText=last.text;response.textContent=last.text;panel.hidden=false;}}
 }

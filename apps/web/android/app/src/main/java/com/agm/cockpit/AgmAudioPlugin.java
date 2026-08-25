@@ -44,6 +44,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     private static final String GOOGLE_TTS_ENGINE = "com.google.android.tts";
     private SpeechRecognizer speechRecognizer;
     private PluginCall listeningCall;
+    private String listeningCycleId;
     private TextToSpeech textToSpeech;
     private AudioManager audioManager;
     private AudioFocusRequest audioFocusRequest;
@@ -51,11 +52,15 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     private PluginCall pendingSpeechCall;
     private String pendingSpeechText;
     private String pendingSpeechLanguage;
+    private String pendingSpeechTurnId;
+    private String activeUtteranceId;
+    private long ttsRequestedAt;
+    private long ttsSequence;
     private long recognitionStartedAt;
     private long speechStartedAt;
     private long lastVoiceActivityAt;
     private long endOfSpeechAt;
-    private static final long AGM_ENDPOINT_TIMEOUT_MS = 2300L;
+    private static final long AGM_ENDPOINT_TIMEOUT_MS = 850L;
     private final Handler endpointHandler = new Handler(Looper.getMainLooper());
     private final Runnable endpointStop = () -> {
         if (speechRecognizer == null || listeningCall == null) return;
@@ -90,6 +95,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     @PluginMethod
     public void startListening(PluginCall call) {
         String language = call.getString("language", Locale.getDefault().toLanguageTag());
+        String cycleId = call.getString("cycleId", "").trim();
         Log.i(TAG, "Starting speech recognition; language=" + language);
 
         if (getPermissionState("microphone") != PermissionState.GRANTED) {
@@ -98,6 +104,10 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         }
         if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
             call.reject("Android speech recognition service is unavailable", "SPEECH_RECOGNITION_UNAVAILABLE");
+            return;
+        }
+        if (cycleId.isEmpty()) {
+            call.reject("A voice cycle id is required", "SPEECH_CYCLE_REQUIRED");
             return;
         }
         if (listeningCall != null) {
@@ -119,6 +129,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
             intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 900L);
             intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 650L);
             listeningCall = call;
+            listeningCycleId = cycleId;
             call.setKeepAlive(true);
             recognitionStartedAt = SystemClock.elapsedRealtime();
             speechStartedAt = 0;
@@ -130,15 +141,24 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
 
     @PluginMethod
     public void stopListening(PluginCall call) {
-        if (speechRecognizer == null || listeningCall == null) {
+        if (speechRecognizer == null && listeningCall == null) {
             call.resolve();
             return;
         }
 
-        Log.i(TAG, "Manual end of speech requested");
+        Log.i(TAG, "Immediate speech cancellation requested");
         getActivity().runOnUiThread(() -> {
             try {
-                speechRecognizer.stopListening();
+                PluginCall interruptedCall = listeningCall;
+                listeningCall = null;
+                listeningCycleId = null;
+                endpointHandler.removeCallbacks(endpointStop);
+                if (speechRecognizer != null) speechRecognizer.cancel();
+                destroyRecognizer();
+                if (interruptedCall != null) {
+                    interruptedCall.setKeepAlive(false);
+                    interruptedCall.reject("Speech recognition cancelled by a newer turn", "SPEECH_CANCELLED");
+                }
                 call.resolve();
             } catch (Exception error) {
                 Log.e(TAG, "Could not stop speech recognition", error);
@@ -151,15 +171,28 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     public void speak(PluginCall call) {
         String text = call.getString("text", "").trim();
         String language = call.getString("language", Locale.getDefault().toLanguageTag());
+        String turnId = call.getString("turnId", "").trim();
         Log.i(TAG, "TTS requested; language=" + language + "; characters=" + text.length());
         if (text.isEmpty()) {
             call.reject("No text was provided for speech", "TTS_EMPTY_TEXT");
             return;
         }
+        if (turnId.isEmpty()) {
+            call.reject("A voice turn id is required", "TTS_TURN_REQUIRED");
+            return;
+        }
+        if (pendingSpeechCall != null) {
+            if (textToSpeech != null) textToSpeech.stop();
+            notifyTtsState("stopped", pendingSpeechTurnId, null);
+            resolvePendingSpeech();
+        }
 
         pendingSpeechCall = call;
         pendingSpeechText = text;
         pendingSpeechLanguage = language;
+        pendingSpeechTurnId = turnId;
+        activeUtteranceId = "agm-tts-" + (++ttsSequence);
+        ttsRequestedAt = SystemClock.elapsedRealtime();
         if (textToSpeech == null) {
             if (isPackageInstalled(GOOGLE_TTS_ENGINE)) {
                 Log.i(TAG, "Using Google Speech Services for AGM voice playback");
@@ -181,15 +214,23 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
             return;
         }
         textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-            @Override public void onStart(String utteranceId) { Log.i(TAG, "TTS playback started"); }
+            @Override public void onStart(String utteranceId) {
+                if (!utteranceId.equals(activeUtteranceId)) return;
+                Log.i(TAG, "TTS playback started");
+                notifyTtsState("speaking", pendingSpeechTurnId, SystemClock.elapsedRealtime() - ttsRequestedAt);
+            }
             @Override public void onDone(String utteranceId) {
+                if (!utteranceId.equals(activeUtteranceId)) return;
                 Log.i(TAG, "TTS playback completed");
+                notifyTtsState("completed", pendingSpeechTurnId, null);
                 resolvePendingSpeech();
             }
             @Override public void onError(String utteranceId) {
+                if (!utteranceId.equals(activeUtteranceId)) return;
                 rejectPendingSpeech("Android Text-to-Speech playback failed", "TTS_PLAYBACK_FAILED");
             }
             @Override public void onError(String utteranceId, int errorCode) {
+                if (!utteranceId.equals(activeUtteranceId)) return;
                 rejectPendingSpeech("Android Text-to-Speech error: " + errorCode, "TTS_PLAYBACK_FAILED");
             }
         });
@@ -223,7 +264,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         requestSpeechAudioFocus(speechAttributes);
         Bundle speechParameters = new Bundle();
         speechParameters.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f);
-        int result = textToSpeech.speak(pendingSpeechText, TextToSpeech.QUEUE_FLUSH, speechParameters, "agm-tts");
+        int result = textToSpeech.speak(pendingSpeechText, TextToSpeech.QUEUE_FLUSH, speechParameters, activeUtteranceId);
         if (result == TextToSpeech.ERROR) {
             rejectPendingSpeech("Android Text-to-Speech could not start", "TTS_START_FAILED");
         }
@@ -310,6 +351,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         // TextToSpeech.stop() does not emit onDone consistently. Resolve the
         // Capacitor call explicitly so a newly started question cannot remain
         // chained to the interrupted answer.
+        notifyTtsState("stopped", pendingSpeechTurnId, null);
         resolvePendingSpeech();
         Log.i(TAG, "TTS playback stopped");
         call.resolve();
@@ -353,6 +395,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     private void resolveListening(JSObject result) {
         PluginCall call = listeningCall;
         listeningCall = null;
+        listeningCycleId = null;
         destroyRecognizer();
         if (call != null) { call.setKeepAlive(false); call.resolve(result); }
     }
@@ -360,6 +403,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     private void rejectListening(String message, String code) {
         PluginCall call = listeningCall;
         listeningCall = null;
+        listeningCycleId = null;
         destroyRecognizer();
         if (call != null) { call.setKeepAlive(false); call.reject(message, code); }
     }
@@ -379,6 +423,9 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         pendingSpeechCall = null;
         pendingSpeechText = null;
         pendingSpeechLanguage = null;
+        pendingSpeechTurnId = null;
+        activeUtteranceId = null;
+        ttsRequestedAt = 0;
         if (call != null) call.resolve();
     }
 
@@ -389,6 +436,9 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         pendingSpeechCall = null;
         pendingSpeechText = null;
         pendingSpeechLanguage = null;
+        pendingSpeechTurnId = null;
+        activeUtteranceId = null;
+        ttsRequestedAt = 0;
         if (call != null) call.reject(message, code);
     }
 
@@ -401,19 +451,19 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
 
     @Override public void onReadyForSpeech(Bundle params) {
         Log.i(TAG, "Speech recognizer ready");
-        JSObject event = new JSObject(); event.put("state", "listening"); notifyListeners("speechState", event);
+        notifySpeechState("listening");
     }
     @Override public void onBeginningOfSpeech() {
         speechStartedAt = SystemClock.elapsedRealtime();
         lastVoiceActivityAt = speechStartedAt;
         Log.i(TAG, "Speech detected");
-        JSObject event = new JSObject(); event.put("state", "speechDetected"); notifyListeners("speechState", event);
+        notifySpeechState("speechDetected");
         armEndpointTimer();
     }
     @Override public void onEndOfSpeech() {
         endOfSpeechAt = SystemClock.elapsedRealtime();
         Log.i(TAG, "Speech processing started");
-        JSObject event = new JSObject(); event.put("state", "processing"); notifyListeners("speechState", event);
+        notifySpeechState("processing");
     }
     @Override public void onRmsChanged(float rmsdB) {
         if (speechStartedAt > 0 && rmsdB > 5.0f) {
@@ -434,5 +484,22 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     private void armEndpointTimer() {
         endpointHandler.removeCallbacks(endpointStop);
         endpointHandler.postDelayed(endpointStop, AGM_ENDPOINT_TIMEOUT_MS);
+    }
+
+    private void notifySpeechState(String state) {
+        if (listeningCycleId == null) return;
+        JSObject event = new JSObject();
+        event.put("state", state);
+        event.put("cycleId", listeningCycleId);
+        notifyListeners("speechState", event);
+    }
+
+    private void notifyTtsState(String state, String turnId, Long requestToAudioStartMs) {
+        if (turnId == null) return;
+        JSObject event = new JSObject();
+        event.put("state", state);
+        event.put("turnId", turnId);
+        if (requestToAudioStartMs != null) event.put("requestToAudioStartMs", requestToAudioStartMs);
+        notifyListeners("ttsState", event);
     }
 }
