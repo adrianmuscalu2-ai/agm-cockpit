@@ -37,7 +37,7 @@ const androidHistory = historicalIncidents().find((incident) => incident.id === 
 assert.equal(androidHistory.status, 'validated');
 assert.match(androidHistory.appliedSolution, /DEGRADED \/ NO CONTINUOUS TELEMETRY/);
 assert.match(androidHistory.preventiveMeasure, /target UNKNOWN/);
-const staleAndroid = { ...androidHistory, updatedAt: '2026-08-10T08:00:00.000Z', status: 'remediation' as const, history: [{ at: '2026-08-10T08:00:00.000Z', action: 'stale-open', actor: 'MON-005', toStatus: 'remediation' as const, note: 'Persistent local copy.' }] };
+const staleAndroid = { ...androidHistory, updatedAt: '2026-08-25T08:00:00.000Z', status: 'reopened' as const, history: [{ at: '2026-08-25T08:00:00.000Z', action: 'stale-open', actor: 'MON-005', toStatus: 'reopened' as const, note: 'Persistent local copy.' }] };
 const staleAndroidJournal = new Map<string, string>([['agm.turn.incident-journal.v1', JSON.stringify([staleAndroid])]]);
 const staleAndroidStorage = { getItem:(key:string)=>staleAndroidJournal.get(key)??null, setItem:(key:string,value:string)=>void staleAndroidJournal.set(key,value) } as Storage;
 const reconciledAndroid = readIncidentJournal(staleAndroidStorage).find((incident) => incident.id === 'AGM-MON-ANDROID')!;

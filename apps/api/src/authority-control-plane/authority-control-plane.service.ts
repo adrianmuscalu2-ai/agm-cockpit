@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { detectAuthorityConflict, evaluateWriteBoundary, isCommandAllowed, isRunbookActionSetAllowed, normalizeScope, scopesOverlap, type AuthorityResourceSelector } from './authority-scope';
 import { authorityScopeSeed, PREMIUM_NETWORK_CONTRACT_VERSION, premiumNetworkSeed } from './premium-network.seed';
 import type { CreateDecisionDto, CreateMandateDto, ExecuteRecoveryDto, HandoffLeaseDto, IssueLeaseDto, ResourceSelectorDto, ValidateWriteDto } from './dto';
+import { resolveCanonicalNodeState } from './canonical-node-state';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
 const AUTHORITY_ADMIN_ROLES = new Set(['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN']);
@@ -36,10 +37,20 @@ export class AuthorityControlPlaneService {
       const lastRun = lastRunByAgent.get(item.canonicalId);
       const lease = leaseByAgent.get(item.canonicalId);
       const failoverState = failoverByScope.get(item.scope);
+      const canonicalState = resolveCanonicalNodeState({
+        registryLifecycleStatus: item.lifecycleStatus,
+        ...(heartbeat ? { heartbeat: { status: heartbeat.reportedStatus, observedAt: heartbeat.lastSeenAt } } : {}),
+        ...(lastRun ? { runtimeEvent: { status: lastRun.lifecycle, observedAt: lastRun.occurredAt } } : {}),
+        ...(lease ? { authorityState: { status: lease.state, observedAt: lease.issuedAt } } : {}),
+      });
       return {
         canonicalId: item.canonicalId, kind: item.kind, module: item.module, ownerId: item.ownerId,
         supervisorId: item.supervisorId, scope: item.scope,
-        status: telemetryStatus(heartbeat?.reportedStatus),
+        lifecycleStatus: item.lifecycleStatus,
+        status: canonicalState.status,
+        statusLabel: canonicalState.label,
+        statusSource: canonicalState.source,
+        statusObservedAt: canonicalState.observedAt,
         telemetry: heartbeat ? { reportedStatus: heartbeat.reportedStatus, lastSeenAt: heartbeat.lastSeenAt, lastSuccessAt: heartbeat.lastSuccessAt, lastFailureAt: heartbeat.lastFailureAt, detail: heartbeat.lastDetail } : null,
         dependencyState: heartbeat?.lastFailureReason ? 'DEGRADED' : heartbeat ? 'PASS' : 'NO_TELEMETRY',
         authorityState: lease ? { state: lease.state, epoch: lease.epoch, fencingToken: lease.fencingToken, providerId: lease.providerId, expiresAt: lease.expiresAt } : { state: item.writePermissions ? 'STANDBY' : 'ADVISORY' },
@@ -260,17 +271,6 @@ function resourceAllowed(resource: ResourceSelectorDto | undefined, selectors: r
   if (!resource) return false;
   return selectors.some((selector) => (!selector.productId || selector.productId === resource.productId) && (!selector.moduleId || selector.moduleId === resource.moduleId) && (!selector.subjectType || selector.subjectType === resource.subjectType) && (!selector.subjectIds?.length || Boolean(resource.subjectIds?.every((id) => selector.subjectIds?.includes(id)))));
 }
-
-function telemetryStatus(status?: string) {
-  const normalized = status?.toUpperCase();
-  if (!normalized) return 'NO_TELEMETRY';
-  if (['PASS', 'ACTIVE', 'HEALTHY', 'OK'].includes(normalized)) return 'PASS';
-  if (['DEGRADED', 'STALE', 'WARNING'].includes(normalized)) return 'DEGRADED';
-  if (['FAIL', 'FAILED', 'ERROR'].includes(normalized)) return 'FAIL';
-  if (['STANDBY', 'ADVISORY'].includes(normalized)) return 'STANDBY';
-  return 'NO_TELEMETRY';
-}
-
 
 function findLeaseConflicts(leases: Array<{ id: string; scopeId: string; mode: string; writeSet: Prisma.JsonValue; resourceSelectors: Prisma.JsonValue }>) {
   const conflicts: Array<{ leftLeaseId: string; rightLeaseId: string }> = [];
