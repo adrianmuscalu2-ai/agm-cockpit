@@ -90,7 +90,7 @@ try {
         };
       }, { panelSelector: spec.panel, scene: spec.scene });
       assert(metrics.sceneImage.includes(spec.asset), `${spec.route} missing canonical scene ${spec.asset}`);
-      assert(metrics.panelBackground === 'rgba(2, 12, 28, 0.22)', `${spec.route} panel background ${metrics.panelBackground}`);
+      assert(metrics.panelBackground === 'rgba(2, 12, 28, 0.12)', `${spec.route} panel background ${metrics.panelBackground}`);
       assert(metrics.panelBackdrop.includes('blur(9px)'), `${spec.route} panel backdrop ${metrics.panelBackdrop}`);
       assert(metrics.overflowX === 0, `${spec.route} horizontal overflow ${metrics.overflowX}px`);
       assert(metrics.panelWithinViewport, `${spec.route} panel outside ${viewport.name} viewport`);

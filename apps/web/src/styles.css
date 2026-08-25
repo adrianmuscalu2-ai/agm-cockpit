@@ -7,8 +7,8 @@
 
 :where(.premium-assistant-view, .premium-copilot-view) {
   --agm-ai-assistant-visual: url('/images/agm-ai-assistant-microphone-v1.png');
-  --agm-ai-glass: rgba(2, 12, 28, 0.22);
-  --agm-ai-glass-strong: rgba(2, 12, 28, 0.34);
+  --agm-ai-glass: rgba(2, 12, 28, 0.12);
+  --agm-ai-glass-strong: rgba(2, 12, 28, 0.2);
   --agm-ai-glass-border: rgba(104, 211, 255, 0.46);
   position: relative;
   isolation: isolate;
@@ -38,7 +38,7 @@
   margin: 0;
   transform: translateX(-50%);
   border-color: rgba(104, 211, 255, 0.42);
-  background: rgba(1, 9, 24, 0.28);
+  background: rgba(1, 9, 24, 0.16);
   box-shadow: 0 16px 44px rgba(0, 4, 18, 0.28), 0 0 24px rgba(42, 151, 255, 0.12);
   -webkit-backdrop-filter: blur(12px) saturate(1.25);
   backdrop-filter: blur(12px) saturate(1.25);
@@ -46,12 +46,12 @@
 
 :where(.view-premiumVoice, .view-premiumCopilot) .global-quick-actions button {
   border-color: rgba(104, 211, 255, 0.4);
-  background: rgba(4, 23, 52, 0.3);
+  background: rgba(4, 23, 52, 0.18);
 }
 
 :where(.view-premiumVoice, .view-premiumCopilot) > .workspace > .status {
   border-color: rgba(104, 211, 255, 0.26);
-  background: rgba(1, 9, 24, 0.28);
+  background: rgba(1, 9, 24, 0.16);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
@@ -91,7 +91,7 @@
 :where(.premium-assistant-view, .premium-copilot-view) .premium-topbar,
 :where(.premium-assistant-view, .premium-copilot-view) .premium-footer {
   border-color: rgba(100, 210, 255, 0.34);
-  background: rgba(1, 8, 22, 0.3);
+  background: rgba(1, 8, 22, 0.16);
   box-shadow: 0 0 28px rgba(22, 122, 255, 0.12);
   -webkit-backdrop-filter: blur(12px) saturate(1.25);
   backdrop-filter: blur(12px) saturate(1.25);
@@ -99,7 +99,7 @@
 
 :where(.premium-assistant-view, .premium-copilot-view) .premium-back {
   border-color: rgba(105, 208, 255, 0.5);
-  background: rgba(4, 19, 42, 0.3);
+  background: rgba(4, 19, 42, 0.18);
   box-shadow: inset 0 0 18px rgba(32, 119, 255, 0.1);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
@@ -129,7 +129,7 @@
 .premium-assistant-view .premium-intro {
   border: 1px solid rgba(104, 211, 255, 0.28);
   border-radius: 1rem;
-  background: rgba(2, 12, 28, 0.14);
+  background: rgba(2, 12, 28, 0.08);
   box-shadow: 0 14px 42px rgba(0, 5, 20, 0.16);
   text-align: center;
   text-shadow: 0 2px 16px #010714;
@@ -315,9 +315,9 @@
 
 /* Canonical AGM website scenes with light glass overlays for Basic and Premium home. */
 :where(.view-basic, .view-cockpit, .view-email, .view-corrector, .view-ocr, .view-profile, .view-access, .view-premium) {
-  --agm-page-glass: rgba(2, 12, 28, 0.22);
-  --agm-page-glass-soft: rgba(2, 12, 28, 0.14);
-  --agm-page-glass-control: rgba(2, 12, 28, 0.28);
+  --agm-page-glass: rgba(2, 12, 28, 0.12);
+  --agm-page-glass-soft: rgba(2, 12, 28, 0.07);
+  --agm-page-glass-control: rgba(2, 12, 28, 0.18);
   --agm-page-glass-border: rgba(104, 211, 255, 0.42);
 }
 
