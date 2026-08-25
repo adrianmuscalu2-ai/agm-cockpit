@@ -1,0 +1,128 @@
+:root {
+  --agm-global-glass-panel: rgba(2, 12, 28, 0.03);
+  --agm-global-glass-soft: rgba(2, 12, 28, 0.015);
+  --agm-global-glass-control: rgba(2, 12, 28, 0.07);
+}
+
+:where(.shell) {
+  --agm-page-glass: var(--agm-global-glass-panel);
+  --agm-page-glass-soft: var(--agm-global-glass-soft);
+  --agm-page-glass-control: var(--agm-global-glass-control);
+}
+
+:where(.premium-assistant-view, .premium-copilot-view) {
+  --agm-ai-glass: var(--agm-global-glass-panel);
+  --agm-ai-glass-strong: rgba(2, 12, 28, 0.055);
+}
+
+.shell :where(
+  .basic-tool-card,
+  .composer,
+  .cockpit-input,
+  .app-state-panel,
+  .quick-actions,
+  .command-panel,
+  .profile-panel,
+  .cockpit-panel,
+  .preview,
+  .translator-hud,
+  .ocr-preview-panel,
+  .ocr-history,
+  .module-section,
+  .recipient-panel,
+  .message-library,
+  .incident-journal,
+  .maintenance-department,
+  .incident-filters,
+  .mail-security-panel,
+  .mail-confirmation,
+  .send-options,
+  .compliance-note,
+  .legal-card,
+  .data-management-panel,
+  .transport-document-analysis,
+  .secret-telemetry,
+  .premium-intro,
+  .premium-module,
+  .premium-team-entry,
+  .premium-assistant-panel,
+  .copilot-intro,
+  .copilot-core,
+  .copilot-active,
+  .copilot-diagnostics,
+  .copilot-action-preview,
+  .global-quick-actions,
+  .status,
+  .agm-network-hero,
+  .premium-network-toolbar,
+  .premium-network-department,
+  .premium-network-agent,
+  .turn-authority-control-plane,
+  .agm-control-plane-node,
+  .agm-network-node,
+  .car-mover-entry-panel,
+  .car-mover-menu-intro,
+  .car-mover-menu-card,
+  .car-mover-panel,
+  .car-mover-offers,
+  .car-mover-planning,
+  .car-mover-knowledge-links,
+  .load-safety-upload,
+  .load-safety-results,
+  .securing-recommendation-form,
+  .field-test
+) {
+  background: var(--agm-global-glass-panel) !important;
+  -webkit-backdrop-filter: blur(9px) saturate(1.18);
+  backdrop-filter: blur(9px) saturate(1.18);
+}
+
+.shell :where(
+  .ocr-history-item,
+  .incident-summary-grid article,
+  .incident-record,
+  .maintenance-members article,
+  .contact-list-panel,
+  .contact-form,
+  .contact-row,
+  .home-profile div,
+  .cockpit-card,
+  .preview p,
+  .sender-preview,
+  .send-panel,
+  .basic-analysis-steps li,
+  .transport-document-analysis dl div,
+  .analysis-actions-list,
+  .analysis-warnings,
+  .platform-map-list details,
+  .catalog-entry,
+  .agm-network-summary > div,
+  .recommendation-summary article,
+  .recommendation-section,
+  .recommendation-missing,
+  .recommendation-why,
+  .field-photo-card,
+  [data-assistant-history] li
+) {
+  background: var(--agm-global-glass-soft) !important;
+}
+
+.shell .car-mover-module :where(
+  form,
+  .car-mover-grid > section,
+  .car-mover-guide-grid article
+) {
+  background: var(--agm-global-glass-panel) !important;
+  -webkit-backdrop-filter: blur(9px) saturate(1.18);
+  backdrop-filter: blur(9px) saturate(1.18);
+}
+
+.shell :where(input, select, textarea) {
+  background-color: var(--agm-global-glass-control);
+}
+
+:where(.topbar, .premium-topbar, .premium-footer) {
+  background: var(--agm-global-glass-soft) !important;
+  -webkit-backdrop-filter: blur(9px) saturate(1.18);
+  backdrop-filter: blur(9px) saturate(1.18);
+}

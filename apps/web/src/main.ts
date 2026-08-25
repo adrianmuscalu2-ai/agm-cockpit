@@ -135,6 +135,7 @@ import './premium-governance/turn-authority-control-plane.css';
 import './car-mover/car-mover.css';
 import { bindCopilotRuntime } from './premium-copilot/copilot.runtime';
 import './premium-copilot/copilot.css';
+import './styles/60-global-glass-translucency.css';
 import { isPremiumNavigationAllowed, registerVerifiedPremiumAccess } from './premium-access/premium-access.navigation';
 import { isPremiumView, premiumRouteForView, premiumViewFromRoute, normalizePremiumRoute, type PremiumViewName } from './premium-routes';
 import { authenticatedApiFetch } from './authenticated-api';

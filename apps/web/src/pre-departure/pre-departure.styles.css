@@ -105,7 +105,7 @@ a {
 .pre-departure-limit {
   border: 1px solid rgba(116, 232, 197, 0.22);
   border-radius: 20px;
-  background: rgba(9, 28, 40, 0.86);
+  background: rgba(2, 12, 28, 0.03);
   backdrop-filter: blur(2px);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
 }
@@ -822,4 +822,24 @@ select:focus-visible,
   .pre-departure-action-link {
     flex: 1 1 140px;
   }
+}
+
+/* Unified low-opacity glass surfaces. Interactive controls keep their stronger fill. */
+:where(
+  .pre-departure-agm-topbar,
+  .pre-departure-header,
+  .pre-departure-card,
+  .pre-departure-limit,
+  .field-batch-active
+) {
+  background: rgba(2, 12, 28, 0.03) !important;
+}
+
+:where(
+  .pre-departure-status div,
+  .pre-departure-next,
+  .pre-departure-flow-step,
+  .pre-departure-review li
+) {
+  background: rgba(2, 12, 28, 0.015) !important;
 }

@@ -15,6 +15,8 @@ const routeSpecs = [
   { route: '/ocr', panel: '.ocr-page .cockpit-input', asset: 'agm-basic-hero-v1.png', scene: 'shell' },
   { route: '/profile', panel: '.profile-panel', asset: 'agm-cockpit-road-v3-mentor.png', scene: 'shell' },
   { route: '/premium', panel: '.premium-module', asset: 'agm-premium-hero-v3.png', scene: 'premium' },
+  { route: '/before-departure.html', root: '.pre-departure-shell', panel: '.pre-departure-card', asset: 'agm-premium-hero-v3.png', scene: 'body', blur: 'blur(2px)' },
+  { route: '/after-departure.html', root: '.after-departure-shell', panel: '.after-departure-panel', asset: 'agm-premium-hero-v3.png', scene: 'body', blur: 'blur(2px)' },
 ];
 const viewportSpecs = [
   { name: 'desktop', width: 1440, height: 1000 },
@@ -77,15 +79,16 @@ try {
       const startedAt = new Date().toISOString();
       await page.goto(new URL(spec.route, target).toString(), { waitUntil: 'domcontentloaded', timeout: 60_000 });
       await dismissTransientUi(page);
-      await page.locator('.shell').waitFor({ state: 'visible' });
+      await page.locator(spec.root ?? '.shell').waitFor({ state: 'visible' });
       await page.locator(spec.panel).first().waitFor({ state: 'visible' });
       const metrics = await page.evaluate(({ panelSelector, scene }) => {
-        const shell = document.querySelector('.shell');
+        const shell = document.querySelector('.shell') ?? document.body;
         const panel = document.querySelector(panelSelector);
         const top = document.querySelector('.topbar,.premium-topbar');
         let sceneStyle = getComputedStyle(shell);
         if (scene === 'basic') sceneStyle = getComputedStyle(document.querySelector('.basic-hub'), '::before');
         if (scene === 'premium') sceneStyle = getComputedStyle(document.querySelector('.premium-access-view'), '::before');
+        if (scene === 'body') sceneStyle = getComputedStyle(document.body, '::before');
         const panelStyle = getComputedStyle(panel);
         const panelRect = panel.getBoundingClientRect();
         return {
@@ -98,8 +101,8 @@ try {
         };
       }, { panelSelector: spec.panel, scene: spec.scene });
       assert(metrics.sceneImage.includes(spec.asset), `${spec.route} missing canonical scene ${spec.asset}`);
-      assert(metrics.panelBackground === 'rgba(2, 12, 28, 0.06)', `${spec.route} panel background ${metrics.panelBackground}`);
-      assert(metrics.panelBackdrop.includes('blur(9px)'), `${spec.route} panel backdrop ${metrics.panelBackdrop}`);
+      assert(metrics.panelBackground === 'rgba(2, 12, 28, 0.03)', `${spec.route} panel background ${metrics.panelBackground}`);
+      assert(metrics.panelBackdrop.includes(spec.blur ?? 'blur(9px)'), `${spec.route} panel backdrop ${metrics.panelBackdrop}`);
       assert(metrics.overflowX === 0, `${spec.route} horizontal overflow ${metrics.overflowX}px`);
       assert(metrics.panelWithinViewport, `${spec.route} panel outside ${viewport.name} viewport`);
       const screenshot = path.join(output, `${viewport.name}-${spec.route.slice(1)}.png`);

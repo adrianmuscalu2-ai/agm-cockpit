@@ -30,7 +30,7 @@ button, input, select { font: inherit; }
 button, select, input { min-height: 44px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
 .after-departure-shell { width: min(980px, 100%); margin: 0 auto; padding: max(20px, env(safe-area-inset-top)) 16px max(32px, env(safe-area-inset-bottom)); }
-.after-departure-header { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; margin-bottom: 20px; padding: 22px; border: 1px solid #22465b; border-top: 4px solid #59d2ff; border-radius: 18px; background: rgba(9, 28, 40, .86); backdrop-filter: blur(2px); box-shadow: 0 14px 40px rgba(0, 0, 0, .2); }
+.after-departure-header { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; margin-bottom: 20px; padding: 22px; border: 1px solid #22465b; border-top: 4px solid #59d2ff; border-radius: 18px; background: rgba(2, 12, 28, .03); backdrop-filter: blur(2px); box-shadow: 0 14px 40px rgba(0, 0, 0, .2); }
 .after-departure-header span { color: #59d2ff; font-size: .78rem; font-weight: 800; letter-spacing: .12em; }
 .after-departure-header h1 { margin: 6px 0; font-size: clamp(2rem, 6vw, 3.5rem); }
 .after-departure-header p { color: #b8cbd8; max-width: 640px; }
@@ -39,7 +39,7 @@ button, select, input { min-height: 44px; }
 .after-departure-navigation { display: flex; gap: 10px; flex-wrap: wrap; }
 .after-departure-navigation a:not(.after-departure-back-primary) { background: transparent; }
 .after-departure-back-primary { font-weight: 800; }
-.after-departure-panel, .after-departure-result, .offline-banner { border: 1px solid #22465b; border-radius: 18px; padding: 18px; margin: 14px 0; background: rgba(9, 28, 40, .86); backdrop-filter: blur(2px); box-shadow: 0 14px 40px rgba(0, 0, 0, .2); }
+.after-departure-panel, .after-departure-result, .offline-banner { border: 1px solid #22465b; border-radius: 18px; padding: 18px; margin: 14px 0; background: rgba(2, 12, 28, .03); backdrop-filter: blur(2px); box-shadow: 0 14px 40px rgba(0, 0, 0, .2); }
 .offline-banner { border-color: #d89b2b; color: #ffe7b3; }
 .after-departure-panel h2, .after-departure-result h2 { font-size: 1rem; margin: 8px 0 12px; }
 .choice-row, .action-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
@@ -75,4 +75,13 @@ agm-road-control { display: block; }
   .after-departure-tools { justify-content: space-between; align-items: stretch; flex-wrap: wrap; }
   .after-departure-navigation { width: 100%; }
   .after-departure-navigation a { flex: 1; text-align: center; }
+}
+
+/* Unified low-opacity glass surfaces. Interactive controls keep their stronger fill. */
+:where(.after-departure-header, .after-departure-panel, .after-departure-result, .offline-banner) {
+  background: rgba(2, 12, 28, 0.03) !important;
+}
+
+:where(.result-grid article, .after-departure-result aside) {
+  background: rgba(2, 12, 28, 0.015) !important;
 }
