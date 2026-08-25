@@ -67,7 +67,7 @@ try {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     for (const spec of routes) {
       const startedAt = new Date().toISOString();
-      await page.goto(new URL(spec.route, target).toString(), { waitUntil: 'networkidle' });
+      await page.goto(new URL(spec.route, target).toString(), { waitUntil: 'domcontentloaded', timeout: 60_000 });
       await dismissTransientUi(page);
       await page.locator('.shell').waitFor({ state: 'visible' });
       await page.locator(spec.panel).first().waitFor({ state: 'visible' });

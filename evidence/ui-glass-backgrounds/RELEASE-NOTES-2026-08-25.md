@@ -7,5 +7,6 @@
 - Web production build: PASS.
 - Android debug APK build: PASS.
 - APK SHA-256: `DB291A7CDDE6EEFA63F64969F88E71F987FB975F65BFB6E0371BE195AB87191C`.
+- Cloudflare Pages build excludes `dist/downloads` through the canonical `CF_PAGES=1` build environment; the APK remains served by the Production API/Web origin.
 
 The full generated screenshot set and machine-readable report remain in the local evidence directory and are not part of the product commit.
