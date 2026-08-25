@@ -7,7 +7,7 @@ import { renderMaintenanceDepartment } from './maintenance-department';
 import { operationalClosureRegistry } from './operational-closure.registry';
 import { monitoringHealthSources, operationsHealthSources } from './operations-health';
 import { renderMonitoringDepartment } from './monitoring-department';
-import { renderTurnOrganizationChart } from './turn-organization-chart';
+import { renderTurnOrganizationChart, turnOrganizationAgents } from './turn-organization-chart';
 import { renderP9TurnProjection } from './p9-turn-projection';
 import { turnCommandCenterContract } from './turn-command-center.contract';
 import { currentProductionPreflightSnapshot, renderProductionPreflight } from './production-preflight';
@@ -40,8 +40,11 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
   const stableModules = countByStatus(turnModules, 'stable');
   const activeMissions = countByStatus(turnMissions, 'active');
   const acceptedAudits = countByValidation(turnAuditTrail, 'turn.validation.accepted');
-  const attentionReports = inspectorReports.filter((report) => report.status !== 'ok').length;
-  const inspectorStatusCounts = inspectorReports.reduce(
+  const inspectorFreshnessLimitMs = 24 * 60 * 60 * 1000;
+  const freshInspectorReports = inspectorReports.filter((report) => Date.now() - new Date(report.lastCheckedAt).getTime() <= inspectorFreshnessLimitMs);
+  const staleInspectorReports = inspectorReports.length - freshInspectorReports.length;
+  const attentionReports = freshInspectorReports.filter((report) => report.status !== 'ok').length;
+  const inspectorStatusCounts = freshInspectorReports.reduce(
     (counts, report) => {
       counts[report.status] += 1;
       return counts;
@@ -104,7 +107,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
         ${renderTurnMetric(
           language,
           'turn.metric.attention',
-          String(attentionReports),
+          `${attentionReports} LIVE · ${staleInspectorReports} STALE`,
           'turn.metric.attentionDesc',
           renderGeneralInspectorReport(language, inspectorStatusCounts),
         )}
@@ -304,7 +307,7 @@ function renderApprovedTurnDashboard(language: UiLanguage) {
   const departments = [...new Set(agentGovernanceRegistry.map((agent) => agent.ownerDepartmentId))];
   const aiAgents = agentGovernanceRegistry.filter((agent) => agent.ownerDepartmentId === 'ai-agents');
   const p9 = aiAgents.find((agent) => agent.id === 'p9-copilot-control-plane');
-  const independentMonitor = agentGovernanceRegistry.find((agent) => agent.id === 'monitor-incidents');
+  const independentMonitor = turnOrganizationAgents.find((agent) => agent.id === 'chief-monitoring-inspector');
 
   return `<section class="turn-agent-dashboard" id="turn-dashboard" aria-labelledby="turn-dashboard-title" data-agent-count="${approvedAgents.length}" data-p9-count="${p9 ? 1 : 0}">
     <header class="turn-dashboard-header">
@@ -340,7 +343,7 @@ function renderApprovedTurnDashboard(language: UiLanguage) {
 
     <section class="turn-independent-monitor" aria-labelledby="turn-independent-monitor-title">
       <div class="independent-monitor-seal"><span class="turn-light monitoring"></span><strong>CONTROL INDEPENDENT</strong></div>
-      <div><span class="turn-kicker">RAPORTEAZĂ DIRECT TURN COMMANDER-ULUI</span><h3 id="turn-independent-monitor-title">Inspector Șef Monitorizare · ${escapeHtml(independentMonitor?.code ?? 'MON-010')}</h3><p>Monitorizează independent Turnul, corelează alertele, deschide incidente și verifică închiderea fără a intra în lanțul de execuție Atlas.</p></div>
+      <div><span class="turn-kicker">RAPORTEAZĂ DIRECT TURN COMMANDER-ULUI</span><h3 id="turn-independent-monitor-title">${escapeHtml(independentMonitor?.name ?? 'Inspector Șef Monitorizare')} · CHIEF-MONITORING-INSPECTOR</h3><p>Coordonează independent MON-001–MON-012; MON-010 rămâne exclusiv Agent Monitorizare Incidente.</p></div>
       <dl><div><dt>Independență</dt><dd>Oversight</dd></div><div><dt>Escaladare</dt><dd>L3 → L4</dd></div><div><dt>Autovalidare</dt><dd>Interzisă</dd></div></dl>
     </section>
 
@@ -445,6 +448,7 @@ function renderGeneralInspectorReport(language: UiLanguage, counts: Record<Inspe
 
   return `
     <section class="inspector-general-report">
+      <p><strong>SNAPSHOT ISTORIC / STALE</strong> · Aceste rapoarte nu reprezintă starea runtime curentă. Ultima verificare: ${escapeHtml(new Date(latestChecks[0]?.lastCheckedAt ?? 0).toLocaleString())}.</p>
       <dl>
         <div>
           <dt>${escapeHtml(t(language, 'inspector.general.platformSituation'))}</dt>
@@ -600,10 +604,11 @@ function renderTurnItem(language: UiLanguage, item: TurnCommandItem) {
 }
 
 function renderInspectorBadge(language: UiLanguage, report: InspectorReport) {
+  const stale = Date.now() - new Date(report.lastCheckedAt).getTime() > 24 * 60 * 60 * 1000;
   return `
-    <span class="inspector-badge ${report.status}" title="${escapeHtml(t(language, 'inspector.openReport'))}">
+    <span class="inspector-badge ${stale ? 'stale' : report.status}" title="${escapeHtml(t(language, 'inspector.openReport'))}">
       <span class="inspector-dot" aria-hidden="true"></span>
-      ${escapeHtml(t(language, `inspector.status.${report.status}`))}
+      ${stale ? 'STALE · ISTORIC' : escapeHtml(t(language, `inspector.status.${report.status}`))}
     </span>
   `;
 }

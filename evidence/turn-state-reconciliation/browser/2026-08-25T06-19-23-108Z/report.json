@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-25T06-19-23-108Z",
+  "status": "PASS",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "target": "http://127.0.0.1:57836/turn",
+  "results": [
+    {
+      "id": "linguisticActive",
+      "status": "PASS"
+    },
+    {
+      "id": "inspectorRegistryActive",
+      "status": "PASS"
+    },
+    {
+      "id": "inspectorLastRunSeparated",
+      "status": "PASS"
+    },
+    {
+      "id": "androidLive",
+      "status": "PASS"
+    },
+    {
+      "id": "chiefSeparatedFromMon010",
+      "status": "PASS"
+    },
+    {
+      "id": "noDecorativeOperationalNodes",
+      "status": "PASS"
+    },
+    {
+      "id": "staleInspectorArchive",
+      "status": "PASS"
+    },
+    {
+      "id": "navigation-and-capture",
+      "status": "PASS",
+      "action": "Turn navigation → #turn-dashboard",
+      "screenshot": "evidence\\turn-state-reconciliation\\browser\\2026-08-25T06-19-23-108Z\\turn-state-reconciliation.png"
+    }
+  ],
+  "fatal": null,
+  "finishedAt": "2026-08-25T06:19:38.486Z"
+}

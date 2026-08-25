@@ -75,7 +75,7 @@ assert.deepEqual(incidentStatusLight('remediation'), { icon: '🟡', tone: 'yell
 assert.deepEqual(incidentStatusLight('validated'), { icon: '🟢', tone: 'green', label: 'CLOSED' });
 assert.deepEqual(incidentStatusLight(), { icon: '⚪', tone: 'white', label: 'NONE' });
 
-const failure = operationsHealthEvent(source, { ...liveHealthy, status: 'OFFLINE', freshness: 'OFFLINE' })!;
+const failure = operationsHealthEvent(source, { ...liveHealthy, status: 'OFFLINE', freshness: 'OFFLINE', outcome: 'HTTP_STATUS', confirmedOffline: true })!;
 let incidents = reconcileOperationsHealthIncident([], failure);
 assert.equal(incidents[0]?.id, 'AGM-MON-CLOUDFLARE');
 incidents = [transitionIncident(incidents[0]!, 'remediation', 'MON-008', 'Recovery automat în curs.', liveNow)];
@@ -104,7 +104,12 @@ const monitoredSources: OperationService[] = [
   { id: 'security', label: 'Secret Guardian', kind: 'http', source: 'guardian' },
 ];
 let eightActive = monitoredSources.reduce((journal, monitoredSource) => {
-  const failureEvent = operationsHealthEvent(monitoredSource, { ...liveHealthy, status: 'OFFLINE', freshness: 'OFFLINE' });
+  const failureEvent = operationsHealthEvent(monitoredSource, {
+    ...liveHealthy,
+    status: 'OFFLINE',
+    freshness: 'OFFLINE',
+    ...(monitoredSource.id === 'cloudflare-public' ? { outcome: 'HTTP_STATUS' as const, confirmedOffline: true } : {}),
+  });
   return reconcileOperationsHealthIncident(journal, failureEvent!);
 }, [] as typeof incidents);
 

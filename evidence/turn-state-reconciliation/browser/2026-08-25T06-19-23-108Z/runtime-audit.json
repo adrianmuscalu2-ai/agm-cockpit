@@ -1,0 +1,33 @@
+{
+  "linguistic": [
+    {
+      "id": "agent-linguistic-ro-de",
+      "text": "26AG-011-011ARO ↔ DE SpecialistAgent lingvistic operațional RO / DERețeaua AIactive",
+      "className": ""
+    },
+    {
+      "id": "agent-linguistic-ro-en",
+      "text": "27AG-011-011BRO ↔ EN SpecialistAgent lingvistic operațional RO / ENRețeaua AIactive",
+      "className": ""
+    },
+    {
+      "id": "agent-linguistic-de-en",
+      "text": "28AG-011-011CDE ↔ EN SpecialistAgent lingvistic operațional DE / ENRețeaua AIactive",
+      "className": ""
+    }
+  ],
+  "inspector": {
+    "text": "22AGENT-INSPECTORInspectorAuditor tehnic predictiv.Mentenanță, Calitate & Evoluțieactive",
+    "className": "",
+    "registryStatus": "active",
+    "lastRuntimeLifecycle": "FAILED",
+    "lastRuntimeMandate": "turn-production-failed-expected-negative"
+  },
+  "android": "🟢 AndroidONLINEAgent status🟢 ACTIVETarget status🟢 HEALTHYIncident status⚪ NONEData freshnessLIVEVârsta datelor0sUltima verificare25.08.2026, 08:19:29Timp răspuns390 msSursaComponent heartbeat v1 · Android foreground · persistent, tenant-bound · stale după 90sUltima schimbare25.08.2026, 08:19:29Incident asociatNiciun incident activReverificăSOPJurnal",
+  "chief": "INSPECTOR ȘEF MONITORIZARE · CHIEF-MONITORING-INSPECTOR",
+  "chiefSection": "CONTROL INDEPENDENT RAPORTEAZĂ DIRECT TURN COMMANDER-ULUIINSPECTOR ȘEF MONITORIZARE · CHIEF-MONITORING-INSPECTORCoordonează independent MON-001–MON-012; MON-010 rămâne exclusiv Agent Monitorizare Incidente. IndependențăOversightEscaladareL3 → L4AutovalidareInterzisă",
+  "realBoardPlanned": [],
+  "decorativeNamesPresent": [],
+  "staleInspectorArchive": true,
+  "monitorIncidentPresent": true
+}

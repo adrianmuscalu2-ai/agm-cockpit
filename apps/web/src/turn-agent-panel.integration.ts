@@ -11,13 +11,11 @@ export type NormalizedPanelAgent = PanelSource & { runtimeStatus: PanelRuntimeSt
 const colors = { active: '#19ff88', degraded: '#ff9d38', critical: '#ff4040', planned: '#3f9bff', unknown: '#b8c4d6' };
 
 export const panelAgentSources: PanelSource[] = [
-  { panelAgentId: 'core-adrian-turn-commander', displayName: 'Adrian · Turn Commander', displayLevel: 0, department: 'Nucleu cosmic', responsibility: 'Identitate centrală', escalation: 'L4' },
-  { panelAgentId: 'core-mentor', displayName: 'Mentor · Ghid cosmic', displayLevel: 0, department: 'Nucleu cosmic', responsibility: 'Ghid cosmic', escalation: 'L4' },
-  { panelAgentId: 'core-orion-product-owner', displayName: 'Orion · Product Owner cosmic', displayLevel: 0, department: 'Nucleu cosmic', responsibility: 'Product Owner cosmic', escalation: 'L4' },
-  { panelAgentId: 'nexa-copilot-vsc', displayName: 'Nexa · Copilot VSC', displayLevel: 1, department: 'AI & Agent Systems', responsibility: 'Sfătuitor tehnic', escalation: 'L2' },
+  { panelAgentId: 'core-adrian-turn-commander', displayName: 'Adrian · Turn Commander', displayLevel: 0, department: 'Turn Command', responsibility: 'Comandă și aprobare finală', escalation: 'L4', turnAgentId: 'adrian-turn-commander' },
+  { panelAgentId: 'core-mentor', displayName: 'Mentor', displayLevel: 0, department: 'Turn Command', responsibility: 'Validare strategică', escalation: 'L4', turnAgentId: 'mentor' },
   { panelAgentId: 'secret-credentials-guardian', displayName: 'Secret & Credentials Guardian', displayLevel: 1, department: 'Security, Privacy & Legal', responsibility: 'Protecția secretelor', escalation: 'L3', turnAgentId: 'secret-credentials-guardian' },
   { panelAgentId: 'atlas-coordonare-operationala', displayName: 'Atlas · Coordonare Operațională', displayLevel: 1, department: 'Turn Command / Operations', responsibility: 'Coordonare operațională', escalation: 'L2', turnAgentId: 'atlas-operations' },
-  { panelAgentId: 'geminii-copilot-dual', displayName: 'GeminII · Copilot dual', displayLevel: 1, department: 'AI Governance', responsibility: 'Validări duble', escalation: 'L2' },
+  { panelAgentId: 'chief-monitoring-inspector', displayName: 'Inspector Șef Monitorizare', displayLevel: 1, department: 'Departamentul de Monitorizare', responsibility: 'Corelare independentă runtime și incidente', escalation: 'L3', turnAgentId: 'chief-monitoring-inspector', telemetrySource: 'Agregat MON-001–MON-012' },
   { panelAgentId: 'monitor-api', displayName: 'Agent Monitorizare API', displayLevel: 2, department: 'Departamentul de Monitorizare', responsibility: 'Monitorizare API', escalation: 'L1', turnAgentId: 'monitor-api', sourceId: 'api', telemetrySource: 'API · health/ready' },
   { panelAgentId: 'monitor-browser', displayName: 'Agent Monitorizare Browser', displayLevel: 2, department: 'Departamentul de Monitorizare', responsibility: 'Monitorizare Browser', escalation: 'L1', turnAgentId: 'monitor-browser', sourceId: 'browser', telemetrySource: 'Origin curent · HTTP probe' },
   { panelAgentId: 'monitor-android', displayName: 'Agent Monitorizare Android', displayLevel: 2, department: 'Departamentul de Monitorizare', responsibility: 'Monitorizare Android', escalation: 'L1', turnAgentId: 'monitor-android', sourceId: 'android', telemetrySource: 'Component heartbeat v1 · persistent și tenant-bound' },
@@ -33,9 +31,21 @@ function normalizeStatus(snapshot: OperationSnapshot | undefined): { runtimeStat
   if (!snapshot) return { runtimeStatus: 'NO TELEMETRY', visualState: 'astral', color: colors.unknown, health: 'UNKNOWN', freshness: 'UNKNOWN', lastSeen: 'UNKNOWN', telemetry: 'NO TELEMETRY' };
   const stale = snapshot.freshness === 'STALE' || Date.now() - snapshot.checkedAt.getTime() > 90_000;
   if (stale) return { runtimeStatus: 'STALE', visualState: 'astral', color: colors.unknown, health: snapshot.status, freshness: 'STALE', lastSeen: snapshot.checkedAt.toISOString(), telemetry: snapshot.outcome ?? 'STALE' };
+  if (snapshot.freshness === 'UNKNOWN' || ['UNKNOWN', 'NOT CONFIGURED', 'NOT APPLICABLE', 'NOT IMPLEMENTED', 'NOT VERIFIED'].includes(snapshot.status)) {
+    return { runtimeStatus: 'NO TELEMETRY', visualState: 'astral', color: colors.unknown, health: snapshot.status, freshness: snapshot.freshness, lastSeen: snapshot.checkedAt.toISOString(), telemetry: snapshot.outcome ?? 'NO TELEMETRY' };
+  }
   if (snapshot.status === 'OFFLINE') return { runtimeStatus: 'FAILED', visualState: 'critical', color: colors.critical, health: 'OFFLINE', freshness: snapshot.freshness, lastSeen: snapshot.checkedAt.toISOString(), telemetry: snapshot.outcome ?? 'HTTP_STATUS' };
   if (snapshot.status === 'DEGRADED') return { runtimeStatus: 'DEGRADED', visualState: 'degraded', color: colors.degraded, health: 'DEGRADED', freshness: snapshot.freshness, lastSeen: snapshot.checkedAt.toISOString(), telemetry: snapshot.outcome ?? 'HTTP_STATUS' };
   return { runtimeStatus: 'ACTIVE', visualState: 'active', color: colors.active, health: snapshot.status, freshness: snapshot.freshness, lastSeen: snapshot.checkedAt.toISOString(), telemetry: snapshot.outcome ?? 'HTTP_STATUS' };
+}
+
+function normalizeMonitoringAggregate(snapshots: Map<string, OperationSnapshot>) {
+  const sourceIds = ['server-primary', 'server-backup', 'api', 'browser', 'android', 'ai', 'databases', 'cloudflare-public', 'ui-live', 'telemetry', 'security'];
+  const details = sourceIds.map((id) => normalizeStatus(snapshots.get(id)));
+  const lastSeen = [...snapshots.values()].sort((left, right) => right.checkedAt.getTime() - left.checkedAt.getTime())[0]?.checkedAt.toISOString() ?? 'UNKNOWN';
+  if (details.some((item) => item.runtimeStatus === 'FAILED')) return { runtimeStatus: 'FAILED' as const, visualState: 'critical' as const, color: colors.critical, health: 'MONITORING FAILURE', freshness: 'LIVE', lastSeen, telemetry: 'MONITORING AGGREGATE' };
+  if (details.some((item) => item.runtimeStatus === 'DEGRADED' || item.runtimeStatus === 'STALE' || item.runtimeStatus === 'NO TELEMETRY')) return { runtimeStatus: 'DEGRADED' as const, visualState: 'degraded' as const, color: colors.degraded, health: 'MONITORING INCOMPLETE', freshness: 'MIXED', lastSeen, telemetry: 'MONITORING AGGREGATE' };
+  return { runtimeStatus: 'ACTIVE' as const, visualState: 'active' as const, color: colors.active, health: 'MONITORING HEALTHY', freshness: 'LIVE', lastSeen, telemetry: 'MONITORING AGGREGATE' };
 }
 
 export function buildPanelAgentModel() {
@@ -43,7 +53,9 @@ export function buildPanelAgentModel() {
   return panelAgentSources.map((panel) => {
     const turnRegistryEntry = panel.turnAgentId ? turnOrganizationAgents.find((entry) => entry.id === panel.turnAgentId) : undefined;
     const registryEntry = panel.turnAgentId ? agentGovernanceRegistry.find((entry) => entry.id === panel.turnAgentId) : undefined;
-    const details = normalizeStatus(panel.sourceId ? snapshots.get(panel.sourceId) : undefined);
+    const details = panel.panelAgentId === 'chief-monitoring-inspector'
+      ? normalizeMonitoringAggregate(snapshots)
+      : normalizeStatus(panel.sourceId ? snapshots.get(panel.sourceId) : undefined);
     const identity = turnRegistryEntry ?? registryEntry;
     const mappingStatus: PanelMappingStatus = identity ? 'MAPPED' : 'UNMAPPED';
     const registryStatus = registryEntry?.status ?? (turnRegistryEntry ? 'active' : 'planned');
