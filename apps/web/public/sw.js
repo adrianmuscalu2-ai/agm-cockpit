@@ -1,4 +1,4 @@
-const CACHE_NAME = 'agm-cockpit-1.3.0-browser-recovery-20260826';
+const CACHE_NAME = 'agm-cockpit-1.3.0-browser-recovery-v2-20260826';
 const APP_SHELL = ['/', '/manifest.webmanifest', '/images/images/logo1.png'];
 
 function isCacheableResponse(request, response) {
@@ -45,8 +45,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Hashed scripts, styles and media are immutable release assets. Let the
+  // browser load them directly so an unavailable worker fetch can never turn
+  // a valid document into an unstyled or empty application shell.
+  if (event.request.mode !== 'navigate') {
+    return;
+  }
+
   event.respondWith(
-    fetch(event.request, event.request.mode === 'navigate' ? { cache: 'no-store' } : undefined)
+    fetch(event.request, { cache: 'no-store' })
       .then((response) => {
         if (isCacheableResponse(event.request, response)) {
           const copy = response.clone();
