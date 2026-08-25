@@ -292,7 +292,14 @@
   }
 
   .premium-assistant-view .premium-assistant-mic {
-    width: 9rem;
+    width: 9.75rem;
+    padding: .5rem;
+  }
+
+  .premium-assistant-view .premium-assistant-mic > span:not(.premium-assistant-mic-icon) {
+    max-width: none;
+    font-size: 12px;
+    white-space: nowrap;
   }
 
   .premium-assistant-view .premium-assistant-panel {

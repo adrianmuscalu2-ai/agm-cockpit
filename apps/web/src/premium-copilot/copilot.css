@@ -47,8 +47,8 @@
   .copilot-core,.copilot-active,.copilot-diagnostics,.copilot-action-preview { width: calc(100% - 20px); margin: 10px; padding: 14px; border-radius: 16px; }
   .copilot-core { margin-top: clamp(14rem,40svh,23rem); }
   .copilot-core h2,.copilot-active h2 { font-size: 24px; line-height: 1.2; }
-  .copilot-mic { width: 132px; height: 132px; font-size: 36px; }
-  .copilot-mic span { font-size: 15px; }
+  .copilot-mic { width: 156px; height: 156px; padding: 8px; font-size: 36px; }
+  .copilot-mic span { max-width: none; font-size: 12px; white-space: nowrap; }
   .copilot-tools { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
   .copilot-tools button { width: 100%; max-width: 100%; min-height: 68px; padding: 8px 4px; font-size: 15px; line-height: 1.15; white-space: normal; }
   .copilot-transcript strong { font-size: 18px; }
