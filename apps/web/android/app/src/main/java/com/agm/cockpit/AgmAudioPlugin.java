@@ -462,11 +462,12 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     }
     @Override public void onEndOfSpeech() {
         endOfSpeechAt = SystemClock.elapsedRealtime();
+        endpointHandler.removeCallbacks(endpointStop);
         Log.i(TAG, "Speech processing started");
         notifySpeechState("processing");
     }
     @Override public void onRmsChanged(float rmsdB) {
-        if (speechStartedAt > 0 && rmsdB > 5.0f) {
+        if (speechStartedAt > 0 && endOfSpeechAt == 0 && rmsdB > 5.0f) {
             lastVoiceActivityAt = SystemClock.elapsedRealtime();
             armEndpointTimer();
         }
@@ -474,7 +475,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     @Override public void onBufferReceived(byte[] buffer) {}
     @Override public void onPartialResults(Bundle partialResults) {
         ArrayList<String> matches = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-        if (matches != null && !matches.isEmpty() && !matches.get(0).trim().isEmpty()) {
+        if (endOfSpeechAt == 0 && matches != null && !matches.isEmpty() && !matches.get(0).trim().isEmpty()) {
             lastVoiceActivityAt = SystemClock.elapsedRealtime();
             armEndpointTimer();
         }
