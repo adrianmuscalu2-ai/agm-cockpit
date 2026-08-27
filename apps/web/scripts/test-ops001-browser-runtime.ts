@@ -9,7 +9,7 @@ const manifest = JSON.parse(readFileSync(new URL('../public/manifest.webmanifest
   display: string;
 };
 
-assert.equal(redirects, '/* /index.html 200');
+assert.equal(redirects, '/ /basic 308');
 assert.match(serviceWorker, /request\.mode === 'navigate'/);
 assert.match(serviceWorker, /caches\.match\('\/'\)/);
 assert.match(serviceWorker, /browser-recovery-v2-20260826/);
