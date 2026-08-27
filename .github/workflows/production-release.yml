@@ -122,6 +122,7 @@ jobs:
             export AGM_WEB_REVISION="${{ github.sha }}"
             release_root="/tmp/agm-release-${{ github.run_id }}/deploy/production"
             rollback_root="/opt/agm/production/rollback/${{ github.run_id }}"
+            deployment_stage="initialize"
             sudo install -d -o root -g root -m 0700 "$rollback_root"
             for current in release.env web-release.env compose.production.yml; do
               if sudo test -f "/opt/agm/production/$current"; then
@@ -140,7 +141,20 @@ jobs:
               sudo systemctl restart agm-production-api.service || true
               sudo systemctl restart agm-production-web.service || true
             }
-            trap rollback ERR
+            diagnose_and_rollback() {
+              failure_code=$?
+              trap - ERR
+              printf 'AGM_DEPLOY_FAILURE stage=%s exit=%s\n' "$deployment_stage" "$failure_code"
+              sudo systemctl status agm-production-api.service --no-pager --full || true
+              sudo systemctl status agm-production-web.service --no-pager --full || true
+              sudo docker inspect --format 'api={{.State.Status}} exit={{.State.ExitCode}} health={{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}} image={{.Config.Image}}' agm-production-api || true
+              sudo docker inspect --format 'web={{.State.Status}} exit={{.State.ExitCode}} image={{.Config.Image}}' agm-production-web || true
+              sudo docker logs --tail 120 agm-production-api 2>&1 | sed -E 's#(postgresql://)[^[:space:]]+#\1[REDACTED]#g' || true
+              rollback
+              exit "$failure_code"
+            }
+            trap diagnose_and_rollback ERR
+            deployment_stage="database-backup"
             database_backup="/tmp/agm-pre-release-${{ github.run_id }}.dump"
             sudo docker exec agm-postgres sh -ceu 'test -n "$POSTGRES_USER"; test -n "$POSTGRES_DB"; pg_isready --quiet; pg_dump --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" --format custom --compress 6 --no-owner --no-privileges --file "/tmp/agm-pre-release-${{ github.run_id }}.dump"; pg_restore --list "/tmp/agm-pre-release-${{ github.run_id }}.dump" >/dev/null'
             sudo docker cp "agm-postgres:$database_backup" "$rollback_root/database.dump"
@@ -148,6 +162,7 @@ jobs:
             sudo chmod 0600 "$rollback_root/database.dump"
             sudo sha256sum "$rollback_root/database.dump" | sudo tee "$rollback_root/database.dump.sha256" >/dev/null
             sudo chmod 0600 "$rollback_root/database.dump.sha256"
+            deployment_stage="install-lifecycle-files"
             sudo install -o root -g root -m 0644 "$release_root/compose.production.yml" /opt/agm/production/compose.production.yml
             sudo install -o root -g root -m 0644 "$release_root/agm-production-api.service" /etc/systemd/system/agm-production-api.service
             sudo install -o root -g root -m 0644 "$release_root/agm-production-web.service" /etc/systemd/system/agm-production-web.service
@@ -155,25 +170,32 @@ jobs:
             printf 'AGM_WEB_IMAGE=%s\nAGM_WEB_REVISION=%s\n' "$AGM_WEB_IMAGE" "$AGM_WEB_REVISION" | sudo tee /opt/agm/production/web-release.env >/dev/null
             sudo chmod 0644 /opt/agm/production/release.env
             sudo chmod 0644 /opt/agm/production/web-release.env
+            deployment_stage="pull-images"
             sudo docker pull "$AGM_IMAGE"
             sudo docker pull "$AGM_WEB_IMAGE"
             sudo systemctl daemon-reload
+            deployment_stage="restart-api"
             sudo systemctl restart agm-production-api.service
-            sleep 8
             sudo systemctl is-active --quiet agm-production-api.service
             test "$(sudo docker inspect --format '{{.Config.Image}}' agm-production-api)" = "$AGM_IMAGE"
-            curl --fail --silent --show-error https://api.agmcockpit.com/api/v1/health/ready >/dev/null
-            curl --fail --silent --show-error https://api.agmcockpit.com/api/v1/health/live | grep -F 'agent-runtime-events.v1.3' >/dev/null
+            deployment_stage="api-readiness"
+            curl --fail --silent --show-error --retry 30 --retry-delay 2 --retry-all-errors --max-time 5 https://api.agmcockpit.com/api/v1/health/ready >/dev/null
+            curl --fail --silent --show-error --retry 30 --retry-delay 2 --retry-all-errors --max-time 5 https://api.agmcockpit.com/api/v1/health/live | grep -F 'agent-runtime-events.v1.3' >/dev/null
             test "$(curl --silent --output /dev/null --write-out '%{http_code}' https://api.agmcockpit.com/api/v1/agent-runtime-events)" = "401"
             test "$(curl --silent --output /dev/null --write-out '%{http_code}' https://api.agmcockpit.com/api/v1/authority-control-plane/dashboard)" = "401"
+            deployment_stage="restart-web"
             sudo systemctl restart agm-production-web.service
-            sleep 4
             sudo systemctl is-active --quiet agm-production-web.service
             test "$(sudo docker inspect --format '{{.Config.Image}}' agm-production-web)" = "$AGM_WEB_IMAGE"
+            deployment_stage="web-internal-route"
+            test "$(curl --silent --output /dev/null --write-out '%{http_code}' --retry 15 --retry-delay 1 --retry-all-errors --max-time 5 http://127.0.0.1:4173/)" = "308"
+            test "$(curl --silent --output /dev/null --write-out '%{redirect_url}' http://127.0.0.1:4173/)" = "http://127.0.0.1:4173/basic"
+            deployment_stage="web-public-route"
             test "$(curl --silent --output /dev/null --write-out '%{http_code}' https://app.agmcockpit.com/)" = "308"
             test "$(curl --silent --output /dev/null --write-out '%{redirect_url}' https://app.agmcockpit.com/)" = "https://app.agmcockpit.com/basic"
             curl --fail --silent --show-error https://app.agmcockpit.com/basic | grep -F '/assets/main-' >/dev/null
             curl --fail --silent --show-error https://app.agmcockpit.com/car-mover/menu | grep -F '/assets/main-' >/dev/null
+            deployment_stage="complete"
             trap - ERR
       - name: Provision approved Car Mover entitlement
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_car_mover }}
