@@ -1,5 +1,5 @@
 const CACHE_NAME = 'agm-cockpit-1.3.0-browser-recovery-v2-20260826';
-const APP_SHELL = ['/', '/manifest.webmanifest', '/images/images/logo1.png'];
+const APP_SHELL = ['/', '/manifest.webmanifest', '/icons/agm-app-icon-192.png'];
 
 function isCacheableResponse(request, response) {
   if (!response.ok || response.type === 'opaque') return false;
