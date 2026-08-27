@@ -173,6 +173,7 @@ jobs:
             test "$(curl --silent --output /dev/null --write-out '%{http_code}' https://app.agmcockpit.com/)" = "308"
             test "$(curl --silent --output /dev/null --write-out '%{redirect_url}' https://app.agmcockpit.com/)" = "https://app.agmcockpit.com/basic"
             curl --fail --silent --show-error https://app.agmcockpit.com/basic | grep -F '/assets/main-' >/dev/null
+            curl --fail --silent --show-error https://app.agmcockpit.com/car-mover/menu | grep -F '/assets/main-' >/dev/null
             trap - ERR
       - name: Provision approved Car Mover entitlement
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_car_mover }}

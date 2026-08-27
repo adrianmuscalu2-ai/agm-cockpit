@@ -130,10 +130,12 @@ import { bindPremiumAssistantRuntime } from './premium-voice-shell/premium-assis
 import { bindCarMoverRuntime } from './car-mover/car-mover.runtime';
 import { bindPremiumGovernanceRuntime } from './premium-governance/premium-governance.runtime';
 import './premium-governance/premium-governance.css';
+import './premium-governance/premium-glass-overrides.css';
 import './premium-governance/turn-authority-control-plane.css';
 import './car-mover/car-mover.css';
 import { bindCopilotRuntime } from './premium-copilot/copilot.runtime';
 import './premium-copilot/copilot.css';
+import './styles/60-global-glass-translucency.css';
 import { isPremiumNavigationAllowed, registerVerifiedPremiumAccess } from './premium-access/premium-access.navigation';
 import { isPremiumView, premiumRouteForView, premiumViewFromRoute, normalizePremiumRoute, type PremiumViewName } from './premium-routes';
 import { authenticatedApiFetch } from './authenticated-api';
@@ -3329,7 +3331,7 @@ function registerServiceWorker() {
   }
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js?v=agm-1.3.0-turn-status-board-20260822', { updateViaCache: 'none' }).catch(() => {
+    navigator.serviceWorker.register('/sw.js?v=agm-1.3.0-browser-recovery-v2-20260826', { updateViaCache: 'none' }).catch(() => {
       state.status = t(uiLanguage(), 'status.pwaUnavailable');
     });
   });
