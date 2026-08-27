@@ -33,6 +33,7 @@
     "audit:car-mover-p0-02-desktop": "node scripts/validate-car-mover-p0-02-desktop.mjs",
     "audit:car-mover-navigation": "node scripts/validate-car-mover-navigation-browser.mjs",
     "rescue:browser-preflight": "node scripts/rescue-browser-preflight.mjs",
+    "audit:website-final": "node scripts/validate-website-final-release-browser.mjs",
     "audit:premium-copilot-c0": "node scripts/validate-premium-copilot-c0-desktop.mjs",
     "audit:premium-authority-dashboard": "node scripts/validate-premium-authority-dashboard.mjs",
     "audit:opportunity-intelligence": "node scripts/validate-opportunity-intelligence-browser.mjs",

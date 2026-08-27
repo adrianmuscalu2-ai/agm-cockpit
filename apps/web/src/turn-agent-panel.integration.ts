@@ -24,6 +24,8 @@ export const panelAgentSources: PanelSource[] = [
   { panelAgentId: 'frontend-experience', displayName: 'Frontend Experience', displayLevel: 3, department: 'Frontend Experience', responsibility: 'UI/UX', escalation: 'L1', turnAgentId: 'frontend-experience' },
   { panelAgentId: 'backend-infrastructure', displayName: 'Backend & Infrastructure', displayLevel: 3, department: 'Backend & Infrastructure', responsibility: 'Backend', escalation: 'L1', turnAgentId: 'backend-infrastructure' },
   { panelAgentId: 'release-operations', displayName: 'Release & Operations', displayLevel: 3, department: 'Release & Operations', responsibility: 'Build & Release', escalation: 'L2', turnAgentId: 'release-operations' },
+  { panelAgentId: 'website-content-visual-guardian', displayName: 'Website Content & Visual Guardian', displayLevel: 3, department: 'Website', responsibility: 'Visual, content & i18n assurance', escalation: 'L2', turnAgentId: 'website-content-visual-guardian', sourceId: 'website-content-health', telemetrySource: 'Website health manifest · content/visual gates' },
+  { panelAgentId: 'website-runtime-release-guardian', displayName: 'Website Runtime & Release Guardian', displayLevel: 3, department: 'Website', responsibility: 'Runtime, routes & release', escalation: 'L2', turnAgentId: 'website-runtime-release-guardian', sourceId: 'website-runtime', telemetrySource: 'Cloudflare Pages · public HTTP probe' },
   { panelAgentId: 'documentation-knowledge', displayName: 'Documentation & Knowledge', displayLevel: 3, department: 'Documentation & Knowledge', responsibility: 'Documentație', escalation: 'L1', turnAgentId: 'documentation' },
 ];
 

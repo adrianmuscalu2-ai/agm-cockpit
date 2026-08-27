@@ -10,9 +10,12 @@ const html = renderTurnCommandCenter({
   incidentFilters: emptyIncidentFilters(),
 });
 
-assert.equal(agentGovernanceRegistry.length, 32, 'Registry must contain 31 approved agents plus P9');
-assert.equal((html.match(/data-entry-agent-id=/g) ?? []).length, 32, 'Entry panel must show every agent and P9');
-assert.equal((html.match(/data-agent-row-id=/g) ?? []).length, 31, 'Canonical table must show 31 rows');
+assert.equal(agentGovernanceRegistry.length, 34, 'Registry must contain the existing 32 entries plus exactly two Website Guardians');
+assert.equal((html.match(/data-entry-agent-id=/g) ?? []).length, 34, 'Entry panel must show every registered agent');
+assert.equal((html.match(/data-agent-row-id=/g) ?? []).length, 33, 'Canonical table must show every non-P9 registry row');
+for (const id of ['website-content-visual-guardian', 'website-runtime-release-guardian']) {
+  assert.match(html, new RegExp(`data-agent-row-id="${id}"`));
+}
 for (const id of ['agent-linguistic-ro-de', 'agent-linguistic-ro-en', 'agent-linguistic-de-en']) {
   assert.equal(agentGovernanceRegistry.find((agent) => agent.id === id)?.status, 'active', `${id} must reflect the implemented APP-006 runtime`);
 }

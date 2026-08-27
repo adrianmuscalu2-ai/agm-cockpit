@@ -4,7 +4,7 @@ import { extname, resolve, sep } from 'node:path';
 
 const root = resolve(process.argv[2] ?? 'agmcockpit-website/dist');
 const port = Number(process.argv[3] ?? 4321);
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.xml': 'application/xml; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon' };
 
 createServer(async (request, response) => {
   try {
@@ -15,8 +15,8 @@ createServer(async (request, response) => {
     response.writeHead(200, { 'content-type': types[extname(target)] ?? 'application/octet-stream' });
     response.end(await readFile(target));
   } catch {
-    response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
-    response.end('Not found');
+    response.writeHead(404, { 'content-type': 'text/html; charset=utf-8' });
+    response.end(await readFile(resolve(root, '404.html')));
   }
 }).listen(port, '127.0.0.1', function () {
   const address = this.address();

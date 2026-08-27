@@ -131,8 +131,27 @@ const operationalUnits: TurnOrganizationAgent[] = atlasUnits.map(([id, name, res
   accessLevel: 'operational-readonly',
   procedure: 'Execută responsabilitatea unității, consemnează rezultatele și escaladează către Atlas.',
   escalationLevel: 'L2',
-  subordinateAgentIds: [],
+  subordinateAgentIds: id === 'website'
+    ? ['website-content-visual-guardian', 'website-runtime-release-guardian']
+    : [],
 }));
+
+const websiteGuardianNodes: TurnOrganizationAgent[] = [
+  {
+    id: 'website-content-visual-guardian', name: 'WEBSITE CONTENT & VISUAL GUARDIAN', kind: 'agent',
+    departmentId: 'operational-coordination', coordinatorId: 'unit-website', reportsToId: 'unit-website',
+    responsibility: 'Audit vizual, conținut, i18n, branding, responsive și detectarea afirmațiilor publice vechi.',
+    accessLevel: 'operational-readonly', procedure: 'APP CHANGE → WEBSITE REVIEW → UPDATE IF NEEDED → VALIDATION; escaladează defectele runtime către Website Runtime & Release Guardian.',
+    escalationLevel: 'L2', subordinateAgentIds: [],
+  },
+  {
+    id: 'website-runtime-release-guardian', name: 'WEBSITE RUNTIME & RELEASE GUARDIAN', kind: 'agent',
+    departmentId: 'operational-coordination', coordinatorId: 'unit-website', reportsToId: 'unit-website',
+    responsibility: 'Build, rute publice, deploy, redirects, assets, health și validare post-deploy pentru website.',
+    accessLevel: 'operational-readonly', procedure: 'VALIDATION → RELEASE → POST-DEPLOY HEALTH; separă defectele runtime de cele de conținut și nu modifică DNS fără mandat.',
+    escalationLevel: 'L2', subordinateAgentIds: [],
+  },
+];
 
 const monitoringNodes: TurnOrganizationAgent[] = monitoringAgents.map((agent) => ({
   id: agent.id,
@@ -152,6 +171,7 @@ export const turnOrganizationAgents: TurnOrganizationAgent[] = [
   ...leadership,
   secretGuardianNode,
   ...operationalUnits,
+  ...websiteGuardianNodes,
   ...monitoringNodes,
 ];
 

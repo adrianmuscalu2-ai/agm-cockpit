@@ -9,12 +9,15 @@ const officialTurnIds = new Set([...agentGovernanceIds, ...turnOrganizationAgent
 const model = buildPanelAgentModel();
 const report = panelAgentMappingReport();
 
-assert.equal(panelAgentSources.length, 14, 'operational panel must contain only canonical or organization-backed identities');
-assert.equal(agentGovernanceRegistry.length, 32, 'canonical registry size must remain intact');
+assert.equal(panelAgentSources.length, 16, 'operational panel must contain only canonical or organization-backed identities');
+assert.equal(agentGovernanceRegistry.length, 34, 'canonical registry must include exactly two Website Guardians');
 assert.equal(model.length, panelAgentSources.length, 'every approved visual agent must be normalized');
 assert.equal(new Set(model.map((agent) => agent.panelAgentId)).size, model.length, 'panel IDs must be unique');
 assert.ok(turnOrganizationAgents.some((agent) => agent.id === 'atlas-operations'), 'official Turn organization registry must contain Atlas');
-assert.equal(model.filter((agent) => agent.mappingStatus === 'MAPPED').length, 14, 'every operational panel identity must be mapped');
+assert.equal(model.filter((agent) => agent.mappingStatus === 'MAPPED').length, 16, 'every operational panel identity must be mapped');
+for (const id of ['website-content-visual-guardian', 'website-runtime-release-guardian']) {
+  assert.ok(model.some((agent) => agent.turnAgentId === id && agent.mappingStatus === 'MAPPED'), `${id} must be registered in TURN`);
+}
 assert.ok(model.some((agent) => agent.mappingStatus === 'MAPPED' && agent.turnAgentId === 'monitor-api' && agent.registryName === 'Agent Monitorizare API'), 'API monitor must be mapped from registry');
 assert.ok(model.some((agent) => agent.mappingStatus === 'MAPPED' && agent.turnAgentId === 'atlas-operations' && agent.registrySource === 'turn-organization-chart'), 'Atlas must be mapped from official Turn registry');
 assert.ok(model.some((agent) => agent.turnAgentId === 'adrian-turn-commander'), 'Turn Commander must use the canonical organization identity');

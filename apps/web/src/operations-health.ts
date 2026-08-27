@@ -25,7 +25,7 @@ export type OperationService = {
   label: string;
   kind: 'http' | 'static' | 'aggregate';
   url?: string;
-  evaluator?: 'http' | 'live' | 'ready' | 'dependency' | 'component' | 'guardian';
+  evaluator?: 'http' | 'live' | 'ready' | 'dependency' | 'component' | 'guardian' | 'website-guardian';
   requiresAuth?: boolean;
   dependency?: string;
   healthyStatus?: OperationStatus;
@@ -186,6 +186,15 @@ function evaluateResponse(
   }
   if (source.evaluator === 'guardian') {
     return envelopeData(body)?.overallStatus === 'CONFIGURED' ? 'READY' : 'DEGRADED';
+  }
+  if (source.evaluator === 'website-guardian') {
+    const agents = envelopeData(body)?.agents;
+    const agent = agents && typeof agents === 'object'
+      ? (agents as Record<string, unknown>)[source.dependency ?? '']
+      : null;
+    return agent && typeof agent === 'object' && (agent as Record<string, unknown>).status === 'HEALTHY'
+      ? source.healthyStatus ?? 'READY'
+      : 'DEGRADED';
   }
   return source.healthyStatus ?? 'ONLINE';
 }

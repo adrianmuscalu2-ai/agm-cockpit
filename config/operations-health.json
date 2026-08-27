@@ -134,6 +134,27 @@
       "showInOperations": false
     },
     {
+      "id": "website-content-health",
+      "label": "Website Content & Visual Guardian",
+      "kind": "http",
+      "url": "https://agm-cockpit-website.pages.dev/.well-known/agm-website-health.json",
+      "evaluator": "website-guardian",
+      "dependency": "website-content-visual-guardian",
+      "healthyStatus": "READY",
+      "source": "Website health manifest · visual/content/i18n gates",
+      "showInOperations": false
+    },
+    {
+      "id": "website-runtime",
+      "label": "Website Runtime & Release Guardian",
+      "kind": "http",
+      "url": "https://agm-cockpit-website.pages.dev/",
+      "evaluator": "http",
+      "healthyStatus": "ONLINE",
+      "source": "Cloudflare Pages · public website root",
+      "showInOperations": false
+    },
+    {
       "id": "ui-live",
       "label": "UI LIVE",
       "kind": "static",
