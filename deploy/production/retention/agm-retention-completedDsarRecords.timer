@@ -1,0 +1,12 @@
+[Unit]
+Description=AGM retention completed DSAR proof metadata
+
+[Timer]
+OnCalendar=*-*-* 04:10:00 UTC
+RandomizedDelaySec=5m
+Persistent=true
+Unit=agm-retention@completedDsarRecords.service
+
+[Install]
+WantedBy=timers.target
+

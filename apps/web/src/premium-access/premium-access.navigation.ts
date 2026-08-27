@@ -4,12 +4,19 @@ import type { PremiumViewName } from '../premium-routes';
 
 const capabilityForView: Record<PremiumViewName, PremiumCapabilityId> = {
   premium: 'premium.command-center',
+  premiumCopilot: 'premium.command-center',
   premiumTeam: 'premium.team',
   premiumLoadSafety: 'premium.load-safety',
   premiumCommunications: 'premium.communications',
   premiumVoice: 'premium.voice-assistant',
   carMover: 'car-mover.jobs',
   carMoverMenu: 'car-mover.jobs',
+  carMoverPlanning: 'car-mover.jobs',
+  carMoverActive: 'car-mover.jobs',
+  carMoverCompletion: 'car-mover.jobs',
+  carMoverAccounting: 'car-mover.jobs',
+  carMoverGuide: 'car-mover.jobs',
+  carMoverArchive: 'car-mover.jobs',
 };
 
 let verifiedSnapshot: AccessEntitlementSnapshot | undefined;

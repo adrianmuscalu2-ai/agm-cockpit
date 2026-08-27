@@ -1,0 +1,10 @@
+{
+  "checkedAt": null,
+  "source": "Provider billing portals / current contracted plans",
+  "currency": "EUR",
+  "tomtomUnitCostMicros": null,
+  "hereUnitCostMicros": null,
+  "tollGuruUnitCostMicros": null,
+  "gmailUnitCostMicros": 0,
+  "tollGuruPaidPlanAuthorized": false
+}

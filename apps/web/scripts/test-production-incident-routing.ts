@@ -54,7 +54,7 @@ assert.equal(incidents[0]?.status, 'new');
 const recoveryAt = '2026-08-06T08:10:00.000Z';
 const recovered = evaluateProductionPreflight((['ssh-identity', 'ssh-agent', 'ssh-connectivity', 'ssh-authentication', 'console-rescue', 'production-api', 'guardian-telemetry', 'recovery-procedure'] as const).map((id) => check(id, 'PASS', `${id} recovered.`, recoveryAt)), recoveryAt);
 incidents = reconcileProductionPreflightIncident(incidents, recovered);
-assert.equal(incidents[0]?.status, 'ready-test');
+assert.equal(incidents[0]?.status, 'validated');
 
 const current = incidents[0]!;
 const validatedDraft = { ...current, humanValidation: 'Validated by independent operator.', status: 'ready-test' as const };

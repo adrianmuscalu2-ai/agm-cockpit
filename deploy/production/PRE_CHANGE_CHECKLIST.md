@@ -15,10 +15,11 @@ Status: mandatory template. Completion does not authorize deployment.
 
 ## Immutable identities
 
-- [ ] Image ID equals
-  `sha256:b949e5dd986a4b654f4af8f58b891d714593f46ac84702e90dae623488e44a3e`.
-- [ ] OCI revision equals
-  `9956eb188fdd988bf0d7af93241c3c43962d9b39`.
+- [ ] Approved release manifest records source commit, workflow run ID,
+  `AGM_IMAGE`, `AGM_WEB_IMAGE`, `AGM_REVISION`, and `AGM_WEB_REVISION`.
+- [ ] API and Web identities use immutable registry digests produced by that same
+  successful workflow run.
+- [ ] `AGM_REVISION` and `AGM_WEB_REVISION` equal the reviewed source commit.
 - [ ] API container is `agm-production-api`.
 - [ ] PostgreSQL container is `agm-postgres`.
 - [ ] PostgreSQL volume is `app_agm_postgres_data`.
@@ -52,6 +53,8 @@ Status: mandatory template. Completion does not authorize deployment.
 - [ ] Approved source database and target database are identified.
 - [ ] Final source dump and transferred dump checksums match.
 - [ ] Restore, schema, row-count and integrity checks pass.
+- [ ] Release manifest records the exact ordered migration set, its digest, and
+  `AGM_EXPECTED_MIGRATION_COUNT`; no fixed historical migration count is reused.
 - [ ] Write freeze and single-writer control are active.
 - [ ] Reconciliation owner and procedure are recorded.
 
@@ -65,3 +68,15 @@ Status: mandatory template. Completion does not authorize deployment.
 - [ ] Evidence directory and timestamp source are ready.
 
 Any unchecked mandatory item is an automatic NO-GO.
+
+## Candidate verification
+
+- [ ] Working tree is clean and HEAD equals the reviewed release commit.
+- [ ] API lint, API tests, API build, and Web build are PASS for that commit.
+- [ ] Secret and Production dependency audits are PASS for that commit.
+- [ ] Browser preflight fields are recorded separately; Plugin, Session, and Target
+  Page are PASS, and Integrated Browser Control is either PASS or documented as the
+  optional platform limitation allowed by the Browser runbook.
+- [ ] `pnpm audit:wave1-browser` is PASS with a machine-readable report and captures.
+- [ ] `pnpm audit:canonical-route` proves `/` redirects to `/basic` and `/basic`
+  serves the AGM application.

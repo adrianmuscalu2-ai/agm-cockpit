@@ -15,7 +15,7 @@ export function ledgerKey(value:string|undefined){if(!value)throw new Error('SUP
 export function subjectPseudonym(companyId:string,subjectId:string,key:Buffer){return createHmac('sha256',key).update(`${companyId}:${subjectId}`).digest('hex');}
 
 export async function readVerifiedLedger(path:string,key:Buffer){
-  let raw:string;try{const info=await stat(path);if(process.platform!=='win32'&&(info.mode&0o077)!==0)throw new Error('SUPPRESSION_LEDGER_PERMISSIONS_TOO_BROAD');raw=await readFile(path,'utf8');}catch(error:any){if(error?.code==='ENOENT')throw new Error('SUPPRESSION_LEDGER_MISSING');throw error;}
+  let raw:string;try{const info=await stat(path);if(process.platform!=='win32'&&(info.mode&0o077)!==0)throw new Error('SUPPRESSION_LEDGER_PERMISSIONS_TOO_BROAD');raw=await readFile(path,'utf8');}catch(error:unknown){if(errorCode(error)==='ENOENT')throw new Error('SUPPRESSION_LEDGER_MISSING');throw error;}
   if(!raw.trim())throw new Error('SUPPRESSION_LEDGER_EMPTY');
   const records:SuppressionLedgerRecord[]=raw.trim().split(/\r?\n/).map((line,index)=>{try{return JSON.parse(line)}catch{throw new Error(`SUPPRESSION_LEDGER_INVALID_JSON_AT_${index+1}`)}});
   let previousMac='GENESIS';
@@ -27,10 +27,12 @@ export async function readVerifiedLedger(path:string,key:Buffer){
 }
 
 export async function appendLedgerRecord(path:string,key:Buffer,input:Omit<Unsigned,'version'|'eventId'|'previousMac'>){
-  let existing:SuppressionLedgerRecord[]=[];try{existing=await readVerifiedLedger(path,key)}catch(error:any){if(error.message!=='SUPPRESSION_LEDGER_MISSING')throw error;}
+  let existing:SuppressionLedgerRecord[]=[];try{existing=await readVerifiedLedger(path,key)}catch(error:unknown){if(!(error instanceof Error)||error.message!=='SUPPRESSION_LEDGER_MISSING')throw error;}
   const unsigned:Unsigned={version:1,eventId:randomUUID(),...input,previousMac:existing.at(-1)?.mac??'GENESIS'};const record={...unsigned,mac:mac(unsigned,key)};
   const handle=await open(path,'a',0o600);try{await handle.writeFile(`${JSON.stringify(record)}\n`);await handle.sync();}finally{await handle.close();}if(process.platform!=='win32')await chmod(path,0o600);return record;
 }
+
+function errorCode(error:unknown){if(typeof error!=='object'||error===null||!('code' in error))return;const code=(error as {code?:unknown}).code;return typeof code==='string'?code:undefined;}
 
 export function effectiveActions(records:SuppressionLedgerRecord[]){
   const rank:Record<SuppressionAction,number>={COMPACTION_CHECKPOINT:0,RESTRICT:1,PARTIAL_LEGAL_RESTRICTION:2,ANONYMIZE:3,DELETE:4};const chosen=new Map<string,SuppressionLedgerRecord>();

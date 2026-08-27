@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agm://copilot/v1.2/event-envelope.schema.json",
+  "title": "AGM Copilot V1.2 Canonical Event Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId", "eventType", "aggregateType", "aggregateId", "tenantId",
+    "sourceAuthority", "workloadIdentity", "sourceSequence",
+    "aggregateRevision", "occurredAt", "committedAt", "schemaVersion",
+    "policyVersion", "classification", "sanitizedPayload",
+    "currentStateHash", "correlationId", "causationId", "traceId",
+    "idempotencyKey", "signatureKeyId", "signature", "outboxCommitRef"
+  ],
+  "properties": {
+    "eventId": { "type": "string", "minLength": 1 },
+    "eventType": { "type": "string", "minLength": 1 },
+    "aggregateType": { "type": "string", "minLength": 1 },
+    "aggregateId": { "type": "string", "minLength": 1 },
+    "tenantId": { "type": "string", "minLength": 1 },
+    "sourceAuthority": { "type": "string", "minLength": 1 },
+    "workloadIdentity": { "type": "string", "minLength": 1 },
+    "sourceSequence": { "type": "integer", "minimum": 1 },
+    "aggregateRevision": { "type": "integer", "minimum": 1 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "committedAt": { "type": "string", "format": "date-time" },
+    "schemaVersion": { "const": "1.0.0" },
+    "policyVersion": { "type": "string", "minLength": 1 },
+    "classification": {
+      "enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]
+    },
+    "sanitizedPayload": { "type": "object" },
+    "previousStateHash": { "type": ["string", "null"] },
+    "currentStateHash": { "type": "string", "minLength": 1 },
+    "correlationId": { "type": "string", "minLength": 1 },
+    "causationId": { "type": "string", "minLength": 1 },
+    "traceId": { "type": "string", "minLength": 1 },
+    "idempotencyKey": { "type": "string", "minLength": 1 },
+    "signatureKeyId": { "type": "string", "minLength": 1 },
+    "signature": { "type": "string", "minLength": 1 },
+    "outboxCommitRef": { "type": "string", "minLength": 1 }
+  }
+}

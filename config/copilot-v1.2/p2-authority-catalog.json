@@ -1,0 +1,14 @@
+{
+  "version": "p2.1.0",
+  "tenant": "tenant-agm-p2-isolated",
+  "authorities": [
+    { "id": "IDENTITY_SOD_AUTHORITY", "eventPrefix": "identity.", "turnClass": "CRITICAL" },
+    { "id": "CAPABILITY_TOOL_AUTHORITY", "eventPrefix": "capability.", "turnClass": "LIFECYCLE" },
+    { "id": "PERMISSION_REVOCATION_AUTHORITY", "eventPrefix": "permission.", "turnClass": "CRITICAL" },
+    { "id": "RUNTIME_PLACEMENT_AUTHORITY", "eventPrefix": "runtime.", "turnClass": "LIFECYCLE" },
+    { "id": "WORKFLOW_STATE_AUTHORITY", "eventPrefix": "workflow.", "turnClass": "CRITICAL" },
+    { "id": "EVIDENCE_AUDIT_AUTHORITY", "eventPrefix": "evidence.", "turnClass": "LIFECYCLE" },
+    { "id": "INCIDENT_AUTHORITY", "eventPrefix": "incident.", "turnClass": "CRITICAL" },
+    { "id": "PACKAGE_LIFECYCLE_AUTHORITY", "eventPrefix": "package.", "turnClass": "LIFECYCLE" }
+  ]
+}

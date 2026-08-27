@@ -41,7 +41,7 @@ $config.checks = @(
   [pscustomobject]@{
     id = 'browser-public'
     name = 'AGM Browser public'
-    url = 'https://app.agmcockpit.com/'
+    url = 'https://app.agmcockpit.com/turn'
     timeoutSeconds = 15
   }
 )

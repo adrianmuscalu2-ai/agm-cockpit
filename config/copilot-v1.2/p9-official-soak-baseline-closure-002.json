@@ -1,0 +1,15 @@
+{
+  "contract": "agm-p9-official-soak-baseline-closure.v1",
+  "baselineIdentity": "p9-baseline-off-20260815-002",
+  "mode": "P9_OFF_BASELINE_OBSERVATION",
+  "p9Enabled": false,
+  "trafficAllowed": false,
+  "httpP9Traffic": 0,
+  "durationSeconds": 60,
+  "sampleIntervalSeconds": 2,
+  "endpointSamples": 10,
+  "endpointIntervalMs": 1000,
+  "endpoints": ["health", "login-invalid", "entitlement-unauthenticated"],
+  "workerExpectation": "ZERO_P9_WORKERS",
+  "outputRoot": "evidence/governance/copilot-v1.2/p9/official-soak-baseline/p9-baseline-off-20260815-002"
+}

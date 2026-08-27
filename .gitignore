@@ -10,13 +10,27 @@ coverage/
 .turbo/
 .pnpm-store/
 *.log
+*.dpapi
 .codex-*.log
 *.tsbuildinfo
 *.traineddata
 .tmp/
 .tmp-video-tools/
 .video-work/
+.runtime-state/
 *.mp4
 
 # Separate website repository
 /agmcockpit-website/
+
+# Local audit/runtime output preserved outside the release candidate
+/tmp/
+/artifacts/
+/baselines/
+/local-preserved/
+/android-current.png
+
+# Superseded local Android packages; 1.3.0 remains the release artifact
+/apps/web/public/downloads/AGM-Cockpit-Android.apk
+/apps/web/public/downloads/AGM-Cockpit-Android-1.2.6.apk
+/apps/web/public/downloads/AGM-Cockpit-Android-1.2.9.apk

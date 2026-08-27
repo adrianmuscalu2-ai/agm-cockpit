@@ -1,4 +1,18 @@
-export type PremiumViewName = 'premium' | 'premiumTeam' | 'premiumLoadSafety' | 'premiumCommunications' | 'premiumVoice' | 'carMover' | 'carMoverMenu';
+export type PremiumViewName =
+  | 'premium'
+  | 'premiumCopilot'
+  | 'premiumTeam'
+  | 'premiumLoadSafety'
+  | 'premiumCommunications'
+  | 'premiumVoice'
+  | 'carMover'
+  | 'carMoverMenu'
+  | 'carMoverPlanning'
+  | 'carMoverActive'
+  | 'carMoverCompletion'
+  | 'carMoverAccounting'
+  | 'carMoverGuide'
+  | 'carMoverArchive';
 
 type PremiumRouteDefinition = {
   view: PremiumViewName;
@@ -13,12 +27,19 @@ export const PRE_001_SHELL_CONTRACT = {
 
 export const premiumRouteRegistry: readonly PremiumRouteDefinition[] = [
   { view: 'premium', route: '/premium' },
+  { view: 'premiumCopilot', route: '/premium/copilot' },
   { view: 'premiumTeam', route: '/premium/team' },
   { view: 'premiumLoadSafety', route: '/premium/ladungssicherung' },
   { view: 'premiumCommunications', route: '/premium/communications' },
   { view: 'premiumVoice', route: '/premium/voice' },
   { view: 'carMover', route: '/car-mover' },
   { view: 'carMoverMenu', route: '/car-mover/menu' },
+  { view: 'carMoverPlanning', route: '/car-mover/planning' },
+  { view: 'carMoverActive', route: '/car-mover/active-transfer' },
+  { view: 'carMoverCompletion', route: '/car-mover/completion-incidents' },
+  { view: 'carMoverAccounting', route: '/car-mover/accounting' },
+  { view: 'carMoverGuide', route: '/car-mover/guide' },
+  { view: 'carMoverArchive', route: '/car-mover/archive' },
 ];
 
 export function premiumViewFromRoute(route: string): PremiumViewName | undefined {

@@ -128,6 +128,9 @@ import { bindPremiumAccessRuntime } from './premium-access/premium-access.runtim
 import { bindCommunicationRuntime } from './premium-communications/communication.runtime';
 import { bindPremiumAssistantRuntime } from './premium-voice-shell/premium-assistant.runtime';
 import { bindCarMoverRuntime } from './car-mover/car-mover.runtime';
+import { bindPremiumGovernanceRuntime } from './premium-governance/premium-governance.runtime';
+import './premium-governance/premium-governance.css';
+import './premium-governance/turn-authority-control-plane.css';
 import './car-mover/car-mover.css';
 import { bindCopilotRuntime } from './premium-copilot/copilot.runtime';
 import './premium-copilot/copilot.css';
@@ -1529,7 +1532,7 @@ function renderBasicPlanned(icon: string, title: string, description: string) {
 
 function renderGlobalQuickActions() {
   const language = uiLanguage();
-  const opensCarMover = isPremiumView(state.view) && state.view !== 'carMover' && state.view !== 'carMoverMenu';
+  const opensCarMover = isPremiumView(state.view) && !state.view.startsWith('carMover');
   return `
     <nav class="global-quick-actions" aria-label="${escapeHtml(t(language, 'home.actionsLabel'))}">
       <button type="button" data-global-action="ocr"><span aria-hidden="true">▣</span>${escapeHtml(t(language, 'translator.command.ocr'))}</button>
@@ -2262,6 +2265,7 @@ function bindShared() {
   bindCommunicationRuntime();
     bindPremiumAssistantRuntime();
     bindCarMoverRuntime();
+  bindPremiumGovernanceRuntime(state.adminAccessVerified ? state.adminSession?.accessToken : undefined);
   bindCopilotRuntime();
   document.querySelectorAll<HTMLButtonElement>('[data-global-action]').forEach((control) => {
     control.addEventListener('click', () => activateGlobalAction(control.dataset.globalAction));
@@ -4100,6 +4104,7 @@ async function startVoiceInput() {
 
 async function startNativeVoiceInput() {
   const language = speechLocale(state.profile.preferredLanguage);
+  const cycleId = `translator:${crypto.randomUUID()}`;
   try {
     let permission = await NativeAudio.checkMicrophonePermission();
     console.info('[AGM Audio] Microphone permission state', permission.state);
@@ -4113,6 +4118,7 @@ async function startNativeVoiceInput() {
     }
 
     const stateListener = await NativeAudio.addListener('speechState', (event) => {
+      if (event.cycleId !== cycleId) return;
       state.voiceInputState = event.state === 'speechDetected' ? 'listening' : event.state;
       state.status = audioMessage(event.state === 'processing' ? 'Microfon: procesare voce…' : 'Microfon activ. Vorbește acum.', event.state === 'processing' ? 'Mikrofon: Sprache wird verarbeitet…' : 'Mikrofon aktiv. Jetzt sprechen.', event.state === 'processing' ? 'Microphone: processing speech…' : 'Microphone active. Speak now.');
       console.info('[AGM Audio] Native speech state', event.state);
@@ -4124,7 +4130,7 @@ async function startNativeVoiceInput() {
     console.info('[AGM Audio] Native speech recognition starting', { language });
     render();
     try {
-      const result = await NativeAudio.startListening({ language });
+      const result = await NativeAudio.startListening({ language, cycleId });
       console.info('[AGM Audio] Native speech recognition result', { characters: result.text.length, timing: result.timing });
       state.translatorText = state.translatorText ? `${state.translatorText}\n${result.text}` : result.text;
       state.status = t(uiLanguage(), 'translator.status.voiceCaptured', { language: languageLabel(state.profile.preferredLanguage) });
@@ -4151,6 +4157,7 @@ async function startEmailVoiceInput() {
     return;
   }
   const language = speechLocale(state.profile.preferredLanguage);
+  const cycleId = `email:${crypto.randomUUID()}`;
   try {
     let permission = await NativeAudio.checkMicrophonePermission();
     if (permission.state !== 'granted') permission = await NativeAudio.requestMicrophonePermission();
@@ -4159,6 +4166,7 @@ async function startEmailVoiceInput() {
       return;
     }
     const listener = await NativeAudio.addListener('speechState', (event) => {
+      if (event.cycleId !== cycleId) return;
       state.voiceInputState = event.state === 'speechDetected' ? 'listening' : event.state;
       state.status = event.state === 'processing'
         ? audioMessage('E-mail: procesare voce…', 'E-Mail: Sprache wird verarbeitet…', 'Email: processing speech…')
@@ -4169,7 +4177,7 @@ async function startEmailVoiceInput() {
     state.voiceInputState = 'listening';
     render();
     try {
-      const result = await NativeAudio.startListening({ language });
+      const result = await NativeAudio.startListening({ language, cycleId });
       state.message = state.message ? `${state.message}\n${result.text}` : result.text;
       state.voiceInputState = 'inactive';
       state.status = t(uiLanguage(), 'translator.status.voiceCaptured', { language: languageLabel(state.profile.preferredLanguage) });
@@ -4354,7 +4362,7 @@ async function speakNativeText(text: string, language: LanguageCode, isEmail: bo
   console.info('[AGM Audio] Native TTS starting', { language: locale, characters: text.length });
   render();
   try {
-    await NativeAudio.speak({ text, language: locale });
+    await NativeAudio.speak({ text, language: locale, turnId: `playback:${crypto.randomUUID()}` });
     console.info('[AGM Audio] Native TTS completed', { language: locale });
     state.voicePlaybackState = 'stopped';
     state.status = audioMessage('Redarea vocală s-a încheiat.', 'Sprachausgabe beendet.', 'Voice playback finished.');
@@ -5475,6 +5483,7 @@ function navigateToModule(view: ViewName) {
     state.emailTutorialStep = 0;
     state.status = moduleStatus(view);
     render();
+    if (view.startsWith('carMover')) window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     return;
   }
 
@@ -5487,6 +5496,7 @@ function navigateToModule(view: ViewName) {
   state.emailTutorialStep = 0;
   state.status = moduleStatus(view);
   render();
+  if (view.startsWith('carMover')) window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 }
 
 function viewFromCurrentRoute(): ViewName {

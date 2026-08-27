@@ -21,6 +21,11 @@ const lifecycleStates = [
 ] as const;
 
 async function main() {
+  const ownerEmail = process.env.SEED_OWNER_EMAIL?.trim();
+  const ownerPassword = process.env.SEED_OWNER_PASSWORD;
+  if (!ownerEmail || !ownerPassword || ownerPassword.length < 12 || /change|replace|placeholder|dummy|test/i.test(ownerPassword)) {
+    throw new Error('SEED_OWNER_EMAIL and a non-placeholder SEED_OWNER_PASSWORD (minimum 12 characters) are required. No default credentials are permitted.');
+  }
   const company = await prisma.company.upsert({
     where: { id: '00000000-0000-0000-0000-000000000001' },
     update: {},
@@ -43,14 +48,14 @@ async function main() {
     },
   });
 
-  const passwordHash = await bcrypt.hash(process.env.SEED_OWNER_PASSWORD ?? 'ChangeMe123!', 12);
+  const passwordHash = await bcrypt.hash(ownerPassword, 12);
   const owner = await prisma.user.upsert({
-    where: { companyId_email: { companyId: company.id, email: process.env.SEED_OWNER_EMAIL ?? 'owner@agm.local' } },
+    where: { companyId_email: { companyId: company.id, email: ownerEmail } },
     update: {},
     create: {
       companyId: company.id,
       displayName: process.env.SEED_OWNER_NAME ?? 'AGM Owner',
-      email: process.env.SEED_OWNER_EMAIL ?? 'owner@agm.local',
+      email: ownerEmail,
       passwordHash,
     },
   });

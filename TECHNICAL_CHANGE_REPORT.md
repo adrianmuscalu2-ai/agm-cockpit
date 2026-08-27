@@ -1,5 +1,41 @@
 # AGM Technical Change Report
 
+## 2026-08-27 - Production publication audit remediation
+
+### Root causes
+
+- ESLint 9 was installed but `apps/api` had no flat configuration, so lint stopped before source validation; after configuration, 37 genuine type-safety and unused-code findings were exposed.
+- The Wave 1 runner used `waitUntil: 'networkidle'` against an application with persistent runtime requests and used hard page navigations even though sensitive `sessionStorage` is intentionally cleared on `pagehide`.
+- The Production static server mapped `/` directly to `index.html`, and the web build injected a global `POC 02` link into that index.
+- Diagnostic PowerShell scripts passed the special Windows name `NUL` to curl. Curl created an ordinary file containing the diagnostic endpoint response in this execution context.
+- Production procedures embedded an old image digest, an old revision, and a five-migration assumption although the current workspace contains 20 migration directories.
+
+### Implementation
+
+- Added `apps/api/eslint.config.mjs` using the recommended TypeScript ESLint flat rules and corrected all reported violations with explicit domain and provider response types.
+- Added API lint to `.github/workflows/production-release.yml`.
+- Changed Wave 1 navigation readiness to `domcontentloaded`, `#app`, a visible AGM UI signal, stable animation frames, and transient-overlay dismissal. Route scenarios now use the application's real History API lifecycle. Vite is spawned directly and cleaned up on Windows and POSIX.
+- Changed the shell route contract so `/` resolves to Basic, `/basic` is canonical, and Home is `/home`.
+- Added an HTTP 308 redirect from `/` to `/basic` in the Production static server and a real local HTTP contract test.
+- Removed the build plugin that injected `POC 02` into the main Production page.
+- Moved the accidental `NUL` payload to the matching evidence directory after verifying SHA-256 before/after and changed all affected curl calls to controlled temporary files.
+- Bound API/web image identities and revisions to the release workflow output and made restore rehearsal compare with `AGM_EXPECTED_MIGRATION_COUNT` from the approved release manifest.
+
+### Validation evidence
+
+- `pnpm --filter @agm/api lint`: PASS.
+- `pnpm --filter @agm/api build`: PASS.
+- `pnpm --filter @agm/web build`: PASS.
+- `pnpm --filter @agm/web exec tsx scripts/test-app001-shell-navigation.ts`: PASS.
+- `pnpm --filter @agm/web exec tsx scripts/test-sr01-web-build-definition.ts`: PASS.
+- `pnpm audit:canonical-route`: PASS (`/` = 308 to `/basic`; `/basic` = 200).
+- `pnpm audit:wave1-browser`: PASS with 31 recorded checks and screenshots for nine languages, Translator, Email, OCR, and two desktop viewports.
+- Recovered payload SHA-256: `A91AAD97F957D6349DB4A1E2B61BA4F0461486D3DDED70EAED0BFFDF8A76E6BE`.
+
+### Release boundary
+
+These changes do not constitute a Production deployment. Release stays NO-GO while the mixed pre-existing working tree is not a reviewed commit and until Production post-deployment evidence proves the new image, redirect, health, migration, and Browser state.
+
 ## 2026-07-14 - Android stable foundation (AG-018 / AG-019 / AG-020)
 
 ### Scope

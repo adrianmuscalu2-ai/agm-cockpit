@@ -1,43 +1,38 @@
 import type { BasicLanguageCode } from '../language-registry';
 
 const copy = {
-  ro: {
-    eyebrow: 'Modul operațional inclus în AGM Premium',
-    title: 'CAR MOVER',
-    accent: 'DISPATCH AI',
-    subtitle: 'Mutarea vehiculelor automatizată, filtrată și optimizată.',
-    action: 'Intră în Car Mover',
-    back: 'Înapoi la Premium',
-  },
-  en: {
-    eyebrow: 'Operational module included in AGM Premium',
-    title: 'CAR MOVER',
-    accent: 'DISPATCH AI',
-    subtitle: 'Automated, filtered and optimized vehicle movement.',
-    action: 'Open Car Mover',
-    back: 'Back to Premium',
-  },
-  de: {
-    eyebrow: 'Betriebsmodul in AGM Premium enthalten',
-    title: 'CAR MOVER',
-    accent: 'DISPATCH AI',
-    subtitle: 'Automatisierte, gefilterte und optimierte Fahrzeugbewegung.',
-    action: 'Car Mover öffnen',
-    back: 'Zurück zu Premium',
-  },
+  ro: { eyebrow:'Rută operațională AGM Premium', title:'CAR MOVER', accent:'DISPATCH AI', subtitle:'Planifică, compară și execută mutarea vehiculelor pe baza datelor reale AGM.', action:'Intră în Car Mover', back:'Înapoi la Premium', copilot:'AGM Premium Copilot', ocr:'Cameră OCR', voice:'Vorbește', boundary:'Decizia finală rămâne umană.', flow:'HERO → Module → Human Decide → Job File' },
+  en: { eyebrow:'AGM Premium operational route', title:'CAR MOVER', accent:'DISPATCH AI', subtitle:'Plan, compare and execute vehicle movements using real AGM data.', action:'Enter Car Mover', back:'Back to Premium', copilot:'AGM Premium Copilot', ocr:'Camera OCR', voice:'Speak', boundary:'The final decision remains human.', flow:'HERO → Modules → Human Decide → Job File' },
+  de: { eyebrow:'Operative Route in AGM Premium', title:'CAR MOVER', accent:'DISPATCH AI', subtitle:'Fahrzeugbewegungen mit realen AGM-Daten planen, vergleichen und ausführen.', action:'Car Mover öffnen', back:'Zurück zu Premium', copilot:'AGM Premium Copilot', ocr:'Kamera OCR', voice:'Sprechen', boundary:'Die endgültige Entscheidung bleibt menschlich.', flow:'HERO → Module → Human Decide → Job File' },
 } as const;
 
 export function renderCarMoverLanding(language: BasicLanguageCode) {
   const text = language === 'ro' ? copy.ro : language === 'de' ? copy.de : copy.en;
   return `<section class="car-mover-entry" aria-labelledby="car-mover-entry-title">
-    <img class="car-mover-entry-image" src="/images/car-mover-entry-hero-v2.png" alt="" aria-hidden="true">
+    <img class="car-mover-entry-image" src="/images/car-mover-route-entry-bg-v4.png" alt="" aria-hidden="true">
     <div class="car-mover-entry-shade" aria-hidden="true"></div>
-    <a class="car-mover-entry-back" href="/premium" data-module="premium">${text.back}</a>
-    <div class="car-mover-entry-copy">
-      <small>${text.eyebrow}</small>
-      <h1 id="car-mover-entry-title">${text.title} <span>/ ${text.accent}</span></h1>
-      <p>${text.subtitle}</p>
+    <header class="car-mover-entry-topline">
+      <strong><span>AGM</span> PREMIUM</strong>
+      <a class="car-mover-entry-back" href="/premium" data-module="premium">${text.back}</a>
+    </header>
+    <div class="car-mover-entry-layout">
+      <article class="car-mover-entry-panel">
+        <div class="car-mover-entry-copy">
+          <small>${text.eyebrow}</small>
+          <h1 id="car-mover-entry-title">${text.title} <span>/ ${text.accent}</span></h1>
+          <p>${text.subtitle}</p>
+        </div>
+        <p class="car-mover-entry-boundary"><span aria-hidden="true"></span>${text.boundary}</p>
+        <div class="car-mover-entry-actions">
+          <a class="car-mover-entry-action" href="/car-mover/menu" data-module="carMoverMenu">${text.action}</a>
+          <div class="car-mover-entry-controls">
+            <a href="/premium/copilot" data-module="premiumCopilot">${text.copilot}</a>
+            <a href="/ocr" data-module="ocr">${text.ocr}</a>
+            <a href="/premium/voice" data-module="premiumVoice">${text.voice}</a>
+          </div>
+        </div>
+        <p class="car-mover-entry-flow">${text.flow}</p>
+      </article>
     </div>
-    <a class="car-mover-entry-action" href="/car-mover/menu" data-module="carMoverMenu">${text.action}</a>
   </section>`;
 }

@@ -1,5 +1,6 @@
 export type RetentionCategory='expiredAuthSessions'|'revokedAuthSessions'|'completedDsarRecords'|'generatedDsarExports'|'postgresBackups'|'suppressionLedgerEntries'|'identifierAuditLogs';
-export type RetentionPolicy={schemaVersion:1;policyVersion:string;timezone:'UTC';productionActivationAuthorized:false;categories:Record<RetentionCategory,any>;excluded:string[]};
+export type RetentionCategoryPolicy={enabled:boolean;latencyHours?:number;retentionDays?:number;calendarYearsAfterCompletion?:number;maxSuccessfulDailyGenerations?:number;backupHorizonDays?:number;verificationMarginDays?:number};
+export type RetentionPolicy={schemaVersion:1;policyVersion:string;timezone:'UTC';productionActivationAuthorized:false;categories:Record<RetentionCategory,RetentionCategoryPolicy>;excluded:string[]};
 export type RetentionDecision={category:RetentionCategory;enabled:boolean;reason:string;cutoff?:Date;exclusiveCutoff?:boolean;maxGenerations?:number;trigger?:string};
 const HOUR=3_600_000,DAY=86_400_000;
 export const retentionCategories:RetentionCategory[]=['expiredAuthSessions','revokedAuthSessions','completedDsarRecords','generatedDsarExports','postgresBackups','suppressionLedgerEntries','identifierAuditLogs'];
@@ -9,7 +10,7 @@ export function validateRetentionPolicy(policy:RetentionPolicy){
   for(const category of retentionCategories)if(!policy.categories[category]?.enabled)throw new Error(`RETENTION_CATEGORY_NOT_APPROVED:${category}`);
   exact(policy.categories.expiredAuthSessions.latencyHours,24,'EXPIRED_AUTH_LATENCY');exact(policy.categories.revokedAuthSessions.retentionDays,30,'REVOKED_AUTH_DAYS');exact(policy.categories.completedDsarRecords.calendarYearsAfterCompletion,3,'DSAR_CALENDAR_YEARS');exact(policy.categories.generatedDsarExports.retentionDays,7,'DSAR_EXPORT_DAYS');exact(policy.categories.postgresBackups.maxSuccessfulDailyGenerations,7,'BACKUP_GENERATIONS');exact(policy.categories.suppressionLedgerEntries.backupHorizonDays,7,'LEDGER_BACKUP_HORIZON');exact(policy.categories.suppressionLedgerEntries.verificationMarginDays,30,'LEDGER_MARGIN');exact(policy.categories.identifierAuditLogs.retentionDays,90,'AUDIT_LOG_DAYS');return policy;
 }
-function exact(actual:number,expected:number,label:string){if(actual!==expected)throw new Error(`RETENTION_APPROVAL_MISMATCH:${label}`);}
+function exact(actual:unknown,expected:number,label:string){if(actual!==expected)throw new Error(`RETENTION_APPROVAL_MISMATCH:${label}`);}
 
 export function retentionPlan(policy:RetentionPolicy,env:Record<string,string|undefined>,now=new Date()):RetentionDecision[]{
   validateRetentionPolicy(policy);if(env.RETENTION_ENGINE_ENABLED!=='true')return retentionCategories.map(category=>({category,enabled:false,reason:'ENGINE_DISABLED_FAIL_CLOSED'}));

@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-08-27 - Production publication audit remediation
+
+### Fixed
+
+- Restored ESLint 9 flat configuration for the API and fixed the reported type-safety and unused-code violations without disabling the rules.
+- Replaced the Wave 1 Browser runner's global `networkidle` dependency with application readiness and SPA route signals; Translator, Email, OCR, nine-language persistence, and desktop overflow checks now execute to completion.
+- Made AGM Basic the canonical public entry: `/` redirects permanently to `/basic`, while the former Home surface remains available at `/home`.
+- Removed the build-time `POC 02` link from the Production application shell.
+- Prevented PowerShell diagnostics from creating a root-level Windows `NUL` file; the recovered JSON payload was preserved as hashed evidence.
+
+### Release operations
+
+- Added API lint, canonical-route validation, and Wave 1 Browser validation to the Production release workflow.
+- Replaced stale fixed image, revision, and migration-count instructions with release-manifest values.
+- Added dynamic OCI revision binding for the Production API image.
+
+### Audit status
+
+- Technical gates (lint, API/web build, canonical route, and Wave 1 Browser) pass locally.
+- General release remains NO-GO until the pre-existing mixed working tree is reduced to a reviewed, committed release candidate and the updated candidate is deployed and post-deployment checks pass.
+
 ## 2026-07-25 - Integrity incident operational closure
 
 ### Operations

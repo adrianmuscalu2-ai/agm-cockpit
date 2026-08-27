@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 for (const language of basicLanguageCodes) {
   for (const key of copilotKeys) assert.ok(copilotText(language, key).trim(), `${language}:${key}`);
   const html = renderCopilot(language, value => value);
-  for (const marker of ['data-assistant-start','data-assistant-transcript','data-copilot-route','data-copilot-camera','data-assistant-replay','data-copilot-safety']) assert.match(html, new RegExp(marker));
+  for (const marker of ['data-assistant-start','data-assistant-transcript','data-copilot-route','data-copilot-camera','data-assistant-replay','data-copilot-safety','data-assistant-open-settings','data-assistant-latency','data-assistant-retry']) assert.match(html, new RegExp(marker));
   assert.doesNotMatch(html, /HUB-0|foundation|Înainte de Plecare|După Plecare/);
 }
 assert.equal(routeCopilotIntent('Mi s-a aprins martorul de frână').intent, 'DASHBOARD_WARNING');
@@ -22,4 +22,19 @@ assert.equal(copilotEnabled({ getItem: () => null }), true);
 assert.equal(copilotEnabled({ getItem: () => 'false' }), false);
 const assistantRuntime = readFileSync(new URL('../src/premium-voice-shell/premium-assistant.runtime.ts', import.meta.url), 'utf8');
 assert.match(assistantRuntime, /\[data-premium-assistant\], \[data-premium-copilot\]/, 'Copilot microphone must bind the validated auto-stop voice runtime');
+assert.match(assistantRuntime, /agm-android-assistant-handoff/);
+const copilotRuntime = readFileSync(new URL('../src/premium-copilot/copilot.runtime.ts', import.meta.url), 'utf8');
+assert.match(copilotRuntime, /launchAndroidAssistant/);
+assert.match(copilotRuntime, /androidAssistant/);
+assert.match(copilotRuntime, /shareWithAndroidAi/);
+assert.match(copilotRuntime, /openAndroidAssistantSettings/);
+assert.match(copilotRuntime, /window\.location\.assign\('\/ocr'\)/, 'Camera\/OCR must open the existing OCR workspace');
+const copilotCss = readFileSync(new URL('../src/premium-copilot/copilot.css', import.meta.url), 'utf8');
+const sharedCss = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
+assert.match(copilotCss, /grid-template-columns:\s*repeat\(2,minmax\(0,1fr\)\)/, 'Mobile controls must fit in two bounded columns');
+assert.match(copilotCss, /overflow-x:\s*clip/, 'Copilot must not create horizontal page scrolling');
+assert.match(copilotCss, /main \* \{ min-width: 0; max-width: 100%; \}/, 'Every nested Copilot element must remain inside the mobile viewport');
+assert.match(sharedCss, /--agm-ai-assistant-visual:\s*url\('\/images\/agm-ai-assistant-microphone-v1\.png'\)/, 'Copilot and Voice must use the supplied full-page assistant visual');
+assert.match(copilotCss, /background:\s*rgba\(2,12,28,\.22\)/, 'Copilot functional panels must remain translucent');
+assert.match(copilotCss, /\.copilot-mic/, 'The microphone must remain the central visual control');
 console.log('Premium Single Copilot C0 contracts/i18n 9/9/safety/authority/rollback: PASS');

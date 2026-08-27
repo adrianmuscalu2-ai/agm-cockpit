@@ -1,0 +1,1549 @@
+{
+  "contract": "agm-real-basic-timeout-correlated-probe.v1",
+  "generatedAt": "2026-08-14T04:30:43.277Z",
+  "runId": null,
+  "batch": 1,
+  "mode": "P9_OFF_REAL_REQUESTS",
+  "basicUrl": "http://127.0.0.1:32993/api/v1",
+  "configuration": {
+    "iterationsPerPhase": 1,
+    "phases": [
+      "baseline",
+      "copilot-running-and-worker-saturated",
+      "copilot-turn-total-failure"
+    ],
+    "endpoints": [
+      {
+        "id": "health",
+        "endpoint": "/health",
+        "expectedStatuses": [
+          200
+        ],
+        "layer": "HTTP_NO_DB"
+      },
+      {
+        "id": "login-invalid",
+        "endpoint": "/auth/login",
+        "expectedStatuses": [
+          401,
+          429
+        ],
+        "layer": "HTTP_DB_LOOKUP"
+      },
+      {
+        "id": "entitlement-unauthenticated",
+        "endpoint": "/auth/entitlements",
+        "expectedStatuses": [
+          401,
+          429
+        ],
+        "layer": "HTTP_AUTH_GUARD"
+      }
+    ],
+    "officialBasicSlo": {
+      "maxLatencyMs": 3000,
+      "unchanged": true
+    },
+    "diagnosticRetry": {
+      "timeoutMs": 10000,
+      "onlyAfterOfficialTimeout": true,
+      "excludedFromOfficialSlo": true,
+      "linkedBy": [
+        "linkedOfficialTraceId",
+        "linkedOfficialSequence"
+      ]
+    },
+    "clientTransport": {
+      "source": "node:diagnostics_channel",
+      "channels": [
+        "undici:request:create",
+        "undici:request:bodySent",
+        "undici:request:headers",
+        "undici:request:trailers",
+        "undici:request:error"
+      ],
+      "correlationHeaders": [
+        "x-trace-id",
+        "x-request-id"
+      ],
+      "capturesSecretsHeadersOrBodies": false,
+      "serverJoinKey": "traceId"
+    }
+  },
+  "custody": {
+    "p9ActivationPerformed": false,
+    "p9ExpectedState": "STOPPED",
+    "p9StateVerifiedByProbe": false,
+    "p9StateRequiresOrchestratorCustody": true,
+    "faultInjection": false,
+    "diagnosticFaultHeaderSent": false,
+    "basicFunctionalChanges": 0,
+    "productionChanges": 0,
+    "externalSystemWrites": 0,
+    "localEvidenceWrites": 1,
+    "secretReadsPerformedByProbe": 0,
+    "controlsStoppedPass": true,
+    "harnessError": null
+  },
+  "phaseCustody": [
+    {
+      "phase": "baseline",
+      "startedAt": "2026-08-14T04:30:42.650Z",
+      "completedAt": "2026-08-14T04:30:43.016Z",
+      "officialSamples": 3,
+      "diagnosticRetries": 0,
+      "officialFailures": 0,
+      "officialTimeouts": 0
+    },
+    {
+      "phase": "copilot-running-and-worker-saturated",
+      "startedAt": "2026-08-14T04:30:43.050Z",
+      "completedAt": "2026-08-14T04:30:43.076Z",
+      "officialSamples": 3,
+      "diagnosticRetries": 0,
+      "officialFailures": 0,
+      "officialTimeouts": 0
+    },
+    {
+      "phase": "copilot-turn-total-failure",
+      "startedAt": "2026-08-14T04:30:43.257Z",
+      "completedAt": "2026-08-14T04:30:43.276Z",
+      "officialSamples": 3,
+      "diagnosticRetries": 0,
+      "officialFailures": 0,
+      "officialTimeouts": 0
+    }
+  ],
+  "controls": [
+    {
+      "name": "copilot-control-plane",
+      "pid": 6492,
+      "startedAt": "2026-08-14T04:30:43.031Z",
+      "initialBusyMs": 0,
+      "stopRequestedAt": "2026-08-14T04:30:43.076Z",
+      "exitedAt": "2026-08-14T04:30:43.257Z",
+      "exitCode": null,
+      "signal": "SIGTERM",
+      "error": null
+    },
+    {
+      "name": "turn-projection",
+      "pid": 6828,
+      "startedAt": "2026-08-14T04:30:43.037Z",
+      "initialBusyMs": 0,
+      "stopRequestedAt": "2026-08-14T04:30:43.077Z",
+      "exitedAt": "2026-08-14T04:30:43.257Z",
+      "exitCode": null,
+      "signal": "SIGTERM",
+      "error": null
+    },
+    {
+      "name": "copilot-worker",
+      "pid": 18152,
+      "startedAt": "2026-08-14T04:30:43.050Z",
+      "initialBusyMs": 2500,
+      "stopRequestedAt": "2026-08-14T04:30:43.077Z",
+      "exitedAt": "2026-08-14T04:30:43.256Z",
+      "exitCode": null,
+      "signal": "SIGTERM",
+      "error": null
+    }
+  ],
+  "summary": {
+    "official": {
+      "requests": 9,
+      "availabilityPercent": 100,
+      "p50Ms": 7.176,
+      "p95Ms": 321.917,
+      "p99Ms": 321.917,
+      "maxMs": 321.917,
+      "failures": 0,
+      "timeouts": 0,
+      "correlationFailures": 0
+    },
+    "byPhase": {
+      "baseline": {
+        "requests": 3,
+        "availabilityPercent": 100,
+        "p50Ms": 18.589,
+        "p95Ms": 321.917,
+        "p99Ms": 321.917,
+        "maxMs": 321.917,
+        "failures": 0,
+        "timeouts": 0,
+        "correlationFailures": 0
+      },
+      "copilot-running-and-worker-saturated": {
+        "requests": 3,
+        "availabilityPercent": 100,
+        "p50Ms": 7.438,
+        "p95Ms": 7.794,
+        "p99Ms": 7.794,
+        "maxMs": 7.794,
+        "failures": 0,
+        "timeouts": 0,
+        "correlationFailures": 0
+      },
+      "copilot-turn-total-failure": {
+        "requests": 3,
+        "availabilityPercent": 100,
+        "p50Ms": 4.104,
+        "p95Ms": 7.176,
+        "p99Ms": 7.176,
+        "maxMs": 7.176,
+        "failures": 0,
+        "timeouts": 0,
+        "correlationFailures": 0
+      }
+    },
+    "byEndpoint": {
+      "health": {
+        "requests": 3,
+        "availabilityPercent": 100,
+        "p50Ms": 7.438,
+        "p95Ms": 321.917,
+        "p99Ms": 321.917,
+        "maxMs": 321.917,
+        "failures": 0,
+        "timeouts": 0,
+        "correlationFailures": 0
+      },
+      "login-invalid": {
+        "requests": 3,
+        "availabilityPercent": 100,
+        "p50Ms": 7.794,
+        "p95Ms": 18.589,
+        "p99Ms": 18.589,
+        "maxMs": 18.589,
+        "failures": 0,
+        "timeouts": 0,
+        "correlationFailures": 0
+      },
+      "entitlement-unauthenticated": {
+        "requests": 3,
+        "availabilityPercent": 100,
+        "p50Ms": 6.179,
+        "p95Ms": 6.743,
+        "p99Ms": 6.743,
+        "maxMs": 6.743,
+        "failures": 0,
+        "timeouts": 0,
+        "correlationFailures": 0
+      }
+    },
+    "diagnosticRetries": {
+      "requests": 0,
+      "passed": 0,
+      "failed": 0
+    },
+    "officialVerdict": "PASS_WITHIN_OFFICIAL_SLO"
+  },
+  "clientRuntime": {
+    "eventLoopDelayMs": {
+      "mean": 23.854,
+      "p95": 50.004,
+      "p99": 90.178,
+      "max": 90.178
+    },
+    "schedulingSamples": [
+      {
+        "windowStartedAt": "2026-08-14T04:30:42.511Z",
+        "sampledAt": "2026-08-14T04:30:42.863Z",
+        "intervalMs": 25,
+        "driftMs": 326.223
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:42.863Z",
+        "sampledAt": "2026-08-14T04:30:42.953Z",
+        "intervalMs": 25,
+        "driftMs": 65.054
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:42.953Z",
+        "sampledAt": "2026-08-14T04:30:43.003Z",
+        "intervalMs": 25,
+        "driftMs": 25.553
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:43.003Z",
+        "sampledAt": "2026-08-14T04:30:43.052Z",
+        "intervalMs": 25,
+        "driftMs": 24.104
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:43.052Z",
+        "sampledAt": "2026-08-14T04:30:43.083Z",
+        "intervalMs": 25,
+        "driftMs": 5.297
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:43.083Z",
+        "sampledAt": "2026-08-14T04:30:43.114Z",
+        "intervalMs": 25,
+        "driftMs": 5.896
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:43.114Z",
+        "sampledAt": "2026-08-14T04:30:43.145Z",
+        "intervalMs": 25,
+        "driftMs": 6.139
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:43.145Z",
+        "sampledAt": "2026-08-14T04:30:43.177Z",
+        "intervalMs": 25,
+        "driftMs": 6.884
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:43.177Z",
+        "sampledAt": "2026-08-14T04:30:43.208Z",
+        "intervalMs": 25,
+        "driftMs": 6.015
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:43.208Z",
+        "sampledAt": "2026-08-14T04:30:43.238Z",
+        "intervalMs": 25,
+        "driftMs": 5.019
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:43.238Z",
+        "sampledAt": "2026-08-14T04:30:43.268Z",
+        "intervalMs": 25,
+        "driftMs": 5.337
+      }
+    ],
+    "transportSubscribers": {
+      "source": "node:diagnostics_channel",
+      "channels": [
+        "undici:request:create",
+        "undici:request:bodySent",
+        "undici:request:headers",
+        "undici:request:trailers",
+        "undici:request:error"
+      ],
+      "subscribed": true,
+      "unsubscribed": true,
+      "requestCreateEvents": 9,
+      "bodySentEvents": 9,
+      "responseHeadersEvents": 9,
+      "trailersEvents": 9,
+      "errorEvents": 0,
+      "ignoredEvents": 0,
+      "activeCapturePeak": 1
+    }
+  },
+  "hostTelemetry": {
+    "source": "node:os",
+    "logicalCpuCount": 4,
+    "availableParallelism": 4,
+    "samples": [
+      {
+        "windowStartedAt": "2026-08-14T04:30:42.512Z",
+        "sampledAt": "2026-08-14T04:30:42.513Z",
+        "cpuPercent": 100,
+        "memory": {
+          "totalBytes": 16569454592,
+          "freeBytes": 1725440000,
+          "usedPercent": 89.587
+        },
+        "clientProcess": {
+          "rssBytes": 50229248,
+          "heapUsedBytes": 5811240,
+          "externalBytes": 2319689
+        },
+        "loadAverage": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:42.513Z",
+        "sampledAt": "2026-08-14T04:30:42.863Z",
+        "cpuPercent": 100,
+        "memory": {
+          "totalBytes": 16569454592,
+          "freeBytes": 1733394432,
+          "usedPercent": 89.539
+        },
+        "clientProcess": {
+          "rssBytes": 57298944,
+          "heapUsedBytes": 8237864,
+          "externalBytes": 3823067
+        },
+        "loadAverage": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:42.863Z",
+        "sampledAt": "2026-08-14T04:30:43.003Z",
+        "cpuPercent": 100,
+        "memory": {
+          "totalBytes": 16569454592,
+          "freeBytes": 1732136960,
+          "usedPercent": 89.546
+        },
+        "clientProcess": {
+          "rssBytes": 59211776,
+          "heapUsedBytes": 9040992,
+          "externalBytes": 4022154
+        },
+        "loadAverage": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:43.003Z",
+        "sampledAt": "2026-08-14T04:30:43.113Z",
+        "cpuPercent": 100,
+        "memory": {
+          "totalBytes": 16569454592,
+          "freeBytes": 1704796160,
+          "usedPercent": 89.711
+        },
+        "clientProcess": {
+          "rssBytes": 77152256,
+          "heapUsedBytes": 8906968,
+          "externalBytes": 4022404
+        },
+        "loadAverage": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:43.113Z",
+        "sampledAt": "2026-08-14T04:30:43.223Z",
+        "cpuPercent": 100,
+        "memory": {
+          "totalBytes": 16569454592,
+          "freeBytes": 1709125632,
+          "usedPercent": 89.685
+        },
+        "clientProcess": {
+          "rssBytes": 67256320,
+          "heapUsedBytes": 8924840,
+          "externalBytes": 4022404
+        },
+        "loadAverage": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "windowStartedAt": "2026-08-14T04:30:43.223Z",
+        "sampledAt": "2026-08-14T04:30:43.277Z",
+        "cpuPercent": 100,
+        "memory": {
+          "totalBytes": 16569454592,
+          "freeBytes": 1711013888,
+          "usedPercent": 89.674
+        },
+        "clientProcess": {
+          "rssBytes": 68382720,
+          "heapUsedBytes": 10016400,
+          "externalBytes": 4023304
+        },
+        "loadAverage": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "samples": [
+    {
+      "sequence": 1,
+      "kind": "OFFICIAL",
+      "officialSloIncluded": true,
+      "phase": "baseline",
+      "iteration": 1,
+      "target": "health",
+      "endpoint": "/health",
+      "layer": "HTTP_NO_DB",
+      "method": "GET",
+      "traceId": "fa714b41-a479-4bc8-8dd2-40bdb72a5b49",
+      "requestId": "fa714b41-a479-4bc8-8dd2-40bdb72a5b49",
+      "sameRequestAndTraceId": true,
+      "linkedOfficialTraceId": null,
+      "linkedOfficialSequence": null,
+      "timeoutMs": 3000,
+      "officialSloMs": 3000,
+      "timestamps": {
+        "clientStartedAt": "2026-08-14T04:30:42.660Z",
+        "deadlineAt": "2026-08-14T04:30:45.660Z",
+        "clientHeadersAt": "2026-08-14T04:30:42.977Z",
+        "clientBodyAt": "2026-08-14T04:30:42.982Z",
+        "clientCompletedAt": "2026-08-14T04:30:42.982Z",
+        "schedulingObservedThrough": "2026-08-14T04:30:42.984Z"
+      },
+      "durationMs": 321.917,
+      "status": 200,
+      "expectedStatuses": [
+        200
+      ],
+      "statusPass": true,
+      "availabilityPass": true,
+      "latencyPass": true,
+      "timedOut": false,
+      "timeoutReason": null,
+      "error": null,
+      "echoedTraceId": "fa714b41-a479-4bc8-8dd2-40bdb72a5b49",
+      "echoedRequestId": "fa714b41-a479-4bc8-8dd2-40bdb72a5b49",
+      "correlationPass": true,
+      "clientTransport": {
+        "contract": "agm-node-undici-client-transport-timeline.v1",
+        "traceId": "fa714b41-a479-4bc8-8dd2-40bdb72a5b49",
+        "requestId": "fa714b41-a479-4bc8-8dd2-40bdb72a5b49",
+        "headerCorrelation": {
+          "traceIdMatched": true,
+          "requestIdMatched": true,
+          "sameRequestAndTraceId": true
+        },
+        "timestamps": {
+          "clientStartedAt": "2026-08-14T04:30:42.660Z",
+          "requestCreateAt": "2026-08-14T04:30:42.849Z",
+          "bodySentAt": "2026-08-14T04:30:42.951Z",
+          "responseHeadersAt": "2026-08-14T04:30:42.969Z",
+          "trailersAt": "2026-08-14T04:30:42.973Z",
+          "errorAt": null
+        },
+        "epochMs": {
+          "clientStartedAt": 1786681842660,
+          "requestCreateAt": 1786681842849,
+          "bodySentAt": 1786681842951,
+          "responseHeadersAt": 1786681842969,
+          "trailersAt": 1786681842973,
+          "errorAt": null
+        },
+        "durationsMs": {
+          "clientStartToRequestCreate": 189.732,
+          "requestCreateToBodySent": 101.49,
+          "bodySentToResponseHeaders": 18.382,
+          "requestCreateToResponseHeaders": 119.871,
+          "responseHeadersToTrailers": 3.618
+        },
+        "serverJoin": {
+          "key": "traceId",
+          "createToServerReceiveMs": null,
+          "bodySentToServerReceiveMs": null,
+          "serverResponseToTransportHeadersMs": null,
+          "derivation": {
+            "createToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.requestCreateAt",
+            "bodySentToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.bodySentAt",
+            "serverResponseToTransportHeadersMs": "clientTransport.responseHeadersAt - server.response.finish.completedAt"
+          }
+        },
+        "transportError": null,
+        "captureFinalizedAt": "2026-08-14T04:30:42.984Z"
+      },
+      "officialSloPass": true,
+      "diagnosticPass": null,
+      "clientTelemetry": {
+        "eventLoopScheduling": {
+          "samples": 2,
+          "driftMaxMs": 326.223,
+          "driftP95Ms": 326.223
+        },
+        "processCpuMicros": {
+          "user": 78000,
+          "system": 16000
+        },
+        "scheduling": {
+          "voluntaryContextSwitchDelta": 0,
+          "involuntaryContextSwitchDelta": 0
+        },
+        "memory": {
+          "rss": 58429440,
+          "heapTotal": 12525568,
+          "heapUsed": 8649888,
+          "external": 4008575,
+          "arrayBuffers": 86390
+        }
+      },
+      "hostTelemetry": {
+        "cpuPercentDuringRequest": 100,
+        "freeMemoryBytesBefore": 1725370368,
+        "freeMemoryBytesAfter": 1732292608,
+        "sampledWindowCount": 1,
+        "sampledCpuMaxPercent": 100,
+        "sampledMemoryUsedMaxPercent": 89.539
+      }
+    },
+    {
+      "sequence": 2,
+      "kind": "OFFICIAL",
+      "officialSloIncluded": true,
+      "phase": "baseline",
+      "iteration": 1,
+      "target": "login-invalid",
+      "endpoint": "/auth/login",
+      "layer": "HTTP_DB_LOOKUP",
+      "method": "POST",
+      "traceId": "9f2ee22a-d3b0-4e63-b7cf-cbca2c66bde7",
+      "requestId": "9f2ee22a-d3b0-4e63-b7cf-cbca2c66bde7",
+      "sameRequestAndTraceId": true,
+      "linkedOfficialTraceId": null,
+      "linkedOfficialSequence": null,
+      "timeoutMs": 3000,
+      "officialSloMs": 3000,
+      "timestamps": {
+        "clientStartedAt": "2026-08-14T04:30:42.987Z",
+        "deadlineAt": "2026-08-14T04:30:45.987Z",
+        "clientHeadersAt": "2026-08-14T04:30:43.005Z",
+        "clientBodyAt": "2026-08-14T04:30:43.006Z",
+        "clientCompletedAt": "2026-08-14T04:30:43.006Z",
+        "schedulingObservedThrough": "2026-08-14T04:30:43.007Z"
+      },
+      "durationMs": 18.589,
+      "status": 401,
+      "expectedStatuses": [
+        401,
+        429
+      ],
+      "statusPass": true,
+      "availabilityPass": true,
+      "latencyPass": true,
+      "timedOut": false,
+      "timeoutReason": null,
+      "error": null,
+      "echoedTraceId": "9f2ee22a-d3b0-4e63-b7cf-cbca2c66bde7",
+      "echoedRequestId": "9f2ee22a-d3b0-4e63-b7cf-cbca2c66bde7",
+      "correlationPass": true,
+      "clientTransport": {
+        "contract": "agm-node-undici-client-transport-timeline.v1",
+        "traceId": "9f2ee22a-d3b0-4e63-b7cf-cbca2c66bde7",
+        "requestId": "9f2ee22a-d3b0-4e63-b7cf-cbca2c66bde7",
+        "headerCorrelation": {
+          "traceIdMatched": true,
+          "requestIdMatched": true,
+          "sameRequestAndTraceId": true
+        },
+        "timestamps": {
+          "clientStartedAt": "2026-08-14T04:30:42.987Z",
+          "requestCreateAt": "2026-08-14T04:30:42.991Z",
+          "bodySentAt": "2026-08-14T04:30:43.002Z",
+          "responseHeadersAt": "2026-08-14T04:30:43.004Z",
+          "trailersAt": "2026-08-14T04:30:43.004Z",
+          "errorAt": null
+        },
+        "epochMs": {
+          "clientStartedAt": 1786681842987,
+          "requestCreateAt": 1786681842991,
+          "bodySentAt": 1786681843002,
+          "responseHeadersAt": 1786681843004,
+          "trailersAt": 1786681843004,
+          "errorAt": null
+        },
+        "durationsMs": {
+          "clientStartToRequestCreate": 4.267,
+          "requestCreateToBodySent": 11.284,
+          "bodySentToResponseHeaders": 1.576,
+          "requestCreateToResponseHeaders": 12.86,
+          "responseHeadersToTrailers": 0.264
+        },
+        "serverJoin": {
+          "key": "traceId",
+          "createToServerReceiveMs": null,
+          "bodySentToServerReceiveMs": null,
+          "serverResponseToTransportHeadersMs": null,
+          "derivation": {
+            "createToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.requestCreateAt",
+            "bodySentToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.bodySentAt",
+            "serverResponseToTransportHeadersMs": "clientTransport.responseHeadersAt - server.response.finish.completedAt"
+          }
+        },
+        "transportError": null,
+        "captureFinalizedAt": "2026-08-14T04:30:43.006Z"
+      },
+      "officialSloPass": true,
+      "diagnosticPass": null,
+      "clientTelemetry": {
+        "eventLoopScheduling": {
+          "samples": 1,
+          "driftMaxMs": 25.553,
+          "driftP95Ms": 25.553
+        },
+        "processCpuMicros": {
+          "user": 16000,
+          "system": 0
+        },
+        "scheduling": {
+          "voluntaryContextSwitchDelta": 0,
+          "involuntaryContextSwitchDelta": 0
+        },
+        "memory": {
+          "rss": 59420672,
+          "heapTotal": 12787712,
+          "heapUsed": 9111520,
+          "external": 4022394,
+          "arrayBuffers": 86820
+        }
+      },
+      "hostTelemetry": {
+        "cpuPercentDuringRequest": 100,
+        "freeMemoryBytesBefore": 1732288512,
+        "freeMemoryBytesAfter": 1732149248,
+        "sampledWindowCount": 1,
+        "sampledCpuMaxPercent": 100,
+        "sampledMemoryUsedMaxPercent": 89.546
+      }
+    },
+    {
+      "sequence": 3,
+      "kind": "OFFICIAL",
+      "officialSloIncluded": true,
+      "phase": "baseline",
+      "iteration": 1,
+      "target": "entitlement-unauthenticated",
+      "endpoint": "/auth/entitlements",
+      "layer": "HTTP_AUTH_GUARD",
+      "method": "GET",
+      "traceId": "22f88191-a309-4059-a00a-6f48a0746fed",
+      "requestId": "22f88191-a309-4059-a00a-6f48a0746fed",
+      "sameRequestAndTraceId": true,
+      "linkedOfficialTraceId": null,
+      "linkedOfficialSequence": null,
+      "timeoutMs": 3000,
+      "officialSloMs": 3000,
+      "timestamps": {
+        "clientStartedAt": "2026-08-14T04:30:43.007Z",
+        "deadlineAt": "2026-08-14T04:30:46.007Z",
+        "clientHeadersAt": "2026-08-14T04:30:43.011Z",
+        "clientBodyAt": "2026-08-14T04:30:43.014Z",
+        "clientCompletedAt": "2026-08-14T04:30:43.014Z",
+        "schedulingObservedThrough": "2026-08-14T04:30:43.015Z"
+      },
+      "durationMs": 6.743,
+      "status": 401,
+      "expectedStatuses": [
+        401,
+        429
+      ],
+      "statusPass": true,
+      "availabilityPass": true,
+      "latencyPass": true,
+      "timedOut": false,
+      "timeoutReason": null,
+      "error": null,
+      "echoedTraceId": "22f88191-a309-4059-a00a-6f48a0746fed",
+      "echoedRequestId": "22f88191-a309-4059-a00a-6f48a0746fed",
+      "correlationPass": true,
+      "clientTransport": {
+        "contract": "agm-node-undici-client-transport-timeline.v1",
+        "traceId": "22f88191-a309-4059-a00a-6f48a0746fed",
+        "requestId": "22f88191-a309-4059-a00a-6f48a0746fed",
+        "headerCorrelation": {
+          "traceIdMatched": true,
+          "requestIdMatched": true,
+          "sameRequestAndTraceId": true
+        },
+        "timestamps": {
+          "clientStartedAt": "2026-08-14T04:30:43.007Z",
+          "requestCreateAt": "2026-08-14T04:30:43.009Z",
+          "bodySentAt": "2026-08-14T04:30:43.009Z",
+          "responseHeadersAt": "2026-08-14T04:30:43.011Z",
+          "trailersAt": "2026-08-14T04:30:43.011Z",
+          "errorAt": null
+        },
+        "epochMs": {
+          "clientStartedAt": 1786681843007,
+          "requestCreateAt": 1786681843009,
+          "bodySentAt": 1786681843009,
+          "responseHeadersAt": 1786681843011,
+          "trailersAt": 1786681843011,
+          "errorAt": null
+        },
+        "durationsMs": {
+          "clientStartToRequestCreate": 1.486,
+          "requestCreateToBodySent": 0.598,
+          "bodySentToResponseHeaders": 1.438,
+          "requestCreateToResponseHeaders": 2.036,
+          "responseHeadersToTrailers": 0.247
+        },
+        "serverJoin": {
+          "key": "traceId",
+          "createToServerReceiveMs": null,
+          "bodySentToServerReceiveMs": null,
+          "serverResponseToTransportHeadersMs": null,
+          "derivation": {
+            "createToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.requestCreateAt",
+            "bodySentToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.bodySentAt",
+            "serverResponseToTransportHeadersMs": "clientTransport.responseHeadersAt - server.response.finish.completedAt"
+          }
+        },
+        "transportError": null,
+        "captureFinalizedAt": "2026-08-14T04:30:43.015Z"
+      },
+      "officialSloPass": true,
+      "diagnosticPass": null,
+      "clientTelemetry": {
+        "eventLoopScheduling": {
+          "samples": 0,
+          "driftMaxMs": null,
+          "driftP95Ms": null
+        },
+        "processCpuMicros": {
+          "user": 47000,
+          "system": 0
+        },
+        "scheduling": {
+          "voluntaryContextSwitchDelta": 0,
+          "involuntaryContextSwitchDelta": 0
+        },
+        "memory": {
+          "rss": 59686912,
+          "heapTotal": 12787712,
+          "heapUsed": 9246816,
+          "external": 4022634,
+          "arrayBuffers": 87060
+        }
+      },
+      "hostTelemetry": {
+        "cpuPercentDuringRequest": 100,
+        "freeMemoryBytesBefore": 1732153344,
+        "freeMemoryBytesAfter": 1731985408,
+        "sampledWindowCount": 0,
+        "sampledCpuMaxPercent": null,
+        "sampledMemoryUsedMaxPercent": null
+      }
+    },
+    {
+      "sequence": 4,
+      "kind": "OFFICIAL",
+      "officialSloIncluded": true,
+      "phase": "copilot-running-and-worker-saturated",
+      "iteration": 1,
+      "target": "health",
+      "endpoint": "/health",
+      "layer": "HTTP_NO_DB",
+      "method": "GET",
+      "traceId": "ce101ff6-2457-4f42-b87c-0f9fe52f8d30",
+      "requestId": "ce101ff6-2457-4f42-b87c-0f9fe52f8d30",
+      "sameRequestAndTraceId": true,
+      "linkedOfficialTraceId": null,
+      "linkedOfficialSequence": null,
+      "timeoutMs": 3000,
+      "officialSloMs": 3000,
+      "timestamps": {
+        "clientStartedAt": "2026-08-14T04:30:43.050Z",
+        "deadlineAt": "2026-08-14T04:30:46.050Z",
+        "clientHeadersAt": "2026-08-14T04:30:43.056Z",
+        "clientBodyAt": "2026-08-14T04:30:43.058Z",
+        "clientCompletedAt": "2026-08-14T04:30:43.058Z",
+        "schedulingObservedThrough": "2026-08-14T04:30:43.059Z"
+      },
+      "durationMs": 7.438,
+      "status": 200,
+      "expectedStatuses": [
+        200
+      ],
+      "statusPass": true,
+      "availabilityPass": true,
+      "latencyPass": true,
+      "timedOut": false,
+      "timeoutReason": null,
+      "error": null,
+      "echoedTraceId": "ce101ff6-2457-4f42-b87c-0f9fe52f8d30",
+      "echoedRequestId": "ce101ff6-2457-4f42-b87c-0f9fe52f8d30",
+      "correlationPass": true,
+      "clientTransport": {
+        "contract": "agm-node-undici-client-transport-timeline.v1",
+        "traceId": "ce101ff6-2457-4f42-b87c-0f9fe52f8d30",
+        "requestId": "ce101ff6-2457-4f42-b87c-0f9fe52f8d30",
+        "headerCorrelation": {
+          "traceIdMatched": true,
+          "requestIdMatched": true,
+          "sameRequestAndTraceId": true
+        },
+        "timestamps": {
+          "clientStartedAt": "2026-08-14T04:30:43.050Z",
+          "requestCreateAt": "2026-08-14T04:30:43.051Z",
+          "bodySentAt": "2026-08-14T04:30:43.052Z",
+          "responseHeadersAt": "2026-08-14T04:30:43.056Z",
+          "trailersAt": "2026-08-14T04:30:43.056Z",
+          "errorAt": null
+        },
+        "epochMs": {
+          "clientStartedAt": 1786681843050,
+          "requestCreateAt": 1786681843051,
+          "bodySentAt": 1786681843052,
+          "responseHeadersAt": 1786681843056,
+          "trailersAt": 1786681843056,
+          "errorAt": null
+        },
+        "durationsMs": {
+          "clientStartToRequestCreate": 1.199,
+          "requestCreateToBodySent": 0.703,
+          "bodySentToResponseHeaders": 3.47,
+          "requestCreateToResponseHeaders": 4.173,
+          "responseHeadersToTrailers": 0.583
+        },
+        "serverJoin": {
+          "key": "traceId",
+          "createToServerReceiveMs": null,
+          "bodySentToServerReceiveMs": null,
+          "serverResponseToTransportHeadersMs": null,
+          "derivation": {
+            "createToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.requestCreateAt",
+            "bodySentToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.bodySentAt",
+            "serverResponseToTransportHeadersMs": "clientTransport.responseHeadersAt - server.response.finish.completedAt"
+          }
+        },
+        "transportError": null,
+        "captureFinalizedAt": "2026-08-14T04:30:43.058Z"
+      },
+      "officialSloPass": true,
+      "diagnosticPass": null,
+      "clientTelemetry": {
+        "eventLoopScheduling": {
+          "samples": 1,
+          "driftMaxMs": 24.104,
+          "driftP95Ms": 24.104
+        },
+        "processCpuMicros": {
+          "user": 15000,
+          "system": 0
+        },
+        "scheduling": {
+          "voluntaryContextSwitchDelta": 0,
+          "involuntaryContextSwitchDelta": 0
+        },
+        "memory": {
+          "rss": 68653056,
+          "heapTotal": 12787712,
+          "heapUsed": 9429576,
+          "external": 4022864,
+          "arrayBuffers": 87290
+        }
+      },
+      "hostTelemetry": {
+        "cpuPercentDuringRequest": 100,
+        "freeMemoryBytesBefore": 1715953664,
+        "freeMemoryBytesAfter": 1715396608,
+        "sampledWindowCount": 0,
+        "sampledCpuMaxPercent": null,
+        "sampledMemoryUsedMaxPercent": null
+      }
+    },
+    {
+      "sequence": 5,
+      "kind": "OFFICIAL",
+      "officialSloIncluded": true,
+      "phase": "copilot-running-and-worker-saturated",
+      "iteration": 1,
+      "target": "login-invalid",
+      "endpoint": "/auth/login",
+      "layer": "HTTP_DB_LOOKUP",
+      "method": "POST",
+      "traceId": "5bfd4167-1616-434a-baeb-6f8f3bb7ab80",
+      "requestId": "5bfd4167-1616-434a-baeb-6f8f3bb7ab80",
+      "sameRequestAndTraceId": true,
+      "linkedOfficialTraceId": null,
+      "linkedOfficialSequence": null,
+      "timeoutMs": 3000,
+      "officialSloMs": 3000,
+      "timestamps": {
+        "clientStartedAt": "2026-08-14T04:30:43.059Z",
+        "deadlineAt": "2026-08-14T04:30:46.059Z",
+        "clientHeadersAt": "2026-08-14T04:30:43.066Z",
+        "clientBodyAt": "2026-08-14T04:30:43.067Z",
+        "clientCompletedAt": "2026-08-14T04:30:43.067Z",
+        "schedulingObservedThrough": "2026-08-14T04:30:43.068Z"
+      },
+      "durationMs": 7.794,
+      "status": 401,
+      "expectedStatuses": [
+        401,
+        429
+      ],
+      "statusPass": true,
+      "availabilityPass": true,
+      "latencyPass": true,
+      "timedOut": false,
+      "timeoutReason": null,
+      "error": null,
+      "echoedTraceId": "5bfd4167-1616-434a-baeb-6f8f3bb7ab80",
+      "echoedRequestId": "5bfd4167-1616-434a-baeb-6f8f3bb7ab80",
+      "correlationPass": true,
+      "clientTransport": {
+        "contract": "agm-node-undici-client-transport-timeline.v1",
+        "traceId": "5bfd4167-1616-434a-baeb-6f8f3bb7ab80",
+        "requestId": "5bfd4167-1616-434a-baeb-6f8f3bb7ab80",
+        "headerCorrelation": {
+          "traceIdMatched": true,
+          "requestIdMatched": true,
+          "sameRequestAndTraceId": true
+        },
+        "timestamps": {
+          "clientStartedAt": "2026-08-14T04:30:43.059Z",
+          "requestCreateAt": "2026-08-14T04:30:43.061Z",
+          "bodySentAt": "2026-08-14T04:30:43.062Z",
+          "responseHeadersAt": "2026-08-14T04:30:43.066Z",
+          "trailersAt": "2026-08-14T04:30:43.066Z",
+          "errorAt": null
+        },
+        "epochMs": {
+          "clientStartedAt": 1786681843059,
+          "requestCreateAt": 1786681843061,
+          "bodySentAt": 1786681843062,
+          "responseHeadersAt": 1786681843066,
+          "trailersAt": 1786681843066,
+          "errorAt": null
+        },
+        "durationsMs": {
+          "clientStartToRequestCreate": 1.588,
+          "requestCreateToBodySent": 1.224,
+          "bodySentToResponseHeaders": 3.56,
+          "requestCreateToResponseHeaders": 4.784,
+          "responseHeadersToTrailers": 0.249
+        },
+        "serverJoin": {
+          "key": "traceId",
+          "createToServerReceiveMs": null,
+          "bodySentToServerReceiveMs": null,
+          "serverResponseToTransportHeadersMs": null,
+          "derivation": {
+            "createToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.requestCreateAt",
+            "bodySentToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.bodySentAt",
+            "serverResponseToTransportHeadersMs": "clientTransport.responseHeadersAt - server.response.finish.completedAt"
+          }
+        },
+        "transportError": null,
+        "captureFinalizedAt": "2026-08-14T04:30:43.068Z"
+      },
+      "officialSloPass": true,
+      "diagnosticPass": null,
+      "clientTelemetry": {
+        "eventLoopScheduling": {
+          "samples": 0,
+          "driftMaxMs": null,
+          "driftP95Ms": null
+        },
+        "processCpuMicros": {
+          "user": 0,
+          "system": 0
+        },
+        "scheduling": {
+          "voluntaryContextSwitchDelta": 0,
+          "involuntaryContextSwitchDelta": 0
+        },
+        "memory": {
+          "rss": 75440128,
+          "heapTotal": 13049856,
+          "heapUsed": 8777824,
+          "external": 4022164,
+          "arrayBuffers": 86590
+        }
+      },
+      "hostTelemetry": {
+        "cpuPercentDuringRequest": null,
+        "freeMemoryBytesBefore": 1715396608,
+        "freeMemoryBytesAfter": 1714700288,
+        "sampledWindowCount": 0,
+        "sampledCpuMaxPercent": null,
+        "sampledMemoryUsedMaxPercent": null
+      }
+    },
+    {
+      "sequence": 6,
+      "kind": "OFFICIAL",
+      "officialSloIncluded": true,
+      "phase": "copilot-running-and-worker-saturated",
+      "iteration": 1,
+      "target": "entitlement-unauthenticated",
+      "endpoint": "/auth/entitlements",
+      "layer": "HTTP_AUTH_GUARD",
+      "method": "GET",
+      "traceId": "e212f13f-1b20-4526-8d48-19d586e9773f",
+      "requestId": "e212f13f-1b20-4526-8d48-19d586e9773f",
+      "sameRequestAndTraceId": true,
+      "linkedOfficialTraceId": null,
+      "linkedOfficialSequence": null,
+      "timeoutMs": 3000,
+      "officialSloMs": 3000,
+      "timestamps": {
+        "clientStartedAt": "2026-08-14T04:30:43.069Z",
+        "deadlineAt": "2026-08-14T04:30:46.069Z",
+        "clientHeadersAt": "2026-08-14T04:30:43.074Z",
+        "clientBodyAt": "2026-08-14T04:30:43.075Z",
+        "clientCompletedAt": "2026-08-14T04:30:43.075Z",
+        "schedulingObservedThrough": "2026-08-14T04:30:43.076Z"
+      },
+      "durationMs": 6.179,
+      "status": 401,
+      "expectedStatuses": [
+        401,
+        429
+      ],
+      "statusPass": true,
+      "availabilityPass": true,
+      "latencyPass": true,
+      "timedOut": false,
+      "timeoutReason": null,
+      "error": null,
+      "echoedTraceId": "e212f13f-1b20-4526-8d48-19d586e9773f",
+      "echoedRequestId": "e212f13f-1b20-4526-8d48-19d586e9773f",
+      "correlationPass": true,
+      "clientTransport": {
+        "contract": "agm-node-undici-client-transport-timeline.v1",
+        "traceId": "e212f13f-1b20-4526-8d48-19d586e9773f",
+        "requestId": "e212f13f-1b20-4526-8d48-19d586e9773f",
+        "headerCorrelation": {
+          "traceIdMatched": true,
+          "requestIdMatched": true,
+          "sameRequestAndTraceId": true
+        },
+        "timestamps": {
+          "clientStartedAt": "2026-08-14T04:30:43.069Z",
+          "requestCreateAt": "2026-08-14T04:30:43.071Z",
+          "bodySentAt": "2026-08-14T04:30:43.071Z",
+          "responseHeadersAt": "2026-08-14T04:30:43.074Z",
+          "trailersAt": "2026-08-14T04:30:43.074Z",
+          "errorAt": null
+        },
+        "epochMs": {
+          "clientStartedAt": 1786681843069,
+          "requestCreateAt": 1786681843071,
+          "bodySentAt": 1786681843071,
+          "responseHeadersAt": 1786681843074,
+          "trailersAt": 1786681843074,
+          "errorAt": null
+        },
+        "durationsMs": {
+          "clientStartToRequestCreate": 2.137,
+          "requestCreateToBodySent": 0.348,
+          "bodySentToResponseHeaders": 2.585,
+          "requestCreateToResponseHeaders": 2.932,
+          "responseHeadersToTrailers": 0.227
+        },
+        "serverJoin": {
+          "key": "traceId",
+          "createToServerReceiveMs": null,
+          "bodySentToServerReceiveMs": null,
+          "serverResponseToTransportHeadersMs": null,
+          "derivation": {
+            "createToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.requestCreateAt",
+            "bodySentToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.bodySentAt",
+            "serverResponseToTransportHeadersMs": "clientTransport.responseHeadersAt - server.response.finish.completedAt"
+          }
+        },
+        "transportError": null,
+        "captureFinalizedAt": "2026-08-14T04:30:43.076Z"
+      },
+      "officialSloPass": true,
+      "diagnosticPass": null,
+      "clientTelemetry": {
+        "eventLoopScheduling": {
+          "samples": 0,
+          "driftMaxMs": null,
+          "driftP95Ms": null
+        },
+        "processCpuMicros": {
+          "user": 16000,
+          "system": 0
+        },
+        "scheduling": {
+          "voluntaryContextSwitchDelta": 0,
+          "involuntaryContextSwitchDelta": 0
+        },
+        "memory": {
+          "rss": 75460608,
+          "heapTotal": 13049856,
+          "heapUsed": 8888680,
+          "external": 4022404,
+          "arrayBuffers": 86830
+        }
+      },
+      "hostTelemetry": {
+        "cpuPercentDuringRequest": 100,
+        "freeMemoryBytesBefore": 1714700288,
+        "freeMemoryBytesAfter": 1714561024,
+        "sampledWindowCount": 0,
+        "sampledCpuMaxPercent": null,
+        "sampledMemoryUsedMaxPercent": null
+      }
+    },
+    {
+      "sequence": 7,
+      "kind": "OFFICIAL",
+      "officialSloIncluded": true,
+      "phase": "copilot-turn-total-failure",
+      "iteration": 1,
+      "target": "health",
+      "endpoint": "/health",
+      "layer": "HTTP_NO_DB",
+      "method": "GET",
+      "traceId": "f83acd7a-5bba-4fbf-9843-262a4aa2675b",
+      "requestId": "f83acd7a-5bba-4fbf-9843-262a4aa2675b",
+      "sameRequestAndTraceId": true,
+      "linkedOfficialTraceId": null,
+      "linkedOfficialSequence": null,
+      "timeoutMs": 3000,
+      "officialSloMs": 3000,
+      "timestamps": {
+        "clientStartedAt": "2026-08-14T04:30:43.258Z",
+        "deadlineAt": "2026-08-14T04:30:46.258Z",
+        "clientHeadersAt": "2026-08-14T04:30:43.261Z",
+        "clientBodyAt": "2026-08-14T04:30:43.262Z",
+        "clientCompletedAt": "2026-08-14T04:30:43.262Z",
+        "schedulingObservedThrough": "2026-08-14T04:30:43.263Z"
+      },
+      "durationMs": 4.104,
+      "status": 200,
+      "expectedStatuses": [
+        200
+      ],
+      "statusPass": true,
+      "availabilityPass": true,
+      "latencyPass": true,
+      "timedOut": false,
+      "timeoutReason": null,
+      "error": null,
+      "echoedTraceId": "f83acd7a-5bba-4fbf-9843-262a4aa2675b",
+      "echoedRequestId": "f83acd7a-5bba-4fbf-9843-262a4aa2675b",
+      "correlationPass": true,
+      "clientTransport": {
+        "contract": "agm-node-undici-client-transport-timeline.v1",
+        "traceId": "f83acd7a-5bba-4fbf-9843-262a4aa2675b",
+        "requestId": "f83acd7a-5bba-4fbf-9843-262a4aa2675b",
+        "headerCorrelation": {
+          "traceIdMatched": true,
+          "requestIdMatched": true,
+          "sameRequestAndTraceId": true
+        },
+        "timestamps": {
+          "clientStartedAt": "2026-08-14T04:30:43.258Z",
+          "requestCreateAt": "2026-08-14T04:30:43.259Z",
+          "bodySentAt": "2026-08-14T04:30:43.260Z",
+          "responseHeadersAt": "2026-08-14T04:30:43.261Z",
+          "trailersAt": "2026-08-14T04:30:43.261Z",
+          "errorAt": null
+        },
+        "epochMs": {
+          "clientStartedAt": 1786681843258,
+          "requestCreateAt": 1786681843259,
+          "bodySentAt": 1786681843260,
+          "responseHeadersAt": 1786681843261,
+          "trailersAt": 1786681843261,
+          "errorAt": null
+        },
+        "durationsMs": {
+          "clientStartToRequestCreate": 0.993,
+          "requestCreateToBodySent": 0.811,
+          "bodySentToResponseHeaders": 1.324,
+          "requestCreateToResponseHeaders": 2.135,
+          "responseHeadersToTrailers": 0.203
+        },
+        "serverJoin": {
+          "key": "traceId",
+          "createToServerReceiveMs": null,
+          "bodySentToServerReceiveMs": null,
+          "serverResponseToTransportHeadersMs": null,
+          "derivation": {
+            "createToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.requestCreateAt",
+            "bodySentToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.bodySentAt",
+            "serverResponseToTransportHeadersMs": "clientTransport.responseHeadersAt - server.response.finish.completedAt"
+          }
+        },
+        "transportError": null,
+        "captureFinalizedAt": "2026-08-14T04:30:43.263Z"
+      },
+      "officialSloPass": true,
+      "diagnosticPass": null,
+      "clientTelemetry": {
+        "eventLoopScheduling": {
+          "samples": 0,
+          "driftMaxMs": null,
+          "driftP95Ms": null
+        },
+        "processCpuMicros": {
+          "user": 31000,
+          "system": 0
+        },
+        "scheduling": {
+          "voluntaryContextSwitchDelta": 0,
+          "involuntaryContextSwitchDelta": 0
+        },
+        "memory": {
+          "rss": 67862528,
+          "heapTotal": 13049856,
+          "heapUsed": 9431048,
+          "external": 4022634,
+          "arrayBuffers": 87060
+        }
+      },
+      "hostTelemetry": {
+        "cpuPercentDuringRequest": 100,
+        "freeMemoryBytesBefore": 1711013888,
+        "freeMemoryBytesAfter": 1711013888,
+        "sampledWindowCount": 0,
+        "sampledCpuMaxPercent": null,
+        "sampledMemoryUsedMaxPercent": null
+      }
+    },
+    {
+      "sequence": 8,
+      "kind": "OFFICIAL",
+      "officialSloIncluded": true,
+      "phase": "copilot-turn-total-failure",
+      "iteration": 1,
+      "target": "login-invalid",
+      "endpoint": "/auth/login",
+      "layer": "HTTP_DB_LOOKUP",
+      "method": "POST",
+      "traceId": "4f6a07e3-b8c9-4d10-8577-666de844f4be",
+      "requestId": "4f6a07e3-b8c9-4d10-8577-666de844f4be",
+      "sameRequestAndTraceId": true,
+      "linkedOfficialTraceId": null,
+      "linkedOfficialSequence": null,
+      "timeoutMs": 3000,
+      "officialSloMs": 3000,
+      "timestamps": {
+        "clientStartedAt": "2026-08-14T04:30:43.263Z",
+        "deadlineAt": "2026-08-14T04:30:46.263Z",
+        "clientHeadersAt": "2026-08-14T04:30:43.270Z",
+        "clientBodyAt": "2026-08-14T04:30:43.270Z",
+        "clientCompletedAt": "2026-08-14T04:30:43.270Z",
+        "schedulingObservedThrough": "2026-08-14T04:30:43.271Z"
+      },
+      "durationMs": 7.176,
+      "status": 401,
+      "expectedStatuses": [
+        401,
+        429
+      ],
+      "statusPass": true,
+      "availabilityPass": true,
+      "latencyPass": true,
+      "timedOut": false,
+      "timeoutReason": null,
+      "error": null,
+      "echoedTraceId": "4f6a07e3-b8c9-4d10-8577-666de844f4be",
+      "echoedRequestId": "4f6a07e3-b8c9-4d10-8577-666de844f4be",
+      "correlationPass": true,
+      "clientTransport": {
+        "contract": "agm-node-undici-client-transport-timeline.v1",
+        "traceId": "4f6a07e3-b8c9-4d10-8577-666de844f4be",
+        "requestId": "4f6a07e3-b8c9-4d10-8577-666de844f4be",
+        "headerCorrelation": {
+          "traceIdMatched": true,
+          "requestIdMatched": true,
+          "sameRequestAndTraceId": true
+        },
+        "timestamps": {
+          "clientStartedAt": "2026-08-14T04:30:43.263Z",
+          "requestCreateAt": "2026-08-14T04:30:43.266Z",
+          "bodySentAt": "2026-08-14T04:30:43.268Z",
+          "responseHeadersAt": "2026-08-14T04:30:43.269Z",
+          "trailersAt": "2026-08-14T04:30:43.269Z",
+          "errorAt": null
+        },
+        "epochMs": {
+          "clientStartedAt": 1786681843263,
+          "requestCreateAt": 1786681843266,
+          "bodySentAt": 1786681843268,
+          "responseHeadersAt": 1786681843269,
+          "trailersAt": 1786681843269,
+          "errorAt": null
+        },
+        "durationsMs": {
+          "clientStartToRequestCreate": 3.223,
+          "requestCreateToBodySent": 1.496,
+          "bodySentToResponseHeaders": 1.19,
+          "requestCreateToResponseHeaders": 2.686,
+          "responseHeadersToTrailers": 0.18
+        },
+        "serverJoin": {
+          "key": "traceId",
+          "createToServerReceiveMs": null,
+          "bodySentToServerReceiveMs": null,
+          "serverResponseToTransportHeadersMs": null,
+          "derivation": {
+            "createToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.requestCreateAt",
+            "bodySentToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.bodySentAt",
+            "serverResponseToTransportHeadersMs": "clientTransport.responseHeadersAt - server.response.finish.completedAt"
+          }
+        },
+        "transportError": null,
+        "captureFinalizedAt": "2026-08-14T04:30:43.271Z"
+      },
+      "officialSloPass": true,
+      "diagnosticPass": null,
+      "clientTelemetry": {
+        "eventLoopScheduling": {
+          "samples": 1,
+          "driftMaxMs": 5.337,
+          "driftP95Ms": 5.337
+        },
+        "processCpuMicros": {
+          "user": 0,
+          "system": 0
+        },
+        "scheduling": {
+          "voluntaryContextSwitchDelta": 0,
+          "involuntaryContextSwitchDelta": 0
+        },
+        "memory": {
+          "rss": 67948544,
+          "heapTotal": 13049856,
+          "heapUsed": 9205056,
+          "external": 4023064,
+          "arrayBuffers": 87490
+        }
+      },
+      "hostTelemetry": {
+        "cpuPercentDuringRequest": null,
+        "freeMemoryBytesBefore": 1711013888,
+        "freeMemoryBytesAfter": 1711013888,
+        "sampledWindowCount": 0,
+        "sampledCpuMaxPercent": null,
+        "sampledMemoryUsedMaxPercent": null
+      }
+    },
+    {
+      "sequence": 9,
+      "kind": "OFFICIAL",
+      "officialSloIncluded": true,
+      "phase": "copilot-turn-total-failure",
+      "iteration": 1,
+      "target": "entitlement-unauthenticated",
+      "endpoint": "/auth/entitlements",
+      "layer": "HTTP_AUTH_GUARD",
+      "method": "GET",
+      "traceId": "bce35d39-7d76-4f03-b7b8-0ba5fce77f11",
+      "requestId": "bce35d39-7d76-4f03-b7b8-0ba5fce77f11",
+      "sameRequestAndTraceId": true,
+      "linkedOfficialTraceId": null,
+      "linkedOfficialSequence": null,
+      "timeoutMs": 3000,
+      "officialSloMs": 3000,
+      "timestamps": {
+        "clientStartedAt": "2026-08-14T04:30:43.272Z",
+        "deadlineAt": "2026-08-14T04:30:46.272Z",
+        "clientHeadersAt": "2026-08-14T04:30:43.275Z",
+        "clientBodyAt": "2026-08-14T04:30:43.275Z",
+        "clientCompletedAt": "2026-08-14T04:30:43.275Z",
+        "schedulingObservedThrough": "2026-08-14T04:30:43.276Z"
+      },
+      "durationMs": 3.712,
+      "status": 401,
+      "expectedStatuses": [
+        401,
+        429
+      ],
+      "statusPass": true,
+      "availabilityPass": true,
+      "latencyPass": true,
+      "timedOut": false,
+      "timeoutReason": null,
+      "error": null,
+      "echoedTraceId": "bce35d39-7d76-4f03-b7b8-0ba5fce77f11",
+      "echoedRequestId": "bce35d39-7d76-4f03-b7b8-0ba5fce77f11",
+      "correlationPass": true,
+      "clientTransport": {
+        "contract": "agm-node-undici-client-transport-timeline.v1",
+        "traceId": "bce35d39-7d76-4f03-b7b8-0ba5fce77f11",
+        "requestId": "bce35d39-7d76-4f03-b7b8-0ba5fce77f11",
+        "headerCorrelation": {
+          "traceIdMatched": true,
+          "requestIdMatched": true,
+          "sameRequestAndTraceId": true
+        },
+        "timestamps": {
+          "clientStartedAt": "2026-08-14T04:30:43.272Z",
+          "requestCreateAt": "2026-08-14T04:30:43.273Z",
+          "bodySentAt": "2026-08-14T04:30:43.273Z",
+          "responseHeadersAt": "2026-08-14T04:30:43.274Z",
+          "trailersAt": "2026-08-14T04:30:43.274Z",
+          "errorAt": null
+        },
+        "epochMs": {
+          "clientStartedAt": 1786681843272,
+          "requestCreateAt": 1786681843273,
+          "bodySentAt": 1786681843273,
+          "responseHeadersAt": 1786681843274,
+          "trailersAt": 1786681843274,
+          "errorAt": null
+        },
+        "durationsMs": {
+          "clientStartToRequestCreate": 0.908,
+          "requestCreateToBodySent": 0.373,
+          "bodySentToResponseHeaders": 1.193,
+          "requestCreateToResponseHeaders": 1.566,
+          "responseHeadersToTrailers": 0.194
+        },
+        "serverJoin": {
+          "key": "traceId",
+          "createToServerReceiveMs": null,
+          "bodySentToServerReceiveMs": null,
+          "serverResponseToTransportHeadersMs": null,
+          "derivation": {
+            "createToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.requestCreateAt",
+            "bodySentToServerReceiveMs": "server.request.receive.receivedAt - clientTransport.bodySentAt",
+            "serverResponseToTransportHeadersMs": "clientTransport.responseHeadersAt - server.response.finish.completedAt"
+          }
+        },
+        "transportError": null,
+        "captureFinalizedAt": "2026-08-14T04:30:43.276Z"
+      },
+      "officialSloPass": true,
+      "diagnosticPass": null,
+      "clientTelemetry": {
+        "eventLoopScheduling": {
+          "samples": 0,
+          "driftMaxMs": null,
+          "driftP95Ms": null
+        },
+        "processCpuMicros": {
+          "user": 31000,
+          "system": 0
+        },
+        "scheduling": {
+          "voluntaryContextSwitchDelta": 0,
+          "involuntaryContextSwitchDelta": 0
+        },
+        "memory": {
+          "rss": 68251648,
+          "heapTotal": 13312000,
+          "heapUsed": 10008656,
+          "external": 4023304,
+          "arrayBuffers": 87730
+        }
+      },
+      "hostTelemetry": {
+        "cpuPercentDuringRequest": 100,
+        "freeMemoryBytesBefore": 1711013888,
+        "freeMemoryBytesAfter": 1711013888,
+        "sampledWindowCount": 0,
+        "sampledCpuMaxPercent": null,
+        "sampledMemoryUsedMaxPercent": null
+      }
+    }
+  ],
+  "failures": [],
+  "correlationFailures": [],
+  "diagnosticRetryFailures": [],
+  "diagnosticRetries": [],
+  "invariants": {
+    "expectedOfficialSamples": 9,
+    "capturedOfficialSamples": 9,
+    "allFailuresPreserved": true,
+    "diagnosticRetryCountMatchesTimeouts": true,
+    "allRequestsUseSameRequestAndTraceId": true,
+    "noDiagnosticSampleIncludedInOfficialDistribution": true,
+    "transportCreateCapturedForAllRequests": true,
+    "transportTerminalCapturedForAllRequests": true,
+    "transportCapturesReleased": true,
+    "transportSubscribersCleanedUp": true
+  }
+}

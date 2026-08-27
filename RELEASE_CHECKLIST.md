@@ -18,6 +18,17 @@ Abia apoi versiunea se arhivează sau se publică.
 
 ## 1. Pre-Release Scope Check
 
+### Production publication gate (current)
+
+- [ ] Working tree is clean; release HEAD and change inventory are recorded.
+- [ ] `pnpm --filter @agm/api lint` passes without disabled rules.
+- [ ] API tests/build and Web build pass for the same commit.
+- [ ] `pnpm audit:canonical-route` proves `/` -> 308 `/basic` and `/basic` -> 200.
+- [ ] Browser preflight is recorded according to `deploy/operations/BROWSER_VALIDATION_RUNBOOK.md`.
+- [ ] `pnpm audit:wave1-browser` passes Translator, Email, OCR, all nine languages, persistence, screenshots, and responsive overflow checks.
+- [ ] The approved release manifest supplies immutable image digests, revisions, and the exact migration set/count.
+- [ ] Post-deployment validation repeats the canonical public-route and controlled Browser checks against the deployed image.
+
 - [ ] Versiunea are obiectiv clar.
 - [ ] Funcțiile incluse sunt clasificate:
   - AGM Basic;

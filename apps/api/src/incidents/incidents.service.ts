@@ -16,7 +16,7 @@ export class IncidentsService {
 
   async create(dto: CreateIncidentDto, ctx: RequestContext) {
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      await this.ensureTransportExists(dto.transportJobId, ctx, tx);
+      await this.ensureOperationalJobExists(dto.transportJobId, ctx, tx);
 
       const incident = await tx.incidentReport.create({
         data: {
@@ -120,17 +120,15 @@ export class IncidentsService {
     });
   }
 
-  private async ensureTransportExists(transportJobId: string, ctx: RequestContext, tx: Prisma.TransactionClient) {
+  private async ensureOperationalJobExists(transportJobId: string, ctx: RequestContext, tx: Prisma.TransactionClient) {
     const transport = await tx.transportJob.findFirst({
-      where: {
-        id: transportJobId,
-        companyId: ctx.companyId,
-      },
-      select: { id: true },
+      where: { id: transportJobId, companyId: ctx.companyId }, select: { id: true },
     });
+    if (transport) return;
 
-    if (!transport) {
-      throw new NotFoundException('Transport not found.');
-    }
+    const carMoverJob = await tx.carMoverJob.findFirst({
+      where: { id: transportJobId, companyId: ctx.companyId }, select: { id: true },
+    });
+    if (!carMoverJob) throw new NotFoundException('Operational job not found.');
   }
 }

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "owner-approved-2026-08-16",
+  "timezone": "UTC",
+  "productionActivationAuthorized": false,
+  "categories": {
+    "expiredAuthSessions": { "enabled": true, "latencyHours": 24 },
+    "revokedAuthSessions": { "enabled": true, "retentionDays": 30 },
+    "completedDsarRecords": { "enabled": true, "calendarYearsAfterCompletion": 3, "provisionalLegalValidation": true },
+    "generatedDsarExports": { "enabled": true, "retentionDays": 7, "trigger": "EARLIER_OF_CONFIRMED_DELIVERY_OR_FIRST_TOKEN_EXPIRY" },
+    "postgresBackups": { "enabled": true, "maxSuccessfulDailyGenerations": 7 },
+    "suppressionLedgerEntries": { "enabled": true, "backupHorizonDays": 7, "verificationMarginDays": 30 },
+    "identifierAuditLogs": { "enabled": true, "retentionDays": 90, "legalHoldException": true }
+  },
+  "excluded": ["accounting", "invoices", "legally-required-commercial-documents"]
+}

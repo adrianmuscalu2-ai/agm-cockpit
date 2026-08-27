@@ -1,0 +1,22 @@
+[Unit]
+Description=AGM controlled Production retention category %i
+Requires=docker.service
+After=docker.service agm-production-api.service
+ConditionPathExists=/opt/agm/production/retention/retention-policy.production-authorized.json
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/sbin/agm-retention-category %i
+TimeoutStartSec=15min
+Restart=no
+UMask=0077
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/agm/production/retention/evidence /opt/agm/production/dsar /opt/agm/backups/daily /run/lock /var/run/docker.sock
+NoNewPrivileges=true

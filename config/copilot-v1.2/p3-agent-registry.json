@@ -1,0 +1,18 @@
+{
+  "version": "p3.1.0",
+  "agents": [
+    {
+      "agentId": "p3-safe-observer",
+      "packageId": "agm://copilot/agents/p3-safe-observer@1.0.0",
+      "role": "SAFE_OBSERVER",
+      "capabilities": ["STATUS_READ"],
+      "tools": ["CANONICAL_STATUS_READER"],
+      "tenantScope": ["tenant-agm-p2-isolated"],
+      "riskClasses": ["LOW"],
+      "runtimePlacement": "P3_EPHEMERAL_POOL",
+      "dossierScoped": true,
+      "parkingPolicy": "DESCRIPTOR_ONLY",
+      "enabled": true
+    }
+  ]
+}

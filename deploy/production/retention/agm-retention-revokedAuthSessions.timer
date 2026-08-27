@@ -1,0 +1,12 @@
+[Unit]
+Description=AGM retention revoked authentication sessions
+
+[Timer]
+OnCalendar=*-*-* 03:50:00 UTC
+RandomizedDelaySec=5m
+Persistent=true
+Unit=agm-retention@revokedAuthSessions.service
+
+[Install]
+WantedBy=timers.target
+

@@ -9,21 +9,7 @@ assert.deepEqual(definition.build.rollupOptions.input, {
   beforeDeparture: 'before-departure.html',
   afterDeparture: 'after-departure.html',
 });
-assert.equal(definition.plugins.length, 1);
-assert.equal(definition.plugins[0].name, 'poc02-after-departure-entry');
-
-const source = '<html><body><main>AGM</main></body></html>';
-const transformed = definition.plugins[0].transformIndexHtml(source, {
-  path: '/index.html',
-});
-assert.match(transformed, /data-poc02-entry="after-departure"/);
-assert.match(transformed, />\s*POC 02\s*<\/a>/);
-assert.equal(
-  definition.plugins[0].transformIndexHtml(source, {
-    path: '/before-departure.html',
-  }),
-  source,
-);
+assert.deepEqual(definition.plugins, []);
 
 const viteConfig = readFileSync(
   new URL('../vite.config.mjs', import.meta.url),

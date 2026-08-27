@@ -60,6 +60,24 @@ describe('API-006 traceability contract', () => {
     expect(prisma.incidentReport.findFirst).toHaveBeenCalledWith({ where: { id: 'foreign-incident', companyId: ctx.companyId } });
   });
 
+  it('accepts a tenant-scoped Car Mover Job as the incident subject without blocking its lifecycle', async () => {
+    const carMoverJobId = '77777777-7777-4777-8777-777777777777';
+    const incident = { id:'88888888-8888-4888-8888-888888888888', transportJobId:carMoverJobId, status:'open', severity:'medium' };
+    const tx = {
+      transportJob: { findFirst: jest.fn().mockResolvedValue(null) },
+      carMoverJob: { findFirst: jest.fn().mockResolvedValue({ id:carMoverJobId }) },
+      incidentReport: { create: jest.fn().mockResolvedValue(incident) },
+    };
+    const prisma = { $transaction: jest.fn(async (operation: (transaction: typeof tx) => unknown) => operation(tx)) };
+    const audit = { create: jest.fn().mockResolvedValue({ id:'audit-car-mover-incident' }) };
+    const service = new IncidentsService(prisma as never, audit as never);
+
+    const result = await service.create({ transportJobId:carMoverJobId, incidentType:'handover-exception', severity:'medium', title:'Handover requires review' }, ctx);
+
+    expect(result).toMatchObject({ transportJobId:carMoverJobId, status:'open' });
+    expect(tx.carMoverJob.findFirst).toHaveBeenCalledWith({ where:{ id:carMoverJobId, companyId:ctx.companyId }, select:{ id:true } });
+  });
+
   it('does not resolve an incident twice', async () => {
     const tx = { incidentReport: { findFirst: jest.fn().mockResolvedValue({ id: 'incident-1', companyId: ctx.companyId, status: 'resolved' }) } };
     const prisma = { $transaction: jest.fn(async (operation: (transaction: typeof tx) => unknown) => operation(tx)) };

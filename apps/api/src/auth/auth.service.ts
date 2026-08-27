@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { createHash, randomBytes, randomUUID } from 'crypto';
@@ -62,16 +63,17 @@ export class AuthService {
     });
   }
 
-  private async issue(user: any) {
+  private async issue(user: AuthUser) {
     const rawRefreshToken = randomBytes(48).toString('base64url');
     await this.prisma.authSession.create({ data: { companyId: user.companyId, userId: user.id, familyId: randomUUID(), generation: 0, tokenHash: hash(rawRefreshToken), expiresAt: new Date(Date.now() + AUTH_CONTRACT.refreshSessionDays * 86400_000) } });
     return { ...(await this.accessPayload(user)), rawRefreshToken };
   }
 
-  private async accessPayload(user: any) {
-    const roles = user.roles.filter((item: any) => item.companyId === user.companyId && item.role.companyId === user.companyId && item.role.isActive).map((item: any) => item.role.code);
+  private async accessPayload(user: AuthUser) {
+    const roles = user.roles.filter((item) => item.companyId === user.companyId && item.role.companyId === user.companyId && item.role.isActive).map((item) => item.role.code);
     const accessToken = await this.jwt.signAsync({ sub: user.id, companyId: user.companyId, roles, scope: AUTH_CONTRACT.tokenScope });
     return { accessToken, user: { id: user.id, companyId: user.companyId, displayName: user.displayName, email: user.email, roles } };
   }
 }
+type AuthUser = Prisma.UserGetPayload<{ include: { roles: { include: { role: true } } } }>;
 function hash(value: string) { return createHash('sha256').update(value).digest('hex'); }

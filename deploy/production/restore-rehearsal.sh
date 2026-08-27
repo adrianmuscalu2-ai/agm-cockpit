@@ -6,7 +6,7 @@ fail() {
   exit 1
 }
 
-for required_name in PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE AGM_RESTORE_DUMP; do
+for required_name in PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE AGM_RESTORE_DUMP AGM_EXPECTED_MIGRATION_COUNT; do
   eval "required_value=\${$required_name:-}"
   [ -n "$required_value" ] || fail "${required_name}_is_required"
 done
@@ -50,7 +50,7 @@ incomplete_count="$(
     --command "SELECT count(*) FROM _prisma_migrations WHERE finished_at IS NULL OR rolled_back_at IS NOT NULL;"
 )"
 
-[ "$migration_count" -eq 5 ] || fail "unexpected_migration_count"
+[ "$migration_count" -eq "$AGM_EXPECTED_MIGRATION_COUNT" ] || fail "unexpected_migration_count"
 [ "$incomplete_count" -eq 0 ] || fail "incomplete_migrations_present"
 
 dropdb --force "$rehearsal_db"
@@ -58,4 +58,3 @@ trap - EXIT INT TERM
 printf 'AGM_RESTORE_REHEARSAL status=success migrations=%s incomplete=%s\n' \
   "$migration_count" \
   "$incomplete_count"
-

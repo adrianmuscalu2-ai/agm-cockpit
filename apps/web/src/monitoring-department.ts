@@ -96,7 +96,7 @@ export const monitoringAgents: MonitoringAgent[] = [
       'Cheile, tokenurile și hash-urile nu sunt citite sau randate.',
       'CORS este verificat prin accesul controlat la API ready.',
       'UI LIVE nu salvează headere, corpuri HTTP sau query-uri sensibile.',
-      'Fișierele critice sunt urmărite prin Git și Version Guardian.',
+      'Fișierele critice sunt urmărite prin Git și Version Custodian.',
     ],
   },
 ];

@@ -14,8 +14,8 @@ type ShellRouteDefinition = {
 };
 
 export const shellRouteRegistry: readonly ShellRouteDefinition[] = [
-  { view: 'home', canonicalRoute: '/', aliases: ['', 'home'] },
-  { view: 'basic', canonicalRoute: '/basic', aliases: ['basic', 'agm-basic'] },
+  { view: 'home', canonicalRoute: '/home', aliases: ['home'] },
+  { view: 'basic', canonicalRoute: '/basic', aliases: ['', 'basic', 'agm-basic'] },
   { view: 'ocr', canonicalRoute: '/ocr', aliases: ['ocr', 'camera-ocr', 'document-ocr'] },
   { view: 'access', canonicalRoute: '/access', aliases: ['access', 'acces', 'entitlements'] },
   { view: 'cockpit', canonicalRoute: '/translator', aliases: ['cockpit', 'translator', 'traducator'] },

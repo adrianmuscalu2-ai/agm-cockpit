@@ -1,5 +1,10 @@
-param([string]$Email = 'agm.transporte.logistik@gmail.com')
+param(
+  [string]$Email = 'agm.transporte.logistik@gmail.com',
+  [Parameter(Mandatory = $true)]
+  [switch]$Age18Confirmed
+)
 $ErrorActionPreference = 'Stop'
+if (-not $Age18Confirmed) { throw 'AGE_18_CONFIRMATION_REQUIRED_BEFORE_ACCOUNT_ACTIVATION' }
 $Host.UI.RawUI.WindowTitle = 'AGM LOCAL - PRODUCT OWNER PASSWORD'
 $stage = 'START'
 $safeStatusPath = Join-Path $PSScriptRoot '..\evidence\governance\LOCAL_PREMIUM_PROVISIONING_STATUS.txt'

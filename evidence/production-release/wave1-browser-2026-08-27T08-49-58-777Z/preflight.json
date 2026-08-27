@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-08-27T08:49:51.534Z",
+  "route": "IAB PROBE ONCE -> OPTIONAL EVIDENCE OR PLATFORM LIMITATION -> CONTROLLED AGM PLAYWRIGHT/CHROMIUM -> EVIDENCE -> CLOSURE",
+  "canonical": {
+    "website": "https://app.agmcockpit.com/",
+    "cockpit": "http://127.0.0.1:5174/",
+    "email": "http://127.0.0.1:5174/email",
+    "fitness": "http://127.0.0.1:5173/"
+  },
+  "ports": {
+    "fitness5173": {
+      "policy": "RESERVED / DO NOT TOUCH",
+      "observedRows": []
+    },
+    "cockpit5174": {
+      "policy": "STRICT PORT",
+      "observedRows": []
+    }
+  },
+  "runtime": {
+    "host": "VS_CODE",
+    "extensionVersions": [
+      "26.727.40816"
+    ],
+    "configuredAppVersion": "26.810.52044",
+    "installedDesktopVersion": null,
+    "versionMismatch": false,
+    "configuredBackends": "chrome,iab",
+    "runtimeBackends": "REQUIRES_EXACT_RUNTIME_SELECTION",
+    "nodeRepl": {
+      "path": "C:\\Users\\adria\\AppData\\Local\\OpenAI\\Codex\\runtimes\\cua_node\\1cb4becc994cbb02\\bin\\node_repl.exe",
+      "exists": true
+    },
+    "helper": {
+      "path": "C:\\\\Users\\\\adria\\\\AppData\\\\Local\\\\OpenAI\\\\Codex\\\\runtimes\\\\cua_node\\\\1cb4becc994cbb02\\\\bin\\\\node_modules\\\\@oai\\\\sky\\\\bin\\\\windows\\\\codex-computer-use.exe",
+      "exists": true,
+      "processActive": false
+    },
+    "namedPipe": {
+      "path": "\\\\.\\pipe\\codex-computer-use-b4855fd1-1ff0-41e9-a36a-75be183912d5",
+      "configured": true,
+      "filesystemProbe": false
+    },
+    "sessionAttachment": "STALE_OR_NOT_PROVISIONED"
+  },
+  "iab": {
+    "status": "SESSION_ATTACHMENT_MISSING",
+    "reason": "Configured iab metadata is not runtime availability: no codex-computer-use process serves the configured session pipe."
+  },
+  "visualSignature": "E0A072799CE0E89BE10351D02FEAA573951E58FCC634327FF7F12713E5D28468",
+  "evidence": {
+    "pass": true,
+    "reusable": false,
+    "hashes": {
+      "HANDOFF.md": "06635EF2E26863BB823824E17FBCBC4132103AF7C822E537813677ADBD09A14A",
+      "public-app-agmcockpit.png": "19AAA47B5EF63725C15F0C844AD22490722908A54966C167CEDC87089B51E150",
+      "local-5174-timeout-state.png": "4462ED8A9EC3C8F0E6AE94D6B2D9668F44AD0BE92ADC537FCF14CE456CCFB97C",
+      "local-5174-email.png": "6C78334FDCDFB02FD4B95E2E82E17DE70FC91CA8C0DB39EFEE1713ADA0A89E3D"
+    },
+    "baselinePath": "C:\\Users\\adria\\Documents\\AGM\\evidence\\browser-control\\browser-pass-baseline.json"
+  },
+  "desktopLaunch": "NOT_REQUIRED_OPTIONAL_EVIDENCE",
+  "controlledRunner": "REQUIRED_AUTOMATIC_ROUTE",
+  "verdict": "BROWSER PREFLIGHT — IAB OPTIONAL / CONTROLLED RUNNER REQUIRED"
+}

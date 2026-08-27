@@ -1,0 +1,11 @@
+{
+  "contract": "agm-p9-official-soak-thresholds.proposed.v1",
+  "approvalState": "APPROVED",
+  "hostCpuPercent": { "stopAtOrAbove": 85, "sustainedSeconds": 60 },
+  "runnerCpuPercentOfOneCore": { "stopAtOrAbove": 80, "sustainedSeconds": 60 },
+  "eventLoopDelayMs": { "p95Maximum": 100, "absoluteMaximum": 500 },
+  "processorQueue": { "maximumFactorOfLogicalCpu": 1, "sustainedSeconds": 60 },
+  "basic": { "availabilityPercentMinimum": 100, "p95MsMaximum": 1000, "maximumMs": 3000 },
+  "operations": { "errorsMaximum": 0, "timeoutsMaximum": 0, "workersRemainingMaximum": 0 },
+  "telemetry": { "missingSamplesAllowed": 0, "staleSamplesAllowed": 0 }
+}

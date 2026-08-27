@@ -18,14 +18,14 @@ export const turnDepartments: TurnCommandItem[] = [
   { id: 'monitoring', titleKey: 'turn.department.monitoring', descriptionKey: 'turn.department.monitoringDesc', status: 'active' },
   { id: 'maintenance-quality-evolution', titleKey: 'turn.department.maintenance', descriptionKey: 'turn.department.maintenanceDesc', status: 'active' },
   { id: 'turn-command', titleKey: 'turn.department.turnCommand', descriptionKey: 'turn.department.turnCommandDesc', status: 'active' },
-  { id: 'product-roadmap', titleKey: 'turn.department.productRoadmap', descriptionKey: 'turn.department.productRoadmapDesc', status: 'planned' },
+  { id: 'product-roadmap', titleKey: 'turn.department.productRoadmap', descriptionKey: 'turn.department.productRoadmapDesc', status: 'active' },
   { id: 'architecture-platform', titleKey: 'turn.department.architecture', descriptionKey: 'turn.department.architectureDesc', status: 'active' },
   { id: 'frontend-experience', titleKey: 'turn.department.frontend', descriptionKey: 'turn.department.frontendDesc', status: 'active' },
   { id: 'backend-infrastructure', titleKey: 'turn.department.backend', descriptionKey: 'turn.department.backendDesc', status: 'stable' },
   { id: 'ai-agents', titleKey: 'turn.department.aiAgents', descriptionKey: 'turn.department.aiAgentsDesc', status: 'watch' },
   { id: 'qa-validation', titleKey: 'turn.department.qa', descriptionKey: 'turn.department.qaDesc', status: 'active' },
   { id: 'security-legal', titleKey: 'turn.department.securityLegal', descriptionKey: 'turn.department.securityLegalDesc', status: 'active' },
-  { id: 'release-operations', titleKey: 'turn.department.releaseOps', descriptionKey: 'turn.department.releaseOpsDesc', status: 'planned' },
+  { id: 'release-operations', titleKey: 'turn.department.releaseOps', descriptionKey: 'turn.department.releaseOpsDesc', status: 'active' },
   { id: 'documentation-knowledge', titleKey: 'turn.department.documentation', descriptionKey: 'turn.department.documentationDesc', status: 'active' },
 ];
 
@@ -40,7 +40,7 @@ export const turnAgents: TurnCommandItem[] = [
   { id: 'documentation', titleKey: 'turn.agent.documentation', descriptionKey: 'turn.agent.documentationDesc', status: 'active' },
   { id: 'infrastructure-reuse-coordinator', titleKey: 'turn.agent.reuseCoordinator', descriptionKey: 'turn.agent.reuseCoordinatorDesc', status: 'active' },
   { id: 'ai-governance', titleKey: 'turn.agent.aiGovernance', descriptionKey: 'turn.agent.aiGovernanceDesc', status: 'planned' },
-  { id: 'release', titleKey: 'turn.agent.release', descriptionKey: 'turn.agent.releaseDesc', status: 'planned' },
+  { id: 'release-operations', titleKey: 'turn.agent.release', descriptionKey: 'turn.agent.releaseDesc', status: 'active' },
 ];
 
 export const turnModules: TurnCommandItem[] = [
@@ -50,7 +50,7 @@ export const turnModules: TurnCommandItem[] = [
   { id: 'text-corrector', titleKey: 'turn.module.textCorrector', descriptionKey: 'turn.module.textCorrectorDesc', status: 'active' },
   { id: 'legal', titleKey: 'turn.module.legal', descriptionKey: 'turn.module.legalDesc', status: 'stable' },
   { id: 'contact-manager', titleKey: 'turn.module.contactManager', descriptionKey: 'turn.module.contactManagerDesc', status: 'active' },
-  { id: 'android-pwa', titleKey: 'turn.module.androidPwa', descriptionKey: 'turn.module.androidPwaDesc', status: 'watch' },
+  { id: 'android-pwa', titleKey: 'turn.module.androidPwa', descriptionKey: 'turn.module.androidPwaDesc', status: 'active' },
   { id: 'turn-command-center', titleKey: 'turn.module.turnCenter', descriptionKey: 'turn.module.turnCenterDesc', status: 'active' },
 ];
 

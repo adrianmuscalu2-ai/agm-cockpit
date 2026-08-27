@@ -1,0 +1,16 @@
+{
+  "contract": "agm-p9-soak-collector-bundle.fixture.v1",
+  "baselineIdentity": "p9-baseline-off-20260815-001",
+  "capturedAt": "2026-08-15T04:00:00.000Z",
+  "hostCollector": { "cpuMaximumPercent": 42, "processorQueueMaximum": 2, "logicalCpuCount": 8, "missingSamples": 0, "stale": false },
+  "processCollector": { "runnerCpuMaximumPercentOfOneCore": 0, "runnerPresent": false, "missingSamples": 0, "stale": false },
+  "eventLoopCollector": { "p95Ms": 12, "maximumMs": 40, "missingSamples": 0, "stale": false, "scope": "BASELINE_OBSERVER" },
+  "endpointCollector": { "results": [
+    { "id": "health", "samples": 10, "failures": 0, "timeouts": 0, "p95Ms": 110, "maximumMs": 180 },
+    { "id": "login-invalid", "samples": 10, "failures": 0, "timeouts": 0, "p95Ms": 120, "maximumMs": 190 },
+    { "id": "entitlement-unauthenticated", "samples": 10, "failures": 0, "timeouts": 0, "p95Ms": 115, "maximumMs": 185 }
+  ], "missingSamples": 0, "stale": false },
+  "workerCollector": { "workers": [], "remaining": 0, "missingSamples": 0, "stale": false },
+  "basic": { "availabilityPercent": 100, "p95Ms": 120, "maximumMs": 190 },
+  "final": { "p9": "STOPPED", "killSwitch": "ACTIVE", "trafficAllowed": false }
+}

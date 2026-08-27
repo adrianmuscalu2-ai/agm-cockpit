@@ -1,0 +1,12 @@
+[Unit]
+Description=AGM retention PostgreSQL backup generations
+
+[Timer]
+OnCalendar=*-*-* 04:50:00 UTC
+RandomizedDelaySec=5m
+Persistent=true
+Unit=agm-retention@postgresBackups.service
+
+[Install]
+WantedBy=timers.target
+

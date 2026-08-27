@@ -294,20 +294,6 @@ function persistSnapshots() {
   } catch { /* Telemetry remains live when persistence is unavailable. */ }
 }
 
-function restoreSnapshots() {
-  if (typeof window === 'undefined' || snapshots.size) return;
-  try {
-    const stored = JSON.parse(window.localStorage.getItem(telemetrySnapshotStorageKey) || '[]') as Array<[string, Omit<OperationSnapshot, 'checkedAt' | 'changedAt' | 'lastSuccessAt' | 'lastFailureAt'> & { checkedAt: string; changedAt: string; lastSuccessAt?: string | null; lastFailureAt?: string | null }]>;
-    stored.forEach(([id, snapshot]) => snapshots.set(id, {
-      ...snapshot,
-      checkedAt: new Date(snapshot.checkedAt),
-      changedAt: new Date(snapshot.changedAt),
-      lastSuccessAt: snapshot.lastSuccessAt ? new Date(snapshot.lastSuccessAt) : null,
-      lastFailureAt: snapshot.lastFailureAt ? new Date(snapshot.lastFailureAt) : null,
-    }));
-  } catch { /* Invalid persisted telemetry is ignored and rebuilt from sources. */ }
-}
-
 function sourceFreshness(status: OperationStatus): OperationFreshness {
   if (status === 'OFFLINE') return 'OFFLINE';
   if (status === 'ONLINE' || status === 'READY' || status === 'DEGRADED') return 'LIVE';
@@ -456,7 +442,9 @@ async function runHealthCycle() {
 
 export function bindOperationsHealthChecks(onSnapshot?: (source: OperationService, snapshot: OperationSnapshot) => void) {
   snapshotListener = onSnapshot;
-  restoreSnapshots();
+  if (!snapshots.size) {
+    try { window.localStorage.removeItem(telemetrySnapshotStorageKey); } catch { /* Live polling remains authoritative. */ }
+  }
   for (const source of monitoringHealthSources) {
     const snapshot = snapshots.get(source.id);
     if (snapshot) {

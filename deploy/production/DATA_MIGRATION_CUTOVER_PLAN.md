@@ -12,10 +12,10 @@ Until an approved cutover is accepted, the only operational Production data sour
 - host: Windows PC;
 - container: `agm-postgres`;
 - volume: `agm_agm_postgres_data`;
-- current schema state: four completed Prisma migrations;
+- current schema state: captured from `_prisma_migrations` immediately before the approved cutover;
 - business data: present.
 
-The PC source must not receive the fifth migration before extraction and must remain
+The PC source must not receive any candidate migration before extraction and must remain
 the rollback source until post-cutover acceptance.
 
 ### Hetzner target
@@ -32,33 +32,19 @@ the explicit data-cutover mandate after backup and checksum evidence.
 
 ### Schema and artefact source
 
-- Git revision:
-  `9956eb188fdd988bf0d7af93241c3c43962d9b39`;
-- API image:
-  `sha256:b949e5dd986a4b654f4af8f58b891d714593f46ac84702e90dae623488e44a3e`;
-- target schema: five Prisma migrations.
+- Git revision: `AGM_REVISION` from the approved release manifest;
+- API image: immutable `AGM_IMAGE` digest from the same successful workflow run;
+- target schema: exact ordered migration set, digest, and
+  `AGM_EXPECTED_MIGRATION_COUNT` recorded in that manifest.
 
-The earlier proposed-contract warning that this revision was not yet an approved
-release identity is superseded by the completed Step 3A-R and Step 3B artefact
-validation. Historical reports remain audit evidence, not current authority.
+Historical reports and identities remain audit evidence, not current release authority.
 
 ## Migration assessment
 
-The fifth migration is:
-
-`20260726031500_add_pre_departure_sync`
-
-Read-only inspection of the approved commit confirms that it:
-
-- creates `PreDepartureSession`;
-- creates `PreDepartureAnswer`;
-- creates their indexes and foreign keys;
-- references existing `Company`, `User` and `TransportJob` records;
-- does not drop, rename or alter an existing business table or column;
-- does not update or delete existing rows.
-
-The migration is additive, but it must still be rehearsed against a restored copy of
-the final source dump before the Production target is changed.
+Every migration present after the source snapshot must be reviewed from the approved
+commit. Its effect and rollback boundary must be recorded in the release manifest.
+No migration is assumed additive from an older report. The exact candidate set must
+be rehearsed against a restored copy of the final source dump before Production changes.
 
 ## Mandatory rehearsal before cutover
 
@@ -73,7 +59,7 @@ Use a disposable PostgreSQL container, volume and network:
    `--exit-on-error`;
 7. run `prisma migrate deploy` from the exact approved image/revision against only the
    disposable database;
-8. confirm five completed migrations and zero failed, partial or rolled-back entries;
+8. confirm the manifest's exact migration set/count and zero failed, partial or rolled-back entries;
 9. compare non-sensitive table counts and approved integrity digests with the source
    baseline;
 10. run the approved API suites and functional smoke checks against the disposable
@@ -215,7 +201,7 @@ STOP on:
 - dump/transfer checksum mismatch;
 - incomplete write freeze;
 - failed restore or migration;
-- migration count other than five;
+- migration set/count mismatch against the approved release manifest;
 - failed idempotence;
 - reconciliation mismatch;
 - missing role identity or independent verdict;

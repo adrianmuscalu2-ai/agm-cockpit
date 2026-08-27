@@ -1,4 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import type { Prisma, User } from '@prisma/client';
 import { createHash, randomUUID } from 'crypto';
 import type { RequestContext } from '../common/request-context';
 import { PrismaService } from '../prisma/prisma.service';
@@ -75,12 +76,12 @@ export class DataRightsService {
   }
 
   async deleteSelf(ctx:RequestContext){const user=await this.prisma.user.findFirst({where:{id:ctx.userId,companyId:ctx.companyId}});if(!user)throw new NotFoundException('DATA_SUBJECT_NOT_FOUND');const request=await this.start(ctx,'DELETE_ACCOUNT');return this.executeDelete(ctx,user,request.id,[]);}
-  async retryDelete(ctx:RequestContext,requestId:string){const request=await this.prisma.dataSubjectRequest.findFirst({where:{id:requestId,companyId:ctx.companyId,requestedByUserId:ctx.userId,requestType:'DELETE_ACCOUNT',status:'FAILED'}});if(!request)throw new NotFoundException('DSAR_RETRY_NOT_AVAILABLE');const user=await this.prisma.user.findFirst({where:{id:ctx.userId,companyId:ctx.companyId}});if(!user)throw new NotFoundException('DATA_SUBJECT_NOT_FOUND');const completedSteps=Array.isArray((request.metadata as any)?.completedSteps)?(request.metadata as any).completedSteps:[];await this.prisma.dataSubjectRequest.update({where:{id:requestId},data:{status:'RETRYING'}});return this.executeDelete(ctx,user,requestId,completedSteps);}
-  private async executeDelete(ctx:RequestContext,user:any,requestId:string,completedSteps:string[]){
+  async retryDelete(ctx:RequestContext,requestId:string){const request=await this.prisma.dataSubjectRequest.findFirst({where:{id:requestId,companyId:ctx.companyId,requestedByUserId:ctx.userId,requestType:'DELETE_ACCOUNT',status:'FAILED'}});if(!request)throw new NotFoundException('DSAR_RETRY_NOT_AVAILABLE');const user=await this.prisma.user.findFirst({where:{id:ctx.userId,companyId:ctx.companyId}});if(!user)throw new NotFoundException('DATA_SUBJECT_NOT_FOUND');const metadata=isRecord(request.metadata)?request.metadata:{};const completedSteps=Array.isArray(metadata.completedSteps)?metadata.completedSteps.filter((value):value is string=>typeof value==='string'):[];await this.prisma.dataSubjectRequest.update({where:{id:requestId},data:{status:'RETRYING'}});return this.executeDelete(ctx,user,requestId,completedSteps);}
+  private async executeDelete(ctx:RequestContext,user:User,requestId:string,completedSteps:string[]){
     if(user.legalRetentionReason||(user.retentionUntil&&user.retentionUntil>new Date())){await this.suppressionLedger(ctx,'PARTIAL_LEGAL_RESTRICTION','PREPARED',requestId);await this.prisma.dataSubjectRequest.update({where:{id:requestId},data:{status:'RESTRICTED',refusalReason:'LEGAL_RETENTION_ACTIVE',completedAt:new Date(),metadata:{legalRetention:true,auditContent:'NO_PERSONAL_CONTENT'}}});await this.prisma.authSession.updateMany({where:{userId:ctx.userId,companyId:ctx.companyId,revokedAt:null},data:{revokedAt:new Date()}});await this.prisma.user.update({where:{id:ctx.userId},data:{status:'Restricted',personalDataStatus:'DeletionRestricted'}});await this.suppressionLedger(ctx,'PARTIAL_LEGAL_RESTRICTION','APPLIED',requestId);return{requestId,status:'RESTRICTED',reason:'LEGAL_RETENTION_ACTIVE'};}
     const anonymous=`deleted-${randomUUID()}@deleted.invalid`;
     try{await this.suppressionLedger(ctx,'DELETE','PREPARED',requestId);
-      await this.prisma.$transaction(async(tx:any)=>{
+      await this.prisma.$transaction(async(tx:Prisma.TransactionClient)=>{
         await tx.authSession.deleteMany({where:{userId:ctx.userId,companyId:ctx.companyId}});
         await tx.userRole.deleteMany({where:{userId:ctx.userId,companyId:ctx.companyId}});
         await tx.communicationMessage.updateMany({where:{createdByUserId:ctx.userId,companyId:ctx.companyId},data:{fromAddress:anonymous,toAddress:anonymous,subject:null,bodyText:'[deleted]',createdByUserId:null,metadata:{anonymized:true}}});
@@ -92,3 +93,5 @@ export class DataRightsService {
     }catch(error){await this.fail(requestId,error,completedSteps);throw error;}
   }
 }
+
+function isRecord(value:unknown):value is Record<string,unknown>{return typeof value==='object'&&value!==null&&!Array.isArray(value);}

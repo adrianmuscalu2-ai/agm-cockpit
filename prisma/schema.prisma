@@ -700,3 +700,606 @@ model CommunicationMessage {
   @@index([companyId, conversationId, occurredAt])
   @@index([companyId, status, statusUpdatedAt])
 }
+
+model AuthorityScopePolicy {
+  id                String   @id @default(uuid()) @db.Uuid
+  companyId         String   @db.Uuid
+  scopeId           String   @db.VarChar(180)
+  parentScopeId     String?  @db.VarChar(180)
+  ownerId           String   @db.VarChar(160)
+  resourceOwnership Json
+  allowedReadSet    Json
+  allowedWriteSet   Json
+  contractVersion   String   @db.VarChar(40)
+  status            String   @default("ACTIVE") @db.VarChar(24)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([companyId, scopeId])
+  @@index([companyId, parentScopeId, status])
+}
+
+model AuthorityMandate {
+  id                String    @id @default(uuid()) @db.Uuid
+  companyId         String    @db.Uuid
+  mandateKey        String    @db.VarChar(160)
+  scopeId           String    @db.VarChar(180)
+  agentId           String    @db.VarChar(160)
+  mode              String    @db.VarChar(24)
+  status            String    @default("APPROVED") @db.VarChar(24)
+  contractHash      String    @db.VarChar(64)
+  readSet           Json
+  writeSet          Json
+  resourceSelectors Json
+  prohibitedActions Json
+  approvedByUserId  String    @db.Uuid
+  issuedAt          DateTime  @default(now())
+  expiresAt         DateTime?
+  revokedAt         DateTime?
+  version           Int       @default(1)
+
+  @@unique([companyId, mandateKey])
+  @@index([companyId, scopeId, status, issuedAt])
+  @@index([companyId, agentId, status])
+}
+
+model AuthorityDecision {
+  id              String   @id @default(uuid()) @db.Uuid
+  companyId       String   @db.Uuid
+  decisionKey     String   @db.VarChar(160)
+  mandateId       String   @db.Uuid
+  proposalRef     String?  @db.VarChar(240)
+  actionType      String   @db.VarChar(120)
+  subjectType     String?  @db.VarChar(80)
+  subjectId       String?  @db.VarChar(180)
+  decision        Json
+  status          String   @default("APPROVED") @db.VarChar(24)
+  decidedByUserId String   @db.Uuid
+  decidedAt       DateTime @default(now())
+
+  @@unique([companyId, decisionKey])
+  @@index([companyId, mandateId, status, decidedAt])
+}
+
+model AuthorityEpochState {
+  id           String   @id @default(uuid()) @db.Uuid
+  companyId    String   @unique @db.Uuid
+  currentEpoch Int      @default(0)
+  updatedAt    DateTime @updatedAt
+}
+
+model AuthorityLease {
+  id                    String    @id @default(uuid()) @db.Uuid
+  companyId             String    @db.Uuid
+  leaseKey              String    @db.VarChar(180)
+  requestId             String    @db.VarChar(180)
+  mandateId             String    @db.Uuid
+  decisionId            String?   @db.Uuid
+  scopeId               String    @db.VarChar(180)
+  agentId               String    @db.VarChar(160)
+  providerId            String    @db.VarChar(120)
+  mode                  String    @db.VarChar(24)
+  state                 String    @default("ACTIVE") @db.VarChar(24)
+  epoch                 Int
+  fencingToken          Int
+  readSet               Json
+  writeSet              Json
+  resourceSelectors     Json
+  inheritedContractHash String    @db.VarChar(64)
+  issuedByUserId        String    @db.Uuid
+  issuedAt              DateTime  @default(now())
+  expiresAt             DateTime
+  revokedAt             DateTime?
+  version               Int       @default(1)
+
+  @@unique([companyId, leaseKey])
+  @@unique([companyId, requestId])
+  @@unique([companyId, fencingToken])
+  @@index([companyId, scopeId, state, expiresAt])
+  @@index([companyId, agentId, state])
+}
+
+model AuthorityProviderBinding {
+  id         String   @id @default(uuid()) @db.Uuid
+  companyId  String   @db.Uuid
+  scopeId    String   @db.VarChar(180)
+  agentId    String   @db.VarChar(160)
+  providerId String   @db.VarChar(120)
+  priority   Int      @default(0)
+  mode       String   @db.VarChar(24)
+  status     String   @default("ALLOWED") @db.VarChar(24)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([companyId, scopeId, agentId, providerId])
+  @@index([companyId, scopeId, status, priority])
+}
+
+model AuthorityFailoverState {
+  id                String    @id @default(uuid()) @db.Uuid
+  companyId         String    @db.Uuid
+  scopeId           String    @db.VarChar(180)
+  primaryProviderId String    @db.VarChar(120)
+  activeProviderId  String?   @db.VarChar(120)
+  activeLeaseId     String?   @db.Uuid
+  state             String    @default("STANDBY") @db.VarChar(32)
+  epoch             Int       @default(0)
+  lastTransitionAt  DateTime?
+  transitionReason  String?   @db.VarChar(240)
+  version           Int       @default(1)
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([companyId, scopeId])
+  @@index([companyId, state, updatedAt])
+}
+
+model AuthorityAuditJournal {
+  id            String   @id @default(uuid()) @db.Uuid
+  companyId     String   @db.Uuid
+  eventId       String   @db.Uuid
+  eventType     String   @db.VarChar(120)
+  scopeId       String?  @db.VarChar(180)
+  mandateId     String?  @db.Uuid
+  decisionId    String?  @db.Uuid
+  leaseId       String?  @db.Uuid
+  actorType     String   @db.VarChar(40)
+  actorId       String   @db.VarChar(160)
+  outcome       String   @db.VarChar(24)
+  reasonCode    String?  @db.VarChar(80)
+  payloadHash   String   @db.VarChar(64)
+  safeMetadata  Json
+  correlationId String   @db.Uuid
+  occurredAt    DateTime @default(now())
+
+  @@unique([companyId, eventId])
+  @@index([companyId, scopeId, occurredAt])
+  @@index([companyId, leaseId, occurredAt])
+}
+
+model PremiumNetworkRegistryEntry {
+  id                    String   @id @default(uuid()) @db.Uuid
+  companyId             String   @db.Uuid
+  canonicalId           String   @db.VarChar(180)
+  kind                  String   @db.VarChar(48)
+  module                String   @db.VarChar(80)
+  ownerId               String   @db.VarChar(160)
+  supervisorId          String?  @db.VarChar(160)
+  scope                 String   @db.VarChar(180)
+  readPermissions       Json
+  writePermissions      Json
+  prohibitedActions     Json
+  capabilities          Json
+  humanApprovalBoundary String   @db.VarChar(240)
+  telemetryRequirement  String   @db.VarChar(240)
+  allowedProviders      Json
+  fallbackProviders     Json
+  recoveryPolicy        String   @db.VarChar(240)
+  lifecycleStatus       String   @default("REGISTERED") @db.VarChar(32)
+  contractVersion       String   @db.VarChar(40)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@unique([companyId, canonicalId])
+  @@index([companyId, module, lifecycleStatus])
+  @@index([companyId, supervisorId])
+}
+
+model RecoveryRunbook {
+  id               String   @id @default(uuid()) @db.Uuid
+  companyId        String   @db.Uuid
+  runbookKey       String   @db.VarChar(160)
+  version          Int      @default(1)
+  name             String   @db.VarChar(180)
+  allowedScopeId   String   @db.VarChar(180)
+  allowedActions   Json
+  parameterSchema  Json
+  preconditions    Json
+  status           String   @default("APPROVED") @db.VarChar(24)
+  approvedByUserId String   @db.Uuid
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([companyId, runbookKey, version])
+  @@index([companyId, allowedScopeId, status])
+}
+
+model RecoveryExecution {
+  id               String    @id @default(uuid()) @db.Uuid
+  companyId        String    @db.Uuid
+  executionKey     String    @db.VarChar(180)
+  runbookId        String    @db.Uuid
+  mandateId        String    @db.Uuid
+  decisionId       String    @db.Uuid
+  authorityLeaseId String    @db.Uuid
+  scopeId          String    @db.VarChar(180)
+  fencingToken     Int
+  requestedActions Json
+  result           Json?
+  status           String    @default("ADMITTED") @db.VarChar(32)
+  executedBy       String    @db.VarChar(160)
+  startedAt        DateTime  @default(now())
+  completedAt      DateTime?
+
+  @@unique([companyId, executionKey])
+  @@index([companyId, scopeId, status, startedAt])
+  @@index([companyId, authorityLeaseId])
+}
+
+model OpportunityIntakeRecord {
+  id                       String    @id @default(uuid()) @db.Uuid
+  companyId                String    @db.Uuid
+  idempotencyKey           String    @db.VarChar(180)
+  channel                  String    @db.VarChar(32)
+  provider                 String    @db.VarChar(80)
+  platformReference        String?   @db.VarChar(180)
+  sourceOpportunityId      String?   @db.VarChar(180)
+  sourceTimestamp          DateTime
+  receivedAt               DateTime  @default(now())
+  inputHash                String    @db.VarChar(64)
+  correlationKey           String    @db.VarChar(64)
+  freshnessStatus          String    @db.VarChar(24)
+  rawPayload               Json?
+  rawPayloadRetentionUntil DateTime?
+  normalizedOpportunityId  String?   @db.Uuid
+  status                   String    @default("INGESTED") @db.VarChar(24)
+
+  @@unique([companyId, idempotencyKey])
+  @@index([companyId, correlationKey, receivedAt])
+  @@index([companyId, inputHash])
+}
+
+model NormalizedOpportunity {
+  id                  String    @id @default(uuid()) @db.Uuid
+  companyId           String    @db.Uuid
+  canonicalKey        String    @db.VarChar(64)
+  version             Int       @default(1)
+  platform            String    @db.VarChar(120)
+  sourceOpportunityId String    @db.VarChar(180)
+  pickupLocation      Json
+  deliveryLocation    Json
+  pickupWindowStart   DateTime?
+  pickupWindowEnd     DateTime?
+  deliveryWindowStart DateTime?
+  deliveryWindowEnd   DateTime?
+  priceAmount         Decimal?  @db.Decimal(14, 2)
+  currencyCode        String?   @db.VarChar(3)
+  declaredKm          Int?
+  vehicle             Json
+  conditions          Json
+  notes               String?   @db.Text
+  sourceTimestamp     DateTime
+  freshnessStatus     String    @db.VarChar(24)
+  fieldConfidence     Json
+  sourceReferences    Json
+  inputHash           String    @db.VarChar(64)
+  status              String    @default("AVAILABLE") @db.VarChar(24)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([companyId, canonicalKey, version])
+  @@index([companyId, status, freshnessStatus, createdAt])
+}
+
+model OpportunityRouteAssessment {
+  id                    String   @id @default(uuid()) @db.Uuid
+  companyId             String   @db.Uuid
+  routeAssessmentId     String   @db.Uuid
+  assessmentKey         String   @db.VarChar(180)
+  version               Int
+  opportunityId         String   @db.Uuid
+  previousOpportunityId String?  @db.Uuid
+  providerId            String   @db.VarChar(120)
+  authorityLeaseId      String   @db.Uuid
+  epoch                 Int
+  fencingToken          Int
+  distanceKm            Int
+  durationMinutes       Int
+  distanceToPickupKm    Int
+  repositionKm          Int
+  repositionMinutes     Int
+  mobilityModes         Json
+  tolls                 Json
+  restrictions          Json
+  finalHomeDistanceKm   Int?
+  feasible              Boolean
+  sources               Json
+  assumptions           Json
+  confidence            Int
+  calculation           Json
+  warnings              Json
+  inputHash             String   @db.VarChar(64)
+  calculatedAt          DateTime @default(now())
+  validUntil            DateTime
+
+  @@unique([companyId, routeAssessmentId])
+  @@unique([companyId, assessmentKey, version])
+  @@index([companyId, opportunityId, calculatedAt])
+}
+
+model OpportunityCostAssessment {
+  id                       String   @id @default(uuid()) @db.Uuid
+  companyId                String   @db.Uuid
+  costAssessmentId         String   @db.Uuid
+  assessmentKey            String   @db.VarChar(180)
+  version                  Int
+  opportunityId            String   @db.Uuid
+  routeAssessmentId        String   @db.Uuid
+  providerId               String   @db.VarChar(120)
+  authorityLeaseId         String   @db.Uuid
+  epoch                    Int
+  fencingToken             Int
+  currencyCode             String   @db.VarChar(3)
+  estimatedRevenue         Decimal  @db.Decimal(14, 2)
+  estimatedFuel            Decimal  @db.Decimal(14, 2)
+  estimatedTrain           Decimal  @db.Decimal(14, 2)
+  estimatedBus             Decimal  @db.Decimal(14, 2)
+  estimatedTaxi            Decimal  @db.Decimal(14, 2)
+  estimatedTolls           Decimal  @db.Decimal(14, 2)
+  estimatedAccommodation   Decimal  @db.Decimal(14, 2)
+  estimatedOtherReposition Decimal  @db.Decimal(14, 2)
+  estimatedTotalCost       Decimal  @db.Decimal(14, 2)
+  estimatedGrossProfit     Decimal  @db.Decimal(14, 2)
+  estimatedProfitPerKm     Decimal  @db.Decimal(14, 4)
+  estimatedProfitPerHour   Decimal  @db.Decimal(14, 4)
+  totalMinutes             Int
+  emptyKm                  Int
+  financialRisk            String   @db.VarChar(24)
+  sensitivity              Json
+  assumptions              Json
+  inputHash                String   @db.VarChar(64)
+  calculatedAt             DateTime @default(now())
+  validUntil               DateTime
+
+  @@unique([companyId, costAssessmentId])
+  @@unique([companyId, assessmentKey, version])
+  @@index([companyId, opportunityId, calculatedAt])
+}
+
+model OpportunityChain {
+  id                 String   @id @default(uuid()) @db.Uuid
+  companyId          String   @db.Uuid
+  chainKey           String   @db.VarChar(180)
+  version            Int
+  opportunityIds     Json
+  routeAssessmentIds Json
+  costAssessmentIds  Json
+  providerId         String   @db.VarChar(120)
+  authorityLeaseId   String   @db.Uuid
+  epoch              Int
+  fencingToken       Int
+  objective          String   @db.VarChar(80)
+  metrics            Json
+  feasible           Boolean
+  status             String   @default("PLAN") @db.VarChar(24)
+  inputHash          String   @db.VarChar(64)
+  createdAt          DateTime @default(now())
+
+  @@unique([companyId, chainKey, version])
+  @@index([companyId, status, createdAt])
+}
+
+model OpportunityVerdict {
+  id                  String   @id @default(uuid()) @db.Uuid
+  companyId           String   @db.Uuid
+  chainId             String   @db.Uuid
+  version             Int
+  classification      String   @db.VarChar(24)
+  reasons             Json
+  advantages          Json
+  risks               Json
+  confidence          Int
+  freshnessStatus     String   @db.VarChar(24)
+  assumptions         Json
+  routeAssessmentRefs Json
+  costAssessmentRefs  Json
+  contractVersion     String   @db.VarChar(48)
+  inputHash           String   @db.VarChar(64)
+  providerId          String   @db.VarChar(120)
+  authorityLeaseId    String   @db.Uuid
+  epoch               Int
+  fencingToken        Int
+  createdAt           DateTime @default(now())
+
+  @@unique([companyId, chainId, version])
+  @@index([companyId, classification, createdAt])
+}
+
+model OpportunityHumanDecision {
+  id              String   @id @default(uuid()) @db.Uuid
+  companyId       String   @db.Uuid
+  decisionKey     String   @db.VarChar(180)
+  verdictId       String   @db.Uuid
+  decision        String   @db.VarChar(16)
+  decidedByUserId String   @db.Uuid
+  reason          String?  @db.VarChar(500)
+  decidedAt       DateTime @default(now())
+
+  @@unique([companyId, decisionKey])
+  @@index([companyId, verdictId, decidedAt])
+}
+
+model OpportunityJobLink {
+  id                      String   @id @default(uuid()) @db.Uuid
+  companyId               String   @db.Uuid
+  humanDecisionId         String   @db.Uuid
+  verdictId               String   @db.Uuid
+  normalizedOpportunityId String   @db.Uuid
+  jobId                   String   @db.Uuid
+  createdAt               DateTime @default(now())
+
+  @@unique([companyId, normalizedOpportunityId, verdictId])
+  @@unique([companyId, jobId])
+  @@index([companyId, humanDecisionId])
+}
+
+model OpportunityAgentTelemetry {
+  id               String   @id @default(uuid()) @db.Uuid
+  companyId        String   @db.Uuid
+  agentId          String   @db.VarChar(180)
+  health           String   @db.VarChar(24)
+  lastRunAt        DateTime
+  durationMs       Int
+  freshnessStatus  String   @db.VarChar(24)
+  backlog          Int      @default(0)
+  dependencyHealth String   @db.VarChar(24)
+  confidence       Int?
+  inputReference   String?  @db.VarChar(240)
+  outputReference  String?  @db.VarChar(240)
+  providerId       String   @db.VarChar(120)
+  contractVersion  String   @db.VarChar(48)
+  updatedAt        DateTime @updatedAt
+
+  @@unique([companyId, agentId])
+  @@index([companyId, health, lastRunAt])
+}
+
+model OpportunityAnalysisRun {
+  id             String   @id @default(uuid()) @db.Uuid
+  companyId      String   @db.Uuid
+  idempotencyKey String   @db.VarChar(180)
+  inputHash      String   @db.VarChar(64)
+  chainIds       Json
+  verdictIds     Json
+  createdAt      DateTime @default(now())
+
+  @@unique([companyId, idempotencyKey])
+  @@index([companyId, createdAt])
+}
+
+model LiveMobilitySnapshot {
+  id              String   @id @default(uuid()) @db.Uuid
+  companyId       String   @db.Uuid
+  category        String   @db.VarChar(40)
+  contractType    String   @db.VarChar(48)
+  contractVersion String   @db.VarChar(48)
+  entityReference String?  @db.VarChar(240)
+  providerId      String   @db.VarChar(120)
+  sourceReference String   @db.VarChar(500)
+  inputHash       String   @db.VarChar(64)
+  payloadHash     String   @db.VarChar(64)
+  payload         Json
+  fetchedAt       DateTime
+  validUntil      DateTime
+  stale           Boolean  @default(false)
+  confidence      Int?
+  createdAt       DateTime @default(now())
+
+  @@index([companyId, category, entityReference, createdAt])
+  @@index([companyId, inputHash, validUntil])
+}
+
+model LiveAdapterCache {
+  id                String   @id @default(uuid()) @db.Uuid
+  companyId         String   @db.Uuid
+  category          String   @db.VarChar(40)
+  providerId        String   @db.VarChar(120)
+  cacheKey          String   @db.VarChar(64)
+  inputHash         String   @db.VarChar(64)
+  payloadHash       String   @db.VarChar(64)
+  payload           Json
+  sourceReference   String   @db.VarChar(500)
+  fetchedAt         DateTime
+  validUntil        DateTime
+  requestCostMicros Int?
+  updatedAt         DateTime @updatedAt
+
+  @@unique([companyId, category, cacheKey])
+  @@index([companyId, category, validUntil])
+}
+
+model LiveAdapterTelemetry {
+  id                 String    @id @default(uuid()) @db.Uuid
+  companyId          String    @db.Uuid
+  adapterId          String    @db.VarChar(180)
+  category           String    @db.VarChar(40)
+  providerId         String    @db.VarChar(120)
+  status             String    @db.VarChar(24)
+  lastAttemptAt      DateTime
+  lastSuccessAt      DateTime?
+  latencyMs          Int?
+  requestCount       Int       @default(0)
+  errorCount         Int       @default(0)
+  errorRateBps       Int       @default(0)
+  rateLimitState     String    @default("CLEAR") @db.VarChar(24)
+  fallbackActivation String?   @db.VarChar(120)
+  cacheAgeSeconds    Int?
+  lastErrorCode      String?   @db.VarChar(80)
+  requestCostMicros  Int?
+  contractVersion    String    @db.VarChar(48)
+  updatedAt          DateTime  @updatedAt
+
+  @@unique([companyId, adapterId])
+  @@index([companyId, status, lastAttemptAt])
+}
+
+model ProviderPilotActivation {
+  id                      String   @id @default(uuid()) @db.Uuid
+  companyId               String   @db.Uuid
+  providerId              String   @db.VarChar(120)
+  state                   String   @default("READY") @db.VarChar(24)
+  credentialReference     String?  @db.VarChar(240)
+  allowedUserId           String?  @db.Uuid
+  pilotStartAt            DateTime
+  pilotEndAt              DateTime
+  dailyRequestLimit       Int
+  anomalyAlertPercent     Int      @default(80)
+  dailyCostAlertMicros    Int?
+  estimatedUnitCostMicros Int?
+  costBasis               String   @default("PROVIDER_BILLING_UNAVAILABLE") @db.VarChar(80)
+  suspendedReason         String?  @db.VarChar(240)
+  updatedByUserId         String?  @db.Uuid
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@unique([companyId, providerId])
+  @@index([companyId, state, pilotEndAt])
+}
+
+model ProviderUsageEvent {
+  id                  String   @id @default(uuid()) @db.Uuid
+  companyId           String   @db.Uuid
+  userId              String?  @db.Uuid
+  providerId          String   @db.VarChar(120)
+  adapterId           String   @db.VarChar(180)
+  category            String   @db.VarChar(40)
+  eventType           String   @db.VarChar(40)
+  inputHash           String?  @db.VarChar(64)
+  outcome             String   @db.VarChar(32)
+  latencyMs           Int?
+  cacheHit            Boolean  @default(false)
+  coalesced           Boolean  @default(false)
+  recalculation       Boolean  @default(false)
+  fallbackActivation  Boolean  @default(false)
+  rateLimited         Boolean  @default(false)
+  timeout             Boolean  @default(false)
+  stale               Boolean  @default(false)
+  errorCode           String?  @db.VarChar(80)
+  estimatedCostMicros Int?
+  actualCostMicros    Int?
+  metrics             Json?
+  occurredAt          DateTime @default(now())
+
+  @@index([companyId, providerId, occurredAt])
+  @@index([companyId, adapterId, occurredAt])
+  @@index([companyId, inputHash, occurredAt])
+}
+
+model GmailPilotTelemetry {
+  id                     String    @id @default(uuid()) @db.Uuid
+  companyId              String    @unique @db.Uuid
+  state                  String    @default("NO_TELEMETRY") @db.VarChar(24)
+  syncCount              Int       @default(0)
+  messagesProcessed      Int       @default(0)
+  relevantMessages       Int       @default(0)
+  opportunitiesExtracted Int       @default(0)
+  duplicatesEliminated   Int       @default(0)
+  parsingErrors          Int       @default(0)
+  staleMessages          Int       @default(0)
+  totalLatencyMs         Int       @default(0)
+  backlog                Int       @default(0)
+  lastSuccessfulSyncAt   DateTime?
+  lastAnalysisAt         DateTime?
+  lastErrorAt            DateTime?
+  lastErrorCode          String?   @db.VarChar(80)
+  updatedAt              DateTime  @updatedAt
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agm-instrumentation-lifecycle-closure-intent.v2",
+  "type": "object",
+  "required": ["contract", "contractVersion", "publishedAt", "publication", "runId", "phase", "runner", "windowIdentity", "manifestReference", "inputs", "outputs", "externalFinalizerSource", "runnerMustExitBeforeFinalInventory", "finalizerMustDeclareExactIdentity"],
+  "properties": {
+    "contract": {"const": "agm-instrumentation-lifecycle-closure-intent.v2"},
+    "contractVersion": {"const": 2},
+    "publishedAt": {"type": "string", "format": "date-time"},
+    "publication": {"type":"object","required":["atomic","overwriteForbidden"],"properties":{"atomic":{"const":true},"overwriteForbidden":{"const":true}}},
+    "runId": {"type": "string", "minLength": 1},
+    "phase": {"const": "RUNNER_CLEANUP_COMPLETE_PENDING_EXTERNAL_FINALIZATION"},
+    "runner": {"type": "object", "required": ["pid", "identitySha256", "creationEpochMs", "imageName"], "properties": {"pid":{"type":"integer","minimum":1},"identitySha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},"creationEpochMs":{"type":"integer","minimum":1},"imageName":{"type":"string","minLength":1}}},
+    "windowIdentity": {"type":"object","required":["runId","windowId","signature"],"properties":{"runId":{"type":"string","minLength":1},"windowId":{"type":"string","minLength":1},"signature":{"$ref":"#/$defs/signature"}}},
+    "manifestReference": {"type":"object","required":["pathBase","path","hashAlgorithm","immutableAfterHash"],"properties":{"pathBase":{"const":"OUTPUT_ROOT"},"path":{"const":"SHA256SUMS.json"},"hashAlgorithm":{"const":"SHA256"},"immutableAfterHash":{"const":true}}},
+    "inputs": {"type":"object","required":["shutdown","managedRoots","priorInventory","knownProtectedBackground"],"properties":{"shutdown":{"$ref":"#/$defs/signature"},"managedRoots":{"$ref":"#/$defs/signature"},"priorInventory":{"$ref":"#/$defs/signature"},"knownProtectedBackground":{"$ref":"#/$defs/signature"}}},
+    "outputs": {"type":"object","required":["finalInventory","analysis","verdict","finalizerLifecycle"],"properties":{"finalInventory":{"const":"process-inventory-after.json"},"analysis":{"const":"instrumentation-lifecycle-analysis.json"},"verdict":{"const":"external-finalizer-verdict.json"},"finalizerLifecycle":{"const":"external-finalizer-lifecycle.json"}}},
+    "externalFinalizerSource": {"allOf":[{"$ref":"#/$defs/signature"},{"type":"object","required":["pathBase"],"properties":{"pathBase":{"const":"WORKSPACE_ROOT"}}}]},
+    "runnerMustExitBeforeFinalInventory": {"const":true},
+    "finalizerMustDeclareExactIdentity": {"const":true}
+  },
+  "$defs": {"signature":{"type":"object","required":["path","bytes","sha256"],"properties":{"path":{"type":"string","minLength":1},"bytes":{"type":"integer","minimum":1},"sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"}}}}
+}

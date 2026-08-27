@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agm-p9-internal-pilot-evidence.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "mode", "execution", "startedAt", "finishedAt", "pid", "parentPid", "identity", "operation", "results", "metrics", "pilotBefore", "pilotAfter", "killSwitchEvidence", "cleanup", "httpTraffic", "secretsRecorded"],
+  "properties": {
+    "contract": { "const": "agm-p9-internal-pilot-evidence.v2" },
+    "mode": { "enum": ["ContractSimulation", "AuthorizedPilot"] },
+    "execution": {
+      "type": "object", "additionalProperties": false,
+      "required": ["executionId", "workload", "operationCount", "cadenceMs", "timeoutMs", "maximumWindowMs"],
+      "properties": {
+        "executionId": { "type": "string", "minLength": 8 }, "workload": { "const": "READ_ONLY_LEASE_COMMIT" },
+        "operationCount": { "type": "integer", "minimum": 1, "maximum": 100 }, "cadenceMs": { "type": "integer", "minimum": 0 },
+        "timeoutMs": { "type": "integer", "minimum": 1 }, "maximumWindowMs": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "startedAt": { "type": "string" }, "finishedAt": { "type": "string" }, "pid": { "type": "integer", "minimum": 1 },
+    "parentPid": { "type": "integer", "minimum": 1 }, "identity": { "const": "P9_INTERNAL_PILOT_RUNNER" }, "operation": { "const": "READ_ONLY_LEASE_COMMIT" },
+    "results": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["operationId", "startedAt", "finishedAt", "latencyMs", "outcome", "errorCode", "workerId", "dossierId", "fence", "identityVerified", "operationTimestamp", "cleanupState"], "properties": {
+      "operationId": { "type": "string" }, "startedAt": { "type": "string" }, "finishedAt": { "type": "string" }, "latencyMs": { "type": "number", "minimum": 0 },
+      "outcome": { "enum": ["SUCCESS", "TIMEOUT", "OPERATION_ERROR"] }, "errorCode": { "type": ["string", "null"] }, "workerId": { "type": "string", "minLength": 1 },
+      "dossierId": { "type": "string", "minLength": 1 }, "fence": { "type": "integer", "minimum": 1 }, "identityVerified": { "type": "boolean" },
+      "operationTimestamp": { "type": "string" }, "cleanupState": { "enum": ["PENDING_WINDOW_CLEANUP", "ATTESTED"] }
+    } } },
+    "metrics": { "type": "object", "required": ["planned", "started", "completed", "successes", "errors", "timeouts", "p50Ms", "p95Ms", "maximumMs"] },
+    "pilotBefore": { "type": "object" }, "pilotAfter": { "type": "object" },
+    "killSwitchEvidence": { "type": "object", "additionalProperties": false, "required": ["persistent", "temporaryPilotConfiguration", "cleanupCertification", "effectiveFinalState", "contradictionResolved"], "properties": {
+      "persistent": { "type": "object", "required": ["state", "source", "sourcePath"], "properties": { "state": { "const": "ACTIVE" }, "source": { "const": "P9_PILOT_POLICY" }, "sourcePath": { "const": "config/copilot-v1.2/p9-pilot-policy.json" } } },
+      "temporaryPilotConfiguration": { "type": "object", "required": ["killSwitchActive", "semantic"], "properties": { "killSwitchActive": { "type": "boolean" }, "semantic": { "const": "AUTHORIZED_WINDOW_ADMISSION_CONFIGURATION" } } },
+      "cleanupCertification": { "type": "object", "required": ["pass", "semantic"], "properties": { "pass": { "const": true }, "semantic": { "const": "ADMISSION_PROVIDER_AND_WORKERS_STOPPED" } } },
+      "effectiveFinalState": { "const": "ACTIVE" }, "contradictionResolved": { "const": true }
+    } },
+    "cleanup": { "type": "object", "required": ["workersBefore", "workersAfter", "attestations", "killSwitchCertified"] },
+    "httpTraffic": { "const": 0 }, "secretsRecorded": { "const": false }
+  }
+}

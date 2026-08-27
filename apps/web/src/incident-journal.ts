@@ -71,13 +71,13 @@ export function readIncidentJournal(storage: Storage): OperationalIncident[] {
         if (!item?.id) return;
         const local = normalizeIncident(item);
         const official = byId.get(local.id);
-        if (!official || local.updatedAt > official.updatedAt) {
-          byId.set(local.id, local);
-        } else if (local.id === 'AGM-MON-ANDROID') {
+        if (local.id === 'AGM-MON-ANDROID' && official) {
           const history = [...local.history, ...official.history].filter((entry, index, entries) =>
             entries.findIndex((candidate) => candidate.at === entry.at && candidate.action === entry.action && candidate.actor === entry.actor) === index,
           );
           byId.set(local.id, { ...official, history });
+        } else if (!official || local.updatedAt > official.updatedAt) {
+          byId.set(local.id, local);
         }
       });
     }

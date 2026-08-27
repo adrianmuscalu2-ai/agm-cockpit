@@ -1,0 +1,164 @@
+{
+  "runId": "2026-08-27T08-49-58-777Z",
+  "startedAt": "2026-08-27T08:49:58.778Z",
+  "checks": [
+    {
+      "name": "HOST DETECTION",
+      "status": "PASS",
+      "detail": "unattended-runner/windows; target source=dynamic-vite-bootstrap"
+    },
+    {
+      "name": "TARGET DISCOVERY",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:60149/"
+    },
+    {
+      "name": "BROWSER BOOTSTRAP",
+      "status": "PASS",
+      "detail": "isolated Chromium session created"
+    },
+    {
+      "name": "BROWSER SESSION",
+      "status": "PASS",
+      "detail": "A.G.M. Cockpit"
+    },
+    {
+      "name": "TARGET PAGE",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:60149/"
+    },
+    {
+      "name": "THREE QUICK LANGUAGES",
+      "status": "PASS",
+      "detail": "count=3"
+    },
+    {
+      "name": "NINE LANGUAGE UI",
+      "status": "PASS",
+      "detail": "fr,nl,ru,pl,tr,sq"
+    },
+    {
+      "name": "LANGUAGE RO ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "ro"
+    },
+    {
+      "name": "LANGUAGE DE ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "de"
+    },
+    {
+      "name": "LANGUAGE EN ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "en"
+    },
+    {
+      "name": "LANGUAGE FR",
+      "status": "PASS",
+      "detail": "Français (fr)"
+    },
+    {
+      "name": "LANGUAGE FR ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "fr"
+    },
+    {
+      "name": "LANGUAGE NL",
+      "status": "PASS",
+      "detail": "Nederlands (nl)"
+    },
+    {
+      "name": "LANGUAGE NL ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "nl"
+    },
+    {
+      "name": "LANGUAGE RU",
+      "status": "PASS",
+      "detail": "Русский (ru)"
+    },
+    {
+      "name": "LANGUAGE RU ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "ru"
+    },
+    {
+      "name": "LANGUAGE PL",
+      "status": "PASS",
+      "detail": "Polski (pl)"
+    },
+    {
+      "name": "LANGUAGE PL ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "pl"
+    },
+    {
+      "name": "LANGUAGE TR",
+      "status": "PASS",
+      "detail": "Türkçe (tr)"
+    },
+    {
+      "name": "LANGUAGE TR ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "tr"
+    },
+    {
+      "name": "LANGUAGE SQ",
+      "status": "PASS",
+      "detail": "Shqip (sq)"
+    },
+    {
+      "name": "LANGUAGE SQ ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "sq"
+    },
+    {
+      "name": "LANGUAGE FAVORITES / PERSISTENCE",
+      "status": "PASS",
+      "detail": "language=sq; favorites=SQ/TR/PL"
+    },
+    {
+      "name": "VISUAL LANGUAGE COHERENCE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "MULTILINGUAL TRANSLATOR",
+      "status": "PASS",
+      "detail": "/translator"
+    },
+    {
+      "name": "EMAIL ASSISTANT",
+      "status": "PASS",
+      "detail": "/email"
+    },
+    {
+      "name": "MULTILINGUAL OCR",
+      "status": "PASS",
+      "detail": "/ocr"
+    },
+    {
+      "name": "NO OVERFLOW 1440",
+      "status": "PASS",
+      "detail": "{\"client\":1440,\"scroll\":1440}"
+    },
+    {
+      "name": "NO OVERFLOW 1024",
+      "status": "PASS",
+      "detail": "{\"client\":1024,\"scroll\":1024}"
+    },
+    {
+      "name": "RESPONSIVE DESKTOP",
+      "status": "PASS",
+      "detail": "1440x1000 and 1024x768"
+    },
+    {
+      "name": "BROWSER REAL VALIDATION",
+      "status": "PASS",
+      "detail": "navigation, persistence, multilingual UI and captures passed"
+    }
+  ],
+  "evidenceDir": "C:\\Users\\adria\\Documents\\AGM\\.tmp\\wave1-browser-validation\\2026-08-27T08-49-58-777Z",
+  "finishedAt": "2026-08-27T08:50:31.033Z",
+  "status": "PASS"
+}

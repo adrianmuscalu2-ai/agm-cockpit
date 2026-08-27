@@ -1,0 +1,12 @@
+{
+  "contract": "agm-copilot-v1.2-p7-turn-policy.v1",
+  "sloMs": { "CRITICAL": 5000, "LIFECYCLE": 15000, "INFORMATIONAL": 30000 },
+  "hardStaleMs": { "CRITICAL": 15000, "LIFECYCLE": 60000, "INFORMATIONAL": 120000 },
+  "statuses": ["HEALTHY", "ACTIVE", "REVIEW", "DEGRADED", "BLOCKED", "STOPPED", "FAILED", "STALE"],
+  "fallbackStatuses": ["UNKNOWN", "UNAVAILABLE"],
+  "modulePosition": "IMMEDIATELY_AFTER_INCIDENTS",
+  "moduleTitle": "ARCHITECTURE & GOVERNANCE STATUS",
+  "canonicalMutationAllowed": false,
+  "secretAccessAllowed": false,
+  "turnUnavailableBlocksBasic": false
+}

@@ -1,0 +1,8 @@
+{
+  "policyVersion": "p5.1.0",
+  "atlasAllowed": ["ATLAS_REVIEW", "ATLAS_OK", "REWORK_REQUIRED"],
+  "inspectorAllowed": ["FINAL_INSPECTION", "REWORK_REQUIRED", "APPROVED_FOR_ARCHIVE"],
+  "forbidden": ["ACTIVE_KNOWLEDGE"],
+  "attestationTtlMs": 300000,
+  "requiredSeparation": ["PROPOSER", "VALIDATOR", "ATLAS_APPROVER", "FINAL_INSPECTOR", "ARCHIVIST"]
+}

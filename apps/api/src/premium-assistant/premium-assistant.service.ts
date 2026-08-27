@@ -11,10 +11,13 @@ export class PremiumAssistantService {
   constructor(private readonly config: ConfigService) {}
 
   async respond(user: RequestContext, request: PremiumAssistantRequestDto): Promise<PremiumAssistantResponse> {
+    const serverStartedAt = Date.now();
     if (!user.roles.includes(PREMIUM_ASSISTANT_CONTRACT.requiredRole)) throw new ForbiddenException('Premium entitlement required.');
     const apiKey = this.config.get<string>('OPENAI_API_KEY');
     if (!apiKey) throw new ServiceUnavailableException('Assistant provider unavailable.');
     const contextRefs = [request.tripId && `trip:${request.tripId}`, request.operationalCaseId && `case:${request.operationalCaseId}`, request.situationId && `situation:${request.situationId}`].filter((value): value is string => Boolean(value));
+    const useLiveSearch = requiresLiveSearch(request.confirmedText);
+    const providerStartedAt = Date.now();
     const response = await fetch(PREMIUM_ASSISTANT_CONTRACT.endpoint, {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
@@ -24,18 +27,37 @@ export class PremiumAssistantService {
           { role: 'system', content: systemInstruction(request.language) },
           { role: 'user', content: JSON.stringify({ productId: request.productId, moduleId: request.moduleId, tenantBoundary: user.companyId, contextRefs, history: request.history, confirmedText: request.confirmedText }) },
         ],
-        tools: [{ type: 'web_search' }],
-        tool_choice: 'auto',
-        max_output_tokens: 350,
+        ...(useLiveSearch ? { tools: [{ type: 'web_search' }], tool_choice: 'auto' } : {}),
+        max_output_tokens: 220,
+        store: false,
         temperature: 0.2,
       }),
       signal: AbortSignal.timeout(PREMIUM_ASSISTANT_CONTRACT.timeoutMs),
     });
     if (!response.ok) throw new ServiceUnavailableException('Assistant provider unavailable.');
     const text = extractText(await response.json() as OpenAiPayload);
+    const providerCompletedAt = Date.now();
     if (!text) throw new ServiceUnavailableException('Assistant response unavailable.');
-    return { contractVersion: PREMIUM_ASSISTANT_CONTRACT.version, kind: text.endsWith('?') ? 'clarification' : 'answer', text, provider: 'openai', productId: PREMIUM_ASSISTANT_CONTRACT.productId, moduleId: request.moduleId, contextRefs, externalEffectPerformed: false };
+    return {
+      contractVersion: PREMIUM_ASSISTANT_CONTRACT.version,
+      kind: text.endsWith('?') ? 'clarification' : 'answer',
+      text,
+      provider: 'openai',
+      productId: PREMIUM_ASSISTANT_CONTRACT.productId,
+      moduleId: request.moduleId,
+      contextRefs,
+      externalEffectPerformed: false,
+      timing: {
+        orchestratorMs: providerStartedAt - serverStartedAt,
+        modelMs: providerCompletedAt - providerStartedAt,
+        serverTotalMs: providerCompletedAt - serverStartedAt,
+      },
+    };
   }
+}
+
+export function requiresLiveSearch(text: string) {
+  return /\b(azi|astăzi|acum|curent|actual|meteo|vreme|trafic|preț|orar|deschis|today|now|current|latest|weather|traffic|price|opening|heute|jetzt|aktuell|wetter|verkehr|preis|geöffnet)\b/iu.test(text);
 }
 
 function systemInstruction(language: string) {

@@ -63,7 +63,19 @@ export class AgentRuntimeEventsService {
     const runtime = new EphemeralDossierRuntime(new RuntimeAdmissionController(registry));
     const store: TurnLifecycleEventStore = {
       append: async (event: TurnAgentLifecycle) => {
-        const { eventType: _eventType, ...input } = event;
+        const input: AgentRuntimeEventInput = {
+          eventId: event.eventId,
+          mandateId: event.mandateId,
+          agentId: event.agentId,
+          dossierId: event.dossierId,
+          lifecycle: event.lifecycle,
+          sequence: event.sequence,
+          occurredAt: event.occurredAt,
+          evidenceRef: event.evidenceRef,
+          outputRef: event.outputRef,
+          evidenceHash: event.evidenceHash,
+          detail: event.detail,
+        };
         await this.append(input, ctx);
       },
       read: async (id: string) => {

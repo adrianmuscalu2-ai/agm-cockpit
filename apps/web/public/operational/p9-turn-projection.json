@@ -1,0 +1,22 @@
+{
+  "contract": "agm-turn-p9-operational-projection.v1",
+  "executionId": "p9-controlled-activation-smoke-20260815-001",
+  "state": "ACTIVE",
+  "smoke": {
+    "passed": 5,
+    "total": 5,
+    "errors": 0,
+    "timeouts": 0
+  },
+  "killSwitch": "ACTIVE",
+  "rollback": "READY",
+  "lastValidatedAt": "2026-08-15T06:02:41.433Z",
+  "projectedAt": "2026-08-15T06:12:33.132Z",
+  "runtimePid": 10220,
+  "source": {
+    "kind": "OPERATIONAL_EVIDENCE",
+    "runtime": "evidence/governance/copilot-v1.2/p9/controlled-activation/p9-promoted-20260815-001/active-runtime.json",
+    "smoke": "evidence/governance/copilot-v1.2/p9/controlled-activation/p9-promoted-20260815-001/smoke-result.json",
+    "policy": "config/copilot-v1.2/p9-pilot-policy.json"
+  }
+}

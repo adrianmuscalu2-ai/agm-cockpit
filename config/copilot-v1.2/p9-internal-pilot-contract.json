@@ -1,0 +1,14 @@
+{
+  "contract": "agm-p9-internal-pilot-contract.v2",
+  "workload": "READ_ONLY_LEASE_COMMIT",
+  "description": "A P9-admitted, tenant-bound worker performs a lease-fenced read-only canonical commit with no HTTP or external write.",
+  "success": "runtime.commit returns accepted=true with the expected workerId, dossierId and fence",
+  "failureCodes": ["P9_OPERATION_TIMEOUT", "P9_OPERATION_ERROR"],
+  "constraints": {
+    "httpTraffic": false,
+    "productionReachable": false,
+    "externalWrite": false,
+    "maximumOperations": 100
+  },
+  "requiredParameters": ["executionId", "operationCount", "cadenceMs", "timeoutMs", "maximumWindowMs"]
+}

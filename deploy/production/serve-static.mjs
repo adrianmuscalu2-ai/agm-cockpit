@@ -2,8 +2,8 @@ import { createReadStream, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize } from 'node:path';
 
-const root = '/srv/agm-web';
-const port = 4173;
+const root = process.env.AGM_WEB_ROOT ?? '/srv/agm-web';
+const port = Number(process.env.PORT ?? 4173);
 const mime = new Map([
   ['.css', 'text/css; charset=utf-8'],
   ['.html', 'text/html; charset=utf-8'],
@@ -36,7 +36,14 @@ createServer((request, response) => {
     return;
   }
   const pathname = new URL(request.url ?? '/', 'http://localhost').pathname;
-  const requested = pathname === '/' ? '/index.html' : pathname;
+  if (pathname === '/') {
+    response.writeHead(308, {
+      'Cache-Control': 'no-cache',
+      Location: '/basic',
+    }).end();
+    return;
+  }
+  const requested = pathname;
   const file = safeFile(requested) ?? join(root, 'index.html');
   const headers = {
     'Cache-Control': file.endsWith('index.html') ? 'no-cache' : 'public, max-age=31536000, immutable',

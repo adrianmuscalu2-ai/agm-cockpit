@@ -1,0 +1,13 @@
+{
+  "contract": "agm-copilot-v1.2-p6-publication-policy.v1",
+  "manifestTtlMs": 900000,
+  "allowedVisibility": ["TENANT"],
+  "requireExactFinalInspection": true,
+  "requireIndependentArchivist": true,
+  "requireIndependentPublicationVerifier": true,
+  "atomicCommitRequired": true,
+  "activeAliasCasRequired": true,
+  "retainPreviousActiveForRollback": true,
+  "turnProjectionContainsContent": false,
+  "activeKnowledgeRequiresVerifierReceipt": true
+}

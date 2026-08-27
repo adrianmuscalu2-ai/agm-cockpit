@@ -1,0 +1,12 @@
+[Unit]
+Description=AGM retention generated DSAR exports
+
+[Timer]
+OnCalendar=*-*-* 04:30:00 UTC
+RandomizedDelaySec=5m
+Persistent=true
+Unit=agm-retention@generatedDsarExports.service
+
+[Install]
+WantedBy=timers.target
+

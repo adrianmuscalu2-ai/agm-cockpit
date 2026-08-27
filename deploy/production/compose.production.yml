@@ -31,7 +31,7 @@ services:
     security_opt:
       - no-new-privileges:true
     labels:
-      org.opencontainers.image.revision: premium-voice-20260811-r2
+      org.opencontainers.image.revision: "${AGM_REVISION:?AGM_REVISION must be set by Release & Operations}"
       agm.environment: production
       agm.database.container: agm-postgres
       agm.database.volume: app_agm_postgres_data

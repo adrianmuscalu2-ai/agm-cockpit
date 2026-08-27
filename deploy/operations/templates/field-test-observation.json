@@ -1,0 +1,48 @@
+{
+  "scenario": "NORMAL_ROUTE",
+  "safety": {
+    "vehicleStationary": true,
+    "operatedBy": "DRIVER_STOPPED"
+  },
+  "connectivity": {
+    "state": "MOBILE",
+    "notes": ""
+  },
+  "route": {
+    "predictedDistanceKm": null,
+    "observedDistanceKm": null,
+    "predictedEtaMinutes": null,
+    "observedDurationMinutes": null,
+    "trafficState": "",
+    "rerouted": false,
+    "emptyKm": null,
+    "finalHomeDistanceKm": null
+  },
+  "cost": {
+    "estimatedRevenue": null,
+    "estimatedTotalCost": null,
+    "estimatedProfit": null,
+    "profitPerKm": null,
+    "profitPerHour": null,
+    "tollRequired": false,
+    "estimatedToll": null
+  },
+  "ux": {
+    "timeToRecommendationSeconds": null,
+    "copilotTextSummary": ""
+  },
+  "utility": {
+    "routeMakesSense": null,
+    "distanceRealistic": null,
+    "etaCredible": null,
+    "costsPlausible": null,
+    "emptyKmCorrect": null,
+    "chainFeasible": null,
+    "finalPositionCorrect": null,
+    "recommendationBetter": null,
+    "copilotSimple": null,
+    "notes": ""
+  },
+  "incident": null,
+  "limitations": []
+}

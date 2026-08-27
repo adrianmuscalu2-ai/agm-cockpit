@@ -21,6 +21,7 @@ export type PremiumAssistantClientResponse = {
   moduleId: string;
   contextRefs: readonly string[];
   externalEffectPerformed: false;
+  timing?: { orchestratorMs: number; modelMs: number; serverTotalMs: number };
 };
 
 export function createPremiumAssistantClient(input: {

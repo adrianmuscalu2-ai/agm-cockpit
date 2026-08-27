@@ -30,28 +30,28 @@ export type TurnAuthorization = { authorizationId: string; routeId: IncidentRout
 export const incidentRoutingRegistry: IncidentRoute[] = [
   {
     id: 'production-access', match: { monitorCodes: ['MON-001', 'MON-012'], checkTerms: ['ssh', 'production access', 'credential', 'authorized_keys', 'rescue'] },
-    owner: 'release-operations', executor: 'backend-infrastructure', guardian: 'secret-credentials-guardian', validator: 'agent-inspector', monitors: ['monitor-server-primary', 'monitor-security', 'monitor-incidents'], consulted: ['architecture-guardian'],
+    owner: 'release-operations', executor: 'backend-infrastructure', guardian: 'secret-credentials-guardian', validator: 'agent-inspector', monitors: ['monitor-server-primary', 'monitor-security', 'monitor-incidents'], consulted: ['architecture-inspector'],
     privilegedAction: 'Modificarea accesului sau a cheilor necesită autorizare Turn explicită.', recoveryChannel: 'Guardian folosește exclusiv o identitate deja autorizată sau Hetzner API/Rescue automatizat; introducerea manuală a cheilor în consola web este interzisă.', executionRequiresAuthorization: true,
     recoveryMechanisms: ['identitate SSH deja autorizată', 'Hetzner API', 'Rescue automatizat', 'custodie Guardian'],
     procedure: ['Activează automat agenții desemnați.', 'Inventariază și încearcă mecanismele interne autorizate fără expunerea secretelor.', 'Guardian validează metadatele identității.', 'Release & Operations execută recuperarea prin canalul disponibil.', 'Escaladează numai pentru criteriile rezervate sau după epuizarea documentată a mecanismelor interne.', 'Inspectorul confirmă preflight PASS și închiderea.'],
   },
   {
     id: 'api-runtime', match: { monitorCodes: ['MON-003'], checkTerms: ['api', 'health', 'ready', 'runtime'] },
-    owner: 'backend-infrastructure', executor: 'release-operations', guardian: null, validator: 'agent-inspector', monitors: ['monitor-api', 'monitor-database', 'monitor-incidents'], consulted: ['architecture-guardian'],
+    owner: 'backend-infrastructure', executor: 'release-operations', guardian: null, validator: 'agent-inspector', monitors: ['monitor-api', 'monitor-database', 'monitor-incidents'], consulted: ['architecture-inspector'],
     privilegedAction: 'Restartul local reversibil folosește drepturile administrative deja autorizate; deploy-ul Production necesită fereastra sa autorizată.', recoveryChannel: 'Release & Operations execută runbook-ul runtime și mecanismele administrative disponibile.', executionRequiresAuthorization: false,
     recoveryMechanisms: ['oprire controlată runtime', 'terminare administrativă WMI', 'restart serviciu', 'restart controlat sistem', 'pornire build canonic'],
     procedure: ['Confirmă incidentul API și activează automat agenții desemnați.', 'Validează health/readiness și dependențele.', 'Execută în ordine mecanismele interne autorizate până la recovery.', 'Validează endpointul pe portul oficial și testul funcțional relevant.', 'Escaladează numai dacă mecanismele sunt epuizate sau apare un criteriu rezervat.', 'Inspectorul validează și închide incidentul.'],
   },
   {
     id: 'public-routing', match: { monitorCodes: ['MON-008'], checkTerms: ['cloudflare', 'tunnel', 'dns', 'public route'] },
-    owner: 'release-operations', executor: 'release-operations', guardian: null, validator: 'agent-inspector', monitors: ['monitor-cloudflare', 'monitor-server-primary', 'monitor-incidents'], consulted: ['architecture-guardian'],
+    owner: 'release-operations', executor: 'release-operations', guardian: null, validator: 'agent-inspector', monitors: ['monitor-cloudflare', 'monitor-server-primary', 'monitor-incidents'], consulted: ['architecture-inspector'],
     privilegedAction: 'Schimbarea rutării necesită autorizare Turn explicită.', recoveryChannel: 'Release & Operations folosește API-ul și configurația declarativă Cloudflare.', executionRequiresAuthorization: true,
     recoveryMechanisms: ['Cloudflare API', 'configurație declarativă', 'rollback origine validată'],
     procedure: ['Activează agenții desemnați.', 'Verifică DNS, tunnel și ingress.', 'Încearcă mecanismele interne autorizate.', 'Aplică schimbarea autorizată declarativ.', 'Validează ruta din exterior.', 'Inspectorul închide incidentul.'],
   },
   {
     id: 'secret-lifecycle', match: { monitorCodes: ['MON-012'], checkTerms: ['secret', 'credentials guardian', 'token', 'key', 'rotation', 'invalid'] },
-    owner: 'secret-credentials-guardian', executor: 'secret-credentials-guardian', guardian: 'secret-credentials-guardian', validator: 'agent-inspector', monitors: ['monitor-security', 'monitor-incidents'], consulted: ['architecture-guardian', 'release-operations'],
+    owner: 'secret-credentials-guardian', executor: 'secret-credentials-guardian', guardian: 'secret-credentials-guardian', validator: 'agent-inspector', monitors: ['monitor-security', 'monitor-incidents'], consulted: ['architecture-inspector', 'release-operations'],
     privilegedAction: 'Generarea, instalarea, rotația sau revocarea necesită autorizare Turn explicită.', recoveryChannel: 'Guardian operează prin magazinul de secrete și API-urile autorizate; valorile nu sunt introduse manual în UI.', executionRequiresAuthorization: true,
     recoveryMechanisms: ['secret manager aprobat', 'custodie DPAPI', 'API furnizor', 'rotație și revocare controlată'],
     procedure: ['Activează agenții desemnați.', 'Guardian validează numai metadatele secretului.', 'Încearcă mecanismele interne autorizate.', 'Aplică instalarea sau rotația prin canal securizat.', 'Reverifică serviciul dependent.', 'Inspectorul validează telemetria și închiderea.'],

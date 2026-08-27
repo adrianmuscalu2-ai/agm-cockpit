@@ -14,5 +14,6 @@ import { TurnAdminService } from './turn-admin.service';
   ],
   controllers: [TurnAdminController],
   providers: [TurnAdminService],
+  exports: [TurnAdminService],
 })
 export class TurnAdminModule {}

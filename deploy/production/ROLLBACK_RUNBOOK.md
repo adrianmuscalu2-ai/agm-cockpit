@@ -4,8 +4,9 @@ Status: prepared for controlled rehearsal; production execution requires separat
 
 ## Immutable identities
 
-- API image: `agm-api@sha256:c232624416236ede00aa992369e8c519668694399fff1d9266de19da0db4d43c`
-- OCI revision: `9956eb188fdd988bf0d7af93241c3c43962d9b39`
+- API image: exact prior `AGM_IMAGE` value captured in the approved pre-change rollback bundle.
+- Web image: exact prior `AGM_WEB_IMAGE` value captured in the approved pre-change rollback bundle.
+- API/Web revisions: exact prior `AGM_REVISION` and `AGM_WEB_REVISION` values from that bundle.
 - Compose project: `agm-production`
 - API container: `agm-production-api`
 - PostgreSQL container: `agm-postgres`

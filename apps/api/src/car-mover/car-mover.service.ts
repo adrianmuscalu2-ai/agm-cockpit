@@ -1,9 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { createHash, randomUUID } from 'crypto';
 import { AuditService } from '../audit/audit.service';
 import type { RequestContext } from '../common/request-context';
 import { PrismaService } from '../prisma/prisma.service';
+import { PilotOperationsService } from '../pilot-operations/pilot-operations.service';
 import { CAR_MOVER_SCOPE, canTransitionCarMoverJob, type CarMoverJobFile, type CarMoverState } from './car-mover.contract';
 import type { CreateCarMoverJobDto } from './dto/create-car-mover-job.dto';
 import type { TransitionCarMoverJobDto } from './dto/transition-car-mover-job.dto';
@@ -14,7 +15,7 @@ import type { ReviewCarMoverOfferDto } from './dto/review-car-mover-offer.dto';
 
 @Injectable()
 export class CarMoverService {
-  constructor(private readonly prisma:PrismaService, private readonly audit:AuditService) {}
+  constructor(private readonly prisma:PrismaService, private readonly audit:AuditService, @Optional() private readonly pilot?:PilotOperationsService) {}
 
   async create(dto:CreateCarMoverJobDto, ctx:RequestContext) {
     this.authorize(ctx);
@@ -102,21 +103,40 @@ export class CarMoverService {
       reclassified++;
     }
     const messages=await this.prisma.communicationMessage.findMany({where:{companyId:ctx.companyId,direction:'inbound',channel:{in:['email','whatsapp']}},orderBy:{occurredAt:'desc'},take:200});
-    let created=0,duplicates=0;
+    let created=0,updated=0,duplicates=0,gmailProcessed=0,gmailRelevant=0,gmailCreated=0,gmailDuplicates=0,gmailParsingErrors=0;
     for(const message of messages){
-      const parsed=parsePlatformOffer(`${message.subject??''}\n${message.bodyText}`,message.provider,message.fromAddress);
+      if(message.provider==='gmail')gmailProcessed++;
+      let parsed:ReturnType<typeof parsePlatformOffer>;
+      try{parsed=parsePlatformOffer(`${message.subject??''}\n${message.bodyText}`,message.provider,message.fromAddress);}catch{if(message.provider==='gmail')gmailParsingErrors++;continue;}
       if(!parsed.isOffer)continue;
+      if(message.provider==='gmail')gmailRelevant++;
+      const rawMessageSha256=createHash('sha256').update(`${message.subject??''}\n${message.bodyText}`).digest('hex');
+      const correlatedOffer=await this.prisma.carMoverPlatformOffer.findFirst({where:{companyId:ctx.companyId,status:{in:['NEW','REVIEWED']},OR:[...(parsed.externalReference?[{platformName:parsed.platformName,externalReference:parsed.externalReference}]:[]),{rawMessageSha256}]},orderBy:{updatedAt:'desc'}});
+      if(correlatedOffer){
+        const correlatedSource=await this.prisma.communicationMessage.findFirst({where:{id:correlatedOffer.sourceMessageId,companyId:ctx.companyId}});
+        const correlation=classifyOfferCorrelation(correlatedOffer.rawMessageSha256,correlatedSource?.occurredAt,message.occurredAt,rawMessageSha256);
+        if(correlation!=='UPDATE'){duplicates++;if(message.provider==='gmail')gmailDuplicates++;continue;}
+        await this.prisma.$transaction(async tx=>{
+          const next=await tx.carMoverPlatformOffer.update({where:{id:correlatedOffer.id},data:{sourceMessageId:message.id,channel:message.channel,pickupLabel:parsed.pickupLabel,destinationLabel:parsed.destinationLabel,pickupAt:parsed.pickupAt,vehicleDescription:parsed.vehicleDescription,offeredAmount:parsed.offeredAmount?new Prisma.Decimal(parsed.offeredAmount):null,currencyCode:parsed.currencyCode??null,estimatedKm:parsed.estimatedKm??null,score:parsed.score,extractionConfidence:parsed.confidence,analysis:{...parsed.analysis,correlatedUpdate:true,previousSourceMessageId:correlatedOffer.sourceMessageId} as Prisma.InputJsonValue,rawMessageSha256,version:{increment:1}}});
+          await this.appendOfferEvent(tx,next.id,next.version,'CAR_MOVER_PLATFORM_OFFER_UPDATED',{sourceMessageId:message.id,previousSourceMessageId:correlatedOffer.sourceMessageId,platformName:next.platformName,externalReference:next.externalReference,changedInput:true},ctx);
+          await this.audit.create({actionCode:'car-mover-platform-offer-updated',entityType:'CarMoverPlatformOffer',entityId:next.id,reason:'A newer source message changed an already correlated offer.',beforeSnapshot:correlatedOffer,afterSnapshot:next,productId:CAR_MOVER_SCOPE.productId,moduleId:'platform-alerts',subjectType:'CarMoverPlatformOffer',subjectId:next.id},ctx,tx);
+        });
+        updated++;
+        continue;
+      }
       const existing=await this.prisma.carMoverPlatformOffer.findUnique({where:{companyId_sourceMessageId:{companyId:ctx.companyId,sourceMessageId:message.id}}});
-      if(existing){duplicates++;continue;}
+      if(existing){duplicates++;if(message.provider==='gmail')gmailDuplicates++;continue;}
       await this.prisma.$transaction(async tx=>{
-        const offer=await tx.carMoverPlatformOffer.create({data:{companyId:ctx.companyId,sourceMessageId:message.id,channel:message.channel,platformName:parsed.platformName,externalReference:parsed.externalReference,pickupLabel:parsed.pickupLabel,destinationLabel:parsed.destinationLabel,pickupAt:parsed.pickupAt,vehicleDescription:parsed.vehicleDescription,offeredAmount:parsed.offeredAmount?new Prisma.Decimal(parsed.offeredAmount):undefined,currencyCode:parsed.currencyCode,estimatedKm:parsed.estimatedKm,score:parsed.score,extractionConfidence:parsed.confidence,analysis:parsed.analysis as Prisma.InputJsonValue,rawMessageSha256:createHash('sha256').update(`${message.subject??''}\n${message.bodyText}`).digest('hex')}});
+        const offer=await tx.carMoverPlatformOffer.create({data:{companyId:ctx.companyId,sourceMessageId:message.id,channel:message.channel,platformName:parsed.platformName,externalReference:parsed.externalReference,pickupLabel:parsed.pickupLabel,destinationLabel:parsed.destinationLabel,pickupAt:parsed.pickupAt,vehicleDescription:parsed.vehicleDescription,offeredAmount:parsed.offeredAmount?new Prisma.Decimal(parsed.offeredAmount):undefined,currencyCode:parsed.currencyCode,estimatedKm:parsed.estimatedKm,score:parsed.score,extractionConfidence:parsed.confidence,analysis:parsed.analysis as Prisma.InputJsonValue,rawMessageSha256}});
         const event=await this.appendOfferEvent(tx,offer.id,0,'CAR_MOVER_PLATFORM_OFFER_EXTRACTED',{sourceMessageId:message.id,channel:message.channel,platformName:offer.platformName,score:offer.score,confidence:offer.extractionConfidence},ctx);
         await this.audit.create({actionCode:'car-mover-platform-offer-extracted',entityType:'CarMoverPlatformOffer',entityId:offer.id,reason:'Inbound platform alert extracted for human review.',afterSnapshot:{...offer,rawMessageSha256:offer.rawMessageSha256},productId:CAR_MOVER_SCOPE.productId,moduleId:'platform-alerts',subjectType:'CarMoverPlatformOffer',subjectId:offer.id},ctx,tx);
         void event;
       });
       created++;
+      if(message.provider==='gmail')gmailCreated++;
     }
-    return {scanned:messages.length,created,duplicates,reclassified,automaticAcceptance:false};
+    if(this.pilot){const totalGmail=await this.prisma.communicationMessage.count({where:{companyId:ctx.companyId,direction:'inbound',channel:'email',provider:'gmail'}});await this.pilot.recordGmailAnalysis(ctx,{processed:gmailProcessed,relevant:gmailRelevant,created:gmailCreated,duplicates:gmailDuplicates,parsingErrors:gmailParsingErrors,backlog:Math.max(0,totalGmail-gmailProcessed)});}
+    return {scanned:messages.length,created,updated,duplicates,reclassified,automaticAcceptance:false};
   }
 
   async listOffers(ctx:RequestContext){this.authorize(ctx);return this.prisma.carMoverPlatformOffer.findMany({where:{companyId:ctx.companyId},orderBy:[{status:'asc'},{score:'desc'},{createdAt:'desc'}]});}
@@ -200,7 +220,6 @@ export class CarMoverService {
 
 export function parsePlatformOffer(text:string,provider:string,from:string){
   const compact=text.replace(/\r/g,'').trim();
-  const lower=compact.toLowerCase();
   const platformName=/onlogist/i.test(compact)?'Onlogist':/mocca/i.test(compact)?'MOCCA':provider==='gmail'?'Gmail alert':provider.includes('whatsapp')?'WhatsApp alert':from;
   const route=compact.match(/(?:from|de la|von)\s+([^\n,;]+?)\s+(?:to|la|nach)\s+([^\n,;]+)/i)??compact.match(/([^\n,;]{2,80})\s*(?:→|->)\s*([^\n,;]{2,80})/);
   const amount=compact.match(/(?:€|eur\s*)\s*(\d+(?:[.,]\d{1,2})?)|(\d+(?:[.,]\d{1,2})?)\s*(?:€|eur)/i);
@@ -214,4 +233,10 @@ export function parsePlatformOffer(text:string,provider:string,from:string){
   const offeredAmount=amount?String(amount[1]??amount[2]).replace(',','.'):undefined;
   const isOffer=Boolean(route)&&(Boolean(amount)||Boolean(vehicle)||Boolean(reference));
   return {isOffer,platformName,externalReference:reference?.[1],pickupLabel:route?.[1]?.trim(),destinationLabel:route?.[2]?.trim(),pickupAt:undefined,vehicleDescription:vehicle?.[1]?.trim(),offeredAmount,currencyCode,estimatedKm:km?Number(km[1]):undefined,score,confidence,analysis:{contractVersion:'car-mover-offer-analysis.v1',signals:{route:Boolean(route),amount:Boolean(amount),distance:Boolean(km),vehicle:Boolean(vehicle),reference:Boolean(reference)},reason:score>=70?'Date suficiente pentru evaluare umană.':'Ofertă incompletă; necesită verificare.',automaticDecision:false,sourceProvider:provider,sourceAddressHash:createHash('sha256').update(from.toLowerCase()).digest('hex')}};
+}
+
+export function classifyOfferCorrelation(existingHash:string,existingTimestamp:Date|undefined,incomingTimestamp:Date,incomingHash:string):'DUPLICATE'|'OUTDATED_DUPLICATE'|'UPDATE'{
+  if(existingHash===incomingHash)return'DUPLICATE';
+  if(existingTimestamp&&incomingTimestamp<=existingTimestamp)return'OUTDATED_DUPLICATE';
+  return'UPDATE';
 }

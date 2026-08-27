@@ -4,6 +4,12 @@ const valid = {
   JWT_SECRET: 'a-secure-session-secret-with-more-than-32-characters',
   DATABASE_URL: 'postgresql://reference-only',
   OPENAI_API_KEY: 'configured-provider-reference',
+  TOMTOM_API_KEY: 'A1B2C3D4E5F6',
+  HERE_API_KEY: 'guardian-reference-here-key',
+  TOLLGURU_API_KEY: 'guardian-reference-toll-key',
+  GMAIL_OAUTH_CLIENT_ID: 'guardian-reference.apps.googleusercontent.com',
+  GMAIL_OAUTH_CLIENT_SECRET: 'guardian-client-secret-reference',
+  GMAIL_OAUTH_REFRESH_TOKEN: 'guardian-refresh-token-reference',
   AGM_TURN_ADMIN_PIN_HASH: '$2b$12$reference-not-a-secret-value',
 };
 
@@ -32,5 +38,11 @@ describe('Secret & Credentials Guardian safe telemetry', () => {
 
     expect(snapshot.secrets.find((item) => item.id === 'turn-administration')?.status).toBe('CONFIGURED');
     expect(JSON.stringify(snapshot)).not.toContain('open-pre-release');
+  });
+
+  it('accepts an official 12-character alphanumeric TomTom key without exposing it', () => {
+    const snapshot = evaluateSecretMetadata(valid, 'test', '2026-08-24T13:00:00.000Z');
+    expect(snapshot.secrets.find((item) => item.id === 'live-mobility-tomtom')?.status).toBe('CONFIGURED');
+    expect(JSON.stringify(snapshot)).not.toContain(valid.TOMTOM_API_KEY);
   });
 });

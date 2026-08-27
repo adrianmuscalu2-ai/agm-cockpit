@@ -1,0 +1,11 @@
+[Unit]
+Description=AGM retention security and audit logs
+
+[Timer]
+OnCalendar=*-*-* 05:30:00 UTC
+RandomizedDelaySec=5m
+Persistent=true
+Unit=agm-retention@identifierAuditLogs.service
+
+[Install]
+WantedBy=timers.target

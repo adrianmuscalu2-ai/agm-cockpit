@@ -21,6 +21,12 @@ export const safeSecretDefinitions: SafeSecretDefinition[] = [
   { id: 'session-signing', configKey: 'JWT_SECRET', provider: 'AGM', dependentService: 'Auth / Turn sessions', validateReference: (value) => value.length >= 32 && !placeholders.has(value.toLowerCase()) },
   { id: 'database-connection', configKey: 'DATABASE_URL', provider: 'PostgreSQL', dependentService: 'AGM API / persistence', validateReference: (value) => /^postgres(?:ql)?:\/\//i.test(value) },
   { id: 'translation-provider', configKey: 'OPENAI_API_KEY', provider: 'OpenAI', dependentService: 'Translator', validateReference: (value) => value.length >= 20 && !placeholders.has(value.toLowerCase()) },
+  { id: 'live-mobility-tomtom', configKey: 'TOMTOM_API_KEY', provider: 'TomTom', dependentService: 'Geocoding / Routing / Traffic adapters', validateReference: (value) => /^[A-Za-z0-9]+$/.test(value) && !placeholders.has(value.toLowerCase()) },
+  { id: 'live-mobility-here', configKey: 'HERE_API_KEY', provider: 'HERE', dependentService: 'Geocoding / Routing / Transit fallback', validateReference: (value) => value.length >= 16 && !placeholders.has(value.toLowerCase()) },
+  { id: 'live-mobility-tollguru', configKey: 'TOLLGURU_API_KEY', provider: 'TollGuru', dependentService: 'Toll Estimate adapter', validateReference: (value) => value.length >= 16 && !placeholders.has(value.toLowerCase()) },
+  { id: 'gmail-oauth-client', configKey: 'GMAIL_OAUTH_CLIENT_ID', provider: 'Google Gmail', dependentService: 'Gmail Intake', validateReference: (value) => value.endsWith('.apps.googleusercontent.com') },
+  { id: 'gmail-oauth-client-secret', configKey: 'GMAIL_OAUTH_CLIENT_SECRET', provider: 'Google Gmail', dependentService: 'Gmail Intake', validateReference: (value) => value.length >= 16 && !placeholders.has(value.toLowerCase()) },
+  { id: 'gmail-oauth-refresh', configKey: 'GMAIL_OAUTH_REFRESH_TOKEN', provider: 'Google Gmail', dependentService: 'Gmail Intake', validateReference: (value) => value.length >= 16 && !placeholders.has(value.toLowerCase()) },
   { id: 'turn-administration', configKey: 'AGM_TURN_ADMIN_PIN_HASH', provider: 'AGM', dependentService: 'Turn Command Center', validateReference: (value) => /^\$2[aby]\$\d{2}\$/.test(value) },
 ];
 

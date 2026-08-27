@@ -34,7 +34,10 @@ async function request(path: string, options: RequestInit = {}) {
     window.clearTimeout(timeout);
   }
   const payload = await response.json().catch(() => ({})) as { data?: unknown; message?: string };
-  if (!response.ok) throw new Error(Array.isArray(payload.message) ? payload.message.join(' ') : payload.message || 'Acces administrativ indisponibil.');
+  if (!response.ok) {
+    if (response.status === 429) throw new Error('Prea multe încercări de Owner Access. Așteaptă fereastra indicată de server și încearcă o singură dată.');
+    throw new Error(Array.isArray(payload.message) ? payload.message.join(' ') : payload.message || 'Acces administrativ indisponibil.');
+  }
   return payload.data;
 }
 

@@ -1,0 +1,8 @@
+{
+  "executionId": "p9-internal-static-v2-001",
+  "workload": "READ_ONLY_LEASE_COMMIT",
+  "operationCount": 5,
+  "cadenceMs": 1,
+  "timeoutMs": 100,
+  "maximumWindowMs": 504
+}

@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict'; import { readFileSync } from 'node:fs'; import { evaluateSoakWindow } from '../packages/copilot-control-plane/src/p9-soak-readiness';
+const thresholds = JSON.parse(readFileSync('config/copilot-v1.2/p9-official-soak-readiness-thresholds.json','utf8').replace(/^\uFEFF/,''));
+const fixture:any={host:{cpuMaximumPercent:20,processorQueueMaximum:1,logicalCpuCount:8},runner:{cpuMaximumPercentOfOneCore:10,eventLoopP95Ms:5,eventLoopMaximumMs:20},endpoints:[{id:'health',samples:10,failures:0,timeouts:0,p95Ms:100,maximumMs:200}],workers:[{workerId:'w1',operations:5,errors:0,timeouts:0,identityVerified:true,cleanupAttested:true}],basic:{availabilityPercent:100,p95Ms:100,maximumMs:200},final:{workersRemaining:0,p9:'STOPPED',killSwitch:'ACTIVE',trafficAllowed:false},telemetry:{missingSamples:0,staleSamples:0}};
+assert.equal(evaluateSoakWindow(fixture,thresholds).pass,true);
+assert.deepEqual(evaluateSoakWindow(fixture,{...thresholds,approvalState:'OWNER_APPROVAL_REQUIRED'}).failures,['THRESHOLDS_NOT_OWNER_APPROVED']);
+const approved=thresholds;
+for(const [name,change] of Object.entries({cpu:{host:{...fixture.host,cpuMaximumPercent:85}},loop:{runner:{...fixture.runner,eventLoopP95Ms:101}},endpoint:{endpoints:[{...fixture.endpoints[0],timeouts:1}]},worker:{workers:[{...fixture.workers[0],identityVerified:false}]},containment:{final:{...fixture.final,workersRemaining:1}},missing:{telemetry:{missingSamples:1,staleSamples:0}}})){const result=evaluateSoakWindow({...fixture,...change},approved);assert.equal(result.pass,false,name);assert.equal(result.rawLastExitCodeUsed,false)}
+console.log('P9 OFFICIAL SOAK READINESS CONTRACT PASS 8/8; TRAFFIC=0');

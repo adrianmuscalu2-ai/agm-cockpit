@@ -1,14 +1,15 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
-import type { Prisma } from '@prisma/client';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import type { CommunicationMessage, Prisma } from '@prisma/client';
 import type { RequestContext } from '../common/request-context';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CommunicationStatus, InboundCommunication, OutboundCommunication } from './communication.contract';
 import { communicationChannels, normalizeAddress, validateOutbound } from './communication.contract';
 import { CommunicationProviderRegistry } from './communication-provider.port';
+import { PilotOperationsService } from '../pilot-operations/pilot-operations.service';
 
 @Injectable()
 export class CommunicationService {
-  constructor(private readonly prisma: PrismaService, private readonly providers: CommunicationProviderRegistry) {}
+  constructor(private readonly prisma: PrismaService, private readonly providers: CommunicationProviderRegistry, @Optional() private readonly pilot?:PilotOperationsService) {}
 
   async send(value: unknown, ctx: RequestContext) {
     let input: OutboundCommunication;
@@ -71,16 +72,30 @@ export class CommunicationService {
   async syncRecent(channel: 'email'|'whatsapp', ctx: RequestContext) {
     const provider = this.provider(channel);
     if (!provider.readRecent) throw new ServiceUnavailableException({ code: 'COMMUNICATION_PROVIDER_SYNC_NOT_SUPPORTED', channel });
-    const messages = await provider.readRecent();
-    let ingested = 0, duplicates = 0;
-    for (const message of messages) {
-      const result = await this.ingest(message, ctx.companyId);
-      if (result.duplicate) duplicates++; else ingested++;
+    let maxMessages: number | undefined;
+    if(channel==='email'&&this.pilot){
+      const eligibility=await this.pilot.eligibility('gmail',ctx);
+      if(!eligibility.allowed)throw new ServiceUnavailableException({code:eligibility.reason,channel});
+      const remaining=(eligibility.activation?.dailyRequestLimit??0)-(eligibility.used??0);
+      // Reserve one request for OAuth refresh and one for the Gmail list call.
+      maxMessages=Math.min(100,remaining-2);
+      if(maxMessages<1)throw new ServiceUnavailableException({code:'PILOT_DAILY_REQUEST_LIMIT',channel});
     }
-    return { channel, provider: provider.provider, scanned: messages.length, ingested, duplicates };
+    const started=Date.now();
+    try{
+      const messages = await provider.readRecent(maxMessages);
+      let ingested = 0, duplicates = 0;
+      for (const message of messages) {
+        const result = await this.ingest(message, ctx.companyId);
+        if (result.duplicate) duplicates++; else ingested++;
+      }
+      const providerMetrics=provider.consumeTelemetry?.()??{requestCount:1,latencyMs:Date.now()-started,timeouts:0,rateLimitEvents:0,errors:0};
+      if(channel==='email'&&this.pilot){const stale=messages.filter((message)=>Date.now()-new Date(message.occurredAt).getTime()>6*60*60_000).length;await this.pilot.recordGmailSync(ctx,{processed:messages.length,duplicates,latencyMs:Date.now()-started,backlog:0,stale});for(let index=0;index<providerMetrics.requestCount;index++)await this.pilot.record({providerId:'gmail',adapterId:'gmail.intake',category:'EMAIL',eventType:'PROVIDER_REQUEST',outcome:'SUCCESS',latencyMs:index===0?providerMetrics.latencyMs:undefined,rateLimited:index<providerMetrics.rateLimitEvents,timeout:index<providerMetrics.timeouts,metrics:{syncMessages:messages.length}},ctx);}
+      return { channel, provider: provider.provider, scanned: messages.length, ingested, duplicates, providerRequests:providerMetrics.requestCount };
+    }catch(error){const safe=safeError(error);const providerMetrics=provider.consumeTelemetry?.()??{requestCount:1,latencyMs:Date.now()-started,timeouts:0,rateLimitEvents:0,errors:1};if(channel==='email'&&this.pilot){await this.pilot.recordGmailSync(ctx,{processed:0,duplicates:0,latencyMs:Date.now()-started,backlog:0,stale:0,errorCode:safe});await this.pilot.record({providerId:'gmail',adapterId:'gmail.intake',category:'EMAIL',eventType:'PROVIDER_REQUEST',outcome:'ERROR',latencyMs:providerMetrics.latencyMs,rateLimited:providerMetrics.rateLimitEvents>0,timeout:providerMetrics.timeouts>0,errorCode:safe},ctx);}throw error;}
   }
 
-  private async deliver(message: any, input: OutboundCommunication, duplicate: boolean) {
+  private async deliver(message: CommunicationMessage, input: OutboundCommunication, duplicate: boolean) {
     const provider = this.provider(input.channel);
     await this.prisma.communicationMessage.update({ where: { id: message.id }, data: { status: 'sending', statusUpdatedAt: new Date() } });
     try {
@@ -103,7 +118,7 @@ export class CommunicationService {
     return existing ?? this.prisma.communicationConversation.create({ data: input });
   }
 
-  private resource(message: any, duplicate: boolean) { return { id: message.id, conversationId: message.conversationId, channel: message.channel, direction: message.direction, status: message.status, occurredAt: message.occurredAt, duplicate }; }
+  private resource(message: CommunicationMessage, duplicate: boolean) { return { id: message.id, conversationId: message.conversationId, channel: message.channel, direction: message.direction, status: message.status, occurredAt: message.occurredAt, duplicate }; }
 }
 
 function safeError(error: unknown) { const value = error instanceof Error ? error.message : 'UNKNOWN'; return value.split(':')[0].replace(/[^A-Z0-9_-]/gi, '_').slice(0, 80); }

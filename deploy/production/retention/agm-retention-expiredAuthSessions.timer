@@ -1,0 +1,12 @@
+[Unit]
+Description=AGM retention expired authentication sessions
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 UTC
+RandomizedDelaySec=5m
+Persistent=true
+Unit=agm-retention@expiredAuthSessions.service
+
+[Install]
+WantedBy=timers.target
+

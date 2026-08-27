@@ -1,10 +1,13 @@
 param(
   [string]$Email = 'agm.transporte.logistik@gmail.com',
   [string]$HostAddress = '167.233.237.253',
-  [string]$IdentityPath = "$env:USERPROFILE\.ssh\agm_release_operations_hetzner_ed25519"
+  [string]$IdentityPath = "$env:USERPROFILE\.ssh\agm_release_operations_hetzner_ed25519",
+  [Parameter(Mandatory = $true)]
+  [switch]$Age18Confirmed
 )
 
 $ErrorActionPreference = 'Stop'
+if (-not $Age18Confirmed) { throw 'AGE_18_CONFIRMATION_REQUIRED_BEFORE_ACCOUNT_ACTIVATION' }
 $Host.UI.RawUI.WindowTitle = 'AGM - SECURE PRODUCT OWNER PASSWORD'
 
 if (-not (Test-Path -LiteralPath $IdentityPath)) { throw 'Identitatea SSH aprobată nu este disponibilă.' }
@@ -121,6 +124,8 @@ try {
     account_active = [bool]$validated.account_active
     owner_active = [bool]$validated.owner_active
     premium_active = [bool]$validated.premium_active
+    age_18_confirmed = $true
+    age_confirmation_method = 'administrative-attestation-no-birth-date-collected'
     verified_at = (Get-Date).ToUniversalTime().ToString('o')
   } | ConvertTo-Json | Set-Content -LiteralPath $resultPath -Encoding UTF8
   Write-Host $safeResult

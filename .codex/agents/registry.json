@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "agents": [
+    {
+      "id": "rescue",
+      "name": "Rescue",
+      "status": "OFFICIAL_PERSISTENT",
+      "skill": ".codex/skills/rescue/SKILL.md",
+      "vscodeAgent": ".github/agents/rescue.agent.md",
+      "browserPreflight": "pnpm rescue:browser-preflight",
+      "route": "VS CODE BLOCKED → RESCUE → CODEX DESKTOP iab → PROBĂ MINIMĂ → HANDOFF → ÎNCHIDERE"
+    }
+  ]
+}

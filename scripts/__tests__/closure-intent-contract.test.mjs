@@ -1,0 +1,23 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { validateClosureIntent } from '../closure-intent-contract.mjs';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+const h='a'.repeat(64); const sig=(path)=>({path,bytes:1,sha256:h});
+const valid=()=>({contract:'agm-instrumentation-lifecycle-closure-intent.v2',contractVersion:2,publishedAt:new Date().toISOString(),publication:{atomic:true,overwriteForbidden:true},runId:'run',phase:'RUNNER_CLEANUP_COMPLETE_PENDING_EXTERNAL_FINALIZATION',runner:{pid:12,identitySha256:h,creationEpochMs:1,imageName:'powershell.exe'},windowIdentity:{runId:'run',windowId:'run',signature:sig('window.json')},manifestReference:{pathBase:'OUTPUT_ROOT',path:'SHA256SUMS.json',hashAlgorithm:'SHA256',immutableAfterHash:true},inputs:{shutdown:sig('shutdown.json'),managedRoots:sig('managed-process-roots.json'),priorInventory:sig('managed-process-tree-before-shutdown.json'),knownProtectedBackground:sig('known-protected-background.json')},outputs:{finalInventory:'process-inventory-after.json',analysis:'instrumentation-lifecycle-analysis.json',verdict:'external-finalizer-verdict.json',finalizerLifecycle:'external-finalizer-lifecycle.json'},externalFinalizerSource:{pathBase:'WORKSPACE_ROOT',...sig('scripts/Invoke-InstrumentationLifecycleExternalFinalizer.ps1')},runnerMustExitBeforeFinalInventory:true,finalizerMustDeclareExactIdentity:true});
+const check=async(fn,code)=>{const x=valid();fn(x);const r=await validateClosureIntent(x,{verifyFiles:false});assert.ok(r.findings.includes(code),r.findings.join(','));};
+test('canonical closure intent passes schema',async()=>assert.equal((await validateClosureIntent(valid(),{verifyFiles:false})).valid,true));
+test('externalFinalizerSource absent',()=>check(x=>delete x.externalFinalizerSource,'EXTERNAL_FINALIZER_SOURCE_INVALID'));
+test('externalFinalizerSource null',()=>check(x=>x.externalFinalizerSource=null,'EXTERNAL_FINALIZER_SOURCE_INVALID'));
+test('externalFinalizerSource empty',()=>check(x=>x.externalFinalizerSource.path='','EXTERNAL_FINALIZER_SOURCE_INVALID'));
+test('ambiguous absolute source path',()=>check(x=>x.externalFinalizerSource.path='C:\\ambiguous.ps1','EXTERNAL_FINALIZER_SOURCE_INVALID'));
+test('invalid source hash',()=>check(x=>x.externalFinalizerSource.sha256='bad','EXTERNAL_FINALIZER_SOURCE_INVALID'));
+test('incompatible contract version',()=>check(x=>x.contractVersion=1,'CONTRACT_VERSION_INCOMPATIBLE'));
+test('incomplete artifact',()=>check(x=>delete x.inputs.shutdown,'INPUT_SIGNATURE_INVALID_shutdown'));
+test('non-atomic publication',()=>check(x=>x.publication.atomic=false,'PUBLICATION_NOT_ATOMIC'));
+test('runner identity required',()=>check(x=>x.runner.identitySha256='','RUNNER_IDENTITY_INVALID'));
+test('output paths are canonical',()=>check(x=>x.outputs.finalInventory='other.json','OUTPUT_PATHS_INVALID'));
+test('nonexistent external finalizer source fails contractually',async()=>{const root=await mkdtemp(join(tmpdir(),'agm-intent-missing-'));try{const r=await validateClosureIntent(valid(),{workspaceRoot:root,outputRoot:root,verifyFiles:true});assert.ok(r.findings.some(x=>x.includes('SIGNED_FILE_MISSING_Invoke-InstrumentationLifecycleExternalFinalizer.ps1')));}finally{await rm(root,{recursive:true,force:true});}});
+test('producer validates before atomic publication and consumer validates before binding',async()=>{const [runner,finalizer]=await Promise.all([readFile(new URL('../Invoke-InstrumentationLifecycleClosure.ps1',import.meta.url),'utf8'),readFile(new URL('../Invoke-InstrumentationLifecycleExternalFinalizer.ps1',import.meta.url),'utf8')]);assert.ok(runner.indexOf('& node $closureIntentContractScript $intentCandidate')<runner.indexOf('Publish-JsonEvidenceAtomic -Value $closureIntent'));assert.ok(finalizer.indexOf('& node $contractValidator $intentPath')<finalizer.indexOf('$intent = Get-Content'));});

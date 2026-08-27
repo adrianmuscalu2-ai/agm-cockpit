@@ -1,0 +1,12 @@
+{
+  "contract": "agm-copilot-v1.2-p8-migration-policy.v1",
+  "mode": "NON_PRODUCTION_SHADOW_PARALLEL",
+  "dualMasterWritesAllowed": false,
+  "singleFencedWriterRequired": true,
+  "migrationEpochRequired": true,
+  "unknownRecords": "QUARANTINE",
+  "nonParityRecords": "QUARANTINE",
+  "cutoverUnit": ["tenant", "capability", "riskCohort"],
+  "productionPromotionAuthorized": false,
+  "basicInterconnectionAuthorized": false
+}

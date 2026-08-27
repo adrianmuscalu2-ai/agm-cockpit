@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import { closeMandate, handoffMandate, mandateClosureGuard, openMandate, recordMandateGate, releaseRequired, transitionMandate } from '../src/mandate-state-machine';
+
+const criteria = { finalGoal: 'Public result verified', environment: 'Production', runtimeImpact: true, requiredGates: ['STATIC_PASS', 'BUILD_PASS', 'TEST_PASS'] as const, acceptanceCriteria: ['runtime visible', 'Turn reconciled'], ownerEscalationConditions: ['new approval'] };
+let mandate = openMandate('M-TEST-001', criteria, 'executor');
+mandate = transitionMandate(mandate, 'EXECUTING', 'executor', 'Execution started');
+mandate = recordMandateGate(mandate, 'BUILD_PASS', true, 'build evidence');
+assert.throws(() => closeMandate(mandate, 'executor', 'premature'), /MANDATE_INVALID_TRANSITION|MANDATE_CLOSED_GUARD_FAILED/);
+mandate = handoffMandate(mandate, 'executor', 'secret-credentials-guardian', 'Credential dependency');
+assert.equal(mandate.id, 'M-TEST-001');
+mandate = transitionMandate(mandate, 'EXECUTING', 'secret-credentials-guardian', 'Credential dependency resolved');
+assert.equal(releaseRequired(mandate), true);
+mandate = transitionMandate(mandate, 'RELEASE', 'release-operations', 'Runtime impact requires release');
+mandate = recordMandateGate(mandate, 'RELEASE_COMPLETE', true, 'release evidence');
+mandate = recordMandateGate(mandate, 'STATIC_PASS', true, 'static evidence');
+mandate = recordMandateGate(mandate, 'TEST_PASS', true, 'test evidence');
+mandate = transitionMandate(mandate, 'RUNTIME_VERIFY', 'release-operations', 'Production verification');
+mandate = recordMandateGate(mandate, 'PRODUCTION_VERIFIED', true, 'public route evidence');
+mandate = recordMandateGate(mandate, 'RUNTIME_VERIFIED', true, 'runtime evidence');
+mandate = transitionMandate(mandate, 'TURN_RECONCILE', 'turn-chronicle', 'Reconcile Turn');
+mandate = recordMandateGate(mandate, 'INCIDENTS_RECONCILED', true, 'incident registry evidence');
+mandate = recordMandateGate(mandate, 'TURN_RECONCILED', true, 'Turn model evidence');
+mandate = recordMandateGate(mandate, 'FINAL_GOAL_REACHED', true, 'final acceptance evidence');
+mandate = transitionMandate(mandate, 'FINAL_VERDICT', 'inspector', 'Final verdict');
+assert.equal(mandateClosureGuard(mandate).allowed, true);
+mandate = closeMandate(mandate, 'inspector', 'All final gates passed');
+assert.equal(mandate.state, 'CLOSED');
+console.log('Mandate state machine: intermediate PASS, internal handoff, release gate, reconcile guard and final CLOSED: PASS');

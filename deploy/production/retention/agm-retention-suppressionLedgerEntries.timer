@@ -1,0 +1,12 @@
+[Unit]
+Description=AGM retention suppression ledger entries
+
+[Timer]
+OnCalendar=*-*-* 05:10:00 UTC
+RandomizedDelaySec=5m
+Persistent=true
+Unit=agm-retention@suppressionLedgerEntries.service
+
+[Install]
+WantedBy=timers.target
+

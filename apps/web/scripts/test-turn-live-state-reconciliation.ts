@@ -37,7 +37,7 @@ const androidHistory = historicalIncidents().find((incident) => incident.id === 
 assert.equal(androidHistory.status, 'validated');
 assert.match(androidHistory.appliedSolution, /DEGRADED \/ NO CONTINUOUS TELEMETRY/);
 assert.match(androidHistory.preventiveMeasure, /target UNKNOWN/);
-const staleAndroid = { ...androidHistory, updatedAt: '2026-08-10T08:00:00.000Z', status: 'remediation' as const, history: [{ at: '2026-08-10T08:00:00.000Z', action: 'stale-open', actor: 'MON-005', toStatus: 'remediation' as const, note: 'Persistent local copy.' }] };
+const staleAndroid = { ...androidHistory, updatedAt: '2026-08-25T08:00:00.000Z', status: 'reopened' as const, history: [{ at: '2026-08-25T08:00:00.000Z', action: 'stale-open', actor: 'MON-005', toStatus: 'reopened' as const, note: 'Persistent local copy.' }] };
 const staleAndroidJournal = new Map<string, string>([['agm.turn.incident-journal.v1', JSON.stringify([staleAndroid])]]);
 const staleAndroidStorage = { getItem:(key:string)=>staleAndroidJournal.get(key)??null, setItem:(key:string,value:string)=>void staleAndroidJournal.set(key,value) } as Storage;
 const reconciledAndroid = readIncidentJournal(staleAndroidStorage).find((incident) => incident.id === 'AGM-MON-ANDROID')!;
@@ -75,7 +75,7 @@ assert.deepEqual(incidentStatusLight('remediation'), { icon: '🟡', tone: 'yell
 assert.deepEqual(incidentStatusLight('validated'), { icon: '🟢', tone: 'green', label: 'CLOSED' });
 assert.deepEqual(incidentStatusLight(), { icon: '⚪', tone: 'white', label: 'NONE' });
 
-const failure = operationsHealthEvent(source, { ...liveHealthy, status: 'OFFLINE', freshness: 'OFFLINE' })!;
+const failure = operationsHealthEvent(source, { ...liveHealthy, status: 'OFFLINE', freshness: 'OFFLINE', outcome: 'HTTP_STATUS', confirmedOffline: true })!;
 let incidents = reconcileOperationsHealthIncident([], failure);
 assert.equal(incidents[0]?.id, 'AGM-MON-CLOUDFLARE');
 incidents = [transitionIncident(incidents[0]!, 'remediation', 'MON-008', 'Recovery automat în curs.', liveNow)];
@@ -104,7 +104,12 @@ const monitoredSources: OperationService[] = [
   { id: 'security', label: 'Secret Guardian', kind: 'http', source: 'guardian' },
 ];
 let eightActive = monitoredSources.reduce((journal, monitoredSource) => {
-  const failureEvent = operationsHealthEvent(monitoredSource, { ...liveHealthy, status: 'OFFLINE', freshness: 'OFFLINE' });
+  const failureEvent = operationsHealthEvent(monitoredSource, {
+    ...liveHealthy,
+    status: 'OFFLINE',
+    freshness: 'OFFLINE',
+    ...(monitoredSource.id === 'cloudflare-public' ? { outcome: 'HTTP_STATUS' as const, confirmedOffline: true } : {}),
+  });
   return reconcileOperationsHealthIncident(journal, failureEvent!);
 }, [] as typeof incidents);
 

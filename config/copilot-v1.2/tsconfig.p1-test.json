@@ -1,0 +1,27 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "typeRoots": ["../../apps/api/node_modules/@types"],
+    "types": ["node"],
+    "noEmit": true
+  },
+  "include": [
+    "../../packages/copilot-control-plane/src/**/*.ts",
+    "../../scripts/test-copilot-v1-2-p1-walking-skeleton.ts",
+    "../../scripts/test-copilot-v1-2-p2-federation.ts",
+    "../../scripts/test-copilot-v1-2-p3-runtime.ts",
+    "../../scripts/test-copilot-v1-2-p4-knowledge.ts",
+    "../../scripts/test-copilot-v1-2-p5-assurance.ts"
+    ,"../../scripts/test-copilot-v1-2-p6-publication.ts"
+    ,"../../scripts/test-copilot-v1-2-p7-turn-hardening.ts"
+    ,"../../scripts/test-copilot-v1-2-p8-migration.ts"
+    ,"../../scripts/test-copilot-v1-2-p9-pilot.ts"
+    ,"../../scripts/p9-authorized-pilot-runner.ts"
+    ,"../../scripts/test-p9-authorized-pilot-launcher.ts"
+    ,"../../scripts/reconcile-p9-pilot-evidence.ts"
+    ,"../../scripts/test-p9-soak-readiness.ts"
+    ,"../../scripts/p9-soak-baseline-collector.ts"
+  ]
+}

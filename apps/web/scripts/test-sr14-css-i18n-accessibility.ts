@@ -25,7 +25,7 @@ const reconstructedCss = cssModules
   .reduce((output, content) => Buffer.concat([output, content]), Buffer.alloc(0));
 assert.equal(
   createHash('sha256').update(reconstructedCss).digest('hex').toUpperCase(),
-  'D27B210081C5510D57CF65EB3F6899B54CC3319D48D4EE413BF91BFCA28069D3',
+  '3E8702CD7B8D033F80F88126B3AE11A08ABDEE65E33949D8377FD64342037A7D',
   'The modular CSS must reconstruct the approved Access/Premium and Android Wave 1 cascade.',
 );
 

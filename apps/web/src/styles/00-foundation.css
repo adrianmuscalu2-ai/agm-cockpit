@@ -86,41 +86,29 @@ textarea {
 .view-corrector,
 .view-ocr,
 .view-profile {
+  --agm-page-scene: url('/images/atmosphere/agm-basic-hero-v1.png');
   background-color: #050b11;
+  background-image:
+    linear-gradient(180deg, rgba(3, 10, 17, 0.12), rgba(3, 10, 17, 0.36)),
+    var(--agm-page-scene);
   background-repeat: no-repeat;
   background-position: center top;
   background-size: cover;
   background-attachment: fixed;
 }
 
-.view-cockpit {
-  background-image:
-    linear-gradient(180deg, rgba(3, 10, 17, 0.42), rgba(3, 10, 17, 0.78)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-cockpit-road-v3-mentor.png');
+.view-cockpit,
+.view-profile {
+  --agm-page-scene: url('/images/atmosphere/agm-cockpit-road-v3-mentor.png');
 }
 
-.view-email {
-  background-image:
-    linear-gradient(180deg, rgba(3, 10, 17, 0.228), rgba(3, 10, 17, 0.48)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-functions-ecosystem-v2.png');
-}
-
+.view-email,
 .view-corrector {
-  background-image:
-    linear-gradient(180deg, rgba(3, 10, 17, 0.38), rgba(3, 10, 17, 0.8)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-functions-ecosystem-v2.png');
+  --agm-page-scene: url('/images/atmosphere/agm-functions-ecosystem-v2.png');
 }
 
 .view-ocr {
-  background-image:
-    linear-gradient(180deg, rgba(3, 10, 17, 0.38), rgba(3, 10, 17, 0.8)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
-}
-
-.view-profile {
-  background-image:
-    linear-gradient(180deg, rgba(3, 10, 17, 0.22), rgba(3, 10, 17, 0.54)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-cockpit-road-v3-mentor.png');
+  --agm-page-scene: url('/images/atmosphere/agm-basic-hero-v1.png');
 }
 
 .view-profile .profile-panel,
@@ -277,26 +265,26 @@ textarea {
 }
 
 .view-home .home-view::before {
-  background-image: url('../../../../agmcockpit-website/public/images/atmosphere/agm-cockpit-road-v3-mentor.png');
+  background-image: url('/images/atmosphere/agm-cockpit-road-v3-mentor.png');
   opacity: 0.76;
 }
 
 .view-basic .basic-hub::before {
-  background-image: url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
-  opacity: 0.78;
+  background-image: url('/images/atmosphere/agm-basic-hero-v1.png');
+  opacity: 0.96;
 }
 
 .view-basic .basic-hub::after {
-  background: linear-gradient(180deg, rgba(3, 10, 17, 0.06), rgba(3, 10, 17, 0.375) 46%, rgba(3, 10, 17, 0.615));
+  background: linear-gradient(180deg, rgba(3, 10, 17, 0.05), rgba(3, 10, 17, 0.2) 46%, rgba(3, 10, 17, 0.38));
 }
 
 .view-access .premium-access-view::before {
-  background-image: url('../../../../agmcockpit-website/public/images/atmosphere/agm-premium-hero-v3.png');
-  opacity: 0.8;
+  background-image: url('/images/atmosphere/agm-premium-hero-v3.png');
+  opacity: 0.96;
 }
 
 .view-access .premium-access-view::after {
-  background: linear-gradient(180deg, rgba(3, 10, 17, 0.12), rgba(3, 10, 17, 0.52) 44%, rgba(3, 10, 17, 0.84));
+  background: linear-gradient(180deg, rgba(3, 10, 17, 0.06), rgba(3, 10, 17, 0.22) 44%, rgba(3, 10, 17, 0.42));
 }
 
 .home-visual {

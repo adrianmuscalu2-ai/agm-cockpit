@@ -1,0 +1,7 @@
+interface:
+  display_name: "Rescue"
+  short_description: "Recover technical blockers before HOLD"
+  default_prompt: "Use $rescue to exhaust approved recovery paths, run only the minimal retest, and return a complete recovery journal."
+
+policy:
+  allow_implicit_invocation: true

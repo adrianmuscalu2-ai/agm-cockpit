@@ -121,10 +121,10 @@ function Invoke-AgmCheck {
   param([object]$Check)
 
   if ($Simulation -eq 'Failure') {
-    return [ordered]@{ ok = $false; result = 'SIMULATED_FAILURE'; statusCode = 0; elapsedMs = 0 }
+    return [ordered]@{ ok = $false; result = 'SIMULATED_FAILURE'; outcome = 'TRANSPORT_ERROR'; statusCode = 0; elapsedMs = 0; effectiveUrl = [string]$Check.url; checkedAt = (Get-Date).ToUniversalTime().ToString('o') }
   }
   if ($Simulation -eq 'Recovery') {
-    return [ordered]@{ ok = $true; result = 'SIMULATED_RECOVERY'; statusCode = 200; elapsedMs = 0 }
+    return [ordered]@{ ok = $true; result = 'SIMULATED_RECOVERY'; outcome = 'HTTP_STATUS'; statusCode = 200; elapsedMs = 0; effectiveUrl = [string]$Check.url; checkedAt = (Get-Date).ToUniversalTime().ToString('o') }
   }
 
   $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -134,16 +134,28 @@ function Invoke-AgmCheck {
     return [ordered]@{
       ok = ([int]$response.StatusCode -ge 200 -and [int]$response.StatusCode -lt 400)
       result = "HTTP $([int]$response.StatusCode)"
+      outcome = 'HTTP_STATUS'
       statusCode = [int]$response.StatusCode
       elapsedMs = $stopwatch.ElapsedMilliseconds
+      effectiveUrl = if ($response.BaseResponse.ResponseUri) { [string]$response.BaseResponse.ResponseUri.AbsoluteUri } else { [string]$Check.url }
+      checkedAt = (Get-Date).ToUniversalTime().ToString('o')
     }
   } catch {
     $stopwatch.Stop()
+    $failureStatusCode = 0
+    if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+      $failureStatusCode = [int]$_.Exception.Response.StatusCode
+    }
+    $isTimeout = $_.Exception -is [System.TimeoutException] -or $_.Exception.Message -match '(?i)timed out|timeout'
+    $outcome = if ($failureStatusCode -gt 0) { 'HTTP_STATUS' } elseif ($isTimeout) { 'TIMEOUT' } else { 'TRANSPORT_ERROR' }
     return [ordered]@{
       ok = $false
-      result = $_.Exception.Message
-      statusCode = 0
+      result = if ($failureStatusCode -gt 0) { "HTTP $failureStatusCode" } else { $_.Exception.Message }
+      outcome = $outcome
+      statusCode = $failureStatusCode
       elapsedMs = $stopwatch.ElapsedMilliseconds
+      effectiveUrl = [string]$Check.url
+      checkedAt = (Get-Date).ToUniversalTime().ToString('o')
     }
   }
 }
@@ -171,10 +183,16 @@ foreach ($check in $config.checks) {
       lastCheckedAt = $null
       lastResult = $null
       lastAlertError = $null
+      lastSuccessAt = $null
     }
   }
   if (-not $previous.PSObject.Properties['lastAlertError']) {
     $previous | Add-Member -NotePropertyName lastAlertError -NotePropertyValue $null
+  }
+  foreach ($field in @('outcome', 'httpStatus', 'effectiveUrl', 'elapsedMs', 'lastSuccessAt')) {
+    if (-not $previous.PSObject.Properties[$field]) {
+      $previous | Add-Member -NotePropertyName $field -NotePropertyValue $null
+    }
   }
 
   if ($result.ok) {
@@ -183,6 +201,7 @@ foreach ($check in $config.checks) {
     $previous.consecutiveFailures = 0
     $previous.alertSent = $false
     $previous.lastAlertError = $null
+    $previous.lastSuccessAt = [string]$result.checkedAt
     if ($recoveryPending) {
       $incidentId = [string]$previous.incidentId
       $subject = "[AGM RECOVERY] $($check.name) este din nou online"
@@ -206,8 +225,10 @@ Recomandare: verificați stabilitatea și închideți incidentul numai după con
     }
   } else {
     $previous.consecutiveFailures = [int]$previous.consecutiveFailures + 1
-    $previous.status = 'offline'
-    if (-not $previous.alertSent -and $previous.consecutiveFailures -ge [int]$config.failureThreshold) {
+    $isMon008 = [string]$check.id -eq 'browser-public' -or [string]$check.monitorCode -eq 'MON-008'
+    $confirmedOffline = $previous.consecutiveFailures -ge [int]$config.failureThreshold -and [string]$result.outcome -eq 'HTTP_STATUS'
+    $previous.status = if ($isMon008 -and -not $confirmedOffline) { [string]$result.outcome } else { 'offline' }
+    if (-not $previous.alertSent -and $previous.consecutiveFailures -ge [int]$config.failureThreshold -and (-not $isMon008 -or $confirmedOffline)) {
       $incidentCreated = $false
       if (-not $previous.PSObject.Properties['incidentId'] -or -not $previous.incidentId) {
         $previous | Add-Member -NotePropertyName incidentId -NotePropertyValue `
@@ -239,6 +260,10 @@ Recomandare: verificați API-ul AGM, serviciul cloudflared și conectivitatea pu
 
   $previous.lastCheckedAt = $now.ToUniversalTime().ToString('o')
   $previous.lastResult = $result.result
+  $previous.outcome = [string]$result.outcome
+  $previous.httpStatus = [int]$result.statusCode
+  $previous.effectiveUrl = [string]$result.effectiveUrl
+  $previous.elapsedMs = [int64]$result.elapsedMs
   $stateMap[[string]$check.id] = $previous
   Write-Output "$($check.id)|$($previous.status)|$($result.result)|alertSent=$($previous.alertSent)"
 }

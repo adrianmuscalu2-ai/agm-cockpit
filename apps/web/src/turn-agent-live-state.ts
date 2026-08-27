@@ -97,11 +97,9 @@ function renderHistory() {
   if (list) list.innerHTML = history.slice(-20).reverse().map((event) => `<li class="${tone(event.lifecycle)}" data-runtime-event-id="${escapeHtml(event.eventId)}"><strong>${escapeHtml(event.lifecycle)}</strong><span>${escapeHtml(event.agentId)} · ${escapeHtml(event.mandateId)}</span><time>${escapeHtml(new Date(event.occurredAt).toLocaleTimeString())}</time><small>${escapeHtml(event.detail)}</small><code>${escapeHtml(event.evidenceRef)}</code></li>`).join('');
   for (const [agentId, event] of latestByAgent) {
     document.querySelectorAll<HTMLElement>(`[data-live-agent-id="${CSS.escape(agentId)}"], [data-agent-row-id="${CSS.escape(agentId)}"]`).forEach((row) => {
-      row.dataset.runtimeLifecycle = event.lifecycle;
-      row.classList.remove('operational', 'failed', 'degraded', 'monitoring');
-      row.classList.add(tone(event.lifecycle));
-      const status = row.querySelector<HTMLElement>('[data-agent-live-status]') ?? row.querySelector<HTMLElement>('.turn-status');
-      if (status) status.textContent = event.lifecycle;
+      row.dataset.lastRuntimeLifecycle = event.lifecycle;
+      row.dataset.lastRuntimeMandate = event.mandateId;
+      row.dataset.lastRuntimeAt = event.recordedAt;
     });
   }
 }

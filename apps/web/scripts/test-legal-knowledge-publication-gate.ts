@@ -14,10 +14,10 @@ import { cargoSecuringKnowledgePackage } from '../src/legal-knowledge/cargo-secu
 
 assert.equal(legalKnowledgeRegistry.length, 5);
 const mainSource = readFileSync(resolve('src', 'main.ts'), 'utf8');
-assert.match(mainSource, /renderBasicAction\('legislation-analysis',[^\n]+Analizează situație legislativă/);
-assert.match(mainSource, /renderBasicAction\('dashboard-warning-analysis',[^\n]+Identifică martor din bord/);
-assert.match(mainSource, /renderBasicAction\('tachograph-analysis',[^\n]+Analizează tahograf/);
-assert.match(mainSource, /renderBasicModule\('legal', '\/legal', '[^']+', 'Ancorarea mărfii'/);
+assert.match(mainSource, /renderBasicAction\('legislation-analysis',[^\n]+basic\.card\.legislation\.title/);
+assert.match(mainSource, /renderBasicAction\('dashboard-warning-analysis',[^\n]+basic\.card\.dashboardWarning\.title/);
+assert.match(mainSource, /renderBasicAction\('tachograph-analysis',[^\n]+basic\.card\.tachograph\.title/);
+assert.match(mainSource, /renderBasicModule\('legal', '\/legal'/);
 assert.doesNotMatch(mainSource, /renderBasicPlanned\([^\n]+(?:Martori în bord|Tahograf|Legislație)/);
 assert.equal(drivingRestTimesKnowledgePackage.items.length, 9);
 assert.equal(drivingRestTimesKnowledgePackage.status, 'published');

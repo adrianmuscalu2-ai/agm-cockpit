@@ -17,6 +17,7 @@ permissions:
 
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/agm-cockpit-api
+  WEB_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/agm-cockpit-web
 
 jobs:
   verify:
@@ -38,9 +39,14 @@ jobs:
           echo "DATABASE_URL=postgresql://ci:ci@127.0.0.1:5432/ci" >> "$GITHUB_ENV"
           echo "OPENAI_API_KEY=ci-$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - run: pnpm --filter @agm/copilot-control-plane build
+      - run: pnpm --filter @agm/api lint
       - run: pnpm --filter @agm/api test -- --runInBand
       - run: pnpm --filter @agm/api build
       - run: pnpm --filter @agm/web build
+      - run: pnpm audit:canonical-route
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm rescue:browser-preflight
+      - run: pnpm audit:wave1-browser
 
   publish:
     needs: verify
@@ -65,8 +71,31 @@ jobs:
         id: digest
         run: echo "digest=${{ steps.image.outputs.digest }}" >> "$GITHUB_OUTPUT"
 
+  publish-web:
+    needs: verify
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.digest.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        id: image
+        with:
+          context: .
+          file: deploy/cloud/web.Dockerfile
+          push: true
+          tags: ${{ env.WEB_IMAGE_NAME }}:${{ github.sha }}
+      - name: Export immutable digest
+        id: digest
+        run: echo "digest=${{ steps.image.outputs.digest }}" >> "$GITHUB_OUTPUT"
+
   deploy:
-    needs: publish
+    needs: [publish, publish-web]
     runs-on: ubuntu-latest
     environment: Production
     steps:
@@ -77,43 +106,57 @@ jobs:
           host: ${{ secrets.PRODUCTION_HOST }}
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          source: deploy/production/compose.production.yml,deploy/production/agm-production-api.service
+          source: deploy/production/compose.production.yml,deploy/production/agm-production-api.service,deploy/production/agm-production-web.service
           target: /tmp/agm-release-${{ github.run_id }}
       - name: Deploy approved digest through Release & Operations
         uses: appleboy/ssh-action@v1.2.0
-        env:
-          GMAIL_OAUTH_CLIENT_ID: ${{ secrets.GMAIL_OAUTH_CLIENT_ID }}
-          GMAIL_OAUTH_CLIENT_SECRET: ${{ secrets.GMAIL_OAUTH_CLIENT_SECRET }}
-          GMAIL_OAUTH_REFRESH_TOKEN: ${{ secrets.GMAIL_OAUTH_REFRESH_TOKEN }}
-          GMAIL_FROM_ADDRESS: ${{ secrets.GMAIL_FROM_ADDRESS }}
         with:
           host: ${{ secrets.PRODUCTION_HOST }}
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          envs: GMAIL_OAUTH_CLIENT_ID,GMAIL_OAUTH_CLIENT_SECRET,GMAIL_OAUTH_REFRESH_TOKEN,GMAIL_FROM_ADDRESS
           script: |
             set -euo pipefail
-            test -n "$GMAIL_OAUTH_CLIENT_ID"
-            test -n "$GMAIL_OAUTH_CLIENT_SECRET"
-            test -n "$GMAIL_OAUTH_REFRESH_TOKEN"
-            test -n "$GMAIL_FROM_ADDRESS"
             export AGM_IMAGE="${{ env.IMAGE_NAME }}@${{ needs.publish.outputs.digest }}"
+            export AGM_WEB_IMAGE="${{ env.WEB_IMAGE_NAME }}@${{ needs.publish-web.outputs.digest }}"
+            export AGM_REVISION="${{ github.sha }}"
+            export AGM_WEB_REVISION="${{ github.sha }}"
             release_root="/tmp/agm-release-${{ github.run_id }}/deploy/production"
-            secrets_file="/opt/agm/production/secrets/agm-production.env"
-            secrets_tmp="$(mktemp)"
-            sudo awk '!/^GMAIL_OAUTH_CLIENT_ID=|^GMAIL_OAUTH_CLIENT_SECRET=|^GMAIL_OAUTH_REFRESH_TOKEN=|^GMAIL_FROM_ADDRESS=/' "$secrets_file" > "$secrets_tmp"
-            printf '%s\n' \
-              "GMAIL_OAUTH_CLIENT_ID=$GMAIL_OAUTH_CLIENT_ID" \
-              "GMAIL_OAUTH_CLIENT_SECRET=$GMAIL_OAUTH_CLIENT_SECRET" \
-              "GMAIL_OAUTH_REFRESH_TOKEN=$GMAIL_OAUTH_REFRESH_TOKEN" \
-              "GMAIL_FROM_ADDRESS=$GMAIL_FROM_ADDRESS" >> "$secrets_tmp"
-            sudo install -o root -g root -m 0600 "$secrets_tmp" "$secrets_file"
-            rm -f "$secrets_tmp"
+            rollback_root="/opt/agm/production/rollback/${{ github.run_id }}"
+            sudo install -d -o root -g root -m 0700 "$rollback_root"
+            for current in release.env web-release.env compose.production.yml; do
+              if sudo test -f "/opt/agm/production/$current"; then
+                sudo cp --preserve=mode,timestamps "/opt/agm/production/$current" "$rollback_root/$current"
+              fi
+            done
+            sudo cp --preserve=mode,timestamps /etc/systemd/system/agm-production-api.service "$rollback_root/agm-production-api.service"
+            sudo cp --preserve=mode,timestamps /etc/systemd/system/agm-production-web.service "$rollback_root/agm-production-web.service"
+            rollback() {
+              for previous in release.env web-release.env compose.production.yml; do
+                if sudo test -f "$rollback_root/$previous"; then sudo cp "$rollback_root/$previous" "/opt/agm/production/$previous"; fi
+              done
+              sudo cp "$rollback_root/agm-production-api.service" /etc/systemd/system/agm-production-api.service
+              sudo cp "$rollback_root/agm-production-web.service" /etc/systemd/system/agm-production-web.service
+              sudo systemctl daemon-reload
+              sudo systemctl restart agm-production-api.service || true
+              sudo systemctl restart agm-production-web.service || true
+            }
+            trap rollback ERR
+            database_backup="/tmp/agm-pre-release-${{ github.run_id }}.dump"
+            sudo docker exec agm-postgres sh -ceu 'test -n "$POSTGRES_USER"; test -n "$POSTGRES_DB"; pg_isready --quiet; pg_dump --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" --format custom --compress 6 --no-owner --no-privileges --file "/tmp/agm-pre-release-${{ github.run_id }}.dump"; pg_restore --list "/tmp/agm-pre-release-${{ github.run_id }}.dump" >/dev/null'
+            sudo docker cp "agm-postgres:$database_backup" "$rollback_root/database.dump"
+            sudo docker exec agm-postgres rm -f -- "$database_backup"
+            sudo chmod 0600 "$rollback_root/database.dump"
+            sudo sha256sum "$rollback_root/database.dump" | sudo tee "$rollback_root/database.dump.sha256" >/dev/null
+            sudo chmod 0600 "$rollback_root/database.dump.sha256"
             sudo install -o root -g root -m 0644 "$release_root/compose.production.yml" /opt/agm/production/compose.production.yml
             sudo install -o root -g root -m 0644 "$release_root/agm-production-api.service" /etc/systemd/system/agm-production-api.service
-            printf 'AGM_IMAGE=%s\n' "$AGM_IMAGE" | sudo tee /opt/agm/production/release.env >/dev/null
+            sudo install -o root -g root -m 0644 "$release_root/agm-production-web.service" /etc/systemd/system/agm-production-web.service
+            printf 'AGM_IMAGE=%s\nAGM_REVISION=%s\n' "$AGM_IMAGE" "$AGM_REVISION" | sudo tee /opt/agm/production/release.env >/dev/null
+            printf 'AGM_WEB_IMAGE=%s\nAGM_WEB_REVISION=%s\n' "$AGM_WEB_IMAGE" "$AGM_WEB_REVISION" | sudo tee /opt/agm/production/web-release.env >/dev/null
             sudo chmod 0644 /opt/agm/production/release.env
+            sudo chmod 0644 /opt/agm/production/web-release.env
             sudo docker pull "$AGM_IMAGE"
+            sudo docker pull "$AGM_WEB_IMAGE"
             sudo systemctl daemon-reload
             sudo systemctl restart agm-production-api.service
             sleep 8
@@ -122,6 +165,15 @@ jobs:
             curl --fail --silent --show-error https://api.agmcockpit.com/api/v1/health/ready >/dev/null
             curl --fail --silent --show-error https://api.agmcockpit.com/api/v1/health/live | grep -F 'agent-runtime-events.v1.3' >/dev/null
             test "$(curl --silent --output /dev/null --write-out '%{http_code}' https://api.agmcockpit.com/api/v1/agent-runtime-events)" = "401"
+            test "$(curl --silent --output /dev/null --write-out '%{http_code}' https://api.agmcockpit.com/api/v1/authority-control-plane/dashboard)" = "401"
+            sudo systemctl restart agm-production-web.service
+            sleep 4
+            sudo systemctl is-active --quiet agm-production-web.service
+            test "$(sudo docker inspect --format '{{.Config.Image}}' agm-production-web)" = "$AGM_WEB_IMAGE"
+            test "$(curl --silent --output /dev/null --write-out '%{http_code}' https://app.agmcockpit.com/)" = "308"
+            test "$(curl --silent --output /dev/null --write-out '%{redirect_url}' https://app.agmcockpit.com/)" = "https://app.agmcockpit.com/basic"
+            curl --fail --silent --show-error https://app.agmcockpit.com/basic | grep -F '/assets/main-' >/dev/null
+            trap - ERR
       - name: Provision approved Car Mover entitlement
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_car_mover }}
         env:

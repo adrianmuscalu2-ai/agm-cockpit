@@ -1,0 +1,31 @@
+{
+  "contract": "agm-copilot-v1.2-p9-pilot-policy.v2",
+  "featureFlag": {
+    "name": "AGM_P9_ENABLED",
+    "default": false,
+    "autoStart": false
+  },
+  "promotionState": "NOT_PROMOTED",
+  "trafficAllowed": false,
+  "officialSoakAutoStart": false,
+  "killSwitchDefault": "ACTIVE",
+  "environment": "PRE_PRODUCTION_INTERNAL",
+  "tenantId": "tenant-agm-p9-internal",
+  "risk": "LOW",
+  "mode": "READ_ONLY",
+  "externalWriteAllowed": false,
+  "productionReachable": false,
+  "newScopes": 0,
+  "newSecrets": 0,
+  "newPermissions": 0,
+  "maxConcurrentWorkers": 4,
+  "maxRequestsPerWindow": 100,
+  "leaseMs": 30000,
+  "minimumSoakDays": 7,
+  "killSwitchRequiredBeforeAdmission": true,
+  "basicIsolation": {
+    "synchronousDependencies": [],
+    "sharedWritableResources": [],
+    "failureMode": "FAIL_CLOSED_P9_ONLY"
+  }
+}

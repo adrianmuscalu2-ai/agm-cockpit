@@ -14,7 +14,7 @@ export function renderCopilot(l: BasicLanguageCode, e: (value: string) => string
       <header class="copilot-intro"><small>AGM PREMIUM</small><h1 id="copilot-title">${e(t(l, 'title'))}</h1><p>${e(t(l, 'subtitle'))}</p></header>
       <section class="copilot-core">
         <h2>${e(t(l, 'prompt'))}</h2>
-        <button class="copilot-mic" type="button" data-assistant-start aria-pressed="false">🎙<span>ASCULTARE ON</span></button>
+        <button class="copilot-mic" type="button" data-assistant-start aria-pressed="false"><span>ASCULTARE ON</span><span class="copilot-mic-icon" aria-hidden="true">&#127908;</span></button>
         <button type="button" data-assistant-stop hidden>${e(t(l, 'cancel'))}</button>
         <div class="copilot-tools"><button type="button" data-copilot-camera>📷 ${e(t(l, 'camera'))}</button><button type="button" data-copilot-text>⌨ ${e(t(l, 'keyboard'))}</button><button type="button" data-assistant-replay>🔊 ${e(t(l, 'speaker'))}</button><button type="button" data-copilot-alert>🔔 Alertă</button><button type="button" data-copilot-whatsapp>WhatsApp</button><button type="button" data-copilot-email>Email</button></div>
         <p role="status" data-assistant-status>${e(t(l, 'textHint'))}</p>

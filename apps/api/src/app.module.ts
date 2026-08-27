@@ -27,6 +27,10 @@ import { DataRightsModule } from './data-rights/data-rights.module';
 import { CarMoverModule } from './car-mover/car-mover.module';
 import { AgentRuntimeEventsModule } from './agent-runtime-events/agent-runtime-events.module';
 import { ComponentTelemetryModule } from './component-telemetry/component-telemetry.module';
+import { AuthorityControlPlaneModule } from './authority-control-plane/authority-control-plane.module';
+import { OpportunityIntelligenceModule } from './opportunity-intelligence/opportunity-intelligence.module';
+import { LiveAdapterModule } from './live-adapters/live-adapter.module';
+import { PilotOperationsModule } from './pilot-operations/pilot-operations.module';
 
 @Module({
   imports: [
@@ -41,6 +45,7 @@ import { ComponentTelemetryModule } from './component-telemetry/component-teleme
       limit: API_CORE_CONTRACT.throttle.limit,
     }]),
     PrismaModule,
+    PilotOperationsModule,
     UsersModule,
     AuthModule,
     AuditModule,
@@ -62,6 +67,9 @@ import { ComponentTelemetryModule } from './component-telemetry/component-teleme
     CarMoverModule,
     AgentRuntimeEventsModule,
     ComponentTelemetryModule,
+    AuthorityControlPlaneModule,
+    OpportunityIntelligenceModule,
+    LiveAdapterModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

@@ -587,28 +587,28 @@
 }
 
 .view-cockpit .translator-hud {
-  background-image: url('../../../../agmcockpit-website/public/images/atmosphere/agm-cockpit-road-v3-mentor.png');
+  background-image: url('/images/atmosphere/agm-cockpit-road-v3-mentor.png');
 }
 
 .view-email .mail-composer,
 .view-corrector .text-corrector-module {
-  background-image: url('../../../../agmcockpit-website/public/images/atmosphere/agm-functions-ecosystem-v2.png');
+  background-image: url('/images/atmosphere/agm-functions-ecosystem-v2.png');
 }
 
 .view-ocr .ocr-page {
-  background-image: url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+  background-image: url('/images/atmosphere/agm-basic-hero-v1.png');
 }
 
 .view-ocr.scene-ocr-generic {
   background-image:
     linear-gradient(180deg, rgba(155, 215, 255, 0.22), rgba(72, 155, 220, 0.15)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
 }
 
 .view-ocr.scene-ocr-generic .ocr-page.ocr-theme-generic {
   background-image:
     linear-gradient(180deg, rgba(155, 215, 255, 0.24), rgba(72, 155, 220, 0.15)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
   box-shadow: 0 18px 46px rgba(0, 0, 0, 0.22);
 }
 
@@ -621,13 +621,13 @@
 .view-ocr.scene-document {
   background-image:
     linear-gradient(180deg, rgba(150, 210, 255, 0.16), rgba(70, 150, 215, 0.1)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
 }
 
 .view-ocr.scene-document .ocr-page.ocr-theme-document {
   background-image:
     linear-gradient(180deg, rgba(150, 210, 255, 0.18), rgba(70, 150, 215, 0.1)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
   box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
 }
 
@@ -640,13 +640,13 @@
 .view-ocr.scene-tachograph-analysis {
   background-image:
     linear-gradient(180deg, rgba(160, 220, 255, 0.26), rgba(75, 160, 220, 0.18)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
 }
 
 .view-ocr.scene-tachograph-analysis .ocr-page.ocr-theme-tachograph {
   background-image:
     linear-gradient(180deg, rgba(160, 220, 255, 0.28), rgba(75, 160, 220, 0.18)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
   box-shadow: 0 18px 46px rgba(0, 0, 0, 0.2);
 }
 
@@ -659,13 +659,13 @@
 .view-ocr.scene-dashboard-text-analysis {
   background-image:
     linear-gradient(180deg, rgba(155, 215, 255, 0.22), rgba(72, 155, 220, 0.15)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
 }
 
 .view-ocr.scene-dashboard-text-analysis .ocr-page.ocr-theme-dashboard {
   background-image:
     linear-gradient(180deg, rgba(155, 215, 255, 0.24), rgba(72, 155, 220, 0.15)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
   box-shadow: 0 18px 46px rgba(0, 0, 0, 0.22);
 }
 
@@ -678,13 +678,13 @@
 .view-ocr.scene-legislation-analysis {
   background-image:
     linear-gradient(180deg, rgba(152, 212, 255, 0.19), rgba(70, 150, 215, 0.13)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
 }
 
 .view-ocr.scene-legislation-analysis .ocr-page.ocr-theme-legislation {
   background-image:
     linear-gradient(180deg, rgba(152, 212, 255, 0.2), rgba(70, 150, 215, 0.13)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
   box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
 }
 
@@ -697,13 +697,13 @@
 .view-ocr.scene-cargo-safety-analysis {
   background-image:
     linear-gradient(180deg, rgba(158, 218, 255, 0.24), rgba(74, 158, 220, 0.16)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
 }
 
 .view-ocr.scene-cargo-safety-analysis .ocr-page.ocr-theme-cargo {
   background-image:
     linear-gradient(180deg, rgba(158, 218, 255, 0.26), rgba(74, 158, 220, 0.16)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-basic-hero-v1.png');
+    url('/images/atmosphere/agm-basic-hero-v1.png');
   box-shadow: 0 18px 46px rgba(0, 0, 0, 0.21);
 }
 
@@ -740,20 +740,20 @@
 .view-legal.scene-tachograph {
   background-image:
     linear-gradient(180deg, rgba(3, 10, 17, 0.14), rgba(3, 10, 17, 0.52)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-cockpit-road-v3-mentor.png');
+    url('/images/atmosphere/agm-cockpit-road-v3-mentor.png');
 }
 
 .view-legal.scene-legislation,
 .view-legal.scene-dashboard {
   background-image:
     linear-gradient(180deg, rgba(3, 10, 17, 0.12), rgba(3, 10, 17, 0.5)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-functions-ecosystem-v2.png');
+    url('/images/atmosphere/agm-functions-ecosystem-v2.png');
 }
 
 .view-legal.scene-cargo {
   background-image:
     linear-gradient(180deg, rgba(3, 10, 17, 0.1), rgba(3, 10, 17, 0.5)),
-    url('../../../../agmcockpit-website/public/images/atmosphere/agm-premium-hero-v3.png');
+    url('/images/atmosphere/agm-premium-hero-v3.png');
 }
 
 .view-legal[class*='scene-'] .legal-center {

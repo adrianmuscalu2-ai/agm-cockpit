@@ -20,7 +20,7 @@ incidents = reconcileSecretTelemetryIncident(incidents, missing);
 assert.equal(incidents[0]?.id, secretTelemetryContract.incidentId);
 assert.equal(incidents[0]?.status, 'new');
 incidents = reconcileSecretTelemetryIncident(incidents, restored);
-assert.equal(incidents[0]?.status, 'ready-test');
+assert.equal(incidents[0]?.status, 'validated');
 incidents = reconcileSecretTelemetryIncident(incidents, missing, new Date('2026-08-05T08:03:00.000Z'));
 assert.equal(incidents[0]?.status, 'reopened');
 

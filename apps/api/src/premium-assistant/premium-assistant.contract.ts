@@ -20,4 +20,5 @@ export type PremiumAssistantResponse = {
   moduleId: string;
   contextRefs: readonly string[];
   externalEffectPerformed: false;
+  timing: { orchestratorMs: number; modelMs: number; serverTotalMs: number };
 };

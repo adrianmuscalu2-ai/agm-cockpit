@@ -13,20 +13,21 @@ const manifest = readFileSync(
 );
 
 assert.ok(activity.includes('extends BridgeActivity'));
-for (const plugin of ['AgmAudioPlugin', 'AgmEmailPlugin', 'AgmDiagnosticsPlugin']) {
+for (const plugin of ['AgmAudioPlugin', 'AgmEmailPlugin', 'AgmDiagnosticsPlugin', 'AgmCapabilityPlugin']) {
   assert.ok(activity.includes(`registerPlugin(${plugin}.class)`), `Missing native plugin: ${plugin}`);
 }
 
 assert.ok(gradle.includes('namespace = "com.agm.cockpit"'));
 assert.ok(gradle.includes('applicationId "com.agm.cockpit"'));
-assert.ok(gradle.includes('versionCode 16'));
+assert.ok(gradle.includes('versionCode 21'));
 assert.ok(gradle.includes('versionName "1.3.0"'));
 assert.ok(gradle.includes('usesCleartextTraffic: "false"'));
 assert.ok(gradle.includes('usesCleartextTraffic: "true"'));
 
 assert.ok(capacitor.includes("appId: 'com.agm.cockpit'"));
-assert.ok(capacitor.includes("androidScheme: 'https'"));
-assert.ok(capacitor.includes("hostname: 'app.agmcockpit.com'"));
+assert.ok(capacitor.includes("androidScheme: allowLanHttp ? 'http' : 'https'"));
+assert.ok(capacitor.includes("allowMixedContent: allowLanHttp"));
+assert.ok(capacitor.includes("hostname: 'localhost'"));
 assert.ok(capacitor.includes("webDir: 'dist'"));
 assert.ok(manifest.includes('android.permission.INTERNET'));
 assert.ok(manifest.includes('android.permission.ACCESS_NETWORK_STATE'));

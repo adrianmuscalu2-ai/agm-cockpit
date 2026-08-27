@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { InboundCommunication, OutboundCommunication } from '../communication.contract';
-import type { CommunicationProviderPort, ProviderSendResult } from '../communication-provider.port';
+import type { CommunicationProviderPort, CommunicationProviderTelemetry, ProviderSendResult } from '../communication-provider.port';
 
 type GmailPart = { mimeType?: string; body?: { data?: string }; parts?: GmailPart[] };
 type GmailMessage = {
@@ -19,6 +19,9 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
   constructor(private readonly config: ConfigService) {}
 
   private cachedToken?: { value: string; expiresAt: number };
+  private telemetry:CommunicationProviderTelemetry={requestCount:0,latencyMs:0,timeouts:0,rateLimitEvents:0,errors:0};
+
+  consumeTelemetry(){const value={...this.telemetry};this.telemetry={requestCount:0,latencyMs:0,timeouts:0,rateLimitEvents:0,errors:0};return value;}
 
   configured() {
     const staticToken = this.config.get<string>('GMAIL_ACCESS_TOKEN');
@@ -53,13 +56,14 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
     return Promise.all(ids.map(async (id) => this.toInbound(await this.getMessage(id), pushEventId)));
   }
 
-  async readRecent(): Promise<InboundCommunication[]> {
+  async readRecent(maxMessages = 100): Promise<InboundCommunication[]> {
     if (!this.configured()) throw new Error('COMMUNICATION_PROVIDER_NOT_CONFIGURED:email');
     const query = encodeURIComponent('in:inbox newer_than:14d');
-    const response = await this.gmail(`/messages?q=${query}&maxResults=100`);
+    const safeLimit = Math.max(1, Math.min(100, Math.floor(maxMessages)));
+    const response = await this.gmail(`/messages?q=${query}&maxResults=${safeLimit}`);
     const list = await response.json() as { messages?: Array<{ id?: string }> };
     const ids = [...new Set((list.messages ?? []).map((item) => item.id).filter((id): id is string => Boolean(id)))];
-    return Promise.all(ids.map(async (id) => this.toInbound(await this.getMessage(id), `gmail-sync:${id}`)));
+    return mapWithConcurrency(ids, 5, async (id) => this.toInbound(await this.getMessage(id), `gmail-sync:${id}`));
   }
 
   private async getMessage(id: string) {
@@ -86,7 +90,7 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
   }
 
   private async gmail(path: string, init?: RequestInit) {
-    const response = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me${path}`, {
+    const response = await this.trackedFetch(`https://gmail.googleapis.com/gmail/v1/users/me${path}`, {
       ...init,
       headers: { authorization: `Bearer ${await this.accessToken()}`, 'content-type': 'application/json', ...init?.headers },
     });
@@ -104,13 +108,15 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
       refresh_token: this.config.getOrThrow<string>('GMAIL_OAUTH_REFRESH_TOKEN'),
       grant_type: 'refresh_token',
     });
-    const response = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body });
+    const response = await this.trackedFetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body });
     if (!response.ok) throw new Error(`GMAIL_OAUTH_REFRESH_FAILED:${response.status}`);
     const token = await response.json() as { access_token?: string; expires_in?: number };
     if (!token.access_token) throw new Error('GMAIL_OAUTH_REFRESH_INVALID_RESPONSE');
     this.cachedToken = { value: token.access_token, expiresAt: Date.now() + (token.expires_in ?? 3600) * 1000 };
     return token.access_token;
   }
+
+  private async trackedFetch(url:string,init:RequestInit){const started=Date.now(),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8_000);this.telemetry.requestCount++;try{const response=await fetch(url,{...init,signal:controller.signal});if(response.status===429)this.telemetry.rateLimitEvents++;if(!response.ok)this.telemetry.errors++;return response;}catch(error){this.telemetry.errors++;if((error as Error).name==='AbortError')this.telemetry.timeouts++;throw error;}finally{this.telemetry.latencyMs+=Date.now()-started;clearTimeout(timer);}}
 }
 
 function plainText(part?: GmailPart): string {
@@ -121,4 +127,17 @@ function plainText(part?: GmailPart): string {
 
 function emailAddress(value: string) {
   return value.match(/<([^>]+)>/)?.[1]?.trim().toLowerCase() ?? value.trim().toLowerCase();
+}
+
+async function mapWithConcurrency<T, R>(values: readonly T[], concurrency: number, mapper: (value: T) => Promise<R>) {
+  const results = new Array<R>(values.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(concurrency, values.length) }, async () => {
+    while (next < values.length) {
+      const index = next++;
+      results[index] = await mapper(values[index]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
 }

@@ -13,7 +13,13 @@
     "test:communications": "ts-node scripts/test-bidirectional-communications.ts",
     "preflight:communications": "ts-node scripts/communications-preflight.ts",
     "audit:premium-account": "ts-node scripts/audit-local-premium-account.ts",
-    "lifecycle:data": "ts-node scripts/run-data-lifecycle.ts"
+    "lifecycle:data": "ts-node scripts/run-data-lifecycle.ts",
+    "test:authority-control-plane-db": "ts-node scripts/test-authority-control-plane-db.ts",
+    "gate:authority-control-plane": "ts-node scripts/record-authority-control-plane-gate.ts",
+    "test:opportunity-intelligence-db": "ts-node scripts/test-opportunity-intelligence-db.ts",
+    "test:live-adapters-db": "ts-node scripts/test-live-adapters-db.ts",
+    "pilot:seed": "ts-node scripts/seed-provider-pilot.ts",
+    "pilot:report": "ts-node scripts/report-provider-pilot.ts"
   },
   "dependencies": {
     "@agm/copilot-control-plane": "workspace:*",

@@ -25,6 +25,7 @@ async function dismissTransientUi(page) {
     const control = page.locator('#acceptLegalNotice:visible, #skipRoadmapInvitation:visible, #closeTutorial:visible, [data-command="tutorial-close"]:visible').first();
     if (!(await control.count())) break;
     await control.click();
+    await control.waitFor({ state: 'hidden', timeout: 2_000 }).catch(() => undefined);
     await page.waitForTimeout(100);
   }
 }
@@ -32,6 +33,28 @@ async function dismissTransientUi(page) {
 async function waitForStableDom(page) {
   await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   await page.waitForTimeout(150);
+}
+
+async function navigateToApp(page, url) {
+  const response = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+  if (!response || response.status() >= 400) {
+    throw new Error(`Navigation did not return a successful document: ${url}; status=${response?.status() ?? 'none'}`);
+  }
+  await page.locator('#app').waitFor({ state: 'attached', timeout: 10_000 });
+  await page.locator('.quick-language-controls:visible, #acceptLegalNotice:visible').first().waitFor({ state: 'visible', timeout: 10_000 });
+  await waitForStableDom(page);
+  await dismissTransientUi(page);
+  await waitForStableDom(page);
+}
+
+async function navigateWithinApp(page, route) {
+  await page.evaluate((nextRoute) => {
+    window.history.pushState({}, '', nextRoute);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }, route);
+  await page.locator('#app').waitFor({ state: 'attached', timeout: 10_000 });
+  await dismissTransientUi(page);
+  await waitForStableDom(page);
 }
 
 async function discoverOrStartTarget() {
@@ -48,8 +71,8 @@ async function discoverOrStartTarget() {
     });
   });
   if (!dynamicPort) throw new Error('Operating system did not allocate a free local port.');
-  const command = `node_modules\\.bin\\vite.cmd --host 127.0.0.1 --port ${dynamicPort} --strictPort`;
-  const child = spawn(process.env.ComSpec || 'cmd.exe', ['/d', '/s', '/c', command], {
+  const viteCli = path.join(root, 'apps', 'web', 'node_modules', 'vite', 'bin', 'vite.js');
+  const child = spawn(process.execPath, [viteCli, '--host', '127.0.0.1', '--port', String(dynamicPort), '--strictPort'], {
     cwd: path.join(root, 'apps', 'web'), windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'],
   });
   let output = '';
@@ -88,8 +111,7 @@ try {
   const page = await context.newPage();
   const runtimeErrors = [];
   page.on('pageerror', (error) => runtimeErrors.push(error.message));
-  await page.goto(target.url, { waitUntil: 'networkidle' });
-  await dismissTransientUi(page);
+  await navigateToApp(page, target.url);
   record('BROWSER SESSION', (await page.title()).includes('A.G.M.'), await page.title());
   record('TARGET PAGE', (await page.locator('#app').count()) === 1, page.url());
 
@@ -113,9 +135,9 @@ try {
       await currentMore.selectOption(code);
     }
     await page.waitForFunction((language) => document.documentElement.lang === language, code);
-    await page.goto(new URL('/basic', target.url).toString(), { waitUntil: 'networkidle' });
-    await dismissTransientUi(page);
-    await waitForStableDom(page);
+    await navigateWithinApp(page, '/basic');
+    const languageAfterNavigation = await page.evaluate(() => document.documentElement.lang);
+    record(`LANGUAGE ${code.toUpperCase()} ROUTE PERSISTENCE`, languageAfterNavigation === code, languageAfterNavigation);
     const visibleText = await page.locator('body').innerText();
     const englishMarkers = [
       'The Basic module', 'All essential tools', 'Quick guide', 'How to use',
@@ -130,9 +152,13 @@ try {
     if (foreignMarkers.length) visualLanguageViolations.push(`${code}: ${foreignMarkers.join(', ')}`);
     await page.screenshot({ path: path.join(evidenceDir, `basic-language-${code}.png`), fullPage: true });
   }
-  await page.reload({ waitUntil: 'networkidle' });
+  const persistedLanguage = await page.evaluate(() => document.documentElement.lang);
   const persistedQuick = await page.locator('.quick-language-controls:visible').first().locator('[data-quick-language]').allTextContents();
-  record('LANGUAGE FAVORITES / PERSISTENCE', persistedQuick.length === 3 && persistedQuick.includes('SQ'), persistedQuick.join('/'));
+  record(
+    'LANGUAGE FAVORITES / PERSISTENCE',
+    persistedLanguage === 'sq' && persistedQuick.length === 3 && persistedQuick.includes('SQ'),
+    `language=${persistedLanguage}; favorites=${persistedQuick.join('/')}`,
+  );
   record('VISUAL LANGUAGE COHERENCE', visualLanguageViolations.length === 0, visualLanguageViolations.join(' | '));
 
   for (const [route, name, selector] of [
@@ -140,9 +166,7 @@ try {
     ['/email', 'EMAIL ASSISTANT', 'textarea'],
     ['/ocr', 'MULTILINGUAL OCR', 'input[type="file"]'],
   ]) {
-    await page.goto(new URL(route, target.url).toString(), { waitUntil: 'networkidle' });
-    await dismissTransientUi(page);
-    await waitForStableDom(page);
+    await navigateWithinApp(page, route);
     await page.screenshot({ path: path.join(evidenceDir, `route-${route.slice(1)}.png`), fullPage: true });
     const selectorCount = await page.locator(selector).count();
     const diagnostic = selectorCount ? route : `${route}; ${String(await page.locator('body').innerText()).slice(0, 120).replaceAll('\n', ' ')}; ${runtimeErrors.slice(-2).join(' | ')}`;
@@ -151,7 +175,7 @@ try {
 
   for (const viewport of [{ width: 1440, height: 1000 }, { width: 1024, height: 768 }]) {
     await page.setViewportSize(viewport);
-    await page.goto(new URL('/basic', target.url).toString(), { waitUntil: 'networkidle' });
+    await navigateWithinApp(page, '/basic');
     const dimensions = await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
     record(`NO OVERFLOW ${viewport.width}`, dimensions.scroll <= dimensions.client, JSON.stringify(dimensions));
     await page.screenshot({ path: path.join(evidenceDir, `basic-${viewport.width}x${viewport.height}.png`), fullPage: true });
@@ -164,9 +188,16 @@ try {
 } finally {
   await browser?.close();
   if (target?.process) {
-    spawnSync('taskkill.exe', ['/pid', String(target.process.pid), '/T', '/F'], {
-      windowsHide: true, stdio: 'ignore',
-    });
+    if (process.platform === 'win32') {
+      spawnSync('taskkill.exe', ['/pid', String(target.process.pid), '/T', '/F'], {
+        windowsHide: true, stdio: 'ignore',
+      });
+    } else {
+      target.process.kill('SIGTERM');
+    }
+    target.process.stdout?.destroy();
+    target.process.stderr?.destroy();
+    target.process.unref();
   }
   report.finishedAt = new Date().toISOString();
   report.status = report.error ? 'FAIL' : 'PASS';
@@ -176,3 +207,4 @@ try {
 console.log(`WAVE 1 BROWSER REAL VALIDATION: ${report.status}`);
 console.log(`Evidence: ${path.join(evidenceDir, 'report.json')}`);
 if (report.error) { console.error(report.error); process.exitCode = 1; }
+process.exit(report.error ? 1 : 0);

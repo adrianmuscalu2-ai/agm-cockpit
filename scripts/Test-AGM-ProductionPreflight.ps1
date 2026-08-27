@@ -45,8 +45,17 @@ Add-Check 'console-rescue' $(if($automationReady){'PASS'}else{'NOT CONFIGURED'})
 try { $live = Invoke-WebRequest -UseBasicParsing -Uri "$PublicApi/health/live" -TimeoutSec 8; $apiReady = $live.StatusCode -eq 200 } catch { $apiReady = $false }
 Add-Check 'production-api' $(if($apiReady){'PASS'}else{'FAIL'}) $(if($apiReady){'API public live răspunde HTTP 200.'}else{'API public live nu răspunde HTTP 200.'})
 
-try { $guardian = Invoke-WebRequest -UseBasicParsing -Uri "$PublicApi/security/secrets/health" -TimeoutSec 8; $guardianReady = $guardian.StatusCode -eq 200 } catch { $guardianReady = $false }
-Add-Check 'guardian-telemetry' $(if($guardianReady){'PASS'}else{'FAIL'}) $(if($guardianReady){'Telemetria publică Guardian răspunde HTTP 200.'}else{'Telemetria publică Guardian nu răspunde HTTP 200.'})
+$guardianStatus = $null
+try {
+  $guardian = Invoke-WebRequest -UseBasicParsing -Uri "$PublicApi/security/secrets/health" -TimeoutSec 8
+  $guardianStatus = [int]$guardian.StatusCode
+} catch {
+  if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+    $guardianStatus = [int]$_.Exception.Response.StatusCode
+  }
+}
+$guardianReady = $guardianStatus -in @(200, 401)
+Add-Check 'guardian-telemetry' $(if($guardianReady){'PASS'}else{'FAIL'}) $(if($guardianStatus -eq 200){'Endpointul Guardian răspunde HTTP 200.'}elseif($guardianStatus -eq 401){'Endpointul Guardian există și refuză corect accesul neautentificat cu HTTP 401.'}else{'Endpointul Guardian nu răspunde cu un status sigur 200/401.'})
 
 $recoveryReady = $recoveryDocument -and ($sshAuthorized -or $automationReady)
 Add-Check 'recovery-procedure' $(if($recoveryReady){'PASS'}else{'FAIL'}) $(if($recoveryReady){'Există un canal automat și recuperabil validat.'}else{'Mecanismul automat de recuperare este incomplet.'})

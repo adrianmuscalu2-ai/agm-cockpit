@@ -66,7 +66,7 @@ assert.ok(turnNavigationSource.includes("behavior: 'smooth'"));
 assert.equal(turnOrganizationAgents.find((agent) => agent.id === 'mentor')?.subordinateAgentIds[0], 'adrian-turn-commander');
 assert.deepEqual(
   turnOrganizationAgents.find((agent) => agent.id === 'adrian-turn-commander')?.subordinateAgentIds,
-  ['atlas-operations', 'chief-monitoring-inspector'],
+  ['atlas-operations', 'chief-monitoring-inspector', 'secret-credentials-guardian'],
 );
 assert.equal(
   turnOrganizationAgents.filter((agent) => agent.coordinatorId === 'chief-monitoring-inspector').length,

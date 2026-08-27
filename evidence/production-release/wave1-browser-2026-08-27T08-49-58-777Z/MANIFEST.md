@@ -1,0 +1,17 @@
+# Wave 1 Browser evidence manifest
+
+- Run: `2026-08-27T08-49-58-777Z`
+- Command: `pnpm audit:wave1-browser`
+- Result: PASS, exit code 0
+- Checks: 31 PASS, 0 FAIL
+- Preflight SHA-256: `2C01D02DEB261533ACD08113BCA48CEF30C77904D51EA2B787653EE9AD6AE624`
+- Report SHA-256: `766573C8318A8B898501C60E795856628D3CF09534598198CD38B3C97C1E0B92`
+- Basic 1440x1000 SHA-256: `0F76D0EB41FCB3FB25CB659709FAA9D801BF53D5683FF7F9563C4AB505F04DB8`
+- Translator SHA-256: `7E50E9C9012D748424C8A3BFA8D72206778C168345AF679AEBDE1FDD620BCCED`
+- Email SHA-256: `4709084CC6DDFCF154799E727A8BBB339EB20EF0DBE34CC40BB837C0C2C5E9A4`
+- OCR SHA-256: `267CC55D68D1DA803EDDB8E136462DDAA4AD4C1B389E81199AA27D2AC3CE7752`
+
+The directory contains all nine language captures, both responsive Basic captures,
+Translator, Email, OCR, the machine-readable report, and the immediately preceding
+Browser preflight report. Visual inspection confirmed that the Production candidate
+shell no longer contains the global `POC 02` link.

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { randomUUID } from 'node:crypto';
 import { executeControlledVisionTransfer } from '../common/image-security/controlled-vision-transfer';
 import { sanitizeImageForVision } from '../common/image-security/image-sanitizer';
 import { dashboardWarningCatalog } from './dashboard-warning-analysis.catalog';

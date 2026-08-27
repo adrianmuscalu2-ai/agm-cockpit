@@ -78,6 +78,8 @@ const expectedViews = [
   'premium',
   'premiumTeam',
   'premiumLoadSafety',
+  'premiumCommunications',
+  'premiumVoice',
   'cockpit',
   'email',
   'profile',
