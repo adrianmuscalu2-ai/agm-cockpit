@@ -13,7 +13,9 @@ const routes = requestedRoutes?.length ? requestedRoutes.map((route) => route.en
 const allEngines = { chromium, firefox, webkit };
 const requestedEngines = process.env.AGM_WEBSITE_AUDIT_ENGINES?.split(',').map((engine) => engine.trim()).filter(Boolean);
 const engines = Object.fromEntries(Object.entries(allEngines).filter(([name]) => !requestedEngines?.length || requestedEngines.includes(name)));
-const viewports = { desktop: { width: 1440, height: 1000 }, mobile: { width: 390, height: 844 } };
+const allViewports = { desktop: { width: 1440, height: 1000 }, mobile: { width: 390, height: 844 } };
+const requestedViewports = process.env.AGM_WEBSITE_AUDIT_VIEWPORTS?.split(',').map((viewport) => viewport.trim()).filter(Boolean);
+const viewports = Object.fromEntries(Object.entries(allViewports).filter(([name]) => !requestedViewports?.length || requestedViewports.includes(name)));
 const staleClaims = /not yet publicly released|no public access|keinen öffentlichen Zugang|noch nicht öffentlich freigegeben|fără acces public|nu sunt încă lansate public|owner review required|not ready for publication|nicht zur veröffentlichung/i;
 
 await mkdir(evidenceDir, { recursive: true });
@@ -29,8 +31,8 @@ try {
     try {
       for (const [viewportName, viewport] of Object.entries(viewports)) {
         const context = await browser.newContext({ viewport, locale: 'ro-RO' });
-        const page = await context.newPage();
         for (const route of routes) {
+          const page = await context.newPage();
           const consoleErrors = [];
           const requestFailures = [];
           const badResponses = [];
@@ -122,6 +124,7 @@ try {
             await page.screenshot({ path: resolve(evidenceDir, screenshot), fullPage: true });
           }
           scenarios.push({ engine: engineName, viewport: viewportName, route, durationMs, httpStatus: response?.status() ?? null, checks, consoleErrors, requestFailures, badResponses, screenshot });
+          await page.close();
         }
         await context.close();
       }
@@ -155,7 +158,7 @@ const scenarioPass = scenarios.length === Object.keys(engines).length * Object.k
   && scenarios.every((scenario) => Object.values(scenario.checks).every(Boolean));
 const infrastructurePass = infrastructure.length > 0 && infrastructure.every((item) => item.pass);
 const gates = {
-  visual: scenarioPass && scenarios.filter((scenario) => scenario.screenshot).length === (Object.hasOwn(engines, 'chromium') ? routes.filter((route) => !route.startsWith('/de/') && !route.startsWith('/en/')).length * 2 : 0),
+  visual: scenarioPass && scenarios.filter((scenario) => scenario.screenshot).length === (Object.hasOwn(engines, 'chromium') ? routes.filter((route) => !route.startsWith('/de/') && !route.startsWith('/en/')).length * Object.keys(viewports).length : 0),
   content: scenarioPass,
   routes: infrastructurePass,
   desktop: scenarios.filter((scenario) => scenario.viewport === 'desktop').every((scenario) => Object.values(scenario.checks).every(Boolean)),
@@ -163,7 +166,7 @@ const gates = {
   majorBrowsers: Object.keys(engines).every((engine) => scenarios.some((scenario) => scenario.engine === engine && Object.values(scenario.checks).every(Boolean))),
   languages12Presented: scenarios.filter((scenario) => ['/', '/de/', '/en/'].includes(scenario.route)).every((scenario) => scenario.checks.languagePresentation12 && scenario.checks.languageStatusHonest),
   metadata: infrastructurePass && scenarios.every((scenario) => scenario.checks.canonical && scenario.checks.openGraph && scenario.checks.indexable),
-  externalAppCta: externalAppLinks.size > 0,
+  externalAppCta: !routes.includes('/') || externalAppLinks.size > 0,
 };
 const passed = !fatal && Object.values(gates).every(Boolean);
 const report = {
