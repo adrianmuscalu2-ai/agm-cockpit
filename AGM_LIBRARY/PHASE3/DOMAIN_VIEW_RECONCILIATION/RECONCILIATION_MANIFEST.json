@@ -1,0 +1,323 @@
+{
+  "schemaVersion": "agm-phase3-domain-view-reconciliation.v1",
+  "reconciliationVersion": "1.1.0",
+  "generatedAt": "2026-08-29T21:19:48.538Z",
+  "authority": "PRODUCT_OWNER_MANDATE_PHASE3_DOMAIN_VIEW_RECONCILIATION",
+  "centralRegistry": {
+    "path": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+    "sourceCount": 815,
+    "sha256": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31",
+    "mutated": false
+  },
+  "before": {
+    "mappedSources": 798,
+    "memberships": 1466,
+    "unmappedPhase3Sources": 17
+  },
+  "after": {
+    "mappedSources": 815,
+    "memberships": 1487,
+    "addedMemberships": 21,
+    "unmappedPhase3Sources": 0,
+    "outputHashes": {
+      "AGM_LIBRARY/MAPPINGS/domain-memberships.json": "c4363fb3dd836d21a99b12834e1e16ba2b1aae36cb1ede5423bcbf85323b2f85",
+      "AGM_LIBRARY/MAPPINGS/source-domain-mapping.json": "771a303fff709007db582651e8134a853f72f4611d63f7e37a9d275b9b8302f1",
+      "AGM_LIBRARY/VIEWS/car-mover.view.json": "1f4b52707368563a7c22130c102c9eb4330e1693b6497a3a3e5b7ba4a39077b5",
+      "AGM_LIBRARY/VIEWS/routing-toll.view.json": "eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f",
+      "AGM_LIBRARY/VIEWS/documents-ocr-evidence.view.json": "722bd0f4b48ff1be06ef4ba72a4dcc40bd760258269abc5c46c8c50b25b7624f",
+      "AGM_LIBRARY/VIEWS/tacho.view.json": "ed695cd69e61b6a638818b9ce890c4a3e118a0dea5c69d7f94bcce20abf79a20",
+      "AGM_LIBRARY/VIEWS/legislation-safety.view.json": "2db4f2b915e256f013bc4ed59188d810230a33c335333ec8cf364c6f1284dac1"
+    }
+  },
+  "unresolvedGaps": [
+    {
+      "gapId": "ROUTING-TOLL-001",
+      "state": "OPEN",
+      "changed": false
+    },
+    {
+      "gapId": "LEGAL-003",
+      "state": "OPEN",
+      "changed": false
+    },
+    {
+      "gapId": "LEGAL-005",
+      "state": "OPEN",
+      "changed": false
+    }
+  ],
+  "sources": [
+    {
+      "sourceId": "CS-AGM-CM-ARCH-V1",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "car-mover",
+        "routing-toll"
+      ],
+      "crossDomain": true,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md",
+      "integritySha256": "1a592c5d4f41bc27f541c5ba867b8bf3a1b2b2b3955a533b115feae436fd6bc2",
+      "affectedGaps": [
+        "CAR-MOVER-001"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "car-mover",
+        "routing-toll"
+      ],
+      "crossDomain": true,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md",
+      "integritySha256": "4d9b92e65372cb80b88369e7e04a0c355b99ec87e47c407ac08763091202891f",
+      "affectedGaps": [
+        "FIELD-001"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-AGM-CM-JOB-V1",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "car-mover",
+        "documents-ocr-evidence"
+      ],
+      "crossDomain": true,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md",
+      "integritySha256": "5061bce734fee8ce0e0a5c42729985091fc3b5e660ce60025131c9ef6fc22971",
+      "affectedGaps": [
+        "CAR-MOVER-002"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "car-mover",
+        "documents-ocr-evidence"
+      ],
+      "crossDomain": true,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md",
+      "integritySha256": "fe613d7bb1339def15340e12a46756f34f6a80fef3f8a9ca9f80d3ae151811eb",
+      "affectedGaps": [
+        "DOCS-001"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "authorityClassification": "CONTEXTUAL",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "tacho"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md",
+      "integritySha256": "6fcb9865f6d7265ca42919df79c8466c0aefc3966c7e79f92953b5c04e3088d9",
+      "affectedGaps": [
+        "TACHO-005"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-DE-FPERSG",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "tacho"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-FPERSG.official.de.pdf",
+      "integritySha256": "6f190e7c847325f315332419e2a4ea9485b7be01bbcc43b1da34f521dc6647c8",
+      "affectedGaps": [
+        "TACHO-004",
+        "TACHO-005"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-DE-FPERSV",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "tacho"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-FPERSV.official.de.pdf",
+      "integritySha256": "a8fa3807f0591b15612ea6cfb3b989ea59a0fc1640acbaeb6e6d376d9f0ccc30",
+      "affectedGaps": [
+        "TACHO-004",
+        "TACHO-005"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-DE-GGVSEB",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "legislation-safety"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-GGVSEB.official.de.pdf",
+      "integritySha256": "7946383522dcf0b4af414df08e7094e26a954c8122b49fb9badd6c76148561d1",
+      "affectedGaps": [
+        "LEGAL-004"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-DE-STVO",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "legislation-safety"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-STVO.official.de.pdf",
+      "integritySha256": "0173e104e503f6abfdd5b081aa6b0bb5ea816ce1c1613f50f3dfecdf9ec68559",
+      "affectedGaps": [
+        "LEGAL-001",
+        "LEGAL-003",
+        "LEGAL-005"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-DE-STVZO",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "legislation-safety"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-STVZO.official.de.pdf",
+      "integritySha256": "8ea9a586a934be85736639167e2e5fe1013158159447665cff8bb13d72471f5b",
+      "affectedGaps": [
+        "LEGAL-002"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "tacho"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-IMPL-REG-2016-799.official.en.pdf",
+      "integritySha256": "038779b8740bde02689e7167862ef9ccf1358d7a06cb5fa87f280c9315a92c6b",
+      "affectedGaps": [
+        "TACHO-003",
+        "TACHO-005"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "authorityClassification": "CONTEXTUAL",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "tacho"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-IMPL-REG-2016-799-CONS-20230821.official.en.pdf",
+      "integritySha256": "3986fb1c3420743a8921733418d9380e3f7f7f7bb08ee86d4fc349cb60504576",
+      "affectedGaps": [
+        "TACHO-003",
+        "TACHO-005"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "tacho"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-165-2014.official.en.pdf",
+      "integritySha256": "e472a0b04525bba513349f826c80faf39cc609978d9875a6e53126b3a41a2898",
+      "affectedGaps": [
+        "TACHO-002",
+        "TACHO-005"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+      "authorityClassification": "CONTEXTUAL",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "tacho"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-165-2014-CONS-20241231.official.en.pdf",
+      "integritySha256": "1b302c6b3dd9467ab3b5939ab5314fcd34606dec2ead722276ac2c0330c2f0ec",
+      "affectedGaps": [
+        "TACHO-002",
+        "TACHO-005"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-EU-REG-561-2006",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "tacho"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-561-2006.official.en.html",
+      "integritySha256": "a45bc455de4f7928d781bc8c237f0c56450c99f878555008d5e116f675ce9d1e",
+      "affectedGaps": [
+        "TACHO-001",
+        "TACHO-005"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+      "authorityClassification": "CONTEXTUAL",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "tacho"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-561-2006-CONS-20241231.official.en.pdf",
+      "integritySha256": "3c36e849d222cf7e7367ae9b246c7506dc801b1ee1cc697fa3db2acbe80f569b",
+      "affectedGaps": [
+        "TACHO-001",
+        "TACHO-005"
+      ],
+      "mappingClosesAnyGap": false
+    },
+    {
+      "sourceId": "CS-UNECE-ADR-2025",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "previousDomainViewPresence": [],
+      "resultingDomainViewMappings": [
+        "legislation-safety"
+      ],
+      "crossDomain": false,
+      "canonicalArtifactReference": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-UNECE-ADR-2025.official.en.pdf",
+      "integritySha256": "745d45dee198db7e65c9f5e983b6d6e174d33ffb470b72ff0439b7be7a90cd66",
+      "affectedGaps": [
+        "LEGAL-004"
+      ],
+      "mappingClosesAnyGap": false
+    }
+  ],
+  "runtimeProductionTurnChange": "NONE",
+  "basicLibrarianChange": "NONE",
+  "commitPush": "NOT_EXECUTED"
+}

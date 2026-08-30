@@ -1,0 +1,218 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-blocker-resolution.v1",
+  "generatedAt": "2026-08-30T11:41:16.455Z",
+  "browserRecovery": {
+    "preflight": "PASS_VIA_PNPM_CMD",
+    "integratedBrowser": "PLATFORM_LIMITATION_NO_SESSION_ATTACHMENT",
+    "controlledPlaywright": "0/5_RESOLVED",
+    "standardChromeCrossCheck": "ONE_PRINT_ARTIFACT_REJECTED_AS_UNVERIFIED_AND_REMOVED"
+  },
+  "blockers": [
+    {
+      "artifactId": "RT001-FINAL-FR-ORDER-12-2026",
+      "officialUrls": [
+        "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053417592",
+        "https://www.legifrance.gouv.fr/eli/arrete/2026/1/28/TRAT2534086A/jo/texte",
+        "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE"
+      ],
+      "provenance": "Legifrance / Journal officiel de la Republique francaise",
+      "scope": "ATMB, SFTRF, CEVM, ALIS, ARCOUR, ADELAC, A'LIENOR, ALICORNE, ATLANDES, ALBEA, ARCOS and ALIAE; exact annexes I-XII",
+      "effectiveDate": "2026-02-01",
+      "screenshot": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/BROWSER_OFFICIAL_CAPTURE_ATTEMPTS/RT001-FINAL-FR-ORDER-12-2026.png",
+      "result": "RESOLVED",
+      "methodsAttempted": [
+        {
+          "method": "DIRECT_OFFICIAL_FETCH_WITH_REDIRECTS_AND_BROWSER_HEADERS",
+          "result": "INTEGRITY_CAPTURED_REVIEW_ONLY",
+          "error": null
+        },
+        {
+          "method": "CONTROLLED_PLAYWRIGHT_OFFICIAL_PAGE_PRINT_ATTEMPT",
+          "result": "STILL_BLOCKED",
+          "error": "Error: OFFICIAL_PAGE_HTTP_403"
+        },
+        {
+          "method": "OFFICIAL_ALTERNATIVE_URL_AND_PUBLIC_SURFACE_VERIFICATION",
+          "result": "PUBLIC_OFFICIAL_CONTENT_VERIFIED_BUT_NO_LOCAL_CANONICAL_ARTIFACT",
+          "error": "Visibility alone is not accepted as integrity PASS."
+        }
+      ],
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "sizeBytes": 369638,
+      "sha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "ingestionMethod": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION",
+      "validationEvidence": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_ARTIFACT_01_VALIDATION_REPORT.json",
+      "blockingCause": null,
+      "noSubstitution": true,
+      "registryMutation": "NONE",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "artifactId": "RT001-FINAL-FR-SANEF-2026",
+      "officialUrls": [
+        "https://www.groupe.sanef.com/en/my-journey/price-of-my-journey",
+        "https://www.groupe.sanef.com/sites/default/files/2026-01/2026_02-Grille-Sanef.pdf"
+      ],
+      "provenance": "Sanef official operator publication",
+      "scope": "Sanef route-by-route and vehicle-class tariff grid",
+      "effectiveDate": "2026-02-01",
+      "screenshot": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/BROWSER_OFFICIAL_CAPTURE_ATTEMPTS/RT001-FINAL-FR-SANEF-2026.landing.png",
+      "result": "RESOLVED",
+      "methodsAttempted": [
+        {
+          "method": "DIRECT_OFFICIAL_FETCH_WITH_REDIRECTS_AND_BROWSER_HEADERS",
+          "result": "INTEGRITY_CAPTURED_REVIEW_ONLY",
+          "error": null
+        },
+        {
+          "method": "CONTROLLED_PLAYWRIGHT_OFFICIAL_PDF_ATTEMPT",
+          "result": "STILL_BLOCKED",
+          "error": "Error: OFFICIAL_PDF_HTTP_403"
+        },
+        {
+          "method": "OFFICIAL_ALTERNATIVE_URL_AND_PUBLIC_SURFACE_VERIFICATION",
+          "result": "PUBLIC_OFFICIAL_CONTENT_VERIFIED_BUT_NO_LOCAL_CANONICAL_ARTIFACT",
+          "error": "Visibility alone is not accepted as integrity PASS."
+        }
+      ],
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-SANEF-2026.owner-official.pdf",
+      "sizeBytes": 1808798,
+      "sha256": "373b55bd4f4ff77d995f8ff26c543807478252fc13d79cb9f73b024fbd17bc66",
+      "ingestionMethod": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION",
+      "validationEvidence": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_ARTIFACT_02_VALIDATION_REPORT.json",
+      "blockingCause": null,
+      "noSubstitution": true,
+      "registryMutation": "NONE",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "artifactId": "RT001-FINAL-FR-SAPN-2026",
+      "officialUrls": [
+        "https://www.groupe.sanef.com/en/my-journey/price-of-my-journey",
+        "https://www.groupe.sanef.com/sites/default/files/2026-01/2026_02-Grille-SAPN.pdf"
+      ],
+      "provenance": "SAPN / Sanef official operator publication",
+      "scope": "SAPN Paris-Normandie route-by-route and vehicle-class tariff grid",
+      "effectiveDate": "2026-02-01",
+      "screenshot": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/BROWSER_OFFICIAL_CAPTURE_ATTEMPTS/RT001-FINAL-FR-SAPN-2026.landing.png",
+      "result": "RESOLVED",
+      "methodsAttempted": [
+        {
+          "method": "DIRECT_OFFICIAL_FETCH_WITH_REDIRECTS_AND_BROWSER_HEADERS",
+          "result": "INTEGRITY_CAPTURED_REVIEW_ONLY",
+          "error": null
+        },
+        {
+          "method": "CONTROLLED_PLAYWRIGHT_OFFICIAL_PDF_ATTEMPT",
+          "result": "STILL_BLOCKED",
+          "error": "Error: OFFICIAL_PDF_HTTP_403"
+        },
+        {
+          "method": "OFFICIAL_ALTERNATIVE_URL_AND_PUBLIC_SURFACE_VERIFICATION",
+          "result": "PUBLIC_OFFICIAL_CONTENT_VERIFIED_BUT_NO_LOCAL_CANONICAL_ARTIFACT",
+          "error": "Visibility alone is not accepted as integrity PASS."
+        }
+      ],
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-SAPN-2026.owner-official.pdf",
+      "sizeBytes": 1384149,
+      "sha256": "f8a7468306f5c9979040c40c04db3ce6f910d4e7cb0c79311b447465c08a58d4",
+      "ingestionMethod": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION",
+      "validationEvidence": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_ARTIFACT_03_VALIDATION_REPORT.json",
+      "blockingCause": null,
+      "noSubstitution": true,
+      "registryMutation": "NONE",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "artifactId": "RT001-FINAL-FR-CCISE-ORDER-2026",
+      "officialUrls": [
+        "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053916305",
+        "https://www.legifrance.gouv.fr/eli/arrete/2026/3/30/TRAT2609535A/jo/texte",
+        "https://www.legifrance.gouv.fr/download/file/LGKIebDIuZvuVGlpCoWjSCa9Ybbg3VF7kUQ8OgMFAvo=/JOE_TEXTE"
+      ],
+      "provenance": "Legifrance / Journal officiel de la Republique francaise",
+      "scope": "Pont de Normandie and Pont de Tancarville, vehicle classes 1-4",
+      "effectiveDate": "2026-05-01",
+      "screenshot": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/BROWSER_OFFICIAL_CAPTURE_ATTEMPTS/RT001-FINAL-FR-CCISE-ORDER-2026.png",
+      "result": "RESOLVED",
+      "methodsAttempted": [
+        {
+          "method": "DIRECT_OFFICIAL_FETCH_WITH_REDIRECTS_AND_BROWSER_HEADERS",
+          "result": "INTEGRITY_CAPTURED_REVIEW_ONLY",
+          "error": null
+        },
+        {
+          "method": "CONTROLLED_PLAYWRIGHT_OFFICIAL_PAGE_PRINT_ATTEMPT",
+          "result": "STILL_BLOCKED",
+          "error": "Error: OFFICIAL_PAGE_HTTP_403"
+        },
+        {
+          "method": "OFFICIAL_ALTERNATIVE_URL_AND_PUBLIC_SURFACE_VERIFICATION",
+          "result": "PUBLIC_OFFICIAL_CONTENT_VERIFIED_BUT_NO_LOCAL_CANONICAL_ARTIFACT",
+          "error": "Visibility alone is not accepted as integrity PASS."
+        }
+      ],
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-CCISE-ORDER-2026.owner-official.pdf",
+      "sizeBytes": 131966,
+      "sha256": "909c88487b866c4a0aa18088e80731a8b593c38295f264d72c991e9207008481",
+      "ingestionMethod": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION",
+      "validationEvidence": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_ARTIFACT_04_VALIDATION_REPORT.json",
+      "blockingCause": null,
+      "noSubstitution": true,
+      "registryMutation": "NONE",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "artifactId": "RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026",
+      "officialUrls": [
+        "https://www.liefkenshoektunnel.be/nl/algemene-voorwaarden-tunnel-liefkenshoek-nv",
+        "https://www.liefkenshoektunnel.be/sites/default/files/media/files/2025-12/algemene_voorwaarden_tlh_v2026.pdf",
+        "https://www.liefkenshoektunnel.be/sites/default/files/media/files/2025-12/algemene_voorwaarden_tlh_v2026_engels.pdf"
+      ],
+      "provenance": "Tunnel Liefkenshoek NV official operator publication",
+      "scope": "Official categories, payment-method tariffs and conditions for Liefkenshoek Tunnel",
+      "effectiveDate": "2026-01-01",
+      "screenshot": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/BROWSER_OFFICIAL_CAPTURE_ATTEMPTS/RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026.png",
+      "result": "RESOLVED",
+      "methodsAttempted": [
+        {
+          "method": "DIRECT_OFFICIAL_FETCH_WITH_REDIRECTS_AND_BROWSER_HEADERS",
+          "result": "INTEGRITY_CAPTURED_REVIEW_ONLY",
+          "error": null
+        },
+        {
+          "method": "CONTROLLED_PLAYWRIGHT_OFFICIAL_PAGE_PRINT_ATTEMPT",
+          "result": "STILL_BLOCKED",
+          "error": "Error: OFFICIAL_PAGE_HTTP_403"
+        },
+        {
+          "method": "OFFICIAL_ALTERNATIVE_URL_AND_PUBLIC_SURFACE_VERIFICATION",
+          "result": "PUBLIC_OFFICIAL_CONTENT_VERIFIED_BUT_NO_LOCAL_CANONICAL_ARTIFACT",
+          "error": "Visibility alone is not accepted as integrity PASS."
+        }
+      ],
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026.owner-official.pdf",
+      "sizeBytes": 429035,
+      "sha256": "2a8d05846ba96759c777ee6a9211474a8b61fcf6efd0123339010c1eecba3435",
+      "ingestionMethod": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION",
+      "validationEvidence": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_ARTIFACT_05_VALIDATION_REPORT.json",
+      "blockingCause": null,
+      "noSubstitution": true,
+      "registryMutation": "NONE",
+      "authorityPromotion": "NONE"
+    }
+  ],
+  "summary": {
+    "attempted": 5,
+    "resolved": 5,
+    "stillBlocked": 0
+  },
+  "guardrails": {
+    "unofficialCopiesUsed": false,
+    "thirdPartyCachesUsedAsAuthority": false,
+    "ocrOrReconstructionUsed": false,
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE"
+  }
+}

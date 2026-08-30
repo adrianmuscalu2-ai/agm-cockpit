@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "agm-legal003-state-precedence.v1",
+  "gapId": "LEGAL-003",
+  "currentStateAuthority": "AGM_LIBRARY/PHASE3/LEGAL_003_FINAL_CLOSURE/PRODUCT_OWNER_CLOSURE_DECISION.json",
+  "currentState": "PASS_WITH_EXTERNAL_LICENSED_DEPENDENCY_CLOSED",
+  "effectiveAt": "2026-08-30T22:00:00.000Z",
+  "supersededStatusRepresentations": [
+    {
+      "path": "AGM_LIBRARY/PHASE3/UNRESOLVED_AUTHORITY_GAPS.json",
+      "roleAfterClosure": "HISTORICAL_PRE_DECISION_SNAPSHOT",
+      "mutation": "NONE"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE3/UPDATED_HUMAN_REVIEW_QUEUE.json",
+      "roleAfterClosure": "HISTORICAL_PRE_DECISION_SNAPSHOT",
+      "mutation": "NONE"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE3/LEGAL_GAPS_CONSOLIDATED_REPORT.md",
+      "roleAfterClosure": "HISTORICAL_PRE_DECISION_SNAPSHOT",
+      "mutation": "NONE"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE3/LEGAL_003_OWNER_REVIEW/AS_IS_ASSESSMENT.json",
+      "roleAfterClosure": "HISTORICAL_PRE_DECISION_EVIDENCE",
+      "mutation": "NONE"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE3/LEGAL_003_OWNER_REVIEW/VALIDATION_EVIDENCE.json",
+      "roleAfterClosure": "HISTORICAL_PRE_DECISION_EVIDENCE",
+      "mutation": "NONE"
+    }
+  ],
+  "rule": "For LEGAL-003 status as of or after effectiveAt, the Product Owner final closure decision prevails. Historical artifacts remain immutable and must not be interpreted as reopening the gap.",
+  "scope": "LEGAL-003_ONLY"
+}

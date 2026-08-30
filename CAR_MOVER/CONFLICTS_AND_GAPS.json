@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "agm-car-mover-conflicts-gaps.v1",
+  "generatedAt": "2026-08-29T12:27:39.767Z",
+  "conflicts": [
+    {
+      "id": "CM-CONFLICT-001",
+      "status": "CONFLICT DETECTED → OWNER/INSPECTOR REVIEW",
+      "topic": "Product-boundary terminology",
+      "sourceA": "evidence/governance/AGM_CAR_MOVER_FOUNDATION_REUSE_AUDIT_2026-08-12.md",
+      "claimA": "Car Mover is described as a separate product context on the shared AGM platform.",
+      "sourceB": "evidence/car-mover/CAR_MOVER_HANDOFF_2026-08-23.md",
+      "claimB": "Car Mover is described as an AGM Premium component and not a separate project.",
+      "automaticResolution": false
+    }
+  ],
+  "stateTransitions": [
+    {
+      "topic": "P0-02 Android",
+      "historical": "evidence/governance/AGM_CAR_MOVER_FREEZE_2026-08-12.md",
+      "currentEvidence": "evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/report.json",
+      "classification": "HISTORICAL_STATE_SUPERSEDED_BY_LATER_EVIDENCE"
+    },
+    {
+      "topic": "Field data",
+      "historical": "evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_REPORT.md",
+      "currentEvidence": "evidence/field-test-backend/2026-08-29/PREPARATION_REPORT.md",
+      "classification": "NO_FIELD_DATA_SUPERSEDED_BY_ONE_PENDING_NON_CONCLUSIVE_OBSERVATION"
+    },
+    {
+      "topic": "Paid route providers",
+      "historical": "Earlier provider-capability registrations",
+      "currentEvidence": "evidence/routing-architecture/2026-08-29/IMPLEMENTATION_REPORT.md",
+      "classification": "HERE_AND_TOLLGURU_NOT_REQUIRED_CURRENT_OWNER_DIRECTION"
+    }
+  ],
+  "missing": [
+    {
+      "id": "CM-MISSING-001",
+      "item": "One versioned canonical Car Mover architecture document covering P0, P1 and the 2026-08-29 routing policy",
+      "impact": "Current truth is distributed across source, owner decisions and implementation reports.",
+      "status": "MISSING"
+    },
+    {
+      "id": "CM-MISSING-002",
+      "item": "Current standalone Job File specification with version and field ownership",
+      "impact": "Job File behavior exists in implementation/evidence but lacks one current canonical document.",
+      "status": "MISSING"
+    },
+    {
+      "id": "CM-MISSING-003",
+      "item": "Car Mover-specific OCR/document intake contract",
+      "impact": "Generic OCR evidence exists, but Car Mover document ownership and retention are not specified canonically.",
+      "status": "MISSING"
+    },
+    {
+      "id": "CM-MISSING-004",
+      "item": "Runtime-ready AGM Toll Library specification and verified source-update runbook",
+      "impact": "The component is registered but explicitly not runtime-ready.",
+      "status": "MISSING_BY_DESIGN"
+    },
+    {
+      "id": "CM-MISSING-005",
+      "item": "Car Mover-specific incident response runbook",
+      "impact": "Generic incident governance exists; no dedicated Car Mover runbook was found.",
+      "status": "MISSING"
+    },
+    {
+      "id": "CM-MISSING-006",
+      "item": "Persisted originals for conversation-only Owner mandates",
+      "impact": "Implementation reports capture outcomes, but not every original mandate exists as a repository document.",
+      "status": "MISSING_SOURCE_RECORD"
+    },
+    {
+      "id": "CM-MISSING-007",
+      "item": "Field tester client integration/runbook for non-technical remote testers",
+      "impact": "The controlled backend and protocol are available; direct phone HTTPS evidence exists, but a field-client workflow is not catalogued as complete.",
+      "status": "PARTIAL"
+    }
+  ]
+}

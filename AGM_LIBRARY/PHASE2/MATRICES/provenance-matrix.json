@@ -1,0 +1,775 @@
+{
+  "schemaVersion": "agm-phase2-provenance-matrix.v1",
+  "sources": [
+    {
+      "sourceId": "CS-EU-REG-561-2006",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://eur-lex.europa.eu/eli/reg/2006/561/oj",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://eur-lex.europa.eu/eli/reg/2006/561/oj",
+      "officialUri": "https://eur-lex.europa.eu/eli/reg/2006/561/oj",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://eur-lex.europa.eu/eli/reg/2006/561/oj"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:02006R0561-20241231",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:02006R0561-20241231",
+      "officialUri": "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:02006R0561-20241231",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:02006R0561-20241231"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://eur-lex.europa.eu/eli/reg/2014/165/oj",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://eur-lex.europa.eu/eli/reg/2014/165/oj",
+      "officialUri": "https://eur-lex.europa.eu/eli/reg/2014/165/oj",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://eur-lex.europa.eu/eli/reg/2014/165/oj"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02014R0165-20241231",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02014R0165-20241231",
+      "officialUri": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02014R0165-20241231",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02014R0165-20241231"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj",
+      "officialUri": "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02016R0799-20230821",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02016R0799-20230821",
+      "officialUri": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02016R0799-20230821",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02016R0799-20230821"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-DE-FPERSG",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.gesetze-im-internet.de/fahrpersstg/BJNR002770971.html",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.gesetze-im-internet.de/fahrpersstg/BJNR002770971.html",
+      "officialUri": "https://www.gesetze-im-internet.de/fahrpersstg/BJNR002770971.html",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/fahrpersstg/BJNR002770971.html"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-DE-FPERSV",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.gesetze-im-internet.de/fpersv/BJNR188210005.html",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.gesetze-im-internet.de/fpersv/BJNR188210005.html",
+      "officialUri": "https://www.gesetze-im-internet.de/fpersv/BJNR188210005.html",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/fpersv/BJNR188210005.html"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-DE-STVO",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.gesetze-im-internet.de/stvo_2013/BJNR036710013.html",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.gesetze-im-internet.de/stvo_2013/BJNR036710013.html",
+      "officialUri": "https://www.gesetze-im-internet.de/stvo_2013/BJNR036710013.html",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/stvo_2013/BJNR036710013.html"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-DE-STVZO",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.gesetze-im-internet.de/stvzo_2012/StVZO.pdf",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.gesetze-im-internet.de/stvzo_2012/StVZO.pdf",
+      "officialUri": "https://www.gesetze-im-internet.de/stvzo_2012/StVZO.pdf",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/stvzo_2012/StVZO.pdf"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-DE-HGB-412",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.gesetze-im-internet.de/hgb/__412.html",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.gesetze-im-internet.de/hgb/__412.html",
+      "officialUri": "https://www.gesetze-im-internet.de/hgb/__412.html",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/hgb/__412.html"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.vdi.de/mitgliedschaft/vdi-richtlinien/details/vdi-handbuch-ladungssicherung",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.vdi.de/mitgliedschaft/vdi-richtlinien/details/vdi-handbuch-ladungssicherung",
+      "officialUri": "https://www.vdi.de/mitgliedschaft/vdi-richtlinien/details/vdi-handbuch-ladungssicherung",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.vdi.de/mitgliedschaft/vdi-richtlinien/details/vdi-handbuch-ladungssicherung"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-UNECE-ADR-2025",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://unece.org/info/Transport/pub/395786",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://unece.org/info/Transport/pub/395786",
+      "officialUri": "https://unece.org/info/Transport/pub/395786",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://unece.org/info/Transport/pub/395786"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-DE-GGVSEB",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.gesetze-im-internet.de/ggvseb/GGVSEB.pdf",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.gesetze-im-internet.de/ggvseb/GGVSEB.pdf",
+      "officialUri": "https://www.gesetze-im-internet.de/ggvseb/GGVSEB.pdf",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/ggvseb/GGVSEB.pdf"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-AT-STVO-42-20260213",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Anlage=&Artikel=&FassungVom=2026-02-13&Gesetzesnummer=10011336&Paragraf=42&ShowPrintPreview=True&Uebergangsrecht=",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Anlage=&Artikel=&FassungVom=2026-02-13&Gesetzesnummer=10011336&Paragraf=42&ShowPrintPreview=True&Uebergangsrecht=",
+      "officialUri": "https://ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Anlage=&Artikel=&FassungVom=2026-02-13&Gesetzesnummer=10011336&Paragraf=42&ShowPrintPreview=True&Uebergangsrecht=",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Anlage=&Artikel=&FassungVom=2026-02-13&Gesetzesnummer=10011336&Paragraf=42&ShowPrintPreview=True&Uebergangsrecht="
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-CH-VRV-20220401",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/1962/1364_1409_1420/20220401/de/pdf-a/fedlex-data-admin-ch-eli-cc-1962-1364_1409_1420-20220401-de-pdf-a.pdf",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/1962/1364_1409_1420/20220401/de/pdf-a/fedlex-data-admin-ch-eli-cc-1962-1364_1409_1420-20220401-de-pdf-a.pdf",
+      "officialUri": "https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/1962/1364_1409_1420/20220401/de/pdf-a/fedlex-data-admin-ch-eli-cc-1962-1364_1409_1420-20220401-de-pdf-a.pdf",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/1962/1364_1409_1420/20220401/de/pdf-a/fedlex-data-admin-ch-eli-cc-1962-1364_1409_1420-20220401-de-pdf-a.pdf"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000043416004",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000043416004",
+      "officialUri": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000043416004",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000043416004"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-2026",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053324056",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053324056",
+      "officialUri": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053324056",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053324056"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000054633358",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000054633358",
+      "officialUri": "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000054633358",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000054633358"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html",
+      "officialUri": "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html",
+      "officialUri": "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://bmp.asfinag.at/en/go-toll/?lng=en",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://bmp.asfinag.at/en/go-toll/?lng=en",
+      "officialUri": "https://bmp.asfinag.at/en/go-toll/?lng=en",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://bmp.asfinag.at/en/go-toll/?lng=en"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-CH-BAZG-ROAD-LEVIES",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.bazg.admin.ch/en/transport-levies-and-road-traffic-law",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.bazg.admin.ch/en/transport-levies-and-road-traffic-law",
+      "officialUri": "https://www.bazg.admin.ch/en/transport-levies-and-road-traffic-law",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.bazg.admin.ch/en/transport-levies-and-road-traffic-law"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.viapass.be/en/",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.viapass.be/en/",
+      "officialUri": "https://www.viapass.be/en/",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.viapass.be/en/"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/",
+      "officialUri": "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026",
+      "officialUri": "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://vejafgifter.dk/european-electronic-toll-service-eets/",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://vejafgifter.dk/european-electronic-toll-service-eets/",
+      "officialUri": "https://vejafgifter.dk/european-electronic-toll-service-eets/",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://vejafgifter.dk/european-electronic-toll-service-eets/"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.vrachtwagenheffing.nl/en",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.vrachtwagenheffing.nl/en",
+      "officialUri": "https://www.vrachtwagenheffing.nl/en",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.vrachtwagenheffing.nl/en"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+      "officialUri": "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-LU-EVIGNETTE-2019",
+      "provenance": {
+        "type": "REMOTE_OFFICIAL_SOURCE",
+        "acquiredFrom": "https://guichet.public.lu/fr/entreprises/import-export/transit/transit-ue/e-vignette-poids-lourds.html",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "https://guichet.public.lu/fr/entreprises/import-export/transit/transit-ue/e-vignette-poids-lourds.html",
+      "officialUri": "https://guichet.public.lu/fr/entreprises/import-export/transit/transit-ue/e-vignette-poids-lourds.html",
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": null,
+        "status": "NOT_CAPTURED_DYNAMIC_OR_REMOTE_OFFICIAL_SOURCE"
+      },
+      "evidenceReferences": [
+        "https://guichet.public.lu/fr/entreprises/import-export/transit/transit-ue/e-vignette-poids-lourds.html"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "provenance": {
+        "type": "INTERNAL_CONSOLIDATION",
+        "acquiredFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md",
+      "officialUri": null,
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": "6fcb9865f6d7265ca42919df79c8466c0aefc3966c7e79f92953b5c04e3088d9",
+        "status": "CAPTURED_LOCAL_CANDIDATE"
+      },
+      "evidenceReferences": [
+        "DRAFT / HUMAN LEGAL REVIEW REQUIRED",
+        "\n\n## Rule of authority\n\nThis map is only an index. It never replaces the authentic legal acts published\nin the Official Journal or the official German legal publication. Consolidated\nEUR-Lex texts are documentation aids and must be checked against the authentic\nacts and their amendment history.\n\n## Candidate map\n\n| Subject | Base act | Consolidated reference observed | National implementation |\n|---|---|---|---|\n| Driving time, breaks and rest | Regulation (EC) No 561/2006 | CELEX ",
+        " | German FPersG and FPersV |\n| Tachographs | Regulation (EU) No 165/2014 | CELEX ",
+        " | German FPersG and FPersV |\n| Device/card/record technical rules | Implementing Regulation (EU) 2016/799 | CELEX "
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-AGM-CM-ARCH-V1",
+      "provenance": {
+        "type": "INTERNAL_CONSOLIDATION",
+        "acquiredFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md",
+      "officialUri": null,
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": "1a592c5d4f41bc27f541c5ba867b8bf3a1b2b2b3955a533b115feae436fd6bc2",
+        "status": "CAPTURED_LOCAL_CANDIDATE"
+      },
+      "evidenceReferences": [
+        "DRAFT / HUMAN REVIEW REQUIRED",
+        "AGM Product Owner / Car Mover Steward",
+        " / TomTom and cache).\n- Extended routing is selected only for a confirmed non-passenger profile.\n- HERE and TollGuru are inactive, non-required and cannot be invoked\n  automatically without a separate Owner authorization.\n- Valhalla/OSM and AGM Toll Library are registered but not runtime-ready.\n- Field measurements are evidence about operational behavior; they do not\n  become an external provider specification or an official toll rule.\n\n## Governance\n\nThis document is an internal consolidation candidate. It cannot become\n",
+        "apps/api/src/car-mover/car-mover.contract.ts",
+        "apps/api/src/car-mover/car-mover-routing.policy.ts",
+        "apps/api/src/car-mover/car-mover-routing-telemetry.service.ts",
+        "evidence/routing-architecture/2026-08-29/IMPLEMENTATION_REPORT.md",
+        "evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_PROTOCOL.md",
+        "AGM_LIBRARY/GOVERNANCE/CAR_MOVER_BOUNDARY_DECISION.md"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-AGM-CM-JOB-V1",
+      "provenance": {
+        "type": "INTERNAL_CONSOLIDATION",
+        "acquiredFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md",
+      "officialUri": null,
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": "5061bce734fee8ce0e0a5c42729985091fc3b5e660ce60025131c9ef6fc22971",
+        "status": "CAPTURED_LOCAL_CANDIDATE"
+      },
+      "evidenceReferences": [
+        "DRAFT / HUMAN REVIEW REQUIRED",
+        "AGM Product Owner / Car Mover Steward",
+        " after an ambiguous classification.\n- Evidence and audit items remain references to their preserved originals.\n- Communications, invoices and financial entries remain separately traceable;\n  their presence in the Job File does not transfer authority to this document.\n- Every imported or OCR-derived value must retain its source/evidence link and\n  confirmation state.\n\n## Review status\n\nThis is a consolidated internal candidate, not an automatic replacement for\nthe implementation contract. Product Owner and Car Mover Steward review is\nrequired before ",
+        "apps/api/src/car-mover/car-mover.contract.ts",
+        "apps/api/src/car-mover/car-mover.service.ts",
+        "apps/api/src/car-mover/dto/",
+        "CAR_MOVER/API/",
+        "CAR_MOVER/JOB_FILE/",
+        "CAR_MOVER/LIFECYCLE/"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "provenance": {
+        "type": "INTERNAL_CONSOLIDATION",
+        "acquiredFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md",
+      "officialUri": null,
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": "4d9b92e65372cb80b88369e7e04a0c355b99ec87e47c407ac08763091202891f",
+        "status": "CAPTURED_LOCAL_CANDIDATE"
+      },
+      "evidenceReferences": [
+        "DRAFT / HUMAN REVIEW REQUIRED",
+        "GET /api/v1/car-mover/routing/field-protocol",
+        "POST /api/v1/car-mover/routing/observations",
+        "GET /api/v1/car-mover/routing/telemetry",
+        " requires human confirmation.\n- HERE and TollGuru remain inactive and non-required.\n- Valhalla/OSM and AGM Toll Library remain\n  ",
+        "evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_PROTOCOL.md",
+        "evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_REPORT.md",
+        "evidence/field-test-backend/2026-08-29/PREPARATION_REPORT.md",
+        "evidence/field-test-backend/2026-08-29/AUTHORIZED_TESTERS.md",
+        "apps/api/src/car-mover/car-mover-routing-telemetry.service.ts"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    },
+    {
+      "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "provenance": {
+        "type": "INTERNAL_CONSOLIDATION",
+        "acquiredFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+        "originalPreserved": true,
+        "physicalLibraryCopyCreated": false
+      },
+      "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md",
+      "officialUri": null,
+      "retrievalDate": "2026-08-29",
+      "integrity": {
+        "sha256": "fe613d7bb1339def15340e12a46756f34f6a80fef3f8a9ca9f80d3ae151811eb",
+        "status": "CAPTURED_LOCAL_CANDIDATE"
+      },
+      "evidenceReferences": [
+        "DRAFT / HUMAN REVIEW REQUIRED",
+        "Inspector / Evidence Custody",
+        "\n\n## Scope\n\nThis candidate specializes the existing AGM evidence rules for Car Mover. It\ndoes not change the OCR runtime.\n\n## Provenance rules\n\n- Preserve the original document or image and its original checksum where the\n  acquisition path supports it.\n- Record acquisition time, source channel, job identifier, uploader/actor and\n  OCR engine/version where available.\n- Store OCR output as a derived representation, never as a replacement for the\n  original.\n- Mark confidence and human-confirmation state for extracted operational\n  values.\n- An unreadable, absent or low-confidence value remains ",
+        "; it must not\n  be inferred, invented or converted to a safe/PASS value.\n- Redaction or transformation creates another evidence-linked derivative and\n  must not overwrite historical evidence.\n\n## Retention and access\n\nRetention follows the governing AGM evidence policy and applicable legal/data\nprotection review. A fixed legal retention period is not asserted here because\nthe applicable document class and jurisdiction must first be identified.\nDeletion requires the authorized retention workflow; domain views never copy\nor delete the canonical source.\n\n## Review status\n\nEvidence Custody, Product Owner and data-protection/legal review are required\nbefore this candidate may become ",
+        "apps/web/src/ocr-translator.ts",
+        "apps/api/src/car-mover/",
+        "CAR_MOVER/OCR_DOCUMENTS/",
+        "CAR_MOVER/EVIDENCE/"
+      ],
+      "originalPreserved": true,
+      "physicalLibraryCopyCreated": false
+    }
+  ]
+}

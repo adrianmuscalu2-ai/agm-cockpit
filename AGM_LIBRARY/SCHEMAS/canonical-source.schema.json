@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agm://library/schemas/canonical-source.v1",
+  "title": "AGM Canonical Source",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sourceId", "canonicalPath", "canonicalUri", "mediaType", "sizeBytes", "sha256", "sourceDate", "effectiveDate", "version", "status", "owner", "authority", "provenance", "retention", "evidenceRefs", "supersedes", "supersededBy"],
+  "properties": {
+    "sourceId": { "type": "string", "pattern": "^[A-Z0-9-]+$" },
+    "canonicalPath": { "type": "string", "minLength": 1 },
+    "canonicalUri": { "type": ["string", "null"] },
+    "mediaType": { "type": "string" },
+    "sizeBytes": { "type": "integer", "minimum": 0 },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "sourceDate": { "type": "string" },
+    "effectiveDate": { "type": ["string", "null"] },
+    "version": { "type": "string" },
+    "status": { "enum": ["CURRENT", "SUPERSEDED", "HISTORICAL", "DRAFT", "EVIDENCE"] },
+    "owner": { "type": "string", "minLength": 1 },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issuingBody", "authorityType", "jurisdictions", "reviewStatus", "humanReviewRequired"],
+      "properties": {
+        "issuingBody": { "type": ["string", "null"] },
+        "authorityType": { "type": "string" },
+        "jurisdictions": { "type": "array", "items": { "type": "string" } },
+        "reviewStatus": { "type": "string" },
+        "humanReviewRequired": { "type": "boolean" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["importedFrom", "observedPath", "originalPreserved", "libraryCopyCreated"],
+      "properties": {
+        "importedFrom": { "type": "string" },
+        "observedPath": { "type": "string" },
+        "originalPreserved": { "const": true },
+        "libraryCopyCreated": { "const": false }
+      }
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "deleteAuthorized", "historicalEvidencePreserved"],
+      "properties": {
+        "classification": { "type": "string" },
+        "deleteAuthorized": { "const": false },
+        "historicalEvidencePreserved": { "const": true }
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policyVersion", "effectiveFrom", "effectiveUntil", "capturedAt", "lastFreshnessCheck", "nextFreshnessCheck", "currentStatus", "reviewRequired", "usageFallback", "limitations"],
+      "properties": {
+        "policyVersion": { "const": "agm-source-freshness.v1" },
+        "effectiveFrom": { "type": ["string", "null"] },
+        "effectiveUntil": { "type": ["string", "null"] },
+        "capturedAt": { "type": "string", "format": "date-time" },
+        "lastFreshnessCheck": { "type": ["string", "null"] },
+        "nextFreshnessCheck": { "type": ["string", "null"] },
+        "currentStatus": {
+          "enum": ["CURRENT", "EXPIRY_WARNING", "NEW_VERSION_DETECTED", "SUPERSEDED_PENDING_REVIEW", "REVIEW_REQUIRED", "EXPIRED_REVIEW_REQUIRED", "FRESHNESS_UNKNOWN"]
+        },
+        "reviewRequired": { "type": "boolean" },
+        "usageFallback": { "type": "string" },
+        "limitations": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "supersedes": { "type": "array", "items": { "type": "string" } },
+    "supersededBy": { "type": "array", "items": { "type": "string" } }
+  }
+}

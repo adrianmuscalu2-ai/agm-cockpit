@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "agm-legal-gap-evidence-manifest.v1",
+  "gapId": "LEGAL-003",
+  "preparedAt": "2026-08-30T18:00:00.000Z",
+  "artifacts": [
+    {
+      "evidenceId": "LEGAL003-EV-STVO-EXISTING",
+      "sourceId": "CS-DE-STVO",
+      "path": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-STVO.official.de.pdf",
+      "mediaType": "application/pdf",
+      "officialUrl": "https://www.gesetze-im-internet.de/stvo_2013/StVO.pdf",
+      "authority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "status": "EXISTING_CANONICAL_REUSE_NO_COPY",
+      "sizeBytes": 1136624,
+      "sha256": "0173e104e503f6abfdd5b081aa6b0bb5ea816ce1c1613f50f3dfecdf9ec68559",
+      "localValidation": "PASS"
+    },
+    {
+      "evidenceId": "LEGAL003-EV-HGB-412",
+      "sourceId": "CS-DE-HGB-412",
+      "path": "AGM_LIBRARY/PHASE3/LEGAL_003_OWNER_REVIEW/EVIDENCE/LEGAL003-DE-HGB-current.official.pdf",
+      "mediaType": "application/pdf",
+      "officialUrl": "https://www.gesetze-im-internet.de/hgb/HGB.pdf",
+      "authority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "status": "OFFICIAL_CAPTURED",
+      "sizeBytes": 1137022,
+      "sha256": "30dd1fc834d186097de827e80c3ebda61a63967996066525701658c3871acc09",
+      "localValidation": "PASS"
+    },
+    {
+      "evidenceId": "LEGAL003-EV-VDI-HANDBOOK-METADATA",
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "path": "AGM_LIBRARY/PHASE3/LEGAL_003_OWNER_REVIEW/EVIDENCE/LEGAL003-VDI-2700-handbook-metadata.official.html",
+      "mediaType": "text/html",
+      "officialUrl": "https://www.vdi.de/mitgliedschaft/vdi-richtlinien/details/vdi-handbuch-ladungssicherung",
+      "authority": "VDI e.V.",
+      "status": "OFFICIAL_STANDARDS_OWNER_METADATA_ONLY",
+      "sizeBytes": 521635,
+      "sha256": "c2ae6bc7e5a41f4faa040ad3fee04e9d4b5b975558f605f7deb906e2d04f2c28",
+      "localValidation": "PASS"
+    },
+    {
+      "evidenceId": "LEGAL003-EV-VDI-2700-8-1-METADATA",
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "path": "AGM_LIBRARY/PHASE3/LEGAL_003_OWNER_REVIEW/EVIDENCE/LEGAL003-VDI-2700-8-1-metadata.official.html",
+      "mediaType": "text/html",
+      "officialUrl": "https://www.vdi.de/mitgliedschaft/vdi-richtlinien/details/vdi-2700-blatt-81-ladungssicherung-auf-strassenfahrzeugen-sicherung-von-pkw-und-leichten-nutzfahrzeugen-auf-fahrzeugtransportern",
+      "authority": "VDI e.V.",
+      "status": "OFFICIAL_STANDARDS_OWNER_METADATA_ONLY",
+      "sizeBytes": 438765,
+      "sha256": "6a8c9f1165506d9d39dd92c730139bc53f11edd759786cc494bd86bc66b64faf",
+      "localValidation": "PASS"
+    },
+    {
+      "evidenceId": "LEGAL003-EV-VDI-2700-8-1-CORRIGENDUM-METADATA",
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "path": "AGM_LIBRARY/PHASE3/LEGAL_003_OWNER_REVIEW/EVIDENCE/LEGAL003-VDI-2700-8-1-corrigendum-metadata.official.html",
+      "mediaType": "text/html",
+      "officialUrl": "https://www.vdi.de/mitgliedschaft/vdi-richtlinien/details/vdi-2700-blatt-81-berichtigung-ladungssicherung-auf-strassenfahrzeugen-sicherung-von-pkw-und-leichten-nutzfahrzeugen-auf-fahrzeugtransportern-berichtigung-zur-richtlinie-vdi-2700-blatt-812024-09",
+      "authority": "VDI e.V.",
+      "status": "OFFICIAL_STANDARDS_OWNER_METADATA_ONLY",
+      "sizeBytes": 437294,
+      "sha256": "42d31dbabbdb69590a244b60ac351589f26ce0841dc431b8afa8a1a68155e6b2",
+      "localValidation": "PASS"
+    }
+  ],
+  "guardrails": {
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

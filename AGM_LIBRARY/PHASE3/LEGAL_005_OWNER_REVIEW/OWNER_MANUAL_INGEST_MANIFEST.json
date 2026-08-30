@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "agm-legal005-fr-owner-manual-ingest.v1",
+  "gapId": "LEGAL-005",
+  "preparedAt": "2026-08-30T18:00:00.000Z",
+  "status": "READY_FOR_PRODUCT_OWNER_AUTHORITY_REVIEW",
+  "ingestDirectory": "AGM_LIBRARY/PHASE3/LEGAL_005_OWNER_REVIEW/OWNER_MANUAL_INGEST",
+  "artifacts": [
+    {
+      "candidateId": "LEGAL005-CAND-FR-BASE-2021",
+      "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+      "filename": "LEGAL005-FR-BASE-2021.owner-official.pdf",
+      "status": "RESOLVED_VALIDATED",
+      "officialPageUrl": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000043416004",
+      "officialDirectPdfUrl": "https://www.legifrance.gouv.fr/download/file/mTQmrT_h8XoTCnPyUniP4cwJ0r_iDxNUqTQ-vf-OMW0%3D/JOE_TEXTE",
+      "title": "Arrêté du 16 avril 2021 relatif à l'interdiction de circulation des véhicules de transport de marchandises à certaines périodes",
+      "nor": "TRAT2031119A",
+      "jorf": "JORF n°0097 du 24 avril 2021, texte n°37",
+      "textId": "JORFTEXT000043416004",
+      "effectiveFrom": "2021-05-01",
+      "effectiveUntil": null,
+      "expectedPages": 7,
+      "requiredContent": [
+        "Articles 1–12",
+        "Annexes I–III",
+        ">7.5 t scope",
+        "general, annual-complement and Île-de-France rules",
+        "exceptions, derogations and evidence requirements"
+      ],
+      "canonicalPath": "AGM_LIBRARY/PHASE3/LEGAL_005_OWNER_REVIEW/OWNER_MANUAL_INGEST/LEGAL005-FR-BASE-2021.owner-official.pdf",
+      "sizeBytes": 177037,
+      "sha256": "9cb90269cc653b01eb60ccae43ea2ba4fea23acf6010fe26dce9d2db7282e5f1",
+      "validatedPages": 7,
+      "validationChecks": {
+        "pdfMagic": true,
+        "pdfEof": true,
+        "extraction": true,
+        "expectedPages": true,
+        "noBlankPages": true,
+        "identityAndContent": true,
+        "noChallengePage": true
+      },
+      "resolvedAt": "2026-08-30T18:00:00.000Z"
+    },
+    {
+      "candidateId": "LEGAL005-CAND-FR-2026",
+      "sourceId": "CS-FR-TRUCK-BAN-2026",
+      "filename": "LEGAL005-FR-ANNUAL-2026.owner-official.pdf",
+      "status": "RESOLVED_VALIDATED",
+      "officialPageUrl": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053324056",
+      "officialDirectPdfUrl": "https://www.legifrance.gouv.fr/download/file/6ejXbGtsYRG8fw1VAWB5ZOTCvxX3FYcI_q8c2uAQ9wo%3D/JOE_TEXTE",
+      "title": "Arrêté du 26 décembre 2025 relatif aux interdictions complémentaires de circulation des véhicules de transport de marchandises pour l'année 2026",
+      "nor": "TRAT2529272A",
+      "jorf": "JORF n°0006 du 8 janvier 2026, texte n°28",
+      "textId": "JORFTEXT000053324056",
+      "effectiveFrom": "2026-01-09",
+      "effectiveUntil": "2026-12-31",
+      "expectedPages": 2,
+      "requiredContent": [
+        "Articles 1–4",
+        "single complete Auvergne-Rhône-Alpes routes annex",
+        ">7.5 t scope",
+        "all 2026 winter and summer dates/hours"
+      ],
+      "canonicalPath": "AGM_LIBRARY/PHASE3/LEGAL_005_OWNER_REVIEW/OWNER_MANUAL_INGEST/LEGAL005-FR-ANNUAL-2026.owner-official.pdf",
+      "sizeBytes": 141836,
+      "sha256": "9b7a644b8a86c720293856629da867a93c9fd8d32ff761c5a9f9dd269e925f98",
+      "validatedPages": 2,
+      "validationChecks": {
+        "pdfMagic": true,
+        "pdfEof": true,
+        "extraction": true,
+        "expectedPages": true,
+        "noBlankPages": true,
+        "identityAndContent": true,
+        "noChallengePage": true
+      },
+      "resolvedAt": "2026-08-30T18:00:00.000Z"
+    },
+    {
+      "candidateId": "LEGAL005-CAND-FR-FIRE-2026",
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "filename": "LEGAL005-FR-FIRE-DEROGATION-2026.owner-official.pdf",
+      "status": "RESOLVED_VALIDATED",
+      "officialPageUrl": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054633358",
+      "officialDirectPdfUrl": null,
+      "title": "Arrêté du 6 août 2026 portant levée d'interdiction de circulation des véhicules réalisant des transports de marchandises nécessaires à la lutte contre les incendies",
+      "nor": "TRAT2621637A",
+      "jorf": "JORF n°0183 du 7 août 2026, texte n°47",
+      "textId": "JORFTEXT000054633358",
+      "effectiveFrom": "2026-08-08",
+      "effectiveUntil": "2026-08-31",
+      "expectedPages": 2,
+      "requiredContent": [
+        "Articles 1–3",
+        ">7.5 t fire-response scope",
+        "empty-return permission",
+        "proof-on-control obligation",
+        "end date 2026-08-31 inclusive",
+        "second-page Interior Ministry signature block"
+      ],
+      "freshnessStatus": "EXPIRY_WARNING",
+      "expiryTransition": "At 2026-08-31 and thereafter: EXPIRED_REVIEW_REQUIRED; never CURRENT and never ZERO.",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/LEGAL_005_OWNER_REVIEW/OWNER_MANUAL_INGEST/LEGAL005-FR-FIRE-DEROGATION-2026.owner-official.pdf",
+      "sizeBytes": 138220,
+      "sha256": "57b28b6893d88650de9e96125e2eee073d8ad45c3a64aec8fcfa7f5d67b95c84",
+      "validatedPages": 2,
+      "validationChecks": {
+        "pdfMagic": true,
+        "pdfEof": true,
+        "extraction": true,
+        "expectedPages": true,
+        "noBlankPages": true,
+        "identityAndContent": true,
+        "noChallengePage": true
+      },
+      "resolvedAt": "2026-08-30T18:00:00.000Z"
+    }
+  ],
+  "validationRequired": [
+    "PDF openable",
+    "official Légifrance/JORF identity",
+    "complete expected page count and content",
+    "no Cloudflare/challenge/blank/clipped pages",
+    "effective period reconciled",
+    "SHA-256 calculated",
+    "candidate package reconciled without authority promotion"
+  ],
+  "guardrails": {
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  },
+  "resolved": [
+    "CS-FR-TRUCK-BAN-BASE-2021",
+    "CS-FR-TRUCK-BAN-2026",
+    "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026"
+  ],
+  "remaining": []
+}

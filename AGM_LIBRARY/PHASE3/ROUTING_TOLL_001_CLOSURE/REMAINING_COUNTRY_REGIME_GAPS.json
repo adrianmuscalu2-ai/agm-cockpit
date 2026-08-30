@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "agm-routing-toll-001-residual-gaps.v1",
+  "generatedAt": "2026-08-30T00:00:00.000Z",
+  "gapId": "ROUTING-TOLL-001",
+  "gapState": "OPEN",
+  "items": [
+    {
+      "id": "RT001-RES-001",
+      "jurisdiction": "FR",
+      "requirement": "Complete current concessionaire route/class tariff grids",
+      "status": "OPEN"
+    },
+    {
+      "id": "RT001-RES-002",
+      "jurisdiction": "PL",
+      "requirement": "Official passenger/light concession motorway tariffs",
+      "status": "OPEN"
+    },
+    {
+      "id": "RT001-RES-003",
+      "jurisdiction": "CH",
+      "requirement": "Exact current LSVA and vignette tariff/effective artifacts",
+      "status": "OPEN"
+    },
+    {
+      "id": "RT001-RES-004",
+      "jurisdiction": "LU",
+      "requirement": "Human-verified 2026 applicability and current tariff status",
+      "status": "OPEN"
+    },
+    {
+      "id": "RT001-RES-005",
+      "jurisdiction": "BE/NL/DE",
+      "requirement": "Separately governed tunnel/facility coverage or explicit human exclusion",
+      "status": "OPEN"
+    },
+    {
+      "id": "RT001-RES-006",
+      "jurisdiction": "DK/NL",
+      "requirement": "Exact current distance-charge tariff artifacts",
+      "status": "OPEN"
+    },
+    {
+      "id": "RT001-RES-007",
+      "jurisdiction": "ALL",
+      "requirement": "Per-source freshness, invalidation and stale-data runbook",
+      "status": "OPEN"
+    },
+    {
+      "id": "RT001-RES-008",
+      "jurisdiction": "ALL",
+      "requirement": "Human authority/applicability decisions for every proposed source",
+      "status": "OPEN"
+    }
+  ],
+  "recommendation": "REMAINS_PARTIALLY_READY"
+}

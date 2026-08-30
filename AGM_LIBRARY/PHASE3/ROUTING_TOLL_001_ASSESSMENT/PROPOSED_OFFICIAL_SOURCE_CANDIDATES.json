@@ -1,0 +1,239 @@
+{
+  "schemaVersion": "agm-routing-toll-001-official-candidate-assessment.v1",
+  "assessmentDate": "2026-08-29",
+  "status": "PROPOSAL_ONLY_NOT_IN_CENTRAL_REGISTRY",
+  "centralRegistryMutation": false,
+  "candidateCount": 20,
+  "phase2CandidatesReassessed": 11,
+  "newOrReplacementCandidates": 9,
+  "integrityRule": "URL_ACCESS_VERIFIED_IS_NOT_CANONICAL_ARTIFACT_INTEGRITY; byte size and SHA-256 remain null until separately acquired",
+  "candidates": [
+    {
+      "proposalId": "CS-DE-TOLL-COLLECT-RATES",
+      "origin": "PHASE2_REASSESSMENT",
+      "jurisdiction": "DE",
+      "authority": "Toll Collect / German federal toll system",
+      "officialUrl": "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html",
+      "scope": "Goods vehicles above 3.5 t; current tariff parameters",
+      "effectiveOrVersionDate": "2024-07-01 baseline page; live rates require currentness review",
+      "candidateStatus": "OFFICIAL_CANDIDATE_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "CS-DE-BFSTRMG",
+      "origin": "PHASE2_REASSESSMENT",
+      "jurisdiction": "DE",
+      "authority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "officialUrl": "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html",
+      "scope": "Statutory federal road toll scope; goods vehicles above 3.5 t",
+      "effectiveOrVersionDate": "Last amended 2026-05-15",
+      "candidateStatus": "PRIMARY_LEGAL_CANDIDATE_HUMAN_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "CS-AT-ASFINAG-GO-TOLL",
+      "origin": "PHASE2_REASSESSMENT",
+      "jurisdiction": "AT",
+      "authority": "ASFINAG",
+      "officialUrl": "https://help.asfinag.at/en/go-toll/?lng=en",
+      "scope": "Vehicles above 3.5 t; distance, axle and emissions-based GO toll",
+      "effectiveOrVersionDate": "Live 2026 guidance",
+      "candidateStatus": "OFFICIAL_CANDIDATE_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "RT001-PROP-AT-VIGNETTE-SECTION-2026",
+      "origin": "NEW_COMPLEMENT",
+      "jurisdiction": "AT",
+      "authority": "ASFINAG",
+      "officialUrl": "https://bmp.asfinag.at/vignette-und-streckenmaut/",
+      "scope": "Passenger/light vehicles up to 3.5 t; vignette and section-toll system",
+      "effectiveOrVersionDate": "Live 2026 rates",
+      "candidateStatus": "OFFICIAL_CANDIDATE_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "CS-CH-BAZG-ROAD-LEVIES",
+      "origin": "PHASE2_REASSESSMENT_URI_REFINEMENT",
+      "jurisdiction": "CH",
+      "authority": "Swiss Federal Office for Customs and Border Security",
+      "officialUrl": "https://www.bazg.admin.ch/en/services-transport-levies",
+      "scope": "Heavy vehicle charges and vignette entry points; vehicle applicability requires page-level capture",
+      "effectiveOrVersionDate": null,
+      "candidateStatus": "OFFICIAL_CANDIDATE_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "CS-BE-VIAPASS",
+      "origin": "PHASE2_REASSESSMENT",
+      "jurisdiction": "BE",
+      "authority": "Viapass interregional entity",
+      "officialUrl": "https://www.viapass.be/en/",
+      "scope": "Belgian kilometre charge portal for goods vehicles above 3.5 t and N1/BC",
+      "effectiveOrVersionDate": "Live",
+      "candidateStatus": "OFFICIAL_CANDIDATE_TOO_BROAD_REFINEMENT_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "RT001-PROP-BE-VIAPASS-RATES-2026",
+      "origin": "NEW_COMPLEMENT",
+      "jurisdiction": "BE",
+      "authority": "Viapass interregional entity",
+      "officialUrl": "https://www.viapass.be/de/tarife/",
+      "scope": "Regional, weight, EURO and CO2 tariff table",
+      "effectiveOrVersionDate": "2026-07-01",
+      "candidateStatus": "OFFICIAL_DYNAMIC_TARIFF_CANDIDATE_CAPTURE_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "CS-PL-ETOLL-RATES",
+      "origin": "PHASE2_REASSESSMENT",
+      "jurisdiction": "PL",
+      "authority": "Polish Ministry of Finance / National Revenue Administration",
+      "officialUrl": "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/",
+      "scope": "Heavy vehicles above 3.5 t and buses on e-TOLL network",
+      "effectiveOrVersionDate": "2026-02-01",
+      "candidateStatus": "OFFICIAL_CANDIDATE_PASSENGER_CONCESSION_COVERAGE_MISSING",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "CS-CZ-MYTO-RATES-2026",
+      "origin": "PHASE2_REASSESSMENT",
+      "jurisdiction": "CZ",
+      "authority": "Czech Ministry of Transport electronic toll system",
+      "officialUrl": "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026",
+      "scope": "Vehicles above 3.5 t; 2026 rates",
+      "effectiveOrVersionDate": "2026-01-01",
+      "candidateStatus": "OFFICIAL_CANDIDATE_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "RT001-PROP-CZ-EDALNICE-LIGHT",
+      "origin": "NEW_COMPLEMENT",
+      "jurisdiction": "CZ",
+      "authority": "Czech State Fund for Transport Infrastructure / official eDalnice portal",
+      "officialUrl": "https://edalnice.cz/en/",
+      "scope": "Four-wheel vehicles up to 3.5 t; electronic vignette",
+      "effectiveOrVersionDate": "Live; current price artifact still required",
+      "candidateStatus": "OFFICIAL_CANDIDATE_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "CS-DK-KMTOLL-EETS",
+      "origin": "PHASE2_REASSESSMENT_URI_REFINEMENT",
+      "jurisdiction": "DK",
+      "authority": "Danish road toll authority / Sund & Bælt",
+      "officialUrl": "https://vejafgifter.dk/en/which-roads/",
+      "scope": "Freight trucks at least 12 t; tolled road network",
+      "effectiveOrVersionDate": "2025-01-01; planned scope extensions are not current",
+      "candidateStatus": "OFFICIAL_CANDIDATE_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "RT001-PROP-DK-STOREBAELT-2026",
+      "origin": "NEW_COMPLEMENT",
+      "jurisdiction": "DK",
+      "authority": "A/S Storebælt",
+      "officialUrl": "https://www.storebaelt.dk/en/prices-and-discounts/private/",
+      "scope": "Storebælt fixed crossing tolls including passenger vehicles",
+      "effectiveOrVersionDate": "2026-01-01",
+      "candidateStatus": "OFFICIAL_OPERATOR_CANDIDATE_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "RT001-PROP-DK-ORESUND-2026",
+      "origin": "NEW_COMPLEMENT",
+      "jurisdiction": "DK/SE cross-border infrastructure",
+      "authority": "Øresundsbro Konsortiet",
+      "officialUrl": "https://www.oresundsbron.com/en/prices",
+      "scope": "Øresund fixed crossing tariffs by vehicle length/type",
+      "effectiveOrVersionDate": "2026-05-18",
+      "candidateStatus": "OFFICIAL_OPERATOR_CANDIDATE_SCOPE_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "CS-NL-TRUCK-TOLL",
+      "origin": "PHASE2_REASSESSMENT",
+      "jurisdiction": "NL",
+      "authority": "Government of the Netherlands",
+      "officialUrl": "https://www.vrachtwagenheffing.nl/en",
+      "scope": "N2/N3 heavy vehicle toll above 3.5 t",
+      "effectiveOrVersionDate": "2026-07-01",
+      "candidateStatus": "OFFICIAL_CANDIDATE_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "RT001-PROP-NL-A24-ETOL-2026",
+      "origin": "NEW_COMPLEMENT",
+      "jurisdiction": "NL",
+      "authority": "Government of the Netherlands / Ministry of Infrastructure and Water Management",
+      "officialUrl": "https://www.rijksoverheid.nl/themas/verkeer-en-vervoer/wegen/tijdelijke-tolheffing-blankenburgverbinding-en-via15",
+      "scope": "A24 fixed toll for light and heavy vehicles; anti-stacking with truck toll",
+      "effectiveOrVersionDate": "2026-01-01",
+      "candidateStatus": "PRIMARY_GOVERNMENT_CANDIDATE_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "CS-FR-MOTORWAY-TOLLS",
+      "origin": "PHASE2_REASSESSMENT",
+      "jurisdiction": "FR",
+      "authority": "French Ministry for Ecological Transition",
+      "officialUrl": "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+      "scope": "Official concession/toll framework overview",
+      "effectiveOrVersionDate": "Live overview",
+      "candidateStatus": "OFFICIAL_PARTIAL_SOURCE_CONCESSION_TARIFF_SET_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "RT001-PROP-FR-ART-TARIFF-GOVERNANCE",
+      "origin": "NEW_COMPLEMENT",
+      "jurisdiction": "FR",
+      "authority": "Autorité de régulation des transports",
+      "officialUrl": "https://www.autorite-transports.fr/les-autoroutes/les-tarifs-des-peages/",
+      "scope": "Official tariff-governance and annual concession-grid review context",
+      "effectiveOrVersionDate": "Live; tariffs generally change 1 February",
+      "candidateStatus": "OFFICIAL_CONTEXT_SOURCE_EXACT_CONCESSION_GRIDS_STILL_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "CS-LU-EVIGNETTE-2019",
+      "origin": "PHASE2_STALE_CANDIDATE",
+      "jurisdiction": "LU",
+      "authority": "Guichet.lu",
+      "officialUrl": "https://guichet.public.lu/fr/entreprises/import-export/transit/transit-ue/e-vignette-poids-lourds.html",
+      "scope": "Historical official heavy-goods vignette guidance",
+      "effectiveOrVersionDate": "Page last modified 2019",
+      "candidateStatus": "STALE_KEEP_HISTORICAL_DO_NOT_USE_AS_CURRENT",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "RT001-PROP-LU-CUSTOMS-EUROVIGNETTE",
+      "origin": "NEW_REPLACEMENT_CANDIDATE",
+      "jurisdiction": "LU",
+      "authority": "Luxembourg Customs and Excise Agency",
+      "officialUrl": "https://douanes.public.lu/fr/vehicules/eurovignette.html",
+      "scope": "Freight vehicles at least 12 t using covered roads; official tariff link",
+      "effectiveOrVersionDate": "Tariffs from 2025-03-25; page requires 2026 currentness review",
+      "candidateStatus": "OFFICIAL_REPLACEMENT_CANDIDATE_FRESHNESS_REVIEW_REQUIRED",
+      "artifactSha256": null
+    },
+    {
+      "proposalId": "RT001-PROP-LU-EUROVIGNETTE-TARIFF-20250325",
+      "origin": "NEW_COMPLEMENT",
+      "jurisdiction": "LU",
+      "authority": "Luxembourg Customs and Excise Agency",
+      "officialUrl": "https://douanes.public.lu/content/dam/douanes/fr/v%C3%A9hicules/eurovignette/ev-tarif-from-25032025.pdf",
+      "scope": "Eurovignette tariff table by CO2, EURO and axle class",
+      "effectiveOrVersionDate": "2025-03-25",
+      "candidateStatus": "OFFICIAL_ARTIFACT_CANDIDATE_CURRENTNESS_REVIEW_REQUIRED",
+      "artifactSha256": null
+    }
+  ],
+  "knownUncoveredCandidateFamilies": [
+    "France exact current concession tariff grids and machine-usable route-to-tariff mapping",
+    "Poland passenger/light concession motorway tariffs",
+    "Explicit official negative-applicability records where no national passenger toll exists",
+    "Any special private/tunnel/ferry tolls included by the eventual Product Owner scope decision"
+  ],
+  "gapClosed": false
+}

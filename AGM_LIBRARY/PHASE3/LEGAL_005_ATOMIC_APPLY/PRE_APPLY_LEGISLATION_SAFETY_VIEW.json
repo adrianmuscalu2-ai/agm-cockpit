@@ -1,0 +1,193 @@
+{
+  "$schema": "../SCHEMAS/domain-view.schema.json",
+  "schemaVersion": "agm-domain-view.v1",
+  "viewId": "legislation-safety",
+  "displayName": "LEGISLATION / SAFETY VIEW",
+  "viewVersion": "1.1.0",
+  "generatedAt": "2026-08-29T21:19:48.538Z",
+  "viewType": "CONTROLLED_REFERENCE_INDEX",
+  "authorityStatus": "CANDIDATE_NOT_AUTHORITATIVE",
+  "centralRegistry": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+  "owner": "Security & Legal / Human Reviewer",
+  "policyId": "POLICY-LEGISLATION-SAFETY",
+  "sourceCount": 44,
+  "uniqueContentHashes": 35,
+  "memberships": [
+    {
+      "membershipId": "DM-DF76018751D7F6DE715B",
+      "sourceId": "CM-ACD3141F993B7351"
+    },
+    {
+      "membershipId": "DM-A71EAC71C4461BBAD187",
+      "sourceId": "CM-AC8419C0C27B703D"
+    },
+    {
+      "membershipId": "DM-D728331992E9620F7315",
+      "sourceId": "CM-9A254BEC1E92D331"
+    },
+    {
+      "membershipId": "DM-29A8F7AC84B6668D97BB",
+      "sourceId": "CM-C94BC8618523B9EB"
+    },
+    {
+      "membershipId": "DM-5961E6FFA8DBC1441208",
+      "sourceId": "CM-730E6AFE40A7EFFF"
+    },
+    {
+      "membershipId": "DM-FC7FB44A344E6B4A75F7",
+      "sourceId": "CM-E0A7A61A7BDC9DA9"
+    },
+    {
+      "membershipId": "DM-355A043D421E4F516C9D",
+      "sourceId": "CM-B3F852088702028F"
+    },
+    {
+      "membershipId": "DM-FA8ED91A1FF67D72A498",
+      "sourceId": "CM-E1476619AF39DBA0"
+    },
+    {
+      "membershipId": "DM-B08B003637B2EDA3D800",
+      "sourceId": "CM-55FD610A616403CB"
+    },
+    {
+      "membershipId": "DM-9BC94E028DD53B920E7D",
+      "sourceId": "CM-92074282569F97B7"
+    },
+    {
+      "membershipId": "DM-E06EA20A44C7F8289CBA",
+      "sourceId": "CM-3F4BF73B1C927BBE"
+    },
+    {
+      "membershipId": "DM-E6BAFDABD1DEE8B44DE9",
+      "sourceId": "CM-501022B2B34516A7"
+    },
+    {
+      "membershipId": "DM-B738CE4F04EB5C5A05A0",
+      "sourceId": "CM-9BBF0624499EDF99"
+    },
+    {
+      "membershipId": "DM-2333FAA2933518D70549",
+      "sourceId": "CM-C0D905FCAD7E5672"
+    },
+    {
+      "membershipId": "DM-45F3A2B871DE4397B2EE",
+      "sourceId": "CM-88C3CB32522677CA"
+    },
+    {
+      "membershipId": "DM-EC5E176D6DE4A8F6C2B1",
+      "sourceId": "CM-08F3BA1B9544BE94"
+    },
+    {
+      "membershipId": "DM-5F19CD83A019579F0579",
+      "sourceId": "CM-79D6D1B3BE38D9DB"
+    },
+    {
+      "membershipId": "DM-5FDAE324531DAF141157",
+      "sourceId": "CM-493C23802218EF67"
+    },
+    {
+      "membershipId": "DM-D236EB597D9DBA630910",
+      "sourceId": "CM-754BAFDB339A4B21"
+    },
+    {
+      "membershipId": "DM-F479855895FE3E51E74A",
+      "sourceId": "CM-0DEBA02B62527C1B"
+    },
+    {
+      "membershipId": "DM-BF9D229B120150C5FE36",
+      "sourceId": "CM-C8B959D2E7273244"
+    },
+    {
+      "membershipId": "DM-1CDA506BE3DEEE170E6D",
+      "sourceId": "CM-89D49FA31689FFB3"
+    },
+    {
+      "membershipId": "DM-F46652217A23A6DE6E4E",
+      "sourceId": "CM-D7F15ADFE634B2DC"
+    },
+    {
+      "membershipId": "DM-21CBC4797A4FBAC0C751",
+      "sourceId": "CM-4BFB048B8F06604F"
+    },
+    {
+      "membershipId": "DM-6A7FFE1FCC4B0752C544",
+      "sourceId": "CM-61EF53A772F35E34"
+    },
+    {
+      "membershipId": "DM-A3B16136BEB0B7F20290",
+      "sourceId": "CM-D6704E81797E25AF"
+    },
+    {
+      "membershipId": "DM-A4B06B4A69C38DB34D45",
+      "sourceId": "CM-06FF6A9A4C921EB5"
+    },
+    {
+      "membershipId": "DM-4078F4952CFB6373B351",
+      "sourceId": "CM-F38AFE3879B5CBEB"
+    },
+    {
+      "membershipId": "DM-A5A0D3E1C754DF35B71F",
+      "sourceId": "CM-CCFE1C2EE6B3B0D5"
+    },
+    {
+      "membershipId": "DM-AAF3DF3223BE36A1C802",
+      "sourceId": "CM-C5FF73463DE43B51"
+    },
+    {
+      "membershipId": "DM-440A3D66BBDF1AED291E",
+      "sourceId": "CM-0246984C33D133A5"
+    },
+    {
+      "membershipId": "DM-FE02AC05CCF3F86A9407",
+      "sourceId": "CM-31B44DCA8FC003C0"
+    },
+    {
+      "membershipId": "DM-F34631F78E222BD7E357",
+      "sourceId": "CM-3B25B692B4877558"
+    },
+    {
+      "membershipId": "DM-AF9D794FD4FE52D97662",
+      "sourceId": "CM-0670FDF490BA5D1E"
+    },
+    {
+      "membershipId": "DM-8D05224506592D28B6AB",
+      "sourceId": "CM-BA6C21638A67ACA6"
+    },
+    {
+      "membershipId": "DM-553FCADF2848E960CF39",
+      "sourceId": "CM-205559AFFF1792F1"
+    },
+    {
+      "membershipId": "DM-A9EF87EB9FA4899EC22A",
+      "sourceId": "CM-696756EECDAA6D7B"
+    },
+    {
+      "membershipId": "DM-FED88DE64AD73DF8A955",
+      "sourceId": "CM-583B7BEC6E8C0427"
+    },
+    {
+      "membershipId": "DM-27ACDA934457802BF7AC",
+      "sourceId": "CM-288E0F488E7BB978"
+    },
+    {
+      "membershipId": "DM-07CB4A4D4DFA5DB55CAF",
+      "sourceId": "CM-0F4F84F6566EB5EC"
+    },
+    {
+      "membershipId": "DM-78D72C26F73E718FBE45",
+      "sourceId": "CS-DE-STVO"
+    },
+    {
+      "membershipId": "DM-3BE23834027D019039E8",
+      "sourceId": "CS-DE-STVZO"
+    },
+    {
+      "membershipId": "DM-DC1A400123F2CB625098",
+      "sourceId": "CS-UNECE-ADR-2025"
+    },
+    {
+      "membershipId": "DM-52521BE0763104D62838",
+      "sourceId": "CS-DE-GGVSEB"
+    }
+  ]
+}

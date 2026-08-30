@@ -1,0 +1,385 @@
+{
+  "schemaVersion": "agm-phase2-human-review-queue.v1",
+  "automaticPromotionForbidden": true,
+  "items": [
+    {
+      "reviewId": "REVIEW-TACHO-001",
+      "gapId": "TACHO-001",
+      "sourceIds": [
+        "CS-EU-REG-561-2006",
+        "CS-EU-REG-561-2006-CONS-20241231"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Transport Compliance Owner (designation required)",
+      "blockingIssues": [],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-002",
+      "gapId": "TACHO-002",
+      "sourceIds": [
+        "CS-EU-REG-165-2014",
+        "CS-EU-REG-165-2014-CONS-20241231"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Transport Compliance Owner (designation required)",
+      "blockingIssues": [],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-003",
+      "gapId": "TACHO-003",
+      "sourceIds": [
+        "CS-EU-IMPL-REG-2016-799",
+        "CS-EU-IMPL-REG-2016-799-CONS-20230821"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Transport Compliance Owner (designation required)",
+      "blockingIssues": [],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-004",
+      "gapId": "TACHO-004",
+      "sourceIds": [
+        "CS-DE-FPERSG",
+        "CS-DE-FPERSV"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Transport Compliance Owner (designation required)",
+      "blockingIssues": [],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-005",
+      "gapId": "TACHO-005",
+      "sourceIds": [
+        "CS-EU-REG-561-2006",
+        "CS-EU-REG-561-2006-CONS-20241231",
+        "CS-EU-REG-165-2014",
+        "CS-EU-REG-165-2014-CONS-20241231",
+        "CS-EU-IMPL-REG-2016-799",
+        "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+        "CS-DE-FPERSG",
+        "CS-DE-FPERSV",
+        "CS-AGM-TACHO-CHANGE-MAP-V1"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Transport Compliance Owner (designation required)",
+      "blockingIssues": [
+        "Human amendment/applicability review and owner designation remain open."
+      ],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-001",
+      "gapId": "LEGAL-001",
+      "sourceIds": [
+        "CS-DE-STVO"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Security & Legal / Human Reviewer",
+      "blockingIssues": [],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-002",
+      "gapId": "LEGAL-002",
+      "sourceIds": [
+        "CS-DE-STVZO"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Security & Legal / Human Reviewer",
+      "blockingIssues": [],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-003",
+      "gapId": "LEGAL-003",
+      "sourceIds": [
+        "CS-DE-STVO",
+        "CS-DE-HGB-412",
+        "CS-VDI-2700-HANDBOOK"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Security & Legal / Human Reviewer",
+      "blockingIssues": [
+        "Licensed normative VDI text was not acquired; official catalogue metadata cannot replace technical content."
+      ],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-004",
+      "gapId": "LEGAL-004",
+      "sourceIds": [
+        "CS-UNECE-ADR-2025",
+        "CS-DE-GGVSEB"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Security & Legal / Human Reviewer",
+      "blockingIssues": [],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-005",
+      "gapId": "LEGAL-005",
+      "sourceIds": [
+        "CS-DE-STVO",
+        "CS-AT-STVO-42-20260213",
+        "CS-CH-VRV-20220401",
+        "CS-FR-TRUCK-BAN-BASE-2021",
+        "CS-FR-TRUCK-BAN-2026",
+        "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026"
+      ],
+      "requiredDecision": "ACQUIRE_MISSING_PRIMARY_SOURCES_AND_REVIEW",
+      "owner": "Security & Legal / Human Reviewer",
+      "blockingIssues": [
+        "No complete current official source set was demonstrated for BE, NL, LU, PL, CZ and DK professional-driver restrictions.",
+        "AT and CH candidates require current reacquisition.",
+        "Temporary and base French measures require human applicability review."
+      ],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-ROUTING-TOLL-001",
+      "gapId": "ROUTING-TOLL-001",
+      "sourceIds": [
+        "CS-DE-TOLL-COLLECT-RATES",
+        "CS-DE-BFSTRMG",
+        "CS-AT-ASFINAG-GO-TOLL",
+        "CS-CH-BAZG-ROAD-LEVIES",
+        "CS-BE-VIAPASS",
+        "CS-PL-ETOLL-RATES",
+        "CS-CZ-MYTO-RATES-2026",
+        "CS-DK-KMTOLL-EETS",
+        "CS-NL-TRUCK-TOLL",
+        "CS-FR-MOTORWAY-TOLLS",
+        "CS-LU-EVIGNETTE-2019"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Mobility & Routing Steward",
+      "blockingIssues": [
+        "France tariff data is concession-specific and not captured as a complete official set.",
+        "Luxembourg candidate is stale and must be replaced by a current official source."
+      ],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-FIELD-001",
+      "gapId": "FIELD-001",
+      "sourceIds": [
+        "CS-AGM-CM-FIELD-RUNBOOK-V1"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Mobility & Routing Steward",
+      "blockingIssues": [
+        "Owner approval remains required; measured field evidence remains separate and non-conclusive."
+      ],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-CAR-MOVER-001",
+      "gapId": "CAR-MOVER-001",
+      "sourceIds": [
+        "CS-AGM-CM-ARCH-V1"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "AGM Product Owner / Car Mover Steward",
+      "blockingIssues": [
+        "Product Owner and Architecture Inspector review remains required."
+      ],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-CAR-MOVER-002",
+      "gapId": "CAR-MOVER-002",
+      "sourceIds": [
+        "CS-AGM-CM-JOB-V1"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "AGM Product Owner / Car Mover Steward",
+      "blockingIssues": [
+        "Product Owner and Car Mover Steward review remains required."
+      ],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-DOCS-001",
+      "gapId": "DOCS-001",
+      "sourceIds": [
+        "CS-AGM-CM-OCR-EVIDENCE-V1"
+      ],
+      "requiredDecision": "VERIFY_AUTHORITY_CURRENTNESS_APPLICABILITY_AND_SCOPE",
+      "owner": "Inspector / Evidence Custody",
+      "blockingIssues": [
+        "Evidence Custody, Product Owner and privacy/legal retention review remain required."
+      ],
+      "state": "OPEN",
+      "allowedOutcome": [
+        "APPROVE_AS_CANDIDATE_FOR_REGISTRY",
+        "REJECT",
+        "REQUEST_MORE_EVIDENCE",
+        "KEEP_UNRESOLVED"
+      ],
+      "forbiddenOutcome": [
+        "AUTO_CURRENT",
+        "AUTO_AUTHORITATIVE",
+        "AUTO_PASS"
+      ]
+    }
+  ]
+}

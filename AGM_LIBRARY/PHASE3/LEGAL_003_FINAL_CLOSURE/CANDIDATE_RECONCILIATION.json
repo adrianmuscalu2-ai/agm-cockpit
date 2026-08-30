@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "agm-legal003-candidate-reconciliation.v1",
+  "gapId": "LEGAL-003",
+  "reconciledAt": "2026-08-30T22:00:00.000Z",
+  "candidateCount": 3,
+  "pendingCount": 0,
+  "records": [
+    {
+      "candidateId": "LEGAL003-CAND-DE-STVO-22",
+      "sourceId": "CS-DE-STVO",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "reconciliation": "APPROVED_FOR_CURRENT_SCOPE_EXISTING_SOURCE_REUSE",
+      "scope": "StVO section 22 public-law cargo and securing-device duty, including the recognized-technical-rules hook.",
+      "limitations": [
+        "No extension to unrelated StVO provisions.",
+        "Does not supply the transporter-specific normative method.",
+        "Existing Registry source and view membership are reused; no duplicate is created."
+      ],
+      "registryImpact": 0,
+      "legislationSafetyViewImpact": 0,
+      "applyStatus": "NO_APPLY_REQUIRED_FOR_EXISTING_SOURCE"
+    },
+    {
+      "candidateId": "LEGAL003-CAND-DE-HGB-412",
+      "sourceId": "CS-DE-HGB-412",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "reconciliation": "APPROVED_FOR_CURRENT_SCOPE_NOT_APPLIED",
+      "scope": "HGB section 412 allocation of loading/unloading, transport-safe loading/stowage/securing and operationally safe loading responsibilities.",
+      "limitations": [
+        "Does not replace StVO section 22.",
+        "Does not establish technical sufficiency or certify physical compliance.",
+        "Registry/view inclusion requires a separate explicit apply mandate."
+      ],
+      "registryImpact": 0,
+      "legislationSafetyViewImpact": 0,
+      "projectedFutureImpactIfSeparatelyAuthorized": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1
+      },
+      "applyStatus": "APPROVED_NOT_APPLIED"
+    },
+    {
+      "candidateId": "LEGAL003-CAND-VDI-2700-METADATA",
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "classification": "CONTEXTUAL",
+      "reconciliation": "RETAINED_AS_CONTEXTUAL_EXTERNAL_REFERENCE_NOT_APPLIED",
+      "scope": "Standards-owner identity, family, edition 2024-09, corrigendum 2025-10, official URI and public scope metadata only.",
+      "limitations": [
+        "No normative instructions, calculations, values, diagrams or compliance conclusions.",
+        "Full standard remains a licensed external dependency.",
+        "Registry/view inclusion requires a separate explicit apply mandate."
+      ],
+      "registryImpact": 0,
+      "legislationSafetyViewImpact": 0,
+      "projectedFutureImpactIfSeparatelyAuthorized": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1
+      },
+      "applyStatus": "CONTEXTUAL_REFERENCE_RETAINED_NOT_APPLIED"
+    }
+  ],
+  "classificationTotals": {
+    "AUTHORITATIVE_WITH_SCOPE": 2,
+    "CONTEXTUAL": 1
+  },
+  "currentMutationImpact": {
+    "registryAddModifyDelete": "0/0/0",
+    "legislationSafetyViewAddModifyDelete": "0/0/0",
+    "routingTollViewAddModifyDelete": "0/0/0"
+  },
+  "authorityPromotion": "NONE_BY_CLOSURE_RECORD",
+  "note": "Product Owner scope acceptance is recorded without mutating or promoting Registry/view entries. Historical candidate packages remain immutable evidence of the pre-decision state."
+}

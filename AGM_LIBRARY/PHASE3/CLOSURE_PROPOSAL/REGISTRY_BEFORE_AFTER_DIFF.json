@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "agm-phase3-owner-approved-registry-diff.v1",
+  "changesetId": "AGM-CANONICAL-PROMOTION-PHASE3-OWNER-001",
+  "status": "SIMULATION_ONLY_NO_MUTATION",
+  "before": {
+    "sourceCount": 798,
+    "sha256": "1c506707200d6c8b27217cdf00d00541a739ef5321bde1e5f892cb9098e61a34"
+  },
+  "actualAfterThisMandate": {
+    "sourceCount": 798,
+    "sha256": "1c506707200d6c8b27217cdf00d00541a739ef5321bde1e5f892cb9098e61a34",
+    "changed": false
+  },
+  "proposedAfterAllPreconditionsAndSeparateConfirmation": {
+    "sourceCount": 815,
+    "additions": 17,
+    "modifications": 0,
+    "removals": 0,
+    "sha256": null,
+    "sourceIds": [
+      "CS-EU-REG-561-2006",
+      "CS-EU-REG-561-2006-CONS-20241231",
+      "CS-EU-REG-165-2014",
+      "CS-EU-REG-165-2014-CONS-20241231",
+      "CS-EU-IMPL-REG-2016-799",
+      "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "CS-DE-FPERSG",
+      "CS-DE-FPERSV",
+      "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "CS-AGM-CM-ARCH-V1",
+      "CS-AGM-CM-JOB-V1",
+      "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "CS-DE-STVO",
+      "CS-DE-STVZO",
+      "CS-UNECE-ADR-2025",
+      "CS-DE-GGVSEB"
+    ],
+    "note": "A new hash cannot be generated before integrity capture and separately confirmed atomic application."
+  },
+  "readiness": {
+    "schemaReady": [
+      "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "CS-AGM-CM-ARCH-V1",
+      "CS-AGM-CM-JOB-V1",
+      "CS-AGM-CM-OCR-EVIDENCE-V1"
+    ],
+    "blockedPendingIntegrityCapture": [
+      "CS-EU-REG-561-2006",
+      "CS-EU-REG-561-2006-CONS-20241231",
+      "CS-EU-REG-165-2014",
+      "CS-EU-REG-165-2014-CONS-20241231",
+      "CS-EU-IMPL-REG-2016-799",
+      "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "CS-DE-FPERSG",
+      "CS-DE-FPERSV",
+      "CS-DE-STVO",
+      "CS-DE-STVZO",
+      "CS-UNECE-ADR-2025",
+      "CS-DE-GGVSEB"
+    ]
+  },
+  "domainViews": {
+    "before": "REFERENCE_ONLY",
+    "actualAfter": "REFERENCE_ONLY_UNCHANGED",
+    "requiredAfterFutureApply": "REFERENCE_ONLY"
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "generatedAt": "2026-08-29T18:15:07.867Z",
+  "fileCount": 18,
+  "files": [
+    {
+      "path": "AGM_LIBRARY/PHASE2/CANDIDATES/canonical-source-candidates.json",
+      "sizeBytes": 60930,
+      "sha256": "e41817d5539e1cf5792a835c54ac35a92f7f965c038c95a0e5b0626de7daa001"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md",
+      "sizeBytes": 1788,
+      "sha256": "1a592c5d4f41bc27f541c5ba867b8bf3a1b2b2b3955a533b115feae436fd6bc2"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md",
+      "sizeBytes": 1908,
+      "sha256": "5061bce734fee8ce0e0a5c42729985091fc3b5e660ce60025131c9ef6fc22971"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md",
+      "sizeBytes": 1759,
+      "sha256": "fe613d7bb1339def15340e12a46756f34f6a80fef3f8a9ca9f80d3ae151811eb"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md",
+      "sizeBytes": 1933,
+      "sha256": "4d9b92e65372cb80b88369e7e04a0c355b99ec87e47c407ac08763091202891f"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md",
+      "sizeBytes": 1323,
+      "sha256": "6fcb9865f6d7265ca42919df79c8466c0aefc3966c7e79f92953b5c04e3088d9"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/HUMAN_REVIEW_QUEUE.json",
+      "sizeBytes": 11112,
+      "sha256": "cc00fde7a7e5d3271fa633041ae631b35eadfc48db4e9f7cf8fca8f8709374ce"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/MATRICES/authority-jurisdiction-matrix.json",
+      "sizeBytes": 11730,
+      "sha256": "189c211558ff947cbb06e5c5122499d58f3c0c70ac89f297ffc193d37cfd4497"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/MATRICES/candidate-authoritative-decision-matrix.json",
+      "sizeBytes": 16355,
+      "sha256": "17f4879ccf20abb90317d60dfc5e7e9f4c9399f67eefb6deff2c537599365a58"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/MATRICES/current-superseded-unknown-assessment.json",
+      "sizeBytes": 7511,
+      "sha256": "a05234b4c309e6e33ff39651a4ace4f89b18db37789d6c212123952acd253a1b"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/MATRICES/provenance-matrix.json",
+      "sizeBytes": 34075,
+      "sha256": "a82d92e5dceb809b1e886d27dda8a1d26538ede754ec5e813c86c5dd74cb8178"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/PROPOSED_REGISTRY_UPDATES.json",
+      "sizeBytes": 10972,
+      "sha256": "5c7a8017d4864abdfd91fdba40cb72d40bc612327511c3373efcc50b5c614de6"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/README.md",
+      "sizeBytes": 490,
+      "sha256": "85aa04d3e8376b3377b64804014053464c88207c01e18b110c0d46371713577c"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/REGISTRY/canonical-source-gaps.updated.json",
+      "sizeBytes": 7295,
+      "sha256": "2766c54e2365d76074a147da931033d3643dca8a808d90e3548f30fc25904fb6"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/REPORTS/CANONICAL_SOURCE_ACQUISITION_REPORT.md",
+      "sizeBytes": 5700,
+      "sha256": "7d6dc37bd413a675b541397567430a33b6b99762a10e8b59d067549761a1cec0"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/REPORTS/OFFICIAL_SOURCE_AND_AUTHORITY_REGISTER.md",
+      "sizeBytes": 3922,
+      "sha256": "6d51ceb851be6f9b23b1d77a526ce520dc9ef5e1f8367d9f4f34c4697e2adebe"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/REPORTS/PHASE2_VALIDATION_REPORT.md",
+      "sizeBytes": 1950,
+      "sha256": "2d2c8743d9742de009122123d7de53e0ba9ac18bfe84ab6d72f8e42335cd11cf"
+    },
+    {
+      "path": "AGM_LIBRARY/PHASE2/UNRESOLVED_GAPS.json",
+      "sizeBytes": 4072,
+      "sha256": "06edc21d424598261b328c35f0250bd1c34bda966b8a293905007488de7c8b3e"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "agm-phase3-domain-readiness.v1",
+  "assessmentDate": "2026-08-29",
+  "domains": [
+    {
+      "domain": "TACHO",
+      "verdict": "PARTIALLY READY",
+      "rationale": "Primary sources and technical recommendations are strong, but Transport Compliance Owner is undesignated and no human applicability decisions are signed."
+    },
+    {
+      "domain": "ROUTING / TOLL / FIELD",
+      "verdict": "PARTIALLY READY",
+      "rationale": "Official operational sources exist for most jurisdictions; France/Luxembourg remain incomplete and Mobility & Routing Steward approval is absent."
+    },
+    {
+      "domain": "CAR MOVER CANONICAL SPECIFICATIONS",
+      "verdict": "PARTIALLY READY",
+      "rationale": "The internal candidates match implementation and approved Premium boundary, but Product Owner/Inspector signatures are absent."
+    },
+    {
+      "domain": "DOCUMENTS / OCR / EVIDENCE",
+      "verdict": "PARTIALLY READY",
+      "rationale": "The canonical/derived/evidence separation is sound; retention applicability and named multi-owner approval remain open."
+    },
+    {
+      "domain": "LEGISLATION / SAFETY",
+      "verdict": "NOT READY",
+      "rationale": "Multi-jurisdiction restrictions and licensed VDI normative content remain incomplete; no Security & Legal decisions are signed."
+    }
+  ]
+}

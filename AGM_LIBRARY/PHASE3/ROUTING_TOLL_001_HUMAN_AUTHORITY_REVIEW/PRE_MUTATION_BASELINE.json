@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "agm-routing-toll-001-pre-mutation-baseline.v1",
+  "capturedAt": "2026-08-30T00:30:00.000Z",
+  "centralRegistry": {
+    "path": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+    "count": 815,
+    "sha256": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31"
+  },
+  "routingTollView": {
+    "path": "AGM_LIBRARY/VIEWS/routing-toll.view.json",
+    "count": 263,
+    "sha256": "eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f"
+  },
+  "unresolvedGaps": [
+    {
+      "gapId": "ROUTING-TOLL-001",
+      "state": "OPEN"
+    },
+    {
+      "gapId": "LEGAL-003",
+      "state": "OPEN"
+    },
+    {
+      "gapId": "LEGAL-005",
+      "state": "OPEN"
+    }
+  ],
+  "basicLibrarian": "UNCHANGED_3_OF_3_HASH_MATCH_REQUIRED"
+}

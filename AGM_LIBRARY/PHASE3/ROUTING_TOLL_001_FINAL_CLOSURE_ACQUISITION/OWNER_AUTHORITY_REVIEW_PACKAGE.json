@@ -1,0 +1,204 @@
+{
+  "schemaVersion": "agm-routing-toll-001-owner-authority-review.v1",
+  "generatedAt": "2026-08-30T08:50:57.230Z",
+  "candidates": [
+    {
+      "candidateId": "RT001-RES-PL-A1-2026",
+      "authority": "AmberOne / Gdansk Transport Company",
+      "scope": "Poland A1 Gdansk-Torun passenger/light and category tariffs",
+      "effectiveAndFreshness": "Captured 2026-08-30; no effective date asserted where the official surface does not state one.",
+      "artifact": {
+        "candidateId": "RT001-RES-PL-A1-2026",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A1-2026.official.html",
+        "mediaType": "text/html",
+        "sizeBytes": 104841,
+        "sha256": "eeda1db2bb7e800d62d1d33cb64946811d10783d84f197b5a2af0428e9285ce4",
+        "officialUrl": "https://a1.com.pl/kalkulator-oplat-i-planowanie-podrozy/",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "proposedClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "decisionStatus": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+      "limitations": "Current captured operator page; exact update timestamp is not asserted beyond artifact content.",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "candidateId": "RT001-RES-PL-A2-2026",
+      "authority": "Autostrada Wielkopolska",
+      "scope": "Poland A2 Swiecko-Konin concession tariff grid",
+      "effectiveAndFreshness": "Captured 2026-08-30; effective period must be read from and bounded by the official PDF.",
+      "artifact": {
+        "candidateId": "RT001-RES-PL-A2-2026",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A2-2026.official.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 88726,
+        "sha256": "08f72502454ca1797ba418498e089d7834210ffcb7bd04ff9c219ec1a12dc588",
+        "officialUrl": "https://www.autostrada-a2.pl/wp-content/uploads/2026/02/AW-tabele-oplat-03.2026_06.pdf",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "proposedClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "decisionStatus": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+      "limitations": "Operator-specific only; no extrapolation to state e-TOLL or other concessions.",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "candidateId": "RT001-RES-PL-A4-2026",
+      "authority": "Stalexport Autostrada Malopolska",
+      "scope": "Poland A4 Katowice-Krakow tariffs",
+      "effectiveAndFreshness": "Effective 2026-04-01; captured 2026-08-30.",
+      "artifact": {
+        "candidateId": "RT001-RES-PL-A4-2026",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A4-2026.official.html",
+        "mediaType": "text/html",
+        "sizeBytes": 33882,
+        "sha256": "523ed685bfeb4ec4b3ce78a1acdeae8d376a3860409801f0e6f53df78ea41252",
+        "officialUrl": "https://www.autostrada-a4.com.pl/pl/oplaty/oplaty-i-sposoby-wnoszenia-oplat-cennik?version=pl",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "proposedClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "decisionStatus": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+      "limitations": "Operator-specific and effective-date scoped.",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "candidateId": "RT001-RES-CH-LSVA-RATES",
+      "authority": "Swiss Federal Office for Customs and Border Security (BAZG)",
+      "scope": "Swiss LSVA exact rate directive v1.2",
+      "effectiveAndFreshness": "Directive v1.2; exact applicability/currentness remains subject to human review.",
+      "artifact": {
+        "candidateId": "RT001-RES-CH-LSVA-RATES",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-CH-LSVA-RATES.official.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 796842,
+        "sha256": "f359b81076db5db646775a01c06abc38e3e15cc90063623df8bfad1a097919c8",
+        "officialUrl": "https://www.bazg.admin.ch/dam/en/sd-web/kpSj-tYrf6uC/r_15-02-02_%20bestimmungen_lsva%20iii%20v1.2%20E.pdf",
+        "acquisitionTimestamp": "2026-08-30T10:20:43.6822321+02:00"
+      },
+      "proposedClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "decisionStatus": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+      "limitations": "Applicability/currentness must be confirmed by Product Owner; do not infer future rates.",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+      "authority": "Swiss Confederation / BAZG",
+      "scope": "Swiss 2026 motorway vignette price, scope and validity",
+      "effectiveAndFreshness": "2026 vignette validity window as stated by the official source; captured 2026-08-30.",
+      "artifact": {
+        "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-CH-VIGNETTE-2026.official.html",
+        "mediaType": "text/html",
+        "sizeBytes": 43250,
+        "sha256": "81e3d84fbd6ddaa2d16699f2a7761e8756a456b02613131159d719e4a89fe063",
+        "officialUrl": "https://www.ch.ch/en/vehicles-and-traffic/how-to-behave-in-road-traffic/motorway-vignette/",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "proposedClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "decisionStatus": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+      "limitations": "Limited to the vignette regime; does not cover LSVA.",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "candidateId": "RT001-RES-LU-EUROVIGNETTE-SCOPE",
+      "authority": "Luxembourg Customs and Excise Agency",
+      "scope": "Luxembourg Eurovignette vehicle and road applicability",
+      "effectiveAndFreshness": "Captured 2026-08-30; no independent tariff effective date asserted.",
+      "artifact": {
+        "candidateId": "RT001-RES-LU-EUROVIGNETTE-SCOPE",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-SCOPE.official.html",
+        "mediaType": "text/html",
+        "sizeBytes": 53855,
+        "sha256": "19aa2c109ba4d92257096be64fe1292089b482b83089fb74cd94c3b70c62be35",
+        "officialUrl": "https://douanes.public.lu/fr/vehicules/eurovignette.html",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "proposedClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "decisionStatus": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+      "limitations": "Scope evidence only; exact tariffs remain in the separate tariff artifact.",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "candidateId": "RT001-RES-LU-EUROVIGNETTE-RATES",
+      "authority": "Eurovignette / AGES official tariff publication",
+      "scope": "Eurovignette tariff grid",
+      "effectiveAndFreshness": "Applicable from 2025-03-25; 2026 applicability supported by separate official enforcement evidence.",
+      "artifact": {
+        "candidateId": "RT001-RES-LU-EUROVIGNETTE-RATES",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-RATES.official.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 488794,
+        "sha256": "86fd475481957476f08c17b5d571988ce3a353058588b7f291ff2e4348cf2faf",
+        "officialUrl": "https://douanes.public.lu/content/dam/douanes/fr/v%C3%A9hicules/eurovignette/ev-tarif-from-25032025.pdf",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "proposedClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "decisionStatus": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+      "limitations": "2026 applicability is supported separately; tariff changes require human freshness review.",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "candidateId": "RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT",
+      "authority": "Luxembourg Customs and Excise Agency",
+      "scope": "Official 2026 operational/enforcement evidence",
+      "effectiveAndFreshness": "Official 2026 publication; captured 2026-08-30.",
+      "artifact": {
+        "candidateId": "RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT.official.html",
+        "sizeBytes": 52558,
+        "sha256": "1e0b28907ed12f589b4c4d1c199a7f038b69b7b50df75c61aab819f79ac91e65",
+        "officialUrl": "https://douanes.public.lu/fr/actualites/2026/amendes-transports-routiers.html"
+      },
+      "proposedClassification": "CONTEXTUAL",
+      "decisionStatus": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+      "limitations": "Supporting applicability evidence, not a tariff grid.",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "candidateId": "RT001-RES-DK-KMTOLL-TARIFF-V12",
+      "authority": "Sund & Baelt / KmToll",
+      "scope": "Denmark distance-based tariff table",
+      "effectiveAndFreshness": "Version 1.2 dated 2025-11-07; captured 2026-08-30.",
+      "artifact": {
+        "candidateId": "RT001-RES-DK-KMTOLL-TARIFF-V12",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-DK-KMTOLL-TARIFF-V12.official.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 295654,
+        "sha256": "a61667515f888b6fd8df6ea8494060967865a5e9b7aedda6707a74b520192608",
+        "officialUrl": "https://vejafgifter.dk/media/rtopb53s/annex-b-tariff-table-_v12.pdf",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "proposedClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "decisionStatus": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+      "limitations": "Limited to KmToll; excludes bridge tariffs and requires effective-scope confirmation.",
+      "authorityPromotion": "NONE"
+    },
+    {
+      "candidateId": "RT001-RES-NL-TRUCK-RATES-2026",
+      "authority": "Government of the Netherlands",
+      "scope": "Netherlands exact 2026 distance-based truck rates",
+      "effectiveAndFreshness": "Contains explicit time-bounded 2026 tariff bands; captured 2026-08-30.",
+      "artifact": {
+        "candidateId": "RT001-RES-NL-TRUCK-RATES-2026",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-NL-TRUCK-RATES-2026.official.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 824728,
+        "sha256": "313e308e8486c37fcdf0a2baf2ce888a6c13a5ca3c713857125366f4e0940422",
+        "officialUrl": "https://www.vrachtwagenheffing.nl/-/media/trucktol/website/wat-gaat-het-kosten/toegankelijke-pdfs/rdw-tabellen-bedragen-vrachtwagenheffing.pdf?hash=65AEA64054AD8D4BBD1D7D0C7707D5B6&rev=790ab60be70848829bbe40c5e2360320",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "proposedClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "decisionStatus": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+      "limitations": "Time-bounded tariff bands and vehicle scope must be preserved exactly.",
+      "authorityPromotion": "NONE"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "integrityVerified": 10,
+    "approved": 0,
+    "rejected": 0,
+    "pending": 10
+  },
+  "notice": "Classifications are recommendations only. Product Owner human authority decision is mandatory before any Registry proposal or promotion.",
+  "registryMutation": "NONE",
+  "authorityPromotion": "NONE"
+}

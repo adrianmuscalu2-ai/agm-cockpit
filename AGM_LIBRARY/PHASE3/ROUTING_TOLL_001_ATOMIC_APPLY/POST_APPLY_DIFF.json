@@ -1,0 +1,166 @@
+{
+  "schemaVersion": "agm-routing-toll-001-post-apply-diff.v1",
+  "before": {
+    "registryCount": 815,
+    "registrySha256": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31",
+    "viewCount": 263,
+    "viewSha256": "eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f"
+  },
+  "after": {
+    "registryCount": 831,
+    "registrySha256": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+    "viewCount": 279,
+    "viewSha256": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+  },
+  "additions": [
+    {
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "b42f76fc5a0ed7f137774d229c130a0642d308bdb993e6aa71acc6d89ed49d9a"
+    },
+    {
+      "sourceId": "CS-AT-ASFINAG-VIGNETTE-SECTION-2026",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "ca63e71609ab26cf6b72fadecab8212ccfd949944ede10ae5c2205dba7fec4de"
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS",
+      "classification": "CONTEXTUAL",
+      "sha256": "529fe6da1f40367f446b134932247c16842bad5fafe6f79f7c0885e6eca32cf0"
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS-RATES-2026",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "dd2de360607f5ad160c61f52b398144b03f35ce68316888a4eb3d28ad21e21fa"
+    },
+    {
+      "sourceId": "CS-CZ-EDALNICE-VIGNETTE-2026",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "d3b67219685dc87801d36e81fd4a155a74d26651b739ce37794e6764057e4627"
+    },
+    {
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "b751f29b3d6431067aabfec3ca07967a655f0727f120a00864464dccd90b1b97"
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "87ebec688b9950fa7402e4e72ff37b829837b287a9072e5dc7d622c1becb56f2"
+    },
+    {
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "341dcd1845c6f84ad9c99d0f8a1c904fbc7d1c8cc28fe095490a54b75749b915"
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "38a2bba8be39983c78a4df69d6f450187351ccf051c10b6b28c7d36ba5f08d4c"
+    },
+    {
+      "sourceId": "CS-DK-SE-ORESUND-RATES-2026",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "a73027f86d5a6cf1485a1afff7eeb760d5959a6ce8d6a306ca25e8e3fe706522"
+    },
+    {
+      "sourceId": "CS-DK-STOREBAELT-RATES-2026",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "70179a5b188d849660fad7613c122ed96f2a69df05ccaffdd98352f3340ab253"
+    },
+    {
+      "sourceId": "CS-FR-ART-TARIFF-GOVERNANCE",
+      "classification": "CONTEXTUAL",
+      "sha256": "06f27b7f0b91d9530c45a790a72e52d8dc00acd83f333947fbee3f851af91842"
+    },
+    {
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "classification": "CONTEXTUAL",
+      "sha256": "aeebc94376060a75044cb00483922aa53cdc2f082e8f45f5636ea719d24b8a2c"
+    },
+    {
+      "sourceId": "CS-NL-A24-ETOL-2026",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "852d1a5fcd502ee89b8c9dc0082ed45b114f07ad909b156de980f35783717198"
+    },
+    {
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "classification": "CONTEXTUAL",
+      "sha256": "db40d5423310854c9391b3d8edb8bf972e3c566a1a224b94958bf37437ec4776"
+    },
+    {
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "sha256": "b90e4b2bc4e6cb461060eaa9ded63401bf278c248e17e2591ff73ac98ed1af4c"
+    }
+  ],
+  "modifications": [],
+  "deletions": [],
+  "membershipsAdded": [
+    {
+      "membershipId": "DM-B81C4FF79536018D158F",
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL"
+    },
+    {
+      "membershipId": "DM-255F0C48352517C11A74",
+      "sourceId": "CS-AT-ASFINAG-VIGNETTE-SECTION-2026"
+    },
+    {
+      "membershipId": "DM-00F90101442792C219D2",
+      "sourceId": "CS-BE-VIAPASS"
+    },
+    {
+      "membershipId": "DM-B9297AF7A1A12B360865",
+      "sourceId": "CS-BE-VIAPASS-RATES-2026"
+    },
+    {
+      "membershipId": "DM-E419299FF9CD67F7F1CB",
+      "sourceId": "CS-CZ-EDALNICE-VIGNETTE-2026"
+    },
+    {
+      "membershipId": "DM-B7022036027FF542408E",
+      "sourceId": "CS-CZ-MYTO-RATES-2026"
+    },
+    {
+      "membershipId": "DM-4191368885E3104AD6F4",
+      "sourceId": "CS-DE-BFSTRMG"
+    },
+    {
+      "membershipId": "DM-6A302CC6F9423F0E39A8",
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES"
+    },
+    {
+      "membershipId": "DM-D6D7BC06515A4B660F2D",
+      "sourceId": "CS-DK-KMTOLL-EETS"
+    },
+    {
+      "membershipId": "DM-4B10CE0AB75F3E21BE20",
+      "sourceId": "CS-DK-SE-ORESUND-RATES-2026"
+    },
+    {
+      "membershipId": "DM-B78DFD88FC65DFFA7619",
+      "sourceId": "CS-DK-STOREBAELT-RATES-2026"
+    },
+    {
+      "membershipId": "DM-58D7DA001E5A665B8A57",
+      "sourceId": "CS-FR-ART-TARIFF-GOVERNANCE"
+    },
+    {
+      "membershipId": "DM-3A6CE3602AFC4A89CC52",
+      "sourceId": "CS-FR-MOTORWAY-TOLLS"
+    },
+    {
+      "membershipId": "DM-93373BBABA5B02B7EB7D",
+      "sourceId": "CS-NL-A24-ETOL-2026"
+    },
+    {
+      "membershipId": "DM-979FA3EDD41FBB54FA04",
+      "sourceId": "CS-NL-TRUCK-TOLL"
+    },
+    {
+      "membershipId": "DM-966CC6ACDACE0F6CBCB7",
+      "sourceId": "CS-PL-ETOLL-RATES"
+    }
+  ],
+  "gapClosed": false
+}

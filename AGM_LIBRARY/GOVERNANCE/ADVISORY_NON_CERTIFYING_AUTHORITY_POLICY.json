@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "agm-advisory-non-certifying-authority-policy.v1",
+  "policyId": "AGM-GOV-NO-UNVERIFIED-ROLE-ASSUMPTION",
+  "approvedAt": "2026-08-30T22:00:00.000Z",
+  "approvedBy": "Product Owner",
+  "status": "APPROVED",
+  "principle": "AGM = ADVISORY, NOT CERTIFYING AUTHORITY",
+  "mandatoryFlow": [
+    "AGM_PROPOSAL",
+    "HUMAN_PHYSICAL_VERIFICATION",
+    "USER_DECISION"
+  ],
+  "forbiddenFlow": [
+    "AGM_PROPOSAL",
+    "AUTOMATIC_COMPLIANCE"
+  ],
+  "permittedActions": [
+    "INFORM",
+    "ANALYZE",
+    "WARN",
+    "PROPOSE",
+    "RECOMMEND_CHECKS",
+    "IDENTIFY_APPLICABLE_LEGAL_OR_TECHNICAL_REFERENCES",
+    "IDENTIFY_UNCERTAINTY",
+    "REQUEST_HUMAN_CONFIRMATION"
+  ],
+  "prohibitedRoleAssumptions": [
+    "INSPECTOR",
+    "CERTIFICATION_BODY",
+    "COMPETENT_PUBLIC_AUTHORITY",
+    "MANUFACTURER",
+    "PHYSICALLY_PRESENT_QUALIFIED_PERSON"
+  ],
+  "allowedFinalStates": [
+    "PUBLIC_LEGAL_GUIDANCE",
+    "LICENSED_STANDARD_REFERENCE_REQUIRED",
+    "HUMAN_VERIFICATION_REQUIRED",
+    "INSUFFICIENT_AUTHORITY",
+    "UNKNOWN"
+  ],
+  "forbiddenAutomaticStates": [
+    "COMPLIANT",
+    "SAFE",
+    "CERTIFIED",
+    "PASS"
+  ],
+  "equivalenceRules": [
+    "UNKNOWN_NE_SAFE",
+    "NO_DETECTED_ISSUE_NE_COMPLIANT",
+    "CHECKLIST_COMPLETED_NE_CERTIFIED",
+    "AI_PROPOSAL_NE_HUMAN_VALIDATION"
+  ],
+  "physicalRealityRule": "When a determination requires direct observation, measurement or physical inspection and AGM cannot establish it directly and verifiably, the final state is HUMAN_VERIFICATION_REQUIRED.",
+  "externalAuthorityException": "A normally forbidden state may be recorded only when an explicitly authorized and verified external authority or system supplies that state with traceable evidence; AGM does not originate the certification.",
+  "scope": "AGM_WIDE",
+  "runtimeMutation": "NONE_BY_THIS_POLICY_RECORD"
+}

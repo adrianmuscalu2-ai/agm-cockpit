@@ -1,0 +1,662 @@
+{
+  "schemaVersion": "agm-legal-005-post-apply-validation.v1",
+  "validatedAt": "2026-08-30T20:45:00.000Z",
+  "result": "PASS",
+  "passed": 55,
+  "total": 55,
+  "failedCount": 0,
+  "checks": [
+    {
+      "id": "EXECUTION_RECORD_PASS",
+      "status": "PASS",
+      "actual": "PASS",
+      "expected": "PASS"
+    },
+    {
+      "id": "ATOMIC_PARTIAL_APPLY_FALSE",
+      "status": "PASS",
+      "actual": {
+        "partialApply": false,
+        "rollbackAvailable": true,
+        "rollbackExecuted": false,
+        "persistentPreimages": [
+          "AGM_LIBRARY/PHASE3/LEGAL_005_ATOMIC_APPLY/PRE_APPLY_REGISTRY.json",
+          "AGM_LIBRARY/PHASE3/LEGAL_005_ATOMIC_APPLY/PRE_APPLY_LEGISLATION_SAFETY_VIEW.json",
+          "AGM_LIBRARY/PHASE3/LEGAL_005_ATOMIC_APPLY/PRE_APPLY_ROUTING_TOLL_VIEW.json"
+        ]
+      },
+      "expected": "partialApply false"
+    },
+    {
+      "id": "ROLLBACK_AVAILABLE_NOT_EXECUTED",
+      "status": "PASS",
+      "actual": {
+        "partialApply": false,
+        "rollbackAvailable": true,
+        "rollbackExecuted": false,
+        "persistentPreimages": [
+          "AGM_LIBRARY/PHASE3/LEGAL_005_ATOMIC_APPLY/PRE_APPLY_REGISTRY.json",
+          "AGM_LIBRARY/PHASE3/LEGAL_005_ATOMIC_APPLY/PRE_APPLY_LEGISLATION_SAFETY_VIEW.json",
+          "AGM_LIBRARY/PHASE3/LEGAL_005_ATOMIC_APPLY/PRE_APPLY_ROUTING_TOLL_VIEW.json"
+        ]
+      },
+      "expected": "true/false"
+    },
+    {
+      "id": "PRE_REGISTRY_841_HASH",
+      "status": "PASS",
+      "actual": {
+        "count": 841,
+        "sha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076"
+      },
+      "expected": {
+        "count": 841,
+        "sha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076"
+      }
+    },
+    {
+      "id": "PRE_VIEW_44_HASH",
+      "status": "PASS",
+      "actual": {
+        "count": 44,
+        "sha256": "2db4f2b915e256f013bc4ed59188d810230a33c335333ec8cf364c6f1284dac1"
+      },
+      "expected": {
+        "count": 44,
+        "sha256": "2db4f2b915e256f013bc4ed59188d810230a33c335333ec8cf364c6f1284dac1"
+      }
+    },
+    {
+      "id": "PRE_ROUTING_289_HASH",
+      "status": "PASS",
+      "actual": {
+        "count": 289,
+        "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+      },
+      "expected": {
+        "count": 289,
+        "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+      }
+    },
+    {
+      "id": "FINAL_REGISTRY_862_HASH",
+      "status": "PASS",
+      "actual": {
+        "count": 862,
+        "length": 862,
+        "sha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245"
+      },
+      "expected": {
+        "count": 862,
+        "sha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245"
+      }
+    },
+    {
+      "id": "FINAL_VIEW_66_HASH",
+      "status": "PASS",
+      "actual": {
+        "count": 66,
+        "length": 66,
+        "uniqueContentHashes": 57,
+        "sha256": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab"
+      },
+      "expected": {
+        "count": 66,
+        "uniqueContentHashes": 57,
+        "sha256": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab"
+      }
+    },
+    {
+      "id": "ROUTING_UNCHANGED_289_HASH",
+      "status": "PASS",
+      "actual": {
+        "count": 289,
+        "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+      },
+      "expected": {
+        "count": 289,
+        "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+      }
+    },
+    {
+      "id": "PROJECTED_REGISTRY_HASH_MATCH",
+      "status": "PASS",
+      "actual": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245",
+      "expected": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245"
+    },
+    {
+      "id": "PROJECTED_VIEW_HASH_MATCH",
+      "status": "PASS",
+      "actual": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab",
+      "expected": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab"
+    },
+    {
+      "id": "PROJECTED_ROUTING_HASH_MATCH",
+      "status": "PASS",
+      "actual": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0",
+      "expected": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+    },
+    {
+      "id": "REGISTRY_DETERMINISTIC_BYTES",
+      "status": "PASS",
+      "actual": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245",
+      "expected": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245"
+    },
+    {
+      "id": "VIEW_DETERMINISTIC_BYTES",
+      "status": "PASS",
+      "actual": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab",
+      "expected": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab"
+    },
+    {
+      "id": "EXISTING_841_UNCHANGED",
+      "status": "PASS",
+      "actual": -1,
+      "expected": -1
+    },
+    {
+      "id": "EXISTING_44_MEMBERSHIPS_UNCHANGED",
+      "status": "PASS",
+      "actual": -1,
+      "expected": -1
+    },
+    {
+      "id": "ADDITIONS_EXACT_21",
+      "status": "PASS",
+      "actual": 21,
+      "expected": 21
+    },
+    {
+      "id": "MEMBERSHIPS_EXACT_22",
+      "status": "PASS",
+      "actual": 22,
+      "expected": 22
+    },
+    {
+      "id": "NO_UNEXPECTED_MODIFY",
+      "status": "PASS",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "id": "NO_UNEXPECTED_DELETE",
+      "status": "PASS",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "id": "REGISTRY_SOURCE_IDS_UNIQUE",
+      "status": "PASS",
+      "actual": 862,
+      "expected": 862
+    },
+    {
+      "id": "VIEW_MEMBERSHIP_IDS_UNIQUE",
+      "status": "PASS",
+      "actual": 66,
+      "expected": 66
+    },
+    {
+      "id": "VIEW_SOURCE_IDS_UNIQUE",
+      "status": "PASS",
+      "actual": 66,
+      "expected": 66
+    },
+    {
+      "id": "VIEW_NO_ORPHANS",
+      "status": "PASS",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "id": "NEW_SOURCES_EXACTLY_ONCE",
+      "status": "PASS",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "id": "NEW_MEMBERSHIPS_EXACTLY_ONCE",
+      "status": "PASS",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "id": "REUSED_REGISTRY_EXACTLY_ONCE",
+      "status": "PASS",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "id": "DE_STVO_MEMBERSHIP_REUSED",
+      "status": "PASS",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "id": "EU_561_MEMBERSHIP_ADDED",
+      "status": "PASS",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "id": "RWV_ALIAS_NOT_CREATED",
+      "status": "PASS",
+      "actual": true,
+      "expected": true
+    },
+    {
+      "id": "CANONICAL_RVV_CREATED_ONCE",
+      "status": "PASS",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "id": "DUPLICATE_CONTENT_COUNT_UNCHANGED",
+      "status": "PASS",
+      "actual": {
+        "duplicateGroups": 62,
+        "duplicateExcess": 195
+      },
+      "expected": {
+        "duplicateGroups": 62,
+        "duplicateExcess": 195
+      }
+    },
+    {
+      "id": "NO_NEW_HASH_COLLISIONS",
+      "status": "PASS",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "id": "ADDED_CLASSIFICATION_19_SCOPED",
+      "status": "PASS",
+      "actual": 19,
+      "expected": 19
+    },
+    {
+      "id": "ADDED_CLASSIFICATION_2_CONTEXTUAL",
+      "status": "PASS",
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "id": "ALL_23_DECISION_CLASSIFICATIONS_PRESERVED",
+      "status": "PASS",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "id": "NO_STATUS_PROMOTION_BEYOND_APPROVAL",
+      "status": "PASS",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "id": "TRACEABILITY_21",
+      "status": "PASS",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "id": "PROVENANCE_21",
+      "status": "PASS",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "id": "ARTIFACT_INTEGRITY_21",
+      "status": "PASS",
+      "actual": [],
+      "expected": []
+    },
+    {
+      "id": "FIRE_EFFECTIVE_UNTIL_20260831",
+      "status": "PASS",
+      "actual": {
+        "policyVersion": "agm-source-freshness.v1",
+        "effectiveFrom": "2026-08-08",
+        "effectiveUntil": "2026-08-31",
+        "capturedAt": "2026-08-30T18:00:00.000Z",
+        "lastFreshnessCheck": "2026-08-30T18:00:00.000Z",
+        "nextFreshnessCheck": "2026-08-31",
+        "currentStatus": "EXPIRY_WARNING",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Expires after 2026-08-31; EXPIRED is never ZERO.",
+          "Any use outside the demonstrated temporary derogation.",
+          "Any current-trip authorization after expiry without new official evidence.",
+          "The general French rule and the separate complementary 2026 restrictions."
+        ]
+      },
+      "expected": "2026-08-31"
+    },
+    {
+      "id": "FIRE_EXPIRY_WARNING_AS_OF_20260830",
+      "status": "PASS",
+      "actual": {
+        "policyVersion": "agm-source-freshness.v1",
+        "effectiveFrom": "2026-08-08",
+        "effectiveUntil": "2026-08-31",
+        "capturedAt": "2026-08-30T18:00:00.000Z",
+        "lastFreshnessCheck": "2026-08-30T18:00:00.000Z",
+        "nextFreshnessCheck": "2026-08-31",
+        "currentStatus": "EXPIRY_WARNING",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Expires after 2026-08-31; EXPIRED is never ZERO.",
+          "Any use outside the demonstrated temporary derogation.",
+          "Any current-trip authorization after expiry without new official evidence.",
+          "The general French rule and the separate complementary 2026 restrictions."
+        ]
+      },
+      "expected": "EXPIRY_WARNING/reviewRequired"
+    },
+    {
+      "id": "FIRE_POST_EXPIRY_CONTROL",
+      "status": "PASS",
+      "actual": [
+        {
+          "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+          "at20260830": "EXPIRY_WARNING",
+          "atAndAfter20260831": "EXPIRED_REVIEW_REQUIRED",
+          "postExpiryCurrent": "FORBIDDEN",
+          "postExpiryFallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-CH-ARV1-20250501",
+          "through20260930": "APPROVED_ONLY_WITHIN_DEMONSTRATED_SCOPE_AND_PERIOD_NEW_VERSION_DETECTED",
+          "from20261001": "CURRENT_FORBIDDEN",
+          "fallbackWithoutValidatedReplacement": "UNKNOWN_HUMAN_VERIFICATION"
+        }
+      ],
+      "expected": "expired/current forbidden/unknown"
+    },
+    {
+      "id": "ARV1_NEW_VERSION_DETECTED",
+      "status": "PASS",
+      "actual": {
+        "policyVersion": "agm-source-freshness.v1",
+        "effectiveFrom": "2025-05-01",
+        "effectiveUntil": "2026-09-30",
+        "capturedAt": "2026-08-30T18:00:00.000Z",
+        "lastFreshnessCheck": "2026-08-30T18:00:00.000Z",
+        "nextFreshnessCheck": "2026-09-01",
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Vehicle and transport applicability must be checked against ARV 1 Article 3 and exclusions.",
+          "An official change affecting electric delivery vehicles up to 4.25 t is announced for 2026-10-01; no automatic continuation or promotion is permitted.",
+          "Vehicles, activities or categories excluded from ARV 1.",
+          "Use of this version as CURRENT after 2026-09-30.",
+          "Automatic authority for the version applicable from 2026-10-01."
+        ]
+      },
+      "expected": "new version/2026-09-30/review"
+    },
+    {
+      "id": "ARV1_CURRENT_FORBIDDEN_20261001",
+      "status": "PASS",
+      "actual": [
+        {
+          "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+          "at20260830": "EXPIRY_WARNING",
+          "atAndAfter20260831": "EXPIRED_REVIEW_REQUIRED",
+          "postExpiryCurrent": "FORBIDDEN",
+          "postExpiryFallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-CH-ARV1-20250501",
+          "through20260930": "APPROVED_ONLY_WITHIN_DEMONSTRATED_SCOPE_AND_PERIOD_NEW_VERSION_DETECTED",
+          "from20261001": "CURRENT_FORBIDDEN",
+          "fallbackWithoutValidatedReplacement": "UNKNOWN_HUMAN_VERIFICATION"
+        }
+      ],
+      "expected": "CURRENT_FORBIDDEN"
+    },
+    {
+      "id": "ARV1_NO_AUTO_SUPERSESSION",
+      "status": "PASS",
+      "actual": {
+        "supersedes": [],
+        "supersededBy": []
+      },
+      "expected": "empty/false"
+    },
+    {
+      "id": "ARV1_FRESHNESS_QUEUE",
+      "status": "PASS",
+      "actual": [
+        "CS-NL-GOV-TRUCK-TOLL-RATES-2026",
+        "CS-DK-KMTOLL-TARIFF-TABLE-V1-2",
+        "CS-CH-ARV1-20250501"
+      ],
+      "expected": "ARV1 queued"
+    },
+    {
+      "id": "END_20261231_CS-AT-HGV-BAN-CALENDAR-2026",
+      "status": "PASS",
+      "actual": "2026-12-31",
+      "expected": "2026-12-31"
+    },
+    {
+      "id": "END_20261231_CS-AT-A10-SUMMER-HGV-BAN-2026",
+      "status": "PASS",
+      "actual": "2026-12-31",
+      "expected": "2026-12-31"
+    },
+    {
+      "id": "END_20261231_CS-AT-LUEGBRUECKE-HGV-BAN-2026",
+      "status": "PASS",
+      "actual": "2026-12-31",
+      "expected": "2026-12-31"
+    },
+    {
+      "id": "END_20261231_CS-FR-TRUCK-BAN-2026",
+      "status": "PASS",
+      "actual": "2026-12-31",
+      "expected": "2026-12-31"
+    },
+    {
+      "id": "UNKNOWN_FALLBACK_NEVER_ZERO_SAFE_PASS_NO_RESTRICTION",
+      "status": "PASS",
+      "actual": [
+        {
+          "sourceId": "CS-AT-A10-SUMMER-HGV-BAN-2026",
+          "fallback": "USE_ONLY_WITHIN_APPROVED_SCOPE_AND_DEMONSTRATED_PERIOD"
+        },
+        {
+          "sourceId": "CS-AT-HGV-BAN-CALENDAR-2026",
+          "fallback": "USE_ONLY_WITHIN_APPROVED_SCOPE_AND_DEMONSTRATED_PERIOD"
+        },
+        {
+          "sourceId": "CS-AT-LUEGBRUECKE-HGV-BAN-2026",
+          "fallback": "USE_ONLY_WITHIN_APPROVED_SCOPE_AND_DEMONSTRATED_PERIOD"
+        },
+        {
+          "sourceId": "CS-AT-STVO-42-20260830",
+          "fallback": "USE_ONLY_WITHIN_APPROVED_SCOPE_AND_DEMONSTRATED_PERIOD"
+        },
+        {
+          "sourceId": "CS-BE-BRUSSELS-LEZ-CURRENT",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-BE-FOD-TACHOGRAPH-20260701",
+          "fallback": "USE_ONLY_WITHIN_APPROVED_SCOPE_AND_DEMONSTRATED_PERIOD"
+        },
+        {
+          "sourceId": "CS-BE-VLAANDEREN-LEZ-CURRENT",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-BE-WALLONIA-LEZ-FRAMEWORK",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-CH-ARV1-20250501",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-CH-VRV-20260701",
+          "fallback": "USE_ONLY_WITHIN_APPROVED_SCOPE_AND_DEMONSTRATED_PERIOD"
+        },
+        {
+          "sourceId": "CS-CZ-MD-HGV-RESTRICTIONS-CURRENT",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-DE-FERREISEV-2026",
+          "fallback": "USE_ONLY_WITHIN_APPROVED_SCOPE_AND_DEMONSTRATED_PERIOD"
+        },
+        {
+          "sourceId": "CS-DK-DRIVING-REST-20260701",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-DK-ENV-ZONE-REG-2026-588",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-FR-TRUCK-BAN-2026",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-LU-TRANSPORTS-HGV-RESTRICTIONS-CURRENT",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-NL-GOV-DRIVING-REST-CURRENT",
+          "fallback": "USE_ONLY_WITHIN_APPROVED_SCOPE_AND_DEMONSTRATED_PERIOD"
+        },
+        {
+          "sourceId": "CS-NL-RVV-HGV-ACCESS-20260701",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        },
+        {
+          "sourceId": "CS-PL-HGV-RESTRICTIONS-CURRENT",
+          "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+        }
+      ],
+      "expected": "no forbidden fallback"
+    },
+    {
+      "id": "SECOND_APPLY_EXIT_ZERO",
+      "status": "PASS",
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "id": "SECOND_APPLY_ZERO_OPERATIONS",
+      "status": "PASS",
+      "actual": {
+        "status": "ALREADY_APPLIED_IDEMPOTENT_PASS",
+        "operationsReexecuted": {
+          "add": 0,
+          "modify": 0,
+          "delete": 0
+        },
+        "registry": {
+          "count": 862,
+          "sha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245"
+        },
+        "legislationSafetyView": {
+          "count": 66,
+          "sha256": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab"
+        },
+        "routingTollView": {
+          "count": 289,
+          "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+        }
+      },
+      "expected": "ALREADY_APPLIED + zero operations"
+    },
+    {
+      "id": "SECOND_APPLY_HASHES_UNCHANGED",
+      "status": "PASS",
+      "actual": {
+        "registry": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245",
+        "view": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab",
+        "routing": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+      },
+      "expected": {
+        "registry": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245",
+        "view": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab",
+        "routing": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+      }
+    }
+  ],
+  "summary": {
+    "atomicApply": "PASS",
+    "postApplyValidation": "PASS",
+    "idempotence": "PASS",
+    "secondApplyOperations": {
+      "add": 0,
+      "modify": 0,
+      "delete": 0
+    },
+    "deterministicRegeneration": "PASS",
+    "registry": {
+      "before": 841,
+      "after": 862,
+      "sha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245",
+      "projectedHashMatch": true
+    },
+    "legislationSafetyView": {
+      "before": 44,
+      "after": 66,
+      "sha256": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab",
+      "projectedHashMatch": true
+    },
+    "routingTollView": {
+      "before": 289,
+      "after": 289,
+      "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0",
+      "unchanged": true
+    },
+    "operations": {
+      "registry": {
+        "add": 21,
+        "modify": 0,
+        "delete": 0
+      },
+      "legislationSafetyView": {
+        "add": 22,
+        "modify": 0,
+        "delete": 0
+      },
+      "routingTollView": {
+        "add": 0,
+        "modify": 0,
+        "delete": 0
+      }
+    },
+    "duplicates": {
+      "before": {
+        "duplicateGroups": 62,
+        "duplicateExcess": 195
+      },
+      "after": {
+        "duplicateGroups": 62,
+        "duplicateExcess": 195
+      },
+      "newDuplicateImpact": 0
+    },
+    "rollback": "NOT_EXECUTED_AVAILABLE"
+  },
+  "protections": {
+    "runtimeProduction": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

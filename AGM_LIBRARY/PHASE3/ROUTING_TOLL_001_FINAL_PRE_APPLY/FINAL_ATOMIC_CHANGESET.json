@@ -1,0 +1,759 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-atomic-changeset.v1",
+  "generatedAt": "2026-08-30T01:00:00.000Z",
+  "status": "READY_NOT_AUTHORIZED_NOT_EXECUTED",
+  "authorityDecision": {
+    "reference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+    "decisions": 16,
+    "authoritativeWithScope": 12,
+    "contextual": 4,
+    "pending": 0
+  },
+  "activationCondition": "SEPARATE_EXPLICIT_PRODUCT_OWNER_ATOMIC_APPLY_AUTHORIZATION",
+  "baseline": {
+    "registryCount": 815,
+    "registrySha256": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31",
+    "routingTollViewCount": 263,
+    "routingTollViewSha256": "eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f"
+  },
+  "operations": {
+    "add": 16,
+    "modifyExistingSources": 0,
+    "delete": 0
+  },
+  "additions": [
+    {
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-AT-ASFINAG-GO-TOLL.official.pdf",
+      "canonicalUri": "https://media.asfinag.at/media/p31n1jxq/go-maut-tarife-2026_de.pdf",
+      "mediaType": "application/pdf",
+      "sizeBytes": 2094992,
+      "sha256": "b42f76fc5a0ed7f137774d229c130a0642d308bdb993e6aa71acc6d89ed49d9a",
+      "sourceDate": "2025-12-18",
+      "effectiveDate": "2026-01-01",
+      "version": "GO-Maut Tarife 2026",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "ASFINAG",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "AT"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-AT-ASFINAG-GO-TOLL.official.pdf",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://media.asfinag.at/media/p31n1jxq/go-maut-tarife-2026_de.pdf"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-AT-ASFINAG-VIGNETTE-SECTION-2026",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-AT-VIGNETTE-SECTION-2026.official.pdf",
+      "canonicalUri": "https://media.asfinag.at/media/1mpjid2j/asf_vignettenfolder_2026_de.pdf",
+      "mediaType": "application/pdf",
+      "sizeBytes": 2945729,
+      "sha256": "ca63e71609ab26cf6b72fadecab8212ccfd949944ede10ae5c2205dba7fec4de",
+      "sourceDate": "2025-11-18",
+      "effectiveDate": "2026-01-01",
+      "version": "Vignette und Streckenmaut 2026",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "ASFINAG",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "AT"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-AT-VIGNETTE-SECTION-2026.official.pdf",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://media.asfinag.at/media/1mpjid2j/asf_vignettenfolder_2026_de.pdf"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-BE-VIAPASS.official.html",
+      "canonicalUri": "https://www.viapass.be/en/",
+      "mediaType": "text/html",
+      "sizeBytes": 34471,
+      "sha256": "529fe6da1f40367f446b134932247c16842bad5fafe6f79f7c0885e6eca32cf0",
+      "sourceDate": "2026-08-29",
+      "effectiveDate": null,
+      "version": "Official authority portal captured 2026-08-29",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "Viapass interregional entity",
+        "authorityType": "CONTEXTUAL",
+        "jurisdictions": [
+          "BE"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-BE-VIAPASS.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://www.viapass.be/en/"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS-RATES-2026",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-BE-VIAPASS-RATES-2026.official.html",
+      "canonicalUri": "https://www.viapass.be/de/tarife/",
+      "mediaType": "text/html",
+      "sizeBytes": 45682,
+      "sha256": "dd2de360607f5ad160c61f52b398144b03f35ce68316888a4eb3d28ad21e21fa",
+      "sourceDate": "2026-07-01",
+      "effectiveDate": "2026-07-01",
+      "version": "Viapass edition 2026-07-01",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "Viapass interregional entity",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "BE"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-BE-VIAPASS-RATES-2026.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://www.viapass.be/de/tarife/"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-CZ-EDALNICE-VIGNETTE-2026",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-CZ-EDALNICE-LIGHT.official.html",
+      "canonicalUri": "https://edalnice.gov.cz/en",
+      "mediaType": "text/html",
+      "sizeBytes": 690606,
+      "sha256": "d3b67219685dc87801d36e81fd4a155a74d26651b739ce37794e6764057e4627",
+      "sourceDate": "2026-08-29",
+      "effectiveDate": null,
+      "version": "Official eDalnice portal captured 2026-08-29",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "Czech State Fund for Transport Infrastructure / official eDalnice portal",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "CZ"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-CZ-EDALNICE-LIGHT.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://edalnice.gov.cz/en"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-CZ-MYTO-RATES-2026.official.html",
+      "canonicalUri": "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026",
+      "mediaType": "text/html",
+      "sizeBytes": 41269,
+      "sha256": "b751f29b3d6431067aabfec3ca07967a655f0727f120a00864464dccd90b1b97",
+      "sourceDate": "2026-01-01",
+      "effectiveDate": "2026-01-01",
+      "version": "2026 official rates",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "Czech Ministry of Transport electronic toll system",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "CZ"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-CZ-MYTO-RATES-2026.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-DE-BFSTRMG.official.html",
+      "canonicalUri": "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html",
+      "mediaType": "text/html",
+      "sizeBytes": 191248,
+      "sha256": "87ebec688b9950fa7402e4e72ff37b829837b287a9072e5dc7d622c1becb56f2",
+      "sourceDate": "2026-05-15",
+      "effectiveDate": "2026-05-15",
+      "version": "Last amended 2026-05-15",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "German Federal Ministry of Justice / Federal Office of Justice",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "DE"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-DE-BFSTRMG.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-DE-TOLL-COLLECT-RATES.official.html",
+      "canonicalUri": "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html",
+      "mediaType": "text/html",
+      "sizeBytes": 694100,
+      "sha256": "341dcd1845c6f84ad9c99d0f8a1c904fbc7d1c8cc28fe095490a54b75749b915",
+      "sourceDate": "2026-08-29",
+      "effectiveDate": "2024-07-01",
+      "version": "Live official tariff page captured 2026-08-29",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "Toll Collect / German federal toll system",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "DE"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-DE-TOLL-COLLECT-RATES.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-DK-KMTOLL-EETS.official.html",
+      "canonicalUri": "https://vejafgifter.dk/en/which-roads/",
+      "mediaType": "text/html",
+      "sizeBytes": 73179,
+      "sha256": "38a2bba8be39983c78a4df69d6f450187351ccf051c10b6b28c7d36ba5f08d4c",
+      "sourceDate": "2026-08-29",
+      "effectiveDate": "2025-01-01",
+      "version": "Current network scope captured 2026-08-29",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "Danish road toll authority / Sund & Bælt",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "DK"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-DK-KMTOLL-EETS.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://vejafgifter.dk/en/which-roads/"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-DK-SE-ORESUND-RATES-2026",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-DK-ORESUND-2026.official.html",
+      "canonicalUri": "https://www.oresundsbron.com/en/prices",
+      "mediaType": "text/html",
+      "sizeBytes": 335565,
+      "sha256": "a73027f86d5a6cf1485a1afff7eeb760d5959a6ce8d6a306ca25e8e3fe706522",
+      "sourceDate": "2026-05-18",
+      "effectiveDate": "2026-05-18",
+      "version": "Oresund prices effective 2026-05-18",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "Øresundsbro Konsortiet",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "DK",
+          "SE"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-DK-ORESUND-2026.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://www.oresundsbron.com/en/prices"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-DK-STOREBAELT-RATES-2026",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-DK-STOREBAELT-2026.official.html",
+      "canonicalUri": "https://www.storebaelt.dk/en/prices-and-discounts/private/",
+      "mediaType": "text/html",
+      "sizeBytes": 164428,
+      "sha256": "70179a5b188d849660fad7613c122ed96f2a69df05ccaffdd98352f3340ab253",
+      "sourceDate": "2026-01-01",
+      "effectiveDate": "2026-01-01",
+      "version": "Storebaelt prices 2026",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "A/S Storebælt",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "DK"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-DK-STOREBAELT-2026.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://www.storebaelt.dk/en/prices-and-discounts/private/"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-FR-ART-TARIFF-GOVERNANCE",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-FR-ART-TARIFF-GOVERNANCE.official.html",
+      "canonicalUri": "https://www.autorite-transports.fr/les-autoroutes/les-tarifs-des-peages/",
+      "mediaType": "text/html",
+      "sizeBytes": 115958,
+      "sha256": "06f27b7f0b91d9530c45a790a72e52d8dc00acd83f333947fbee3f851af91842",
+      "sourceDate": "2026-08-29",
+      "effectiveDate": null,
+      "version": "Official tariff-governance page captured 2026-08-29",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "Autorité de régulation des transports",
+        "authorityType": "CONTEXTUAL",
+        "jurisdictions": [
+          "FR"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-FR-ART-TARIFF-GOVERNANCE.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://www.autorite-transports.fr/les-autoroutes/les-tarifs-des-peages/"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-FR-MOTORWAY-TOLLS.official.html",
+      "canonicalUri": "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+      "mediaType": "text/html",
+      "sizeBytes": 120284,
+      "sha256": "aeebc94376060a75044cb00483922aa53cdc2f082e8f45f5636ea719d24b8a2c",
+      "sourceDate": "2026-08-29",
+      "effectiveDate": null,
+      "version": "Official motorway toll framework captured 2026-08-29",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "French Ministry for Ecological Transition",
+        "authorityType": "CONTEXTUAL",
+        "jurisdictions": [
+          "FR"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-FR-MOTORWAY-TOLLS.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-NL-A24-ETOL-2026",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-NL-A24-ETOL-2026.official.html",
+      "canonicalUri": "https://www.rijksoverheid.nl/themas/verkeer-en-vervoer/wegen/tijdelijke-tolheffing-blankenburgverbinding-en-via15",
+      "mediaType": "text/html",
+      "sizeBytes": 246982,
+      "sha256": "852d1a5fcd502ee89b8c9dc0082ed45b114f07ad909b156de980f35783717198",
+      "sourceDate": "2026-01-01",
+      "effectiveDate": "2026-01-01",
+      "version": "A24 toll amounts effective 2026-01-01",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "Government of the Netherlands / Ministry of Infrastructure and Water Management",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "NL"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-NL-A24-ETOL-2026.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://www.rijksoverheid.nl/themas/verkeer-en-vervoer/wegen/tijdelijke-tolheffing-blankenburgverbinding-en-via15"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-NL-TRUCK-TOLL.official.html",
+      "canonicalUri": "https://www.vrachtwagenheffing.nl/en",
+      "mediaType": "text/html",
+      "sizeBytes": 51010,
+      "sha256": "db40d5423310854c9391b3d8edb8bf972e3c566a1a224b94958bf37437ec4776",
+      "sourceDate": "2026-08-29",
+      "effectiveDate": "2026-07-01",
+      "version": "Official truck-charge portal captured 2026-08-29",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "Government of the Netherlands",
+        "authorityType": "CONTEXTUAL",
+        "jurisdictions": [
+          "NL"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-NL-TRUCK-TOLL.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://www.vrachtwagenheffing.nl/en"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-PL-ETOLL-RATES.official.html",
+      "canonicalUri": "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/",
+      "mediaType": "text/html",
+      "sizeBytes": 267230,
+      "sha256": "b90e4b2bc4e6cb461060eaa9ded63401bf278c248e17e2591ff73ac98ed1af4c",
+      "sourceDate": "2026-08-29",
+      "effectiveDate": "2026-02-01",
+      "version": "Rates effective 2026-02-01",
+      "status": "CURRENT",
+      "owner": "Mobility & Routing Steward",
+      "authority": {
+        "issuingBody": "Polish Ministry of Finance / National Revenue Administration",
+        "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+        "jurisdictions": [
+          "PL"
+        ],
+        "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE",
+        "humanReviewRequired": false
+      },
+      "provenance": {
+        "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-PL-ETOLL-RATES.official.html",
+        "originalPreserved": true,
+        "libraryCopyCreated": false
+      },
+      "retention": {
+        "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+        "deleteAuthorized": false,
+        "historicalEvidencePreserved": true
+      },
+      "evidenceRefs": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
+        "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/"
+      ],
+      "supersedes": [],
+      "supersededBy": []
+    }
+  ],
+  "routingTollMembershipAdditions": [
+    {
+      "membershipId": "DM-B81C4FF79536018D158F",
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL"
+    },
+    {
+      "membershipId": "DM-255F0C48352517C11A74",
+      "sourceId": "CS-AT-ASFINAG-VIGNETTE-SECTION-2026"
+    },
+    {
+      "membershipId": "DM-00F90101442792C219D2",
+      "sourceId": "CS-BE-VIAPASS"
+    },
+    {
+      "membershipId": "DM-B9297AF7A1A12B360865",
+      "sourceId": "CS-BE-VIAPASS-RATES-2026"
+    },
+    {
+      "membershipId": "DM-E419299FF9CD67F7F1CB",
+      "sourceId": "CS-CZ-EDALNICE-VIGNETTE-2026"
+    },
+    {
+      "membershipId": "DM-B7022036027FF542408E",
+      "sourceId": "CS-CZ-MYTO-RATES-2026"
+    },
+    {
+      "membershipId": "DM-4191368885E3104AD6F4",
+      "sourceId": "CS-DE-BFSTRMG"
+    },
+    {
+      "membershipId": "DM-6A302CC6F9423F0E39A8",
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES"
+    },
+    {
+      "membershipId": "DM-D6D7BC06515A4B660F2D",
+      "sourceId": "CS-DK-KMTOLL-EETS"
+    },
+    {
+      "membershipId": "DM-4B10CE0AB75F3E21BE20",
+      "sourceId": "CS-DK-SE-ORESUND-RATES-2026"
+    },
+    {
+      "membershipId": "DM-B78DFD88FC65DFFA7619",
+      "sourceId": "CS-DK-STOREBAELT-RATES-2026"
+    },
+    {
+      "membershipId": "DM-58D7DA001E5A665B8A57",
+      "sourceId": "CS-FR-ART-TARIFF-GOVERNANCE"
+    },
+    {
+      "membershipId": "DM-3A6CE3602AFC4A89CC52",
+      "sourceId": "CS-FR-MOTORWAY-TOLLS"
+    },
+    {
+      "membershipId": "DM-93373BBABA5B02B7EB7D",
+      "sourceId": "CS-NL-A24-ETOL-2026"
+    },
+    {
+      "membershipId": "DM-979FA3EDD41FBB54FA04",
+      "sourceId": "CS-NL-TRUCK-TOLL"
+    },
+    {
+      "membershipId": "DM-966CC6ACDACE0F6CBCB7",
+      "sourceId": "CS-PL-ETOLL-RATES"
+    }
+  ],
+  "projected": {
+    "registryCount": 831,
+    "registrySha256": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+    "routingTollViewCount": 279,
+    "routingTollViewUniqueContentHashes": 264,
+    "routingTollViewSha256": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+  },
+  "canonicalDuplication": false,
+  "gapStateAfterApply": "ROUTING-TOLL-001_OPEN_PARTIALLY_READY",
+  "executed": false
+}

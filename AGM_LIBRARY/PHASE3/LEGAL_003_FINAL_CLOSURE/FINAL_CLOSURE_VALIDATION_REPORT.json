@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "agm-legal003-final-closure-validation.v1",
+  "gapId": "LEGAL-003",
+  "validatedAt": "2026-08-30T22:00:00.000Z",
+  "validator": "scripts/validate-legal-003-final-closure-readonly.mjs",
+  "result": "PASS",
+  "passed": 39,
+  "total": 39,
+  "impactStudyValidator": {
+    "validator": "scripts/validate-legal-003-vdi-impact-study-readonly.mjs",
+    "result": "PASS",
+    "passed": 30,
+    "total": 30
+  },
+  "idempotence": {
+    "result": "PASS",
+    "method": "Two consecutive read-only closure-validator executions",
+    "deterministicOutput": true,
+    "mutations": "NONE"
+  },
+  "targetedProductContracts": [
+    {
+      "id": "PRE-007_LOAD_SAFETY_CLIENT_INTERFACE",
+      "result": "PASS"
+    },
+    {
+      "id": "API-008_PREMIUM_LOAD_SAFETY_SERVICE",
+      "result": "PASS"
+    }
+  ],
+  "evidenceIntegrity": {
+    "manifestArtifacts": 5,
+    "hashMatches": 5,
+    "result": "PASS",
+    "licensedNormativeContentPresent": false
+  },
+  "finalState": {
+    "legal003": "PASS_WITH_EXTERNAL_LICENSED_DEPENDENCY_CLOSED",
+    "approvedCurrentScope": "COMPLETE",
+    "publicAuthoritativeEvidence": "3/4",
+    "licensedExternalDependency": "1/4",
+    "currentScopeBlockers": 0,
+    "pendingCandidates": 0
+  },
+  "protectedBaseline": {
+    "centralRegistry": {
+      "count": 862,
+      "sha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245",
+      "mutation": "NONE"
+    },
+    "legislationSafetyView": {
+      "count": 66,
+      "sha256": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab",
+      "mutation": "NONE"
+    },
+    "routingTollView": {
+      "count": 289,
+      "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0",
+      "mutation": "NONE"
+    }
+  },
+  "artifactHashes": {
+    "productOwnerDecision": "6e9c829658a0528760d83be5950ab9b2cf0ea75d18acb4e719f13c1da8d966b3",
+    "candidateReconciliation": "5863583cb2be87e9c011b6ffffd3dba6a1f381efb02f451cfd7fb4b0dbcce92e",
+    "governancePolicy": "f0da6ea98cb05506692b6ca1b88007baf90ea10686b27aa9a7efb0ded49910cf",
+    "finalClosureReport": "6b99a509fb635887be3bb633d1282fb4665f7a2e5ccf936ab02b2e091985dfda"
+  },
+  "guardrails": {
+    "vdiPurchase": "NOT_AUTHORIZED_NOT_EXECUTED",
+    "vdiIngest": "NOT_AUTHORIZED_NOT_EXECUTED",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "apply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

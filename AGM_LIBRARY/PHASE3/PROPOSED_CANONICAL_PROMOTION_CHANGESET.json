@@ -1,0 +1,574 @@
+{
+  "schemaVersion": "agm-phase3-proposed-canonical-promotion-changeset.v1",
+  "changesetId": "AGM-CANONICAL-PROMOTION-PHASE3-001",
+  "status": "PROPOSED_NOT_APPLIED",
+  "applyAuthority": "NOT_GRANTED_BY_CURRENT_MANDATE",
+  "atomicApplyRequired": true,
+  "centralRegistryPath": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+  "centralRegistryBeforeSha256": "1c506707200d6c8b27217cdf00d00541a739ef5321bde1e5f892cb9098e61a34",
+  "sourceIdContinuityVerified": true,
+  "duplicateSourceIdCount": 0,
+  "operationCount": 35,
+  "operations": [
+    {
+      "operationId": "ADD-CS-EU-REG-561-2006",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-EU-REG-561-2006",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://eur-lex.europa.eu/eli/reg/2006/561/oj",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-EU-REG-561-2006-CONS-20241231",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:02006R0561-20241231",
+      "proposedAuthorityClassification": "CONTEXTUAL",
+      "proposedDocumentStatusIfApproved": "EVIDENCE",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-EU-REG-165-2014",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-EU-REG-165-2014",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://eur-lex.europa.eu/eli/reg/2014/165/oj",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-EU-REG-165-2014-CONS-20241231",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02014R0165-20241231",
+      "proposedAuthorityClassification": "CONTEXTUAL",
+      "proposedDocumentStatusIfApproved": "EVIDENCE",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-EU-IMPL-REG-2016-799",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-EU-IMPL-REG-2016-799",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02016R0799-20230821",
+      "proposedAuthorityClassification": "CONTEXTUAL",
+      "proposedDocumentStatusIfApproved": "EVIDENCE",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-DE-FPERSG",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-DE-FPERSG",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.gesetze-im-internet.de/fahrpersstg/BJNR002770971.html",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-DE-FPERSV",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-DE-FPERSV",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.gesetze-im-internet.de/fpersv/BJNR188210005.html",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-DE-STVO",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-DE-STVO",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.gesetze-im-internet.de/stvo_2013/BJNR036710013.html",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-DE-STVZO",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-DE-STVZO",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.gesetze-im-internet.de/stvzo_2012/StVZO.pdf",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-DE-HGB-412",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-DE-HGB-412",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.gesetze-im-internet.de/hgb/__412.html",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-VDI-2700-HANDBOOK",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.vdi.de/mitgliedschaft/vdi-richtlinien/details/vdi-handbuch-ladungssicherung",
+      "proposedAuthorityClassification": "CONTEXTUAL",
+      "proposedDocumentStatusIfApproved": "EVIDENCE",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-UNECE-ADR-2025",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-UNECE-ADR-2025",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://unece.org/info/Transport/pub/395786",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-DE-GGVSEB",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-DE-GGVSEB",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.gesetze-im-internet.de/ggvseb/GGVSEB.pdf",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-AT-STVO-42-20260213",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-AT-STVO-42-20260213",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Anlage=&Artikel=&FassungVom=2026-02-13&Gesetzesnummer=10011336&Paragraf=42&ShowPrintPreview=True&Uebergangsrecht=",
+      "proposedAuthorityClassification": "EVIDENCE_ONLY",
+      "proposedDocumentStatusIfApproved": "EVIDENCE",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-CH-VRV-20220401",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-CH-VRV-20220401",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.fedlex.admin.ch/filestore/fedlex.data.admin.ch/eli/cc/1962/1364_1409_1420/20220401/de/pdf-a/fedlex-data-admin-ch-eli-cc-1962-1364_1409_1420-20220401-de-pdf-a.pdf",
+      "proposedAuthorityClassification": "EVIDENCE_ONLY",
+      "proposedDocumentStatusIfApproved": "EVIDENCE",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-FR-TRUCK-BAN-BASE-2021",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000043416004",
+      "proposedAuthorityClassification": "CONTEXTUAL",
+      "proposedDocumentStatusIfApproved": "EVIDENCE",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-FR-TRUCK-BAN-2026",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-FR-TRUCK-BAN-2026",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053324056",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000054633358",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-DE-TOLL-COLLECT-RATES",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-DE-BFSTRMG",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-DE-BFSTRMG",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-AT-ASFINAG-GO-TOLL",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://bmp.asfinag.at/en/go-toll/?lng=en",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-CH-BAZG-ROAD-LEVIES",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-CH-BAZG-ROAD-LEVIES",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.bazg.admin.ch/en/transport-levies-and-road-traffic-law",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-BE-VIAPASS",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-BE-VIAPASS",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.viapass.be/en/",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-PL-ETOLL-RATES",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-CZ-MYTO-RATES-2026",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-DK-KMTOLL-EETS",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://vejafgifter.dk/european-electronic-toll-service-eets/",
+      "proposedAuthorityClassification": "CONTEXTUAL",
+      "proposedDocumentStatusIfApproved": "EVIDENCE",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-NL-TRUCK-TOLL",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.vrachtwagenheffing.nl/en",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-FR-MOTORWAY-TOLLS",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+      "proposedAuthorityClassification": "CONTEXTUAL",
+      "proposedDocumentStatusIfApproved": "EVIDENCE",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-LU-EVIGNETTE-2019",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-LU-EVIGNETTE-2019",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "https://guichet.public.lu/fr/entreprises/import-export/transit/transit-ue/e-vignette-poids-lourds.html",
+      "proposedAuthorityClassification": "EVIDENCE_ONLY",
+      "proposedDocumentStatusIfApproved": "EVIDENCE",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-AGM-TACHO-CHANGE-MAP-V1",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md",
+      "proposedAuthorityClassification": "CONTEXTUAL",
+      "proposedDocumentStatusIfApproved": "EVIDENCE",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-AGM-CM-ARCH-V1",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-AGM-CM-ARCH-V1",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-AGM-CM-JOB-V1",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-AGM-CM-JOB-V1",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    },
+    {
+      "operationId": "ADD-CS-AGM-CM-OCR-EVIDENCE-V1",
+      "action": "ADD_CANONICAL_SOURCE_CONDITIONAL",
+      "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md",
+      "proposedAuthorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "proposedDocumentStatusIfApproved": "CURRENT",
+      "preconditions": [
+        "NAMED_HUMAN_OWNER_APPROVAL_RECORDED",
+        "CURRENTNESS_AND_APPLICABILITY_CONFIRMED",
+        "INTEGRITY_AND_METADATA_REVALIDATED_AT_APPLY_TIME",
+        "CENTRAL_REGISTRY_ATOMIC_VALIDATOR_PASS"
+      ],
+      "applied": false
+    }
+  ]
+}

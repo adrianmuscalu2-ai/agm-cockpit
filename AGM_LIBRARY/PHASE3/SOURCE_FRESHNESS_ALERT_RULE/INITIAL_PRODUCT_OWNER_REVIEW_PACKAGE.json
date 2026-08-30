@@ -1,0 +1,76 @@
+{
+  "contractVersion": "agm-source-freshness-review-package.v1",
+  "preparedAt": "2026-08-30T13:04:53.627Z",
+  "reviewStatus": "PENDING_PRODUCT_OWNER_REVIEW",
+  "items": [
+    {
+      "sourceId": "CS-NL-GOV-TRUCK-TOLL-RATES-2026",
+      "candidateId": "RT001-RES-NL-TRUCK-RATES-2026",
+      "statusAtPreparation": "EXPIRY_WARNING",
+      "alertType": "EXPIRY_1_DAY",
+      "effectivePeriod": "2026-07-01 -> 2026-08-31 inclusive",
+      "requiredAction": "Review and canonically capture the separate official evidence applicable from 2026-09-01. Do not use the old table as CURRENT after 2026-08-31.",
+      "postExpiryDisposition": "UNKNOWN_HUMAN_VERIFICATION",
+      "newCandidate": {
+        "effectiveFrom": "2026-09-01",
+        "officialUrl": null,
+        "version": null,
+        "sha256": null,
+        "status": "CANONICAL_EVIDENCE_CAPTURE_REQUIRED_NO_METADATA_INVENTED"
+      },
+      "automaticAuthorityPromotion": false,
+      "automaticTariffMutation": false
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-TARIFF-TABLE-V1-2",
+      "candidateId": "RT001-RES-DK-KMTOLL-TARIFF-V12",
+      "statusAtPreparation": "CURRENT",
+      "scheduledTrigger": "Q3_2026_FRESHNESS_REVIEW",
+      "nextFreshnessCheck": "2026-09-30",
+      "requiredAction": "Confirm the official current version by the Q3 trigger. A missing or failed confirmation becomes FRESHNESS_UNKNOWN.",
+      "automaticVersionExtension": false,
+      "automaticAuthorityPromotion": false,
+      "automaticTariffMutation": false
+    },
+    {
+      "sourceId": "CS-CH-ARV1-20250501",
+      "candidateId": "LEGAL005-CAND-CH-ARV1-20250501",
+      "country": "CH",
+      "domain": "LEGISLATION_SAFETY",
+      "statusAtPreparation": "NEW_VERSION_DETECTED",
+      "effectivePeriod": "2025-05-01 -> 2026-09-30 inclusive",
+      "detectedChangeEffectiveFrom": "2026-10-01",
+      "nextFreshnessCheck": "2026-09-01",
+      "requiredAction": "After completion of all 23 LEGAL-005 authority decisions, officially capture, canonically store, SHA-256 hash, validate and compare the ARV 1 version applicable from 2026-10-01, then submit it to a separate Product Owner authority review.",
+      "postExpiryDisposition": "UNKNOWN_HUMAN_VERIFICATION",
+      "newCandidate": {
+        "effectiveFrom": "2026-10-01",
+        "officialUrl": null,
+        "version": null,
+        "sha256": null,
+        "status": "OFFICIAL_CHANGE_DETECTED_CANONICAL_EVIDENCE_RECAPTURE_REQUIRED"
+      },
+      "automaticSupersession": false,
+      "automaticAuthorityPromotion": false,
+      "automaticRegistryMutation": false,
+      "automaticViewMutation": false
+    }
+  ],
+  "emailDelivery": {
+    "status": "BLOCKED_CONFIGURATION_REQUIRED",
+    "recipientConfiguration": "PASS_2_RECIPIENTS_LOCAL_SECRET_CONFIG",
+    "senderConfiguration": "PASS_LOCAL_SECRET_CONFIG",
+    "missing": [
+      "GMAIL_ACCESS_TOKEN or GMAIL_OAUTH_CLIENT_ID + GMAIL_OAUTH_CLIENT_SECRET + GMAIL_OAUTH_REFRESH_TOKEN"
+    ],
+    "scope": "EMAIL_DELIVERY_ONLY",
+    "alertGenerationAndReviewPackage": "AVAILABLE"
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "routingTollViewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

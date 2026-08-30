@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "agm-phase3-registry-before-after-diff.v1",
+  "changesetId": "AGM-CANONICAL-PROMOTION-PHASE3-001",
+  "status": "SIMULATION_ONLY_NOT_APPLIED",
+  "before": {
+    "sourceCount": 798,
+    "sha256": "1c506707200d6c8b27217cdf00d00541a739ef5321bde1e5f892cb9098e61a34",
+    "authority": "AGM_CENTRAL_REGISTRY",
+    "sourceOfTruth": "SINGLE_SOURCE_OF_TRUTH"
+  },
+  "afterApplied": {
+    "sourceCount": 798,
+    "sha256": "1c506707200d6c8b27217cdf00d00541a739ef5321bde1e5f892cb9098e61a34",
+    "changed": false
+  },
+  "conditionalAfterIfEveryOperationIsHumanApproved": {
+    "sourceCount": 833,
+    "additions": 35,
+    "removals": 0,
+    "updates": 0,
+    "sha256": null,
+    "note": "A real after hash can exist only after separately authorized atomic application."
+  },
+  "domainViews": {
+    "modeBefore": "REFERENCE_ONLY",
+    "modeAfterApplied": "REFERENCE_ONLY_UNCHANGED",
+    "proposedFutureRequirement": "REFERENCE_ONLY"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agm://library/schemas/canonical-source-registry.v1",
+  "title": "AGM Canonical Source Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "registryVersion", "generatedAt", "authority", "authorityMode", "sourceMode", "bootstrapSource", "sourceCount", "sources"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "agm-canonical-source-registry.v1" },
+    "registryVersion": { "type": "string" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "authority": { "const": "AGM_CENTRAL_REGISTRY" },
+    "authorityMode": { "const": "SINGLE_SOURCE_OF_TRUTH" },
+    "sourceMode": { "const": "REFERENCE_ONLY_NO_PHYSICAL_COPY" },
+    "bootstrapSource": { "type": "string" },
+    "sourceCount": { "type": "integer", "minimum": 1 },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "canonical-source.schema.json" }
+    }
+  }
+}

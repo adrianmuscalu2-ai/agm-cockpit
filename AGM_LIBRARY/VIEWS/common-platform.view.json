@@ -1,0 +1,153 @@
+{
+  "$schema": "../SCHEMAS/domain-view.schema.json",
+  "schemaVersion": "agm-domain-view.v1",
+  "viewId": "common-platform",
+  "displayName": "COMMON PLATFORM VIEW",
+  "viewVersion": "1.0.0",
+  "generatedAt": "2026-08-29T12:27:39.767Z",
+  "viewType": "CONTROLLED_REFERENCE_INDEX",
+  "authorityStatus": "CONTROLLED_VIEW",
+  "centralRegistry": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+  "owner": "Documentation & Knowledge",
+  "policyId": "POLICY-COMMON-PLATFORM",
+  "sourceCount": 34,
+  "uniqueContentHashes": 34,
+  "memberships": [
+    {
+      "membershipId": "DM-5AA4BD328939BD7F0FA8",
+      "sourceId": "CM-1370B93A002C0BF7"
+    },
+    {
+      "membershipId": "DM-9E1C1ACB1AAFBF15BF25",
+      "sourceId": "CM-AB6E25B058296716"
+    },
+    {
+      "membershipId": "DM-8B51CFE167F21BA701C5",
+      "sourceId": "CM-3288F953D745D473"
+    },
+    {
+      "membershipId": "DM-0D751075286A0E24F8F8",
+      "sourceId": "CM-6CC6CA32DD2DB5C1"
+    },
+    {
+      "membershipId": "DM-107A8CE0766969B88AAB",
+      "sourceId": "CM-C2AF2E625D4BDDFF"
+    },
+    {
+      "membershipId": "DM-8D5009F46F577D02EE77",
+      "sourceId": "CM-B03C5523289F3AA6"
+    },
+    {
+      "membershipId": "DM-D67C32A69998BAEB0268",
+      "sourceId": "CM-B99C721DA2745609"
+    },
+    {
+      "membershipId": "DM-69EBF96FCF501A39B080",
+      "sourceId": "CM-D4B56995E95FE853"
+    },
+    {
+      "membershipId": "DM-1BAB83C20D3F91E373A1",
+      "sourceId": "CM-553EDC7F513AF9D8"
+    },
+    {
+      "membershipId": "DM-175896F98F122354F692",
+      "sourceId": "CM-3B52ACA99067C03E"
+    },
+    {
+      "membershipId": "DM-345609FAA7F15AA22486",
+      "sourceId": "CM-36033D06BB743B1C"
+    },
+    {
+      "membershipId": "DM-1DD52AFC280AFE893455",
+      "sourceId": "CM-C9EE2D4BF8DB294E"
+    },
+    {
+      "membershipId": "DM-A572E6B73243903D338B",
+      "sourceId": "CM-4AA479EC962916EE"
+    },
+    {
+      "membershipId": "DM-3EFF057CC281FACF7B5D",
+      "sourceId": "CM-CD7418B02E741B79"
+    },
+    {
+      "membershipId": "DM-A34EDE660968BBCD486D",
+      "sourceId": "CM-6C7F1F7B21E005D6"
+    },
+    {
+      "membershipId": "DM-D0CC0061157AB1350279",
+      "sourceId": "CM-93002C6BDF1A1B38"
+    },
+    {
+      "membershipId": "DM-6C21C1883854BA1D82E2",
+      "sourceId": "CM-5D51522B1E775FF4"
+    },
+    {
+      "membershipId": "DM-EDF1FEEDE23D6A140559",
+      "sourceId": "CM-5B443964F4F3A611"
+    },
+    {
+      "membershipId": "DM-15502E27AB59F7B1D95F",
+      "sourceId": "CM-B6FF9C9BB36B98F1"
+    },
+    {
+      "membershipId": "DM-4E65B9B8A8CDC9EDE80D",
+      "sourceId": "CM-E3856B370F7B4CF2"
+    },
+    {
+      "membershipId": "DM-101E0D6393BF3FB523A7",
+      "sourceId": "CM-E843BF0CB4128D8D"
+    },
+    {
+      "membershipId": "DM-47DDE7216DF754B7B165",
+      "sourceId": "CM-11A142D4E8836D29"
+    },
+    {
+      "membershipId": "DM-00CCA9DEE86B8370474D",
+      "sourceId": "CM-90448A0574DBD8B8"
+    },
+    {
+      "membershipId": "DM-5A95BFC0DDA9ABC2D5C4",
+      "sourceId": "CM-4688AC602602917E"
+    },
+    {
+      "membershipId": "DM-6909A10A2A32E87F0B97",
+      "sourceId": "CM-FA0C44152A376DDC"
+    },
+    {
+      "membershipId": "DM-AF6380905281C4EADD43",
+      "sourceId": "CM-B5F92EBF6B51BE9C"
+    },
+    {
+      "membershipId": "DM-93188EBEFB8B521ABBD7",
+      "sourceId": "CM-6F22FADDC154DD5A"
+    },
+    {
+      "membershipId": "DM-C3A037027B608C7586BC",
+      "sourceId": "CM-75C0FC9D207D6B45"
+    },
+    {
+      "membershipId": "DM-9DAA0061D358E1DDFBDC",
+      "sourceId": "CM-0DD7D3BA4F453897"
+    },
+    {
+      "membershipId": "DM-A4F66865C075692BE8EC",
+      "sourceId": "CM-A910D31D497003AD"
+    },
+    {
+      "membershipId": "DM-7246C49BE35FDB2385D6",
+      "sourceId": "CM-9393AB969ADD4ED8"
+    },
+    {
+      "membershipId": "DM-C44DD7DE2FA55E3CE642",
+      "sourceId": "CM-54D83C692C4AB08C"
+    },
+    {
+      "membershipId": "DM-392F317C7F20F5925B83",
+      "sourceId": "CM-588A95C183895661"
+    },
+    {
+      "membershipId": "DM-C9B1FE443BBD86AB438F",
+      "sourceId": "CM-AD07FD4C615EDE57"
+    }
+  ]
+}

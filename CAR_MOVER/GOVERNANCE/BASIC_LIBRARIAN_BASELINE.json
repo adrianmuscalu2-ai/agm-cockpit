@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "agm-basic-librarian-separation-baseline.v1",
+  "capturedAt": "2026-08-29",
+  "basicAgent": {
+    "id": "agent-linguistic-librarian",
+    "code": "AGENT-LINGUISTIC-LIBRARIAN",
+    "scope": "Basic/PRE-005 linguistic and reusable-message library"
+  },
+  "centralAgent": {
+    "id": "agm-central-librarian",
+    "scope": "central AGM documentary library and archive"
+  },
+  "protectedHashes": [
+    {
+      "path": "apps/web/src/agent-governance.registry.ts",
+      "sha256": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82"
+    },
+    {
+      "path": "apps/web/src/maintenance-department.ts",
+      "sha256": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0"
+    },
+    {
+      "path": "evidence/governance/modules/PRE-005/v1.0/LINGUISTIC_AGENTS_CONTRACT.md",
+      "sha256": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231"
+    }
+  ],
+  "invariant": "BASIC LIBRARIAN != AGM CENTRAL LIBRARIAN"
+}

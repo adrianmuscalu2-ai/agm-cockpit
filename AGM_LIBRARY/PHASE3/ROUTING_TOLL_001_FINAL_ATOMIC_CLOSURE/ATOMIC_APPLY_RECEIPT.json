@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "agm-routing-toll-001-atomic-apply-receipt.v1",
+  "executedAt": "2026-08-30T16:01:14.7224363+02:00",
+  "status": "ATOMIC_APPLY_PASS",
+  "authorization": {
+    "authority": "Product Owner",
+    "mandate": "ROUTING-TOLL-001 — FINAL ATOMIC APPLY + CLOSURE",
+    "scope": "FULL ATOMIC APPLY — 10/10 APPROVED SOURCES",
+    "separateMandateRequirementSatisfied": true
+  },
+  "validatedInputs": {
+    "finalPreApplyPackage": {
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/FINAL_PRE_APPLY_PACKAGE.json",
+      "sha256": "9047cb3e0c11ec9bd7f7133df397ad0bed2bc3b6e6f4bcca591d186bf219eac7"
+    },
+    "finalAtomicChangeset": {
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/FINAL_ATOMIC_CHANGESET.json",
+      "sha256": "1b3654578a99cca7fbae5761fed27c4ff4c8a9b57a4db53bc80f2163ea12c04a"
+    },
+    "productOwnerDecisions": "10/10 APPROVE",
+    "classifications": {
+      "AUTHORITATIVE_WITH_SCOPE": 9,
+      "CONTEXTUAL": 1
+    }
+  },
+  "transaction": {
+    "operations": {
+      "add": 10,
+      "modify": 0,
+      "delete": 0
+    },
+    "registry": {
+      "beforeCount": 831,
+      "afterCount": 841,
+      "beforeSha256": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+      "afterSha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076"
+    },
+    "routingTollView": {
+      "beforeCount": 279,
+      "afterCount": 289,
+      "beforeUniqueContentHashes": 264,
+      "afterUniqueContentHashes": 274,
+      "beforeSha256": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997",
+      "afterSha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+    },
+    "rollbackRequired": false,
+    "partialApply": false,
+    "transactionResidue": "NONE"
+  },
+  "appliedSourceIds": [
+    "CS-CH-BAZG-LSVA-DIRECTIVE-V1-2",
+    "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026",
+    "CS-DK-KMTOLL-TARIFF-TABLE-V1-2",
+    "CS-LU-CUSTOMS-EUROVIGNETTE-ENFORCEMENT-2026",
+    "CS-LU-CUSTOMS-EUROVIGNETTE-SCOPE",
+    "CS-LU-EUROVIGNETTE-TARIFFS-20250325",
+    "CS-NL-GOV-TRUCK-TOLL-RATES-2026",
+    "CS-PL-AMBERONE-A1-TARIFFS",
+    "CS-PL-AUTOSTRADA-WIELKOPOLSKA-A2-TARIFFS-2026",
+    "CS-PL-STALEXPORT-A4-KATOWICE-KRAKOW-TARIFFS-2026"
+  ],
+  "idempotence": {
+    "status": "PASS",
+    "repeatApplyStatus": "ALREADY_APPLIED_IDEMPOTENT_PASS",
+    "operationsReexecuted": 0,
+    "firstSha256": "d99c23734128b93451d8acf91fca2808cc02ef3d69c8c677fe7010a3eab28f78",
+    "secondSha256": "d99c23734128b93451d8acf91fca2808cc02ef3d69c8c677fe7010a3eab28f78"
+  },
+  "guardrails": {
+    "automaticAuthorityPromotion": 0,
+    "appliedAuthorityScope": "ONLY_PRODUCT_OWNER_APPROVED_CLASSIFICATIONS_AND_LIMITATIONS",
+    "runtimeDeployment": "NOT_EXECUTED",
+    "emailSent": false,
+    "commitPush": "NOT_EXECUTED"
+  }
+}

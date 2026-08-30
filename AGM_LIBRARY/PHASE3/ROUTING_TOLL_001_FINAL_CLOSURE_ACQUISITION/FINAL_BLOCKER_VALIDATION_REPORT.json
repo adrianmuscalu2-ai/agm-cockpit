@@ -1,0 +1,547 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-blocker-validation.v1",
+  "generatedAt": "2026-08-30T11:41:18.775Z",
+  "validatorVerdict": "PASS",
+  "closureVerdict": "READY_FOR_FINAL_OWNER_AUTHORITY_REVIEW",
+  "checkCount": 46,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "REGISTRY_COUNT",
+      "pass": true,
+      "actual": "831/831",
+      "expected": "831/831"
+    },
+    {
+      "name": "REGISTRY_HASH",
+      "pass": true,
+      "actual": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+      "expected": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d"
+    },
+    {
+      "name": "VIEW_COUNT",
+      "pass": true,
+      "actual": "279/279",
+      "expected": "279/279"
+    },
+    {
+      "name": "VIEW_HASH",
+      "pass": true,
+      "actual": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997",
+      "expected": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+    },
+    {
+      "name": "OFFICIAL_BLOCKER_SET_EXACT",
+      "pass": true,
+      "actual": [
+        "RT001-FINAL-FR-ORDER-12-2026:RESOLVED",
+        "RT001-FINAL-FR-SANEF-2026:RESOLVED",
+        "RT001-FINAL-FR-SAPN-2026:RESOLVED",
+        "RT001-FINAL-FR-CCISE-ORDER-2026:RESOLVED",
+        "RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026:RESOLVED"
+      ],
+      "expected": "5 exact blockers / only Liefkenshoek may remain blocked"
+    },
+    {
+      "name": "NO_FALSE_LOCAL_ARTIFACT",
+      "pass": true,
+      "actual": [],
+      "expected": "unresolved all null"
+    },
+    {
+      "name": "OWNER_ARTIFACT_01_RESOLVED",
+      "pass": true,
+      "actual": {
+        "result": "RESOLVED",
+        "hash": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+        "method": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION"
+      },
+      "expected": {
+        "result": "RESOLVED",
+        "hash": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+        "method": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION"
+      }
+    },
+    {
+      "name": "OWNER_ARTIFACT_02_RESOLVED",
+      "pass": true,
+      "actual": {
+        "result": "RESOLVED",
+        "hash": "373b55bd4f4ff77d995f8ff26c543807478252fc13d79cb9f73b024fbd17bc66",
+        "method": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION"
+      },
+      "expected": {
+        "result": "RESOLVED",
+        "hash": "373b55bd4f4ff77d995f8ff26c543807478252fc13d79cb9f73b024fbd17bc66",
+        "method": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION"
+      }
+    },
+    {
+      "name": "OWNER_ARTIFACT_03_RESOLVED",
+      "pass": true,
+      "actual": {
+        "result": "RESOLVED",
+        "hash": "f8a7468306f5c9979040c40c04db3ce6f910d4e7cb0c79311b447465c08a58d4",
+        "method": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION"
+      },
+      "expected": {
+        "result": "RESOLVED",
+        "hash": "f8a7468306f5c9979040c40c04db3ce6f910d4e7cb0c79311b447465c08a58d4",
+        "method": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION"
+      }
+    },
+    {
+      "name": "OWNER_ARTIFACT_04_RESOLVED",
+      "pass": true,
+      "actual": {
+        "result": "RESOLVED",
+        "hash": "909c88487b866c4a0aa18088e80731a8b593c38295f264d72c991e9207008481",
+        "method": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION"
+      },
+      "expected": {
+        "result": "RESOLVED",
+        "hash": "909c88487b866c4a0aa18088e80731a8b593c38295f264d72c991e9207008481",
+        "method": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION"
+      }
+    },
+    {
+      "name": "OWNER_ARTIFACT_05_STATE",
+      "pass": true,
+      "actual": {
+        "result": "RESOLVED",
+        "hash": "2a8d05846ba96759c777ee6a9211474a8b61fcf6efd0123339010c1eecba3435",
+        "method": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION"
+      },
+      "expected": {
+        "result": "RESOLVED",
+        "hash": "2a8d05846ba96759c777ee6a9211474a8b61fcf6efd0123339010c1eecba3435",
+        "method": "OWNER_ASSISTED_MANUAL_EVIDENCE_INGESTION"
+      }
+    },
+    {
+      "name": "OFFICIAL_METHODS_EXHAUSTED",
+      "pass": true,
+      "actual": [
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "expected": "3 methods each including controlled Playwright"
+    },
+    {
+      "name": "NO_UNOFFICIAL_SUBSTITUTE",
+      "pass": true,
+      "actual": {
+        "unofficialCopiesUsed": false,
+        "thirdPartyCachesUsedAsAuthority": false,
+        "ocrOrReconstructionUsed": false,
+        "registryMutation": "NONE",
+        "viewMutation": "NONE",
+        "authorityPromotion": "NONE"
+      },
+      "expected": "all false"
+    },
+    {
+      "name": "BROWSER_CAPTURE_0_OF_5",
+      "pass": true,
+      "actual": {
+        "attempted": 5,
+        "resolved": 0,
+        "blocked": 5
+      },
+      "expected": {
+        "attempted": 5,
+        "resolved": 0,
+        "blocked": 5
+      }
+    },
+    {
+      "name": "BROWSER_EVIDENCE_RT001-FINAL-FR-ORDER-12-2026",
+      "pass": true,
+      "actual": {
+        "status": "STILL_BLOCKED",
+        "sha256": null,
+        "screenshot": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/BROWSER_OFFICIAL_CAPTURE_ATTEMPTS/RT001-FINAL-FR-ORDER-12-2026.png"
+      },
+      "expected": "STILL_BLOCKED/null hash/screenshot present"
+    },
+    {
+      "name": "BROWSER_EVIDENCE_RT001-FINAL-FR-CCISE-ORDER-2026",
+      "pass": true,
+      "actual": {
+        "status": "STILL_BLOCKED",
+        "sha256": null,
+        "screenshot": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/BROWSER_OFFICIAL_CAPTURE_ATTEMPTS/RT001-FINAL-FR-CCISE-ORDER-2026.png"
+      },
+      "expected": "STILL_BLOCKED/null hash/screenshot present"
+    },
+    {
+      "name": "BROWSER_EVIDENCE_RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026",
+      "pass": true,
+      "actual": {
+        "status": "STILL_BLOCKED",
+        "sha256": null,
+        "screenshot": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/BROWSER_OFFICIAL_CAPTURE_ATTEMPTS/RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026.png"
+      },
+      "expected": "STILL_BLOCKED/null hash/screenshot present"
+    },
+    {
+      "name": "BROWSER_EVIDENCE_RT001-FINAL-FR-SANEF-2026",
+      "pass": true,
+      "actual": {
+        "status": "STILL_BLOCKED",
+        "sha256": null,
+        "screenshot": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/BROWSER_OFFICIAL_CAPTURE_ATTEMPTS/RT001-FINAL-FR-SANEF-2026.landing.png"
+      },
+      "expected": "STILL_BLOCKED/null hash/screenshot present"
+    },
+    {
+      "name": "BROWSER_EVIDENCE_RT001-FINAL-FR-SAPN-2026",
+      "pass": true,
+      "actual": {
+        "status": "STILL_BLOCKED",
+        "sha256": null,
+        "screenshot": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/BROWSER_OFFICIAL_CAPTURE_ATTEMPTS/RT001-FINAL-FR-SAPN-2026.landing.png"
+      },
+      "expected": "STILL_BLOCKED/null hash/screenshot present"
+    },
+    {
+      "name": "NIEUWERBRUG_TWO_OPTIONS",
+      "pass": true,
+      "actual": [
+        "OPTION_1_IN_SCOPE",
+        "OPTION_2_OUT_OF_SCOPE"
+      ],
+      "expected": [
+        "OPTION_1_IN_SCOPE",
+        "OPTION_2_OUT_OF_SCOPE"
+      ]
+    },
+    {
+      "name": "NIEUWERBRUG_OWNER_OUT_OF_SCOPE",
+      "pass": true,
+      "actual": "OUT_OF_SCOPE_BY_PRODUCT_OWNER/NONE/APPROVED_BY_PRODUCT_OWNER",
+      "expected": "OUT_OF_SCOPE_BY_PRODUCT_OWNER/NONE/APPROVED_BY_PRODUCT_OWNER"
+    },
+    {
+      "name": "NIEUWERBRUG_CURRENT_ARTIFACT",
+      "pass": true,
+      "actual": "0ff0a14f27f6cd29942b09d10c787c4dde2a75d44d64e4b0a4c50ed3c65d4cee",
+      "expected": "0ff0a14f27f6cd29942b09d10c787c4dde2a75d44d64e4b0a4c50ed3c65d4cee"
+    },
+    {
+      "name": "UNKNOWN_INVARIANT_PRESERVED",
+      "pass": true,
+      "actual": "AGM must return UNKNOWN and require confirmation when a route specifically encounters the excluded local facility; exclusion cannot be interpreted as zero toll or safe passage.",
+      "expected": "UNKNOWN and no zero-toll inference"
+    },
+    {
+      "name": "FACILITIES_DENOMINATOR_8",
+      "pass": true,
+      "actual": {
+        "facilitiesDenominatorBefore": 9,
+        "facilitiesDenominatorAfter": 8,
+        "currentIntegrity": "8/8",
+        "afterLiefkenshoekResolution": "8/8",
+        "fieldEncounterRule": "UNKNOWN_TO_HUMAN_CONFIRMATION",
+        "zeroTollInference": "FORBIDDEN"
+      },
+      "expected": {
+        "before": 9,
+        "after": 8,
+        "integrity": "8/8",
+        "fieldRule": "UNKNOWN_TO_HUMAN_CONFIRMATION",
+        "zero": "FORBIDDEN"
+      }
+    },
+    {
+      "name": "OWNER_PENDING_RT001-RES-PL-A1-2026",
+      "pass": true,
+      "actual": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "eeda1db2bb7e800d62d1d33cb64946811d10783d84f197b5a2af0428e9285ce4"
+      },
+      "expected": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "eeda1db2bb7e800d62d1d33cb64946811d10783d84f197b5a2af0428e9285ce4"
+      }
+    },
+    {
+      "name": "OWNER_PENDING_RT001-RES-PL-A2-2026",
+      "pass": true,
+      "actual": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "08f72502454ca1797ba418498e089d7834210ffcb7bd04ff9c219ec1a12dc588"
+      },
+      "expected": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "08f72502454ca1797ba418498e089d7834210ffcb7bd04ff9c219ec1a12dc588"
+      }
+    },
+    {
+      "name": "OWNER_PENDING_RT001-RES-PL-A4-2026",
+      "pass": true,
+      "actual": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "523ed685bfeb4ec4b3ce78a1acdeae8d376a3860409801f0e6f53df78ea41252"
+      },
+      "expected": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "523ed685bfeb4ec4b3ce78a1acdeae8d376a3860409801f0e6f53df78ea41252"
+      }
+    },
+    {
+      "name": "OWNER_PENDING_RT001-RES-CH-LSVA-RATES",
+      "pass": true,
+      "actual": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "f359b81076db5db646775a01c06abc38e3e15cc90063623df8bfad1a097919c8"
+      },
+      "expected": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "f359b81076db5db646775a01c06abc38e3e15cc90063623df8bfad1a097919c8"
+      }
+    },
+    {
+      "name": "OWNER_PENDING_RT001-RES-CH-VIGNETTE-2026",
+      "pass": true,
+      "actual": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "81e3d84fbd6ddaa2d16699f2a7761e8756a456b02613131159d719e4a89fe063"
+      },
+      "expected": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "81e3d84fbd6ddaa2d16699f2a7761e8756a456b02613131159d719e4a89fe063"
+      }
+    },
+    {
+      "name": "OWNER_PENDING_RT001-RES-LU-EUROVIGNETTE-SCOPE",
+      "pass": true,
+      "actual": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "19aa2c109ba4d92257096be64fe1292089b482b83089fb74cd94c3b70c62be35"
+      },
+      "expected": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "19aa2c109ba4d92257096be64fe1292089b482b83089fb74cd94c3b70c62be35"
+      }
+    },
+    {
+      "name": "OWNER_PENDING_RT001-RES-LU-EUROVIGNETTE-RATES",
+      "pass": true,
+      "actual": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "86fd475481957476f08c17b5d571988ce3a353058588b7f291ff2e4348cf2faf"
+      },
+      "expected": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "86fd475481957476f08c17b5d571988ce3a353058588b7f291ff2e4348cf2faf"
+      }
+    },
+    {
+      "name": "OWNER_PENDING_RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT",
+      "pass": true,
+      "actual": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "1e0b28907ed12f589b4c4d1c199a7f038b69b7b50df75c61aab819f79ac91e65"
+      },
+      "expected": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "1e0b28907ed12f589b4c4d1c199a7f038b69b7b50df75c61aab819f79ac91e65"
+      }
+    },
+    {
+      "name": "OWNER_PENDING_RT001-RES-DK-KMTOLL-TARIFF-V12",
+      "pass": true,
+      "actual": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "a61667515f888b6fd8df6ea8494060967865a5e9b7aedda6707a74b520192608"
+      },
+      "expected": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "a61667515f888b6fd8df6ea8494060967865a5e9b7aedda6707a74b520192608"
+      }
+    },
+    {
+      "name": "OWNER_PENDING_RT001-RES-NL-TRUCK-RATES-2026",
+      "pass": true,
+      "actual": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "313e308e8486c37fcdf0a2baf2ce888a6c13a5ca3c713857125366f4e0940422"
+      },
+      "expected": {
+        "decision": "PENDING_PRODUCT_OWNER_AUTHORITY_REVIEW",
+        "promotion": "NONE",
+        "hash": "313e308e8486c37fcdf0a2baf2ce888a6c13a5ca3c713857125366f4e0940422"
+      }
+    },
+    {
+      "name": "OWNER_PACKAGE_10_PENDING",
+      "pass": true,
+      "actual": {
+        "total": 10,
+        "integrityVerified": 10,
+        "approved": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "expected": {
+        "total": 10,
+        "integrityVerified": 10,
+        "pending": 10,
+        "approved": 0
+      }
+    },
+    {
+      "name": "BASIC_apps/web/src/agent-governance.registry.ts",
+      "pass": true,
+      "actual": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82",
+      "expected": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82"
+    },
+    {
+      "name": "BASIC_apps/web/src/maintenance-department.ts",
+      "pass": true,
+      "actual": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0",
+      "expected": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0"
+    },
+    {
+      "name": "BASIC_evidence/governance/modules/PRE-005/v1.0/LINGUISTIC_AGENTS_CONTRACT.md",
+      "pass": true,
+      "actual": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231",
+      "expected": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231"
+    },
+    {
+      "name": "ROUTING-TOLL-001_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-003_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-005_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "RT001_RES008_CLOSED",
+      "pass": true,
+      "actual": "PASS_CLOSED_BY_PRODUCT_OWNER_16_OF_16",
+      "expected": "PASS_CLOSED_BY_PRODUCT_OWNER_16_OF_16"
+    },
+    {
+      "name": "RUNBOOK_DRAFT",
+      "pass": true,
+      "actual": "DRAFT_SAFETY_GATES_PRESENT",
+      "expected": "DRAFT_SAFETY_GATES_PRESENT"
+    },
+    {
+      "name": "NO_MUTATIONS",
+      "pass": true,
+      "actual": {
+        "resolution": {
+          "unofficialCopiesUsed": false,
+          "thirdPartyCachesUsedAsAuthority": false,
+          "ocrOrReconstructionUsed": false,
+          "registryMutation": "NONE",
+          "viewMutation": "NONE",
+          "authorityPromotion": "NONE"
+        },
+        "scope": {
+          "registry": "NONE",
+          "view": "NONE"
+        }
+      },
+      "expected": "NONE"
+    },
+    {
+      "name": "FINAL_STATUS",
+      "pass": true,
+      "actual": {
+        "schemaVersion": "agm-routing-toll-001-final-blocker-status.v1",
+        "generatedAt": "2026-08-30T11:41:16.455Z",
+        "officialEvidenceBlockersResolved": 5,
+        "officialEvidenceBlockersRemaining": 0,
+        "nieuwerbrugScopeDecision": "OUT_OF_SCOPE_BY_PRODUCT_OWNER",
+        "ownerAuthorityReview": {
+          "total": 10,
+          "integrityVerified": 10,
+          "pending": 10,
+          "promotionsExecuted": 0
+        },
+        "verdict": "READY_FOR_FINAL_OWNER_AUTHORITY_REVIEW",
+        "routingToll001": "OPEN_READY_FOR_FINAL_OWNER_AUTHORITY_REVIEW"
+      },
+      "expected": "READY_FOR_FINAL_OWNER_AUTHORITY_REVIEW / 5 resolved / 0 evidence / Nieuwerbrug out of scope / OPEN_READY_FOR_FINAL_OWNER_AUTHORITY_REVIEW"
+    },
+    {
+      "name": "GENERATOR_IDEMPOTENCE",
+      "pass": true,
+      "actual": {
+        "firstExit": 0,
+        "secondExit": 0,
+        "hashes": {
+          "FINAL_BLOCKER_RESOLUTION_REPORT.json": "212287700e5fbeb18b7dd0dc3b03be412f991ba4b0f65b33bd5b80f63ab7d8b5",
+          "NIEUWERBRUG_OWNER_SCOPE_DECISION_PACKAGE.json": "37fa6b23a136445fd0b9b8e8001657c5f3aaedb4ce5578dae3f5cd98539162ab",
+          "FINAL_BLOCKER_STATUS.json": "5711301fa6ad446ca8341870fbbf659a8a91c78f1ccfa554a0d108a38ee67784"
+        }
+      },
+      "expected": "PASS / identical hashes"
+    }
+  ],
+  "baseline": {
+    "registry": {
+      "count": 831,
+      "sha256": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d"
+    },
+    "routingTollView": {
+      "count": 279,
+      "sha256": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+    },
+    "basicLibrarian": "3/3_MATCH",
+    "legal003": "OPEN_UNCHANGED",
+    "legal005": "OPEN_UNCHANGED",
+    "runtimeProductionTurnApplicationApi": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED"
+  },
+  "blockerState": {
+    "officialEvidenceResolved": 5,
+    "officialEvidenceRemaining": 0,
+    "nieuwerbrugDecision": "OUT_OF_SCOPE_BY_PRODUCT_OWNER",
+    "ownerAuthorityPending": 10
+  },
+  "idempotence": {
+    "pass": true,
+    "hashes": {
+      "FINAL_BLOCKER_RESOLUTION_REPORT.json": "212287700e5fbeb18b7dd0dc3b03be412f991ba4b0f65b33bd5b80f63ab7d8b5",
+      "NIEUWERBRUG_OWNER_SCOPE_DECISION_PACKAGE.json": "37fa6b23a136445fd0b9b8e8001657c5f3aaedb4ce5578dae3f5cd98539162ab",
+      "FINAL_BLOCKER_STATUS.json": "5711301fa6ad446ca8341870fbbf659a8a91c78f1ccfa554a0d108a38ee67784"
+    }
+  }
+}

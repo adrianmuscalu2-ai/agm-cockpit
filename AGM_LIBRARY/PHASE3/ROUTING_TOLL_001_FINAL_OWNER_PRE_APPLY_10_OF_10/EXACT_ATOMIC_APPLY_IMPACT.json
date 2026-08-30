@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-owner-impact.v1",
+  "generatedAt": "2026-08-30T12:39:14.672Z",
+  "baseline": {
+    "registry": {
+      "count": 831,
+      "sha256": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d"
+    },
+    "routingTollView": {
+      "count": 279,
+      "uniqueContentHashes": 264,
+      "sha256": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+    }
+  },
+  "currentlyEvidencedInformationalSubset": {
+    "registryCount": 840,
+    "registrySha256": "0befb69cdf662ce1234155478b123bdc7cee82c521493736e7a706f52740762e",
+    "routingTollViewCount": 288,
+    "routingTollViewUniqueContentHashes": 273,
+    "routingTollViewSha256": "add4a71027f0e31fc627d911eda8aef9a7294b0c567742448bc32db88a61925d"
+  },
+  "currentlyEvidencedOperations": {
+    "add": 9,
+    "modify": 0,
+    "delete": 0
+  },
+  "fullTenSourceImpactAfterBlockerResolution": {
+    "activationCondition": "BLOCKER_RESOLVED_AND_SEPARATE_EXPLICIT_PRODUCT_OWNER_ATOMIC_APPLY_MANDATE",
+    "operations": {
+      "add": 10,
+      "modify": 0,
+      "delete": 0
+    },
+    "projectedCounts": {
+      "registry": 841,
+      "routingTollView": 289
+    },
+    "projectedHashes": "UNAVAILABLE_UNTIL_RECAPTURED_CANONICAL_BYTES_AND_SHA256_EXIST",
+    "projectedUniqueContentHashes": "UNAVAILABLE_UNTIL_RECAPTURED_HASH_IS_TESTED_FOR_DUPLICATION"
+  },
+  "protectedExistingRecords": {
+    "registrySourcesPreserved": 831,
+    "viewMembershipsPreserved": 279
+  }
+}

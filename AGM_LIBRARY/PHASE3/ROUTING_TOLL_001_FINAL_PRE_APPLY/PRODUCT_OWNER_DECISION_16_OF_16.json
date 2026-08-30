@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "agm-routing-toll-001-product-owner-decision.v1",
+  "decisionDate": "2026-08-30",
+  "authority": "Product Owner — Adrian Muscalu",
+  "decisionCount": 16,
+  "counts": {
+    "approved": 16,
+    "authoritativeWithScope": 12,
+    "contextual": 4,
+    "keepCandidate": 0,
+    "reject": 0,
+    "pending": 0
+  },
+  "decisions": [
+    {
+      "item": 1,
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "Operational German tariffs for goods transport vehicles above 3.5 t."
+    },
+    {
+      "item": 2,
+      "sourceId": "CS-DE-BFSTRMG",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "German federal legal basis for goods transport vehicles above 3.5 t."
+    },
+    {
+      "item": 3,
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "Austria GO regime for vehicles above 3.5 t."
+    },
+    {
+      "item": 4,
+      "sourceId": "CS-AT-ASFINAG-VIGNETTE-SECTION-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "Austria vignette and section-toll regime for vehicles up to and including 3.5 t."
+    },
+    {
+      "item": 5,
+      "sourceId": "CS-BE-VIAPASS",
+      "decision": "APPROVE",
+      "classification": "CONTEXTUAL",
+      "scope": "Belgian authority portal and regime boundary; not the complete tariff table."
+    },
+    {
+      "item": 6,
+      "sourceId": "CS-BE-VIAPASS-RATES-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "Belgian regional tariffs dependent on vehicle and emissions."
+    },
+    {
+      "item": 7,
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "Poland e-TOLL for vehicles above 3.5 t and buses."
+    },
+    {
+      "item": 8,
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "Czech myto regime for vehicles above 3.5 t."
+    },
+    {
+      "item": 9,
+      "sourceId": "CS-CZ-EDALNICE-VIGNETTE-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "Czech eDalnice regime for vehicles up to and including 3.5 t."
+    },
+    {
+      "item": 10,
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "Danish KmToll documented vehicle scope; no authority over bridge tolls."
+    },
+    {
+      "item": 11,
+      "sourceId": "CS-DK-STOREBAELT-RATES-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "Storebaelt tariffs for 2026."
+    },
+    {
+      "item": 12,
+      "sourceId": "CS-DK-SE-ORESUND-RATES-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "Oresund tariffs for 2026."
+    },
+    {
+      "item": 13,
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "decision": "APPROVE",
+      "classification": "CONTEXTUAL",
+      "scope": "Dutch truck-charging portal/regime; not an exact tariff substitute."
+    },
+    {
+      "item": 14,
+      "sourceId": "CS-NL-A24-ETOL-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "scope": "A24 e-TOL and documented non-stacking rule."
+    },
+    {
+      "item": 15,
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "decision": "APPROVE",
+      "classification": "CONTEXTUAL",
+      "scope": "French concession framework; not exact concession-by-concession tariff grids."
+    },
+    {
+      "item": 16,
+      "sourceId": "CS-FR-ART-TARIFF-GOVERNANCE",
+      "decision": "APPROVE",
+      "classification": "CONTEXTUAL",
+      "scope": "Governance of French concession motorway tariffs."
+    }
+  ],
+  "gapState": {
+    "ROUTING-TOLL-001": "OPEN_PARTIALLY_READY",
+    "LEGAL-003": "OPEN_UNCHANGED",
+    "LEGAL-005": "OPEN_UNCHANGED"
+  },
+  "atomicApplyAuthorized": false,
+  "registryMutationAuthorized": false,
+  "commitPushAuthorized": false,
+  "noAiFabricatedAuthority": true
+}

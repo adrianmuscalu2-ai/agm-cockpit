@@ -1,0 +1,573 @@
+{
+  "$schema": "../SCHEMAS/domain-view.schema.json",
+  "schemaVersion": "agm-domain-view.v1",
+  "viewId": "opportunity-communications",
+  "displayName": "OPPORTUNITY / COMMUNICATIONS VIEW",
+  "viewVersion": "1.0.0",
+  "generatedAt": "2026-08-29T12:27:39.767Z",
+  "viewType": "CONTROLLED_REFERENCE_INDEX",
+  "authorityStatus": "CONTROLLED_VIEW",
+  "centralRegistry": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+  "owner": "AGM Product Owner / Communications Steward",
+  "policyId": "POLICY-OPPORTUNITY-COMMUNICATIONS",
+  "sourceCount": 139,
+  "uniqueContentHashes": 132,
+  "memberships": [
+    {
+      "membershipId": "DM-2BEE4BE1D6996E4480B5",
+      "sourceId": "CM-AB6E25B058296716"
+    },
+    {
+      "membershipId": "DM-38C3111C0F91F175453E",
+      "sourceId": "CM-3288F953D745D473"
+    },
+    {
+      "membershipId": "DM-84680D98B8946AB36617",
+      "sourceId": "CM-C50757BACA289336"
+    },
+    {
+      "membershipId": "DM-676954818DF74366F5F1",
+      "sourceId": "CM-A6238D90267E416A"
+    },
+    {
+      "membershipId": "DM-30896A662C72C42D20E2",
+      "sourceId": "CM-18367F18D0549AB8"
+    },
+    {
+      "membershipId": "DM-A888E137D947EB84A0B0",
+      "sourceId": "CM-E3D755EC102BE3DB"
+    },
+    {
+      "membershipId": "DM-9DC201E92FC352B34420",
+      "sourceId": "CM-C8DB72125455E4D0"
+    },
+    {
+      "membershipId": "DM-20B0736A84953479900B",
+      "sourceId": "CM-A482104309E481BE"
+    },
+    {
+      "membershipId": "DM-0539743A4D5108D580F4",
+      "sourceId": "CM-FD4D8BFB95910F3B"
+    },
+    {
+      "membershipId": "DM-2CA716ECE2C6EA493AF4",
+      "sourceId": "CM-334CEAADFB06F9D4"
+    },
+    {
+      "membershipId": "DM-C59D42CCBA398327DE76",
+      "sourceId": "CM-00271D9CB142DB20"
+    },
+    {
+      "membershipId": "DM-B07B4360CE751CB05FD6",
+      "sourceId": "CM-0C5C32113C041943"
+    },
+    {
+      "membershipId": "DM-D369108E93F70FB98372",
+      "sourceId": "CM-A1B3DEEFB14CF8AD"
+    },
+    {
+      "membershipId": "DM-85A6BE76A699C374B40D",
+      "sourceId": "CM-7421DC1AF9E62801"
+    },
+    {
+      "membershipId": "DM-074FF43096B058C50445",
+      "sourceId": "CM-17ED461BB3FEE56B"
+    },
+    {
+      "membershipId": "DM-D76FAC24EC976F9D108C",
+      "sourceId": "CM-7F5EF0E3050F998C"
+    },
+    {
+      "membershipId": "DM-126FE7E24E6D8CA7C49A",
+      "sourceId": "CM-6BDCCA45B8C417A1"
+    },
+    {
+      "membershipId": "DM-D47D5EFD2E520267CA09",
+      "sourceId": "CM-7287C0CB41926CBC"
+    },
+    {
+      "membershipId": "DM-1E1EA5139299E9EBAE08",
+      "sourceId": "CM-7EBC6E93D4BDDAB6"
+    },
+    {
+      "membershipId": "DM-7B4977B41026CF53C114",
+      "sourceId": "CM-0B2F3F3D46B38597"
+    },
+    {
+      "membershipId": "DM-0A460F1B580B4414D763",
+      "sourceId": "CM-4E5EC8551EA5C23E"
+    },
+    {
+      "membershipId": "DM-37C7122A71F099A47FA5",
+      "sourceId": "CM-C8185817368529F9"
+    },
+    {
+      "membershipId": "DM-680C940BFB4AABDAF131",
+      "sourceId": "CM-95975A43F87BCE72"
+    },
+    {
+      "membershipId": "DM-5CAC28283E989ACBF838",
+      "sourceId": "CM-68217D99ABDD46EE"
+    },
+    {
+      "membershipId": "DM-C5832A1F9390B08DDF54",
+      "sourceId": "CM-E3DA32182FF5E7EF"
+    },
+    {
+      "membershipId": "DM-039B863AAA323D364758",
+      "sourceId": "CM-49FE78A693CC3907"
+    },
+    {
+      "membershipId": "DM-535E19E7DE9953E403AD",
+      "sourceId": "CM-BD7CB67C9DAE06F3"
+    },
+    {
+      "membershipId": "DM-75B1E2F98423D5CC6781",
+      "sourceId": "CM-212B4009FEE88EAC"
+    },
+    {
+      "membershipId": "DM-D36F8D7A3FD1206289B6",
+      "sourceId": "CM-FA67809957743FCA"
+    },
+    {
+      "membershipId": "DM-9D2002F89E0931543398",
+      "sourceId": "CM-F2EF81DAF573A52D"
+    },
+    {
+      "membershipId": "DM-D3B79F01DA86DC8A2C89",
+      "sourceId": "CM-51D8DCE67B502654"
+    },
+    {
+      "membershipId": "DM-8CFC6E17FCEBB50F1156",
+      "sourceId": "CM-6C9F2DCBA8483732"
+    },
+    {
+      "membershipId": "DM-E83E073503B42190FD51",
+      "sourceId": "CM-F1F8D60CC6F73AD2"
+    },
+    {
+      "membershipId": "DM-F792965BF7927F23B10D",
+      "sourceId": "CM-0356FF7433D8CEF8"
+    },
+    {
+      "membershipId": "DM-63D59AD87F499C1D96EF",
+      "sourceId": "CM-36F732362D6C0C4E"
+    },
+    {
+      "membershipId": "DM-84D2157CFEBD0D4E22EC",
+      "sourceId": "CM-F51E57705578A957"
+    },
+    {
+      "membershipId": "DM-5B6FE8A344C15A00F4CC",
+      "sourceId": "CM-5AFAA274EAAFDA2C"
+    },
+    {
+      "membershipId": "DM-2A658E1601CDEFCCC5EC",
+      "sourceId": "CM-E60C839965D89B6E"
+    },
+    {
+      "membershipId": "DM-CA2B5542507337A406AA",
+      "sourceId": "CM-EACD9265D4C3987C"
+    },
+    {
+      "membershipId": "DM-B3B83C11549D26A69E9A",
+      "sourceId": "CM-C20DEEBC645792B3"
+    },
+    {
+      "membershipId": "DM-33694B2DB988076733BD",
+      "sourceId": "CM-4C4A6C610AA6910E"
+    },
+    {
+      "membershipId": "DM-FB1619146B4A7AB2B10B",
+      "sourceId": "CM-1893611423ADD2F7"
+    },
+    {
+      "membershipId": "DM-5058A7A153039400AFFC",
+      "sourceId": "CM-924600A1FD70136C"
+    },
+    {
+      "membershipId": "DM-E6F7BD8C28E4BDB218D9",
+      "sourceId": "CM-6735D28301D0B221"
+    },
+    {
+      "membershipId": "DM-7C1B906718C705A0B97F",
+      "sourceId": "CM-4E80EC4DC55A009F"
+    },
+    {
+      "membershipId": "DM-71733DF54E03C0EA0357",
+      "sourceId": "CM-060402DED3332648"
+    },
+    {
+      "membershipId": "DM-79C0CB50F2B644B9881B",
+      "sourceId": "CM-647FB858FC7DAEB2"
+    },
+    {
+      "membershipId": "DM-DDB1788C6768E4D0C5B6",
+      "sourceId": "CM-4E23F20929841D27"
+    },
+    {
+      "membershipId": "DM-CA83CCFE7B6633770392",
+      "sourceId": "CM-61F2751726F7D01E"
+    },
+    {
+      "membershipId": "DM-AC8BF812650C47D87283",
+      "sourceId": "CM-3420BDD2441CB86C"
+    },
+    {
+      "membershipId": "DM-1E2689BC75099F7C9453",
+      "sourceId": "CM-FCC0BD4559746226"
+    },
+    {
+      "membershipId": "DM-9E429CD81994B8C503DD",
+      "sourceId": "CM-55146C44050E9F55"
+    },
+    {
+      "membershipId": "DM-441B9AA69B3484D34D18",
+      "sourceId": "CM-6A4757E175EF4D99"
+    },
+    {
+      "membershipId": "DM-A0A4DE665CDA4412DD1D",
+      "sourceId": "CM-55FD610A616403CB"
+    },
+    {
+      "membershipId": "DM-48128295369C9A5223CA",
+      "sourceId": "CM-92074282569F97B7"
+    },
+    {
+      "membershipId": "DM-9C2D45CC9CD0BB536AB6",
+      "sourceId": "CM-3F4BF73B1C927BBE"
+    },
+    {
+      "membershipId": "DM-C40788B99650F6AA9CB2",
+      "sourceId": "CM-501022B2B34516A7"
+    },
+    {
+      "membershipId": "DM-4F87A4DEF1A2279CC3EB",
+      "sourceId": "CM-9BBF0624499EDF99"
+    },
+    {
+      "membershipId": "DM-849ADDD07EDC1A6FCD57",
+      "sourceId": "CM-C0D905FCAD7E5672"
+    },
+    {
+      "membershipId": "DM-E7071624E832AEC494BE",
+      "sourceId": "CM-88C3CB32522677CA"
+    },
+    {
+      "membershipId": "DM-1FAA614ACEB3BF63764B",
+      "sourceId": "CM-08F3BA1B9544BE94"
+    },
+    {
+      "membershipId": "DM-D8EDE554406A1856362A",
+      "sourceId": "CM-79D6D1B3BE38D9DB"
+    },
+    {
+      "membershipId": "DM-F1525EF2F102DB7070D2",
+      "sourceId": "CM-493C23802218EF67"
+    },
+    {
+      "membershipId": "DM-2242CA6380EA72F3BDC0",
+      "sourceId": "CM-754BAFDB339A4B21"
+    },
+    {
+      "membershipId": "DM-19581D875E7ED0E453C3",
+      "sourceId": "CM-0DEBA02B62527C1B"
+    },
+    {
+      "membershipId": "DM-DCE6FC7E2704D5C9807A",
+      "sourceId": "CM-D2A0F7309BF4A2AB"
+    },
+    {
+      "membershipId": "DM-5A759E5923A6EBBF8667",
+      "sourceId": "CM-54609036EE485641"
+    },
+    {
+      "membershipId": "DM-8350FA8055698432316C",
+      "sourceId": "CM-9EE792B3DC7035EB"
+    },
+    {
+      "membershipId": "DM-70F36564A11D9CBEDF50",
+      "sourceId": "CM-89D49FA31689FFB3"
+    },
+    {
+      "membershipId": "DM-34FFBA970BA43C5FB13F",
+      "sourceId": "CM-D7F15ADFE634B2DC"
+    },
+    {
+      "membershipId": "DM-2910D0ACF91A46542BD4",
+      "sourceId": "CM-4BFB048B8F06604F"
+    },
+    {
+      "membershipId": "DM-FF63B40947DDB5675396",
+      "sourceId": "CM-B03C5523289F3AA6"
+    },
+    {
+      "membershipId": "DM-F4287CDC4D6ABA6B06A3",
+      "sourceId": "CM-7DB2A37AF5D1A96A"
+    },
+    {
+      "membershipId": "DM-C365621FE02F1C560144",
+      "sourceId": "CM-0C3761C5F540AD46"
+    },
+    {
+      "membershipId": "DM-B57B365A88115E4452E6",
+      "sourceId": "CM-6FFE64B2E991B3EE"
+    },
+    {
+      "membershipId": "DM-EBAE66595C293A67CC9B",
+      "sourceId": "CM-6CE1290CA03862B6"
+    },
+    {
+      "membershipId": "DM-69274594BB102B60B649",
+      "sourceId": "CM-61EF53A772F35E34"
+    },
+    {
+      "membershipId": "DM-E3C5616093F05B615735",
+      "sourceId": "CM-B4445F9EF0D28A2A"
+    },
+    {
+      "membershipId": "DM-85CA0CCDC6607D9B8FB4",
+      "sourceId": "CM-545C5DBE6A889C7C"
+    },
+    {
+      "membershipId": "DM-8EDB48982A850AE899F1",
+      "sourceId": "CM-F3B9B558BADBB61C"
+    },
+    {
+      "membershipId": "DM-2A0A4A6203B41AE3E657",
+      "sourceId": "CM-E8CA351942BD26FC"
+    },
+    {
+      "membershipId": "DM-137162D8F68F979BA26A",
+      "sourceId": "CM-49792C1D05E0F4FC"
+    },
+    {
+      "membershipId": "DM-18DBA746D9F877CFC759",
+      "sourceId": "CM-75AD1AB52F73AA75"
+    },
+    {
+      "membershipId": "DM-0EC6F115A0A96CB25377",
+      "sourceId": "CM-99B431D0AC46613C"
+    },
+    {
+      "membershipId": "DM-9FB63E282D79DB719A8B",
+      "sourceId": "CM-349B408BB37A2652"
+    },
+    {
+      "membershipId": "DM-A039F95CEDDC12BFCFCF",
+      "sourceId": "CM-BB16DE202F0ACD06"
+    },
+    {
+      "membershipId": "DM-AAF61C6B65B4D0F51C6E",
+      "sourceId": "CM-553EDC7F513AF9D8"
+    },
+    {
+      "membershipId": "DM-14BC1451F54A1D83EC7D",
+      "sourceId": "CM-1809579E22EB2280"
+    },
+    {
+      "membershipId": "DM-3C6BFE1CD6893FFBB3D7",
+      "sourceId": "CM-EE84B2EEF9F68960"
+    },
+    {
+      "membershipId": "DM-EC0F501B6CCD7FF1493E",
+      "sourceId": "CM-CCFE1C2EE6B3B0D5"
+    },
+    {
+      "membershipId": "DM-465990BF744D85457DCB",
+      "sourceId": "CM-0246984C33D133A5"
+    },
+    {
+      "membershipId": "DM-E48BDDAC1BF82535069A",
+      "sourceId": "CM-CAF33FD4D061FAC2"
+    },
+    {
+      "membershipId": "DM-A4479FE8A4EEE5D7DB1A",
+      "sourceId": "CM-68CD792D86C093AB"
+    },
+    {
+      "membershipId": "DM-6E6E629E9D31BCDEEB7F",
+      "sourceId": "CM-63E7ABA790B534CA"
+    },
+    {
+      "membershipId": "DM-627E79D994819650BA54",
+      "sourceId": "CM-F061B605868D157B"
+    },
+    {
+      "membershipId": "DM-FBD30ABA98F68A165A9F",
+      "sourceId": "CM-D4DD2CAE6668734D"
+    },
+    {
+      "membershipId": "DM-F3BA1D052E00C7B6FA6F",
+      "sourceId": "CM-DDE72D4BC80FCE84"
+    },
+    {
+      "membershipId": "DM-CD8DD70805FA9BE7589D",
+      "sourceId": "CM-963365A89F8C6E9D"
+    },
+    {
+      "membershipId": "DM-4B7E25E5CF9FFE8716CB",
+      "sourceId": "CM-16AA257E422CCF95"
+    },
+    {
+      "membershipId": "DM-71996A26C21BE1E1B8CE",
+      "sourceId": "CM-27D58554C3CCE9A8"
+    },
+    {
+      "membershipId": "DM-E66CD5DD246E1D187938",
+      "sourceId": "CM-D849CAF6382D7ABA"
+    },
+    {
+      "membershipId": "DM-BFE0C0B5281FB4BBDC50",
+      "sourceId": "CM-9948589D3847F77F"
+    },
+    {
+      "membershipId": "DM-40CB9732C1CAE8E597D2",
+      "sourceId": "CM-BDDFCA591DF6C515"
+    },
+    {
+      "membershipId": "DM-4F59B27925AB2B045B67",
+      "sourceId": "CM-AAF6FCC9B0155A58"
+    },
+    {
+      "membershipId": "DM-22E7BD7FCA99C9BF1C42",
+      "sourceId": "CM-690735B4BB006224"
+    },
+    {
+      "membershipId": "DM-9166C430B20F119A1BC3",
+      "sourceId": "CM-45FF9C0B54BA4478"
+    },
+    {
+      "membershipId": "DM-55E44556FDACD7E30B1F",
+      "sourceId": "CM-0F4F84F6566EB5EC"
+    },
+    {
+      "membershipId": "DM-90DAB4A2054AAAB7410D",
+      "sourceId": "CM-3BCC78FB851F8610"
+    },
+    {
+      "membershipId": "DM-5A67717F59730B4CE1F4",
+      "sourceId": "CM-7511BC82EC0E1992"
+    },
+    {
+      "membershipId": "DM-45D7CA3387740ED4A77B",
+      "sourceId": "CM-8709F955CE5B7FD3"
+    },
+    {
+      "membershipId": "DM-2787C57426D03F4A7C0F",
+      "sourceId": "CM-0E37CAB4BAD68ECA"
+    },
+    {
+      "membershipId": "DM-24B8FD8EC3E00FD4B5D7",
+      "sourceId": "CM-55530A2768260D78"
+    },
+    {
+      "membershipId": "DM-71C4F0BCF246F943608D",
+      "sourceId": "CM-61D270CF955E8013"
+    },
+    {
+      "membershipId": "DM-68370AF3C90D32217D93",
+      "sourceId": "CM-5B443964F4F3A611"
+    },
+    {
+      "membershipId": "DM-F63751DEC25216270CD9",
+      "sourceId": "CM-140F714560AE0EE4"
+    },
+    {
+      "membershipId": "DM-C60C8AFB0D90080D03C3",
+      "sourceId": "CM-528DD4A2DFFA0626"
+    },
+    {
+      "membershipId": "DM-7D10FAF5BA24317A30FB",
+      "sourceId": "CM-B698147E022E034E"
+    },
+    {
+      "membershipId": "DM-A3D7F7F07DDCBDCCA972",
+      "sourceId": "CM-1464AC0E71C65A87"
+    },
+    {
+      "membershipId": "DM-352461051064268352FF",
+      "sourceId": "CM-564F6F9ADB09D716"
+    },
+    {
+      "membershipId": "DM-7F8C390DFB87B872FB34",
+      "sourceId": "CM-A11FA15C8703913E"
+    },
+    {
+      "membershipId": "DM-F0F31B0FBB8325144ACA",
+      "sourceId": "CM-B72F077129E5C4C0"
+    },
+    {
+      "membershipId": "DM-AFC17388F6EC2AFA7CA2",
+      "sourceId": "CM-77A7CCAB58677B3D"
+    },
+    {
+      "membershipId": "DM-D29DB966CDF8CE3F3ED0",
+      "sourceId": "CM-02D1A5452D4C0D6C"
+    },
+    {
+      "membershipId": "DM-74B318B585BE2E794DFF",
+      "sourceId": "CM-45D55C83792C246B"
+    },
+    {
+      "membershipId": "DM-055B00DE8D55C5E8EEA0",
+      "sourceId": "CM-A0600F92A999B709"
+    },
+    {
+      "membershipId": "DM-B7723A9F308FACEABD3F",
+      "sourceId": "CM-51D9080A14B0AA27"
+    },
+    {
+      "membershipId": "DM-88C183343CA6110B2F0F",
+      "sourceId": "CM-3C09E45B8120E407"
+    },
+    {
+      "membershipId": "DM-0740107CECFEBD6B69D8",
+      "sourceId": "CM-CD62E7989274AAE0"
+    },
+    {
+      "membershipId": "DM-D315CB23D6D5B40D1FBC",
+      "sourceId": "CM-75C0FC9D207D6B45"
+    },
+    {
+      "membershipId": "DM-5B307DE7ADEA0033D95F",
+      "sourceId": "CM-632A5762F2AFC795"
+    },
+    {
+      "membershipId": "DM-097CC1021812DAB742D6",
+      "sourceId": "CM-FF733FC90ED5D320"
+    },
+    {
+      "membershipId": "DM-E446B2889A5A3991CF5A",
+      "sourceId": "CM-887FB2AC3F4AF4F4"
+    },
+    {
+      "membershipId": "DM-E14D91B8B9E127967FA8",
+      "sourceId": "CM-8281CA9FFA0CF4A7"
+    },
+    {
+      "membershipId": "DM-F785CCF2BF33A70AFA28",
+      "sourceId": "CM-249CE0B7E0D5823D"
+    },
+    {
+      "membershipId": "DM-DB8C0779D121FE6F7D72",
+      "sourceId": "CM-42246782E8144E20"
+    },
+    {
+      "membershipId": "DM-F7DBC50F87A5408EC80C",
+      "sourceId": "CM-0DD7D3BA4F453897"
+    },
+    {
+      "membershipId": "DM-FDC10F20CBFA82D887EB",
+      "sourceId": "CM-54D83C692C4AB08C"
+    },
+    {
+      "membershipId": "DM-86B31D1D1AA242A34131",
+      "sourceId": "CM-EFBAFCA0D850FBA3"
+    },
+    {
+      "membershipId": "DM-F4CDE7045A7E168B9886",
+      "sourceId": "CM-FAB59E0545A6FA34"
+    }
+  ]
+}

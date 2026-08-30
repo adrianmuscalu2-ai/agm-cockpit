@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "agm-legal-005-final-atomic-apply-execution.v1",
+  "executedAt": "2026-08-30T20:30:00.000Z",
+  "result": "PASS",
+  "authorization": "PRODUCT_OWNER_MANDATE_LEGAL_005_FINAL_ATOMIC_APPLY",
+  "operations": {
+    "registryAdd": 21,
+    "registryModify": 0,
+    "registryDelete": 0,
+    "legislationSafetyAdd": 22,
+    "legislationSafetyModify": 0,
+    "legislationSafetyDelete": 0,
+    "routingTollAdd": 0,
+    "routingTollModify": 0,
+    "routingTollDelete": 0
+  },
+  "registry": {
+    "beforeCount": 841,
+    "afterCount": 862,
+    "beforeSha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076",
+    "afterSha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245"
+  },
+  "legislationSafetyView": {
+    "beforeCount": 44,
+    "afterCount": 66,
+    "beforeSha256": "2db4f2b915e256f013bc4ed59188d810230a33c335333ec8cf364c6f1284dac1",
+    "afterSha256": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab"
+  },
+  "routingTollView": {
+    "beforeCount": 289,
+    "afterCount": 289,
+    "beforeSha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0",
+    "afterSha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0",
+    "unchanged": true
+  },
+  "atomicity": {
+    "partialApply": false,
+    "rollbackAvailable": true,
+    "rollbackExecuted": false,
+    "persistentPreimages": [
+      "AGM_LIBRARY/PHASE3/LEGAL_005_ATOMIC_APPLY/PRE_APPLY_REGISTRY.json",
+      "AGM_LIBRARY/PHASE3/LEGAL_005_ATOMIC_APPLY/PRE_APPLY_LEGISLATION_SAFETY_VIEW.json",
+      "AGM_LIBRARY/PHASE3/LEGAL_005_ATOMIC_APPLY/PRE_APPLY_ROUTING_TOLL_VIEW.json"
+    ]
+  },
+  "authorityPromotionBeyondDecisions": false,
+  "runtimeProductionDeployment": "NOT_AUTHORIZED_NOT_EXECUTED",
+  "commitPush": "NOT_AUTHORIZED_NOT_EXECUTED"
+}

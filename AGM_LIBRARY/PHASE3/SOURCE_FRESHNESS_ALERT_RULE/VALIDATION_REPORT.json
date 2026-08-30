@@ -1,0 +1,71 @@
+{
+  "contractVersion": "agm-source-freshness-validation-report.v1",
+  "validatedAt": "2026-08-30T14:01:14.722Z",
+  "implementationStatus": "READY_FOR_OWNER_REVIEW",
+  "results": {
+    "apiBuild": "PASS",
+    "contractTests": {
+      "status": "PASS",
+      "passed": 16,
+      "total": 16,
+      "command": "pnpm.cmd --filter @agm/api test -- source-freshness.spec.ts --runInBand"
+    },
+    "readOnlyValidator": {
+      "status": "PASS",
+      "passed": 44,
+      "total": 44,
+      "command": "node scripts/validate-source-freshness-alert-rule.mjs"
+    },
+    "idempotence": {
+      "status": "PASS",
+      "firstSha256": "78f84e101ce1d78d683162e8ce2cc8c71b75fe0bf0c45e88b212092c1a3d29fc",
+      "secondSha256": "78f84e101ce1d78d683162e8ce2cc8c71b75fe0bf0c45e88b212092c1a3d29fc"
+    },
+    "coveredTests": [
+      "expiry thresholds 30/14/7/1/0",
+      "expiry after inclusive effectiveUntil",
+      "new-version detection",
+      "superseded-pending-review without automatic authority links",
+      "sticky unresolved review state across scheduler runs",
+      "source without explicit expiry",
+      "UNKNOWN != ZERO",
+      "no automatic authority promotion",
+      "email payload minimum content",
+      "email destination gate",
+      "multi-recipient normalization and delivery batch",
+      "email dedup and new-threshold behavior",
+      "NL 2026-08-31 boundary",
+      "DK Q3 freshness trigger without automatic extension",
+      "Registry/view protected hashes"
+    ]
+  },
+  "emailRuntimeGate": {
+    "status": "BLOCKED_CONFIGURATION_REQUIRED",
+    "destinationConfigured": true,
+    "recipientCount": 2,
+    "gmailFromConfigured": true,
+    "gmailAuthenticationConfigured": false,
+    "missing": [
+      "GMAIL_ACCESS_TOKEN or GMAIL_OAUTH_CLIENT_ID + GMAIL_OAUTH_CLIENT_SECRET + GMAIL_OAUTH_REFRESH_TOKEN"
+    ],
+    "scope": "EMAIL_DELIVERY_ONLY",
+    "credentialsInvented": false,
+    "emailSent": false
+  },
+  "protectedDataEvidence": {
+    "registry": {
+      "path": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+      "sha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076",
+      "mutation": "NONE"
+    },
+    "routingTollView": {
+      "path": "AGM_LIBRARY/VIEWS/routing-toll.view.json",
+      "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0",
+      "mutation": "NONE"
+    },
+    "authorityPromotion": "NONE",
+    "productionDataMutation": "NONE",
+    "runtimeActivation": "NONE",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

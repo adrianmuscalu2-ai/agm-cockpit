@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "agm-legal-gap-validation-evidence.v2",
+  "gapId": "LEGAL-005",
+  "validatedAt": "2026-08-30T18:00:00.000Z",
+  "readOnlyValidator": {
+    "script": "scripts/test-legal-005-owner-review-readonly.mjs",
+    "result": "PASS",
+    "passed": 66,
+    "total": 66
+  },
+  "manualIngestGate": {
+    "script": "scripts/validate-legal-005-fr-owner-manual-ingest-readonly.mjs",
+    "result": "PASS",
+    "blocker": null,
+    "resolved": [
+      {
+        "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+        "filename": "LEGAL005-FR-BASE-2021.owner-official.pdf",
+        "pages": 7,
+        "sha256": "9cb90269cc653b01eb60ccae43ea2ba4fea23acf6010fe26dce9d2db7282e5f1"
+      },
+      {
+        "sourceId": "CS-FR-TRUCK-BAN-2026",
+        "filename": "LEGAL005-FR-ANNUAL-2026.owner-official.pdf",
+        "pages": 2,
+        "sha256": "9b7a644b8a86c720293856629da867a93c9fd8d32ff761c5a9f9dd269e925f98"
+      },
+      {
+        "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+        "filename": "LEGAL005-FR-FIRE-DEROGATION-2026.owner-official.pdf",
+        "pages": 2,
+        "sha256": "57b28b6893d88650de9e96125e2eee073d8ad45c3a64aec8fcfa7f5d67b95c84"
+      }
+    ],
+    "missingFiles": []
+  },
+  "idempotence": {
+    "script": "scripts/verify-legal-gap-owner-review-idempotence.mjs",
+    "result": "PASS",
+    "comparedFiles": 25,
+    "changed": []
+  },
+  "coverage": "20/20",
+  "officialEvidence": "20/20",
+  "candidateCount": 23,
+  "classificationSummary": {
+    "AUTHORITATIVE_WITH_SCOPE": 21,
+    "CONTEXTUAL": 2
+  },
+  "resolvedScopeBlockers": [
+    "CH_CURRENT_PRIMARY_SET_RESOLVED",
+    "BE_JURISDICTION_STRUCTURE_RESOLVED",
+    "NL_NATIONAL_VS_LOCAL_SCOPE_RESOLVED",
+    "DK_NATIONAL_VS_TEMPORARY_LOCAL_BRIDGE_SCOPE_RESOLVED"
+  ],
+  "exactBlockers": [],
+  "protectedBaseline": {
+    "registry": {
+      "count": 841,
+      "sha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076"
+    },
+    "routingTollView": {
+      "count": 289,
+      "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+    },
+    "legislationSafetyView": {
+      "count": 44,
+      "sha256": "2db4f2b915e256f013bc4ed59188d810230a33c335333ec8cf364c6f1284dac1"
+    }
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

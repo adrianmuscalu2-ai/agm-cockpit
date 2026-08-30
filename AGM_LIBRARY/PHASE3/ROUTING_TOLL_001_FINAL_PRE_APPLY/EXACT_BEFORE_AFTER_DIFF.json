@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-before-after-diff.v1",
+  "before": {
+    "registry": {
+      "version": "1.0.0",
+      "generatedAt": "2026-08-29T18:15:07.867Z",
+      "count": 815,
+      "sha256": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31"
+    },
+    "routingTollView": {
+      "version": "1.1.0",
+      "generatedAt": "2026-08-29T21:19:48.538Z",
+      "count": 263,
+      "uniqueContentHashes": 248,
+      "sha256": "eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f"
+    }
+  },
+  "afterIfSeparatelyAuthorized": {
+    "registry": {
+      "version": "1.1.0",
+      "generatedAt": "2026-08-30T01:00:00.000Z",
+      "count": 831,
+      "sha256": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d"
+    },
+    "routingTollView": {
+      "version": "1.2.0",
+      "generatedAt": "2026-08-30T01:00:00.000Z",
+      "count": 279,
+      "uniqueContentHashes": 264,
+      "sha256": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+    }
+  },
+  "sourceRecordOperations": {
+    "add": 16,
+    "modify": 0,
+    "delete": 0
+  },
+  "topLevelMetadataUpdates": [
+    "registryVersion",
+    "registry.generatedAt",
+    "registry.sourceCount",
+    "viewVersion",
+    "view.generatedAt",
+    "view.sourceCount",
+    "view.uniqueContentHashes"
+  ],
+  "sourceIdsAdded": [
+    "CS-AT-ASFINAG-GO-TOLL",
+    "CS-AT-ASFINAG-VIGNETTE-SECTION-2026",
+    "CS-BE-VIAPASS",
+    "CS-BE-VIAPASS-RATES-2026",
+    "CS-CZ-EDALNICE-VIGNETTE-2026",
+    "CS-CZ-MYTO-RATES-2026",
+    "CS-DE-BFSTRMG",
+    "CS-DE-TOLL-COLLECT-RATES",
+    "CS-DK-KMTOLL-EETS",
+    "CS-DK-SE-ORESUND-RATES-2026",
+    "CS-DK-STOREBAELT-RATES-2026",
+    "CS-FR-ART-TARIFF-GOVERNANCE",
+    "CS-FR-MOTORWAY-TOLLS",
+    "CS-NL-A24-ETOL-2026",
+    "CS-NL-TRUCK-TOLL",
+    "CS-PL-ETOLL-RATES"
+  ],
+  "existingSourceIdsPreserved": 815,
+  "existingMembershipsPreserved": 263,
+  "gapClosed": false
+}

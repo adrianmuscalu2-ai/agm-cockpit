@@ -1,0 +1,475 @@
+{
+  "schemaVersion": "agm-phase2-candidate-authority-decisions.v1",
+  "rules": {
+    "unknownCannotBecomeCurrent": true,
+    "contextualCannotBecomeAuthoritative": true,
+    "humanReviewRequired": true
+  },
+  "decisions": [
+    {
+      "sourceId": "CS-EU-REG-561-2006",
+      "gapIds": [
+        "TACHO-001",
+        "TACHO-005"
+      ],
+      "authorityLevel": "OFFICIAL_PRIMARY_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+      "gapIds": [
+        "TACHO-001",
+        "TACHO-005"
+      ],
+      "authorityLevel": "OFFICIAL_CONSOLIDATED_REFERENCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "DOCUMENTATION_AID_NOT_AUTHENTIC_LEGAL_ACT",
+      "decision": "SUPPORTING_OFFICIAL_REFERENCE_ONLY",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014",
+      "gapIds": [
+        "TACHO-002",
+        "TACHO-005"
+      ],
+      "authorityLevel": "OFFICIAL_PRIMARY_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+      "gapIds": [
+        "TACHO-002",
+        "TACHO-005"
+      ],
+      "authorityLevel": "OFFICIAL_CONSOLIDATED_REFERENCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "DOCUMENTATION_AID_NOT_AUTHENTIC_LEGAL_ACT",
+      "decision": "SUPPORTING_OFFICIAL_REFERENCE_ONLY",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799",
+      "gapIds": [
+        "TACHO-003",
+        "TACHO-005"
+      ],
+      "authorityLevel": "OFFICIAL_PRIMARY_IMPLEMENTING_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_TECHNICAL_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "gapIds": [
+        "TACHO-003",
+        "TACHO-005"
+      ],
+      "authorityLevel": "OFFICIAL_CONSOLIDATED_REFERENCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "DOCUMENTATION_AID_NOT_AUTHENTIC_LEGAL_ACT",
+      "decision": "SUPPORTING_OFFICIAL_REFERENCE_ONLY",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-DE-FPERSG",
+      "gapIds": [
+        "TACHO-004",
+        "TACHO-005"
+      ],
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-DE-FPERSV",
+      "gapIds": [
+        "TACHO-004",
+        "TACHO-005"
+      ],
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-DE-STVO",
+      "gapIds": [
+        "LEGAL-001",
+        "LEGAL-003",
+        "LEGAL-005"
+      ],
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-STVZO",
+      "gapIds": [
+        "LEGAL-002"
+      ],
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-HGB-412",
+      "gapIds": [
+        "LEGAL-003"
+      ],
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_CURRENTNESS_NOT_YET_DETERMINED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "gapIds": [
+        "LEGAL-003"
+      ],
+      "authorityLevel": "OFFICIAL_STANDARDS_OWNER_METADATA_LICENSED_TECHNICAL_STANDARD",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "CONTEXTUAL_LICENSED_STANDARD_CONTENT_NOT_ACQUIRED",
+      "decision": "CONTEXTUAL_ONLY_PENDING_LICENSED_CONTENT",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-UNECE-ADR-2025",
+      "gapIds": [
+        "LEGAL-004"
+      ],
+      "authorityLevel": "OFFICIAL_PRIMARY_INTERNATIONAL_LEGAL_PUBLICATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-GGVSEB",
+      "gapIds": [
+        "LEGAL-004"
+      ],
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-AT-STVO-42-20260213",
+      "gapIds": [
+        "LEGAL-005"
+      ],
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION_DATE_PINNED",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "OFFICIAL_BUT_NOT_CURRENT_AT_RETRIEVAL_REACQUISITION_REQUIRED",
+      "decision": "REACQUIRE_CURRENT_OFFICIAL_SOURCE",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-CH-VRV-20220401",
+      "gapIds": [
+        "LEGAL-005"
+      ],
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION_STALE_SNAPSHOT",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "STALE_OFFICIAL_CANDIDATE_REACQUISITION_REQUIRED",
+      "decision": "REACQUIRE_CURRENT_OFFICIAL_SOURCE",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+      "gapIds": [
+        "LEGAL-005"
+      ],
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-2026",
+      "gapIds": [
+        "LEGAL-005"
+      ],
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "gapIds": [
+        "LEGAL-005"
+      ],
+      "authorityLevel": "OFFICIAL_TEMPORARY_NATIONAL_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "TEMPORARY_PRIMARY_CANDIDATE_HUMAN_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "gapIds": [
+        "ROUTING-TOLL-001"
+      ],
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "OFFICIAL_CANDIDATE_OPERATIONAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "gapIds": [
+        "ROUTING-TOLL-001"
+      ],
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "PRIMARY_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "gapIds": [
+        "ROUTING-TOLL-001"
+      ],
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "OFFICIAL_CANDIDATE_OPERATIONAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-CH-BAZG-ROAD-LEVIES",
+      "gapIds": [
+        "ROUTING-TOLL-001"
+      ],
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "OFFICIAL_CANDIDATE_OPERATIONAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS",
+      "gapIds": [
+        "ROUTING-TOLL-001"
+      ],
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "OFFICIAL_CANDIDATE_OPERATIONAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "gapIds": [
+        "ROUTING-TOLL-001"
+      ],
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "OFFICIAL_CANDIDATE_OPERATIONAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "gapIds": [
+        "ROUTING-TOLL-001"
+      ],
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "OFFICIAL_CANDIDATE_OPERATIONAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "gapIds": [
+        "ROUTING-TOLL-001"
+      ],
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "OFFICIAL_CANDIDATE_OPERATIONAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "gapIds": [
+        "ROUTING-TOLL-001"
+      ],
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "OFFICIAL_CANDIDATE_OPERATIONAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "gapIds": [
+        "ROUTING-TOLL-001"
+      ],
+      "authorityLevel": "OFFICIAL_GOVERNMENT_GUIDANCE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "OFFICIAL_PARTIAL_SOURCE_CONCESSION_TARIFF_SET_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-LU-EVIGNETTE-2019",
+      "gapIds": [
+        "ROUTING-TOLL-001"
+      ],
+      "authorityLevel": "OFFICIAL_GOVERNMENT_GUIDANCE_STALE",
+      "candidateStatus": "REVIEW_CANDIDATE",
+      "reviewStatus": "STALE_OFFICIAL_CANDIDATE_REACQUISITION_REQUIRED",
+      "decision": "REACQUIRE_CURRENT_OFFICIAL_SOURCE",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "gapIds": [
+        "TACHO-005"
+      ],
+      "authorityLevel": "AGM_INTERNAL_CONTROLLED_DRAFT",
+      "candidateStatus": "DRAFT",
+      "reviewStatus": "INTERNAL_INDEX_CANDIDATE_HUMAN_LEGAL_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-AGM-CM-ARCH-V1",
+      "gapIds": [
+        "CAR-MOVER-001"
+      ],
+      "authorityLevel": "AGM_INTERNAL_CONTROLLED_DRAFT",
+      "candidateStatus": "DRAFT",
+      "reviewStatus": "INTERNAL_CANONICAL_CANDIDATE_OWNER_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "AGM Product Owner / Car Mover Steward"
+    },
+    {
+      "sourceId": "CS-AGM-CM-JOB-V1",
+      "gapIds": [
+        "CAR-MOVER-002"
+      ],
+      "authorityLevel": "AGM_INTERNAL_CONTROLLED_DRAFT",
+      "candidateStatus": "DRAFT",
+      "reviewStatus": "INTERNAL_CANONICAL_CANDIDATE_OWNER_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "AGM Product Owner / Car Mover Steward"
+    },
+    {
+      "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "gapIds": [
+        "FIELD-001"
+      ],
+      "authorityLevel": "AGM_INTERNAL_CONTROLLED_DRAFT",
+      "candidateStatus": "DRAFT",
+      "reviewStatus": "INTERNAL_CANONICAL_CANDIDATE_OWNER_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "gapIds": [
+        "DOCS-001"
+      ],
+      "authorityLevel": "AGM_INTERNAL_CONTROLLED_DRAFT",
+      "candidateStatus": "DRAFT",
+      "reviewStatus": "INTERNAL_CANONICAL_CANDIDATE_MULTI_OWNER_REVIEW_REQUIRED",
+      "decision": "CANDIDATE_PENDING_REQUIRED_HUMAN_REVIEW",
+      "authoritative": false,
+      "current": false,
+      "reviewOwner": "Inspector / Evidence Custody"
+    }
+  ]
+}

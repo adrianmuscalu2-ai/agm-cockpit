@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "agm-routing-toll-001-product-owner-atomic-apply-authorization.v1",
+  "authorizationDate": "2026-08-30",
+  "authority": "Product Owner — Adrian Muscalu",
+  "authorizedChangeset": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/FINAL_ATOMIC_CHANGESET.json",
+  "authorizedChangesetSha256": "744798894493915b2fca50dfd016ac5a5b5c00f153d3e46bcf7068a3ec73c2cd",
+  "authorizedTransition": {
+    "registry": "815_TO_831",
+    "routingTollView": "263_TO_279",
+    "add": 16,
+    "modify": 0,
+    "delete": 0,
+    "membershipsAdded": 16
+  },
+  "expectedFinalHashes": {
+    "registry": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+    "routingTollView": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+  },
+  "atomicApplyAuthorized": true,
+  "partialApplyForbidden": true,
+  "rollbackAuthorizedOnFailure": true,
+  "routingToll001MustRemainOpen": true,
+  "commitPushAuthorized": false
+}

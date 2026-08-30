@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "agm-phase3-basic-librarian-integrity.v1",
+  "baseline": "CAR_MOVER/GOVERNANCE/BASIC_LIBRARIAN_BASELINE.json",
+  "protectedFileCount": 3,
+  "checks": [
+    {
+      "path": "apps/web/src/agent-governance.registry.ts",
+      "expectedSha256": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82",
+      "actualSha256": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82",
+      "unchanged": true
+    },
+    {
+      "path": "apps/web/src/maintenance-department.ts",
+      "expectedSha256": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0",
+      "actualSha256": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0",
+      "unchanged": true
+    },
+    {
+      "path": "evidence/governance/modules/PRE-005/v1.0/LINGUISTIC_AGENTS_CONTRACT.md",
+      "expectedSha256": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231",
+      "actualSha256": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231",
+      "unchanged": true
+    }
+  ],
+  "basicLibrarianUnchanged": true
+}

@@ -1,0 +1,256 @@
+{
+  "schemaVersion": "agm-routing-toll-001-owner-manual-artifact-validation.v1",
+  "generatedAt": "2026-08-30T10:32:10.831Z",
+  "artifactId": "RT001-FINAL-FR-SANEF-2026",
+  "verdict": "VALID",
+  "artifact": {
+    "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-SANEF-2026.owner-official.pdf",
+    "filename": "RT001-FINAL-FR-SANEF-2026.owner-official.pdf",
+    "mediaType": "application/pdf",
+    "sizeBytes": 1808798,
+    "sha256": "373b55bd4f4ff77d995f8ff26c543807478252fc13d79cb9f73b024fbd17bc66"
+  },
+  "provenance": {
+    "authority": "Sanef",
+    "officialDirectPdfUrl": "https://www.groupe.sanef.com/sites/default/files/2026-01/2026_02-Grille-Sanef.pdf",
+    "officialHost": "www.groupe.sanef.com",
+    "documentIdentity": "Tarifs de peage 2026 / Sanef",
+    "titleMetadata": null,
+    "producer": "iLovePDF",
+    "creator": null,
+    "jurisdiction": "FR",
+    "ownerAssistedCapture": true
+  },
+  "scope": "Sanef tariff matrices for A16/A29, A1/A2/A26 Nord/A29 and A4/A26 Sud, vehicle classes 1-5",
+  "effectiveDate": "2026-02-01",
+  "evidenceCounts": {
+    "pages": 6,
+    "vehicleClasses": 5,
+    "tariffHeaders": 5,
+    "vatHeaders": 5,
+    "routeGroups": [
+      {
+        "id": "A16_A29",
+        "count": 5
+      },
+      {
+        "id": "A1_A2_A26_NORD_A29",
+        "count": 5
+      },
+      {
+        "id": "A4_A26_SUD",
+        "count": 5
+      }
+    ],
+    "visualPages": 6
+  },
+  "visualEvidence": [
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-1.png",
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-2.png",
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-3.png",
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-4.png",
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-5.png",
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-6.png"
+  ],
+  "visualInspection": "PASS_6_OF_6_NO_CLIPPED_TABLES",
+  "checkCount": 16,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "FILE_EXISTS",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PDF_MAGIC",
+      "pass": true,
+      "actual": "%PDF-1.4",
+      "expected": "%PDF-*"
+    },
+    {
+      "name": "PDF_EOF",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PDF_OPEN_AND_EXTRACT",
+      "pass": true,
+      "actual": {
+        "pdftotextExit": 0,
+        "textLength": 49993
+      },
+      "expected": {
+        "pdftotextExit": 0,
+        "minimumTextLength": 45000
+      }
+    },
+    {
+      "name": "ALL_PAGES_NONEMPTY",
+      "pass": true,
+      "actual": {
+        "pageCount": 6,
+        "pageTextLengths": [
+          43,
+          9782,
+          10051,
+          10269,
+          10430,
+          9400
+        ]
+      },
+      "expected": {
+        "pageCount": 6,
+        "nonempty": true
+      }
+    },
+    {
+      "name": "COVER_TITLE_2026",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "OFFICIAL_SANEF_IDENTITY_VISUAL",
+      "pass": true,
+      "actual": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-1.png",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-2.png",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-3.png",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-4.png",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-5.png",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-6.png"
+      ],
+      "expected": "6/6 controlled render captures; cover carries Sanef identity"
+    },
+    {
+      "name": "EFFECTIVE_DATE",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "TARIFF_HEADERS_5",
+      "pass": true,
+      "actual": 5,
+      "expected": 5
+    },
+    {
+      "name": "VAT_20_HEADERS_5",
+      "pass": true,
+      "actual": 5,
+      "expected": 5
+    },
+    {
+      "name": "VEHICLE_CLASSES_1_TO_5",
+      "pass": true,
+      "actual": [
+        {
+          "number": 1,
+          "present": true
+        },
+        {
+          "number": 2,
+          "present": true
+        },
+        {
+          "number": 3,
+          "present": true
+        },
+        {
+          "number": 4,
+          "present": true
+        },
+        {
+          "number": 5,
+          "present": true
+        }
+      ],
+      "expected": "5/5"
+    },
+    {
+      "name": "ROUTE_GROUPS_ALL_CLASSES",
+      "pass": true,
+      "actual": [
+        {
+          "id": "A16_A29",
+          "count": 5
+        },
+        {
+          "id": "A1_A2_A26_NORD_A29",
+          "count": 5
+        },
+        {
+          "id": "A4_A26_SUD",
+          "count": 5
+        }
+      ],
+      "expected": "each route group present on all 5 class pages"
+    },
+    {
+      "name": "TARIFF_PAGES_DENSE_COMPLETE",
+      "pass": true,
+      "actual": {
+        "tariffPageCount": 5,
+        "textLengths": [
+          9782,
+          10051,
+          10269,
+          10430,
+          9400
+        ]
+      },
+      "expected": {
+        "tariffPageCount": 5,
+        "minimumTextLength": 8000
+      }
+    },
+    {
+      "name": "VISUAL_RENDER_6_OF_6",
+      "pass": true,
+      "actual": [
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-1.png",
+          "sizeBytes": 1419958
+        },
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-2.png",
+          "sizeBytes": 302437
+        },
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-3.png",
+          "sizeBytes": 307809
+        },
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-4.png",
+          "sizeBytes": 313777
+        },
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-5.png",
+          "sizeBytes": 318181
+        },
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_02/page-6.png",
+          "sizeBytes": 295784
+        }
+      ],
+      "expected": "6/6 rendered pages, no clipped tables on inspection"
+    },
+    {
+      "name": "NO_CHALLENGE_OR_ACCESS_DENIED",
+      "pass": true,
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "OFFICIAL_SOURCE_HOST",
+      "pass": true,
+      "actual": "www.groupe.sanef.com",
+      "expected": "www.groupe.sanef.com"
+    }
+  ],
+  "registryMutation": "NONE",
+  "viewMutation": "NONE",
+  "authorityPromotion": "NONE"
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "agm-routing-toll-001-before-after-diff-proposal.v1",
+  "before": {
+    "registryCount": 815,
+    "routingTollViewCount": 263
+  },
+  "afterIfApproved": {
+    "registryCount": 831,
+    "routingTollViewCount": 279
+  },
+  "addModifyDelete": {
+    "add": 16,
+    "modify": 0,
+    "delete": 0
+  },
+  "sourceIds": [
+    "CS-AT-ASFINAG-GO-TOLL",
+    "CS-AT-ASFINAG-VIGNETTE-SECTION-2026",
+    "CS-BE-VIAPASS",
+    "CS-BE-VIAPASS-RATES-2026",
+    "CS-CZ-EDALNICE-VIGNETTE-2026",
+    "CS-CZ-MYTO-RATES-2026",
+    "CS-DE-BFSTRMG",
+    "CS-DE-TOLL-COLLECT-RATES",
+    "CS-DK-KMTOLL-EETS",
+    "CS-DK-SE-ORESUND-RATES-2026",
+    "CS-DK-STOREBAELT-RATES-2026",
+    "CS-FR-ART-TARIFF-GOVERNANCE",
+    "CS-FR-MOTORWAY-TOLLS",
+    "CS-NL-A24-ETOL-2026",
+    "CS-NL-TRUCK-TOLL",
+    "CS-PL-ETOLL-RATES"
+  ],
+  "existingSourceRecordsChanged": 0,
+  "gapClosed": false
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "agm-routing-toll-001-expected-view-impact.v1",
+  "generatedAt": "2026-08-30T00:00:00.000Z",
+  "baseline": {
+    "sourceCount": 263,
+    "sha256": "eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f"
+  },
+  "proposedAfterOwnerApproval": 279,
+  "addedMemberships": 16,
+  "canonicalCopiesCreated": 0,
+  "model": "ONE_SOURCE_ID_ONE_CANONICAL_AUTHORITY_ONE_VERIFIED_ARTIFACT_MULTIPLE_CONTROLLED_DOMAIN_VIEWS",
+  "executed": false
+}

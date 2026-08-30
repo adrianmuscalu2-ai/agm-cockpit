@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-owner-blockers-conditions.v1",
+  "generatedAt": "2026-08-30T12:39:14.672Z",
+  "openBlockerCount": 1,
+  "blockers": [
+    {
+      "blockerId": "PREAPPLY-EVIDENCE-RECAPTURE-CH-VIGNETTE-2026",
+      "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+      "sourceId": "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026",
+      "state": "OPEN",
+      "reason": "The pinned local artifact is an official-domain 404 page and cannot support the approved source object.",
+      "requiredForResolution": [
+        "evidence-ul oficial live recapturat canonic",
+        "evidence-ul oficial live validat",
+        "evidence-ul oficial live hash-uit SHA-256",
+        "evidence-ul oficial live reconciliat cu scope-ul și perioada aprobate"
+      ],
+      "currentApplyEligibility": "BLOCKED_BY_EVIDENCE_RECAPTURE"
+    }
+  ],
+  "conditionedApprovals": [
+    {
+      "ordinal": 1,
+      "candidateId": "RT001-RES-PL-A1-2026",
+      "sourceId": "CS-PL-AMBERONE-A1-TARIFFS"
+    },
+    {
+      "ordinal": 2,
+      "candidateId": "RT001-RES-PL-A2-2026",
+      "sourceId": "CS-PL-AUTOSTRADA-WIELKOPOLSKA-A2-TARIFFS-2026"
+    },
+    {
+      "ordinal": 4,
+      "candidateId": "RT001-RES-CH-LSVA-RATES",
+      "sourceId": "CS-CH-BAZG-LSVA-DIRECTIVE-V1-2"
+    },
+    {
+      "ordinal": 5,
+      "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+      "sourceId": "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026"
+    },
+    {
+      "ordinal": 7,
+      "candidateId": "RT001-RES-LU-EUROVIGNETTE-RATES",
+      "sourceId": "CS-LU-EUROVIGNETTE-TARIFFS-20250325"
+    },
+    {
+      "ordinal": 9,
+      "candidateId": "RT001-RES-DK-KMTOLL-TARIFF-V12",
+      "sourceId": "CS-DK-KMTOLL-TARIFF-TABLE-V1-2"
+    },
+    {
+      "ordinal": 10,
+      "candidateId": "RT001-RES-NL-TRUCK-RATES-2026",
+      "sourceId": "CS-NL-GOV-TRUCK-TOLL-RATES-2026"
+    }
+  ]
+}

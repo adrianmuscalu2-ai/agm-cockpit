@@ -1,0 +1,382 @@
+{
+  "schemaVersion": "agm-phase3-jurisdiction-applicability-matrix.v1",
+  "authorityLayers": [
+    {
+      "layer": "OFFICIAL_AUTHORITY",
+      "rule": "Law or competent public authority publication; scope limited to issuing jurisdiction."
+    },
+    {
+      "layer": "PROVIDER_DOCUMENTATION",
+      "rule": "Operational/tariff documentation within provider or toll-charger scope; not a substitute for law."
+    },
+    {
+      "layer": "AGM_INTERNAL_POLICY",
+      "rule": "Owner-controlled internal behavior; cannot create external legal truth."
+    },
+    {
+      "layer": "FIELD_EVIDENCE",
+      "rule": "Measured observations only; cannot become official rules automatically."
+    },
+    {
+      "layer": "HUMAN_CONFIRMATION_RULE",
+      "rule": "AGM safety gate for UNKNOWN; confirmation does not make unknown external data official."
+    }
+  ],
+  "reviews": [
+    {
+      "reviewId": "REVIEW-TACHO-001",
+      "gapId": "TACHO-001",
+      "domain": "tacho",
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "applicabilityScope": "Driving times, breaks and rest periods for road carriage within Regulation 561/2006 scope. Goods vehicles generally exceed 3.5 t; from 2026-07-01 the scope also covers international transport/cabotage above 2.5 t. Passenger and AETR boundaries and exemptions remain operation-specific.",
+      "effectiveDate": "2007-04-11; scope extension applicable 2026-07-01",
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-TACHO-002",
+      "gapId": "TACHO-002",
+      "domain": "tacho",
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "applicabilityScope": "Construction, installation, use, testing and control of tachographs for vehicles to which Regulation 561/2006 applies, subject to exemptions and transitional provisions.",
+      "effectiveDate": "Generally applicable from 2016-03-02; Articles 24, 34 and 45 from 2015-03-02",
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-TACHO-003",
+      "gapId": "TACHO-003",
+      "domain": "tacho",
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "applicabilityScope": "Technical requirements for construction, testing, installation, operation and repair of smart tachographs and components under Regulation 165/2014.",
+      "effectiveDate": "2016-06-16; technical consolidation observed at 2023-08-21",
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-TACHO-004",
+      "gapId": "TACHO-004",
+      "domain": "tacho",
+      "jurisdictions": [
+        "DE"
+      ],
+      "applicabilityScope": "German implementation, supervision, exemptions, card administration, records and offence rules supplementing EU 561/2006, EU 165/2014, 2016/799 and AETR.",
+      "effectiveDate": null,
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-TACHO-005",
+      "gapId": "TACHO-005",
+      "domain": "tacho",
+      "jurisdictions": [
+        "EU",
+        "EEA",
+        "DE"
+      ],
+      "applicabilityScope": "AGM internal change map linking reviewed primary acts, amendments, consolidated references and German implementation.",
+      "effectiveDate": null,
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-001",
+      "gapId": "LEGAL-001",
+      "domain": "legislation-safety",
+      "jurisdictions": [
+        "DE"
+      ],
+      "applicabilityScope": "German road-traffic rules relevant to drivers and road operations; individual provisions must be selected for the concrete operation.",
+      "effectiveDate": "Constitutive recast effective 2013-04-01; later amendments provision-specific",
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-002",
+      "gapId": "LEGAL-002",
+      "domain": "legislation-safety",
+      "jurisdictions": [
+        "DE"
+      ],
+      "applicabilityScope": "German vehicle construction, approval, inspection and operational-safety requirements within the cited StVZO provisions.",
+      "effectiveDate": "Recast effective 2012-05-05; later amendments provision-specific",
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-003",
+      "gapId": "LEGAL-003",
+      "domain": "legislation-safety",
+      "jurisdictions": [
+        "DE"
+      ],
+      "applicabilityScope": "German legal duties for safe loading/securing plus applicable recognized technical rules, especially vehicle transporters.",
+      "effectiveDate": null,
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-004",
+      "gapId": "LEGAL-004",
+      "domain": "legislation-safety",
+      "jurisdictions": [
+        "ADR_CONTRACTING_PARTIES",
+        "DE"
+      ],
+      "applicabilityScope": "ADR dangerous-goods rules for contracting parties and German national implementation through GGVSEB.",
+      "effectiveDate": "ADR 2025 amendments applicable 2025-01-01; German incorporation/amendments are provision-specific",
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-005",
+      "gapId": "LEGAL-005",
+      "domain": "legislation-safety",
+      "jurisdictions": [
+        "DE",
+        "AT",
+        "CH",
+        "FR"
+      ],
+      "applicabilityScope": "Current professional-driver road restrictions across DE, AT, CH, FR, BE, NL, LU, PL, CZ and DK.",
+      "effectiveDate": null,
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-ROUTING-TOLL-001",
+      "gapId": "ROUTING-TOLL-001",
+      "domain": "routing-toll",
+      "jurisdictions": [
+        "DE",
+        "AT",
+        "CH",
+        "BE",
+        "PL",
+        "CZ",
+        "DK",
+        "NL",
+        "FR",
+        "LU"
+      ],
+      "applicabilityScope": "Country-specific official toll/vignette legislation and operational guidance for DE, AT, CH, FR, BE, NL, LU, PL, CZ and DK, including vehicle scope and effective tariffs.",
+      "effectiveDate": null,
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-FIELD-001",
+      "gapId": "FIELD-001",
+      "domain": "routing-toll",
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "applicabilityScope": "AGM internal controlled field protocol, tester access boundary, telemetry contract and non-conclusive sample thresholds only.",
+      "effectiveDate": null,
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-CAR-MOVER-001",
+      "gapId": "CAR-MOVER-001",
+      "domain": "car-mover",
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "applicabilityScope": "Internal product architecture and routing policy for the Car Mover component inside AGM Premium.",
+      "effectiveDate": null,
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-CAR-MOVER-002",
+      "gapId": "CAR-MOVER-002",
+      "domain": "car-mover",
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "applicabilityScope": "Internal Job File aggregate, lifecycle, ownership and evidence-link relationships for Car Mover inside AGM Premium.",
+      "effectiveDate": null,
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    },
+    {
+      "reviewId": "REVIEW-DOCS-001",
+      "gapId": "DOCS-001",
+      "domain": "documents-ocr-evidence",
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "applicabilityScope": "Internal provenance and evidence-custody rules for Car Mover source documents, derived OCR output, extracted values and retention decisions.",
+      "effectiveDate": null,
+      "humanApplicabilityDecision": "PENDING",
+      "verdict": "UNRESOLVED"
+    }
+  ],
+  "tollSources": [
+    {
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "jurisdiction": "DE",
+      "authorityProvider": "Toll Collect / German federal toll system",
+      "authorityClass": "PROVIDER_DOCUMENTATION",
+      "vehicleScope": "Goods vehicles intended or used for road haulage with technically permissible maximum laden mass above 3.5 t; towing vehicle threshold governs combinations.",
+      "effectiveDate": "2024-07-01",
+      "freshnessPolicy": "DYNAMIC_CHECK_BEFORE_EACH_OPERATIONAL_USE",
+      "evidenceReferences": [
+        "https://www.toll-collect.de/en/toll_collect/rund_um_die_maut/3_5_tonnen_maut/p1745_3_5_tonnen_maut.html",
+        "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html"
+      ],
+      "humanApproved": false,
+      "finalStatus": "UNRESOLVED"
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "jurisdiction": "DE",
+      "authorityProvider": "German federal legislature / official federal legal publication",
+      "authorityClass": "OFFICIAL_AUTHORITY",
+      "vehicleScope": "Legal basis for German federal trunk-road toll; exact exemptions and vehicle classification require provision-level review.",
+      "effectiveDate": null,
+      "freshnessPolicy": "LEGAL_CURRENTNESS_CHECK_AT_EACH_RELEASE",
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html"
+      ],
+      "humanApproved": false,
+      "finalStatus": "UNRESOLVED"
+    },
+    {
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "jurisdiction": "AT",
+      "authorityProvider": "ASFINAG",
+      "authorityClass": "PROVIDER_DOCUMENTATION",
+      "vehicleScope": "Motor vehicles above 3.5 t technically permissible maximum laden mass; route, axle and emission parameters apply.",
+      "effectiveDate": null,
+      "freshnessPolicy": "DYNAMIC_CHECK_BEFORE_EACH_OPERATIONAL_USE",
+      "evidenceReferences": [
+        "https://bmp.asfinag.at/en/go-toll/?lng=en"
+      ],
+      "humanApproved": false,
+      "finalStatus": "UNRESOLVED"
+    },
+    {
+      "sourceId": "CS-CH-BAZG-ROAD-LEVIES",
+      "jurisdiction": "CH",
+      "authorityProvider": "Swiss Federal Office for Customs and Border Security",
+      "authorityClass": "OFFICIAL_AUTHORITY",
+      "vehicleScope": "Motor vehicles and trailers above 3.5 t maximum permissible laden weight used to transport goods; LSVA depends on weight, emissions and kilometres.",
+      "effectiveDate": null,
+      "freshnessPolicy": "DYNAMIC_CHECK_BEFORE_EACH_OPERATIONAL_USE",
+      "evidenceReferences": [
+        "https://www.bazg.admin.ch/en/hvc-lsva-overview"
+      ],
+      "humanApproved": false,
+      "finalStatus": "UNRESOLVED"
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS",
+      "jurisdiction": "BE",
+      "authorityProvider": "Viapass / Belgian regions",
+      "authorityClass": "OFFICIAL_AUTHORITY",
+      "vehicleScope": "Goods vehicles above 3.5 t and defined N1/BC vehicles; regional tariffs and vehicle/emission classes apply.",
+      "effectiveDate": "2026-07-01",
+      "freshnessPolicy": "DYNAMIC_CHECK_BEFORE_EACH_OPERATIONAL_USE",
+      "evidenceReferences": [
+        "https://www.viapass.be/en/"
+      ],
+      "humanApproved": false,
+      "finalStatus": "UNRESOLVED"
+    },
+    {
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "jurisdiction": "PL",
+      "authorityProvider": "Polish Ministry of Finance / National Revenue Administration",
+      "authorityClass": "OFFICIAL_AUTHORITY",
+      "vehicleScope": "Motor vehicles or combinations above 3.5 t and buses; road class, weight and emissions determine rate.",
+      "effectiveDate": "2026-02-01",
+      "freshnessPolicy": "DYNAMIC_CHECK_BEFORE_EACH_OPERATIONAL_USE",
+      "evidenceReferences": [
+        "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/"
+      ],
+      "humanApproved": false,
+      "finalStatus": "UNRESOLVED"
+    },
+    {
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "jurisdiction": "CZ",
+      "authorityProvider": "Czech electronic toll system / Ministry of Transport",
+      "authorityClass": "OFFICIAL_AUTHORITY",
+      "vehicleScope": "Vehicles with at least four wheels above 3.5 t and qualifying tractors; road, category, weight, axles, EURO and CO2 classes apply.",
+      "effectiveDate": "2026-01-01",
+      "freshnessPolicy": "DYNAMIC_CHECK_BEFORE_EACH_OPERATIONAL_USE",
+      "evidenceReferences": [
+        "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026"
+      ],
+      "humanApproved": false,
+      "finalStatus": "UNRESOLVED"
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "jurisdiction": "DK",
+      "authorityProvider": "Sund & Bælt / Danish Road Toll authority",
+      "authorityClass": "PROVIDER_DOCUMENTATION",
+      "vehicleScope": "Current 2026 scope: freight trucks at least 12 t. Expansion above 3.5 t is stated as intended from 2027 and is not treated as current.",
+      "effectiveDate": "2025-01-01",
+      "freshnessPolicy": "DYNAMIC_CHECK_BEFORE_EACH_OPERATIONAL_USE",
+      "evidenceReferences": [
+        "https://vejafgifter.dk/en/customer-service/payment/who-has-to-pay-toll/"
+      ],
+      "humanApproved": false,
+      "finalStatus": "UNRESOLVED"
+    },
+    {
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "jurisdiction": "NL",
+      "authorityProvider": "Government of the Netherlands / RDW truck toll",
+      "authorityClass": "OFFICIAL_AUTHORITY",
+      "vehicleScope": "N2 and N3 trucks above 3.5 t; mass, EURO and CO2 class determine kilometre rate.",
+      "effectiveDate": "2026-07-01",
+      "freshnessPolicy": "DYNAMIC_CHECK_BEFORE_EACH_OPERATIONAL_USE; TEMPORARY_DISCOUNT_FROM_2026-09-01",
+      "evidenceReferences": [
+        "https://www.vrachtwagenheffing.nl/en/you-will-pay-this-amount/find-out-how-much-you-have-to-pay-per-kilometre"
+      ],
+      "humanApproved": false,
+      "finalStatus": "UNRESOLVED"
+    },
+    {
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "jurisdiction": "FR",
+      "authorityProvider": "French Ministry for Ecological Transition and concession authorities",
+      "authorityClass": "OFFICIAL_AUTHORITY",
+      "vehicleScope": "Concession-specific motorway tolls and vehicle classes; no complete national route-to-tariff dataset is captured.",
+      "effectiveDate": null,
+      "freshnessPolicy": "CONCESSION_GRID_CHECK_REQUIRED_BEFORE_EACH_USE",
+      "evidenceReferences": [
+        "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france"
+      ],
+      "humanApproved": false,
+      "finalStatus": "UNRESOLVED"
+    },
+    {
+      "sourceId": "CS-LU-EVIGNETTE-2019",
+      "jurisdiction": "LU",
+      "authorityProvider": "Grand Duchy of Luxembourg / Guichet.lu",
+      "authorityClass": "OFFICIAL_AUTHORITY",
+      "vehicleScope": "UNKNOWN: located page is stale and cannot establish current vehicle or country scope.",
+      "effectiveDate": null,
+      "freshnessPolicy": "STALE_REACQUISITION_REQUIRED",
+      "evidenceReferences": [
+        "https://guichet.public.lu/fr/entreprises/import-export/transit/transit-ue/e-vignette-poids-lourds.html"
+      ],
+      "humanApproved": false,
+      "finalStatus": "UNRESOLVED"
+    }
+  ]
+}

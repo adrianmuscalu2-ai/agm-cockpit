@@ -1,0 +1,245 @@
+{
+  "schemaVersion": "agm-routing-toll-001-official-authority-coverage.v1",
+  "generatedAt": "2026-08-30T00:00:00.000Z",
+  "rows": [
+    {
+      "country": "DE",
+      "regime": "DISTANCE_TOLL",
+      "vehicleScope": ">3.5 t goods vehicles",
+      "proposedSourceIds": [
+        "CS-DE-BFSTRMG",
+        "CS-DE-TOLL-COLLECT-RATES"
+      ],
+      "status": "COVERED_FOR_OWNER_REVIEW",
+      "residualGap": "Annual/dynamic tariff refresh remains required"
+    },
+    {
+      "country": "DE",
+      "regime": "PASSENGER_AND_SPECIAL_INFRASTRUCTURE",
+      "vehicleScope": "Passenger car / van / trailer",
+      "proposedSourceIds": [
+        "CS-DE-BFSTRMG"
+      ],
+      "status": "PARTIAL",
+      "residualGap": "Explicit negative national applicability plus separately governed tunnels/facilities not captured"
+    },
+    {
+      "country": "AT",
+      "regime": "VIGNETTE",
+      "vehicleScope": "<=3.5 t",
+      "proposedSourceIds": [
+        "CS-AT-ASFINAG-VIGNETTE-SECTION-2026"
+      ],
+      "status": "COVERED_FOR_OWNER_REVIEW",
+      "residualGap": "Annual replacement required"
+    },
+    {
+      "country": "AT",
+      "regime": "SECTION_TOLL",
+      "vehicleScope": "<=3.5 t",
+      "proposedSourceIds": [
+        "CS-AT-ASFINAG-VIGNETTE-SECTION-2026"
+      ],
+      "status": "COVERED_FOR_OWNER_REVIEW",
+      "residualGap": "Route-specific rates must remain separate from vignette"
+    },
+    {
+      "country": "AT",
+      "regime": "GO_DISTANCE_TOLL",
+      "vehicleScope": ">3.5 t",
+      "proposedSourceIds": [
+        "CS-AT-ASFINAG-GO-TOLL"
+      ],
+      "status": "COVERED_FOR_OWNER_REVIEW",
+      "residualGap": "Annual tariff and emissions-class refresh required"
+    },
+    {
+      "country": "CH",
+      "regime": "VIGNETTE",
+      "vehicleScope": "<=3.5 t",
+      "proposedSourceIds": [
+        "CS-CH-BAZG-ROAD-LEVIES"
+      ],
+      "status": "PARTIAL",
+      "residualGap": "Exact current vignette artifact and effective period not captured"
+    },
+    {
+      "country": "CH",
+      "regime": "HEAVY_VEHICLE_CHARGE",
+      "vehicleScope": ">3.5 t",
+      "proposedSourceIds": [
+        "CS-CH-BAZG-ROAD-LEVIES"
+      ],
+      "status": "PARTIAL",
+      "residualGap": "Exact current LSVA tariff and calculation artifacts not captured"
+    },
+    {
+      "country": "BE",
+      "regime": "KILOMETRE_CHARGE",
+      "vehicleScope": ">3.5 t goods / N1-BC",
+      "proposedSourceIds": [
+        "CS-BE-VIAPASS",
+        "CS-BE-VIAPASS-RATES-2026"
+      ],
+      "status": "COVERED_FOR_OWNER_REVIEW",
+      "residualGap": "Regional maps and annual tariff refresh required"
+    },
+    {
+      "country": "BE",
+      "regime": "SEPARATE_INFRASTRUCTURE",
+      "vehicleScope": "All applicable classes",
+      "proposedSourceIds": [],
+      "status": "MISSING",
+      "residualGap": "Liefkenshoek and any separately governed facility scope not captured"
+    },
+    {
+      "country": "PL",
+      "regime": "ETOLL_DISTANCE_CHARGE",
+      "vehicleScope": ">3.5 t and buses",
+      "proposedSourceIds": [
+        "CS-PL-ETOLL-RATES"
+      ],
+      "status": "COVERED_FOR_OWNER_REVIEW",
+      "residualGap": "Network and rate changes require effective-date refresh"
+    },
+    {
+      "country": "PL",
+      "regime": "CONCESSION_MOTORWAYS",
+      "vehicleScope": "Passenger/light and other applicable classes",
+      "proposedSourceIds": [],
+      "status": "MISSING",
+      "residualGap": "Official operator tariffs for concession motorways not captured"
+    },
+    {
+      "country": "CZ",
+      "regime": "EDALNICE_VIGNETTE",
+      "vehicleScope": "<=3.5 t four-wheel vehicles",
+      "proposedSourceIds": [
+        "CS-CZ-EDALNICE-VIGNETTE-2026"
+      ],
+      "status": "COVERED_FOR_OWNER_REVIEW",
+      "residualGap": "Current price/effective artifact should be isolated from dynamic portal"
+    },
+    {
+      "country": "CZ",
+      "regime": "MYTO_DISTANCE_TOLL",
+      "vehicleScope": ">3.5 t",
+      "proposedSourceIds": [
+        "CS-CZ-MYTO-RATES-2026"
+      ],
+      "status": "COVERED_FOR_OWNER_REVIEW",
+      "residualGap": "Network and annual rate refresh required"
+    },
+    {
+      "country": "DK",
+      "regime": "KMTOLL_DISTANCE_CHARGE",
+      "vehicleScope": ">=12 t freight currently",
+      "proposedSourceIds": [
+        "CS-DK-KMTOLL-EETS"
+      ],
+      "status": "PARTIAL",
+      "residualGap": "Exact current rate artifact missing; future >3.5 t expansion must not apply early"
+    },
+    {
+      "country": "DK",
+      "regime": "STOREBAELT_BRIDGE",
+      "vehicleScope": "Passenger, van, trailer, truck classes",
+      "proposedSourceIds": [
+        "CS-DK-STOREBAELT-RATES-2026"
+      ],
+      "status": "COVERED_FOR_OWNER_REVIEW",
+      "residualGap": "Annual price refresh required"
+    },
+    {
+      "country": "DK",
+      "regime": "ORESUND_BRIDGE",
+      "vehicleScope": "Passenger, van, trailer, truck classes",
+      "proposedSourceIds": [
+        "CS-DK-SE-ORESUND-RATES-2026"
+      ],
+      "status": "COVERED_FOR_OWNER_REVIEW",
+      "residualGap": "Cross-border authority and date-specific price refresh required"
+    },
+    {
+      "country": "NL",
+      "regime": "TRUCK_CHARGING",
+      "vehicleScope": "N2/N3 >3.5 t",
+      "proposedSourceIds": [
+        "CS-NL-TRUCK-TOLL"
+      ],
+      "status": "PARTIAL",
+      "residualGap": "Exact current tariff artifact missing"
+    },
+    {
+      "country": "NL",
+      "regime": "A24_ETOL",
+      "vehicleScope": "<=3.5 t and >3.5 t bands",
+      "proposedSourceIds": [
+        "CS-NL-A24-ETOL-2026"
+      ],
+      "status": "COVERED_FOR_OWNER_REVIEW",
+      "residualGap": "Annual rates and non-stacking rule must remain explicit"
+    },
+    {
+      "country": "NL",
+      "regime": "SEPARATE_INFRASTRUCTURE",
+      "vehicleScope": "All applicable classes",
+      "proposedSourceIds": [],
+      "status": "MISSING",
+      "residualGap": "Other separately governed tunnel/facility regimes not assessed"
+    },
+    {
+      "country": "FR",
+      "regime": "CONCESSION_FRAMEWORK",
+      "vehicleScope": "All motorway vehicle classes",
+      "proposedSourceIds": [
+        "CS-FR-MOTORWAY-TOLLS",
+        "CS-FR-ART-TARIFF-GOVERNANCE"
+      ],
+      "status": "CONTEXT_ONLY",
+      "residualGap": "Framework does not provide exact current route/class tariffs"
+    },
+    {
+      "country": "FR",
+      "regime": "CONCESSION_TARIFFS",
+      "vehicleScope": "Route and vehicle class specific",
+      "proposedSourceIds": [],
+      "status": "MISSING",
+      "residualGap": "Complete concessionaire-specific tariff grids and route mapping not captured"
+    },
+    {
+      "country": "LU",
+      "regime": "EUROVIGNETTE",
+      "vehicleScope": ">=12 t goods vehicles",
+      "proposedSourceIds": [
+        "CS-LU-CUSTOMS-EUROVIGNETTE",
+        "CS-LU-EUROVIGNETTE-TARIFF-20250325"
+      ],
+      "status": "PARTIAL",
+      "residualGap": "2026 currentness and multi-country wording require human verification"
+    },
+    {
+      "country": "LU",
+      "regime": "PASSENGER_NEGATIVE_APPLICABILITY",
+      "vehicleScope": "Passenger/light vehicles",
+      "proposedSourceIds": [],
+      "status": "MISSING",
+      "residualGap": "Official evidence for zero/general non-applicability not captured"
+    },
+    {
+      "country": "ALL",
+      "regime": "UPDATE_MECHANISM",
+      "vehicleScope": "All regimes and classes",
+      "proposedSourceIds": [],
+      "status": "MISSING",
+      "residualGap": "No approved per-source cadence, invalidation and stale-data runbook"
+    }
+  ],
+  "summary": {
+    "COVERED_FOR_OWNER_REVIEW": 11,
+    "PARTIAL": 6,
+    "CONTEXT_ONLY": 1,
+    "MISSING": 6
+  },
+  "gapClosed": false
+}

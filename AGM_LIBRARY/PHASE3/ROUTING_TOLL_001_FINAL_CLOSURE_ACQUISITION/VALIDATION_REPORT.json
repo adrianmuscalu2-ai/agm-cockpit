@@ -1,0 +1,510 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-closure-validation.v1",
+  "generatedAt": "2026-08-30T11:41:17.913Z",
+  "validatorVerdict": "PASS",
+  "closureVerdict": "READY_FOR_FINAL_OWNER_AUTHORITY_REVIEW",
+  "checkCount": 59,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "REGISTRY_COUNT_831",
+      "pass": true,
+      "actual": "831/831",
+      "expected": "831/831"
+    },
+    {
+      "name": "REGISTRY_SHA_UNCHANGED",
+      "pass": true,
+      "actual": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+      "expected": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d"
+    },
+    {
+      "name": "VIEW_COUNT_279",
+      "pass": true,
+      "actual": "279/279",
+      "expected": "279/279"
+    },
+    {
+      "name": "VIEW_SHA_UNCHANGED",
+      "pass": true,
+      "actual": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997",
+      "expected": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+    },
+    {
+      "name": "ACQUISITION_SCOPE",
+      "pass": true,
+      "actual": {
+        "requested": 23,
+        "captured": 23,
+        "blocked": 0
+      },
+      "expected": {
+        "requested": 23,
+        "mutations": "NONE"
+      }
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "pass": true,
+      "actual": "aeebc94376060a75044cb00483922aa53cdc2f082e8f45f5636ea719d24b8a2c",
+      "expected": "aeebc94376060a75044cb00483922aa53cdc2f082e8f45f5636ea719d24b8a2c"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-ORDER-12-2026",
+      "pass": true,
+      "actual": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "expected": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-APRR-2026",
+      "pass": true,
+      "actual": "f05dfa58cb4ffba8b940b95319186fbf60f86d3791dce6a9df0919946b635d14",
+      "expected": "f05dfa58cb4ffba8b940b95319186fbf60f86d3791dce6a9df0919946b635d14"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-AREA-2026",
+      "pass": true,
+      "actual": "8cb1d174165ca5ca320d085527f1f093b482b9d10327b2016d759bf6b4f6e47b",
+      "expected": "8cb1d174165ca5ca320d085527f1f093b482b9d10327b2016d759bf6b4f6e47b"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-ASF-2026",
+      "pass": true,
+      "actual": "221f3990f98cd5379a9c1013c88f61513c859fd148fdc613e1bd02700da9f687",
+      "expected": "221f3990f98cd5379a9c1013c88f61513c859fd148fdc613e1bd02700da9f687"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-COFIROUTE-2026",
+      "pass": true,
+      "actual": "d8443adcc6f037e87a7f1b5c42730081e7ef45d78b45bffa0d72edd7c3ee433a",
+      "expected": "d8443adcc6f037e87a7f1b5c42730081e7ef45d78b45bffa0d72edd7c3ee433a"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-COFIROUTE-A86-2026",
+      "pass": true,
+      "actual": "88b776f5562ee71ed51cb9f73fa32703aa0d174890b7e1a56a4f727c149e2c0c",
+      "expected": "88b776f5562ee71ed51cb9f73fa32703aa0d174890b7e1a56a4f727c149e2c0c"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-ESCOTA-2026",
+      "pass": true,
+      "actual": "ec09a55bf149a7c6184bfa77c825924b78b621ab9a0253fe3cda1a4cfe13787d",
+      "expected": "ec09a55bf149a7c6184bfa77c825924b78b621ab9a0253fe3cda1a4cfe13787d"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-SANEF-2026",
+      "pass": true,
+      "actual": "373b55bd4f4ff77d995f8ff26c543807478252fc13d79cb9f73b024fbd17bc66",
+      "expected": "373b55bd4f4ff77d995f8ff26c543807478252fc13d79cb9f73b024fbd17bc66"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-SAPN-2026",
+      "pass": true,
+      "actual": "f8a7468306f5c9979040c40c04db3ce6f910d4e7cb0c79311b447465c08a58d4",
+      "expected": "f8a7468306f5c9979040c40c04db3ce6f910d4e7cb0c79311b447465c08a58d4"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-CCISE-ORDER-2026",
+      "pass": true,
+      "actual": "909c88487b866c4a0aa18088e80731a8b593c38295f264d72c991e9207008481",
+      "expected": "909c88487b866c4a0aa18088e80731a8b593c38295f264d72c991e9207008481"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-A69-NOT-OPEN",
+      "pass": true,
+      "actual": "ecd2f7429e7d8634144d0ae3568646e7dc7bf35c0e48e1b942ee4d13626f65e0",
+      "expected": "ecd2f7429e7d8634144d0ae3568646e7dc7bf35c0e48e1b942ee4d13626f65e0"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-A412-NOT-OPEN",
+      "pass": true,
+      "actual": "3e92d61546c48cf9d7cc27fabfc3ec47190f1b62c076573b5d9f031fba03595d",
+      "expected": "3e92d61546c48cf9d7cc27fabfc3ec47190f1b62c076573b5d9f031fba03595d"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-MONTBLANC-2026",
+      "pass": true,
+      "actual": "3bc01a68ab3766bbb35b42d9e5b4068ebbbc729a01f26cee9ebede70897a31b7",
+      "expected": "3bc01a68ab3766bbb35b42d9e5b4068ebbbc729a01f26cee9ebede70897a31b7"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FR-FREJUS-2026",
+      "pass": true,
+      "actual": "e60b71e6a68c8d7813e933c63f5608d671aef4a298b37cdfdd1408ff8f240882",
+      "expected": "e60b71e6a68c8d7813e933c63f5608d671aef4a298b37cdfdd1408ff8f240882"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FAC-BE-TUNNEL-INVENTORY",
+      "pass": true,
+      "actual": "cb42b16c255b9ed715b800ba3776ecbecb30f8a301b68d1974df6bc7142463cf",
+      "expected": "cb42b16c255b9ed715b800ba3776ecbecb30f8a301b68d1974df6bc7142463cf"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FAC-BE-EETS",
+      "pass": true,
+      "actual": "c51e4d42d7314a52a74b47aa8e4d477bd3d19d40f8c112364bd371505b8e684f",
+      "expected": "c51e4d42d7314a52a74b47aa8e4d477bd3d19d40f8c112364bd371505b8e684f"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026",
+      "pass": true,
+      "actual": "2a8d05846ba96759c777ee6a9211474a8b61fcf6efd0123339010c1eecba3435",
+      "expected": "2a8d05846ba96759c777ee6a9211474a8b61fcf6efd0123339010c1eecba3435"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FAC-BE-OOSTERWEEL-FUTURE",
+      "pass": true,
+      "actual": "fe700dc71d6459ca54785b556ae15540773e51402b5984ddb1220917b0065124",
+      "expected": "fe700dc71d6459ca54785b556ae15540773e51402b5984ddb1220917b0065124"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FAC-NL-NATIONAL-SCOPE",
+      "pass": true,
+      "actual": "3866c90d26c0e35ed0874f99f193ef7dd996e556db253883458d33b4137550b1",
+      "expected": "3866c90d26c0e35ed0874f99f193ef7dd996e556db253883458d33b4137550b1"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FAC-NL-A24-VIA15-SCOPE",
+      "pass": true,
+      "actual": "42bcad5f1086b4d3b04ed52679e49b56e3acf3023e0aa624b2b412a9921578f3",
+      "expected": "42bcad5f1086b4d3b04ed52679e49b56e3acf3023e0aa624b2b412a9921578f3"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FAC-NL-NIEUWERBRUG",
+      "pass": true,
+      "actual": "0ff0a14f27f6cd29942b09d10c787c4dde2a75d44d64e4b0a4c50ed3c65d4cee",
+      "expected": "0ff0a14f27f6cd29942b09d10c787c4dde2a75d44d64e4b0a4c50ed3c65d4cee"
+    },
+    {
+      "name": "ARTIFACT_RT001-FINAL-FAC-DE-FMODEL",
+      "pass": true,
+      "actual": "8a44952cef49563819c60c31b3e784c4d99482472c7051fa19c79d850309c99d",
+      "expected": "8a44952cef49563819c60c31b3e784c4d99482472c7051fa19c79d850309c99d"
+    },
+    {
+      "name": "OFFICIAL_CAPTURE_BLOCKS_EXPLICIT",
+      "pass": true,
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "FRANCE_ENTITY_INVENTORY_22_22",
+      "pass": true,
+      "actual": "22/22",
+      "expected": "22/22"
+    },
+    {
+      "name": "FRANCE_REGIME_MAPPING_26_26",
+      "pass": true,
+      "actual": "26/26",
+      "expected": "26/26"
+    },
+    {
+      "name": "FRANCE_EXACT_EVIDENCE_STATUS",
+      "pass": true,
+      "actual": {
+        "entitiesAccounted": 22,
+        "entitiesTotal": 22,
+        "regimesAccounted": 26,
+        "regimesTotal": 26,
+        "captured": 24,
+        "notApplicableWithEvidence": 2,
+        "integrityBlocked": 0,
+        "coverageStatement": "22/22 official entities and 26/26 regimes accounted for",
+        "integrityComplete": true
+      },
+      "expected": {
+        "captured": 24,
+        "notApplicable": 2,
+        "blocked": 0,
+        "complete": true
+      }
+    },
+    {
+      "name": "FRANCE_NO_EXTRAPOLATION",
+      "pass": true,
+      "actual": 26,
+      "expected": 26
+    },
+    {
+      "name": "FACILITY_INVENTORY_9_PRESERVED_SCOPE_8",
+      "pass": true,
+      "actual": {
+        "inventoryAccounted": 9,
+        "inventoryTotal": 9,
+        "accounted": 8,
+        "total": 8,
+        "integrityComplete": 8,
+        "integrityBlocked": 0,
+        "outOfScopeByOwner": 1,
+        "coverageStatement": "8/8 in-scope facilities accounted; 8/8 integrity complete; 9/9 inventory items preserved"
+      },
+      "expected": {
+        "inventory": "9/9",
+        "scope": "8/8",
+        "outOfScope": 1
+      }
+    },
+    {
+      "name": "FACILITY_INTEGRITY_8",
+      "pass": true,
+      "actual": "8/8 blocked=0",
+      "expected": "8/8 blocked=0"
+    },
+    {
+      "name": "LIEFKENSHOEK_NO_UNOFFICIAL_SUBSTITUTE",
+      "pass": true,
+      "actual": {
+        "status": "CAPTURED",
+        "sha256": "2a8d05846ba96759c777ee6a9211474a8b61fcf6efd0123339010c1eecba3435"
+      },
+      "expected": "CAPTURED/hashed official artifact"
+    },
+    {
+      "name": "DE_EXACT_FMODEL_SCOPE",
+      "pass": true,
+      "actual": [
+        "Warnowquerung",
+        "Herrentunnel"
+      ],
+      "expected": [
+        "Warnowquerung",
+        "Herrentunnel"
+      ]
+    },
+    {
+      "name": "OWNER_REVIEW_ARTIFACT_RT001-RES-PL-A1-2026",
+      "pass": true,
+      "actual": "eeda1db2bb7e800d62d1d33cb64946811d10783d84f197b5a2af0428e9285ce4",
+      "expected": "eeda1db2bb7e800d62d1d33cb64946811d10783d84f197b5a2af0428e9285ce4"
+    },
+    {
+      "name": "OWNER_REVIEW_ARTIFACT_RT001-RES-PL-A2-2026",
+      "pass": true,
+      "actual": "08f72502454ca1797ba418498e089d7834210ffcb7bd04ff9c219ec1a12dc588",
+      "expected": "08f72502454ca1797ba418498e089d7834210ffcb7bd04ff9c219ec1a12dc588"
+    },
+    {
+      "name": "OWNER_REVIEW_ARTIFACT_RT001-RES-PL-A4-2026",
+      "pass": true,
+      "actual": "523ed685bfeb4ec4b3ce78a1acdeae8d376a3860409801f0e6f53df78ea41252",
+      "expected": "523ed685bfeb4ec4b3ce78a1acdeae8d376a3860409801f0e6f53df78ea41252"
+    },
+    {
+      "name": "OWNER_REVIEW_ARTIFACT_RT001-RES-CH-LSVA-RATES",
+      "pass": true,
+      "actual": "f359b81076db5db646775a01c06abc38e3e15cc90063623df8bfad1a097919c8",
+      "expected": "f359b81076db5db646775a01c06abc38e3e15cc90063623df8bfad1a097919c8"
+    },
+    {
+      "name": "OWNER_REVIEW_ARTIFACT_RT001-RES-CH-VIGNETTE-2026",
+      "pass": true,
+      "actual": "81e3d84fbd6ddaa2d16699f2a7761e8756a456b02613131159d719e4a89fe063",
+      "expected": "81e3d84fbd6ddaa2d16699f2a7761e8756a456b02613131159d719e4a89fe063"
+    },
+    {
+      "name": "OWNER_REVIEW_ARTIFACT_RT001-RES-LU-EUROVIGNETTE-SCOPE",
+      "pass": true,
+      "actual": "19aa2c109ba4d92257096be64fe1292089b482b83089fb74cd94c3b70c62be35",
+      "expected": "19aa2c109ba4d92257096be64fe1292089b482b83089fb74cd94c3b70c62be35"
+    },
+    {
+      "name": "OWNER_REVIEW_ARTIFACT_RT001-RES-LU-EUROVIGNETTE-RATES",
+      "pass": true,
+      "actual": "86fd475481957476f08c17b5d571988ce3a353058588b7f291ff2e4348cf2faf",
+      "expected": "86fd475481957476f08c17b5d571988ce3a353058588b7f291ff2e4348cf2faf"
+    },
+    {
+      "name": "OWNER_REVIEW_ARTIFACT_RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT",
+      "pass": true,
+      "actual": "1e0b28907ed12f589b4c4d1c199a7f038b69b7b50df75c61aab819f79ac91e65",
+      "expected": "1e0b28907ed12f589b4c4d1c199a7f038b69b7b50df75c61aab819f79ac91e65"
+    },
+    {
+      "name": "OWNER_REVIEW_ARTIFACT_RT001-RES-DK-KMTOLL-TARIFF-V12",
+      "pass": true,
+      "actual": "a61667515f888b6fd8df6ea8494060967865a5e9b7aedda6707a74b520192608",
+      "expected": "a61667515f888b6fd8df6ea8494060967865a5e9b7aedda6707a74b520192608"
+    },
+    {
+      "name": "OWNER_REVIEW_ARTIFACT_RT001-RES-NL-TRUCK-RATES-2026",
+      "pass": true,
+      "actual": "313e308e8486c37fcdf0a2baf2ce888a6c13a5ca3c713857125366f4e0940422",
+      "expected": "313e308e8486c37fcdf0a2baf2ce888a6c13a5ca3c713857125366f4e0940422"
+    },
+    {
+      "name": "OWNER_REVIEW_PENDING_10_10",
+      "pass": true,
+      "actual": {
+        "total": 10,
+        "integrityVerified": 10,
+        "approved": 0,
+        "rejected": 0,
+        "pending": 10
+      },
+      "expected": {
+        "total": 10,
+        "integrityVerified": 10,
+        "pending": 10,
+        "approved": 0
+      }
+    },
+    {
+      "name": "NO_AUTHORITY_PROMOTION",
+      "pass": true,
+      "actual": "NONE",
+      "expected": "NONE"
+    },
+    {
+      "name": "MINIMAL_EVIDENCE_BLOCKERS",
+      "pass": true,
+      "actual": {
+        "minimal": 0,
+        "affectedRegimesOrFacilities": 0,
+        "verdict": "READY_FOR_FINAL_OWNER_AUTHORITY_REVIEW"
+      },
+      "expected": {
+        "minimal": 0,
+        "affectedRegimesOrFacilities": 0,
+        "verdict": "READY_FOR_FINAL_OWNER_AUTHORITY_REVIEW"
+      }
+    },
+    {
+      "name": "RT001_RES_008_REMAINS_CLOSED",
+      "pass": true,
+      "actual": "PASS_CLOSED_BY_PRODUCT_OWNER_16_OF_16",
+      "expected": "PASS_CLOSED_BY_PRODUCT_OWNER_16_OF_16"
+    },
+    {
+      "name": "RUNBOOK_REMAINS_DRAFT",
+      "pass": true,
+      "actual": "DRAFT_SAFETY_GATES_PRESENT",
+      "expected": "DRAFT_SAFETY_GATES_PRESENT"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/agent-governance.registry.ts",
+      "pass": true,
+      "actual": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82",
+      "expected": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/maintenance-department.ts",
+      "pass": true,
+      "actual": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0",
+      "expected": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0"
+    },
+    {
+      "name": "BASIC_HASH_evidence/governance/modules/PRE-005/v1.0/LINGUISTIC_AGENTS_CONTRACT.md",
+      "pass": true,
+      "actual": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231",
+      "expected": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231"
+    },
+    {
+      "name": "ROUTING-TOLL-001_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-003_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-005_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "GENERATOR_IDEMPOTENCE",
+      "pass": true,
+      "actual": {
+        "firstExit": 0,
+        "secondExit": 0,
+        "before": {
+          "FRANCE_OFFICIAL_CONCESSION_COVERAGE.json": "1e656eba42c207b5644a95b76d4c2b1cf2c21d8ce0a120bb820c1c96abce8bfb",
+          "FACILITIES_SCOPE_INTEGRITY_MATRIX.json": "3b812b11a5f06901b140305265b19e81101e282da4f525a4326373def0d15c4f",
+          "OWNER_AUTHORITY_REVIEW_PACKAGE.json": "e446c025707e7cb4fa63801e62b094a40715e77856cd19e78d0493ea6d179e71",
+          "UNRESOLVED_BLOCKERS.json": "e658986aae91a545ede230289d29c589bb0d1dd23da36d1dcf186db24f5010ad",
+          "FINAL_CLOSURE_ACQUISITION_REPORT.md": "94d2af074d2a9cd326b172d3826ab6e1217e8b28fef3d10f973fb94684e2fd3e"
+        },
+        "afterFirst": {
+          "FRANCE_OFFICIAL_CONCESSION_COVERAGE.json": "1e656eba42c207b5644a95b76d4c2b1cf2c21d8ce0a120bb820c1c96abce8bfb",
+          "FACILITIES_SCOPE_INTEGRITY_MATRIX.json": "3b812b11a5f06901b140305265b19e81101e282da4f525a4326373def0d15c4f",
+          "OWNER_AUTHORITY_REVIEW_PACKAGE.json": "e446c025707e7cb4fa63801e62b094a40715e77856cd19e78d0493ea6d179e71",
+          "UNRESOLVED_BLOCKERS.json": "e658986aae91a545ede230289d29c589bb0d1dd23da36d1dcf186db24f5010ad",
+          "FINAL_CLOSURE_ACQUISITION_REPORT.md": "94d2af074d2a9cd326b172d3826ab6e1217e8b28fef3d10f973fb94684e2fd3e"
+        },
+        "afterSecond": {
+          "FRANCE_OFFICIAL_CONCESSION_COVERAGE.json": "1e656eba42c207b5644a95b76d4c2b1cf2c21d8ce0a120bb820c1c96abce8bfb",
+          "FACILITIES_SCOPE_INTEGRITY_MATRIX.json": "3b812b11a5f06901b140305265b19e81101e282da4f525a4326373def0d15c4f",
+          "OWNER_AUTHORITY_REVIEW_PACKAGE.json": "e446c025707e7cb4fa63801e62b094a40715e77856cd19e78d0493ea6d179e71",
+          "UNRESOLVED_BLOCKERS.json": "e658986aae91a545ede230289d29c589bb0d1dd23da36d1dcf186db24f5010ad",
+          "FINAL_CLOSURE_ACQUISITION_REPORT.md": "94d2af074d2a9cd326b172d3826ab6e1217e8b28fef3d10f973fb94684e2fd3e"
+        }
+      },
+      "expected": "three identical hash sets"
+    }
+  ],
+  "baseline": {
+    "registry": {
+      "count": 831,
+      "sha256": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d"
+    },
+    "routingTollView": {
+      "count": 279,
+      "sha256": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+    },
+    "basicLibrarian": "3/3_MATCH",
+    "routingToll001": "OPEN_READY_FOR_FINAL_OWNER_AUTHORITY_REVIEW",
+    "legal003": "OPEN_UNCHANGED",
+    "legal005": "OPEN_UNCHANGED",
+    "runtimeProductionTurnApplicationApi": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED"
+  },
+  "evidence": {
+    "newOfficialArtifactsCaptured": 23,
+    "officialArtifactBlocks": 0,
+    "france": {
+      "entitiesAccounted": 22,
+      "entitiesTotal": 22,
+      "regimesAccounted": 26,
+      "regimesTotal": 26,
+      "captured": 24,
+      "notApplicableWithEvidence": 2,
+      "integrityBlocked": 0,
+      "coverageStatement": "22/22 official entities and 26/26 regimes accounted for",
+      "integrityComplete": true
+    },
+    "facilities": {
+      "inventoryAccounted": 9,
+      "inventoryTotal": 9,
+      "accounted": 8,
+      "total": 8,
+      "integrityComplete": 8,
+      "integrityBlocked": 0,
+      "outOfScopeByOwner": 1,
+      "coverageStatement": "8/8 in-scope facilities accounted; 8/8 integrity complete; 9/9 inventory items preserved"
+    },
+    "ownerAuthorityReview": {
+      "total": 10,
+      "integrityVerified": 10,
+      "approved": 0,
+      "rejected": 0,
+      "pending": 10
+    },
+    "minimalEvidenceBlockers": 0
+  },
+  "idempotence": {
+    "pass": true,
+    "fileHashes": {
+      "FRANCE_OFFICIAL_CONCESSION_COVERAGE.json": "1e656eba42c207b5644a95b76d4c2b1cf2c21d8ce0a120bb820c1c96abce8bfb",
+      "FACILITIES_SCOPE_INTEGRITY_MATRIX.json": "3b812b11a5f06901b140305265b19e81101e282da4f525a4326373def0d15c4f",
+      "OWNER_AUTHORITY_REVIEW_PACKAGE.json": "e446c025707e7cb4fa63801e62b094a40715e77856cd19e78d0493ea6d179e71",
+      "UNRESOLVED_BLOCKERS.json": "e658986aae91a545ede230289d29c589bb0d1dd23da36d1dcf186db24f5010ad",
+      "FINAL_CLOSURE_ACQUISITION_REPORT.md": "94d2af074d2a9cd326b172d3826ab6e1217e8b28fef3d10f973fb94684e2fd3e"
+    }
+  }
+}

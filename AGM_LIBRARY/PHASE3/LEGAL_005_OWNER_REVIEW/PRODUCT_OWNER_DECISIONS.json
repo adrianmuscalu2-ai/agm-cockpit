@@ -1,0 +1,834 @@
+{
+  "schemaVersion": "agm-legal005-product-owner-decisions.v1",
+  "gapId": "LEGAL-005",
+  "reviewStatus": "COMPLETE_PENDING_PRE_APPLY_REVIEW",
+  "decisionCount": 23,
+  "totals": {
+    "APPROVE": 23,
+    "REJECT": 0,
+    "DEFER": 0,
+    "PENDING": 0
+  },
+  "decisions": [
+    {
+      "candidateNumber": 1,
+      "candidateId": "LEGAL005-CAND-DE-STVO-30",
+      "sourceId": "CS-DE-STVO",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "General Sunday and public-holiday prohibition applicable to heavy goods vehicles under StVO section 30.",
+        "Exceptions explicitly demonstrated by StVO section 30."
+      ],
+      "excludedScope": [
+        "Other StVO provisions.",
+        "Seasonal restrictions.",
+        "Rules not demonstrated by StVO section 30."
+      ],
+      "conditions": [
+        "Reuse the existing Registry SourceId.",
+        "NO DUPLICATE SOURCE.",
+        "effectiveFrom remains not explicitly specified.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Freshness remains CURRENT according to validated evidence."
+      ],
+      "projectedImpact": {
+        "registryAdd": 0,
+        "legislationSafetyViewAdd": 0,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 2,
+      "candidateId": "LEGAL005-CAND-EU-561",
+      "sourceId": "CS-EU-REG-561-2006",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "Driving times.",
+        "Breaks.",
+        "Rest periods.",
+        "Professional road transport within the EU/EEA scope covered by Regulation (EC) No 561/2006."
+      ],
+      "excludedScope": [
+        "National road-traffic prohibitions.",
+        "National seasonal restrictions.",
+        "National derogations or implementations requiring separate evidence.",
+        "Obligations not demonstrated by Regulation (EC) No 561/2006."
+      ],
+      "conditions": [
+        "Reuse the existing Registry SourceId.",
+        "NO DUPLICATE SOURCE.",
+        "effectiveFrom remains unspecified in candidate metadata.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Freshness remains CURRENT according to validated evidence."
+      ],
+      "projectedImpact": {
+        "registryAdd": 0,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 3,
+      "candidateId": "LEGAL005-CAND-DE-FERREISEV-2026",
+      "sourceId": "CS-DE-FERREISEV-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "German summer restrictions applicable to heavy goods vehicles.",
+        "Only the roads, periods, vehicle classes and exceptions explicitly demonstrated by the validated official consolidated version."
+      ],
+      "excludedScope": [
+        "The general Sunday/public-holiday prohibition governed separately by StVO section 30.",
+        "Roads, periods, vehicle classes or exceptions not demonstrated by the captured version."
+      ],
+      "conditions": [
+        "Keep StVO section 30 and Ferienreiseverordnung scopes separate; do not combine or extend them.",
+        "Freshness remains CURRENT.",
+        "Version remains last amended 2026-06-17, BGBl. 2026 I Nr. 180.",
+        "effectiveFrom remains not explicitly specified.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Next freshness check remains 2026-09-30."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 4,
+      "candidateId": "LEGAL005-CAND-AT-STVO-42-20260830",
+      "sourceId": "CS-AT-STVO-42-20260830",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "General Austrian weekend and public-holiday restriction under StVO 1960 section 42.",
+        "Heavy vehicles and conditions explicitly provided by section 42.",
+        "Only content demonstrated by the official version captured for 2026-08-30."
+      ],
+      "excludedScope": [
+        "Austrian seasonal restrictions.",
+        "A10 restrictions.",
+        "Luegbrücke restrictions.",
+        "Other local or special restrictions.",
+        "Rules not explicitly demonstrated by section 42."
+      ],
+      "conditions": [
+        "Keep all special-regime sources separate.",
+        "The candidate may replace stale candidate CS-AT-STVO-42-20260213 only through documented FINAL PRE-APPLY reconciliation.",
+        "No automatic deletion, mutation, supersession or apply is authorized.",
+        "Freshness remains CURRENT.",
+        "Version remains RIS StVO 1960 section 42, Fassung vom 2026-08-30.",
+        "effectiveFrom remains not explicitly specified.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Next review remains 2026-09-30."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "reconciliationRequired": {
+        "staleCandidateId": "CS-AT-STVO-42-20260213",
+        "automaticDeleteAuthorized": false,
+        "automaticSupersedeAuthorized": false,
+        "finalPreApplyDocumentationRequired": true
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 5,
+      "candidateId": "LEGAL005-CAND-AT-CALENDAR-77-2026",
+      "sourceId": "CS-AT-HGV-BAN-CALENDAR-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "Scheduled Austrian restrictions for 2026 applicable to heavy goods vehicles.",
+        "Only routes, directions, dates, time intervals, vehicle thresholds and exceptions explicitly demonstrated by BGBl. II Nr. 77/2026."
+      ],
+      "excludedScope": [
+        "A10 unless explicitly demonstrated by this regulation.",
+        "Luegbrücke.",
+        "Other special Austrian restrictions.",
+        "Routes, periods or exceptions not demonstrated by BGBl. II Nr. 77/2026."
+      ],
+      "conditions": [
+        "Complements but does not replace the general StVO section 42 rule approved for candidate 4.",
+        "effectiveFrom is 2026-04-01.",
+        "effectiveUntil is 2026-12-31.",
+        "Use outside the demonstrated period requires new evidence and authority.",
+        "After expiry the status is EXPIRED_REVIEW_REQUIRED; no automatic continuation into 2027.",
+        "Freshness remains CURRENT as last verified 2026-08-30.",
+        "Next review remains 2026-12-01."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 6,
+      "candidateId": "LEGAL005-CAND-AT-A10-190-2026",
+      "sourceId": "CS-AT-A10-SUMMER-HGV-BAN-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "Special 2026 restrictions for heavy goods vehicles over 7.5 tonnes on the A10 Tauern Autobahn.",
+        "Only segments, directions, dates, time intervals, thresholds and exceptions explicitly demonstrated by BGBl. II Nr. 190/2026 / NOR40279329."
+      ],
+      "excludedScope": [
+        "Other motorways.",
+        "Other A10 segments not demonstrated by the act.",
+        "StVO section 42 general restrictions.",
+        "BGBl. II Nr. 77/2026 scheduled restrictions.",
+        "Luegbrücke or other special regimes."
+      ],
+      "conditions": [
+        "Keep the A10 source distinct from every general, scheduled or other special Austrian source.",
+        "effectiveFrom is 2026-07-11.",
+        "effectiveUntil is 2026-12-31.",
+        "After 2026-12-31 the status is EXPIRED_REVIEW_REQUIRED; no automatic continuation into 2027.",
+        "Freshness remains CURRENT as last verified 2026-08-30.",
+        "Next review remains 2026-12-01."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 7,
+      "candidateId": "LEGAL005-CAND-AT-LUEG-2026",
+      "sourceId": "CS-AT-LUEGBRUECKE-HGV-BAN-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "2026 heavy-goods-vehicle restrictions associated with Luegbrücke reconstruction.",
+        "Only the relevant A12/A13/A14 segments, periods, vehicles, conditions and exceptions explicitly demonstrated by the consolidated official act."
+      ],
+      "excludedScope": [
+        "Other bridges or works.",
+        "Other A12/A13/A14 segments.",
+        "Other periods, vehicle categories or exceptions not explicitly demonstrated."
+      ],
+      "conditions": [
+        "Keep this special Luegbrücke source distinct from StVO section 42, BGBl. II Nr. 77/2026 and BGBl. II Nr. 190/2026.",
+        "No general or other special source substitutes for Luegbrücke-specific evidence.",
+        "effectiveFrom is 2025-12-31.",
+        "effectiveUntil is 2026-12-31.",
+        "After 2026-12-31 the status is EXPIRED_REVIEW_REQUIRED; no automatic continuation.",
+        "Freshness remains CURRENT as last verified 2026-08-30.",
+        "Next review remains 2026-12-01."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 8,
+      "candidateId": "LEGAL005-CAND-FR-BASE-2021",
+      "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "General French circulation prohibition for goods transport with vehicles over 7.5 tonnes.",
+        "Only rules, exceptions and conditions explicitly demonstrated by the order of 16 April 2021."
+      ],
+      "excludedScope": [
+        "The annual complementary restrictions order for 2026.",
+        "The temporary firefighting derogation.",
+        "Other temporary, regional or special restrictions.",
+        "Complementary 2026 dates not demonstrated by this source."
+      ],
+      "conditions": [
+        "Keep the base rule separate from every annual, temporary, regional or special source and use each only within its demonstrated temporal window.",
+        "effectiveFrom is 2021-05-01.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Freshness remains CURRENT with reviewRequired true.",
+        "Last verified remains 2026-08-30 and next review remains 2026-09-30.",
+        "If currentness cannot be demonstrated, fallback is UNKNOWN_HUMAN_VERIFICATION; UNKNOWN is not ZERO, SAFE or PASS."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 9,
+      "candidateId": "LEGAL005-CAND-FR-2026",
+      "sourceId": "CS-FR-TRUCK-BAN-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "Goods transport with vehicles over 7.5 tonnes.",
+        "Complementary winter and summer restrictions for 2026.",
+        "Only dates, times and routes explicitly demonstrated by the official order of 26 December 2025."
+      ],
+      "excludedScope": [
+        "Other dates, time intervals, routes, periods, vehicle categories or derogations.",
+        "The 2021 general French rule.",
+        "The temporary firefighting derogation.",
+        "Any extrapolation into 2027."
+      ],
+      "conditions": [
+        "Keep candidate 8 as the general base rule, candidate 9 as the 2026 complementary restrictions and candidate 10 as the temporary firefighting derogation.",
+        "effectiveFrom is 2026-01-09.",
+        "effectiveUntil is 2026-12-31.",
+        "After 2026-12-31 the status is EXPIRED_REVIEW_REQUIRED and CURRENT is forbidden."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 10,
+      "candidateId": "LEGAL005-CAND-FR-FIRE-2026",
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "Transports over 7.5 tonnes necessary for firefighting.",
+        "Temporary lifting of the prohibition only under conditions provided by the order.",
+        "Empty return when covered by the document.",
+        "Justification and evidence obligations provided by the order."
+      ],
+      "excludedScope": [
+        "Any use outside the demonstrated temporary derogation.",
+        "Any current-trip authorization after expiry without new official evidence.",
+        "The general French rule and the separate complementary 2026 restrictions."
+      ],
+      "conditions": [
+        "Keep candidates 8, 9 and 10 separate and apply each only within its own scope and temporal window.",
+        "effectiveFrom is 2026-08-08.",
+        "effectiveUntil is 2026-08-31 inclusive.",
+        "At 2026-08-30 status is EXPIRY_WARNING.",
+        "At and after 2026-08-31 status is EXPIRED_REVIEW_REQUIRED and CURRENT is forbidden.",
+        "Post-expiry the source may remain only as historical evidence/authority.",
+        "Fallback is UNKNOWN_HUMAN_VERIFICATION; UNKNOWN is not ZERO, SAFE or PASS.",
+        "Product Owner approval does not extend the validity period."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 11,
+      "candidateId": "LEGAL005-CAND-BE-TACHO-20260701",
+      "sourceId": "CS-BE-FOD-TACHOGRAPH-20260701",
+      "decision": "APPROVE",
+      "classification": "CONTEXTUAL",
+      "approvedScope": [
+        "Operational change applicable from 2026-07-01 for smart tachographs.",
+        "International goods transport with vehicles from 2.5 to 3.5 tonnes.",
+        "Only exceptions and explanations explicitly demonstrated by the official FOD Mobility publication."
+      ],
+      "excludedScope": [
+        "Independent normative authority.",
+        "Replacement of Regulation (EC) No 561/2006 or other applicable EU acts.",
+        "National road-traffic restrictions.",
+        "Scope beyond explicit FOD Mobility content."
+      ],
+      "conditions": [
+        "The source remains CONTEXTUAL and must be associated with relevant EU legislation for normative authority.",
+        "effectiveFrom is 2026-07-01.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Freshness remains CURRENT as last verified 2026-08-30.",
+        "Next review remains 2026-09-30."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 12,
+      "candidateId": "LEGAL005-CAND-NL-DRIVING-REST",
+      "sourceId": "CS-NL-GOV-DRIVING-REST-CURRENT",
+      "decision": "APPROVE",
+      "classification": "CONTEXTUAL",
+      "approvedScope": [
+        "Operational guidance on driving times, rest periods, breaks, weekly return and suitable accommodation.",
+        "National exemptions explicitly described by the government guidance."
+      ],
+      "excludedScope": [
+        "Independent normative authority.",
+        "Replacement of Regulation (EC) No 561/2006 or applicable national legal instruments.",
+        "Creation of exemptions not legally demonstrated.",
+        "National heavy-goods-vehicle road restrictions."
+      ],
+      "conditions": [
+        "Any normative obligation requires CONTEXTUAL GUIDANCE plus APPLICABLE LEGAL AUTHORITY.",
+        "Regulation (EC) No 561/2006 remains the relevant approved EU authority.",
+        "National exemptions require their own official legal instrument for normative use.",
+        "effectiveFrom and effectiveUntil remain unspecified and must not be invented.",
+        "Freshness remains CURRENT as last verified 2026-08-30; next review is 2026-09-30.",
+        "If the official page changes or currentness cannot be demonstrated, status becomes REVIEW_REQUIRED / HUMAN_VERIFICATION."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 13,
+      "candidateId": "LEGAL005-CAND-LU-HGV",
+      "sourceId": "CS-LU-TRANSPORTS-HGV-RESTRICTIONS-CURRENT",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "Luxembourg circulation restrictions for vehicles over 7.5 tonnes on Sundays and public holidays.",
+        "Only directions, time intervals, conditions and exceptions explicitly published by the competent authority."
+      ],
+      "excludedScope": [
+        "Tariffs, tolls or Eurovignette.",
+        "Local restrictions not published in the evidence.",
+        "Dynamic or temporary traffic controls.",
+        "Other vehicle categories or time intervals not demonstrated."
+      ],
+      "conditions": [
+        "Keep Regulation (EC) No 561/2006, driving/rest sources and Eurovignette/ROUTING-TOLL sources separate.",
+        "Do not derive tariffs or charging rules from this source.",
+        "effectiveFrom and effectiveUntil remain unspecified and must not be invented.",
+        "Page version/last modified remains 2025-07-16.",
+        "Freshness remains CURRENT as last verified 2026-08-30; next review is 2026-09-30.",
+        "If currentness cannot be demonstrated, status becomes REVIEW_REQUIRED / UNKNOWN_HUMAN_VERIFICATION."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 14,
+      "candidateId": "LEGAL005-CAND-PL-HGV",
+      "sourceId": "CS-PL-HGV-RESTRICTIONS-CURRENT",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "Polish nationwide periodic circulation restrictions.",
+        "Vehicles and combinations with a maximum authorized total mass over 12 tonnes.",
+        "Only dates, time intervals, conditions and exceptions documented by the applicable official regulation."
+      ],
+      "authorityBasis": [
+        "Consolidated regulation Dz.U. 2023 poz. 2423.",
+        "Status confirmed in force through ELI on 2026-08-30.",
+        "GITD guidance is operational support and does not replace the ELI normative basis."
+      ],
+      "excludedScope": [
+        "Vehicles at or below 12 tonnes.",
+        "Local or dynamic restrictions.",
+        "Toll or e-TOLL.",
+        "Other periods or"
+      ],
+      "conditions": [
+        "effectiveFrom remains unspecified explicitly.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Freshness remains CURRENT as last verified 2026-08-30; next review is 2026-09-30.",
+        "If current status can no longer be demonstrated, status becomes REVIEW_REQUIRED / UNKNOWN_HUMAN_VERIFICATION.",
+        "The final scope-limit sentence was received truncated after the exact words 'alte perioade sau'; no completion was inferred."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 15,
+      "candidateId": "LEGAL005-CAND-CZ-HGV",
+      "sourceId": "CS-CZ-MD-HGV-RESTRICTIONS-CURRENT",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": [
+        "Officially published schedule for section 43 restrictions applicable to heavy goods vehicles.",
+        "Sunday and public-holiday periods.",
+        "Summer periods.",
+        "Exemption procedure officially described by the competent authority."
+      ],
+      "excludedScope": [
+        "Treatment of the captured ministerial guidance as the complete, consolidated and authenticated text of the law.",
+        "Reconstruction or invention of section 43 content.",
+        "Other legal provisions.",
+        "Other restrictions, vehicles, periods or exceptions not published by the Ministry."
+      ],
+      "conditions": [
+        "The official ministerial guidance explicitly identifies section 43 as its legal basis, but authority remains strictly limited to information published by the Ministry.",
+        "A decision requiring the exact legal wording of section 43 requires the corresponding primary legislative source.",
+        "effectiveFrom remains unspecified.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Page version remains 2025-12-09.",
+        "Freshness remains CURRENT as last verified 2026-08-30; next review is 2026-09-30.",
+        "If currentness can no longer be demonstrated, status becomes REVIEW_REQUIRED / UNKNOWN_HUMAN_VERIFICATION."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 16,
+      "candidateId": "LEGAL005-CAND-DK-DRIVING-REST-20260701",
+      "sourceId": "CS-DK-DRIVING-REST-20260701",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "authorityBasis": [
+        "BEK nr. 256 af 06/02/2026.",
+        "Official act and explanation from the competent Danish authority."
+      ],
+      "approvedScope": [
+        "Only the national changes and rules concerning driving, rest and related controls demonstrated by the act."
+      ],
+      "excludedScope": [
+        "Evidence or authority for the existence of a Danish national periodic heavy-goods-vehicle road ban.",
+        "An invented Danish road ban or inferred weekend/public-holiday prohibition.",
+        "Road restrictions not demonstrated by the act.",
+        "National derogations beyond the demonstrated text.",
+        "Replacement of the applicable EU framework."
+      ],
+      "conditions": [
+        "Interpret the act together with the applicable EU framework and only for the national derogations or amendments it demonstrates.",
+        "effectiveFrom remains 2026-07-01.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Freshness remains CURRENT as last verified 2026-08-30; next review is 2026-09-30.",
+        "If a national periodic HGV road ban is not separately demonstrated through official evidence, road-restriction status is UNKNOWN / HUMAN VERIFICATION.",
+        "UNKNOWN is not NO BAN, SAFE or ZERO."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 17,
+      "candidateId": "LEGAL005-CAND-CH-VRV-20260701",
+      "sourceId": "CS-CH-VRV-20260701",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "authorityBasis": [
+        "Consolidated Swiss federal legislation SR 741.11 / VRV in the version applicable from 2026-07-01.",
+        "Fedlex is the federal normative basis; ASTRA is operational support.",
+        "If they differ, the Fedlex normative basis prevails."
+      ],
+      "approvedScope": [
+        "Swiss Sunday driving prohibitions.",
+        "Night driving prohibitions.",
+        "Demonstrated vehicle thresholds and categories.",
+        "Demonstrated statutory exceptions.",
+        "Federal permit framework.",
+        "Only content demonstrated by VRV Articles 91 to 93."
+      ],
+      "excludedScope": [
+        "Specific cantonal decisions.",
+        "Individual cantonal permits.",
+        "Applicability of a holiday in a canton without evidence.",
+        "Dynamic traffic controls.",
+        "Exceptional transports.",
+        "Tunnels or local restrictions requiring separate rules."
+      ],
+      "conditions": [
+        "Concrete application may require separate cantonal evidence.",
+        "effectiveFrom remains 2026-07-01.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Freshness remains CURRENT as last verified 2026-08-30; next review is 2026-09-30."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 18,
+      "candidateId": "LEGAL005-CAND-CH-ARV1-20250501",
+      "sourceId": "CS-CH-ARV1-20250501",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "authorityBasis": [
+        "SR 822.221 / ARV 1 consolidated version applicable from 2025-05-01."
+      ],
+      "approvedScope": [
+        "Swiss federal obligations concerning working time.",
+        "Driving and rest.",
+        "Controls.",
+        "Employer obligations.",
+        "Only professional drivers and situations actually within ARV 1 scope."
+      ],
+      "excludedScope": [
+        "Vehicles, activities or categories excluded from ARV 1.",
+        "Use of this version as CURRENT after 2026-09-30.",
+        "Automatic authority for the version applicable from 2026-10-01."
+      ],
+      "conditions": [
+        "Concrete vehicle and transport applicability must be checked against ARV 1 Article 3 and applicable exclusions.",
+        "effectiveFrom remains 2025-05-01 and effectiveUntil remains 2026-09-30.",
+        "Freshness/currentness is NEW_VERSION_DETECTED; reviewRequired is true; last verified is 2026-08-30 and next check is 2026-09-01.",
+        "At 2026-10-01 CURRENT is forbidden for this version; if the new version is not recaptured and validated, fallback is UNKNOWN_HUMAN_VERIFICATION.",
+        "UNKNOWN is not SAFE, UNCHANGED or ZERO.",
+        "Do not execute automatic supersession.",
+        "The version applicable from 2026-10-01 must be officially captured, canonically stored, hashed, validated, compared and separately reviewed before authority promotion.",
+        "Add the ARV 1 version applicable from 2026-10-01 to the shared SOURCE FRESHNESS / OWNER REVIEW list for handling after all 23 decisions."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "supersessionAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 19,
+      "candidateId": "LEGAL005-CAND-BE-VLAANDEREN-LEZ",
+      "sourceId": "CS-BE-VLAANDEREN-LEZ-CURRENT",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "authorityBasis": [
+        "Official Government of Flanders publication, limited to demonstrated regional authority."
+      ],
+      "approvedScope": [
+        "Flemish Low Emission Zone framework.",
+        "Current regional access criteria.",
+        "Demonstrated M, N and T categories, including N2 and N3 vehicles only within published limits.",
+        "Regional framework for local permit criteria."
+      ],
+      "excludedScope": [
+        "Federal authority for Belgium.",
+        "Brussels, Wallonia, other Belgian regions or local systems not demonstrated by evidence.",
+        "Automatic inference of local fee values, existence or value of a permit, local exemptions or additional local conditions."
+      ],
+      "conditions": [
+        "Authority is strictly Vlaanderen / Flanders.",
+        "Keep the Flemish regional framework separate from local implementation.",
+        "Antwerp and Ghent local permits, fees and conditions require current local evidence.",
+        "effectiveFrom remains unspecified.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Version is the live page captured 2026-08-30 reflecting the 2025-11-28 decision.",
+        "Freshness remains CURRENT; next review is 2026-11-30.",
+        "If currentness can no longer be demonstrated, status becomes REVIEW_REQUIRED / UNKNOWN_HUMAN_VERIFICATION."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 20,
+      "candidateId": "LEGAL005-CAND-BE-BRUSSELS-LEZ",
+      "sourceId": "CS-BE-BRUSSELS-LEZ-CURRENT",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "authorityBasis": [
+        "Official Brussels LEZ source, strictly limited to Brussels-Capital Region jurisdiction and demonstrated scope."
+      ],
+      "approvedScope": [
+        "Access to the Brussels-Capital LEZ.",
+        "Demonstrated LEZ rules and controls.",
+        "Officially listed vehicle categories, including N2 and N3 only within the evidence limits.",
+        "Regional conditions demonstrated by the official source."
+      ],
+      "excludedScope": [
+        "Flanders, Wallonia, all of Belgium, or other Belgian LEZ and local restrictions.",
+        "Vehicle eligibility, derogation, fee, permit or sanction not explicitly demonstrated by evidence."
+      ],
+      "conditions": [
+        "Authority is strictly Brussels-Capital Region; each Belgian region remains a separate authority.",
+        "Concrete vehicle conformity and any derogation require the current official regional tool and evidence.",
+        "effectiveFrom remains unspecified.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Version is the live Brussels-Capital LEZ page captured 2026-08-30.",
+        "Freshness remains CURRENT; next review is 2026-09-30.",
+        "If currentness can no longer be demonstrated, status becomes REVIEW_REQUIRED / UNKNOWN_HUMAN_VERIFICATION.",
+        "UNKNOWN is not SAFE or NO RESTRICTION."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 21,
+      "candidateId": "LEGAL005-CAND-BE-WALLONIA-LEZ",
+      "sourceId": "CS-BE-WALLONIA-LEZ-FRAMEWORK",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "authorityBasis": [
+        "Official Walloon Region legislative framework published through WALLEX, strictly limited to demonstrated scope."
+      ],
+      "approvedScope": [
+        "Walloon legislative framework for restrictions related to air pollution produced by vehicles.",
+        "Legal framework for creating and publishing low-emission zones.",
+        "Demonstrated regional competence and framework rules."
+      ],
+      "excludedScope": [
+        "Proof that every Walloon municipality has an LEZ.",
+        "Proof that a specific LEZ is active or that a specific perimeter is in force.",
+        "Proof that a vehicle is prohibited or that a specific fee, fine, permit or derogation exists.",
+        "Flanders, Brussels-Capital or Belgian federal authority."
+      ],
+      "conditions": [
+        "Operational use of a concrete LEZ requires current local evidence for existence and activation, perimeter, applicability date, vehicle categories and criteria, exemptions or derogations, and any permits, fees and sanctions.",
+        "Without local evidence, LOCAL LEZ STATUS is UNKNOWN_HUMAN_VERIFICATION.",
+        "UNKNOWN is not ACTIVE, INACTIVE, SAFE or NO RESTRICTION.",
+        "Belgium must remain three distinct regional scopes: FLANDERS is not BRUSSELS-CAPITAL and is not WALLONIA.",
+        "effectiveFrom remains 2024-01-01.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Freshness remains CURRENT as last verified 2026-08-30; next review is 2026-09-30."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 22,
+      "candidateId": "LEGAL005-CAND-NL-RVV-HGV-ACCESS-20260701",
+      "sourceId": "CS-NL-RVV-HGV-ACCESS-20260701",
+      "ownerSubmittedCandidateId": "LEGAL005-CAND-NL-RWV-HGV-ACCESS-20260701",
+      "ownerSubmittedSourceId": "CS-NL-RWV-HGV-ACCESS-20260701",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "authorityBasis": [
+        "Owner text names RW 1990; validated canonical evidence and candidate package identify RVV 1990, version applicable from 2026-07-01.",
+        "Overheid.nl is the normative authority and RVO is operational support; the normative basis prevails if they differ."
+      ],
+      "approvedScope": [
+        "National legal framework for signed access restrictions.",
+        "Framework for environmental and zero-emission zones.",
+        "Rules demonstrated by Article 86e.",
+        "Passenger vehicles and trucks only within limits demonstrated by the act.",
+        "Normative relationship with local implementations."
+      ],
+      "excludedScope": [
+        "Treatment of this source as a database of municipal zones.",
+        "Inference of the existence or absence of a local zone solely from the national framework.",
+        "Evidence for the existence or absence of a general national periodic heavy-goods-vehicle road ban."
+      ],
+      "conditions": [
+        "Application to a concrete zone requires current local evidence for municipality, zone existence and activation, perimeter, effective date, vehicle category, access criteria, exceptions and derogations.",
+        "NO EVIDENCE is not NO BAN; UNKNOWN is not SAFE or ZERO.",
+        "effectiveFrom remains 2026-07-01.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Freshness remains CURRENT as last verified 2026-08-30; next review is 2026-09-30.",
+        "The Product Owner submitted RWV/RW identifiers while the deterministic candidate package and official title use RVV. Both submitted identifiers are preserved exactly; no canonical SourceId rename is authorized and the discrepancy must be reconciled in the FINAL PRE-APPLY PACKAGE."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    },
+    {
+      "candidateNumber": 23,
+      "candidateId": "LEGAL005-CAND-DK-ENV-ZONE-REG-2026-588",
+      "sourceId": "CS-DK-ENV-ZONE-REG-2026-588",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "authorityBasis": [
+        "BEK nr. 588 of 19/06/2026, strictly limited to the demonstrated Danish national environmental-zone framework."
+      ],
+      "approvedScope": [
+        "National technical requirements.",
+        "Documentation.",
+        "Demonstrated exceptions.",
+        "Enforcement framework.",
+        "Diesel N2 and N3 vehicles and other categories explicitly covered by the act.",
+        "Legal framework for environmental zones established by municipalities."
+      ],
+      "excludedScope": [
+        "Temporary controls.",
+        "Wind-related restrictions.",
+        "Bridge-specific restrictions.",
+        "Other local access restrictions.",
+        "Evidence for the existence or absence of a general national periodic heavy-goods-vehicle prohibition.",
+        "KmToll authority or inference of environmental rules from tariff sources."
+      ],
+      "conditions": [
+        "The national authority establishes the normative framework; municipalities establish the existence or activation, geographic perimeter and demonstrated local application of a concrete zone.",
+        "This SourceId cannot alone establish that a city or route is inside an active zone; current municipal evidence is mandatory.",
+        "Keep KmToll completely separate.",
+        "effectiveFrom remains unspecified.",
+        "effectiveUntil remains unspecified and must not be invented.",
+        "Freshness remains CURRENT as last verified 2026-08-30; next review is 2026-09-30.",
+        "If currentness or local implementation cannot be demonstrated, fallback is UNKNOWN_HUMAN_VERIFICATION.",
+        "UNKNOWN is not SAFE, NO RESTRICTION or ZERO."
+      ],
+      "projectedImpact": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "routingTollViewAdd": 0
+      },
+      "applyAuthorized": false,
+      "authorityPromoted": false
+    }
+  ],
+  "guardrails": {
+    "registryMutation": "NONE",
+    "legislationSafetyViewMutation": "NONE",
+    "routingTollViewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "apply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

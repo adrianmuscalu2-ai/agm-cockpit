@@ -1,0 +1,148 @@
+{
+  "schemaVersion": "agm-legal-gap-candidate-authority-package.v1",
+  "gapId": "LEGAL-003",
+  "preparedAt": "2026-08-30T18:00:00.000Z",
+  "candidates": [
+    {
+      "candidateId": "LEGAL003-CAND-DE-STVO-22",
+      "sourceId": "CS-DE-STVO",
+      "country": "DE",
+      "domain": "LEGISLATION_SAFETY",
+      "authority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "documentEvidence": "Existing canonical StVO PDF, section 22",
+      "exactScope": "Cargo and securing devices; safe securing against emergency braking and evasive movement; recognized technical rules.",
+      "proposedClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "reason": "Official consolidated national legislation.",
+      "limitations": [
+        "LEGAL-003 only; no new authority for unrelated StVO provisions.",
+        "Existing source and membership must be reused."
+      ],
+      "freshness": {
+        "policyVersion": "agm-source-freshness.v1",
+        "effectiveFrom": null,
+        "effectiveUntil": null,
+        "version": "Last amended 2026-01-30, BGBl. 2026 I Nr. 32",
+        "capturedAt": "2026-08-30T18:00:00.000Z",
+        "lastFreshnessCheck": "2026-08-30T18:00:00.000Z",
+        "nextFreshnessCheck": "2026-09-30",
+        "currentStatus": "CURRENT",
+        "supersedes": [],
+        "supersededBy": [],
+        "reviewRequired": false,
+        "usageFallback": "USE_ONLY_WITHIN_APPROVED_SCOPE_AND_DEMONSTRATED_PERIOD",
+        "limitations": []
+      },
+      "decisionStatus": "PENDING_PRODUCT_OWNER",
+      "applyEligibility": "DECISION_REQUIRED",
+      "ifApprove": {
+        "registryAdd": 0,
+        "legislationSafetyViewAdd": 0,
+        "effect": "Record LEGAL-003 scope decision against existing canonical source; no duplicate source or membership."
+      },
+      "ifReject": {
+        "registryAdd": 0,
+        "legislationSafetyViewAdd": 0,
+        "effect": "No LEGAL-003 reliance on StVO section 22; existing LEGAL-001 authority remains unchanged."
+      }
+    },
+    {
+      "candidateId": "LEGAL003-CAND-DE-HGB-412",
+      "sourceId": "CS-DE-HGB-412",
+      "country": "DE",
+      "domain": "LEGISLATION_SAFETY",
+      "authority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "documentEvidence": "Official HGB PDF, section 412",
+      "exactScope": "Allocation between sender and carrier of loading/unloading, transport-safe loading/stowage/securing and operationally safe loading.",
+      "proposedClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "reason": "Official national legislation directly states the duties.",
+      "limitations": [
+        "Does not replace StVO public-law duties.",
+        "No conclusion outside HGB section 412 and demonstrated transport scope."
+      ],
+      "freshness": {
+        "policyVersion": "agm-source-freshness.v1",
+        "effectiveFrom": null,
+        "effectiveUntil": null,
+        "version": "Current official HGB consolidated PDF captured 2026-08-30",
+        "capturedAt": "2026-08-30T18:00:00.000Z",
+        "lastFreshnessCheck": "2026-08-30T18:00:00.000Z",
+        "nextFreshnessCheck": "2026-09-30",
+        "currentStatus": "CURRENT",
+        "supersedes": [],
+        "supersededBy": [],
+        "reviewRequired": false,
+        "usageFallback": "USE_ONLY_WITHIN_APPROVED_SCOPE_AND_DEMONSTRATED_PERIOD",
+        "limitations": []
+      },
+      "decisionStatus": "PENDING_PRODUCT_OWNER",
+      "applyEligibility": "DECISION_REQUIRED",
+      "ifApprove": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "effect": "Eligible for later atomic addition as one scoped source."
+      },
+      "ifReject": {
+        "registryAdd": 0,
+        "legislationSafetyViewAdd": 0,
+        "effect": "Artifact remains evidence only; commercial duty allocation remains uncovered."
+      }
+    },
+    {
+      "candidateId": "LEGAL003-CAND-VDI-2700-METADATA",
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "country": "DE",
+      "domain": "LEGISLATION_SAFETY",
+      "authority": "VDI e.V.",
+      "documentEvidence": "Official handbook, VDI 2700 sheet 8.1 (2024-09) and corrigendum (2025-10) catalogue pages",
+      "exactScope": "Standards-owner metadata: family identity, titles, editions, scope summaries and correction relationship only.",
+      "proposedClassification": "CONTEXTUAL",
+      "reason": "VDI is the standards owner, but captured pages are catalogue metadata rather than licensed normative text.",
+      "limitations": [
+        "No normative instructions, values or compliance conclusions may be derived.",
+        "No authority promotion to AUTHORITATIVE or AUTHORITATIVE_WITH_SCOPE without controlled licensed content and review."
+      ],
+      "freshness": {
+        "policyVersion": "agm-source-freshness.v1",
+        "effectiveFrom": null,
+        "effectiveUntil": null,
+        "version": "Live catalogue; VDI 2700 Blatt 8.1:2024-09; corrigendum:2025-10",
+        "capturedAt": "2026-08-30T18:00:00.000Z",
+        "lastFreshnessCheck": "2026-08-30T18:00:00.000Z",
+        "nextFreshnessCheck": "2026-09-30",
+        "currentStatus": "CURRENT",
+        "supersedes": [],
+        "supersededBy": [],
+        "reviewRequired": false,
+        "usageFallback": "USE_ONLY_WITHIN_APPROVED_SCOPE_AND_DEMONSTRATED_PERIOD",
+        "limitations": []
+      },
+      "decisionStatus": "PENDING_PRODUCT_OWNER",
+      "applyEligibility": "DECISION_REQUIRED_CONTEXTUAL_ONLY",
+      "ifApprove": {
+        "registryAdd": 1,
+        "legislationSafetyViewAdd": 1,
+        "effect": "Eligible for later atomic addition as contextual metadata only."
+      },
+      "ifReject": {
+        "registryAdd": 0,
+        "legislationSafetyViewAdd": 0,
+        "effect": "Metadata remains retained evidence and cannot be used by the view."
+      }
+    }
+  ],
+  "projectedEligibleImpactIfAllThreeApproved": {
+    "registryAdd": 2,
+    "legislationSafetyViewAdd": 2,
+    "registryModify": 0,
+    "delete": 0,
+    "note": "No apply is authorized; licensed normative VDI remains ineligible and is not counted."
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

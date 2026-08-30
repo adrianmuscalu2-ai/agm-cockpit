@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "agm-legal-gap-as-is.v1",
+  "gapId": "LEGAL-005",
+  "preparedAt": "2026-08-30T18:00:00.000Z",
+  "verdict": "READY_FOR_PRODUCT_OWNER_AUTHORITY_REVIEW",
+  "exactScope": "Country matrix for DE, AT, CH, FR, BE, NL, LU, PL, CZ and DK covering (a) nationally published general/periodic HGV road restrictions and (b) core professional-driver driving/rest obligations. Dynamic incident controls, local signage and municipality-only restrictions remain outside this closure package.",
+  "measurementModel": "20 requirement units = 10 jurisdictions × 2 dimensions (road restrictions + professional-driver obligations).",
+  "currentBaseline": {
+    "expected": {
+      "registry": {
+        "path": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+        "count": 841,
+        "sha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076"
+      },
+      "routingTollView": {
+        "path": "AGM_LIBRARY/VIEWS/routing-toll.view.json",
+        "count": 289,
+        "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+      },
+      "legislationSafetyView": {
+        "path": "AGM_LIBRARY/VIEWS/legislation-safety.view.json",
+        "count": 44,
+        "sha256": "2db4f2b915e256f013bc4ed59188d810230a33c335333ec8cf364c6f1284dac1"
+      }
+    },
+    "observed": {
+      "registry": {
+        "count": 841,
+        "sha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076"
+      },
+      "routingTollView": {
+        "count": 289,
+        "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+      },
+      "legislationSafetyView": {
+        "count": 44,
+        "sha256": "2db4f2b915e256f013bc4ed59188d810230a33c335333ec8cf364c6f1284dac1"
+      }
+    }
+  },
+  "coverage": {
+    "demonstrated": 20,
+    "required": 20,
+    "ratio": "20/20"
+  },
+  "officialEvidence": {
+    "locallyValidatedOrExistingCanonical": 20,
+    "required": 20,
+    "ratio": "20/20",
+    "note": "All three authenticated Légifrance extracts passed canonical local validation."
+  },
+  "alreadyCovered": [
+    "CS-DE-STVO is canonical and already in legislation-safety.",
+    "CS-EU-REG-561-2006 is canonical and can be proposed as the EU professional-driver obligations backbone; it is not currently a legislation-safety membership.",
+    "The 2022 CH VRV PDF is preserved only as stale historical evidence."
+  ],
+  "stale": [
+    "CS-AT-STVO-42-20260213 is superseded at candidate level by the date-pinned 2026-08-30 capture.",
+    "CS-CH-VRV-20220401 is not current evidence for 2026.",
+    "The French fire derogation expires after 2026-08-31 and is in EXPIRY_WARNING."
+  ],
+  "duplicates": [
+    "CS-DE-STVO and CS-EU-REG-561-2006 must be reused, not copied.",
+    "PL ELI HTML, primary PDF and GITD page are representations/support for one proposed SourceId.",
+    "DK Retsinformation PDF and Færdselsstyrelsen explanation support one proposed SourceId.",
+    "Sources shared with other gaps retain one canonical artifact; scope decisions remain gap-specific."
+  ],
+  "authorityGaps": [
+    "Product Owner decisions are intentionally pending for all candidates."
+  ],
+  "blockers": [],
+  "guardrails": {
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  },
+  "missing": [],
+  "resolvedScopeBlockers": [
+    "CH_CURRENT_PRIMARY_SET_RESOLVED",
+    "BE_JURISDICTION_STRUCTURE_RESOLVED",
+    "NL_NATIONAL_VS_LOCAL_SCOPE_RESOLVED",
+    "DK_NATIONAL_VS_TEMPORARY_LOCAL_BRIDGE_SCOPE_RESOLVED"
+  ],
+  "candidatePackage": {
+    "candidateCount": 23,
+    "classificationSummary": {
+      "AUTHORITATIVE_WITH_SCOPE": 21,
+      "CONTEXTUAL": 2
+    }
+  }
+}

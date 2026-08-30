@@ -1,0 +1,238 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-pre-apply-validation.v1",
+  "generatedAt": "2026-08-30T01:01:44.604Z",
+  "verdict": "PASS",
+  "checkCount": 29,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "GENERATOR_EXIT",
+      "pass": true,
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "GENERATOR_IDEMPOTENCE",
+      "pass": true,
+      "actual": {
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/FINAL_ATOMIC_CHANGESET.json": "744798894493915b2fca50dfd016ac5a5b5c00f153d3e46bcf7068a3ec73c2cd",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/EXACT_BEFORE_AFTER_DIFF.json": "ed2a48087e0c74983fff25c5462420181ae55309fa63602cabe2da97d745e1e8",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/SOURCE_ID_TRANSITIONS.json": "1d64aa30b1454471574acb1163e962e245da3777dd79ac8bd80681182eb9efc1",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/CANONICAL_ARTIFACT_HASH_MANIFEST.json": "658dd5f69cf7079652b911f5c9efa75dd903caa0e8bee0c5e82f7a627950bba3",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PROVENANCE_VERIFICATION.json": "5616f6d84a0eee15e0c85a064391fdce01f95ed56ff8bbe2762551c0cd86deac",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/DETERMINISTIC_MUTATION_PLAN.md": "583fd37ea6a0853a647ae2c1098bc4d57f62fee1058ab7e0487347c473e19358",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/ROLLBACK_PLAN.md": "54ed6f04c3dbc1a164d779b981e8971c2e4e52be6d5c7b72533847fd7fe191d2",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/POST_APPLY_VALIDATION_PLAN.md": "97a1a64e0957b0f993f31f6dec264d64c4b330c877dcb2c0feebeb9d3e4dd711",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/FINAL_PRE_APPLY_REPORT.md": "a704878dd1822d1efb34d2ad775e64c5f895707a7701e401f041b85d87298bee"
+      },
+      "expected": {
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/FINAL_ATOMIC_CHANGESET.json": "744798894493915b2fca50dfd016ac5a5b5c00f153d3e46bcf7068a3ec73c2cd",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/EXACT_BEFORE_AFTER_DIFF.json": "ed2a48087e0c74983fff25c5462420181ae55309fa63602cabe2da97d745e1e8",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/SOURCE_ID_TRANSITIONS.json": "1d64aa30b1454471574acb1163e962e245da3777dd79ac8bd80681182eb9efc1",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/CANONICAL_ARTIFACT_HASH_MANIFEST.json": "658dd5f69cf7079652b911f5c9efa75dd903caa0e8bee0c5e82f7a627950bba3",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PROVENANCE_VERIFICATION.json": "5616f6d84a0eee15e0c85a064391fdce01f95ed56ff8bbe2762551c0cd86deac",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/DETERMINISTIC_MUTATION_PLAN.md": "583fd37ea6a0853a647ae2c1098bc4d57f62fee1058ab7e0487347c473e19358",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/ROLLBACK_PLAN.md": "54ed6f04c3dbc1a164d779b981e8971c2e4e52be6d5c7b72533847fd7fe191d2",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/POST_APPLY_VALIDATION_PLAN.md": "97a1a64e0957b0f993f31f6dec264d64c4b330c877dcb2c0feebeb9d3e4dd711",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/FINAL_PRE_APPLY_REPORT.md": "a704878dd1822d1efb34d2ad775e64c5f895707a7701e401f041b85d87298bee"
+      }
+    },
+    {
+      "name": "OWNER_DECISIONS_16_OF_16",
+      "pass": true,
+      "actual": {
+        "approved": 16,
+        "authoritativeWithScope": 12,
+        "contextual": 4,
+        "keepCandidate": 0,
+        "reject": 0,
+        "pending": 0
+      },
+      "expected": {
+        "approved": 16,
+        "pending": 0
+      }
+    },
+    {
+      "name": "OWNER_CLASSIFICATIONS_12_4",
+      "pass": true,
+      "actual": "12/4",
+      "expected": "12/4"
+    },
+    {
+      "name": "OWNER_DID_NOT_AUTHORIZE_APPLY",
+      "pass": true,
+      "actual": "false/false",
+      "expected": "false/false"
+    },
+    {
+      "name": "PENDING_REVIEW_EVIDENCE_PRESERVED",
+      "pass": true,
+      "actual": 16,
+      "expected": 16
+    },
+    {
+      "name": "REGISTRY_BASELINE",
+      "pass": true,
+      "actual": "815/af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31",
+      "expected": "815/af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31"
+    },
+    {
+      "name": "VIEW_BASELINE",
+      "pass": true,
+      "actual": "263/eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f",
+      "expected": "263/eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f"
+    },
+    {
+      "name": "CHANGESET_NOT_EXECUTED",
+      "pass": true,
+      "actual": "READY_NOT_AUTHORIZED_NOT_EXECUTED/false",
+      "expected": "READY_NOT_AUTHORIZED_NOT_EXECUTED/false"
+    },
+    {
+      "name": "OPERATIONS_16_0_0",
+      "pass": true,
+      "actual": {
+        "add": 16,
+        "modifyExistingSources": 0,
+        "delete": 0
+      },
+      "expected": {
+        "add": 16,
+        "modifyExistingSources": 0,
+        "delete": 0
+      }
+    },
+    {
+      "name": "ADDITION_COUNT_AND_UNIQUENESS",
+      "pass": true,
+      "actual": "16/16",
+      "expected": "16/16"
+    },
+    {
+      "name": "SOURCE_SCHEMA_SHAPE",
+      "pass": true,
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "NEW_SOURCE_IDS_ABSENT",
+      "pass": true,
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "CLASSIFICATIONS_12_4",
+      "pass": true,
+      "actual": "12/4",
+      "expected": "12/4"
+    },
+    {
+      "name": "HUMAN_AUTHORITY_RECORDED",
+      "pass": true,
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "ARTIFACTS_16_MATCH",
+      "pass": true,
+      "actual": "16/0",
+      "expected": "16/0"
+    },
+    {
+      "name": "NO_CANONICAL_HASH_DUPLICATION",
+      "pass": true,
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "PROVENANCE_16_VERIFIED",
+      "pass": true,
+      "actual": "16/16",
+      "expected": "16/16"
+    },
+    {
+      "name": "TRANSITIONS_16",
+      "pass": true,
+      "actual": "16/9/7",
+      "expected": "16 total"
+    },
+    {
+      "name": "MEMBERSHIPS_16_UNIQUE_AND_ABSENT",
+      "pass": true,
+      "actual": 16,
+      "expected": 16
+    },
+    {
+      "name": "PROJECTED_COUNTS",
+      "pass": true,
+      "actual": "831/279",
+      "expected": "831/279"
+    },
+    {
+      "name": "DIFF_COUNTS",
+      "pass": true,
+      "actual": {
+        "add": 16,
+        "modify": 0,
+        "delete": 0
+      },
+      "expected": {
+        "add": 16,
+        "modify": 0,
+        "delete": 0
+      }
+    },
+    {
+      "name": "GAP_OPEN_IN_PACKAGE",
+      "pass": true,
+      "actual": "ROUTING-TOLL-001_OPEN_PARTIALLY_READY/false",
+      "expected": "OPEN_PARTIALLY_READY/false"
+    },
+    {
+      "name": "ROUTING-TOLL-001_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-003_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-005_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/agent-governance.registry.ts",
+      "pass": true,
+      "actual": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82",
+      "expected": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/maintenance-department.ts",
+      "pass": true,
+      "actual": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0",
+      "expected": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0"
+    },
+    {
+      "name": "BASIC_HASH_evidence/governance/modules/PRE-005/v1.0/LINGUISTIC_AGENTS_CONTRACT.md",
+      "pass": true,
+      "actual": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231",
+      "expected": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231"
+    }
+  ],
+  "protectedState": {
+    "registryMutation": "NOT_EXECUTED",
+    "routingTollViewMutation": "NOT_EXECUTED",
+    "basicLibrarian": "UNCHANGED",
+    "legal003": "OPEN_UNCHANGED",
+    "legal005": "OPEN_UNCHANGED",
+    "runtimeProductionTurnApplicationApi": "NO_CHANGE"
+  },
+  "commitPush": "NOT_EXECUTED"
+}

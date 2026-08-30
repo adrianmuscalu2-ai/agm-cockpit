@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "agm-owner-manual-ingest-validation.v1",
+  "gapId": "LEGAL-005",
+  "documentNumber": 3,
+  "candidateId": "LEGAL005-CAND-FR-FIRE-2026",
+  "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+  "filename": "LEGAL005-FR-FIRE-DEROGATION-2026.owner-official.pdf",
+  "status": "RESOLVED_VALIDATED",
+  "move": {
+    "source": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/LEGAL005-FR-FIRE-DEROGATION-2026.owner-official.pdf",
+    "destination": "AGM_LIBRARY/PHASE3/LEGAL_005_OWNER_REVIEW/OWNER_MANUAL_INGEST/LEGAL005-FR-FIRE-DEROGATION-2026.owner-official.pdf",
+    "sourceExistsAfter": false,
+    "destinationExistsAfter": true,
+    "duplicateCreated": false,
+    "sizeBytesBefore": 138220,
+    "sizeBytesAfter": 138220,
+    "sha256Before": "57b28b6893d88650de9e96125e2eee073d8ad45c3a64aec8fcfa7f5d67b95c84",
+    "sha256After": "57b28b6893d88650de9e96125e2eee073d8ad45c3a64aec8fcfa7f5d67b95c84",
+    "binaryMatch": true
+  },
+  "identity": {
+    "authority": "French Republic / Légifrance",
+    "officialUrl": "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000054633358",
+    "nor": "TRAT2621637A",
+    "jorf": "JORF n°0183 du 7 août 2026, texte n°47",
+    "textId": "JORFTEXT000054633358",
+    "effectiveFrom": "2026-08-08",
+    "effectiveUntil": "2026-08-31"
+  },
+  "pageCountReconciliation": {
+    "priorExpectedPages": 1,
+    "validatedPages": 2,
+    "correctedExpectedPages": 2,
+    "reason": "The authenticated JORF extract visibly reports 1/2 and 2/2. Page 2 carries the same official header and the Interior Ministry signature block; excluding it would truncate the official document."
+  },
+  "validation": {
+    "pdfOpenable": true,
+    "pdfMagic": true,
+    "pdfEof": true,
+    "pages": 2,
+    "expectedPages": 2,
+    "noBlankPages": true,
+    "nor": true,
+    "jorfAndTextIdentity": true,
+    "articles1Through3": true,
+    "scopeOver7Point5T": true,
+    "firefightingTransportScope": true,
+    "emptyReturnPermission": true,
+    "proofOnControlObligation": true,
+    "endDateInclusive": "2026-08-31",
+    "secondPageSignatureBlock": true,
+    "noCloudflareOrChallengePage": true,
+    "result": "PASS"
+  },
+  "freshness": {
+    "asOf": "2026-08-30",
+    "currentStatus": "EXPIRY_WARNING",
+    "effectiveUntil": "2026-08-31",
+    "transitionAt": "2026-08-31",
+    "nextStatus": "EXPIRED_REVIEW_REQUIRED",
+    "postExpiryCurrentAllowed": false,
+    "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+    "unknownIsZeroSafeOrPass": false
+  },
+  "browserEvidence": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS",
+    "probe": "Isolated Playwright/Chrome local PDF open; pages 1/2 and 2/2 visually inspected, including the second-page signature continuation"
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

@@ -1,0 +1,816 @@
+# CURRENT vs SUPERSEDED vs HISTORICAL
+
+Every indexed record also carries SHA-256, owner, source date, version, dependencies and evidence links in `INDEX.json`.
+
+## CURRENT
+
+- `apps/web/android/app/src/main/assets/public/images/car-mover-module-accounting-bg-v1.png` — ANDROID; V1; Frontend Experience
+- `apps/web/android/app/src/main/assets/public/images/car-mover-module-active-bg-v1.png` — ANDROID; V1; Frontend Experience
+- `apps/web/android/app/src/main/assets/public/images/car-mover-module-archive-bg-v1.png` — ANDROID; V1; Frontend Experience
+- `apps/web/android/app/src/main/assets/public/images/car-mover-module-archive-bg-v2.png` — ANDROID; V2; Frontend Experience
+- `apps/web/android/app/src/main/assets/public/images/car-mover-module-guide-bg-v1.png` — ANDROID; V1; Frontend Experience
+- `apps/web/android/app/src/main/assets/public/images/car-mover-module-incidents-bg-v1.png` — ANDROID; V1; Frontend Experience
+- `apps/web/android/app/src/main/assets/public/images/car-mover-module-incidents-bg-v2.png` — ANDROID; V2; Frontend Experience
+- `apps/web/android/app/src/main/assets/public/images/car-mover-module-planning-bg-v1.png` — ANDROID; V1; Frontend Experience
+- `apps/web/android/app/src/main/assets/public/images/car-mover-module-planning-bg-v2.png` — ANDROID; V2; Frontend Experience
+- `artifacts/car-mover-release/AGM-Cockpit-Android-1.3.0-pre-rebuild.apk` — ANDROID; UNVERSIONED; Documentation & Knowledge
+- `apps/api/src/auth/role-provisioning.service.ts` — API; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/car-mover/dto/transition-car-mover-job.dto.ts` — API; UNVERSIONED; Backend & Infrastructure
+- `evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_PROTOCOL.md` — ARCHITECTURE; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/routing-architecture/2026-08-29/IMPLEMENTATION_REPORT.md` — ARCHITECTURE; UNVERSIONED; Inspector / Evidence Custody
+- `.github/workflows/production-release.yml` — COPILOT; V4; Documentation & Knowledge
+- `apps/web/src/premium-access/premium-access.navigation.ts` — COPILOT; UNVERSIONED; Frontend Experience
+- `apps/web/src/premium-app.ts` — COPILOT; UNVERSIONED; Frontend Experience
+- `apps/web/src/premium-routes.ts` — COPILOT; UNVERSIONED; Frontend Experience
+- `apps/web/src/premium-voice-shell/premium-assistant-product-context.ts` — COPILOT; UNVERSIONED; Frontend Experience
+- `evidence/governance/AGM_CAR_MOVER_VEHICLE_CLASS_AMENDMENT_2026-08-12.md` — DECISIONS; P0-01; Product Owner / Governance
+- `.runtime-state/agm-field-test-apk-8765.stderr.log` — FIELD; UNVERSIONED; Documentation & Knowledge
+- `.runtime-state/agm-field-test-apk-8765.stdout.log` — FIELD; UNVERSIONED; Documentation & Knowledge
+- `evidence/field-test-backend/2026-08-29/AUTHORIZED_TESTERS.md` — FIELD; UNVERSIONED; Field Validation
+- `CAR_MOVER/GOVERNANCE/AGM_CENTRAL_LIBRARIAN_CONTRACT.md` — GOVERNANCE; UNVERSIONED; Documentation & Knowledge
+- `apps/api/test/api006-traceability.spec.ts` — INCIDENTS; UNVERSIONED; Backend & Infrastructure
+- `apps/web/public/images/car-mover-module-incidents-bg-v1.png` — INCIDENTS; V1; Frontend Experience
+- `apps/web/public/images/car-mover-module-incidents-bg-v2.png` — INCIDENTS; V2; Frontend Experience
+- `deploy/operations/FIELD_TEST_SAFE_FALLBACK_SCENARIOS.md` — INCIDENTS; UNVERSIONED; Release & Operations
+- `AGM_AUTHORITY_SCOPE_CONFLICT_MODEL_V1.md` — OCR_DOCUMENTS; V1; Documentation & Knowledge
+- `AGM_PREMIUM_GOVERNANCE_AGENT_NETWORK_CONTRACT_V1.md` — OCR_DOCUMENTS; V1; Documentation & Knowledge
+- `agmcockpit-website/scripts/test-i18n-expansion.ts` — OCR_DOCUMENTS; UNVERSIONED; QA / Inspector
+- `apps/web/scripts/test-premium-conversation-foundation.ts` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `apps/web/src/premium-voice-shell/premium-conversation.contract.ts` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `scripts/validate-car-mover-android-runtime.mjs` — OCR_DOCUMENTS; UNVERSIONED; QA / Inspector
+- `scripts/validate-car-mover-p0-02-android.mjs` — OCR_DOCUMENTS; P0-02; QA / Inspector
+- `scripts/validate-website-remediation-browser.mjs` — OCR_DOCUMENTS; UNVERSIONED; QA / Inspector
+- `apps/api/src/car-mover/car-mover.controller.ts` — OPPORTUNITY_INTELLIGENCE; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/opportunity-intelligence/opportunity-intelligence.controller.ts` — OPPORTUNITY_INTELLIGENCE; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/opportunity-intelligence/opportunity-intelligence.module.ts` — OPPORTUNITY_INTELLIGENCE; UNVERSIONED; Backend & Infrastructure
+- `apps/api/test/gmail-opportunity-pilot.spec.ts` — OPPORTUNITY_INTELLIGENCE; UNVERSIONED; Backend & Infrastructure
+- `apps/api/test/opportunity-intelligence-core.spec.ts` — OPPORTUNITY_INTELLIGENCE; V1; Backend & Infrastructure
+- `apps/web/android/app/src/main/assets/public/assets/main-CkDL9oWE.js` — OPPORTUNITY_INTELLIGENCE; UNVERSIONED; Frontend Experience
+- `apps/web/scripts/test-car-mover-p0-02.ts` — OPPORTUNITY_INTELLIGENCE; P0-02; Frontend Experience
+- `apps/web/src/car-mover/car-mover.view.ts` — OPPORTUNITY_INTELLIGENCE; UNVERSIONED; Frontend Experience
+- `scripts/validate-car-mover-p1-android.mjs` — OPPORTUNITY_INTELLIGENCE; P1; QA / Inspector
+- `artifacts/car-mover-release/agm-web-car-mover-final-pages.zip` — RELEASES; UNVERSIONED; Documentation & Knowledge
+- `artifacts/car-mover-release/agm-web-car-mover-integrated-pages.zip` — RELEASES; UNVERSIONED; Documentation & Knowledge
+- `artifacts/car-mover-release/agm-web-d4e5782-pages.zip` — RELEASES; UNVERSIONED; Documentation & Knowledge
+- `artifacts/car-mover-release/agm-web-d4e5782.zip` — RELEASES; UNVERSIONED; Documentation & Knowledge
+- `CAR_MOVER/GOVERNANCE/OWNER_MANDATE_AGM_LIBRARY_2026-08-29.md` — REQUIREMENTS; UNVERSIONED; AGM Product Owner
+- `agmcockpit-website/public/images/ASSET_PROVENANCE_REGISTER.md` — ROUTING; V1; Documentation & Knowledge
+- `agmcockpit-website/public/images/car-mover-route-entry-bg-v4.png` — ROUTING; V4; Documentation & Knowledge
+- `apps/web/android/app/src/main/assets/public/images/car-mover-route-entry-bg-v4.png` — ROUTING; V4; Frontend Experience
+- `apps/web/public/images/car-mover-route-entry-bg-v4.png` — ROUTING; V4; Frontend Experience
+- `apps/web/src/car-mover/car-mover.css` — ROUTING; UNVERSIONED; Frontend Experience
+- `apps/api/scripts/test-car-mover-p0-01-db.ts` — RUNBOOKS; P0-01; Backend & Infrastructure
+- `apps/api/src/car-mover/dto/record-car-mover-protocol.dto.ts` — RUNBOOKS; UNVERSIONED; Backend & Infrastructure
+- `apps/api/test/authority-control-plane-contract.spec.ts` — RUNBOOKS; UNVERSIONED; Backend & Infrastructure
+- `apps/api/scripts/test-car-mover-p0-01-rollback.ts` — TESTS; P0-01; Backend & Infrastructure
+- `apps/api/src/car-mover/dto/create-car-mover-job.dto.ts` — TESTS; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/car-mover/dto/record-car-mover-finance.dto.ts` — TESTS; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/car-mover/dto/record-car-mover-invoice.dto.ts` — TESTS; UNVERSIONED; Backend & Infrastructure
+- `apps/api/test/api002-access-entitlements.spec.ts` — TESTS; UNVERSIONED; Backend & Infrastructure
+- `apps/api/test/role-provisioning.spec.ts` — TESTS; UNVERSIONED; Backend & Infrastructure
+- `apps/api/scripts/field-test-session.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/scripts/reconcile-live-adapter-telemetry.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/scripts/seed-provider-pilot.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/scripts/set-provider-pilot-state.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/scripts/test-live-adapters-db.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/scripts/test-opportunity-intelligence-db.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/scripts/test-provider-activation-gate.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/scripts/test-provider-pilot-live.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/scripts/test-tollguru-cache-gate.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/live-adapters/provider-adapters.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/opportunity-intelligence/opportunity-intelligence.dto.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/opportunity-intelligence/opportunity-intelligence.engine.ts` — TOLL; V1; Backend & Infrastructure
+- `apps/api/src/opportunity-intelligence/opportunity-intelligence.service.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/pilot-operations/pilot-operations.service.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/secret-telemetry/secret-telemetry.service.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/test/live-provider-adapters.spec.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/test/secret-telemetry.service.spec.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/web/src/car-mover/car-mover.client.ts` — TOLL; UNVERSIONED; Frontend Experience
+- `deploy/operations/FIELD_TEST_FINAL_REPORT_TEMPLATE.md` — TOLL; UNVERSIONED; Release & Operations
+- `deploy/operations/FIELD_TEST_PRE_DEPARTURE_CHECKLIST.md` — TOLL; UNVERSIONED; Release & Operations
+- `deploy/operations/FIELD_TEST_RUNBOOK.md` — TOLL; UNVERSIONED; Release & Operations
+- `deploy/operations/PROVIDER_PILOT_FIELD_TEST_RUNBOOK.md` — TOLL; UNVERSIONED; Release & Operations
+- `deploy/operations/templates/field-test-commercial-rates.json` — TOLL; UNVERSIONED; Release & Operations
+- `deploy/operations/templates/field-test-observation.json` — TOLL; UNVERSIONED; Release & Operations
+- `evidence/field-test-backend/2026-08-29/PREPARATION_REPORT.md` — TOLL; V1; Field Validation
+- `scripts/Confirm-AGMLiveProviderCustody.ps1` — TOLL; UNVERSIONED; QA / Inspector
+- `scripts/Invoke-AGMProviderPilot.ps1` — TOLL; UNVERSIONED; QA / Inspector
+- `scripts/Provision-AGMLiveProviderSecrets.ps1` — TOLL; UNVERSIONED; QA / Inspector
+- `scripts/validate-car-mover-navigation-browser.mjs` — TOLL; UNVERSIONED; QA / Inspector
+- `apps/web/public/images/car-mover-module-accounting-bg-v1.png` — WEB; V1; Frontend Experience
+- `apps/web/public/images/car-mover-module-active-bg-v1.png` — WEB; V1; Frontend Experience
+- `apps/web/public/images/car-mover-module-archive-bg-v1.png` — WEB; V1; Frontend Experience
+- `apps/web/public/images/car-mover-module-archive-bg-v2.png` — WEB; V2; Frontend Experience
+- `apps/web/public/images/car-mover-module-guide-bg-v1.png` — WEB; V1; Frontend Experience
+- `apps/web/public/images/car-mover-module-planning-bg-v1.png` — WEB; V1; Frontend Experience
+- `apps/web/public/images/car-mover-module-planning-bg-v2.png` — WEB; V2; Frontend Experience
+
+## DRAFT
+
+- `config/operations-health.json` — ANDROID; V1; Documentation & Knowledge
+- `apps/api/src/car-mover/car-mover.contract.ts` — API; UNVERSIONED; Backend & Infrastructure
+- `apps/web/src/premium-governance/premium-governance.view.ts` — COPILOT; UNVERSIONED; Frontend Experience
+- `apps/web/scripts/test-premium-foundation.ts` — FIELD; UNVERSIONED; Frontend Experience
+- `deploy/field-test/normalize-field-case-uuids.sql` — FIELD; UNVERSIONED; Release & Operations
+- `deploy/field-test/seed-field.sql` — FIELD; UNVERSIONED; Release & Operations
+- `scripts/serve-field-test-apk.mjs` — FIELD; UNVERSIONED; QA / Inspector
+- `apps/web/src/car-mover/car-mover.i18n.ts` — JOB_FILE; UNVERSIONED; Frontend Experience
+- `.github/agents/agm-central-librarian.agent.md` — OCR_DOCUMENTS; UNVERSIONED; Documentation & Knowledge
+- `agmcockpit-website/src/data/feature-registry.ts` — OCR_DOCUMENTS; UNVERSIONED; Documentation & Knowledge
+- `agmcockpit-website/src/data/premium-presentation.ts` — OCR_DOCUMENTS; UNVERSIONED; Documentation & Knowledge
+- `agmcockpit-website/src/i18n/expansion-content.ts` — OCR_DOCUMENTS; UNVERSIONED; Documentation & Knowledge
+- `apps/web/android/app/src/main/assets/public/assets/main-PZh983Ku.css` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `apps/web/android/app/src/main/assets/public/index.html` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `apps/web/scripts/generate-final-language-app-dictionary.ts` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `apps/web/scripts/generate-final-language-operational-dictionary.ts` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `apps/web/scripts/test-final-language-wave.ts` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `apps/web/src/agent-governance.registry.ts` — OCR_DOCUMENTS; P9; Frontend Experience
+- `apps/web/src/i18n/app-i18n.dictionary.ts` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `apps/web/src/i18n/final-language-app.dictionary.ts` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `apps/web/src/main.ts` — OCR_DOCUMENTS; V2; Frontend Experience
+- `apps/web/src/premium-linguistic-agents/premium-linguistic-agents.runtime.ts` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `apps/web/src/premium-voice-shell/premium-assistant.runtime.ts` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `apps/web/src/turn-organization-chart.ts` — OCR_DOCUMENTS; UNVERSIONED; Frontend Experience
+- `scripts/validate-final-language-wave-android.mjs` — OCR_DOCUMENTS; UNVERSIONED; QA / Inspector
+- `scripts/validate-final-language-wave-browser.mjs` — OCR_DOCUMENTS; UNVERSIONED; QA / Inspector
+- `apps/api/src/car-mover/dto/review-car-mover-offer.dto.ts` — OPPORTUNITY_INTELLIGENCE; UNVERSIONED; Backend & Infrastructure
+- `apps/api/test/car-mover-p0-01.spec.ts` — OPPORTUNITY_INTELLIGENCE; P0-01; Backend & Infrastructure
+- `apps/web/src/car-mover/car-mover.runtime.ts` — OPPORTUNITY_INTELLIGENCE; UNVERSIONED; Frontend Experience
+- `prisma/schema.prisma` — OPPORTUNITY_INTELLIGENCE; UNVERSIONED; Backend & Infrastructure
+- `scripts/validate-car-mover-p0-02-desktop.mjs` — OPPORTUNITY_INTELLIGENCE; P0-02; QA / Inspector
+- `agmcockpit-website/scripts/test-p0-website-reconciliation.ts` — ROUTING; P0; QA / Inspector
+- `apps/api/src/car-mover/car-mover-routing-telemetry.service.ts` — ROUTING; V2; Backend & Infrastructure
+- `apps/api/src/car-mover/car-mover-routing.controller.ts` — ROUTING; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/car-mover/car-mover-routing.policy.ts` — ROUTING; V1; Backend & Infrastructure
+- `apps/api/src/car-mover/car-mover.module.ts` — ROUTING; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/car-mover/car-mover.service.ts` — ROUTING; UNVERSIONED; Backend & Infrastructure
+- `apps/api/test/car-mover-routing-policy.spec.ts` — ROUTING; UNVERSIONED; Backend & Infrastructure
+- `apps/api/test/car-mover-routing-telemetry.spec.ts` — ROUTING; UNVERSIONED; Backend & Infrastructure
+- `apps/web/src/car-mover/car-mover.landing.ts` — ROUTING; UNVERSIONED; Frontend Experience
+- `scripts/build-car-mover-library-index.mjs` — ROUTING; UNVERSIONED; QA / Inspector
+- `apps/web/scripts/test-final-language-agents.ts` — TESTS; UNVERSIONED; Frontend Experience
+- `apps/api/src/authority-control-plane/premium-network.seed.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/car-mover/dto/record-routing-observation.dto.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/src/live-adapters/live-adapter.service.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `apps/api/test/toll-required-policy.spec.ts` — TOLL; UNVERSIONED; Backend & Infrastructure
+- `scripts/Test-AGMFieldBackendAccess.ps1` — TOLL; UNVERSIONED; QA / Inspector
+- `scripts/Test-AGMFieldBackendPhysical.ps1` — TOLL; UNVERSIONED; QA / Inspector
+- `scripts/validate-opportunity-intelligence-browser.mjs` — TOLL; UNVERSIONED; QA / Inspector
+
+## SUPERSEDED
+
+- `apps/web/android/app/src/main/assets/public/images/car-mover-entry-hero-v1.png` — ANDROID; V1; Frontend Experience
+- `apps/web/android/app/src/main/assets/public/images/car-mover-entry-hero-v2.png` — ANDROID; V2; Frontend Experience
+- `evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_REPORT.md` — ARCHITECTURE; UNVERSIONED; Inspector / Evidence Custody; superseded by evidence/field-test-backend/2026-08-29/PREPARATION_REPORT.md
+- `apps/web/android/app/src/main/assets/public/images/car-mover-route-entry-bg-v3.png` — ROUTING; V3; Frontend Experience
+- `apps/web/public/images/car-mover-route-entry-bg-v3.png` — ROUTING; V3; Frontend Experience
+- `apps/web/public/images/car-mover-entry-hero-v1.png` — WEB; V1; Frontend Experience
+- `apps/web/public/images/car-mover-entry-hero-v2.png` — WEB; V2; Frontend Experience
+
+## HISTORICAL
+
+- `prisma/migrations/20260812090000_add_car_mover_p0_01/migration.sql` — API; P0; Backend & Infrastructure
+- `prisma/migrations/20260812090000_add_car_mover_p0_01/rollback.sql` — API; P0; Backend & Infrastructure
+- `evidence/governance/AGM_CAR_MOVER_FOUNDATION_REUSE_AUDIT_2026-08-12.md` — ARCHITECTURE; UNVERSIONED; Product Owner / Governance
+- `local-preserved/production-release-20260827/evidence/ai-assistant-glass/production/RESCUE_JOURNAL_2026-08-25.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/authority-control-plane/browser/2026-08-24T09-39-34-461Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/authority-control-plane/browser/2026-08-24T09-46-41-208Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/ANDROID_FIELD_IMPLEMENTATION_2026-08-24.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/android-device-current.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/android-runtime/2026-08-24T18-11-17-910Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/android-runtime/2026-08-24T18-14-50-459Z/android-hub-native.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/android-runtime/2026-08-24T18-14-50-459Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/android-runtime/2026-08-24T18-28-25-855Z/android-hub-native.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/android-runtime/2026-08-24T18-28-25-855Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/android-runtime/2026-08-24T19-07-02-438Z/android-brightness-current.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/android-runtime/2026-08-24T19-07-02-438Z/android-hub.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/android-runtime/2026-08-24T19-07-02-438Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/CAR_MOVER_NAVIGATION_PATH_PASS_2026-08-24.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-38-26-570Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-38-26-570Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-38-26-570Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-38-26-570Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-38-26-570Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-40-45-957Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-40-45-957Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-40-45-957Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-40-45-957Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-40-45-957Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-38-15-859Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-38-15-859Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-38-15-859Z/hero-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-38-15-859Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-38-15-859Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-38-15-859Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-48-26-849Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-48-26-849Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-48-26-849Z/hero-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-48-26-849Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-48-26-849Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-48-26-849Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/hero-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/module-carMoverAccounting.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/module-carMoverActive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/module-carMoverArchive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/module-carMoverCompletion.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/module-carMoverGuide.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/module-carMoverPlanning.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/hero-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/module-carMoverAccounting.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/module-carMoverActive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/module-carMoverArchive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/module-carMoverCompletion.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/module-carMoverGuide.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/module-carMoverPlanning.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/failure.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/hero-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/module-carMoverAccounting.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/module-carMoverActive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/module-carMoverArchive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/module-carMoverCompletion.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/module-carMoverGuide.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/module-carMoverPlanning.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/failure.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/hero-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/module-carMoverAccounting.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/module-carMoverActive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/module-carMoverArchive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/module-carMoverCompletion.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/module-carMoverGuide.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/module-carMoverPlanning.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-31-53-798Z/failure.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-31-53-798Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-31-53-798Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/hero-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/module-carMoverAccounting.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/module-carMoverActive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/module-carMoverArchive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/module-carMoverCompletion.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/module-carMoverGuide.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/module-carMoverPlanning.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/hero-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/module-carMoverAccounting.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/module-carMoverActive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/module-carMoverArchive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/module-carMoverCompletion.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/module-carMoverGuide.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/module-carMoverPlanning.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/hero-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/module-carMoverAccounting.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/module-carMoverActive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/module-carMoverArchive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/module-carMoverCompletion.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/module-carMoverGuide.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/module-carMoverPlanning.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/hero-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/module-carMoverAccounting.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/module-carMoverActive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/module-carMoverArchive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/module-carMoverCompletion.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/module-carMoverGuide.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/module-carMoverPlanning.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T20-53-11-377Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T20-54-08-841Z/failure.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T20-54-08-841Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T20-59-14-746Z/failure.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T20-59-14-746Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-02-32-912Z/failure.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-02-32-912Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/active-transfer-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/hero-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/hero-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/menu-desktop.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/menu-mobile.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/module-carMoverAccounting.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/module-carMoverActive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/module-carMoverArchive.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/module-carMoverCompletion.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/module-carMoverGuide.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/module-carMoverPlanning.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-17T04-18-48-351Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-17T04-32-18-035Z/android-car-mover.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-17T04-32-18-035Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-17T04-39-58-113Z/android-car-mover.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-17T04-39-58-113Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-22T12-50-51-162Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-22T12-51-52-718Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-22T12-52-40-419Z/android-car-mover.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-22T12-52-40-419Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23-reentry/01-premium-restored.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23-reentry/02-car-mover-first-entry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23-reentry/03-car-mover-reentry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-15-10-267Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-16-11-634Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-34-35-079Z/android-car-mover-production-e2e.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-34-35-079Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-35-49-523Z/android-car-mover-production-e2e.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-35-49-523Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-36-38-123Z/android-car-mover-production-e2e.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-36-38-123Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-37-53-608Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-38-24-637Z/android-car-mover-production-e2e.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-38-24-637Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-39-33-768Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-40-01-033Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-40-23-836Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-41-32-545Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-42-56-239Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-46-52-544Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-49-11-485Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-53-28-605Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-55-14-590Z/android-car-mover-production-e2e.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-55-14-590Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T14-59-03-152Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T16-18-38-866Z/android-car-mover-production-after-restart.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T16-18-38-866Z/android-car-mover-production-e2e.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T16-18-38-866Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T16-33-03-217Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T16-33-26-225Z/android-car-mover-production-e2e.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T16-33-26-225Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T16-34-48-619Z/android-car-mover-production-e2e.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T16-34-48-619Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T16-36-04-094Z/android-car-mover-production-after-restart.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T16-36-04-094Z/android-car-mover-production-e2e.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23T16-36-04-094Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/agm-current-screen.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/agm-login-screen.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/agm-restart-state.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/owner-review-2026-08-17/agm-car-mover-owner-review.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-39-18-524Z/car-mover-entry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-39-18-524Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-39-18-524Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-39-18-524Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-40-56-243Z/android-first-viewport.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-40-56-243Z/car-mover-entry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-40-56-243Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-40-56-243Z/desktop-job-file.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-40-56-243Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-40-56-243Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-42-59-254Z/android-first-viewport.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-42-59-254Z/car-mover-entry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-42-59-254Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-42-59-254Z/desktop-job-file.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-42-59-254Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-42-59-254Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-44-14-460Z/android-first-viewport.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-44-14-460Z/car-mover-entry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-44-14-460Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-44-14-460Z/desktop-job-file.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-44-14-460Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-44-14-460Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-53-09-422Z/android-first-viewport.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-53-09-422Z/car-mover-entry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-53-09-422Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-53-09-422Z/desktop-job-file.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-53-09-422Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-53-09-422Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-22-50-457Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-23-35-169Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-25-31-585Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-26-09-229Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-27-22-162Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-29-10-141Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-49-48-272Z/android-car-mover-p1-operations.png` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-49-48-272Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-51-24-418Z/android-car-mover-p1-operations.png` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-51-24-418Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-52-33-200Z/android-car-mover-job-file.png` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-52-33-200Z/android-car-mover-p1-operations.png` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-52-33-200Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-17-05-549Z/android-car-mover-job-file.png` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-17-05-549Z/android-car-mover-p1-operations.png` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-17-05-549Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-28-01-413Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-28-53-141Z/android-car-mover-p1-operations.png` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-28-53-141Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-30-07-901Z/android-car-mover-p1-operations.png` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-30-07-901Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-31-21-808Z/android-car-mover-p1-operations.png` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-31-21-808Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-40-12-386Z/android-car-mover-p1-operations.png` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-40-12-386Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-51-17-081Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-52-11-932Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-53-01-261Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/production-car-mover.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/runtime-recovery/2026-08-24-public-browser-android-premium.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/runtime-recovery/2026-08-24-runtime-recovery.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/runtime-recovery/2026-08-24T17-42-android/android-after-back.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/runtime-recovery/2026-08-24T17-42-android/android-runtime.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/car-mover/runtime-recovery/2026-08-24T17-42-android/android-window.xml` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-reaudit-2026-08-16/FINAL_REAUDIT.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-reaudit-2026-08-16/legal-independent.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-reaudit-2026-08-16/PHASE2_B2B_LEGAL_PACKAGE_DRAFT.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-reaudit-2026-08-16/PHASE2_DRAFT_IMPRESSUM_OWNER_REVIEW.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-reaudit-2026-08-16/PHASE2_DRAFT_PRIVACY_POLICY_OWNER_REVIEW.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-reaudit-2026-08-16/PHASE2_DRAFT_TERMS_OWNER_REVIEW.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-reaudit-2026-08-16/PHASE2_LEGAL_CONSISTENCY_RUNTIME_MAP.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-reaudit-2026-08-16/PHASE2_LEGAL_FACT_SHEET_UPDATED.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-reaudit-2026-08-16/product-website-independent.md` — ARCHIVE; P0; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-reaudit-2026-08-16/security-independent.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/AUDIT_CHARTER.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/FINAL_INTERNAL_AUDIT.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/legal-regulatory.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/remediation-plan.md` — ARCHIVE; P0; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/remediation-security-data-2026-08-16.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/remediation/legal/data-map.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/remediation/legal/dpia-screening.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/remediation/legal/dsar-runbook.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/remediation/legal/README.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/remediation/legal/ropa.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/security-data.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/system-inventory.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/test-evidence.md` — ARCHIVE; P0; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/website-product.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/internal-total-audit-2026-08-15/website-remediation-2026-08-16.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/browser/2026-08-24T11-24-00-711Z/car-mover-opportunity-planning-1440x1100.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/browser/2026-08-24T11-24-00-711Z/car-mover-opportunity-planning-412x915.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/browser/2026-08-24T11-24-00-711Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-instrumentation-2026-08-24/checkpoints/2026-08-24T15-02-24-815Z.json` — ARCHIVE; V1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-instrumentation-2026-08-24/final-report.json` — ARCHIVE; V1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-instrumentation-2026-08-24/final-report.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-instrumentation-2026-08-24/session.json` — ARCHIVE; V1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-instrumentation-final-2026-08-24/checkpoints/2026-08-24T15-03-31-343Z.json` — ARCHIVE; V1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-instrumentation-final-2026-08-24/final-report.json` — ARCHIVE; V1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-instrumentation-final-2026-08-24/final-report.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-instrumentation-final-2026-08-24/session.json` — ARCHIVE; V1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-tooling-accepted-2026-08-24/checkpoints/2026-08-24T15-05-06-594Z.json` — ARCHIVE; V1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-tooling-accepted-2026-08-24/final-report.json` — ARCHIVE; V1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-tooling-accepted-2026-08-24/final-report.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/dry-run-field-tooling-accepted-2026-08-24/session.json` — ARCHIVE; V1; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/FIELD_TEST_PREPARATION_READY_2026-08-24.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/field-test/preparation/readiness.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/LIVE_MOBILITY_PLATFORM_ADAPTERS_REPORT_2026-08-24.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/pilot/PROVIDER_ACTIVATION_GATE_FINAL_2026-08-24.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/pilot/PROVIDER_PILOT_ACTIVATION_2026-08-24.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/pilot/provider-gate-1787581715898/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/pilot/RESCUE_PRISMA_GENERATION_2026-08-24.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/pilot/TOMTOM_LIVE_PROBE_2026-08-24.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/PROVIDER_COMPARISON_AND_SELECTION_2026-08-24.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/runtime/live-adapters-1787570008671/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/runtime/live-adapters-1787570559736/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/runtime/live-adapters-1787573676133/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/live-mobility/runtime/live-adapters-1787581819891/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/opportunity-intelligence/browser/2026-08-24T10-33-15-847Z/car-mover-opportunity-planning-1440x1100.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/opportunity-intelligence/browser/2026-08-24T10-33-15-847Z/car-mover-opportunity-planning-412x915.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/opportunity-intelligence/browser/2026-08-24T10-33-15-847Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/opportunity-intelligence/OPPORTUNITY_INTELLIGENCE_CORE_REPORT_2026-08-24.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/opportunity-intelligence/runtime/oi-runtime-1787567701946/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/opportunity-intelligence/runtime/oi-runtime-1787570580481/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `local-preserved/production-release-20260827/evidence/opportunity-intelligence/runtime/oi-runtime-1787573655711/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/agm-car-mover-access-production-27252ec.zip` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/agm-car-mover-ui.xml` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/car-mover-android-premium-entry.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/car-mover-android-reentry-premium.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-dist-agent-state-20260822/assets/main-BUAHiHwL.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-dist-minimap-clean-20260822/assets/main-BUAHiHwL.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-dist-orbital-layout-20260822/assets/main-BUAHiHwL.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-dist-planetary-ui-20260822/assets/main-BUAHiHwL.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-dist-procedural-audit-20260822/assets/main-BUAHiHwL.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-dist-procedural-criteria-20260822/assets/main-C_Rq0FvH.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-dist-status-taxonomy-20260822/assets/main-CPJm2DuE.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-dist-turn-final-20260822/assets/main-C-ABU-Ir.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-dist-turn-final2-20260822/assets/main-Bm9Tnqr5.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-dist-turn-remediation-20260822/assets/main-Cl-xj0Wu.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-dist-turn-status-20260822/assets/main-D4NU--wt.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/assets/main-Duj3MCqJ.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/assets/main-kXBvi7SF.css` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-entry-hero-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-entry-hero-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-module-accounting-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-module-active-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-module-archive-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-module-archive-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-module-guide-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-module-incidents-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-module-incidents-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-module-planning-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-module-planning-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-route-entry-bg-v3.png` — ARCHIVE; V3; Documentation & Knowledge
+- `tmp/pages-ui-4b5871a/images/car-mover-route-entry-bg-v4.png` — ARCHIVE; V4; Documentation & Knowledge
+- `tmp/prisma-client-pilot/edge.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/prisma-client-pilot/index.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/prisma-client-pilot/schema.prisma` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/production-main-binary.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/production-main.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/turn-agent-dashboard-pages-20260815/assets/main-BphNZTKV.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/.github/workflows/production-release.yml` — ARCHIVE; V4; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/scripts/test-car-mover-p0-01-db.ts` — ARCHIVE; P0-01; QA / Inspector
+- `tmp/ui-assistant-production/apps/api/scripts/test-car-mover-p0-01-rollback.ts` — ARCHIVE; P0-01; QA / Inspector
+- `tmp/ui-assistant-production/apps/api/src/auth/role-provisioning.service.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/src/authority-control-plane/premium-network.seed.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/src/car-mover/car-mover.contract.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/src/car-mover/car-mover.controller.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/src/car-mover/car-mover.module.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/src/car-mover/car-mover.service.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/src/car-mover/dto/create-car-mover-job.dto.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/src/car-mover/dto/record-car-mover-finance.dto.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/src/car-mover/dto/record-car-mover-invoice.dto.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/src/car-mover/dto/record-car-mover-protocol.dto.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/src/car-mover/dto/review-car-mover-offer.dto.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/src/car-mover/dto/transition-car-mover-job.dto.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/api/test/api002-access-entitlements.spec.ts` — ARCHIVE; UNVERSIONED; QA / Inspector
+- `tmp/ui-assistant-production/apps/api/test/authority-control-plane-contract.spec.ts` — ARCHIVE; UNVERSIONED; QA / Inspector
+- `tmp/ui-assistant-production/apps/api/test/car-mover-p0-01.spec.ts` — ARCHIVE; P0-01; QA / Inspector
+- `tmp/ui-assistant-production/apps/api/test/role-provisioning.spec.ts` — ARCHIVE; UNVERSIONED; QA / Inspector
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/assets/main-jb5rSQZ-.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/assets/main-PZh983Ku.css` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-entry-hero-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-entry-hero-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-accounting-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-active-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-archive-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-archive-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-guide-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-incidents-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-incidents-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-planning-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-planning-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-route-entry-bg-v3.png` — ARCHIVE; V3; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-route-entry-bg-v4.png` — ARCHIVE; V4; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-entry-hero-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-entry-hero-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-accounting-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-active-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-archive-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-archive-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-guide-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-incidents-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-incidents-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-planning-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-planning-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-route-entry-bg-v3.png` — ARCHIVE; V3; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/public/images/car-mover-route-entry-bg-v4.png` — ARCHIVE; V4; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/scripts/test-car-mover-p0-02.ts` — ARCHIVE; P0-02; QA / Inspector
+- `tmp/ui-assistant-production/apps/web/scripts/test-premium-conversation-foundation.ts` — ARCHIVE; UNVERSIONED; QA / Inspector
+- `tmp/ui-assistant-production/apps/web/scripts/test-premium-foundation.ts` — ARCHIVE; UNVERSIONED; QA / Inspector
+- `tmp/ui-assistant-production/apps/web/src/car-mover/car-mover.client.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/car-mover/car-mover.css` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/car-mover/car-mover.i18n.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/car-mover/car-mover.landing.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/car-mover/car-mover.runtime.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/car-mover/car-mover.view.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/i18n/app-i18n.dictionary.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/main.ts` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/premium-access/premium-access.navigation.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/premium-app.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/premium-governance/premium-governance.view.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/premium-routes.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/premium-voice-shell/premium-assistant-product-context.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/premium-voice-shell/premium-assistant.runtime.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/apps/web/src/premium-voice-shell/premium-conversation.contract.ts` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/CAR_MOVER_HANDOFF_2026-08-23.md` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/android-installed.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/android-ui.xml` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/android/2026-08-12T08-06-04-292Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/android/2026-08-12T08-08-27-077Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/android/2026-08-12T08-11-06-319Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/android/2026-08-12T08-13-46-756Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/android/2026-08-12T08-16-14-019Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/android-car-mover-production-after-restart.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/android-car-mover-production-e2e.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-27-42-640Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-27-42-640Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-27-42-640Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-29-53-483Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-29-53-483Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-29-53-483Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-33-56-710Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-33-56-710Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-33-56-710Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/android-first-viewport.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/desktop-job-file.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/android-first-viewport.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/car-mover-entry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/desktop-job-file.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/android-first-viewport.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/car-mover-entry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/desktop-job-file.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/android-first-viewport.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/car-mover-entry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/desktop-job-file.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/android-first-viewport.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/car-mover-entry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/desktop-job-file.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/android-first-viewport.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/car-mover-entry.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/desktop-class-agnostic.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/desktop-job-file.png` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/report.json` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/runner.log.jsonl` — ARCHIVE; P0-02; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p1-operations/android/2026-08-23T19-13-03-041Z/android-car-mover-p1-operations.png` — ARCHIVE; P1; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p1-operations/android/2026-08-23T19-13-03-041Z/report.json` — ARCHIVE; P1; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p1-operations/CAR_MOVER_PRODUCTION_EVIDENCE_2026-08-23.md` — ARCHIVE; P1; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p1-operations/final-2026-08-23/car-mover-production.png` — ARCHIVE; P1; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/p1-operations/final-2026-08-23/meta-whatsapp-restriction.png` — ARCHIVE; P1; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/car-mover/production/2026-08-23-final/car-mover-production.png` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/AGM_CAR_MOVER_FOUNDATION_REUSE_AUDIT_2026-08-12.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/AGM_CAR_MOVER_FREEZE_2026-08-12.md` — ARCHIVE; P0-01; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/AGM_CAR_MOVER_P0_01_OWNER_REVIEW_2026-08-12.md` — ARCHIVE; P0; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/AGM_CAR_MOVER_P0_01_PRODUCT_OWNER_ACCEPTANCE_2026-08-12.md` — ARCHIVE; P0; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/AGM_CAR_MOVER_P0_02_OWNER_REVIEW_2026-08-12.md` — ARCHIVE; P0; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/AGM_CAR_MOVER_VEHICLE_CLASS_AMENDMENT_2026-08-12.md` — ARCHIVE; P0-01; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/AGM_PREMIUM_SINGLE_COPILOT_C0_OWNER_REVIEW_2026-08-12.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/PREMIUM_ASSISTANT_ANDROID_FIRST_UI_2026-08-10.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/PREMIUM_ASSISTANT_CONVERSATIONAL_CONTINUITY_2026-08-12.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/PREMIUM_ASSISTANT_FUTURE_DELEGATED_COMMUNICATION_2026-08-12.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/PREMIUM_ASSISTANT_REAL_ENGINE_FOUNDATION_2026-08-10.md` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/governance/PREMIUM_VOICE_MULTI_PRODUCT_EXTENSION_2026-08-10.md` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/evidence/voice-runtime/browser/2026-08-25T13-03-04-546Z/report.json` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/prisma/migrations/20260812090000_add_car_mover_p0_01/migration.sql` — ARCHIVE; P0; Documentation & Knowledge
+- `tmp/ui-assistant-production/prisma/migrations/20260812090000_add_car_mover_p0_01/rollback.sql` — ARCHIVE; P0; Documentation & Knowledge
+- `tmp/ui-assistant-production/prisma/migrations/20260823180000_add_car_mover_p1_operations/migration.sql` — ARCHIVE; P1; Documentation & Knowledge
+- `tmp/ui-assistant-production/prisma/schema.prisma` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/scripts/validate-car-mover-p0-02-android.mjs` — ARCHIVE; P0-02; QA / Inspector
+- `tmp/ui-assistant-production/scripts/validate-car-mover-p0-02-desktop.mjs` — ARCHIVE; P0-02; QA / Inspector
+- `tmp/ui-assistant-production/scripts/validate-car-mover-p1-android.mjs` — ARCHIVE; P1; QA / Inspector
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/assets/main-Cwif-vNh.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/assets/main-kXBvi7SF.css` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-entry-hero-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-entry-hero-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-accounting-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-active-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-archive-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-archive-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-guide-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-incidents-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-incidents-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-planning-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-planning-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-route-entry-bg-v3.png` — ARCHIVE; V3; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-route-entry-bg-v4.png` — ARCHIVE; V4; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/assets/main-Cwif-vNh.js` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/assets/main-kXBvi7SF.css` — ARCHIVE; UNVERSIONED; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-entry-hero-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-entry-hero-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-accounting-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-active-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-archive-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-archive-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-guide-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-incidents-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-incidents-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-planning-bg-v1.png` — ARCHIVE; V1; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-planning-bg-v2.png` — ARCHIVE; V2; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-route-entry-bg-v3.png` — ARCHIVE; V3; Documentation & Knowledge
+- `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-route-entry-bg-v4.png` — ARCHIVE; V4; Documentation & Knowledge
+- `evidence/car-mover/CAR_MOVER_HANDOFF_2026-08-23.md` — COPILOT; V1; Inspector / Evidence Custody
+- `evidence/governance/AGM_CAR_MOVER_FREEZE_2026-08-12.md` — DECISIONS; P0-01; Product Owner / Governance
+- `evidence/governance/AGM_CAR_MOVER_P0_01_OWNER_REVIEW_2026-08-12.md` — DECISIONS; P0; Product Owner / Governance
+- `evidence/governance/AGM_CAR_MOVER_P0_01_PRODUCT_OWNER_ACCEPTANCE_2026-08-12.md` — DECISIONS; P0; Product Owner / Governance
+- `evidence/governance/AGM_CAR_MOVER_P0_02_OWNER_REVIEW_2026-08-12.md` — DECISIONS; P0; Product Owner / Governance
+- `prisma/migrations/20260823180000_add_car_mover_p1_operations/migration.sql` — OPPORTUNITY_INTELLIGENCE; P1; Backend & Infrastructure
+
+## EVIDENCE
+
+- `evidence/app-i18n/android/2026-08-28T00-04-43-220Z/it-car-mover.png` — ANDROID; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/android/2026-08-28T00-11-13-940Z/report.json` — ANDROID; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/android/2026-08-28T00-11-13-940Z/sv-car-mover-native-awake.png` — ANDROID; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/android/2026-08-28T00-11-13-940Z/sv-car-mover-native.png` — ANDROID; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/linguistic-agents/FINAL_LANGUAGE_AGENTS_AUDIT.md` — ANDROID; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/android-installed.png` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/android-ui.xml` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/android/2026-08-12T08-06-04-292Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/android/2026-08-12T08-08-27-077Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/android/2026-08-12T08-11-06-319Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/android/2026-08-12T08-13-46-756Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/android/2026-08-12T08-16-14-019Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/android-car-mover-production-after-restart.png` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/android-car-mover-production-e2e.png` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/android-first-viewport.png` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/android-first-viewport.png` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/runner.log.jsonl` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/android-first-viewport.png` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/runner.log.jsonl` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/android-first-viewport.png` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/runner.log.jsonl` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/android-first-viewport.png` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/runner.log.jsonl` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/android-first-viewport.png` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/report.json` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/runner.log.jsonl` — ANDROID; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p1-operations/android/2026-08-23T19-13-03-041Z/android-car-mover-p1-operations.png` — ANDROID; P1; Inspector / Evidence Custody
+- `evidence/governance/PREMIUM_ASSISTANT_ANDROID_FIRST_UI_2026-08-10.md` — ANDROID; UNVERSIONED; Product Owner / Governance
+- `evidence/governance/PREMIUM_ASSISTANT_CONVERSATIONAL_CONTINUITY_2026-08-12.md` — ANDROID; UNVERSIONED; Product Owner / Governance
+- `evidence/production-release/AGM-PROD-20260824-WEB-API-01-RECOVERY.md` — ANDROID; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/routing-architecture/2026-08-29/RESCUE_JOURNAL.md` — ARCHITECTURE; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/FINAL_VALIDATION_REPORT.md` — COPILOT; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/governance/AGM_PREMIUM_SINGLE_COPILOT_C0_OWNER_REVIEW_2026-08-12.md` — DECISIONS; UNVERSIONED; Product Owner / Governance
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-27-42-640Z/desktop-class-agnostic.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-29-53-483Z/desktop-class-agnostic.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-33-56-710Z/desktop-class-agnostic.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/desktop-class-agnostic.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/car-mover-entry.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/desktop-class-agnostic.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/car-mover-entry.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/desktop-class-agnostic.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/car-mover-entry.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/desktop-class-agnostic.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/car-mover-entry.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/desktop-class-agnostic.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/car-mover-entry.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/desktop-class-agnostic.png` — EVIDENCE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p1-operations/final-2026-08-23/meta-whatsapp-restriction.png` — EVIDENCE; P1; Inspector / Evidence Custody
+- `evidence/app-i18n/browser/2026-08-27T23-54-43-119Z/report.json` — FIELD; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/final-language-translation-cache.json` — FIELD; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/field-test-apk/2026-08-28/DELIVERY_AND_RESCUE.md` — FIELD; UNVERSIONED; Field Validation
+- `evidence/field-test-backend/2026-08-29/RESCUE_JOURNAL.md` — FIELD; UNVERSIONED; Field Validation
+- `CAR_MOVER/GOVERNANCE/BASIC_LIBRARIAN_BASELINE.json` — GOVERNANCE; V1; Documentation & Knowledge
+- `evidence/governance/PREMIUM_ASSISTANT_FUTURE_DELEGATED_COMMUNICATION_2026-08-12.md` — GOVERNANCE; UNVERSIONED; Product Owner / Governance
+- `evidence/governance/PREMIUM_VOICE_MULTI_PRODUCT_EXTENSION_2026-08-10.md` — INCIDENTS; UNVERSIONED; Product Owner / Governance
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/desktop-job-file.png` — JOB_FILE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/desktop-job-file.png` — JOB_FILE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/desktop-job-file.png` — JOB_FILE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/desktop-job-file.png` — JOB_FILE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/desktop-job-file.png` — JOB_FILE; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/desktop-job-file.png` — JOB_FILE; P0-02; Inspector / Evidence Custody
+- `evidence/android-ai-controls/physical/2026-08-28T21-11-15/premium.xml` — OCR_DOCUMENTS; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/device-capability-router/FINAL_VALIDATION_REPORT.md` — OCR_DOCUMENTS; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/final-android-ai-voice-gate/FINAL_RELEASE_GATE_REPORT.md` — OCR_DOCUMENTS; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/governance/PREMIUM_ASSISTANT_REAL_ENGINE_FOUNDATION_2026-08-10.md` — OCR_DOCUMENTS; V1; Product Owner / Governance
+- `evidence/production-release/AGM-PROD-20260824-WEB-API-01.md` — OCR_DOCUMENTS; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/car-mover/p1-operations/android/2026-08-23T19-13-03-041Z/report.json` — OPPORTUNITY_INTELLIGENCE; P1; Inspector / Evidence Custody
+- `evidence/car-mover/p1-operations/CAR_MOVER_PRODUCTION_EVIDENCE_2026-08-23.md` — OPPORTUNITY_INTELLIGENCE; P1; Inspector / Evidence Custody
+- `evidence/car-mover/p1-operations/final-2026-08-23/car-mover-production.png` — RELEASES; P1; Inspector / Evidence Custody
+- `evidence/car-mover/production/2026-08-23-final/car-mover-production.png` — RELEASES; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/linguistic-agents/browser/2026-08-28T04-39-34-566Z/report.json` — TESTS; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/linguistic-agents/browser/2026-08-28T04-45-56-424Z/report.json` — TESTS; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-27-42-640Z/report.json` — TESTS; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-27-42-640Z/runner.log.jsonl` — TESTS; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-29-53-483Z/report.json` — TESTS; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-29-53-483Z/runner.log.jsonl` — TESTS; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-33-56-710Z/report.json` — TESTS; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-33-56-710Z/runner.log.jsonl` — TESTS; P0-02; Inspector / Evidence Custody
+- `evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/runner.log.jsonl` — TESTS; P0-02; Inspector / Evidence Custody
+- `evidence/field-test-backend/2026-08-29/FIELD_BACKEND_EVIDENCE.json` — TOLL; V1; Field Validation
+- `evidence/app-i18n/browser/2026-08-27T23-54-43-119Z/es-desktop-car-mover.png` — WEB; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/browser/2026-08-27T23-54-43-119Z/es-mobile-car-mover.png` — WEB; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/browser/2026-08-27T23-54-43-119Z/it-desktop-car-mover.png` — WEB; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/browser/2026-08-27T23-54-43-119Z/it-mobile-car-mover.png` — WEB; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/browser/2026-08-27T23-54-43-119Z/sv-desktop-car-mover.png` — WEB; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/app-i18n/browser/2026-08-27T23-54-43-119Z/sv-mobile-car-mover.png` — WEB; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/car-mover/runtime-recovery/2026-08-24T17-42-browser/server.stderr.log` — WEB; UNVERSIONED; Inspector / Evidence Custody
+- `evidence/car-mover/runtime-recovery/2026-08-24T17-42-browser/server.stdout.log` — WEB; UNVERSIONED; Inspector / Evidence Custody

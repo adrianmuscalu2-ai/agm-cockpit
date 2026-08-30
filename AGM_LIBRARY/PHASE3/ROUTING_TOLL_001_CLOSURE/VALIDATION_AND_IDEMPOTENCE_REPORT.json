@@ -1,0 +1,250 @@
+{
+  "schemaVersion": "agm-routing-toll-001-closure-review-validation.v1",
+  "generatedAt": "2026-08-29T23:27:36.946Z",
+  "verdict": "PASS",
+  "checkCount": 27,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "GENERATOR_EXIT",
+      "pass": true,
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "GENERATOR_IDEMPOTENCE",
+      "pass": true,
+      "actual": {
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/OFFICIAL_AUTHORITY_COVERAGE_MATRIX.json": "d81f5530b52aa12f4a516d9a93b21c2b6eeb9b2debf2e76ab51ebda9b361baab",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/CANDIDATE_DISPOSITION_MATRIX.json": "e8775cc96bfb3bf384d2fb480a990bed582222dc657e71c41f08c3f9001d3bd6",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMAINING_COUNTRY_REGIME_GAPS.json": "57d23733f0a415930eebfa549df82ef673fb6071d8a4e95c088351ba830759da",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/PROPOSED_REGISTRY_REVIEW_CHANGESET.json": "8fe595ef66d5bab1b484c24a5feee54d66c9b98c11e9624198312f108490d5eb",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/EXPECTED_ROUTING_TOLL_VIEW_IMPACT.json": "03f4cca2110b22f46347771eab17e171b02652217a3492321b2d37fff7b2ceec",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/ROUTING_TOLL_001_CLOSURE_REVIEW_REPORT.md": "5f61af93def3e117b9e0c0056076a1d579189ae2434c409cb2e5fe886a084fae"
+      },
+      "expected": {
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/OFFICIAL_AUTHORITY_COVERAGE_MATRIX.json": "d81f5530b52aa12f4a516d9a93b21c2b6eeb9b2debf2e76ab51ebda9b361baab",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/CANDIDATE_DISPOSITION_MATRIX.json": "e8775cc96bfb3bf384d2fb480a990bed582222dc657e71c41f08c3f9001d3bd6",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMAINING_COUNTRY_REGIME_GAPS.json": "57d23733f0a415930eebfa549df82ef673fb6071d8a4e95c088351ba830759da",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/PROPOSED_REGISTRY_REVIEW_CHANGESET.json": "8fe595ef66d5bab1b484c24a5feee54d66c9b98c11e9624198312f108490d5eb",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/EXPECTED_ROUTING_TOLL_VIEW_IMPACT.json": "03f4cca2110b22f46347771eab17e171b02652217a3492321b2d37fff7b2ceec",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/ROUTING_TOLL_001_CLOSURE_REVIEW_REPORT.md": "5f61af93def3e117b9e0c0056076a1d579189ae2434c409cb2e5fe886a084fae"
+      }
+    },
+    {
+      "name": "CENTRAL_REGISTRY_COUNT",
+      "pass": true,
+      "actual": 815,
+      "expected": 815
+    },
+    {
+      "name": "CENTRAL_REGISTRY_SHA256",
+      "pass": true,
+      "actual": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31",
+      "expected": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31"
+    },
+    {
+      "name": "ROUTING_TOLL_VIEW_COUNT",
+      "pass": true,
+      "actual": 263,
+      "expected": 263
+    },
+    {
+      "name": "ROUTING_TOLL_VIEW_SHA256",
+      "pass": true,
+      "actual": "eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f",
+      "expected": "eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f"
+    },
+    {
+      "name": "ACQUISITION_20_OF_20",
+      "pass": true,
+      "actual": "20/0",
+      "expected": "20/0"
+    },
+    {
+      "name": "REMOTE_ARTIFACT_HASHES",
+      "pass": true,
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "DISPOSITIONS_20_OF_20",
+      "pass": true,
+      "actual": "20/20",
+      "expected": "20/20"
+    },
+    {
+      "name": "PROPOSED_SOURCE_IDS_UNIQUE",
+      "pass": true,
+      "actual": 20,
+      "expected": 20
+    },
+    {
+      "name": "NO_REGISTRY_COLLISION",
+      "pass": true,
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "PROPOSED_ATOMIC_ADD_COUNTS",
+      "pass": true,
+      "actual": {
+        "registrySourceCount": 831,
+        "routingTollViewSourceCount": 279,
+        "additions": 16,
+        "modifications": 0,
+        "deletions": 0,
+        "authoritativeWithScope": 12,
+        "contextual": 4
+      },
+      "expected": {
+        "additions": 16,
+        "modifications": 0,
+        "deletions": 0
+      }
+    },
+    {
+      "name": "PROPOSED_CLASSIFICATION_COUNTS",
+      "pass": true,
+      "actual": "12/4",
+      "expected": "12/4"
+    },
+    {
+      "name": "EXPECTED_COUNTS",
+      "pass": true,
+      "actual": "831/279",
+      "expected": "831/279"
+    },
+    {
+      "name": "REGIME_SEPARATION_AT",
+      "pass": true,
+      "actual": [
+        "VIGNETTE",
+        "SECTION_TOLL",
+        "GO_DISTANCE_TOLL"
+      ],
+      "expected": [
+        "VIGNETTE",
+        "SECTION_TOLL",
+        "GO_DISTANCE_TOLL"
+      ]
+    },
+    {
+      "name": "REGIME_SEPARATION_CZ",
+      "pass": true,
+      "actual": [
+        "EDALNICE_VIGNETTE",
+        "MYTO_DISTANCE_TOLL"
+      ],
+      "expected": [
+        "EDALNICE_VIGNETTE",
+        "MYTO_DISTANCE_TOLL"
+      ]
+    },
+    {
+      "name": "REGIME_SEPARATION_DK",
+      "pass": true,
+      "actual": [
+        "KMTOLL_DISTANCE_CHARGE",
+        "STOREBAELT_BRIDGE",
+        "ORESUND_BRIDGE"
+      ],
+      "expected": [
+        "KMTOLL_DISTANCE_CHARGE",
+        "STOREBAELT_BRIDGE",
+        "ORESUND_BRIDGE"
+      ]
+    },
+    {
+      "name": "REGIME_SEPARATION_NL",
+      "pass": true,
+      "actual": [
+        "TRUCK_CHARGING",
+        "A24_ETOL",
+        "SEPARATE_INFRASTRUCTURE"
+      ],
+      "expected": [
+        "TRUCK_CHARGING",
+        "A24_ETOL"
+      ]
+    },
+    {
+      "name": "REGIME_SEPARATION_FR",
+      "pass": true,
+      "actual": [
+        "CONCESSION_FRAMEWORK",
+        "CONCESSION_TARIFFS"
+      ],
+      "expected": [
+        "CONCESSION_FRAMEWORK",
+        "CONCESSION_TARIFFS"
+      ]
+    },
+    {
+      "name": "RESIDUAL_GAPS_OPEN",
+      "pass": true,
+      "actual": [
+        "RT001-RES-001:OPEN",
+        "RT001-RES-002:OPEN",
+        "RT001-RES-003:OPEN",
+        "RT001-RES-004:OPEN",
+        "RT001-RES-005:OPEN",
+        "RT001-RES-006:OPEN",
+        "RT001-RES-007:OPEN",
+        "RT001-RES-008:OPEN"
+      ],
+      "expected": "8 OPEN"
+    },
+    {
+      "name": "FINAL_RECOMMENDATION",
+      "pass": true,
+      "actual": "REMAINS_PARTIALLY_READY",
+      "expected": "REMAINS_PARTIALLY_READY"
+    },
+    {
+      "name": "ROUTING-TOLL-001_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-003_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-005_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/agent-governance.registry.ts",
+      "pass": true,
+      "actual": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82",
+      "expected": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/maintenance-department.ts",
+      "pass": true,
+      "actual": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0",
+      "expected": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0"
+    },
+    {
+      "name": "BASIC_HASH_evidence/governance/modules/PRE-005/v1.0/LINGUISTIC_AGENTS_CONTRACT.md",
+      "pass": true,
+      "actual": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231",
+      "expected": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231"
+    }
+  ],
+  "protectedChanges": {
+    "centralRegistry": "NONE",
+    "routingTollView": "NONE",
+    "basicLibrarian": "NONE",
+    "legal003": "NONE",
+    "legal005": "NONE",
+    "runtimeProductionTurnApplicationApi": "NONE"
+  },
+  "commitPush": "NOT_EXECUTED"
+}

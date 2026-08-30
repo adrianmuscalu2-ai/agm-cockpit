@@ -1,0 +1,271 @@
+{
+  "schemaVersion": "agm-routing-toll-001-owner-manual-artifact-validation.v1",
+  "generatedAt": "2026-08-30T10:42:24.250Z",
+  "artifactId": "RT001-FINAL-FR-SAPN-2026",
+  "verdict": "VALID",
+  "artifact": {
+    "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-SAPN-2026.owner-official.pdf",
+    "filename": "RT001-FINAL-FR-SAPN-2026.owner-official.pdf",
+    "mediaType": "application/pdf",
+    "sizeBytes": 1384149,
+    "sha256": "f8a7468306f5c9979040c40c04db3ce6f910d4e7cb0c79311b447465c08a58d4"
+  },
+  "provenance": {
+    "authority": "SAPN / Sanef group",
+    "officialDirectPdfUrl": "https://www.groupe.sanef.com/sites/default/files/2026-01/2026_02-Grille-SAPN.pdf",
+    "officialHost": "www.groupe.sanef.com",
+    "documentIdentity": "Tarifs de peage 2026 / Sanef Paris Normandie",
+    "titleMetadata": null,
+    "producer": "iLovePDF",
+    "creator": null,
+    "jurisdiction": "FR",
+    "ownerAssistedCapture": true
+  },
+  "scope": "SAPN Paris-Normandie tariff matrices for A29 Nord, A13/A29 Sud and A14, including Montesson and Chambourcy, vehicle classes 1-5",
+  "effectiveDate": "2026-02-01",
+  "evidenceCounts": {
+    "pages": 6,
+    "vehicleClasses": 5,
+    "tariffHeaders": 5,
+    "vatHeaders": 5,
+    "routeGroups": [
+      {
+        "id": "A29_NORD",
+        "count": 5
+      },
+      {
+        "id": "A13_A29_SUD",
+        "count": 5
+      },
+      {
+        "id": "A14",
+        "count": 5
+      }
+    ],
+    "montessonEntries": 5,
+    "chambourcyEntries": 5,
+    "visualPages": 6
+  },
+  "exclusions": "Pont de Normandie/Tancarville and A150/ALBEA remain separate regimes; their references in this document do not promote or close those regimes.",
+  "visualEvidence": [
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-1.png",
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-2.png",
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-3.png",
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-4.png",
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-5.png",
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-6.png"
+  ],
+  "visualInspection": "PASS_6_OF_6_NO_CLIPPED_TABLES",
+  "checkCount": 18,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "FILE_EXISTS",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PDF_MAGIC",
+      "pass": true,
+      "actual": "%PDF-1.4",
+      "expected": "%PDF-*"
+    },
+    {
+      "name": "PDF_EOF",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PDF_OPEN_AND_EXTRACT",
+      "pass": true,
+      "actual": {
+        "pdftotextExit": 0,
+        "textLength": 15253
+      },
+      "expected": {
+        "pdftotextExit": 0,
+        "minimumTextLength": 12000
+      }
+    },
+    {
+      "name": "ALL_PAGES_NONEMPTY",
+      "pass": true,
+      "actual": {
+        "pageCount": 6,
+        "pageTextLengths": [
+          43,
+          2999,
+          3015,
+          3050,
+          3096,
+          3032
+        ]
+      },
+      "expected": {
+        "pageCount": 6,
+        "nonempty": true
+      }
+    },
+    {
+      "name": "COVER_TITLE_2026",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "OFFICIAL_SAPN_SANEF_IDENTITY_VISUAL",
+      "pass": true,
+      "actual": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-1.png",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-2.png",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-3.png",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-4.png",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-5.png",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-6.png"
+      ],
+      "expected": "6/6 controlled render captures; cover carries Sanef Paris Normandie identity"
+    },
+    {
+      "name": "EFFECTIVE_DATE",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "TARIFF_HEADERS_5",
+      "pass": true,
+      "actual": 5,
+      "expected": 5
+    },
+    {
+      "name": "VAT_20_HEADERS_5",
+      "pass": true,
+      "actual": 5,
+      "expected": 5
+    },
+    {
+      "name": "VEHICLE_CLASSES_1_TO_5",
+      "pass": true,
+      "actual": [
+        {
+          "number": 1,
+          "present": true
+        },
+        {
+          "number": 2,
+          "present": true
+        },
+        {
+          "number": 3,
+          "present": true
+        },
+        {
+          "number": 4,
+          "present": true
+        },
+        {
+          "number": 5,
+          "present": true
+        }
+      ],
+      "expected": "5/5"
+    },
+    {
+      "name": "ROUTE_GROUPS_ALL_CLASSES",
+      "pass": true,
+      "actual": [
+        {
+          "id": "A29_NORD",
+          "count": 5
+        },
+        {
+          "id": "A13_A29_SUD",
+          "count": 5
+        },
+        {
+          "id": "A14",
+          "count": 5
+        }
+      ],
+      "expected": "each route group present on all 5 class pages"
+    },
+    {
+      "name": "MONTESSON_ALL_CLASSES",
+      "pass": true,
+      "actual": 5,
+      "expected": 5
+    },
+    {
+      "name": "CHAMBOURCY_ALL_CLASSES",
+      "pass": true,
+      "actual": 5,
+      "expected": 5
+    },
+    {
+      "name": "TARIFF_PAGES_COMPLETE",
+      "pass": true,
+      "actual": {
+        "tariffPageCount": 5,
+        "textLengths": [
+          2999,
+          3015,
+          3050,
+          3096,
+          3032
+        ]
+      },
+      "expected": {
+        "tariffPageCount": 5,
+        "minimumTextLength": 2000
+      }
+    },
+    {
+      "name": "VISUAL_RENDER_6_OF_6",
+      "pass": true,
+      "actual": [
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-1.png",
+          "sizeBytes": 1274591
+        },
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-2.png",
+          "sizeBytes": 188895
+        },
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-3.png",
+          "sizeBytes": 189992
+        },
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-4.png",
+          "sizeBytes": 189601
+        },
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-5.png",
+          "sizeBytes": 190979
+        },
+        {
+          "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_03/page-6.png",
+          "sizeBytes": 184582
+        }
+      ],
+      "expected": "6/6 rendered pages, no clipped tables on inspection"
+    },
+    {
+      "name": "NO_CHALLENGE_OR_ACCESS_DENIED",
+      "pass": true,
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "OFFICIAL_SOURCE_HOST",
+      "pass": true,
+      "actual": "www.groupe.sanef.com",
+      "expected": "www.groupe.sanef.com"
+    }
+  ],
+  "registryMutation": "NONE",
+  "viewMutation": "NONE",
+  "authorityPromotion": "NONE"
+}

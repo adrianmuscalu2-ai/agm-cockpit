@@ -1,0 +1,233 @@
+{
+  "schemaVersion": "agm-legal-gap-residual-matrix.v1",
+  "gapId": "LEGAL-005",
+  "preparedAt": "2026-08-30T18:00:00.000Z",
+  "coverageUnits": [
+    {
+      "requirementId": "LEGAL005-R01",
+      "jurisdiction": "DE",
+      "requirement": "ROAD_RESTRICTIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_LOCAL",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-DE-STVO + CS-DE-FERREISEV-2026",
+      "requiredProductOwnerDecision": "PO decisions"
+    },
+    {
+      "requirementId": "LEGAL005-R02",
+      "jurisdiction": "DE",
+      "requirement": "PROFESSIONAL_DRIVER_OBLIGATIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_EXISTING_CANONICAL",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-EU-REG-561-2006",
+      "requiredProductOwnerDecision": "PO scope/membership decision"
+    },
+    {
+      "requirementId": "LEGAL005-R03",
+      "jurisdiction": "AT",
+      "requirement": "ROAD_RESTRICTIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_LOCAL",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-AT-STVO-42-20260830 + three 2026 federal scheduled acts",
+      "requiredProductOwnerDecision": "PO decisions"
+    },
+    {
+      "requirementId": "LEGAL005-R04",
+      "jurisdiction": "AT",
+      "requirement": "PROFESSIONAL_DRIVER_OBLIGATIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_EXISTING_CANONICAL",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-EU-REG-561-2006",
+      "requiredProductOwnerDecision": "PO scope/membership decision"
+    },
+    {
+      "requirementId": "LEGAL005-R05",
+      "jurisdiction": "CH",
+      "requirement": "ROAD_RESTRICTIONS",
+      "officialAuthority": "Swiss Confederation / Fedlex and ASTRA",
+      "evidenceStatus": "DEMONSTRATED_LOCAL_CURRENT",
+      "currentness": "CURRENT_2026-07-01_WITH_FRESHNESS_CHECK",
+      "gap": null,
+      "proposedCandidate": "CS-CH-VRV-20260701",
+      "requiredProductOwnerDecision": "APPROVE / REJECT / DEFER AUTHORITATIVE_WITH_SCOPE"
+    },
+    {
+      "requirementId": "LEGAL005-R06",
+      "jurisdiction": "CH",
+      "requirement": "PROFESSIONAL_DRIVER_OBLIGATIONS",
+      "officialAuthority": "Swiss Confederation / Fedlex",
+      "evidenceStatus": "DEMONSTRATED_LOCAL_CURRENT_KNOWN_FUTURE_CHANGE",
+      "currentness": "NEW_VERSION_DETECTED_FOR_2026-10-01",
+      "gap": null,
+      "proposedCandidate": "CS-CH-ARV1-20250501",
+      "requiredProductOwnerDecision": "APPROVE / REJECT / DEFER AUTHORITATIVE_WITH_SCOPE; preserve 2026-09-30 artifact end"
+    },
+    {
+      "requirementId": "LEGAL005-R07",
+      "jurisdiction": "FR",
+      "requirement": "ROAD_RESTRICTIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_LOCAL_COMPLETE",
+      "currentness": "CURRENT_WITH_FIRE_DEROGATION_EXPIRY_CONTROL",
+      "gap": null,
+      "proposedCandidate": "Three existing FR candidates",
+      "requiredProductOwnerDecision": "Three separate APPROVE / REJECT / DEFER decisions"
+    },
+    {
+      "requirementId": "LEGAL005-R08",
+      "jurisdiction": "FR",
+      "requirement": "PROFESSIONAL_DRIVER_OBLIGATIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_EXISTING_CANONICAL",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-EU-REG-561-2006",
+      "requiredProductOwnerDecision": "PO scope/membership decision"
+    },
+    {
+      "requirementId": "LEGAL005-R09",
+      "jurisdiction": "BE",
+      "requirement": "ROAD_RESTRICTIONS",
+      "officialAuthority": "Belgian federal competence evidence plus Flanders, Brussels-Capital and Walloon competent authorities",
+      "evidenceStatus": "DEMONSTRATED_JURISDICTION_STRUCTURE",
+      "currentness": "CURRENT_WITH_REGIONAL_FRESHNESS",
+      "gap": null,
+      "proposedCandidate": "Three jurisdiction-scoped BE candidates; no nationwide claim",
+      "requiredProductOwnerDecision": "Three separate APPROVE / REJECT / DEFER decisions"
+    },
+    {
+      "requirementId": "LEGAL005-R10",
+      "jurisdiction": "BE",
+      "requirement": "PROFESSIONAL_DRIVER_OBLIGATIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-EU-REG-561-2006 + CS-BE-FOD-TACHOGRAPH-20260701",
+      "requiredProductOwnerDecision": "PO decisions"
+    },
+    {
+      "requirementId": "LEGAL005-R11",
+      "jurisdiction": "NL",
+      "requirement": "ROAD_RESTRICTIONS",
+      "officialAuthority": "Government of the Netherlands / Overheid.nl and RVO",
+      "evidenceStatus": "DEMONSTRATED_NATIONAL_FRAMEWORK_LOCAL_APPLICATION",
+      "currentness": "CURRENT_VERSION_PINNED_2026-07-01",
+      "gap": null,
+      "proposedCandidate": "CS-NL-RVV-HGV-ACCESS-20260701",
+      "requiredProductOwnerDecision": "APPROVE / REJECT / DEFER AUTHORITATIVE_WITH_SCOPE"
+    },
+    {
+      "requirementId": "LEGAL005-R12",
+      "jurisdiction": "NL",
+      "requirement": "PROFESSIONAL_DRIVER_OBLIGATIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-EU-REG-561-2006 + CS-NL-GOV-DRIVING-REST-CURRENT",
+      "requiredProductOwnerDecision": "PO decisions"
+    },
+    {
+      "requirementId": "LEGAL005-R13",
+      "jurisdiction": "LU",
+      "requirement": "ROAD_RESTRICTIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_LOCAL",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-LU-TRANSPORTS-HGV-RESTRICTIONS-CURRENT",
+      "requiredProductOwnerDecision": "PO decision"
+    },
+    {
+      "requirementId": "LEGAL005-R14",
+      "jurisdiction": "LU",
+      "requirement": "PROFESSIONAL_DRIVER_OBLIGATIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_EXISTING_CANONICAL",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-EU-REG-561-2006",
+      "requiredProductOwnerDecision": "PO scope/membership decision"
+    },
+    {
+      "requirementId": "LEGAL005-R15",
+      "jurisdiction": "PL",
+      "requirement": "ROAD_RESTRICTIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_LOCAL",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-PL-HGV-RESTRICTIONS-CURRENT",
+      "requiredProductOwnerDecision": "PO decision"
+    },
+    {
+      "requirementId": "LEGAL005-R16",
+      "jurisdiction": "PL",
+      "requirement": "PROFESSIONAL_DRIVER_OBLIGATIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_EXISTING_CANONICAL",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-EU-REG-561-2006",
+      "requiredProductOwnerDecision": "PO scope/membership decision"
+    },
+    {
+      "requirementId": "LEGAL005-R17",
+      "jurisdiction": "CZ",
+      "requirement": "ROAD_RESTRICTIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_LOCAL_WITH_SCOPE",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-CZ-MD-HGV-RESTRICTIONS-CURRENT",
+      "requiredProductOwnerDecision": "PO decision; legal-text limitation retained"
+    },
+    {
+      "requirementId": "LEGAL005-R18",
+      "jurisdiction": "CZ",
+      "requirement": "PROFESSIONAL_DRIVER_OBLIGATIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_EXISTING_CANONICAL",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-EU-REG-561-2006",
+      "requiredProductOwnerDecision": "PO scope/membership decision"
+    },
+    {
+      "requirementId": "LEGAL005-R19",
+      "jurisdiction": "DK",
+      "requirement": "ROAD_RESTRICTIONS",
+      "officialAuthority": "Danish Ministry of Environment / Retsinformation and Environmental Protection Agency",
+      "evidenceStatus": "DEMONSTRATED_NATIONAL_FRAMEWORK_LOCAL_APPLICATION",
+      "currentness": "CURRENT_BEK_588_2026_WITH_FRESHNESS_CHECK",
+      "gap": null,
+      "proposedCandidate": "CS-DK-ENV-ZONE-REG-2026-588",
+      "requiredProductOwnerDecision": "APPROVE / REJECT / DEFER AUTHORITATIVE_WITH_SCOPE"
+    },
+    {
+      "requirementId": "LEGAL005-R20",
+      "jurisdiction": "DK",
+      "requirement": "PROFESSIONAL_DRIVER_OBLIGATIONS",
+      "officialAuthority": "Country-specific authority plus EU where applicable",
+      "evidenceStatus": "DEMONSTRATED_LOCAL",
+      "currentness": "CURRENT_WITH_DOCUMENTED_LIMITATIONS",
+      "gap": null,
+      "proposedCandidate": "CS-EU-REG-561-2006 + CS-DK-DRIVING-REST-20260701",
+      "requiredProductOwnerDecision": "PO decisions"
+    }
+  ],
+  "summary": {
+    "demonstrated": "20/20",
+    "locallyValidatedOfficialEvidence": "20/20",
+    "unresolvedCoverageUnits": [],
+    "preApplyEvidenceBlockers": []
+  }
+}

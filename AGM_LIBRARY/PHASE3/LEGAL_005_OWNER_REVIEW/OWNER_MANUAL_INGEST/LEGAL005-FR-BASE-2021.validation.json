@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "agm-owner-manual-ingest-validation.v1",
+  "gapId": "LEGAL-005",
+  "documentNumber": 1,
+  "candidateId": "LEGAL005-CAND-FR-BASE-2021",
+  "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+  "filename": "LEGAL005-FR-BASE-2021.owner-official.pdf",
+  "status": "RESOLVED_VALIDATED",
+  "move": {
+    "source": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/LEGAL005-FR-BASE-2021.owner-official.pdf",
+    "destination": "AGM_LIBRARY/PHASE3/LEGAL_005_OWNER_REVIEW/OWNER_MANUAL_INGEST/LEGAL005-FR-BASE-2021.owner-official.pdf",
+    "sourceExistsAfter": false,
+    "destinationExistsAfter": true,
+    "duplicateCreated": false,
+    "sizeBytesBefore": 177037,
+    "sizeBytesAfter": 177037,
+    "sha256Before": "9cb90269cc653b01eb60ccae43ea2ba4fea23acf6010fe26dce9d2db7282e5f1",
+    "sha256After": "9cb90269cc653b01eb60ccae43ea2ba4fea23acf6010fe26dce9d2db7282e5f1",
+    "binaryMatch": true
+  },
+  "identity": {
+    "authority": "French Republic / Légifrance",
+    "officialUrl": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000043416004",
+    "nor": "TRAT2031119A",
+    "jorf": "JORF n°0097 du 24 avril 2021, texte n°37",
+    "textId": "JORFTEXT000043416004",
+    "effectiveFrom": "2021-05-01",
+    "effectiveUntil": null
+  },
+  "validation": {
+    "pdfOpenable": true,
+    "pdfMagic": true,
+    "pdfEof": true,
+    "pages": 7,
+    "expectedPages": 7,
+    "noBlankPages": true,
+    "identityAndContent": true,
+    "articles1Through12": true,
+    "annexesIThroughIII": true,
+    "scopeOver7Point5T": true,
+    "noCloudflareOrChallengePage": true,
+    "result": "PASS"
+  },
+  "browserEvidence": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS",
+    "probe": "Isolated Playwright/Chrome local PDF open; official JORF title and seven-page structure rendered"
+  },
+  "rescueJournal": [
+    {
+      "action": "Poppler executables from PATH",
+      "classification": "OPTIONAL",
+      "result": "UNAVAILABLE"
+    },
+    {
+      "action": "Python PDF runtime",
+      "classification": "OPTIONAL",
+      "result": "UNAVAILABLE"
+    },
+    {
+      "action": "Existing Git pdftotext plus controlled Playwright/Chrome",
+      "classification": "APPROVED_ALTERNATE_ROUTE",
+      "result": "RECOVERED"
+    }
+  ],
+  "guardrails": {
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

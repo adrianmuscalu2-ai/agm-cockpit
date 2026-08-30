@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "agm-routing-toll-001-requirement-matrix.v1",
+  "assessmentDate": "2026-08-29",
+  "gapId": "ROUTING-TOLL-001",
+  "gapState": "OPEN",
+  "historicalDefinition": "Official toll and vignette authority registry with jurisdiction, update cadence and effective dates",
+  "historicalEvidence": "CAR_MOVER/CONFLICTS_AND_GAPS.json#CM-MISSING-004",
+  "historicalRuntimeDependency": "Runtime-ready AGM Toll Library specification and verified source-update runbook",
+  "requiredJurisdictions": ["DE", "AT", "CH", "FR", "BE", "NL", "LU", "PL", "CZ", "DK"],
+  "rows": [
+    {
+      "requirement": "One governed official authority record per required jurisdiction",
+      "existingSourceIds": ["CS-AGM-CM-ARCH-V1", "CS-AGM-CM-FIELD-RUNBOOK-V1"],
+      "authority": "AGM internal authority only; zero external official toll authorities in the 815-source registry",
+      "scope": "Internal architecture and field protocol",
+      "evidence": ["AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_ASSESSMENT/ROUTING_TOLL_VIEW_263_SOURCE_AUDIT.json"],
+      "coverageStatus": "NOT_COVERED",
+      "residualGap": "Ten-jurisdiction official authority set is not in the Central Registry",
+      "proposedAction": "Acquire and human-review the official candidates; request a separate atomic registry mandate only after integrity capture"
+    },
+    {
+      "requirement": "Jurisdiction coverage: DE, AT, CH, FR, BE, NL, LU, PL, CZ, DK",
+      "existingSourceIds": [],
+      "authority": "Eleven Phase 2 official candidates remain outside the registry",
+      "scope": "National heavy-vehicle coverage is broadly discoverable; light/special infrastructure coverage is uneven",
+      "evidence": ["AGM_LIBRARY/PHASE2/CANDIDATES/canonical-source-candidates.json", "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_ASSESSMENT/PROPOSED_OFFICIAL_SOURCE_CANDIDATES.json"],
+      "coverageStatus": "PARTIAL",
+      "residualGap": "France is concession-fragmented; Luxembourg needs replacement review; several countries need passenger/light or special-infrastructure sources",
+      "proposedAction": "Build a per-jurisdiction canonical bundle rather than treating one landing page as complete coverage"
+    },
+    {
+      "requirement": "Vehicle applicability for AGM classes",
+      "existingSourceIds": [],
+      "authority": "No external authoritative vehicle-scope source in Central Registry",
+      "scope": "PASSENGER_CAR, LIGHT_COMMERCIAL, VAN, CAR_WITH_TRAILER, TRANSPORTER, TRUCK, TRACTOR_UNIT, OTHER_DRIVABLE_VEHICLE, UNKNOWN",
+      "evidence": ["apps/api/src/car-mover/car-mover.contract.ts", "AGM_LIBRARY/PHASE3/JURISDICTION_APPLICABILITY_MATRIX.json"],
+      "coverageStatus": "PARTIAL",
+      "residualGap": "Phase 2 candidates are predominantly heavy-goods sources; passenger cars, trailers, vans and exceptional infrastructure are not fully mapped",
+      "proposedAction": "Create explicit class-to-legal-band mappings; retain UNKNOWN as human confirmation, never zero/safe/pass"
+    },
+    {
+      "requirement": "Route/network applicability for toll calculation",
+      "existingSourceIds": ["CS-AGM-CM-ARCH-V1"],
+      "authority": "Internal routing policy only",
+      "scope": "TOM/cache/conditional fallback architecture, not official tolled-network truth",
+      "evidence": ["AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md"],
+      "coverageStatus": "PARTIAL",
+      "residualGap": "No governed official route-segment/network artifact set for all ten jurisdictions",
+      "proposedAction": "Acquire official tolled-network/map artifacts and define source freshness per jurisdiction"
+    },
+    {
+      "requirement": "Current effective tariffs and vignette prices",
+      "existingSourceIds": [],
+      "authority": "No official tariff artifact in Central Registry",
+      "scope": "Rates by road, region, vehicle/weight/axle/emission class and effective date",
+      "evidence": ["AGM_LIBRARY/PHASE2/CANDIDATES/canonical-source-candidates.json"],
+      "coverageStatus": "PARTIAL",
+      "residualGap": "Dynamic rates are discoverable but not integrity-captured; France grids are distributed by concession; effective-date refresh is not governed",
+      "proposedAction": "Capture immutable tariff artifacts where published and timestamp/hash dynamic pages"
+    },
+    {
+      "requirement": "Vignette and light-vehicle coverage",
+      "existingSourceIds": [],
+      "authority": "No external authoritative source in Central Registry",
+      "scope": "Passenger/light vehicles and time-based vignettes or fixed infrastructure tolls",
+      "evidence": ["AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_ASSESSMENT/PROPOSED_OFFICIAL_SOURCE_CANDIDATES.json"],
+      "coverageStatus": "PARTIAL",
+      "residualGap": "AT and CZ require separate light-vehicle sources; DK bridges and NL A24 are separate systems; PL concession roads and other special facilities remain incomplete",
+      "proposedAction": "Add official operator/government candidates with explicit route and vehicle scope"
+    },
+    {
+      "requirement": "Exemptions, exclusions and negative applicability",
+      "existingSourceIds": [],
+      "authority": "No governed external authority set",
+      "scope": "Exemptions, out-of-scope vehicles, no-general-toll cases and non-stacking rules",
+      "evidence": ["AGM_LIBRARY/PHASE3/JURISDICTION_APPLICABILITY_MATRIX.json"],
+      "coverageStatus": "PARTIAL",
+      "residualGap": "Absence of a charge is not documented consistently; UNKNOWN cannot be inferred as zero",
+      "proposedAction": "Require an official negative-applicability basis before returning zero toll"
+    },
+    {
+      "requirement": "Freshness and update cadence",
+      "existingSourceIds": ["CS-AGM-CM-FIELD-RUNBOOK-V1"],
+      "authority": "Internal field cadence only; not a tariff update mechanism",
+      "scope": "Detect rate, network, class and law changes before operational use",
+      "evidence": ["CAR_MOVER/CONFLICTS_AND_GAPS.json#CM-MISSING-004"],
+      "coverageStatus": "NOT_COVERED",
+      "residualGap": "No verified official-source update runbook with per-source cadence, invalidation and stale-data handling",
+      "proposedAction": "Design documentary update controls under a separate mandate; runtime activation remains out of scope"
+    },
+    {
+      "requirement": "Official provenance and artifact integrity",
+      "existingSourceIds": [],
+      "authority": "Phase 2 candidates have official URLs but null artifact SHA-256",
+      "scope": "Official final URL, capture timestamp, bytes/MIME/SHA-256 and authority owner",
+      "evidence": ["AGM_LIBRARY/PHASE2/CANDIDATES/canonical-source-candidates.json"],
+      "coverageStatus": "NOT_COVERED",
+      "residualGap": "Candidate URLs are not equivalent to verified canonical artifacts",
+      "proposedAction": "Run remote canonical integrity acquisition before any authority proposal"
+    },
+    {
+      "requirement": "Operational evidence",
+      "existingSourceIds": ["CS-AGM-CM-FIELD-RUNBOOK-V1"],
+      "authority": "AGM internal evidence-governance authority",
+      "scope": "Controlled field observations and non-conclusive partial data",
+      "evidence": ["AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md"],
+      "coverageStatus": "PARTIAL",
+      "residualGap": "No sufficient measured field sample; operational evidence cannot replace official toll truth",
+      "proposedAction": "Keep field results separate and non-conclusive until approved thresholds are met"
+    },
+    {
+      "requirement": "General route computation",
+      "existingSourceIds": ["CS-AGM-CM-ARCH-V1"],
+      "authority": "AGM internal architecture authority",
+      "scope": "TOM/cache and controlled fallback policy",
+      "evidence": ["AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md"],
+      "coverageStatus": "OUT_OF_GAP_SCOPE",
+      "residualGap": "None assigned to ROUTING-TOLL-001; source authority for toll overlays remains separate",
+      "proposedAction": "Do not broaden ROUTING-TOLL-001 into a routing-provider certification gap"
+    },
+    {
+      "requirement": "General road restrictions",
+      "existingSourceIds": [],
+      "authority": "Governed separately",
+      "scope": "Traffic restrictions and multi-jurisdiction professional-driver rules",
+      "evidence": ["AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/UNRESOLVED_GAPS.json#LEGAL-005"],
+      "coverageStatus": "OUT_OF_GAP_SCOPE",
+      "residualGap": "LEGAL-005 remains OPEN and unchanged",
+      "proposedAction": "No action under this mandate"
+    }
+  ],
+  "closureVerdict": "PARTIALLY_READY",
+  "gapClosed": false
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-blocker-status.v1",
+  "generatedAt": "2026-08-30T11:41:16.455Z",
+  "officialEvidenceBlockersResolved": 5,
+  "officialEvidenceBlockersRemaining": 0,
+  "nieuwerbrugScopeDecision": "OUT_OF_SCOPE_BY_PRODUCT_OWNER",
+  "ownerAuthorityReview": {
+    "total": 10,
+    "integrityVerified": 10,
+    "pending": 10,
+    "promotionsExecuted": 0
+  },
+  "verdict": "READY_FOR_FINAL_OWNER_AUTHORITY_REVIEW",
+  "routingToll001": "OPEN_READY_FOR_FINAL_OWNER_AUTHORITY_REVIEW"
+}

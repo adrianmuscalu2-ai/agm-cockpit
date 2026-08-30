@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "agm-phase3-owner-unresolved-gaps.v1",
+  "gapCount": 3,
+  "gaps": [
+    {
+      "reviewId": "REVIEW-ROUTING-TOLL-001",
+      "gapId": "ROUTING-TOLL-001",
+      "decision": "KEEP_UNRESOLVED",
+      "state": "OPEN",
+      "conditions": [
+        "France remains fragmented.",
+        "Luxembourg evidence is old/insufficient.",
+        "Tariffs and effective dates are dynamic.",
+        "National sources require a separate individual review."
+      ],
+      "sourceIdsExcludedFromThisChangesetUnlessApprovedElsewhere": [
+        "CS-DE-TOLL-COLLECT-RATES",
+        "CS-DE-BFSTRMG",
+        "CS-AT-ASFINAG-GO-TOLL",
+        "CS-CH-BAZG-ROAD-LEVIES",
+        "CS-BE-VIAPASS",
+        "CS-PL-ETOLL-RATES",
+        "CS-CZ-MYTO-RATES-2026",
+        "CS-DK-KMTOLL-EETS",
+        "CS-NL-TRUCK-TOLL",
+        "CS-FR-MOTORWAY-TOLLS",
+        "CS-LU-EVIGNETTE-2019"
+      ],
+      "overlappingSourceIdsApprovedElsewhere": []
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-003",
+      "gapId": "LEGAL-003",
+      "decision": "KEEP_UNRESOLVED",
+      "state": "OPEN",
+      "conditions": [
+        "StVO §22 and HGB §412 may be reviewed individually later.",
+        "VDI metadata may be CONTEXTUAL.",
+        "The complete gap stays open until licensed normative material and exact VDI role are reviewed.",
+        "VDI content must not be reconstructed from summaries."
+      ],
+      "sourceIdsExcludedFromThisChangesetUnlessApprovedElsewhere": [
+        "CS-DE-HGB-412",
+        "CS-VDI-2700-HANDBOOK"
+      ],
+      "overlappingSourceIdsApprovedElsewhere": [
+        "CS-DE-STVO"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-005",
+      "gapId": "LEGAL-005",
+      "decision": "KEEP_UNRESOLVED",
+      "state": "OPEN",
+      "conditions": [
+        "Multi-jurisdiction coverage is incomplete.",
+        "BE, NL, LU, PL, CZ and DK complete sources remain missing.",
+        "AT and CH require reacquisition/validation.",
+        "French rules and derogations are date-dependent."
+      ],
+      "sourceIdsExcludedFromThisChangesetUnlessApprovedElsewhere": [
+        "CS-AT-STVO-42-20260213",
+        "CS-CH-VRV-20220401",
+        "CS-FR-TRUCK-BAN-BASE-2021",
+        "CS-FR-TRUCK-BAN-2026",
+        "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026"
+      ],
+      "overlappingSourceIdsApprovedElsewhere": [
+        "CS-DE-STVO"
+      ]
+    }
+  ]
+}

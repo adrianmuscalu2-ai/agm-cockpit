@@ -1,0 +1,251 @@
+{
+  "schemaVersion": "agm-routing-toll-001-owner-manual-artifact-validation.v1",
+  "generatedAt": "2026-08-30T10:56:07.003Z",
+  "artifactId": "RT001-FINAL-FR-CCISE-ORDER-2026",
+  "verdict": "VALID",
+  "artifact": {
+    "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-CCISE-ORDER-2026.owner-official.pdf",
+    "filename": "RT001-FINAL-FR-CCISE-ORDER-2026.owner-official.pdf",
+    "mediaType": "application/pdf",
+    "sizeBytes": 131966,
+    "sha256": "909c88487b866c4a0aa18088e80731a8b593c38295f264d72c991e9207008481"
+  },
+  "provenance": {
+    "authority": "Legifrance / Journal officiel de la Republique francaise",
+    "officialPageUrl": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053916305",
+    "officialEliUrl": "https://www.legifrance.gouv.fr/eli/arrete/2026/3/30/TRAT2609535A/jo/texte",
+    "officialDirectPdfUrl": "https://www.legifrance.gouv.fr/download/file/LGKIebDIuZvuVGlpCoWjSCa9Ybbg3VF7kUQ8OgMFAvo=/JOE_TEXTE",
+    "officialRecord": "JORF n°0094 du 21 avril 2026 / texte n°8",
+    "nor": "TRAT2609535A",
+    "titleMetadata": "Journal officiel de la République française - N° 94 du 21 avril 2026",
+    "producer": "PDFlib+PDI 9.0.6 \\(C++/Win32\\",
+    "creator": "PTC Arbortext Advanced Print Publisher 11.1.4243/W",
+    "creationDate": "D:20260420220057+02'00'",
+    "jurisdiction": "FR",
+    "ownerAssistedCapture": true
+  },
+  "scope": "Pont de Normandie and Pont de Tancarville 2026 tariffs, vehicle classes 1-4",
+  "effectiveDate": "2026-05-01",
+  "evidenceCounts": {
+    "pages": 1,
+    "vehicleClasses": 4,
+    "tariffValues": 8
+  },
+  "visualEvidence": [
+    "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_04/page-1.png"
+  ],
+  "visualInspection": "PASS_1_OF_1_NO_CLIPPED_CONTENT",
+  "checkCount": 21,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "FILE_EXISTS",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PDF_MAGIC",
+      "pass": true,
+      "actual": "%PDF-1.6",
+      "expected": "%PDF-*"
+    },
+    {
+      "name": "PDF_EOF",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PDF_OPEN_AND_EXTRACT",
+      "pass": true,
+      "actual": {
+        "pdftotextExit": 0,
+        "textLength": 3711
+      },
+      "expected": {
+        "pdftotextExit": 0,
+        "minimumTextLength": 3000
+      }
+    },
+    {
+      "name": "ALL_PAGES_NONEMPTY",
+      "pass": true,
+      "actual": {
+        "pageCount": 1,
+        "pageTextLengths": [
+          3708
+        ]
+      },
+      "expected": {
+        "pageCount": 1,
+        "minimumTextLength": 3000
+      }
+    },
+    {
+      "name": "NOR",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "JORF_DATE_TEXT_8",
+      "pass": true,
+      "actual": "21 avril 2026        JOURNAL OFFICIEL DE LA RÉPUBLIQUE FRANÇAISE                Texte 8 sur 63\r",
+      "expected": "21 avril 2026 / Journal officiel / Texte 8 sur 63"
+    },
+    {
+      "name": "JORF_0094_OFFICIAL_CROSS_CHECK",
+      "pass": true,
+      "actual": {
+        "officialPageUrl": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053916305",
+        "visualEvidence": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_04/page-1.png"
+      },
+      "expected": "Official Legifrance record JORF n°0094 / 21 April 2026 / text 8; visual title verified"
+    },
+    {
+      "name": "OFFICIAL_JOURNAL_IDENTITY",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "TITLE",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ARTICLES_1_AND_2",
+      "pass": true,
+      "actual": {
+        "article1": true,
+        "article2": true
+      },
+      "expected": {
+        "article1": true,
+        "article2": true
+      }
+    },
+    {
+      "name": "PONT_DE_NORMANDIE",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PONT_DE_TANCARVILLE",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ANNEXE_I",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "TARIFF_GRID_HEADER",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "VEHICLE_CLASSES_1_TO_4",
+      "pass": true,
+      "actual": [
+        {
+          "number": 1,
+          "present": true
+        },
+        {
+          "number": 2,
+          "present": true
+        },
+        {
+          "number": 3,
+          "present": true
+        },
+        {
+          "number": 4,
+          "present": true
+        }
+      ],
+      "expected": "4/4"
+    },
+    {
+      "name": "EXACT_TARIFF_VALUES",
+      "pass": true,
+      "actual": [
+        {
+          "value": "6,10",
+          "present": true
+        },
+        {
+          "value": "7,10",
+          "present": true
+        },
+        {
+          "value": "7,60",
+          "present": true
+        },
+        {
+          "value": "15,10",
+          "present": true
+        },
+        {
+          "value": "2,90",
+          "present": true
+        },
+        {
+          "value": "3,70",
+          "present": true
+        },
+        {
+          "value": "4,40",
+          "present": true
+        },
+        {
+          "value": "7,50",
+          "present": true
+        }
+      ],
+      "expected": "8/8 exact values"
+    },
+    {
+      "name": "EFFECTIVE_DATE",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "VISUAL_RENDER_COMPLETE",
+      "pass": true,
+      "actual": {
+        "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/VISUAL_EVIDENCE_ARTIFACT_04/page-1.png",
+        "sizeBytes": 192980
+      },
+      "expected": "Complete one-page authenticated extract; no clipped content"
+    },
+    {
+      "name": "NO_CHALLENGE_OR_ACCESS_DENIED",
+      "pass": true,
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "OFFICIAL_SOURCE_HOSTS",
+      "pass": true,
+      "actual": [
+        "www.legifrance.gouv.fr",
+        "www.legifrance.gouv.fr",
+        "www.legifrance.gouv.fr"
+      ],
+      "expected": "www.legifrance.gouv.fr x3"
+    }
+  ],
+  "registryMutation": "NONE",
+  "viewMutation": "NONE",
+  "authorityPromotion": "NONE"
+}

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "agm-legal003-product-owner-closure-decision.v1",
+  "gapId": "LEGAL-003",
+  "decisionAt": "2026-08-30T22:00:00.000Z",
+  "decisionAuthority": "Product Owner",
+  "decisionSource": {
+    "type": "OWNER_ATTACHMENT",
+    "filename": "pasted-text.txt",
+    "sha256": "9cac4e5334457a0fbbcb2da70084504317dd5d69dc0653c180b39b98bb04f3e7",
+    "note": "The supplied text ends mid-sentence in the guardrails section. All complete explicit prohibitions and the prior no-mutation boundary are preserved; no missing permission was inferred."
+  },
+  "decision": "PASS_WITH_EXTERNAL_LICENSED_DEPENDENCY_CLOSED",
+  "approvedArchitecture": "ADVISORY_ONLY_SAFETY_MODEL",
+  "architecturePrinciple": "AGM = ADVISORY, NOT CERTIFYING AUTHORITY",
+  "vdi": {
+    "document": "VDI 2700 Blatt 8.1",
+    "edition": "2024-09",
+    "corrigendum": "2025-10",
+    "role": "LICENSED_EXTERNAL_STANDARD",
+    "fullNormativeContent": "NOT_REQUIRED_FOR_CURRENT_AGM_SCOPE",
+    "purchase": "NOT_AUTHORIZED_NOT_EXECUTED",
+    "ingest": "NOT_AUTHORIZED_NOT_EXECUTED",
+    "legacyBlockerBefore": "OWNER_LICENSED_ACQUISITION_REQUIRED",
+    "legacyBlockerAfter": "NOT_REQUIRED_FOR_APPROVED_SCOPE",
+    "evidencePromotion": false
+  },
+  "approvedCurrentScope": {
+    "status": "COMPLETE",
+    "included": [
+      "PUBLIC_LEGAL_LOAD_SAFETY_GUIDANCE",
+      "STVO_SECTION_22_AUTHORITY_WITH_SCOPE",
+      "HGB_SECTION_412_AUTHORITY_WITH_SCOPE",
+      "OTHER_ALREADY_VALIDATED_PUBLIC_AUTHORITIES_WITHIN_SCOPE",
+      "GENERAL_SAFETY_WARNINGS",
+      "NON_CERTIFYING_CHECKLISTS",
+      "RISK_PROMPTS",
+      "HUMAN_VERIFICATION_REQUIREMENTS",
+      "VDI_REFERENCE_WHERE_TECHNICALLY_RELEVANT"
+    ],
+    "excluded": [
+      "NORMATIVE_TRANSPORTER_OR_PLATFORM_COMPLIANCE_CERTIFICATION",
+      "VDI_COMPLIANT_VERDICTS",
+      "NORMATIVE_STRAP_COUNT_CALCULATION",
+      "NORMATIVE_ANCHORING_CALCULATION",
+      "SECURING_GEOMETRY_CERTIFICATION",
+      "EQUIPMENT_CONDITION_CERTIFICATION",
+      "VEHICLE_PLACEMENT_CERTIFICATION",
+      "PHYSICAL_RELEASE_TO_DRIVE_CERTIFICATION",
+      "TECHNICAL_COMPLIANCE_DECISIONS_REQUIRING_DIRECT_INSPECTION"
+    ]
+  },
+  "metrics": {
+    "publicAuthoritativeEvidence": "3/4",
+    "licensedExternalDependency": "1/4",
+    "currentScopeBlockers": 0,
+    "artificialFourOfFourForbidden": true
+  },
+  "reopenCondition": {
+    "state": "VDI_LICENSE_REVIEW_REQUIRED",
+    "triggers": [
+      "NORMATIVE_PLATFORM_OR_TRANSPORTER_CALCULATIONS",
+      "VDI_SPECIFIC_NORMATIVE_CHECKLISTS",
+      "VDI_COMPLIANT_VERDICTS",
+      "TECHNICAL_CERTIFICATION_OR_RELEASE_BASED_ON_BLATT_8_1",
+      "AI_PROCESSING_OF_LICENSED_VDI_NORMATIVE_CONTENT"
+    ],
+    "rightsReview": "Evaluate document, AI and enterprise rights before implementation; never assume a single-user document license permits AI ingestion."
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "legislationSafetyViewMutation": "NONE",
+    "routingTollViewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "apply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

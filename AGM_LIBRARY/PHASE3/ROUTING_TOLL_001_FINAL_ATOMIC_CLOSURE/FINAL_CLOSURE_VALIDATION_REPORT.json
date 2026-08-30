@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-atomic-closure-validation.v1",
+  "validatedAt": "2026-08-30T16:01:14.7224363+02:00",
+  "verdict": "PASS",
+  "routingToll001Status": "CLOSED",
+  "results": {
+    "atomicApply": "PASS",
+    "operations": "10 ADD / 0 MODIFY / 0 DELETE",
+    "partialApply": "NONE",
+    "rollback": "NOT_REQUIRED",
+    "postApplyClosureValidator": "41/41 PASS",
+    "sourceFreshnessApiBuild": "PASS",
+    "sourceFreshnessTests": "16/16 PASS",
+    "sourceFreshnessValidator": "44/44 PASS",
+    "chVignetteEvidence": "PASS / APPLY_CONDITION SATISFIED",
+    "decisionReconciliation": "10/10 APPROVE / 9 AUTHORITATIVE_WITH_SCOPE / 1 CONTEXTUAL",
+    "applyIdempotence": "PASS / OPERATIONS_REEXECUTED 0",
+    "closureValidatorIdempotence": {
+      "status": "PASS",
+      "firstSha256": "9fa7fb414126cfad01caf17bba8de85d8848d943e22dc79874d91f446c79e5e8",
+      "secondSha256": "9fa7fb414126cfad01caf17bba8de85d8848d943e22dc79874d91f446c79e5e8"
+    },
+    "freshnessValidatorIdempotence": {
+      "status": "PASS",
+      "firstSha256": "78f84e101ce1d78d683162e8ce2cc8c71b75fe0bf0c45e88b212092c1a3d29fc",
+      "secondSha256": "78f84e101ce1d78d683162e8ce2cc8c71b75fe0bf0c45e88b212092c1a3d29fc"
+    }
+  },
+  "finalState": {
+    "registry": {
+      "sourceCount": 841,
+      "sha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076"
+    },
+    "routingTollView": {
+      "sourceCount": 289,
+      "uniqueContentHashes": 274,
+      "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+    },
+    "newSourceIdCollisions": 0,
+    "newCanonicalUriDuplicates": 0,
+    "newPrimaryHashDuplicates": 0,
+    "transactionResidue": "NONE"
+  },
+  "temporalControls": {
+    "nl": "Current only through 2026-08-31 inclusive; afterward EXPIRED_REVIEW_REQUIRED / UNKNOWN_HUMAN_VERIFICATION",
+    "dk": "Q3 2026 freshness trigger; no automatic extension"
+  },
+  "emailDelivery": {
+    "status": "BLOCKED_CONFIGURATION_REQUIRED",
+    "scope": "EXTERNAL_EMAIL_DELIVERY_ONLY_NON_BLOCKING_FOR_ROUTING_TOLL_001_CLOSURE",
+    "recipientsConfigured": true,
+    "recipientCount": 2,
+    "senderConfigured": true,
+    "authenticationConfigured": false,
+    "emailSent": false,
+    "missing": [
+      "GMAIL_ACCESS_TOKEN or GMAIL_OAUTH_CLIENT_ID + GMAIL_OAUTH_CLIENT_SECRET + GMAIL_OAUTH_REFRESH_TOKEN"
+    ]
+  },
+  "executionControls": {
+    "automaticAuthorityPromotion": 0,
+    "runtimeDeployment": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  },
+  "remainingRoutingToll001Blockers": []
+}

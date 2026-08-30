@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "agm-ch-vignette-2026-recapture.v1",
+  "generatedAt": "2026-08-30T13:30:00.000Z",
+  "blockerId": "PREAPPLY-EVIDENCE-RECAPTURE-CH-VIGNETTE-2026",
+  "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+  "sourceId": "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026",
+  "blockerState": "RESOLVED",
+  "applyCondition": "SATISFIED",
+  "officialProvenanceOnly": true,
+  "validatedClaims": {
+    "product": "Swiss motorway e-vignette 2026",
+    "price": "CHF 40",
+    "scope": "Swiss motorways; motor vehicles and trailers up to 3.5 tonnes, excluding heavy-vehicle-charge regimes",
+    "effectiveFrom": "2025-12-01",
+    "effectiveUntil": "2027-01-31",
+    "temporalDerivation": "Via official product year 2026 + BAZG official rule: 1 December of previous year through 31 January of following year"
+  },
+  "browserEvidence": {
+    "reportPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/CH_VIGNETTE_BROWSER_CAPTURE_REPORT.json",
+    "reportSha256": "50a00010bc1079144dcfe5c4366c63742272054e3022872a9cf1895b92084841",
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS"
+  },
+  "artifacts": [
+    {
+      "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+      "role": "primary",
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.bazg-support.official.html",
+      "officialUrl": "https://www.bazg.admin.ch/en/faq-vignette-and-e-vignette-purchase",
+      "mediaType": "text/html",
+      "sizeBytes": 503012,
+      "sha256": "fc6f19ae9ec162f08542bca6fbfc065ddb7d3939567bf04bd91682ffa7350ffc"
+    },
+    {
+      "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+      "role": "viaProduct",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-product.official.js",
+      "officialUrl": "https://via.admin.ch/shop/main-42DWTXKQ.js",
+      "mediaType": "text/javascript",
+      "sizeBytes": 1068425,
+      "sha256": "9075cfb58828ffae99b55f65f2123b1b097d56127e9395b0f449bb1c7f75da07",
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-product.official.js"
+    },
+    {
+      "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+      "role": "renderedReview",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-rendered.official.html",
+      "mediaType": "text/html",
+      "sizeBytes": 2952,
+      "sha256": "e18103a7753874b8e87ee474ab2cd32bade38f9955c78e66796efee66e744dfb",
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-rendered.official.html"
+    },
+    {
+      "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+      "role": "renderedText",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-rendered.official.txt",
+      "mediaType": "text/plain",
+      "sizeBytes": 2601,
+      "sha256": "e9507467f80621b9d92748b2096560245c2019144f66ba733850a31979ee4425",
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-rendered.official.txt"
+    },
+    {
+      "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+      "role": "screenshot",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-rendered.official.png",
+      "mediaType": "image/png",
+      "sizeBytes": 38841,
+      "sha256": "744fcbeea778fd8971275ecec5cc231d089705387daa40c7f9f0b548284ce4d5",
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-rendered.official.png"
+    }
+  ],
+  "priorInvalidArtifact": {
+    "preservedInPriorHistoricalPackage": true,
+    "reused": false,
+    "reason": "Official-domain 404 artifact was not reused in this recapture."
+  }
+}

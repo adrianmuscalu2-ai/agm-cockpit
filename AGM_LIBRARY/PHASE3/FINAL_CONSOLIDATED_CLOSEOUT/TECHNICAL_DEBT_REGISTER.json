@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "agm-phase3-technical-debt-register.v1",
+  "asOf": "2026-08-30",
+  "phase3ClosureBlockers": 0,
+  "items": [
+    {
+      "debtId": "P3-TD-001",
+      "category": "EXTERNAL_CONFIGURATION",
+      "title": "Gmail OAuth delivery credentials are not configured",
+      "status": "OPEN_NON_BLOCKING",
+      "impact": "Source alerts can be generated, deduplicated and packaged, but cannot be delivered by Gmail.",
+      "exactDependency": "GMAIL_ACCESS_TOKEN or the complete GMAIL_OAUTH_CLIENT_ID + GMAIL_OAUTH_CLIENT_SECRET + GMAIL_OAUTH_REFRESH_TOKEN set through the existing secret mechanism.",
+      "recipientConfiguration": "PASS_2_RECIPIENTS",
+      "senderConfiguration": "PASS",
+      "scope": "EMAIL_DELIVERY_ONLY",
+      "phase3ClosureBlocker": false
+    },
+    {
+      "debtId": "P3-TD-002",
+      "category": "VALIDATOR_BASELINE",
+      "title": "Source-freshness validator retains the former 841-source Registry hash",
+      "status": "OPEN_NON_BLOCKING",
+      "location": "scripts/validate-source-freshness-alert-rule.mjs",
+      "impact": "The implementation checks remain useful, but the standalone historical validator cannot be used as the current global baseline gate after LEGAL-005 raised the Registry to 862.",
+      "recommendedResolution": "Parameterize the authorized baseline or separate implementation-contract validation from mutable library-state validation.",
+      "supersededForCloseoutBy": "scripts/validate-phase3-final-consolidated-closeout-readonly.mjs",
+      "phase3ClosureBlocker": false
+    },
+    {
+      "debtId": "P3-TD-003",
+      "category": "HISTORICAL_VALIDATOR_BASELINES",
+      "title": "Earlier Phase 3 apply tools and scoped closure validators contain fixed historical baselines such as 798 and 841",
+      "status": "DOCUMENTED_HISTORICAL_NON_BLOCKING",
+      "locations": [
+        "scripts/apply-agm-phase3-central-registry.mjs",
+        "scripts/test-routing-toll-001-final-atomic-closure-readonly.mjs"
+      ],
+      "impact": "They accurately describe their original transaction boundaries but must not be reused as current consolidated validators.",
+      "recommendedResolution": "Keep immutable as transaction evidence; route current validation through the consolidated closeout validator.",
+      "phase3ClosureBlocker": false
+    },
+    {
+      "debtId": "P3-TD-004",
+      "category": "LEGACY_TEST_ASSERTION",
+      "title": "Premium foundation test expects the literal UI text 'Pre-Departure'",
+      "status": "OPEN_NON_BLOCKING",
+      "location": "apps/web/scripts/test-premium-foundation.ts:68",
+      "impact": "A broad unrelated UI test can fail after copy/i18n changes despite the LEGAL-003 target contracts passing.",
+      "recommendedResolution": "Assert a stable semantic selector or translation key in a separately authorized product-quality change.",
+      "phase3ClosureBlocker": false
+    },
+    {
+      "debtId": "P3-TD-005",
+      "category": "TEMPORAL_WORDING",
+      "title": "Legacy FR fire transition wording is less precise than the inclusive effectiveUntil policy",
+      "status": "RECONCILED_NON_BLOCKING",
+      "location": "AGM_LIBRARY/PHASE3/LEGAL_005_FINAL_PRE_APPLY/CONSOLIDATED_AUTHORITY_TEMPORAL_REVIEW.json",
+      "impact": "The phrase 'atAndAfter20260831' can be read as expiring at the start of the last valid day, while the engine and evidence define 2026-08-31 as inclusive.",
+      "closureInterpretation": "EXPIRY_WARNING on 2026-08-30; valid only within the demonstrated inclusive window through 2026-08-31; EXPIRED_REVIEW_REQUIRED immediately after that window, from 2026-09-01 local date.",
+      "phase3ClosureBlocker": false
+    },
+    {
+      "debtId": "P3-TD-006",
+      "category": "STATE_PRECEDENCE",
+      "title": "Historical pre-decision packages retain PENDING or blocker states",
+      "status": "CONTROLLED_NON_BLOCKING",
+      "impact": "A consumer that ignores state precedence could surface stale status.",
+      "recommendedResolution": "Use final atomic closure/apply records and LEGAL-003 STATE_PRECEDENCE.json as authoritative status; preserve older packages as immutable evidence.",
+      "phase3ClosureBlocker": false
+    },
+    {
+      "debtId": "P3-TD-007",
+      "category": "CONDITIONAL_LICENSE_DEPENDENCY",
+      "title": "VDI 2700 Blatt 8.1 remains an external licensed standard for any future normative scope",
+      "status": "CLOSED_FOR_CURRENT_SCOPE_CONDITIONAL_FUTURE_REVIEW",
+      "impact": "No impact on the approved advisory-only AGM scope. Normative platform/transporter calculations, VDI-specific checklists, compliance verdicts or AI processing require a separate rights and license review.",
+      "purchaseOrIngest": "NOT_AUTHORIZED_NOT_EXECUTED",
+      "phase3ClosureBlocker": false
+    }
+  ]
+}

@@ -1,0 +1,507 @@
+{
+  "schemaVersion": "agm-routing-toll-001-france-coverage.v1",
+  "generatedAt": "2026-08-30T08:50:57.230Z",
+  "inventoryAuthority": {
+    "artifactId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+    "officialUrl": "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+    "status": "INTEGRITY_CAPTURED_REVIEW_ONLY",
+    "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FR-INVENTORY-MINISTRY.official.html",
+    "sizeBytes": 120284,
+    "sha256": "aeebc94376060a75044cb00483922aa53cdc2f082e8f45f5636ea719d24b8a2c",
+    "blockReason": null
+  },
+  "inventoryInterpretation": {
+    "officialPageStatement": "20 current concession companies holding 24 contracts",
+    "listedEntities": 22,
+    "explanation": "The official list includes AMEDEA/A412 and Atosca/A69, which are separately accounted as not operating for the 2026 acquisition date."
+  },
+  "companyCount": 22,
+  "regimeCount": 26,
+  "companies": [
+    {
+      "name": "Adelac",
+      "regimes": [
+        "A41"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "Albea",
+      "regimes": [
+        "A150"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "ALIAE",
+      "regimes": [
+        "A79"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "Alicorne",
+      "regimes": [
+        "A88"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "A'Lienor",
+      "regimes": [
+        "A65"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "Alis",
+      "regimes": [
+        "A28"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "AMEDEA",
+      "regimes": [
+        "A412"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "APRR",
+      "regimes": [
+        "APRR network"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "Arcos",
+      "regimes": [
+        "A355"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "Arcour",
+      "regimes": [
+        "A19"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "AREA",
+      "regimes": [
+        "AREA network"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "ASF",
+      "regimes": [
+        "ASF network"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "Atlandes",
+      "regimes": [
+        "A63"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "ATMB",
+      "regimes": [
+        "A40",
+        "Mont Blanc Tunnel"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "Atosca",
+      "regimes": [
+        "A69"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "CCISE",
+      "regimes": [
+        "Pont de Normandie",
+        "Pont de Tancarville"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "CEVM",
+      "regimes": [
+        "Viaduc de Millau"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "Cofiroute",
+      "regimes": [
+        "Cofiroute network",
+        "Duplex A86"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "Escota",
+      "regimes": [
+        "Escota network"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "Sanef",
+      "regimes": [
+        "Sanef network"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "SAPN",
+      "regimes": [
+        "SAPN network"
+      ],
+      "accounted": true
+    },
+    {
+      "name": "SFTRF",
+      "regimes": [
+        "A43 Maurienne",
+        "Frejus Tunnel"
+      ],
+      "accounted": true
+    }
+  ],
+  "regimes": [
+    {
+      "concessionaire": "Adelac",
+      "network": "A41",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "Albea",
+      "network": "A150",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "ALIAE",
+      "network": "A79",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "Alicorne",
+      "network": "A88",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "A'Lienor",
+      "network": "A65",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "Alis",
+      "network": "A28",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "AMEDEA",
+      "network": "A412",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-A412-NOT-OPEN",
+      "evidenceStatus": "NOT_APPLICABLE_2026",
+      "officialUrl": "https://www.haute-savoie.gouv.fr/Actions-de-l-Etat/Votre-departement/Deplacements/Autoroute-du-Chablais-A412",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FR-A412-NOT-OPEN.official.html",
+      "artifactSha256": "3e92d61546c48cf9d7cc27fabfc3ec47190f1b62c076573b5d9f031fba03595d",
+      "limitation": "Official project evidence demonstrates no operating 2026 tariff is applicable at acquisition time.",
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "APRR",
+      "network": "APRR network",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-APRR-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://voyage.aprr.fr/sites/default/files/2026-02/TARIFS_APRR.pdf",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FR-APRR-2026.official.pdf",
+      "artifactSha256": "f05dfa58cb4ffba8b940b95319186fbf60f86d3791dce6a9df0919946b635d14",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "Arcos",
+      "network": "A355",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "Arcour",
+      "network": "A19",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "AREA",
+      "network": "AREA network",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-AREA-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://voyage.aprr.fr/sites/default/files/2026-01/TARIFS_INTERNES_AREA.pdf",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FR-AREA-2026.official.pdf",
+      "artifactSha256": "8cb1d174165ca5ca320d085527f1f093b482b9d10327b2016d759bf6b4f6e47b",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "ASF",
+      "network": "ASF network",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ASF-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://public-content.vinci-autoroutes.com/PDF/Tarifs-peage-asf/ASF-Guide-tarifaire-2026-maj062026.pdf",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FR-ASF-2026.official.pdf",
+      "artifactSha256": "221f3990f98cd5379a9c1013c88f61513c859fd148fdc613e1bd02700da9f687",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "Atlandes",
+      "network": "A63",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "ATMB",
+      "network": "A40",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "ATMB",
+      "network": "Mont Blanc Tunnel",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-MONTBLANC-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.atmb.com/app/uploads/2026/01/Tarifs-au-1er-janvier-2026-TMB.pdf",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FR-MONTBLANC-2026.official.pdf",
+      "artifactSha256": "3bc01a68ab3766bbb35b42d9e5b4068ebbbc729a01f26cee9ebede70897a31b7",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "Atosca",
+      "network": "A69",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-A69-NOT-OPEN",
+      "evidenceStatus": "NOT_APPLICABLE_2026",
+      "officialUrl": "https://www.ecologie.gouv.fr/presse/a69-entre-castres-toulouse-cour-administrative-dappel-retablit-autorisations",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FR-A69-NOT-OPEN.official.html",
+      "artifactSha256": "ecd2f7429e7d8634144d0ae3568646e7dc7bf35c0e48e1b942ee4d13626f65e0",
+      "limitation": "Official project evidence demonstrates no operating 2026 tariff is applicable at acquisition time.",
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "CCISE",
+      "network": "Pont de Normandie",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-CCISE-ORDER-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/LGKIebDIuZvuVGlpCoWjSCa9Ybbg3VF7kUQ8OgMFAvo=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-CCISE-ORDER-2026.owner-official.pdf",
+      "artifactSha256": "909c88487b866c4a0aa18088e80731a8b593c38295f264d72c991e9207008481",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "CCISE",
+      "network": "Pont de Tancarville",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-CCISE-ORDER-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/LGKIebDIuZvuVGlpCoWjSCa9Ybbg3VF7kUQ8OgMFAvo=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-CCISE-ORDER-2026.owner-official.pdf",
+      "artifactSha256": "909c88487b866c4a0aa18088e80731a8b593c38295f264d72c991e9207008481",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "CEVM",
+      "network": "Viaduc de Millau",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "Cofiroute",
+      "network": "Cofiroute network",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-COFIROUTE-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://public-content.vinci-autoroutes.com/PDF/Tarifs-peage-Cofiroute/Cofiroute-Guide-tarifaire-2026.pdf",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FR-COFIROUTE-2026.official.pdf",
+      "artifactSha256": "d8443adcc6f037e87a7f1b5c42730081e7ef45d78b45bffa0d72edd7c3ee433a",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "Cofiroute",
+      "network": "Duplex A86",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-COFIROUTE-A86-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://public-content.vinci-autoroutes.com/PDF/Tarifs-Duplex-A86/Tarifs-Duplex-2026.pdf",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FR-COFIROUTE-A86-2026.official.pdf",
+      "artifactSha256": "88b776f5562ee71ed51cb9f73fa32703aa0d174890b7e1a56a4f727c149e2c0c",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "Escota",
+      "network": "Escota network",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ESCOTA-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://public-content.vinci-autoroutes.com/PDF/Tarifs-peage-Escota/Escota-Guide-tarifaire-2026.pdf",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FR-ESCOTA-2026.official.pdf",
+      "artifactSha256": "ec09a55bf149a7c6184bfa77c825924b78b621ab9a0253fe3cda1a4cfe13787d",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "Sanef",
+      "network": "Sanef network",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-SANEF-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.groupe.sanef.com/sites/default/files/2026-01/2026_02-Grille-Sanef.pdf",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-SANEF-2026.owner-official.pdf",
+      "artifactSha256": "373b55bd4f4ff77d995f8ff26c543807478252fc13d79cb9f73b024fbd17bc66",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "SAPN",
+      "network": "SAPN network",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-SAPN-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.groupe.sanef.com/sites/default/files/2026-01/2026_02-Grille-SAPN.pdf",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-SAPN-2026.owner-official.pdf",
+      "artifactSha256": "f8a7468306f5c9979040c40c04db3ce6f910d4e7cb0c79311b447465c08a58d4",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "SFTRF",
+      "network": "A43 Maurienne",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-ORDER-12-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+      "artifactSha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    },
+    {
+      "concessionaire": "SFTRF",
+      "network": "Frejus Tunnel",
+      "inventoryEvidenceId": "RT001-FINAL-FR-INVENTORY-MINISTRY",
+      "tariffOrApplicabilityEvidenceId": "RT001-FINAL-FR-FREJUS-2026",
+      "evidenceStatus": "CAPTURED",
+      "officialUrl": "https://www.sftrf.fr/wp-content/uploads/2025/12/Tarifs_tunnel_2026_FR.pdf",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FR-FREJUS-2026.official.pdf",
+      "artifactSha256": "e60b71e6a68c8d7813e933c63f5608d671aef4a298b37cdfdd1408ff8f240882",
+      "limitation": null,
+      "authorityPromotion": "NONE_REVIEW_ONLY"
+    }
+  ],
+  "summary": {
+    "entitiesAccounted": 22,
+    "entitiesTotal": 22,
+    "regimesAccounted": 26,
+    "regimesTotal": 26,
+    "captured": 24,
+    "notApplicableWithEvidence": 2,
+    "integrityBlocked": 0,
+    "coverageStatement": "22/22 official entities and 26/26 regimes accounted for",
+    "integrityComplete": true
+  },
+  "registryMutation": "NONE",
+  "authorityPromotion": "NONE"
+}

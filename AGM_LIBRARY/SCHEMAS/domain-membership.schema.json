@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agm://library/schemas/domain-membership.v1",
+  "title": "AGM Domain Membership",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["membershipId", "sourceId", "domainId", "role", "rationale", "viewVersion", "domainOwner", "consumerPolicy"],
+  "properties": {
+    "membershipId": { "type": "string", "pattern": "^DM-[A-F0-9]{20}$" },
+    "sourceId": { "type": "string" },
+    "domainId": { "type": "string" },
+    "role": { "enum": ["DOMAIN_PRIMARY", "CONTEXTUAL", "EVIDENCE", "HISTORICAL", "CANDIDATE"] },
+    "rationale": { "type": "string" },
+    "viewVersion": { "type": "string" },
+    "domainOwner": { "type": "string" },
+    "consumerPolicy": { "type": "string" }
+  }
+}

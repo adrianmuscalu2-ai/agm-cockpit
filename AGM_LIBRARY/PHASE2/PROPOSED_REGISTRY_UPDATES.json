@@ -1,0 +1,385 @@
+{
+  "schemaVersion": "agm-phase2-proposed-registry-updates.v1",
+  "status": "PROPOSAL_ONLY_NOT_APPLIED",
+  "centralRegistry": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+  "centralRegistryMutated": false,
+  "additionsAfterHumanApprovalOnly": [
+    {
+      "sourceId": "CS-EU-REG-561-2006",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-DE-FPERSG",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-DE-FPERSV",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-DE-STVO",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-STVZO",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-HGB-412",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-UNECE-ADR-2025",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-GGVSEB",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-AT-STVO-42-20260213",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-CH-VRV-20220401",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-2026",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-CH-BAZG-ROAD-LEVIES",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-LU-EVIGNETTE-2019",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-AGM-CM-ARCH-V1",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "AGM Product Owner / Car Mover Steward"
+    },
+    {
+      "sourceId": "CS-AGM-CM-JOB-V1",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "AGM Product Owner / Car Mover Steward"
+    },
+    {
+      "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "proposedAction": "ADD_AFTER_REQUIRED_HUMAN_REVIEW",
+      "reviewOwner": "Inspector / Evidence Custody"
+    }
+  ],
+  "domainMembershipsAfterRegistryAcceptanceOnly": [
+    {
+      "sourceId": "CS-EU-REG-561-2006",
+      "domainId": "tacho",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+      "domainId": "tacho",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014",
+      "domainId": "tacho",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+      "domainId": "tacho",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799",
+      "domainId": "tacho",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "domainId": "tacho",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-DE-FPERSG",
+      "domainId": "tacho",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-DE-FPERSV",
+      "domainId": "tacho",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-DE-STVO",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-DE-STVZO",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-DE-HGB-412",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-UNECE-ADR-2025",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-DE-GGVSEB",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-AT-STVO-42-20260213",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-CH-VRV-20220401",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-2026",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "domainId": "legislation-safety",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-CH-BAZG-ROAD-LEVIES",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-LU-EVIGNETTE-2019",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "domainId": "tacho",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-AGM-CM-ARCH-V1",
+      "domainId": "car-mover",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-AGM-CM-ARCH-V1",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-AGM-CM-JOB-V1",
+      "domainId": "car-mover",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-AGM-CM-JOB-V1",
+      "domainId": "documents-ocr-evidence",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "domainId": "routing-toll",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "domainId": "car-mover",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "domainId": "documents-ocr-evidence",
+      "role": "CANDIDATE"
+    },
+    {
+      "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "domainId": "car-mover",
+      "role": "CANDIDATE"
+    }
+  ]
+}

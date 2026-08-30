@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "agm-legal-gap-as-is.v1",
+  "gapId": "LEGAL-003",
+  "preparedAt": "2026-08-30T18:00:00.000Z",
+  "verdict": "PARTIALLY_READY_BLOCKED",
+  "exactScope": "Germany / EU-facing operation: primary German legal duties for cargo loading and securing plus recognized technical rules for securing passenger cars and light commercial vehicles on vehicle transporters; licensing constraints are part of the scope.",
+  "currentBaseline": {
+    "expected": {
+      "registry": {
+        "path": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+        "count": 841,
+        "sha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076"
+      },
+      "routingTollView": {
+        "path": "AGM_LIBRARY/VIEWS/routing-toll.view.json",
+        "count": 289,
+        "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+      },
+      "legislationSafetyView": {
+        "path": "AGM_LIBRARY/VIEWS/legislation-safety.view.json",
+        "count": 44,
+        "sha256": "2db4f2b915e256f013bc4ed59188d810230a33c335333ec8cf364c6f1284dac1"
+      }
+    },
+    "observed": {
+      "registry": {
+        "count": 841,
+        "sha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076"
+      },
+      "routingTollView": {
+        "count": 289,
+        "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+      },
+      "legislationSafetyView": {
+        "count": 44,
+        "sha256": "2db4f2b915e256f013bc4ed59188d810230a33c335333ec8cf364c6f1284dac1"
+      }
+    }
+  },
+  "coverage": {
+    "demonstrated": 3,
+    "required": 4,
+    "ratio": "3/4"
+  },
+  "officialEvidence": {
+    "demonstrated": 3,
+    "required": 4,
+    "ratio": "3/4"
+  },
+  "alreadyCovered": [
+    "CS-DE-STVO is already canonical and in the legislation-safety view; its prior authority does not itself approve LEGAL-003 scope.",
+    "StVO section 22 supplies the public-law cargo securing duty and requires observance of recognized technical rules."
+  ],
+  "existingRegistrySources": [
+    "CS-DE-STVO"
+  ],
+  "candidateEvidence": [
+    "CS-DE-HGB-412",
+    "CS-VDI-2700-HANDBOOK"
+  ],
+  "missing": [
+    "Licensed, controlled normative text for the applicable current VDI 2700 vehicle-transporter sheets, including the current corrigendum relationship."
+  ],
+  "stale": [],
+  "duplicates": [
+    "CS-DE-STVO must be reused; a second source or copied artifact is prohibited.",
+    "Three VDI metadata captures are representations/supporting evidence for one proposed SourceId, not three sources."
+  ],
+  "authorityGaps": [
+    "Product Owner decisions are intentionally pending for the three review-ready candidates.",
+    "VDI catalogue metadata cannot acquire normative authority or substitute for licensed content."
+  ],
+  "blockers": [
+    "OWNER_LICENSED_ACQUISITION_REQUIRED"
+  ],
+  "reviewReadiness": {
+    "readyCandidateIds": [
+      "LEGAL003-CAND-DE-STVO-22",
+      "LEGAL003-CAND-DE-HGB-412",
+      "LEGAL003-CAND-VDI-2700-METADATA"
+    ],
+    "blockedNormativeCandidate": "VDI 2700 Blatt 8.1:2024-09 plus Berichtigung:2025-10",
+    "note": "The licensed acquisition blocker does not block Product Owner review of the other three candidates."
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

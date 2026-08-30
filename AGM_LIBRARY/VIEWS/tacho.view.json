@@ -1,0 +1,177 @@
+{
+  "$schema": "../SCHEMAS/domain-view.schema.json",
+  "schemaVersion": "agm-domain-view.v1",
+  "viewId": "tacho",
+  "displayName": "TACHO VIEW",
+  "viewVersion": "1.1.0",
+  "generatedAt": "2026-08-29T21:19:48.538Z",
+  "viewType": "CONTROLLED_REFERENCE_INDEX",
+  "authorityStatus": "CANDIDATE_NOT_AUTHORITATIVE",
+  "centralRegistry": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+  "owner": "Transport Compliance Owner (designation required)",
+  "policyId": "POLICY-TACHO",
+  "sourceCount": 40,
+  "uniqueContentHashes": 31,
+  "memberships": [
+    {
+      "membershipId": "DM-1A2483334B0FEDF40313",
+      "sourceId": "CM-55FD610A616403CB"
+    },
+    {
+      "membershipId": "DM-99960D113F3F6159045F",
+      "sourceId": "CM-92074282569F97B7"
+    },
+    {
+      "membershipId": "DM-56827A61531CAED9DEB9",
+      "sourceId": "CM-3F4BF73B1C927BBE"
+    },
+    {
+      "membershipId": "DM-47180D26E9E5B5802B4B",
+      "sourceId": "CM-501022B2B34516A7"
+    },
+    {
+      "membershipId": "DM-A22C25DC3B36CFE8D25B",
+      "sourceId": "CM-9BBF0624499EDF99"
+    },
+    {
+      "membershipId": "DM-62F4E9ACD6EFFE39674A",
+      "sourceId": "CM-C0D905FCAD7E5672"
+    },
+    {
+      "membershipId": "DM-A60AF0E8308E5A2A1466",
+      "sourceId": "CM-88C3CB32522677CA"
+    },
+    {
+      "membershipId": "DM-55270509D814E18AC387",
+      "sourceId": "CM-08F3BA1B9544BE94"
+    },
+    {
+      "membershipId": "DM-C1FB3F70D74741719835",
+      "sourceId": "CM-79D6D1B3BE38D9DB"
+    },
+    {
+      "membershipId": "DM-BE1D7963D770321BB8D7",
+      "sourceId": "CM-493C23802218EF67"
+    },
+    {
+      "membershipId": "DM-9EAD45E67740A40062B1",
+      "sourceId": "CM-754BAFDB339A4B21"
+    },
+    {
+      "membershipId": "DM-9709DE0D51BD53BC4678",
+      "sourceId": "CM-0DEBA02B62527C1B"
+    },
+    {
+      "membershipId": "DM-9568062632E51D9FC757",
+      "sourceId": "CM-C8B959D2E7273244"
+    },
+    {
+      "membershipId": "DM-72B34BBC0DE6F99008E6",
+      "sourceId": "CM-89D49FA31689FFB3"
+    },
+    {
+      "membershipId": "DM-D9786E16AD5D704DA424",
+      "sourceId": "CM-D7F15ADFE634B2DC"
+    },
+    {
+      "membershipId": "DM-DAC8BFA509C694827CF8",
+      "sourceId": "CM-4BFB048B8F06604F"
+    },
+    {
+      "membershipId": "DM-69E64D779B666C74D2FC",
+      "sourceId": "CM-61EF53A772F35E34"
+    },
+    {
+      "membershipId": "DM-B83032C07E37FA6CA9F8",
+      "sourceId": "CM-D6704E81797E25AF"
+    },
+    {
+      "membershipId": "DM-10E5050F311618FB9788",
+      "sourceId": "CM-06FF6A9A4C921EB5"
+    },
+    {
+      "membershipId": "DM-2DC9C029DF37A2E3A79D",
+      "sourceId": "CM-F38AFE3879B5CBEB"
+    },
+    {
+      "membershipId": "DM-AC2FCDC828A349171832",
+      "sourceId": "CM-CCFE1C2EE6B3B0D5"
+    },
+    {
+      "membershipId": "DM-3B252198516BB66058C0",
+      "sourceId": "CM-C5FF73463DE43B51"
+    },
+    {
+      "membershipId": "DM-0AA07FD5479A4E7E0D7D",
+      "sourceId": "CM-0246984C33D133A5"
+    },
+    {
+      "membershipId": "DM-5F02F63B3CE4DDB7085E",
+      "sourceId": "CM-31B44DCA8FC003C0"
+    },
+    {
+      "membershipId": "DM-8C94C531A2937E39EC42",
+      "sourceId": "CM-3B25B692B4877558"
+    },
+    {
+      "membershipId": "DM-46BBCD30A20BA2D1F2F5",
+      "sourceId": "CM-0670FDF490BA5D1E"
+    },
+    {
+      "membershipId": "DM-DAEF7C623C30753AD32B",
+      "sourceId": "CM-BA6C21638A67ACA6"
+    },
+    {
+      "membershipId": "DM-1AC44568BE251DC98177",
+      "sourceId": "CM-696756EECDAA6D7B"
+    },
+    {
+      "membershipId": "DM-6AE4E635371574D915A9",
+      "sourceId": "CM-583B7BEC6E8C0427"
+    },
+    {
+      "membershipId": "DM-9FA3123479AF1E2090CB",
+      "sourceId": "CM-288E0F488E7BB978"
+    },
+    {
+      "membershipId": "DM-9B224C0E538D466E7D6D",
+      "sourceId": "CM-0F4F84F6566EB5EC"
+    },
+    {
+      "membershipId": "DM-0417CF58646233877EFC",
+      "sourceId": "CS-EU-REG-561-2006"
+    },
+    {
+      "membershipId": "DM-CEABA760C509047CD34A",
+      "sourceId": "CS-EU-REG-561-2006-CONS-20241231"
+    },
+    {
+      "membershipId": "DM-89F344C1380565CA8AE8",
+      "sourceId": "CS-EU-REG-165-2014"
+    },
+    {
+      "membershipId": "DM-960CBC95F8381636DAFB",
+      "sourceId": "CS-EU-REG-165-2014-CONS-20241231"
+    },
+    {
+      "membershipId": "DM-499446023C8F4135CC03",
+      "sourceId": "CS-EU-IMPL-REG-2016-799"
+    },
+    {
+      "membershipId": "DM-FA031BDBD25D195D32E2",
+      "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821"
+    },
+    {
+      "membershipId": "DM-4C2CFE33099532584584",
+      "sourceId": "CS-DE-FPERSG"
+    },
+    {
+      "membershipId": "DM-84CAF88154C93FB7455D",
+      "sourceId": "CS-DE-FPERSV"
+    },
+    {
+      "membershipId": "DM-77031AA9C89D4DB38BF9",
+      "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1"
+    }
+  ]
+}

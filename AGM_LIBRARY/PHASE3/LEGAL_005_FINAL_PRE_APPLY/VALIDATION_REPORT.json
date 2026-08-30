@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "agm-legal-005-final-pre-apply-validation.v1",
+  "validatedAt": "2026-08-30T20:00:00.000Z",
+  "result": "PASS",
+  "authorityReview": {
+    "decisions": 23,
+    "approve": 23,
+    "reject": 0,
+    "defer": 0,
+    "pending": 0,
+    "authoritativeWithScope": 21,
+    "contextual": 2
+  },
+  "validators": [
+    {
+      "script": "scripts/test-legal-005-owner-review-readonly.mjs",
+      "name": "LEGAL-005_FINAL_BLOCKER_RESOLUTION_READ_ONLY",
+      "result": "PASS",
+      "passed": 66,
+      "total": 66
+    },
+    {
+      "script": "scripts/validate-legal-005-fr-owner-manual-ingest-readonly.mjs",
+      "name": "LEGAL-005_FR_OWNER_MANUAL_INGEST_READ_ONLY",
+      "result": "PASS",
+      "resolved": 3,
+      "missing": 0
+    },
+    {
+      "script": "scripts/test-legal-005-final-pre-apply-readonly.mjs",
+      "name": "LEGAL005_FINAL_PRE_APPLY_READ_ONLY",
+      "result": "PASS",
+      "passed": 66,
+      "total": 66
+    },
+    {
+      "script": "scripts/verify-legal-005-final-pre-apply-idempotence.mjs",
+      "name": "LEGAL005_FINAL_PRE_APPLY_IDEMPOTENCE",
+      "result": "PASS",
+      "comparedFiles": 6,
+      "changed": [],
+      "deterministicRegeneration": "PASS"
+    }
+  ],
+  "exactImpact": {
+    "registry": {
+      "add": 21,
+      "modify": 0,
+      "delete": 0,
+      "from": 841,
+      "to": 862
+    },
+    "legislationSafetyView": {
+      "add": 22,
+      "modify": 0,
+      "delete": 0,
+      "from": 44,
+      "to": 66
+    },
+    "routingTollView": {
+      "add": 0,
+      "modify": 0,
+      "delete": 0,
+      "from": 289,
+      "to": 289
+    }
+  },
+  "projectedHashes": {
+    "registrySha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245",
+    "legislationSafetyViewSha256": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab",
+    "routingTollViewSha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+  },
+  "packageHashes": {
+    "productOwnerDecisionsSha256": "db40d51b3175f3de99854e7dff5fdd02725c7a30d935fbcb20b74a8455f647bf",
+    "finalPreApplyPackageSha256": "da18b651e4994b0ff213e5d7441757bc638cd9523eaae03573c388c87399dd79",
+    "projectedChangesetSha256": "6a8ab4afe7ab6f183f9e2e8ed945d38bd55f1dc7c74d5fbfbff639d07f2469a7",
+    "consolidatedTemporalReviewSha256": "c18a1f4a7b3857f576d5f3c68638d24ce815a13f93328b6cfe5c4d9ce5d920d5",
+    "finalReportSha256": "c3776fb4c4c5909383b467d94caa8f53ef37e5eb45f2a96c75b58f0835cca89c"
+  },
+  "duplicateAndCollisionBlockers": [],
+  "remainingBlockers": [],
+  "protectedBaseline": {
+    "registry": {
+      "count": 841,
+      "sha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076",
+      "unchanged": true
+    },
+    "legislationSafetyView": {
+      "count": 44,
+      "sha256": "2db4f2b915e256f013bc4ed59188d810230a33c335333ec8cf364c6f1284dac1",
+      "unchanged": true
+    },
+    "routingTollView": {
+      "count": 289,
+      "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0",
+      "unchanged": true
+    }
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "legislationSafetyViewMutation": "NONE",
+    "routingTollViewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  },
+  "verdict": "FINAL PRE-APPLY PACKAGE = READY FOR PRODUCT OWNER APPLY REVIEW"
+}

@@ -1,0 +1,172 @@
+{
+  "schemaVersion": "agm-routing-toll-001-facilities-coverage.v1",
+  "generatedAt": "2026-08-30T08:50:57.230Z",
+  "inventoryRule": "Account current and officially identified future facility-specific regimes; no national-regime extrapolation.",
+  "items": [
+    {
+      "country": "BE",
+      "facility": "Liefkenshoek Tunnel",
+      "applicability": "CURRENT",
+      "scopeEvidence": [
+        "RT001-FINAL-FAC-BE-TUNNEL-INVENTORY",
+        "RT001-FINAL-FAC-BE-EETS"
+      ],
+      "tariffEvidence": {
+        "artifactId": "RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026",
+        "officialUrl": "https://www.liefkenshoektunnel.be/sites/default/files/media/files/2025-12/algemene_voorwaarden_tlh_v2026.pdf",
+        "status": "INTEGRITY_CAPTURED_REVIEW_ONLY",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026.owner-official.pdf",
+        "sizeBytes": 429035,
+        "sha256": "2a8d05846ba96759c777ee6a9211474a8b61fcf6efd0123339010c1eecba3435",
+        "blockReason": null
+      },
+      "status": "CAPTURED",
+      "limitation": null
+    },
+    {
+      "country": "BE",
+      "facility": "Oosterweel/Scheldt connection",
+      "applicability": "FUTURE_NOT_APPLICABLE_2026",
+      "scopeEvidence": [
+        "RT001-FINAL-FAC-BE-OOSTERWEEL-FUTURE"
+      ],
+      "tariffEvidence": null,
+      "status": "NOT_APPLICABLE_WITH_EVIDENCE",
+      "limitation": null
+    },
+    {
+      "country": "NL",
+      "facility": "A24 Blankenburgverbinding",
+      "applicability": "CURRENT",
+      "scopeEvidence": [
+        "RT001-FINAL-FAC-NL-A24-VIA15-SCOPE"
+      ],
+      "tariffEvidence": {
+        "sourceId": "CS-NL-A24-ETOL-2026",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-NL-A24-ETOL-2026.official.html",
+        "sizeBytes": 246982,
+        "sha256": "852d1a5fcd502ee89b8c9dc0082ed45b114f07ad909b156de980f35783717198"
+      },
+      "status": "CAPTURED",
+      "limitation": null
+    },
+    {
+      "country": "NL",
+      "facility": "Kiltunnel",
+      "applicability": "CURRENT",
+      "scopeEvidence": [
+        "RT001-FINAL-FAC-NL-NATIONAL-SCOPE"
+      ],
+      "tariffEvidence": {
+        "candidateId": "RT001-RES-NL-KILTUNNEL",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-NL-KILTUNNEL.official.html",
+        "mediaType": "text/html",
+        "sizeBytes": 37043,
+        "sha256": "1e5bb07525394bdd253396932296d1c56cc946b60d753245e07092c0e9aaa679",
+        "officialUrl": "https://kiltunnel.nl/faq?cat=7",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "status": "CAPTURED",
+      "limitation": null
+    },
+    {
+      "country": "NL",
+      "facility": "Westerscheldetunnel",
+      "applicability": "CURRENT_HEAVY_VEHICLE_CHARGE",
+      "scopeEvidence": [
+        "RT001-FINAL-FAC-NL-NATIONAL-SCOPE"
+      ],
+      "tariffEvidence": {
+        "candidateId": "RT001-RES-NL-WESTERSCHELDE-2026",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-NL-WESTERSCHELDE-2026.official.html",
+        "mediaType": "text/html",
+        "sizeBytes": 40255,
+        "sha256": "d364d349469b70807ef14840132ea3d78e8aa1f3a4b790d397d8dee8714b731a",
+        "officialUrl": "https://www.westerscheldetunnel.nl/nl/tarieven-betaalmiddelen/tarieven/",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "status": "CAPTURED",
+      "limitation": "Vehicle/category applicability must remain scoped to the captured 2026 operator evidence."
+    },
+    {
+      "country": "NL",
+      "facility": "Tolbrug Nieuwerbrug",
+      "applicability": "CURRENT_PRIVATE_LOCAL_BRIDGE",
+      "scopeEvidence": [
+        "RT001-FINAL-FAC-NL-NIEUWERBRUG"
+      ],
+      "tariffEvidence": {
+        "artifactId": "RT001-FINAL-FAC-NL-NIEUWERBRUG",
+        "officialUrl": "https://tolbrugnieuwerbrug.nl/",
+        "status": "INTEGRITY_CAPTURED_REVIEW_ONLY",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FAC-NL-NIEUWERBRUG.official.html",
+        "sizeBytes": 205448,
+        "sha256": "0ff0a14f27f6cd29942b09d10c787c4dde2a75d44d64e4b0a4c50ed3c65d4cee",
+        "blockReason": null
+      },
+      "status": "OUT_OF_SCOPE_BY_PRODUCT_OWNER",
+      "limitation": "Excluded from canonical ROUTING/TOLL as a local/private micro-regime. Field encounter remains UNKNOWN and requires human confirmation; zero-toll inference is forbidden."
+    },
+    {
+      "country": "NL",
+      "facility": "Via15",
+      "applicability": "FUTURE_NOT_APPLICABLE_2026",
+      "scopeEvidence": [
+        "RT001-FINAL-FAC-NL-A24-VIA15-SCOPE"
+      ],
+      "tariffEvidence": null,
+      "status": "NOT_APPLICABLE_WITH_EVIDENCE",
+      "limitation": null
+    },
+    {
+      "country": "DE",
+      "facility": "Warnowquerung",
+      "applicability": "CURRENT",
+      "scopeEvidence": [
+        "RT001-FINAL-FAC-DE-FMODEL"
+      ],
+      "tariffEvidence": {
+        "candidateId": "RT001-RES-DE-WARNOW-2025",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-DE-WARNOW-2025.official.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 731435,
+        "sha256": "2c0e39f68843cfc0b0952c0bf570b34f93b1e649334d468672f3163989a60f52",
+        "officialUrl": "https://www.warnowquerung.de/wp-content/uploads/GVOBl.-Nr.-19-v.-15.10.2025.pdf",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "status": "CAPTURED",
+      "limitation": null
+    },
+    {
+      "country": "DE",
+      "facility": "Herrentunnel",
+      "applicability": "CURRENT",
+      "scopeEvidence": [
+        "RT001-FINAL-FAC-DE-FMODEL"
+      ],
+      "tariffEvidence": {
+        "candidateId": "RT001-RES-DE-HERREN",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-DE-HERREN.official.html",
+        "mediaType": "text/html",
+        "sizeBytes": 22110,
+        "sha256": "7f895cc23fb416df0a1eb9d66649ca1d5650922ccb6c3638513e995a98077af8",
+        "officialUrl": "https://www.herrentunnel-luebeck.de/index.php/maut-tarife.html",
+        "acquisitionTimestamp": "2026-08-30T08:22:23.774Z"
+      },
+      "status": "CAPTURED",
+      "limitation": null
+    }
+  ],
+  "summary": {
+    "inventoryAccounted": 9,
+    "inventoryTotal": 9,
+    "accounted": 8,
+    "total": 8,
+    "integrityComplete": 8,
+    "integrityBlocked": 0,
+    "outOfScopeByOwner": 1,
+    "coverageStatement": "8/8 in-scope facilities accounted; 8/8 integrity complete; 9/9 inventory items preserved"
+  },
+  "registryMutation": "NONE",
+  "authorityPromotion": "NONE"
+}

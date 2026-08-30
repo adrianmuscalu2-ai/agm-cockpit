@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agm://library/schemas/domain-membership-collection.v1",
+  "title": "AGM Domain Membership Collection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "collectionVersion", "generatedAt", "centralRegistry", "membershipCount", "memberships"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "agm-domain-membership-collection.v1" },
+    "collectionVersion": { "type": "string" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "centralRegistry": { "const": "AGM_LIBRARY/REGISTRY/canonical-sources.json" },
+    "membershipCount": { "type": "integer", "minimum": 1 },
+    "memberships": {
+      "type": "array",
+      "items": { "$ref": "domain-membership.schema.json" }
+    }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "agm-controlled-browser-evidence.v1",
+  "capturedAt": "2026-08-30T13:24:25.236Z",
+  "sourceId": "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026",
+  "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "officialUrls": {
+    "viaProductAsset": "https://via.admin.ch/shop/main-42DWTXKQ.js",
+    "bazgScopeAndValidity": "https://www.bazg.admin.ch/en/faq-vignette-and-e-vignette-purchase"
+  },
+  "reconciledClaim": {
+    "product": "Swiss motorway e-vignette 2026",
+    "price": "CHF 40",
+    "scope": "Swiss motorways; motor vehicles and trailers up to 3.5 tonnes, excluding heavy-vehicle-charge regimes",
+    "effectiveFrom": "2025-12-01",
+    "effectiveUntil": "2027-01-31",
+    "temporalDerivation": "Via official product year 2026 + BAZG official rule: 1 December of previous year through 31 January of following year"
+  },
+  "checks": [
+    {
+      "name": "CANONICAL_ARTIFACT_RENDERED",
+      "pass": true,
+      "actual": "file:///C:/Users/adria/Documents/AGM/AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-product.official.js",
+      "expected": "file:///C:/Users/adria/Documents/AGM/AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-product.official.js"
+    },
+    {
+      "name": "VIA_OFFICIAL_PROVENANCE_URL",
+      "pass": true,
+      "actual": "https://via.admin.ch/shop/main-42DWTXKQ.js",
+      "expected": "via.admin.ch"
+    },
+    {
+      "name": "VIA_PRODUCT_2026",
+      "pass": true,
+      "actual": "ay\"));var _1={id:0,type:Ce.E_VIGNETTE,imageName:\"evignette-2026.png\",title:{de:\"E-Vignette 2026\",en:\"E-vignette 2026\",it:\"Contrassegno elettronico 2026\",fr:\"E-vignette 2026\"},subtitle:{de:\"f\\xFCr Autobahnen/Autostrassen\",en:\"for motorways\",it:\"per autostr",
+      "expected": "E-vignette 2026"
+    },
+    {
+      "name": "VIA_PRICE_CHF_40",
+      "pass": true,
+      "actual": "-27\",availableTo:\"2025-11-30\",price:40,variablePrice:!1};function fO(i,t){if(i",
+      "expected": "price:40 (CHF product renderer)"
+    },
+    {
+      "name": "VIA_SCOPE_MOTORWAYS",
+      "pass": true,
+      "actual": "for motorways",
+      "expected": "present"
+    },
+    {
+      "name": "VIA_SCOPE_UP_TO_3_5T",
+      "pass": true,
+      "actual": "-3.5t",
+      "expected": "present"
+    },
+    {
+      "name": "BAZG_OFFICIAL_IDENTITY",
+      "pass": true,
+      "actual": "BAZG/FOCBS",
+      "expected": "present"
+    },
+    {
+      "name": "BAZG_SCOPE_UP_TO_3_5T",
+      "pass": true,
+      "actual": "up to 3.5 tonnes",
+      "expected": "present"
+    },
+    {
+      "name": "BAZG_PRICE_CHF_40",
+      "pass": true,
+      "actual": "CHF 40",
+      "expected": "present"
+    },
+    {
+      "name": "BAZG_VALIDITY_FORMULA",
+      "pass": true,
+      "actual": "1 December previous year -> 31 January following year",
+      "expected": "present"
+    }
+  ],
+  "artifacts": {
+    "viaCapturedJs": {
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-product.official.js",
+      "sizeBytes": 1068425,
+      "sha256": "9075cfb58828ffae99b55f65f2123b1b097d56127e9395b0f449bb1c7f75da07"
+    },
+    "viaRenderedHtml": {
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-rendered.official.html",
+      "sizeBytes": 2952,
+      "sha256": "e18103a7753874b8e87ee474ab2cd32bade38f9955c78e66796efee66e744dfb"
+    },
+    "viaRenderedText": {
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-rendered.official.txt",
+      "sizeBytes": 2601,
+      "sha256": "e9507467f80621b9d92748b2096560245c2019144f66ba733850a31979ee4425"
+    },
+    "viaScreenshot": {
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.via-rendered.official.png",
+      "sizeBytes": 38841,
+      "sha256": "744fcbeea778fd8971275ecec5cc231d089705387daa40c7f9f0b548284ce4d5"
+    },
+    "bazgSupportHtml": {
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CONSOLIDATED_PRE_APPLY/EVIDENCE/RT001-RES-CH-VIGNETTE-2026.bazg-support.official.html",
+      "sizeBytes": 503012,
+      "sha256": "fc6f19ae9ec162f08542bca6fbfc065ddb7d3939567bf04bd91682ffa7350ffc"
+    }
+  },
+  "fatal": null,
+  "verdict": "PASS"
+}

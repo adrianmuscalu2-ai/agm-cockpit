@@ -1,0 +1,209 @@
+{
+  "schemaVersion": "agm-phase3-final-consolidated-closeout.v1",
+  "generatedAt": "2026-08-30T23:00:00.000Z",
+  "asOfDate": "2026-08-30",
+  "status": "PHASE_3_PASS_CLOSED",
+  "scope": [
+    "ROUTING-TOLL-001",
+    "LEGAL-005",
+    "LEGAL-003"
+  ],
+  "objectiveStatusMatrix": [
+    {
+      "objectiveId": "ROUTING-TOLL-001",
+      "status": "CLOSED_ATOMIC_APPLY_PASS",
+      "coverage": "Facilities integrity 8/8",
+      "officialEvidence": "5/5",
+      "authorityDecisions": "10/10 APPROVE",
+      "classifications": {
+        "AUTHORITATIVE_WITH_SCOPE": 9,
+        "CONTEXTUAL": 1
+      },
+      "atomicImpact": {
+        "registry": "831 -> 841; ADD/MODIFY/DELETE 10/0/0",
+        "routingTollView": "279 -> 289; ADD/MODIFY/DELETE 10/0/0"
+      },
+      "postApplyValidator": "41/41 PASS",
+      "idempotence": "PASS_ZERO_REEXECUTED_OPERATIONS",
+      "blockers": []
+    },
+    {
+      "objectiveId": "LEGAL-005",
+      "status": "CLOSED_ATOMIC_APPLY_PASS",
+      "coverage": "20/20",
+      "officialEvidence": "20/20",
+      "authorityDecisions": "23/23 APPROVE",
+      "classifications": {
+        "AUTHORITATIVE_WITH_SCOPE": 21,
+        "CONTEXTUAL": 2
+      },
+      "atomicImpact": {
+        "registry": "841 -> 862; ADD/MODIFY/DELETE 21/0/0",
+        "legislationSafetyView": "44 -> 66; ADD/MODIFY/DELETE 22/0/0",
+        "routingTollView": "289 -> 289; ADD/MODIFY/DELETE 0/0/0"
+      },
+      "postApplyValidator": "55/55 PASS",
+      "idempotence": "PASS_SECOND_APPLY_0_0_0",
+      "blockers": []
+    },
+    {
+      "objectiveId": "LEGAL-003",
+      "status": "PASS_WITH_EXTERNAL_LICENSED_DEPENDENCY_CLOSED",
+      "approvedCurrentScope": "COMPLETE",
+      "publicAuthoritativeEvidence": "3/4",
+      "licensedExternalDependency": "1/4",
+      "candidateReconciliation": "3/3; pending 0",
+      "classifications": {
+        "AUTHORITATIVE_WITH_SCOPE": 2,
+        "CONTEXTUAL": 1
+      },
+      "currentMutationImpact": "Registry/View ADD/MODIFY/DELETE 0/0/0",
+      "validator": "39/39 PASS; impact study 30/30 PASS",
+      "idempotence": "PASS",
+      "blockers": [],
+      "conditionalReopenState": "VDI_LICENSE_REVIEW_REQUIRED only if the approved advisory-only scope expands"
+    }
+  ],
+  "finalBaseline": {
+    "centralRegistry": {
+      "path": "AGM_LIBRARY/REGISTRY/canonical-sources.json",
+      "count": 862,
+      "sha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245"
+    },
+    "legislationSafetyView": {
+      "path": "AGM_LIBRARY/VIEWS/legislation-safety.view.json",
+      "count": 66,
+      "uniqueContentHashes": 57,
+      "sha256": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab"
+    },
+    "routingTollView": {
+      "path": "AGM_LIBRARY/VIEWS/routing-toll.view.json",
+      "count": 289,
+      "uniqueContentHashes": 274,
+      "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+    }
+  },
+  "crossObjectiveIntegrity": {
+    "sourceIds": "862/862 UNIQUE",
+    "candidateIds": "36/36 UNIQUE across final decision/reconciliation sets",
+    "candidateSourceIds": "35 unique for 36 records; sole intentional reuse CS-DE-STVO",
+    "viewOrphans": 0,
+    "duplicateContent": {
+      "registryDuplicateHashGroups": 62,
+      "registryDuplicateHashExcess": 195,
+      "legal005BeforeAfter": "62/195 -> 62/195",
+      "newUnexpectedDuplicateImpact": 0,
+      "interpretation": "Legacy preserved content representations remain; neither final atomic apply introduced a new canonical content collision."
+    },
+    "canonicalIdentifierReconciliation": "CS-NL-RVV-HGV-ACCESS-20260701 present exactly once; RWV alias absent",
+    "overlapReconciliation": [
+      "CS-DE-STVO is intentionally reused: LEGAL-005 section 30 scope and LEGAL-003 section 22 scope; no duplicate source.",
+      "France base, annual and fire sources remain distinct.",
+      "Austria general section 42, annual calendar, A10 and Luegbruecke remain distinct.",
+      "Belgium Flanders, Brussels-Capital and Wallonia remain distinct.",
+      "Switzerland VRV and ARV 1 remain distinct.",
+      "Denmark driving/rest, environmental zones and KmToll remain distinct."
+    ],
+    "artifactIntegrity": "31/31 newly applied canonical artifacts exist and match recorded SHA-256; LEGAL-003 evidence manifest 5/5 hash match",
+    "unexpectedModifyDelete": "NONE"
+  },
+  "freshnessAndExpiry": {
+    "engine": "PASS",
+    "contractTests": "16/16 PASS",
+    "historicalImplementationValidator": "44/44 PASS at its authorized 841-source snapshot",
+    "currentConsolidatedValidation": "PASS at 862/66/289",
+    "queue": "AGM_LIBRARY/PHASE3/FINAL_CONSOLIDATED_CLOSEOUT/TEMPORAL_FRESHNESS_SUCCESSOR_QUEUE.json",
+    "unknownInvariant": "UNKNOWN is never ZERO, SAFE, PASS or NO RESTRICTION",
+    "automaticPromotion": false,
+    "automaticSupersession": false
+  },
+  "emailAlerting": {
+    "engineAndDedup": "PASS",
+    "recipients": [
+      "agm.transporte.logistik@gmail.com",
+      "adrianmuscalu2@gmail.com"
+    ],
+    "sender": "agm.transporte.logistik@gmail.com",
+    "deliveryStatus": "BLOCKED_CONFIGURATION_REQUIRED",
+    "exactMissingDependency": "GMAIL_ACCESS_TOKEN or GMAIL_OAUTH_CLIENT_ID + GMAIL_OAUTH_CLIENT_SECRET + GMAIL_OAUTH_REFRESH_TOKEN",
+    "scope": "EMAIL_DELIVERY_ONLY",
+    "phase3ClosureBlocker": false
+  },
+  "governance": {
+    "policy": "AGM-GOV-NO-UNVERIFIED-ROLE-ASSUMPTION",
+    "scope": "AGM_WIDE",
+    "principle": "AGM_ADVISORY_NOT_CERTIFYING_AUTHORITY",
+    "mandatoryFlow": "AGM_PROPOSAL -> HUMAN_PHYSICAL_VERIFICATION -> USER_DECISION",
+    "authorityPromotionBeyondOwnerDecisions": "NONE",
+    "automaticCertification": "FORBIDDEN",
+    "runtimeProduction": "NO_CHANGE"
+  },
+  "remainingExternalDependencies": [
+    {
+      "dependency": "Gmail delivery authentication",
+      "status": "BLOCKED_CONFIGURATION_REQUIRED",
+      "blockingPhase3Closure": false
+    },
+    {
+      "dependency": "Official successor/currentness evidence in the temporal queue",
+      "status": "SCHEDULED_OWNER_REVIEW_QUEUE",
+      "blockingPhase3Closure": false
+    },
+    {
+      "dependency": "VDI document/AI rights if normative licensed-standard scope is requested later",
+      "status": "CONDITIONAL_FUTURE_LICENSE_REVIEW",
+      "blockingPhase3Closure": false
+    }
+  ],
+  "recordBindings": {
+    "routingTollClosureValidation": {
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_ATOMIC_CLOSURE/FINAL_CLOSURE_VALIDATION_REPORT.json",
+      "sha256": "319bb6d70d35393130aaef9b1be171710e99398e56e9f7be09666cc13cc572eb"
+    },
+    "routingTollApplyReceipt": {
+      "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_ATOMIC_CLOSURE/ATOMIC_APPLY_RECEIPT.json",
+      "sha256": "b72201ab88068eab3f646aa4ed0d49f7d4dde4b14e08e1f32f37270a6124197a"
+    },
+    "legal005PostApplyValidation": {
+      "path": "AGM_LIBRARY/PHASE3/LEGAL_005_ATOMIC_APPLY/POST_APPLY_VALIDATION_REPORT.json",
+      "sha256": "b7e394b82d9301698d7e6b05746dbd17916f66eca1c9571b8cbef8f5bc3e874a"
+    },
+    "legal005ExecutionRecord": {
+      "path": "AGM_LIBRARY/PHASE3/LEGAL_005_ATOMIC_APPLY/ATOMIC_APPLY_EXECUTION_RECORD.json",
+      "sha256": "caa17ab6932563456c8899fa242963a8fcfc7b038ad9db2310b628d503ae83b5"
+    },
+    "legal003ClosureValidation": {
+      "path": "AGM_LIBRARY/PHASE3/LEGAL_003_FINAL_CLOSURE/FINAL_CLOSURE_VALIDATION_REPORT.json",
+      "sha256": "f00c5a58d042188f37d9138aaaca2a0387289e2de11e805ca03d5f224000b4cd"
+    },
+    "legal003OwnerDecision": {
+      "path": "AGM_LIBRARY/PHASE3/LEGAL_003_FINAL_CLOSURE/PRODUCT_OWNER_CLOSURE_DECISION.json",
+      "sha256": "6e9c829658a0528760d83be5950ab9b2cf0ea75d18acb4e719f13c1da8d966b3"
+    },
+    "sourceFreshnessValidation": {
+      "path": "AGM_LIBRARY/PHASE3/SOURCE_FRESHNESS_ALERT_RULE/VALIDATION_REPORT.json",
+      "sha256": "ce7511c0134841efdb3df983176d9571d9f11b10b2d589f8b911d27d55fa7817"
+    },
+    "governancePolicy": {
+      "path": "AGM_LIBRARY/GOVERNANCE/ADVISORY_NON_CERTIFYING_AUTHORITY_POLICY.json",
+      "sha256": "f0da6ea98cb05506692b6ca1b88007baf90ea10686b27aa9a7efb0ded49910cf"
+    }
+  },
+  "validation": {
+    "validator": "scripts/validate-phase3-final-consolidated-closeout-readonly.mjs",
+    "mode": "READ_ONLY",
+    "deterministicRegeneration": "PASS",
+    "idempotence": "PASS",
+    "phase3Blockers": []
+  },
+  "guardrails": {
+    "registryMutationDuringCloseout": "NONE",
+    "legislationSafetyViewMutationDuringCloseout": "NONE",
+    "routingTollViewMutationDuringCloseout": "NONE",
+    "authorityPromotionDuringCloseout": "NONE",
+    "atomicApplyDuringCloseout": "NOT_EXECUTED",
+    "runtimeProduction": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED",
+    "gitHeadAtCloseout": "dc8d793d45fe4108bf3f9b8eb833d8423cd27201"
+  }
+}

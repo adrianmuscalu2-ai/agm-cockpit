@@ -1,0 +1,116 @@
+{
+  "generatedAt": "2026-08-29T18:15:07.867Z",
+  "fileCount": 22,
+  "files": [
+    {
+      "path": "AGM_LIBRARY/GOVERNANCE/CAR_MOVER_BOUNDARY_DECISION.md",
+      "sizeBytes": 940,
+      "sha256": "9d0f5430595c93f73c06282dad7d0819b5b5dbe415fae6be160f7c30b1c7a3e8"
+    },
+    {
+      "path": "AGM_LIBRARY/GOVERNANCE/MULTI_LIBRARY_FOUNDATION_CONTRACT.md",
+      "sizeBytes": 2140,
+      "sha256": "f7c1ab8c88ebbe1fbcecdb25b738f2d2e3317af9acb0403a94a73850484cfbda"
+    },
+    {
+      "path": "AGM_LIBRARY/GOVERNANCE/OWNER_POLICY_MATRIX.md",
+      "sizeBytes": 1437,
+      "sha256": "ac2ce7b9ce67c7140b3d4c87594e66d2286efb53387d736b4993bd45d34eb555"
+    },
+    {
+      "path": "AGM_LIBRARY/GOVERNANCE/domain-ownership-policy.json",
+      "sizeBytes": 4862,
+      "sha256": "8b449f8a1845dd05a67952942e2220de458926e3ab0cb026597137dff6501fc3"
+    },
+    {
+      "path": "AGM_LIBRARY/MAPPINGS/domain-memberships.json",
+      "sizeBytes": 631090,
+      "sha256": "5a9e164248642f3a9a443ae47cfa8a1a40a5b39c9f49f1f290a6608af7016707"
+    },
+    {
+      "path": "AGM_LIBRARY/MAPPINGS/source-domain-mapping.json",
+      "sizeBytes": 178300,
+      "sha256": "74a7e72d5a58d4727b9a613bf79bbd59a987bed0f0c3c407d3f7ec71ea4f80f7"
+    },
+    {
+      "path": "AGM_LIBRARY/REPORTS/PHASE2_CANONICAL_SOURCE_GAPS.md",
+      "sizeBytes": 850,
+      "sha256": "52cdabe71184f54a95bd661bbe39dc5ea252febb7830522430b3c0dd5994609a"
+    },
+    {
+      "path": "AGM_LIBRARY/REPORTS/canonical-source-gaps.phase2.json",
+      "sizeBytes": 9872,
+      "sha256": "98a468006a96df5eac8f8e0ab55c43d5167fd1927984e3eba4075cd670674a7c"
+    },
+    {
+      "path": "AGM_LIBRARY/SCHEMAS/canonical-source-registry.schema.json",
+      "sizeBytes": 1004,
+      "sha256": "e7b3d9f284b58c07c38b640de627772030ac4f81fbd5b2d74bb4a46a27db0f14"
+    },
+    {
+      "path": "AGM_LIBRARY/SCHEMAS/canonical-source.schema.json",
+      "sizeBytes": 2553,
+      "sha256": "220582702318ce9e97b93e0a4b87a2bfdc75436f0199798ded63c7eb036c7336"
+    },
+    {
+      "path": "AGM_LIBRARY/SCHEMAS/domain-membership-collection.schema.json",
+      "sizeBytes": 848,
+      "sha256": "09e438e7c76e53f4783d15d9c455bc995c14ee334ce2ad6f24bcf49d8d2829f5"
+    },
+    {
+      "path": "AGM_LIBRARY/SCHEMAS/domain-membership.schema.json",
+      "sizeBytes": 767,
+      "sha256": "8b287440a0663a927e5f79ccc9513fc410307d036af3ec003a458cd49ac337bf"
+    },
+    {
+      "path": "AGM_LIBRARY/SCHEMAS/domain-view.schema.json",
+      "sizeBytes": 1454,
+      "sha256": "73758591edda1b9f30c80c310590730bf1624d4fd4c2a9ebfdaacc1ee315f858"
+    },
+    {
+      "path": "AGM_LIBRARY/SCHEMAS/source-domain-mapping.schema.json",
+      "sizeBytes": 1281,
+      "sha256": "f236b6b0158706904c1bcbf0fa035dc07477a053365cb2a424187e8c732badc8"
+    },
+    {
+      "path": "AGM_LIBRARY/VIEWS/car-mover.view.json",
+      "sizeBytes": 81935,
+      "sha256": "017bc455421671b21e8691cf989829400cf6f77d5200378955d8ecdc43439293"
+    },
+    {
+      "path": "AGM_LIBRARY/VIEWS/common-platform.view.json",
+      "sizeBytes": 4011,
+      "sha256": "a339d8ef2938fbd282a194bfbfdefe7d9dec2b263a5f21c5318363fd3462acef"
+    },
+    {
+      "path": "AGM_LIBRARY/VIEWS/documents-ocr-evidence.view.json",
+      "sizeBytes": 17199,
+      "sha256": "ea38d3b57b05d1de485b87fba9f86838c4c78189fd2e8053b5d9265c5d67edcb"
+    },
+    {
+      "path": "AGM_LIBRARY/VIEWS/legislation-safety.view.json",
+      "sizeBytes": 4654,
+      "sha256": "3ecbbaa03cdec52ea6794b56c1133cab5e1397f700ce9919ae1fd7a7b46a26d7"
+    },
+    {
+      "path": "AGM_LIBRARY/VIEWS/opportunity-communications.view.json",
+      "sizeBytes": 14775,
+      "sha256": "df281d6a73b68d465979ba89df5975be24212e2913e10504f3e7fc7cdc3e757e"
+    },
+    {
+      "path": "AGM_LIBRARY/VIEWS/routing-toll.view.json",
+      "sizeBytes": 27161,
+      "sha256": "ae308eba6ed634433efc4dedb5468f3aa16b0916e29816799864638d2c4a4308"
+    },
+    {
+      "path": "AGM_LIBRARY/VIEWS/tacho.view.json",
+      "sizeBytes": 3711,
+      "sha256": "4d9806eff849ae5caf5fd9a580fb531bc43ee94cd4580445ee1ba1c1fa126854"
+    },
+    {
+      "path": "CAR_MOVER/INDEX.json",
+      "sizeBytes": 680385,
+      "sha256": "14e4782e9b2b22841161e1918e5e8af186f2b06af59a8c3876f4a13365afb0c5"
+    }
+  ]
+}

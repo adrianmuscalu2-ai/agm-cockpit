@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agm://library/schemas/domain-view.v1",
+  "title": "AGM Controlled Domain View",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "viewId", "displayName", "viewVersion", "generatedAt", "viewType", "authorityStatus", "centralRegistry", "owner", "policyId", "sourceCount", "uniqueContentHashes", "memberships"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "agm-domain-view.v1" },
+    "viewId": { "type": "string" },
+    "displayName": { "type": "string" },
+    "viewVersion": { "type": "string" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "viewType": { "const": "CONTROLLED_REFERENCE_INDEX" },
+    "authorityStatus": { "enum": ["CONTROLLED_VIEW", "CANDIDATE_NOT_AUTHORITATIVE"] },
+    "centralRegistry": { "const": "AGM_LIBRARY/REGISTRY/canonical-sources.json" },
+    "owner": { "type": "string" },
+    "policyId": { "type": "string" },
+    "sourceCount": { "type": "integer", "minimum": 0 },
+    "uniqueContentHashes": { "type": "integer", "minimum": 0 },
+    "memberships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["membershipId", "sourceId"],
+        "properties": {
+          "membershipId": { "type": "string" },
+          "sourceId": { "type": "string" }
+        }
+      }
+    }
+  }
+}

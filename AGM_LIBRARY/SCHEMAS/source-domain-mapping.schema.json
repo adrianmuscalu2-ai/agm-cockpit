@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agm://library/schemas/source-domain-mapping.v1",
+  "title": "AGM Source to Domain Mapping",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "mappingVersion", "generatedAt", "centralRegistry", "sourceCount", "membershipCount", "sources"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "agm-source-domain-mapping.v1" },
+    "mappingVersion": { "type": "string" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "centralRegistry": { "const": "AGM_LIBRARY/REGISTRY/canonical-sources.json" },
+    "sourceCount": { "type": "integer", "minimum": 1 },
+    "membershipCount": { "type": "integer", "minimum": 1 },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sourceId", "domains", "membershipIds"],
+        "properties": {
+          "sourceId": { "type": "string" },
+          "domains": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true },
+          "membershipIds": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agm.local/schemas/source-freshness-record.schema.json",
+  "title": "AGM source freshness record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sourceId",
+    "country",
+    "domain",
+    "authority",
+    "authorityClassification",
+    "title",
+    "officialUrl",
+    "capturedAt",
+    "sha256",
+    "currentStatus",
+    "supersedes",
+    "supersededBy",
+    "reviewRequired"
+  ],
+  "properties": {
+    "sourceId": { "type": "string", "minLength": 1 },
+    "candidateId": { "type": "string", "minLength": 1 },
+    "country": { "type": "string", "minLength": 2 },
+    "domain": { "type": "string", "minLength": 1 },
+    "authority": { "type": "string", "minLength": 1 },
+    "authorityClassification": {
+      "enum": ["AUTHORITATIVE", "AUTHORITATIVE_WITH_SCOPE", "CONTEXTUAL"]
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "officialUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
+    "effectiveFrom": { "type": ["string", "null"], "format": "date" },
+    "effectiveUntil": { "type": ["string", "null"], "format": "date" },
+    "version": { "type": ["string", "null"] },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "lastFreshnessCheck": { "type": ["string", "null"], "format": "date-time" },
+    "nextFreshnessCheck": {
+      "type": ["string", "null"],
+      "oneOf": [
+        { "type": "string", "format": "date" },
+        { "type": "string", "format": "date-time" },
+        { "type": "null" }
+      ]
+    },
+    "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+    "currentStatus": {
+      "enum": [
+        "CURRENT",
+        "EXPIRY_WARNING",
+        "NEW_VERSION_DETECTED",
+        "SUPERSEDED_PENDING_REVIEW",
+        "REVIEW_REQUIRED",
+        "EXPIRED_REVIEW_REQUIRED",
+        "FRESHNESS_UNKNOWN"
+      ]
+    },
+    "supersedes": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "supersededBy": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "reviewRequired": { "type": "boolean" },
+    "lastAlertAt": { "type": ["string", "null"], "format": "date-time" },
+    "lastAlertType": {
+      "type": ["string", "null"],
+      "enum": [
+        "NEW_VERSION_DETECTED",
+        "SUPERSEDED_PENDING_REVIEW",
+        "EXPIRY_30_DAYS",
+        "EXPIRY_14_DAYS",
+        "EXPIRY_7_DAYS",
+        "EXPIRY_1_DAY",
+        "EXPIRY_DAY",
+        "EXPIRED",
+        "FRESHNESS_UNKNOWN",
+        null
+      ]
+    },
+    "reviewContext": { "type": "object", "additionalProperties": true }
+  }
+}

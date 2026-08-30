@@ -1,0 +1,1786 @@
+<!DOCTYPE HTML>
+<!--[if IE 8]> <html lang="fr" class="ie8" > <![endif]-->
+<!--[if IE 9]> <html lang="fr" class="ie9" > <![endif]-->
+<!--[if !IE]><!-->
+<html lang="fr" ><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
+    <meta property="og:site_name" content="Wallex">
+    <link rel="shortcut icon" href="/modules/spw-dtic-cg-templates/icons/favicon.ico"
+          type="image/x-icons">
+    <link rel="preconnect" href="http://webanalytics.spw.wallonie.be">
+    <link rel="preconnect" href="https://webanalytics.spw.wallonie.be">
+    <meta property="og:url" content="https://wallex.wallonie.be/eli/loi-decret/2019/01/17/2019200758/2024/01/01"/>
+    <meta property="og:type" content="article"/>
+        <meta name="image" property="og:image" content="https://wallex.wallonie.be/modules/spw-dtic-cg-templates/img/logo-og.jpg"/>
+        <meta name="author" content="SPW"/>
+
+    <meta property="og:updated_time" content=""/>
+    <title>3 - WALLEX</title>
+                <meta name="title" property="og:title"
+                      content="3"/>
+            
+<!-- Fontawesome -->
+    
+
+
+
+<!--template:addResources type="css" resources="v4-shims.min.css"/-->
+
+    
+
+
+
+
+
+
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js" defer="true"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js" defer="true"></script>
+    <![endif]-->
+
+<script type="application/json" id="jahia-data-ctx">{"contextPath":"","lang":"fr","uilang":"fr","siteUuid":"a795e74f-8492-4b0a-b7a8-8b01e8ccb6a3","wcag":true,"ckeCfg":""}</script>
+<script type="application/json" id="jahia-data-ck">{"path":"/modules/ckeditor/javascript/","lng":"fr_FR"}</script>
+<link id="staticAssetCSS0" rel="stylesheet" href="/generated-resources/a8dc1c89d9b2841dd2bf3d16e5d53e3.min.css" media="screen" type="text/css"/>
+<link id="staticAssetCSS1" rel="stylesheet" href="/generated-resources/53e544aef6395e48bbac1ab2efb582.min.css" media="print" type="text/css"/>
+<script id="staticAssetJavascript0" src="/generated-resources/6ef8e7b3764522eb981fc7353a28e45.min.js"  ></script>
+<script type="text/javascript">
+
+			let showMoreLabel = "Voir plus";
+			let showLessLabel = "Voir moins";
+
+			function collapseOrExpandStructureWindow() {
+				let htmlStruct = document.getElementById("myStruct");
+				let buttonHtml = document.getElementById("more-struct");
+				if (htmlStruct.className.includes('list-struct-collapsed')) {
+					htmlStruct.className = htmlStruct.className.replace('list-struct-collapsed', '');
+					buttonHtml.innerHTML = showLessLabel;
+				} else {
+					htmlStruct.className = htmlStruct.className.replace('', 'list-struct-collapsed');
+					buttonHtml.innerHTML = showMoreLabel;
+				}
+			}
+
+			// Hide the button "Voir plus" if all the structure is already visible
+			$(function (){
+				let myStruct = document.getElementById("myStruct");
+				let buttonHtml = document.getElementById("more-struct");
+				// The scrollHeight is the height of the html element in pixels, even the part hidden due to the overflow
+				// The clientHeight is the height of the content displayed (so if there is a part hidden, it will not be added).
+				// If the scrollHeight of the structure is superior to the clientHeight allowed, the button "Voir plus" is shown.
+				// Otherwise, the button is hidden and scrollHeight is equal to clientHeight.
+				buttonHtml.hidden = myStruct.scrollHeight === myStruct.clientHeight;
+			});
+		</script>
+	
+<script type="text/javascript">
+		$(function(){	
+			$('#versionCount').html('4');
+			$('#versionCount').show();
+		})						
+		</script>	
+	
+<script type="text/javascript">
+        $(function () {
+            var categoriesTreeJson = '[{"title":"Environnement","children":[{"title":"Pollution","children":[{"title":"Pollution atmosphérique (ancien, à supprimer)","children":[]}]}]},{"title":"Transport – Mobilité","children":[{"title":"Voie terrestre","children":[{"title":"Sécurité routière","children":[{"title":"Permis de conduire","children":[]}]}]}]}]';
+            var categoriesTree;
+
+            if (categoriesTreeJson && categoriesTreeJson !== '') {
+                categoriesTree = JSON.parse(categoriesTreeJson);
+            }
+
+            if (categoriesTree) {
+                treeViewTools.generateTreeView(categoriesTree, $('#treeView'));
+            }
+        })
+    </script>
+
+<link rel="stylesheet"
+          media="all"
+          href="//cdn.jsdelivr.net/npm/@spw-ds/spw-stencil-library@1.15.0/dist/spw-stencil-library/spw-stencil-library.css">
+
+<script type="module"
+            src="//cdn.jsdelivr.net/npm/@spw-ds/spw-stencil-library@1.15.0/dist/spw-stencil-library/spw-stencil-library.esm.js">
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/orejime@3.0.2/dist/orejime-standard-fr.js"></script>
+
+<script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const ul = document.querySelector("#footer > div.bottom--footer > div > div > div.col-lg-7 > ul");
+
+                if (ul) {
+                    const li = document.createElement("li");
+
+                    const a = document.createElement("a");
+                    a.href = "#";
+                    a.textContent = "🍪";
+                    a.addEventListener("click", function (e) {
+                        e.preventDefault();
+                        if (typeof orejime !== "undefined") {
+                            orejime.prompt();
+                        } else {
+                            console.warn("Orejime n'est pas chargÃ©.");
+                        }
+                    });
+
+                    li.appendChild(a);
+                    ul.insertBefore(li, ul.firstChild);
+                } else {
+                    console.warn("Le sÃ©lecteur du sous-footer n'a pas Ã©tÃ© trouvÃ©. (uniquement CG)");
+                }
+            });
+        </script>
+    
+<script>
+            window.dataLayer = window.dataLayer || [];
+            function pushOrejimeToDataLayer(contents, source) {
+                const flat = {};
+                const maps = [
+                    contents?.consents,
+                    contents?.purposes,
+                    contents?.apps,
+                    contents
+                ].filter(Boolean)[0];
+
+                if (maps && typeof maps === 'object') {
+                    Object.entries(maps).forEach(([key, val]) => {
+                        const v = (typeof val === 'boolean') ? val
+                            : (val && typeof val === 'object' && (
+                                val.enabled === true || val.accepted === true
+                            ));
+                        flat[`consent_`] = !!v;
+                    });
+                }
+                // ICI on setup un cookie pour le dataLayer mais qui n'apparaÃ®t pas dans le modal de Orejime (demande de Sebastien)
+                //const hiddenKey = 'strictly_necessary_cookie';
+                //const hiddenValue = true;
+                // ICI le nom de l'event dans le DataLayer
+                const eventName = 'cookie_consent_level_submit';
+                // on "aplatit" ton objet contents pour l'injecter directement dans lâobjet du dataLayer
+                const cookieValues = Object.fromEntries(
+                    Object.entries(contents).map(([key, value]) => [key.replace(/-/g, '_'), value])
+                );
+                // On push le cookie dans le dataLayer
+                window.dataLayer.push({
+                    event: eventName,
+                    ...cookieValues,
+                    //[hiddenKey]: hiddenValue,
+                });
+            }
+
+            // Decode HTML entities produced by fn:escapeXml so JS strings display correctly
+            (function () {
+                window._decodeHTML = function (s) {
+                    var el = document.createElement('textarea');
+                    el.innerHTML = s;
+                    return el.value;
+                };
+            })();
+            window.orejimeConfig = {
+                privacyPolicyUrl:   
+                                            '#',
+                                        
+
+                purposes: [
+                    {
+                        id: 'strictly_necessary_cookie',
+                        title: "Cookies strictement nécessaires",
+                        description: "L’utilisation de ces cookies est indispensable pour vous permettre de naviguer sur ce site et d’accéder à certaines fonctionnalités de base. Ils assurent notamment une connexion correcte et sécurisée. Ces cookies sont placés dès que vous accédez au site.",
+                        isMandatory: true,
+                        isExempt: false,
+                        default: true,
+                        runsOnce: true
+                    },
+
+                    {
+                        id: 'functionality_cookie',
+                        title: "Cookies de fonctionnalité",
+                        description: "Ces cookies permettent d’améliorer et de personnaliser les fonctionnalités du site mais ils ne sont pas absolument nécessaires. Ces cookies ne sont utilisés que si vous consentez à leur placement.",
+                        isMandatory: false,
+                        isExempt: false,
+                        default: false,
+                        runsOnce: true
+                    },
+
+                    {
+                        id: 'performance_cookie',
+                        title: "Cookies de performance",
+                        description: "Ces cookies nous permettent de mesurer et d’améliorer les performances de notre site Web. Toutes les informations collectées par ces cookies sont agrégées et anonymisées. Ces cookies ne sont utilisés que si vous consentez à leur placement.",
+                        isMandatory: false,
+                        isExempt: false,
+                        default: false,
+                        runsOnce: true
+                    },
+
+                    //     {
+                    //         id: 'advertising_cookie',
+                    //         title: 'advertising_cookie',
+                    //         description: advertising_cookie',
+                    //         isMandatory: false,
+                    //         isExempt: false,
+                    //         default: false,
+                    //         runsOnce: true
+                    //     },
+                ],
+                forceModal: false,
+                forceBanner: false,
+
+                translations: {
+                    banner: {
+                        accept: "Accepter tous les cookies",
+                        decline: "N’accepter que les cookies essentiels",
+                        configure: "Configurer les cookies",
+                        description: window._decodeHTML(`Nous utilisons des cookies et technologies similaires pour assurer le bon fonctionnement de notre site, mesurer son audience, personnaliser votre expérience et diffuser des contenus pertinents.\nCertains cookies sont strictement nécessaires au fonctionnement du site et ne peuvent pas être désactivés.\nD’autres, optionnels, ne seront déposés qu’après votre consentement.\nVous pouvez à tout moment accepter tous les cookies, refuser ceux qui ne sont pas essentiels ou personnaliser vos choix.
+                     `),
+                        privacyPolicyLabel: "politique de confidentialité"
+                    },
+                    modal: {
+                        title: "Les informations que nous collectons",
+                        description: window._decodeHTML(`Ici, vous pouvez voir et personnaliser les informations que nous collectons sur vous.
+                        `),
+                        save: "Enregistrer les modifications",
+                        acceptAll: "Tout accepter",
+                        declineAll: "Tout refuser",
+                    },
+                    purpose: {
+                        enabled: "Activé",
+                        disabled: "Désactivé",
+                        mandatory: "toujours requis",
+                    }
+                },
+
+                orejimeElement: '#orejime',
+                cookie: {
+                    name: 'orejime_spw',
+                    duration: 365,
+                    domain: location.hostname,
+                    sameSite: 'strict',
+                    stringify: (contents) => {
+                        try { pushOrejimeToDataLayer(contents, 'write'); } catch(e){}
+                        return JSON.stringify(contents);
+                    },
+                    parse: (cookie) => {
+                        try { return JSON.parse(cookie); } catch(e){ return null; }
+                    }
+                }
+            };
+
+        </script>
+    
+<script>
+            if (window.Orejime && window.orejimeConfig) {
+                Orejime.init(window.orejimeConfig);
+            }
+            (function initialPush(){
+                try {
+                    const name = window.orejimeConfig.cookie?.name || 'orejime';
+                    const raw = document.cookie.split('; ')
+                        .find(r => r.startsWith(name + '='))?.split('=')[1];
+                    if (raw) {
+                        const parsed = window.orejimeConfig.cookie.parse(decodeURIComponent(raw));
+                        if (parsed) pushOrejimeToDataLayer(parsed, 'init');
+                    }
+                } catch(e){}
+            })();
+
+        </script>
+    
+<script type="application/json" id="jahia-data-aggregatedjs">{"scripts":["/modules/jquery/javascript/jquery-3.7.1.min.js","/modules/assets/javascript/jquery.jahia.min.js","/modules/assets/javascript/jquery-ui.min.js","/modules/wallex-core/javascript/wallex.js","/modules/wallex-core/javascript/responsive.js","/modules/piwik/javascript/matomoTagManagerProd.js"]}</script>
+
+</head>
+
+<body class="typewlxnt_actVersion
+path-3 alternate--home
+template_
+">
+
+
+
+
+
+
+
+
+
+
+<header id="header">
+    <div class="container nosqueeze  header ">
+        <div id="top--menu">
+            
+
+
+
+
+<nav id="top-menu" class="top-menu">
+    
+
+
+
+
+<ul class="border--bottom">
+        </ul></nav><div>
+                <a href="#" class="btn btn-grey search"><i class="fas fa-search"><span
+                        class="sr-only sr-only-focusable">Recherche</span></i></a>
+                
+<div class="lang-container">
+            <a href="#" class="btn btn-grey lang">
+                    fr<i class="fa fa-chevron-down"></i>
+            </a>
+            <div class="language-switcher-language-url">
+                <ul>
+                    <li class="btn "><a
+                                href="/de/contents/acts/20/20147/3.html">de</a></li>
+                    <li class="btn is-active"><a
+                                href="">fr</a></li>
+                    <li class="btn "><a
+                                href="/nl/contents/acts/20/20147/3.html">nl</a></li>
+                    </ul>
+            </div>
+        </div><a href="https://www.wallonie.be" target="_blank" rel="nofollow noopener"
+                       class="btn btn-grey btn-icon btn-accent-color btn-wallonie">Wallonie.be</a>
+                <div class="" id="loginMenuContainer">
+     </div></div>
+        </div>
+        <div id="brand">
+            <a class="navbar-brand" href="/home.html">
+                            <img class="visual"
+                                         src="/modules/spw-dtic-cg-core/img/coq_68x73.png"
+                                         srcset="/modules/spw-dtic-cg-core/img/coq_47x50.png 767w,
+                                                 /modules/spw-dtic-cg-core/img/coq_68x73.png 768w"
+                                         alt="Wallonie">
+                                <div class="siteBrand">
+                                    <div class="siteBrandText">WALLEX</div>
+                                    <div class="siteBrandSubText">Le site du droit en Wallonie</div>
+                                </div>
+
+                            </a>
+                    <div class="search-wrapper">
+                        <form method="post" name="searchForm" action="/home/recherche.html" id="searchForm" class="search-form search-form--small" >
+    <input type="hidden" name="jcrMethodToCall" value="get" />
+    <input type="hidden" name="src_originSiteKey" value="wallex"/>
+    <input onblur="if(this.value=='')this.value='Que cherchez-vous ?';" onfocus="if(this.value=='Que cherchez-vous ?')this.value='';" name="src_terms[0].term" id="searchTerm" type="text" class="text-input" aria-label="Critère de recherche"  value="Que cherchez-vous ?"/>
+<input type="hidden" name="src_terms[0].applyFilter" value="true"/>
+<input type="hidden" name="src_terms[0].match" value="all_words"/>
+<input type="hidden" name="src_terms[0].fields.siteContent" value="true"/>
+<input type="hidden" name="src_sites.values" value="wallex"/><input type="hidden" name="src_sitesForReferences.values" value="systemsite"/>
+<input type="hidden" name="src_languages.values" value="fr"/><button aria-label="Lancer la recherche"><i class="fas fa-search"></i></button>
+    </form><br class="clear"/></div>
+                <button class="navbar-toggler" type="button" aria-label="Ouverture du menu">
+                <span></span>
+            </button>
+            </div>
+    </div>
+    
+
+
+
+
+<nav id="main--menu" class="main--menu">
+    
+
+
+
+
+<ul class="container border-bottom container border--bottom">
+        <li class="nav-item ">
+                                <a class="nav-link"  href="/home/que-contient-wallex.html">Que contient Wallex ?</a>
+                            </li><li class="nav-item ">
+                                <a class="nav-link"  href="/home/comment-rechercher.html">Comment rechercher ?</a>
+                            </li><li class="nav-item ">
+                                <a class="nav-link"  href="/home/cada-2.html">CADA</a>
+                            </li><li class="nav-item ">
+                                <a class="nav-link"  href="/home/craie.html">CRAIE</a>
+                            </li><li class="nav-item ">
+                                <a class="nav-link"  href="/home/contact.html">Contact</a>
+                            </li>
+
+
+
+
+
+
+
+
+<li class="mobile--nav-bg">
+    <div class="nosqueeze mobile--nav">
+        <div class="container">
+                <div id="top--menu--mobile">
+                    <div>
+                        <div class="" id="loginMenuContainer">
+     </div></div>
+                </div>
+            </div>
+        <div id="brand-mobile">
+            </div>
+    </div>
+</li></ul></nav></header><!-- Forcer le nom du site avec la bonne valeur (référencement) -->
+<div itemscope itemtype="https://schema.org/WebSite">
+    <meta itemprop="url" content="https://wallex.wallonie.be/home.html"/>
+    <meta itemprop="name" content="Wallex"/>
+</div>
+
+<main class="pagecontent">
+    
+
+<nav class="navigation-crumb">
+<div class="container   ">
+
+<nav class="navigation-crumb">
+</nav></div>
+</nav>
+<div class="container   ">
+</div>
+<div class="container   ">
+
+
+
+
+
+
+
+
+
+<nav class="navigation-crumb">
+	<ol>
+		<li>
+			<a class="link" href="/home.html">
+				Accueil</a>
+		</li>
+		<li>
+			<span>
+				Décret relatif à la lutte contre la pollution atmosphérique liée à la circulation des véhicules</span>
+		</li>
+	</ol>
+</nav>
+
+<div class="container p-0 m-0">
+	<div class="row act-version mx-0 mt-5 mb-3">
+		<div class="col-lg-8 col-md-12 col-sm-12 col-xs-12 px-0 pr-lg-3">
+			<div class="main-content">
+
+				<div class="application-alert">
+            Attention, la version visualisée n'est plus applicable.<a href="/sites/wallex/contents/acts/20/20147/4.html">Voir la version à jour</a>
+                        </div><div id="content">
+					<div id="title" class="header">
+						<span class="text">
+								17 janvier 2019 -
+							</span>
+						<span class="text">Décret relatif à la lutte contre la pollution atmosphérique liée à la circulation des véhicules</span>
+					</div>
+
+					<div id="top-widgets">
+						<div id="actions">
+							<a href="/files/pdfs/20/20147_D%c3%a9cret_relatif_%c3%a0_la_lutte_contre_la_pollution_atmosph%c3%a9rique_li%c3%a9e_%c3%a0_la_circulation_des_v%c3%a9hicules_01-01-2024-25-09-2024.pdf" target="_blank" id="pdf-link">
+				<span class="fas fa-file-pdf" id="pdf"></span>
+				<span class="text">Télécharger</span>
+			</a><div class="bookmark-section">
+				<div class="fa fa-star-o" id="bookmark-not-logged">
+					<div class="bookmark-popup" hidden="true">
+						<a id="my-account-link" href="#my-account">Connectez-vous</a> ou <a href="/home/registration.html">inscrivez-vous</a> pour ajouter à vos favoris.<div class="arrow-down"></div>
+					</div>
+				</div>
+				<span class="text">Ajouter aux favoris</span>
+			</div>
+		<ul class="dropdown-menu" id="bookmark-folders">
+		<button class="bookmark-folder" title="Non classé"
+						data-node-name="" data-folder-title="" >
+			Non classé</button>
+		</ul>
+
+	<!-- Error modal used to display backend error messages in the same style as other modals -->
+	<div class="modal" id="bookmark-error-modal" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content modal-content-act">
+				<div class="modal-header">
+					<h3 class="modal-title">Erreur</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="bookmark-action-error text-danger"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+						Fermer</button>
+				</div>
+			</div>
+		</div>
+	</div></div>
+					</div>
+
+					<div class="accordion complete-structure" id="accordionStructure">
+						<button class="structure-title" type="button" data-toggle="collapse" data-target="#collapseStructureContent"
+								aria-expanded="true" aria-controls="collapseStructureContent">
+							<span>Structure</span>
+							<span class="toggle-icon"></span>
+						</button>
+
+						<div id="collapseStructureContent" class="collapse show">
+							<div class="data-content">
+								<div class="data">
+	<div class="list-struct-collapsed" id="myStruct">
+		<div class="text-structure">
+ <ul>
+  <ul>
+   <a href="#a3b78c36-73e9-4ee3-b72c-5cfe0f038286" onclick="return true">Chapitre&nbsp;I<sup>er</sup>&nbsp;<span class="next-to-title">Dispositions générales</span></a>
+   <li><a href="#9d173b2d-45be-4e6a-a7e6-c552fa3c5d37" onclick="return true">Art.&nbsp;1<sup>er</sup>&nbsp;<span class="next-to-title"></span></a></li>
+   <li><a href="#c7005d9c-df7c-42eb-a7f3-4a0efcc67da4" onclick="return true">Art.&nbsp;2&nbsp;<span class="next-to-title"></span></a></li>
+   <li><a href="#0ecb2e66-897c-4361-a14c-8b2af012095b" onclick="return true">Art.&nbsp;3&nbsp;<span class="next-to-title"></span></a></li>
+  </ul>
+  <ul>
+   <a href="#5273c2ef-3da1-4ad5-ad59-24582d9cec5f" onclick="return true">Chapitre&nbsp;II&nbsp;<span class="next-to-title">Zones de basses émissions</span></a>
+   <ul>
+    <a href="#8b195f8a-fd35-4834-8308-e5bf673742e1" onclick="return true">Section&nbsp;1<sup>re</sup>&nbsp;<span class="next-to-title">Disposition commune</span></a>
+    <li><a href="#d230d377-ebab-441f-864c-78a9c5d76639" onclick="return true">Art.&nbsp;4&nbsp;<span class="next-to-title"></span></a></li>
+    <li><a href="#936fb067-c247-4b8e-b938-d516ef99125c" onclick="return true">Art.&nbsp;5&nbsp;<span class="next-to-title"></span></a></li>
+    <li><a href="#5d76a0b0-2c3b-482d-90c8-6bf6a35cf3db" onclick="return true">Art.&nbsp;6&nbsp;<span class="next-to-title"></span></a></li>
+   </ul>
+   <ul>
+    <a href="#ac0671f9-79bb-498b-9ec4-2ee9d459ff6f" onclick="return true">Section&nbsp;2&nbsp;<span class="next-to-title">Zones de basses émissions régionales</span></a>
+    <li><a href="#e8f839a6-9b10-42d6-bcaf-49d70db4d932" onclick="return true">Art.&nbsp;7&nbsp;<span class="next-to-title"></span></a></li>
+    <li><a href="#47566b1a-116b-486f-ad66-cba73a414cf0" onclick="return true">Art.&nbsp;8&nbsp;<span class="next-to-title"></span></a></li>
+   </ul>
+   <ul>
+    <a href="#54dc646f-4597-4d40-b420-0df966a8a3e1" onclick="return true">Section&nbsp;3&nbsp;<span class="next-to-title">Zones de basses émissions communales</span></a>
+    <li><a href="#8f441376-1356-420c-a3d8-196cc0360519" onclick="return true">Art.&nbsp;9&nbsp;<span class="next-to-title"></span></a></li>
+    <li><a href="#388aa25e-ebea-48a6-9b74-84b8f674a00c" onclick="return true">Art.&nbsp;10&nbsp;<span class="next-to-title"></span></a></li>
+    <li><a href="#160b946b-de87-4397-a557-816c2cc243ed" onclick="return true">Art.&nbsp;11&nbsp;<span class="next-to-title"></span></a></li>
+   </ul>
+   <ul>
+    <a href="#a600b531-8b2f-429d-b572-50d07393c37f" onclick="return true">Section&nbsp;4&nbsp;<span class="next-to-title">Signalisation et contrôles</span></a>
+    <li><a href="#e459ba01-516b-438a-8e77-70d1edb52b4f" onclick="return true">Art.&nbsp;12&nbsp;<span class="next-to-title"></span></a></li>
+    <li><a href="#606059a8-1003-4b11-b9ba-bebd12d6b49a" onclick="return true">Art.&nbsp;13&nbsp;<span class="next-to-title"></span></a></li>
+    <li><a href="#ca5af2a8-69ed-4d9d-a098-041b17e4221f" onclick="return true">Art.&nbsp;14&nbsp;<span class="next-to-title"></span></a></li>
+   </ul>
+  </ul>
+  <ul>
+   <a href="#10b50627-7789-4c2e-9003-b126d6b4f3a4" onclick="return true">Chapitre&nbsp;III&nbsp;<span class="next-to-title">Arrêt des moteurs</span></a>
+   <li><a href="#7c54d8a9-8752-4b51-b6ae-9aba862657ff" onclick="return true">Art.&nbsp;15&nbsp;<span class="next-to-title"></span></a></li>
+  </ul>
+  <ul>
+   <a href="#809da316-8d80-4a02-b65f-a088ca3f3d8e" onclick="return true">Chapitre&nbsp;IV&nbsp;<span class="next-to-title">Entretien des véhicules en vue de réduire les émissions</span></a>
+   <li><a href="#003dea4c-d60f-458b-8f0f-db6f334bc62d" onclick="return true">Art.&nbsp;16&nbsp;<span class="next-to-title"></span></a></li>
+  </ul>
+  <ul>
+   <a href="#e11082d6-33c0-4b62-a8bb-f111cd231732" onclick="return true">Chapitre&nbsp;V&nbsp;<span class="next-to-title">Infractions pénales et administratives</span></a>
+   <li><a href="#bbe1ee0b-097a-4438-a622-b59516034121" onclick="return true">Art.&nbsp;17&nbsp;<span class="next-to-title"></span></a></li>
+  </ul>
+  <ul>
+   <a href="#625d81f5-b30d-4310-b0c1-c5e4a15674af" onclick="return true">Chapitre&nbsp;VI&nbsp;<span class="next-to-title">Dispositions modificatives et finales</span></a>
+   <li><a href="#c46f18eb-73bb-4776-a553-50b0871bc6a8" onclick="return true">Art.&nbsp;18&nbsp;<span class="next-to-title"></span></a></li>
+   <li><a href="#523224d0-41b3-4191-a8d4-751234231d7c" onclick="return true">Art.&nbsp;19&nbsp;<span class="next-to-title"></span></a></li>
+   <li><a href="#9bbd273c-e81a-4bbd-885b-20e816be9741" onclick="return true">Art.&nbsp;20&nbsp;<span class="next-to-title"></span></a></li>
+   <li><a href="#c6e32241-2211-4d0f-bd75-93595b38565d" onclick="return true">Art.&nbsp;21&nbsp;<span class="next-to-title"></span></a></li>
+   <li><a href="#714c9f22-95a8-4299-b412-a984210f499e" onclick="return true">Art.&nbsp;22&nbsp;<span class="next-to-title"></span></a></li>
+   <li><a href="#ff0aff33-3299-4592-b249-43a9de0d7463" onclick="return true">Art.&nbsp;23&nbsp;<span class="next-to-title"></span></a></li>
+   <li><a href="#7b2c3863-13ee-429c-a7cc-d58410c0c288" onclick="return true">Art.&nbsp;24&nbsp;<span class="next-to-title"></span></a></li>
+   <li><a href="#77485a67-11f7-4754-9d77-f2cf9bcb678d" onclick="return true">Art.&nbsp;25&nbsp;<span class="next-to-title"></span></a></li>
+   <li><a href="#e252a89b-0ec5-490d-b2a1-a90a6daa993d" onclick="return true">Art.&nbsp;26&nbsp;<span class="next-to-title"></span></a></li>
+  </ul>
+  <a href="#b86d25dd-5b56-4f35-b310-d25100729b6f" onclick="return true">Annexe &nbsp;</a>
+ </ul>
+</div></div>
+	<button id="more-struct" class="btn btn-primary" onclick="collapseOrExpandStructureWindow()">
+		Voir plus</button>
+</div>
+
+</div>
+						</div>
+					</div>
+					<div>
+						<div id="preamble" class="preamble">
+ <p>
+  <div> 
+   <div> 
+    <div> 
+     <div> 
+      <table class="ng-invalid ng-pristine ng-untouched paragraphTable"> 
+       <tbody> 
+        <tr> 
+         <td> 
+          <div> 
+           <div>
+            Le Parlement wallon a adopté et Nous, Gouvernement wallon, sanctionnons ce qui suit:
+           </div> 
+          </div> </td> 
+        </tr> 
+       </tbody> 
+      </table> 
+     </div> 
+    </div> 
+   </div> 
+  </div> </p>
+</div><div class="dispositif">
+ <div class="legal-context">
+  <div id="a3b78c36-73e9-4ee3-b72c-5cfe0f038286" class="chapter">
+   <span>Chapitre I<sup>er</sup><br>Dispositions générales</span>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="9d173b2d-45be-4e6a-a7e6-c552fa3c5d37">
+   <p class="article-title">Art. 1<sup>er</sup>. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="07be2746-639f-440a-8d73-bae7cec91247" class="article-paragraph">Pour l'application du présent décret et de ses arrêtés d'exécution, l'on entend par:</p>
+    </div>
+    <div>
+     <p id="279b52f3-1aec-4577-b8e8-27b118b8f3a7" class="article-paragraph">1°&nbsp;la zone de basses émissions: la zone dont l'accès aux véhicules motorisés est restreint ou interdit, de manière temporaire ou permanente, en fonction des nuisances environnementales causées par ces véhicules et de la planification prévue à l'article&nbsp;4;</p>
+    </div>
+    <div>
+     <p id="e813d480-3ba2-4d72-83cb-5fb2517b47a2" class="article-paragraph">2°&nbsp;le seuil d'alerte: un niveau au-delà duquel une exposition de courte durée présente un risque pour la santé humaine de l'ensemble de la population et à partir duquel des mesures sont prises immédiatement par le Gouvernement;</p>
+    </div>
+    <div>
+     <p id="b55cdffb-d09d-4621-a8e2-06da7573413d" class="article-paragraph">3°&nbsp;le Code de la route: le code défini par l'arrêté royal du 1<sup>er</sup>&nbsp;décembre 1975 portant règlement général sur la police de la circulation routière et de l'usage de la voie publique;</p>
+    </div>
+    <div>
+     <p id="dc4edb06-b57a-40b3-be23-9dfecd99ac40" class="article-paragraph">4°&nbsp;l'arrêté royal du 15&nbsp;mars 1968: l'arrêté royal du 15&nbsp;mars 1968 portant règlement général sur les conditions techniques auxquelles doivent répondre les véhicules automobiles, leurs remorques, leurs éléments ainsi que les accessoires de sécurité;</p>
+    </div>
+    <div>
+     <p id="be3e0d72-cc38-44f0-bc69-e9d98ba8aeb7" class="article-paragraph">5°&nbsp;l'arrêté du Gouvernement wallon du 15&nbsp;juillet 2010: l'arrêté du Gouvernement wallon du 15&nbsp;juillet 2010 relatif à l'évaluation et la gestion de la qualité de l'air ambiant et justifiant la mise en œuvre de mesures d'urgence;</p>
+    </div>
+    <div>
+     <p id="5a7f2846-8b37-4ac9-bd80-105d8a803888" class="article-paragraph">6°&nbsp;le véhicule: le véhicule au sens de l'article&nbsp;1<sup>er</sup>,&nbsp;2, 40, de l'arrêté royal du 15&nbsp;mars 1968;</p>
+    </div>
+    <div>
+     <p id="a1583beb-651d-462d-a807-19ba3ff2ddf7" class="article-paragraph">7°&nbsp;les véhicules des catégories M1, M2, M3, N1, N2 et N3: les véhicules des catégories correspondantes visés dans l'arrêté royal du 15&nbsp;mars 1968;</p>
+    </div>
+    <div>
+     <p id="04ad4767-f028-4617-9053-e5a5e8772b24" class="article-paragraph">8°&nbsp;le véhicule à usage spécial: le véhicule à usage spécial au sens de l'article&nbsp;1<sup>er</sup>,&nbsp;2, 45, de l'arrêté royal du 15&nbsp;mars 1968;</p>
+    </div>
+    <div>
+     <p id="2ebec590-f940-4e27-93ff-cbfa78f0569f" class="article-paragraph">9°&nbsp;l'élévateur à fauteuil roulant: le système élévateur monté dans ou au véhicule, qui est utilisé en vue de monter le fauteuil roulant avec son utilisateur dans le véhicule;</p>
+    </div>
+    <div>
+     <p id="89e5394b-7b88-412c-93ac-1ffd3f9af863" class="article-paragraph">10°&nbsp;l'euronorme I, II, III, IV, V, VI, VId-TEMP ou VId: la norme applicable aux véhicules des catégories M3, N2 et N3 répondant aux normes d'émissions visées dans le Règlement (CE) n<sup>o</sup>595/2009 du Parlement européen et du Conseil du 18&nbsp;juin 2009 relatif à la réception des véhicules à moteur et des moteurs au regard des émissions des véhicules utilitaires lourds (Euro VI) et à l'accès aux informations sur la réparation et l'entretien des véhicules, et modifiant le Règlement (CE) n<sup>o</sup> 715/2007 et la Directive 2007/46/CE, et abrogeant les Directives 80/1269/CEE, 2005/55/CE et 2005/78/CE;</p>
+    </div>
+    <div>
+     <p id="04490320-1066-40c9-a901-f87f9632045f" class="article-paragraph">11°&nbsp;l'euronorme 1, 2, 3, 4, 5, 6, 6d-TEMP ou 6d: la norme applicable aux voitures particulières et véhicules utilitaires légers des catégories M1, M2 et N1 répondant aux normes d'émission correspondantes, visées dans le Règlement (CE) n<sup>o</sup>715/2007 du Parlement européen et du Conseil du 20&nbsp;juin 2007 relatif à la réception des véhicules à moteur au regard des émissions des véhicules particuliers et utilitaires légers (Euro&nbsp;5 et Euro&nbsp;6) et aux informations sur la réparation et l'entretien des véhicules, le Règlement (CE) n<sup>o</sup>692/2008 de la Commission en ce qui concerne les émissions des véhicules particuliers et utilitaires légers (Euro&nbsp;5 et Euro&nbsp;6) et le Règlement (UE) n<sup>o</sup> 582/2011 de la Commission en ce qui concerne les émissions des véhicules utilitaires lourds (Euro VI);</p>
+    </div>
+    <div>
+     <p id="1f00073a-ca6b-43df-aa58-0e4f1d0da76f" class="article-paragraph">12°&nbsp;la caméra ANPR: la caméra qui reconnaît automatiquement les plaques d'immatriculation;</p>
+    </div>
+    <div>
+     <p id="3b7d5f7a-313e-4afa-ade4-c6f119ee6b4c" class="article-paragraph">13°&nbsp;la valeur limite: un niveau à atteindre dans un délai donné, fixé sur la base des connaissances scientifiques, dans le but d'éviter, de prévenir ou de réduire les effets nocifs sur la santé humaine ou l'environnement dans son ensemble; une fois atteint, ce niveau ne peut être dépassé;</p>
+    </div>
+    <div>
+     <p id="ff79cbbf-b6a6-4caf-8a14-937a9864286a" class="article-paragraph">14°&nbsp;véhicule électrique: véhicule électrique au sens de l'article&nbsp;2, 27° <i>bis</i> , du décret du 12&nbsp;avril 2001 relatif à l'organisation du marché régional de l'électricité;</p>
+    </div>
+    <div>
+     <p id="31946e8d-43dc-40c8-98a0-2baf4905117b" class="article-paragraph">15°&nbsp;véhicule hybride: un véhicule à moteur électrique et à moteur à combustion, dont l'énergie est fournie au moteur électrique par des batteries pouvant être ou non chargées par un raccordement à une source d'énergie externe;</p>
+    </div>
+    <div>
+     <p id="8611b434-7721-4aa8-9ccf-614e35fa99ef" class="article-paragraph">16°&nbsp;véhicule hydrogène: véhicule utilisant l'hydrogène comme seule source d'énergie.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="c7005d9c-df7c-42eb-a7f3-4a0efcc67da4">
+   <p class="article-title">Art. 2. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="dda15cb6-042d-4b9b-b09f-032ab70d104a" class="article-paragraph">&nbsp;1<sup>er</sup>.&nbsp;Est interdite, uniquement pour ce qui concerne les véhicules de la catégorie M1:</p>
+    </div>
+    <div>
+     <p id="a3bedf2d-f4cc-4895-966e-aa10c0193b8d" class="article-paragraph"><i>(1° à partir du 1 <sup>er</sup> janvier 2025, la circulation d'un véhicule qui ne répond à aucune euronorme ou qui répond à l'euronorme 1, à l'euronorme 2 ou à l'euronorme 3; - Décret du 21 décembre 2022, art.109, Décret du 13 décembre 2023, art.104)</i></p>
+    </div>
+    <div>
+     <p id="dd6f6716-50c7-4196-9cd2-c32a01d5a818" class="article-paragraph">2° <i>((...) - Décret du 21 décembre 2022, art.109, Décret du 13 décembre 2023, art.104</i><i>)</i></p>
+    </div>
+    <div>
+     <p id="fe08d9ae-ac8d-498b-9ead-2b441d0c6ac6" class="article-paragraph">3°<i> ((...) - Décret du 21 décembre 2022, art.109, Décret du 13 décembre 2023, art.104)</i></p>
+    </div>
+    <div>
+     <p id="8f0f51ce-4793-4a7e-b90e-631f66b3487f" class="article-paragraph">4°&nbsp;à partir du 1<sup>er</sup>&nbsp;janvier 2026, la circulation d'un véhicule qui répond à l'euronorme 4;</p>
+    </div>
+    <div>
+     <p id="ad2c3cda-ce46-4b01-a1d6-550775ddab31" class="article-paragraph">5°&nbsp;à partir du 1<sup>er</sup>&nbsp;janvier 2028, la circulation d'un véhicule équipé d'un moteur diesel qui répond à l'euronorme 5;</p>
+    </div>
+    <div>
+     <p id="ce3a5eb4-3200-4ce1-b044-7f6471fe349b" class="article-paragraph">6°&nbsp;à partir du 1<sup>er</sup>&nbsp;janvier 2030, la circulation d'un véhicule équipé d'un moteur diesel qui répond à l'euronorme 6, à l'exclusion des véhicules équipé d'un moteur diesel qui répond à l'euronorme 6d-TEMP ou à l'euronorme 6d ou à une euronorme supérieure.</p>
+    </div>
+    <div>
+     <p id="cea7d4ee-de6c-4fce-822d-bf5b20fd6997" class="article-paragraph">&nbsp;2.&nbsp;Pour des motifs environnementaux ou sanitaires, le Gouvernement peut interdire la circulation de véhicules qui ne sont pas visés au&nbsp;1<sup>er</sup>. Dans ce cas, le Gouvernement en détermine la liste et les échéances.</p>
+    </div>
+    <div>
+     <p id="b2a390f1-9cdc-470a-b131-660e8dbe8da8" class="article-paragraph">§ 3.&nbsp;Le Gouvernement peut déterminer des mesures d'accompagnement destinées aux propriétaires de véhicules dont la circulation est interdite en vertu du présent décret.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="0ecb2e66-897c-4361-a14c-8b2af012095b">
+   <p class="article-title">Art. 3. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="ff781b29-4631-4020-ae67-9d641776b9f0" class="article-paragraph">&nbsp;§1<sup>er</sup>.&nbsp;Sont autorisés à circuler au-delà des échéances visées à l'article&nbsp;2:</p>
+    </div>
+    <div>
+     <p id="8f644e08-3d74-4d03-8320-69112a6c04c4" class="article-paragraph">1°&nbsp;pour une durée complémentaire déterminée par le Gouvernement, les véhicules répondant au moins à l'euronorme 4, acquis avant la date du 1<sup>er</sup>&nbsp;janvier 2019, pour autant qu'ils ne soient pas cédés à un tiers;</p>
+    </div>
+    <div>
+     <p id="41fbde1d-6a32-4fe0-8504-806606679571" class="article-paragraph">2°&nbsp;les véhicules qui parcourent annuellement moins de 3&nbsp;000&nbsp;km;</p>
+    </div>
+    <div>
+     <p id="18168e3f-0d2b-48be-9857-7b74c56e4392" class="article-paragraph">3°&nbsp;les véhicules prioritaires visés à l'article&nbsp;37 du Code de la route;</p>
+    </div>
+    <div>
+     <p id="836ce605-6462-4e95-8c89-dea5f6be2ae4" class="article-paragraph">4°&nbsp;les véhicules des forces armées;</p>
+    </div>
+    <div>
+     <p id="82ba6e1a-9c13-4021-b440-8a76cadd02f2" class="article-paragraph">5°&nbsp;les véhicules utilisés en situation d'urgence ou opération de sauvetage à la demande des pompiers, de la police, de l'armée, de la protection civile ou des autorités routières;</p>
+    </div>
+    <div>
+     <p id="b2e2fc2e-e40e-4c51-989c-accd6349f27e" class="article-paragraph">6°&nbsp;les véhicules spécialement équipés pour l'entretien et le contrôle d'infrastructures et d'installations d'intérêt général;</p>
+    </div>
+    <div>
+     <p id="75d8b109-d0f2-4098-ae8d-362e718268f7" class="article-paragraph">7°&nbsp;les véhicules adaptés au transport de personnes handicapées, pour lesquels une approbation d'adaptation d'un véhicule a été délivrée par l'autorité compétente.</p>
+    </div>
+    <div>
+     <p id="df0af6c0-f56e-40f3-8ae1-bd03e3635d7a" class="article-paragraph">La durée complémentaire visée à l'alinéa&nbsp;1<sup>er</sup>, 1°, commence à compter de la date fixée à l'article&nbsp;2 pour chaque véhicule concerné.</p>
+    </div>
+    <div>
+     <p id="d748aa2f-bc2d-458f-9b87-1f5986d3a9db" class="article-paragraph">&nbsp;§2.&nbsp;Le Gouvernement peut définir d'autres exceptions à l'interdiction de circuler visée à l'article&nbsp;2, en fonction de la nature, du type, de l'utilisation faite du véhicule concerné, ainsi qu'en cas de situations exceptionnelles et limitées dans le temps. Il fixe les modalités selon lesquelles des dérogations individuelles sont accordées.</p>
+    </div>
+    <div>
+     <p id="b485c670-05c2-4b32-852f-44a8eea4a219" class="article-paragraph">&nbsp;3.&nbsp;Le présent article est sans préjudice de l'application des articles&nbsp;4 à 14.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="legal-context">
+  <div id="5273c2ef-3da1-4ad5-ad59-24582d9cec5f" class="chapter">
+   <span>Chapitre II<br>Zones de basses émissions</span>
+  </div>
+ </div>
+ <div class="legal-context">
+  <div id="8b195f8a-fd35-4834-8308-e5bf673742e1" class="section">
+   <span>Section 1<sup>re</sup><br>Disposition commune</span>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="d230d377-ebab-441f-864c-78a9c5d76639">
+   <p class="article-title">Art. 4. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="1b1d518c-ccaa-4a6d-a361-292295d79d0c" class="article-paragraph">&nbsp;§1<sup>er</sup>.&nbsp;L'accès à une zone de basses émissions est autorisé uniquement aux:</p>
+    </div>
+    <div>
+     <p id="6609f458-29fd-4d79-81f0-076ca05b2c0e" class="article-paragraph">1°&nbsp;véhicules qui n'appartiennent pas aux catégories&nbsp;M et N;</p>
+    </div>
+    <div>
+     <p id="33b7757e-70ee-4e6e-9967-cef03384537e" class="article-paragraph">2°&nbsp;véhicules électriques, les véhicules hybrides avec une émission de CO2 maximum de 50 grammes au kilomètre, et véhicules hydrogènes;</p>
+    </div>
+    <div>
+     <p id="c4b5f925-6e7d-40ab-9a6c-fe820751f457" class="article-paragraph">3°&nbsp;véhicules à moteur des catégories&nbsp;M et N, immatriculés en Belgique ou à l'étranger, qui remplissent les conditions suivantes:</p>
+    </div>
+    <div>
+     <p id="7e940117-13be-4748-8cd2-82a4ff47f04c" class="article-paragraph"><i>a)</i>&nbsp;à partir du 1<sup>er</sup>&nbsp;janvier 2020, aux véhicules dont:</p>
+    </div>
+    <div>
+     <p id="c7d4e681-cd37-4751-98a4-4fc522b68738" class="article-paragraph"><i>i.</i> &nbsp;le moteur diesel répond au moins à l'euronorme IV ou 4;</p>
+    </div>
+    <div>
+     <p id="16dee858-c85a-48ca-82e0-b5f136e31520" class="article-paragraph">ii.&nbsp;le moteur à essence, au LPG ou au CNG répond au moins à l'euronorme II ou 2;</p>
+    </div>
+    <div>
+     <p id="07186cfd-5258-4b00-8298-bcf15470428e" class="article-paragraph"><i>b)</i>&nbsp;à partir du 1<sup>er</sup>&nbsp;janvier 2022, aux véhicules dont:</p>
+    </div>
+    <div>
+     <p id="4751a9fb-fc25-4f1f-8594-b4e9368a74c3" class="article-paragraph"><i>i.</i> &nbsp;le moteur diesel répond au moins à l'euronorme V ou 5;</p>
+    </div>
+    <div>
+     <p id="90685e7e-17ec-4625-a58f-bfec21564637" class="article-paragraph">ii.&nbsp;le moteur à essence, au LPG ou au CNG répond au moins à l'euronorme III ou 3;</p>
+    </div>
+    <div>
+     <p id="062d79e3-ca30-4578-9508-b21334d128d0" class="article-paragraph"><i>c)</i>&nbsp;à partir du 1<sup>er</sup>&nbsp;janvier 2025, aux véhicules dont:</p>
+    </div>
+    <div>
+     <p id="a5fb099d-4f9a-43e2-a8e0-269a3c0ffdf4" class="article-paragraph"><i>i.</i> &nbsp;le moteur diesel répond au moins à l'euronorme VI ou 6;</p>
+    </div>
+    <div>
+     <p id="2d8036b6-2919-4c74-9daf-e3a7b97c4ea7" class="article-paragraph">ii.&nbsp;le moteur à essence, au LPG ou au CNG répond au moins à l'euronorme IV ou 4;</p>
+    </div>
+    <div>
+     <p id="fad9cc24-6221-4ce9-8e40-d7c2da419c6c" class="article-paragraph">4°&nbsp;véhicules prioritaires visés à l'article&nbsp;37 du Code de la route;</p>
+    </div>
+    <div>
+     <p id="bc930331-f3bc-4729-88c1-672e41f7f98c" class="article-paragraph">5°&nbsp;véhicules des forces armées;</p>
+    </div>
+    <div>
+     <p id="89d2f72d-cb13-4389-815c-e0f98d933910" class="article-paragraph">6°&nbsp;véhicules utilisés en situation d'urgence ou opération de sauvetage à la demande des pompiers, de la police, de l'armée, de la protection civile ou des autorités routières;</p>
+    </div>
+    <div>
+     <p id="1e7a1725-68d6-491a-86b9-ff6b80904fd9" class="article-paragraph">7°&nbsp;véhicules spécialement équipés pour l'entretien et le contrôle d'infrastructures et d'installations d'intérêt général;</p>
+    </div>
+    <div>
+     <p id="d6ead702-2897-4a5c-b171-d459015e6966" class="article-paragraph">8°&nbsp;véhicules à usages spéciaux qui répondent à la définition d'autocaravane ou de grue mobile;</p>
+    </div>
+    <div>
+     <p id="7c9fe4f0-8253-4a4e-8784-66fe1af03ee2" class="article-paragraph">9°&nbsp;transports exceptionnels au sens de l'article&nbsp;2,&nbsp;1<sup>er</sup>, 5°, de l'arrêté royal du 2&nbsp;juin 2010 relatif à la circulation routière des véhicules exceptionnels, disposant d'une autorisation valide de transport exceptionnel délivrée par l'autorité compétente;</p>
+    </div>
+    <div>
+     <p id="42fed6ef-ea5b-4477-ac70-3a306a50fe44" class="article-paragraph">10°&nbsp;véhicules adaptés au transport de personnes handicapées, pour lesquels une approbation d'adaptation d'un véhicule a été délivrée par l'autorité compétente;</p>
+    </div>
+    <div>
+     <p id="37a0c4ad-7dd8-4a75-9304-c3ef3d314cf0" class="article-paragraph">11°&nbsp;véhicules équipés d'un élévateur à fauteuil roulant et non visés au 10°;</p>
+    </div>
+    <div>
+     <p id="61e47475-811f-45f0-9c23-bc3a061fb346" class="article-paragraph">12°&nbsp;véhicules utilisés dans le cadre d'un service public de transport;</p>
+    </div>
+    <div>
+     <p id="81aa8ca1-60f7-4e0b-887d-a40b03c2a870" class="article-paragraph">13°&nbsp;trains miniatures touristiques au sens de l'article&nbsp;2,&nbsp;2, 8°, de l'arrêté royal du 15&nbsp;mars 1968;</p>
+    </div>
+    <div>
+     <p id="d12187ad-c3a1-4a37-96a5-6d9631d1909b" class="article-paragraph">14°&nbsp;véhicules adaptés spécialement pour les marchés, les foires, les parades et les commerces ambulants.</p>
+    </div>
+    <div>
+     <p id="d398f1b0-5cbb-4cec-83d6-dd7fc53f6276" class="article-paragraph">Lorsque l'euronorme d'un véhicule ne figure pas dans la base de données de l'autorité responsable de l'immatriculation des véhicules ou ne figure pas sur le certificat d'immatriculation, l'euronorme est déterminée sur la base d'éléments probants fournis par la personne au nom de qui le véhicule est immatriculé, ou à défaut, sur base de la date de la première immatriculation du véhicule. Dans ce cas, les dates mentionnées en annexe 1<sup>e</sup> sont utilisées pour déterminer l'euronorme qui s'applique au véhicule.</p>
+    </div>
+    <div>
+     <p id="896c551e-fcda-4324-aae4-d7321b10c0d2" class="article-paragraph">§ 2.&nbsp;Par dérogation au paragraphe&nbsp;1<sup>er</sup>, alinéa&nbsp;1<sup>er</sup>, 3°, l'autorisation d'accès du véhicule visé est prolongée d'une année pour les véhicules pour lesquels une attestation de conformité a été délivrée par une installation d'entretien et de réparation agréée visée à l'article&nbsp;16.</p>
+    </div>
+    <div>
+     <p id="499b586b-2edb-442e-bd13-a0416e2cd268" class="article-paragraph">Par dérogation au paragraphe&nbsp;1<sup>er</sup>, sauf en cas d'application de l'article&nbsp;8, les véhicules mis en circulation depuis plus de quarante ans et utilisé à des fins de loisirs touristiques ou autres fins commerciales peuvent accéder à une zone de basses émissions.</p>
+    </div>
+    <div>
+     <p id="30db61ec-05f7-4b8a-84c0-9fde28ae9096" class="article-paragraph">Afin de bénéficier des dérogations visées aux alinéas&nbsp;1<sup>er</sup> et 2, les véhicules concernés doivent se faire enregistrer dans la base de données visée à l'article&nbsp;14.&nbsp;Le Gouvernement précise les modalités d'enregistrement.</p>
+    </div>
+    <div>
+     <p id="2e357ca6-9a65-4165-8f15-e01d0b87e085" class="article-paragraph">&nbsp;3.&nbsp;Le Gouvernement peut compléter la liste des véhicules autorisés à accéder aux zones de basses émissions telle que visée au paragraphe&nbsp;1<sup>er</sup> sur base de:</p>
+    </div>
+    <div>
+     <p id="4ca727fb-fd81-429f-b4f3-96ecffd058a3" class="article-paragraph">1°&nbsp;l'impact des véhicules sur la pollution atmosphérique;</p>
+    </div>
+    <div>
+     <p id="e16e98a0-61fd-49d3-bd87-eeea18f8bd9c" class="article-paragraph">2°&nbsp;leur motorisation;</p>
+    </div>
+    <div>
+     <p id="29685e87-5e41-40f4-8fc9-523b14a8dd5d" class="article-paragraph">3°&nbsp;leur âge;</p>
+    </div>
+    <div>
+     <p id="47596803-a749-4aa1-b351-326ab44114fc" class="article-paragraph">4°&nbsp;le cas échéant, leur niveau d'entretien.</p>
+    </div>
+    <div>
+     <p id="11d572aa-1c7c-45c1-80f5-d2be8aaae6a7" class="article-paragraph">Le Gouvernement définit les exceptions à la restriction du droit d'accès en zone de basses émissions visé au paragraphe&nbsp;1<sup>er</sup>, en fonction:</p>
+    </div>
+    <div>
+     <p id="26129ce0-769b-4d9a-93bc-f0fb42735bc9" class="article-paragraph">1°&nbsp;de la nature, du type ou de l'utilisation faite du véhicule concerné;</p>
+    </div>
+    <div>
+     <p id="207f6f4c-6cf4-44ad-a43b-d147ee87f5c3" class="article-paragraph">2°&nbsp;du moment de la journée.</p>
+    </div>
+    <div>
+     <p id="ebe4c5cb-ea60-4d84-a479-8c4a7a2023e5" class="article-paragraph">Le Gouvernement fixe les modalités selon lesquelles des dérogations individuelles, temporaires ou permanentes, sont accordées. Pour ce faire, il peut tenir compte de critères socio-économiques et de la situation particulière des usagers, notamment des personnes résidant à l'intérieur des zones de basses émissions.</p>
+    </div>
+    <div>
+     <p id="2262403b-c8cf-4669-b91d-3d04dd413c92" class="article-paragraph">&nbsp;4.&nbsp;Pour des motifs environnementaux ou sanitaires, le Gouvernement peut restreindre ou interdire la circulation de véhicules équipés des motorisations qu'il détermine et selon les échéances qu'il fixe.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="936fb067-c247-4b8e-b938-d516ef99125c">
+   <p class="article-title">Art. 5. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="bb6acee3-ecf9-4321-a2e2-20281b884a3b" class="article-paragraph">Le Gouvernement arrête les mesures de publicité concernant la création de la zone de basses émissions.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="5d76a0b0-2c3b-482d-90c8-6bf6a35cf3db">
+   <p class="article-title">Art. 6. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="cef5b320-3765-4d94-ac50-ec10890ae3c3" class="article-paragraph">Si, en cas de déviation ou contournement du trafic imposé par la police ou le gestionnaire de voirie, le trafic de transit de l'extérieur de la zone de basses émissions est obligatoirement dévié en passant à l'intérieur de la zone de basses émissions et que cette situation fait en sorte qu'un véhicule ne répondant pas aux critères d'accès circule dans la zone de basses émissions, aucune infraction ne peut être constatée pour ce qui concerne ce véhicule.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="legal-context">
+  <div id="ac0671f9-79bb-498b-9ec4-2ee9d459ff6f" class="section">
+   <span>Section 2<br>Zones de basses émissions régionales</span>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="e8f839a6-9b10-42d6-bcaf-49d70db4d932">
+   <p class="article-title">Art. 7. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="2ee4805d-a316-44f2-ae48-27f28258ccc7" class="article-paragraph">Le Gouvernement peut créer une ou plusieurs zones de basses émissions, permanente ou temporaire, sur le territoire de la Région wallonne afin d'améliorer la qualité de l'air.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="47566b1a-116b-486f-ad66-cba73a414cf0">
+   <p class="article-title">Art. 8. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="85b9e149-b160-49e9-8712-62ed9c364a43" class="article-paragraph">Lorsque le seuil d'alerte est dépassé, l'accès à l'ensemble du territoire de la Région wallonne est autorisé conformément à l'article&nbsp;4, pour la durée du dépassement.</p>
+    </div>
+    <div>
+     <p id="cada074c-7aed-438b-b839-ec052ec5b402" class="article-paragraph">Dès que le Gouvernement a connaissance, au cours d'un pic de pollution, d'un risque de dépassement du seuil d'alerte, il met en œuvre une information visant l'ensemble des automobilistes indiquant une possible application de l'alinéa&nbsp;1<sup>er</sup>.&nbsp;Le Gouvernement arrête les modalités d'information.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="legal-context">
+  <div id="54dc646f-4597-4d40-b420-0df966a8a3e1" class="section">
+   <span>Section 3<br>Zones de basses émissions communales</span>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="8f441376-1356-420c-a3d8-196cc0360519">
+   <p class="article-title">Art. 9. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="57cee4b2-1106-4220-9b44-7016c7ae9538" class="article-paragraph">§1<sup>er</sup>.&nbsp;De manière permanente, pour certains moments fixes de la journée ou certaines périodes de l'année, une commune peut proposer au Gouvernement la création, par règlement communal complémentaire de circulation, d'une ou plusieurs zones de basses émissions sur les voiries communales et régionales qui se trouvent sur son territoire, à l'exception des autoroutes.</p>
+    </div>
+    <div>
+     <p id="faba260b-d214-409c-abc0-fd3b5c2a975d" class="article-paragraph">Le projet de règlement communal est motivé et accompagné d'un plan de mobilité comprenant des solutions alternatives de mobilité, adopté en concertation avec les communes limitrophes et les gestionnaires de voiries concernés.</p>
+    </div>
+    <div>
+     <p id="d3920bf7-c0a5-4520-ace5-888fa403a3b2" class="article-paragraph">Le Gouvernement fixe les conditions auxquelles répondent les zones de basses émissions proposées par une commune.</p>
+    </div>
+    <div>
+     <p id="145f28c8-13ce-423c-a0d2-8441e607dd5e" class="article-paragraph">&nbsp;2.&nbsp;Dans les quinze jours de l'adoption de la proposition visée au paragraphe&nbsp;1<sup>er</sup>, la commune transmet au Gouvernement pour approbation le projet de règlement communal complémentaire de circulation, ainsi que les documents l'accompagnant.</p>
+    </div>
+    <div>
+     <p id="931e0b58-fa4d-47f5-9ecc-7f0d08703428" class="article-paragraph">Lorsque la proposition a des conséquences importantes en termes d'augmentation du trafic sur le territoire d'une autre commune, le Gouvernement soumet pour avis la proposition à ces autres communes concernées et les invitent, le cas échéant, à proposer une zone de basses émissions commune.</p>
+    </div>
+    <div>
+     <p id="82a4a931-d391-472f-8593-7dd022396098" class="article-paragraph">Le Gouvernement règle la procédure et les modalités d'approbation du règlement visé au paragraphe&nbsp;1<sup>er</sup>.</p>
+    </div>
+    <div>
+     <p id="a2f50b6d-a6f7-4916-8c78-a92ea748d36b" class="article-paragraph">Le Gouvernement règle le délai endéans lequel les zones de basses émissions créées en vertu du présent article sont effectives sur le territoire visé.</p>
+    </div>
+    <div>
+     <p id="3ed3bc36-0e90-41fd-9b99-6e73adbe9cb3" class="article-paragraph">&nbsp;§3.&nbsp;La restriction au droit d'accès des véhicules aux zones de basses émissions se règle conformément aux dispositions prises par le Gouvernement en vertu de l'article&nbsp;4.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="388aa25e-ebea-48a6-9b74-84b8f674a00c">
+   <p class="article-title">Art. 10. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="61808237-f417-40f3-acc4-5eb3c8b7d7e3" class="article-paragraph">Lorsqu'une valeur limite de qualité de l'air est dépassée, sur son territoire, la commune concernée soumet au Gouvernement, dans le délai qu'il fixe, un projet de règlement visant à créer une zone de basses émissions permanente conformément à l'article&nbsp;9.</p>
+    </div>
+    <div>
+     <p id="971c63b0-7cc8-4c3c-96da-a3cd4d294b4b" class="article-paragraph">À défaut de projet soumis dans le délai ou si le projet n'est pas suffisant pour améliorer la qualité de l'air, le Gouvernement impose les mesures nécessaires conformément à l'article&nbsp;7.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="160b946b-de87-4397-a557-816c2cc243ed">
+   <p class="article-title">Art. 11. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="ac7435e0-80a9-4c6d-a66e-df9478c606b7" class="article-paragraph">Dans la limite des crédits budgétaires disponibles, le Gouvernement peut octroyer, aux conditions qu'il détermine, un subside ou un soutien matériel aux communes qui mettent en œuvre une ou plusieurs zones de basses émissions.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="legal-context">
+  <div id="a600b531-8b2f-429d-b572-50d07393c37f" class="section">
+   <span>Section 4<br>Signalisation et contrôles</span>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="e459ba01-516b-438a-8e77-70d1edb52b4f">
+   <p class="article-title">Art. 12. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="c5208939-2568-4add-ab72-d56723d5e1c0" class="article-paragraph">Une zone de basses émissions est signalée par les panneaux F117 et F118 visés à l'article&nbsp;71.2 du Code de la route, auxquels est ajouté, lorsque la zone est fixée de manière temporaire, un panneau avec la période concernée.</p>
+    </div>
+    <div>
+     <p id="5dbf18a7-2e31-458b-bb3a-cdb91a0a8388" class="article-paragraph">Le périmètre des zones de basses émissions créées en vertu des articles&nbsp;7, 8 et 9 du présent décret est publié, de manière permanente, sur le site Internet de la commune sur laquelle elles se trouvent.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="606059a8-1003-4b11-b9ba-bebd12d6b49a">
+   <p class="article-title">Art. 13. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="5dd8c3ad-8f91-4e93-88c5-5ae475d631e1" class="article-paragraph">&nbsp;§1<sup>er</sup>.&nbsp;Le contrôle de l'accès aux zones de basses émissions et la constatation des infractions s'effectuent en recourant à des caméras ANPR, avec ou sans appareils automatiques, fixe ou mobile.</p>
+    </div>
+    <div>
+     <p id="d7a3261f-95b6-4835-9c07-d45cc7ae5d23" class="article-paragraph">&nbsp;2.&nbsp;Les véhicules pour lesquels la base de données visée à l'article&nbsp;14 ne contient pas les informations nécessaires au contrôle visé au paragraphe&nbsp;1<sup>er</sup> doivent faire l'objet d'un enregistrement préalable afin de circuler sur le territoire de la Région wallonne.</p>
+    </div>
+    <div>
+     <p id="f375e6e6-0a9e-4a73-82c9-06976db43fe8" class="article-paragraph">Le Gouvernement détermine les modalités d'enregistrement ainsi que les véhicules qui sont dispensés d'enregistrement. Il met à disposition du public un outil permettant de savoir si un véhicule doit faire l'objet d'un enregistrement.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="ca5af2a8-69ed-4d9d-a098-041b17e4221f">
+   <p class="article-title">Art. 14. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="554a8511-d7ca-448b-b62b-5d63bcfb5807" class="article-paragraph">&nbsp;§1<sup>er</sup>.&nbsp;Les données strictement nécessaires et pertinentes à l'application du présent décret sont enregistrées dans une base de données.</p>
+    </div>
+    <div>
+     <p id="329bb20a-bc3e-4e2c-b34c-23ddae48f889" class="article-paragraph">Les services désignés par le Gouvernement gèrent cette base de données.</p>
+    </div>
+    <div>
+     <p id="a7c07433-88d1-4425-b48f-cdbdd7cb7b25" class="article-paragraph">À cette fin, ces services demandent les données nécessaires portant sur les véhicules sous format électronique aux autorités compétentes, telle l'autorité responsable de l'immatriculation des véhicules et les communes créant une zone de basses émissions sur leur territoire.</p>
+    </div>
+    <div>
+     <p id="6f30770f-c5c2-47f5-89f3-f4f1927b479b" class="article-paragraph">&nbsp;2.&nbsp;Lorsque les données visées au paragraphe&nbsp;1<sup>er</sup>, à l'exception des données visées au paragraphe&nbsp;3, ne jouent pas de rôle substantiel pour prouver une infraction, elles sont conservées trois mois, sauf si les données sont nécessaires dans le cadre d'un examen de suivi ou à des fins historiques, statistiques ou scientifiques dans le respect de la législation relative à la vie privée.</p>
+    </div>
+    <div>
+     <p id="cf522103-5bc6-49c8-b450-a0d14e6d1295" class="article-paragraph">Pour ce faire, les données à caractère personnel sont rendues anonymes dès que leur individualisation n'est plus nécessaire pour la réalisation des finalités pour lesquelles elles ont été collectées.</p>
+    </div>
+    <div>
+     <p id="7b0d1d4b-e081-4a82-ab18-1e9962b9189a" class="article-paragraph">Les données peuvent être communiquées aux autorités ou administrations désignées par le Gouvernement en vue de leur traitement ultérieur à des fins historiques, statistiques et scientifiques.</p>
+    </div>
+    <div>
+     <p id="3225681a-4a50-4b21-836c-be93ba80842d" class="article-paragraph">&nbsp;§3.&nbsp;Les données liées à l'enregistrement des véhicules sont conservées maximum trois mois après l'expiration de la durée de validité des enregistrements en question.</p>
+    </div>
+    <div>
+     <p id="c94c4122-2368-4c7f-a932-952d609d5860" class="article-paragraph">Les données fournies par la personne au nom de qui le véhicule est immatriculé, pour accéder à une zone de basses émissions peuvent être conservées maximum trois mois après l'expiration de la validité de l'accès obtenu.</p>
+    </div>
+    <div>
+     <p id="02dc4f4b-e6bb-4471-8add-33cb5fd5d4d2" class="article-paragraph">§ 4.&nbsp;Le Gouvernement détermine comment les données relatives aux véhicules sont enregistrées dans la base de données, ainsi que la procédure et les modalités. Il précise les conditions relatives au contenu et au fonctionnement de la base de données.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="legal-context">
+  <div id="10b50627-7789-4c2e-9003-b126d6b4f3a4" class="chapter">
+   <span>Chapitre III<br>Arrêt des moteurs</span>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="7c54d8a9-8752-4b51-b6ae-9aba862657ff">
+   <p class="article-title">Art. 15. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="1a7d1597-9fb0-4165-be8c-9932c795eaee" class="article-paragraph">
+      <div> 
+       <table class="ng-invalid ng-pristine ng-touched paragraphTable"> 
+        <tbody> 
+         <tr> 
+          <td> 
+           <div> 
+            <div>
+             Lorsqu'un véhicule est à l'arrêt à un endroit où il n'est pas interdit de mettre un véhicule à l'arrêt ou en stationnement en application de l'article&nbsp;24 du Code de la route, le conducteur coupe directement le moteur du véhicule.
+            </div> 
+           </div> </td> 
+          <td></td> 
+         </tr> 
+        </tbody> 
+       </table> 
+      </div> 
+      <div> 
+       <table class="ng-invalid ng-pristine ng-touched paragraphTable"> 
+        <tbody> 
+         <tr> 
+          <td> 
+           <div> 
+            <div> 
+             <div> 
+              <p><i>(L'alinéa 1 <sup>er</sup> n'est pas applicable aux véhicules :<br> 1° prioritaires visés à l'article 37 du Code de la route;<br> 2° des forces armées;<br> 3° utilisés en situation d'urgence ou opération de sauvetage à la demande des pompiers, de la police, de l'armée, de la protection civile ou des autorités routières;<br> 4° spécialement équipés pour l'entretien et le contrôle d'infrastructures et d'installations d'intérêt général;<br> 5° équipés d'un aménagement frigorifique;<br> 6° spécialement équipés dont le fonctionnement du moteur permet d'alimenter en énergie électrique, de manière autonome, les équipements du véhicule;<br> 7° présentant un problème technique qui nécessite de maintenir le moteur en fonctionnement.<br> Le Gouvernement peut compléter la liste des véhicules visés à l'alinéa 2 qui dérogent à l'application de l'alinéa 1 <sup>er</sup>. -décret du 6 mai 2019, art .25);</i></p> 
+             </div> 
+            </div> 
+           </div> </td> 
+         </tr> 
+        </tbody> 
+       </table> 
+      </div> </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="legal-context">
+  <div id="809da316-8d80-4a02-b65f-a088ca3f3d8e" class="chapter">
+   <span>Chapitre IV<br>Entretien des véhicules en vue de réduire les émissions</span>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="003dea4c-d60f-458b-8f0f-db6f334bc62d">
+   <p class="article-title">Art. 16. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="8c8ca040-d8ea-4f81-8b0a-dfe96dd24c00" class="article-paragraph">&nbsp;1<sup>er</sup>.&nbsp;Le Gouvernement peut déterminer les modalités de contrôle des émissions des polluants atmosphériques émanant des véhicules au niveau:</p>
+    </div>
+    <div>
+     <p id="7547dcc7-54ba-4c58-8478-fbbbd582ca58" class="article-paragraph">1°&nbsp;des centres de contrôles techniques lors des contrôles périodiques ou complémentaires;</p>
+    </div>
+    <div>
+     <p id="2111bf78-8631-4098-abe9-311b0981daad" class="article-paragraph">2°&nbsp;des contrôles aléatoires sur la voie publique.</p>
+    </div>
+    <div>
+     <p id="c17c8383-ce2e-4503-9d5e-d940a355680b" class="article-paragraph">&nbsp;2.&nbsp;En vue de vérifier, maintenir et encourager la performance environnementale des véhicules, le Gouvernement peut agréer une installation d'entretien et de réparation qui répond aux conditions et modalités qu'il fixe. Les conditions portent sur les exigences relatives au matériel de mesure des émissions, sur l'application de méthodes de contrôle, sur les actes techniques d'entretien et à la délivrance de conseils aux utilisateurs des véhicules.</p>
+    </div>
+    <div>
+     <p id="03c1b975-6172-44a0-8611-b8e52c94161a" class="article-paragraph">&nbsp;§3.&nbsp;L'installation d'entretien et de réparation agréée délivre une attestation de conformité au propriétaire du véhicule concerné et au service désigné par le Gouvernement. Le Gouvernement fixe le contenu de l'attestation.</p>
+    </div>
+    <div>
+     <p id="e5a8ef84-117a-49f0-ab6b-a6f52c87bdd0" class="article-paragraph">Conformément à l'article&nbsp;4,&nbsp;2, sur base de l'attestation délivrée, le propriétaire peut demander une dérogation temporaire visant à lui permettre d'accéder aux zones de basses émissions. Le Gouvernement détermine la procédure de demande ainsi que ses modalités.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="legal-context">
+  <div id="e11082d6-33c0-4b62-a8bb-f111cd231732" class="chapter">
+   <span>Chapitre V<br>Infractions pénales et administratives</span>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="bbe1ee0b-097a-4438-a622-b59516034121">
+   <p class="article-title">Art. 17. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="1391992a-eef1-450a-9eed-7f185d19e7df" class="article-paragraph">Commet une infraction de deuxième catégorie au sens de l'article&nbsp;D.151 du Livre&nbsp;I<sup>er</sup> du Code de l'Environnement, celui qui:</p>
+    </div>
+    <div>
+     <p id="1f65a8f0-aa87-43eb-8b33-157ddc965e16" class="article-paragraph">1°&nbsp;contrevient à l'article&nbsp;2;</p>
+    </div>
+    <div>
+     <p id="f69db897-7a4b-469c-ab15-407dc1ddb66d" class="article-paragraph">2°&nbsp;en connaissance de cause, ne s'est pas enregistré conformément à l'article&nbsp;13,&nbsp;2, ou a fourni de fausses données pour l'enregistrement;</p>
+    </div>
+    <div>
+     <p id="072e0b80-cf13-4e8d-8cb8-57e842fac028" class="article-paragraph">3°&nbsp;accède à une zone de basses émissions en contravention à l'article&nbsp;4;</p>
+    </div>
+    <div>
+     <p id="1397a070-1400-4529-8e5d-5aed9bc752c9" class="article-paragraph">4°&nbsp;contrevient à l'article&nbsp;15;</p>
+    </div>
+    <div>
+     <p id="5d60d9f2-5d4a-41b5-9909-56640860ce78" class="article-paragraph">5°&nbsp;délivre une attestation visée à l'article&nbsp;16 sans disposer de l'agrément nécessaire.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="legal-context">
+  <div id="625d81f5-b30d-4310-b0c1-c5e4a15674af" class="chapter">
+   <span>Chapitre VI<br>Dispositions modificatives et finales</span>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="c46f18eb-73bb-4776-a553-50b0871bc6a8">
+   <p class="article-title">Art. 18. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="f8db1d6b-3124-42c8-95eb-e3e85b764933" class="article-paragraph">L'article&nbsp;D.138, alinéa&nbsp;1<sup>er</sup>du Livre&nbsp;I<sup>er</sup> du Code de l'Environnement, inséré par le décret du 5&nbsp;juin 2008 et modifié en dernier lieu par le décret du 12&nbsp;décembre 2014, est complété par un 20° rédigé comme suit:</p>
+    </div>
+    <div>
+     <p id="6dd63dfe-5a81-4116-a1a9-000c03e70b12" class="article-paragraph">«&nbsp;20° le décret du 17&nbsp;janvier 2019 relatif à la lutte contre la pollution atmosphérique liée à la circulation des véhicules.&nbsp;».</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="523224d0-41b3-4191-a8d4-751234231d7c">
+   <p class="article-title">Art. 19. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="a5c55db4-71f8-4ad7-9f86-7bdc828f97bd" class="article-paragraph">Dans l'article&nbsp;D.141 du même Livre, inséré par le décret du 5&nbsp;juin 2008 et modifié par le décret du 19&nbsp;mars 2009, les modifications suivantes sont apportées:</p>
+    </div>
+    <div>
+     <p id="ac2f7e7f-1488-4631-b7f5-05acd85ac481" class="article-paragraph">1°&nbsp;l'alinéa&nbsp;4 est remplacé par ce qui suit:</p>
+    </div>
+    <div>
+     <p id="8ed2a31f-d14f-4de5-bdf0-ebfc0d40991a" class="article-paragraph">«&nbsp;En cas d'infraction flagrante commise à partir ou au moyen d'un véhicule à moteur, lorsque l'agent constatateur n'a pu identifier l'auteur des faits mais bien le numéro de la plaque d'immatriculation du véhicule, le procès-verbal constatant l'infraction et comportant l'identification du numéro de la plaque d'immatriculation du véhicule fait foi que l'infraction a été commise par la personne au nom de laquelle le véhicule est immatriculé auprès de l'autorité responsable de l'immatriculation des véhicules ou de son équivalent étranger. Cette présomption peut être renversée par tout moyen de droit, à l'exception du serment.&nbsp;»;</p>
+    </div>
+    <div>
+     <p id="65d024f5-dfa2-4448-9586-d9b20346db21" class="article-paragraph">2°&nbsp;l'article est complété d'un alinéa rédigé comme suit:</p>
+    </div>
+    <div>
+     <p id="ea9b1e22-055e-4373-97a7-acf7f426ac7b" class="article-paragraph">«&nbsp;En cas de contestation de la présomption par une personne morale, celle-ci communique l'identité du conducteur au moment des faits ou, si elle ne la connaît pas, l'identité de la personne responsable du véhicule.&nbsp;».</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="9bbd273c-e81a-4bbd-885b-20e816be9741">
+   <p class="article-title">Art. 20. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="582af792-d6d8-4c55-9e3d-7fdfc0afec99" class="article-paragraph">Dans l'article&nbsp;D.146 du même Livre, inséré par le décret du 5&nbsp;juin 2008 et modifié par les décrets des 22&nbsp;juillet 2010 et 27&nbsp;mars 2014, les modifications suivantes sont apportées:</p>
+    </div>
+    <div>
+     <p id="c886fecd-2946-4d97-bfb2-7a1ad9bb8c2c" class="article-paragraph">1°&nbsp;le 4° est remplacé par ce qui suit:</p>
+    </div>
+    <div>
+     <p id="e1425cfb-e6ba-4676-9d48-cb8faf8f315d" class="article-paragraph">«&nbsp;4° donner l'ordre d'arrêter un véhicule, en ce compris ceux utilisés pour le transport, et contrôler leur chargement;&nbsp;»;</p>
+    </div>
+    <div>
+     <p id="7b53c5e7-e008-4868-9da9-7bc0f3bb98e4" class="article-paragraph">2°&nbsp;l'article est complété par un 11° rédigé comme suit:</p>
+    </div>
+    <div>
+     <p id="6ab64059-0330-4de9-9c21-268fc996b8dd" class="article-paragraph">«&nbsp;11° consulter et prendre une copie des données administratives nécessaires, tels les documents légalement prescrits qui doivent être en possession du conducteur d'un véhicule et plus largement tous les documents utiles à l'identification du véhicule, du conducteur ou de la personne au nom de laquelle le véhicule est immatriculé.&nbsp;».</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="c6e32241-2211-4d0f-bd75-93595b38565d">
+   <p class="article-title">Art. 21. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="4da58882-9cc4-4c2d-9cb7-b968b07627e4" class="article-paragraph">L'article&nbsp;D.159, §2, du même Livre, inséré par le décret du 5&nbsp;juin 2008 et modifié en dernier lieu par le décret du 12&nbsp;décembre 2014, est complété par un 9° rédigé comme suit:</p>
+    </div>
+    <div>
+     <p id="15df60a7-d640-4363-a6b1-ca5685fc3556" class="article-paragraph">«&nbsp;9° les infractions au décret du 17&nbsp;janvier 2019 relatif à la lutte contre la pollution atmosphérique liée à la circulation des véhicules.&nbsp;».</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="714c9f22-95a8-4299-b412-a984210f499e">
+   <p class="article-title">Art. 22. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="067bc2b9-404c-448a-b077-85e4f42d923b" class="article-paragraph">L'article&nbsp;D.167, §1<sup>er</sup>, du même Livre, inséré par le décret du 5&nbsp;juin 2008 et modifié par le décret du 22&nbsp;juillet 2010, est complété par le 4° rédigé comme suit:</p>
+    </div>
+    <div>
+     <p id="8b1e6425-c583-41dc-8fd5-3027668f4b20" class="article-paragraph">«&nbsp;4° les infractions au décret du 17&nbsp;janvier 2019 relatif à la lutte contre la pollution atmosphérique liée à la circulation des véhicules.&nbsp;».</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="ff0aff33-3299-4592-b249-43a9de0d7463">
+   <p class="article-title">Art. 23. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="38ee971a-0410-455d-9063-77c76c88b24a" class="article-paragraph">À l'article&nbsp;29, §2, de la loi du 16&nbsp;mars 1968 relative à la police de la circulation routière, modifiée par les lois du 1<sup>er</sup>&nbsp;avril 2006 et du 20&nbsp;mars 2007, il est inséré un alinéa&nbsp;4, rédigé comme suit:</p>
+    </div>
+    <div>
+     <p id="59e64931-e162-4dad-bde0-35fa6687071f" class="article-paragraph">«&nbsp;L'infraction aux règlements visés à l'alinéa&nbsp;1<sup>er</sup>afférente à une zone de basses émissions, telle que visée à l'article&nbsp;2.63 de l'arrêté royal du 1<sup>er</sup>&nbsp;décembre 1975 portant règlement général sur la police de la circulation routière et de l'usage de la voie publique, ne fait pas l'objet de poursuites pénales.&nbsp;».</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="7b2c3863-13ee-429c-a7cc-d58410c0c288">
+   <p class="article-title">Art. 24. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="c5a7288e-f122-49cf-8eec-2e11f48140e4" class="article-paragraph">Dans la loi du 28&nbsp;décembre 1964 relative à la lutte contre la pollution atmosphérique, l'article&nbsp;2, dont le texte actuel formera le paragraphe&nbsp;1<sup>er</sup>, est complété par un paragraphe&nbsp;2 rédigé comme suit:</p>
+    </div>
+    <div>
+     <p id="77e4e3ca-bd9b-4dc9-b833-4df043e5e455" class="article-paragraph">«&nbsp; §2. On entend par pics de pollution atmosphérique, le niveau de pollution atmosphérique justifiant la mise en œuvre de mesures d'urgence.</p>
+    </div>
+    <div>
+     <p id="0a276055-811a-4ee7-a8f6-390a6927e3b0" class="article-paragraph">Le Gouvernement est habilité à déterminer les mesures d'urgence.&nbsp;».</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="77485a67-11f7-4754-9d77-f2cf9bcb678d">
+   <p class="article-title">Art. 25. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="94cd1008-d08f-48d1-8696-62d97719b381" class="article-paragraph">Le Gouvernement présente, au plus tard le 1<sup>er</sup>&nbsp;juin de chaque année, un rapport annuel circonstancié au Parlement concernant l'exécution du présent décret.</p>
+    </div>
+    <div>
+     <p id="d9c1ffa7-caf9-43a1-a231-9d09eb1e9d98" class="article-paragraph">Le premier rapport sera présenté pour le 1<sup>er</sup>&nbsp;juin 2022.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="body">
+  <div class="article" id="e252a89b-0ec5-490d-b2a1-a90a6daa993d">
+   <p class="article-title">Art. 26. </p>
+   <div class="article-paragraphs">
+    <div>
+     <p id="306d1f67-3868-43d8-a6c1-a708948baf10" class="article-paragraph">À l'exception des articles&nbsp;4 à 13, le présent décret entre en vigueur le 1<sup>er</sup>&nbsp;mars 2019.</p>
+    </div>
+    <div>
+     <p id="4f38f2fa-365c-4b98-8aff-c3ff4f3ee46a" class="article-paragraph">Les articles&nbsp;4 à 13 entrent en vigueur le 1<sup>er</sup>&nbsp;juillet 2019.</p>
+    </div>
+   </div>
+  </div>
+ </div>
+</div><div id="final" class="footer">
+ Promulguons le présent décret, ordonnons qu'il soit publié au Moniteur belge . 
+ <br>Namur, le 17 janvier 2019.
+</div><div class="signatures">
+ <div class="signature">
+  <p>Le Ministre-Président,</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>W. BORSUS</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>La Ministre de l'Action sociale, de la Santé, de l'Égalité des Chances, de la Fonction publique et de la Simplification administrative,</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>A. GREOLI</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>Le Ministre de l'Économie, de l'Industrie, de la Recherche, de l'Innovation, du Numérique, de l'Emploi et de la Formation,</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>P.-Y. JEHOLET</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>Le Ministre de l'Environnement, de la Transition écologique, de l'Aménagement du Territoire, des Travaux publics, de la Mobilité, des Transports, du Bien-Etre animal et des Zonings,</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>C. DI ANTONIO</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>Le Ministre du budget, des Finances, de l'Énergie, du Climat et des Aéroports,</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>J.-L. CRUCKE</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>Le Ministre de l'Agriculture, de la Nature, de la Forêt, de la Ruralité, du Tourisme, du Patrimoine et délégué à la Grande Région,</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>R. COLLIN</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>La Ministre des Pouvoirs locaux, du Logement et des Infrastructures sportives,</p>
+  <p></p>
+ </div>
+ <div class="signature">
+  <p>V. DE BUE</p>
+  <p></p>
+ </div>
+</div><div class="annexes">
+ <div class="annex" id="b86d25dd-5b56-4f35-b310-d25100729b6f">
+  <div class="annex-content">
+   Annexe 1 - Tableau de correspondance des véhicules ne disposant pas d'Euronorme 
+   <table border="1"> 
+    <tbody> 
+     <tr> 
+      <td>Norme d'émissions</td> 
+      <td>Voitures (catégories M1)</td> 
+      <td>Camionnettes (N1 - Poids I)</td> 
+      <td>Mini-bus/camionnettes transport personnes (catégories M2)ou camionnettes (N1), de poids II ou III.</td> 
+      <td>Bus/autocars/camions</td> 
+     </tr> 
+     <tr> 
+      <td>Euro 1/I</td> 
+      <td>01/07/1992- 31/12/1996</td> 
+      <td>01/10/1994-31/12/1997</td> 
+      <td>01/10/1994-31/12/1997</td> 
+      <td>01/10/1993-30/09/1996</td> 
+     </tr> 
+     <tr> 
+      <td>Euro 2/II</td> 
+      <td>01/01/1997-31/12/2000</td> 
+      <td>01/01/1998-31/12/2000</td> 
+      <td>01/01/1998-31/12/2001</td> 
+      <td>01/10/1996-30/09/2001</td> 
+     </tr> 
+     <tr> 
+      <td>Euro 3/III</td> 
+      <td>01/01/2001-31/12/2005</td> 
+      <td>01/01/2001-31/12/2005</td> 
+      <td>01/01/2002-31/12/2006</td> 
+      <td>01/10/2001-30/09/2006</td> 
+     </tr> 
+     <tr> 
+      <td>Euro 4/IV</td> 
+      <td>01/01/2006-31/12/2010</td> 
+      <td>01/01/2006-31/12/2010</td> 
+      <td>01/01/2007-31/12/2011</td> 
+      <td>01/10/2006-30/09/2009</td> 
+     </tr> 
+     <tr> 
+      <td>Euro 5/V</td> 
+      <td>01/01/2011-31/08/2015</td> 
+      <td>01/01/2011-31/08/2015</td> 
+      <td>01/01/2012-31/08/2016</td> 
+      <td>01/10/2009-31/12/2013</td> 
+     </tr> 
+     <tr> 
+      <td>Euro 6/VI</td> 
+      <td>01/09/2015-31/08/2019</td> 
+      <td>01/09/2015-31/08/2019</td> 
+      <td>01/09/2016-31/08/2020</td> 
+      <td>01/01/2014-...</td> 
+     </tr> 
+     <tr> 
+      <td>Euro 6d-TEMP</td> 
+      <td>01/09/2019-31/12/2020</td> 
+      <td>01/09/2019-31/12/2020</td> 
+      <td>01/09/2020-31/12/2021</td> 
+      <td></td> 
+     </tr> 
+     <tr> 
+      <td>Euro 6d</td> 
+      <td>01/01/2021- ...</td> 
+      <td>01/01/2021- ...</td> 
+      <td>01/01/2021- ...</td> 
+      <td></td> 
+     </tr> 
+    </tbody> 
+   </table> 
+  </div>
+ </div>
+</div></div>
+				</div>
+			</div>
+		</div>
+
+		<aside class="col-lg-4 col-md-12 col-sm-12 col-xs-12 px-0 pl-lg-3">
+			<div class="metadatas-container">
+
+	<div class="metadata">
+			<a class="wallex-tooltip" target="_blank" href="http://reflex.raadvst-consetat.be/reflex/docs/?db=chrono&mbid=2019200758&lang=fr" data-placement="top" data-toggle="tooltip" title="Conseil d’Etat">Conseil d’Etat</a>
+		</div>
+	<div class="metadata">
+		<div>
+			M.B. du 21/02/2019, p. 17848 </div>
+		<div>
+			(Numac : 2019200758)</div>
+	</div>
+<!-- 	<div class="metadata"> -->
+<!-- 	</div> -->
+</div><div class="data-container">
+				<div class="data">												
+	<div class="accordion" id="accordionVersion">
+		<button class="collapsed" type="button" data-toggle="collapse" data-target="#collapseVersionContent" aria-expanded="false" aria-controls="collapseVersionContent">
+			<span class="counter" id="versionCount"></span>
+			En vigueur du 01/01/2024 au 25/09/2024<span class="toggle-icon"></span>
+		</button>
+
+		<div id="collapseVersionContent" class="collapse" aria-labelledby="accordionVersion" data-parent="#accordionVersion">
+			<div id="date-list" class="data-content" >
+				<ul>
+				<li class="not-current">
+								<a href="/eli/loi-decret/2019/01/17/2019200758/2024/09/26">
+							<span>
+							Du 26/09/2024 au ...</span>
+						</a>
+						</li>
+
+					<li class="current">
+							<span>
+							Du 01/01/2024 au 25/09/2024</span>
+						</li>
+
+					<li class="not-current">
+								<a href="/eli/loi-decret/2019/01/17/2019200758/2023/01/01">
+							<span>
+							Du 01/01/2023 au 31/12/2023</span>
+						</a>
+						</li>
+
+					<li class="not-current">
+								<a href="/eli/loi-decret/2019/01/17/2019200758/2019/03/01">
+							<span>
+							Du 01/03/2019 au 31/12/2022</span>
+						</a>
+						</li>
+
+					</ul>
+			</div>
+		</div>
+	</div>
+
+	
+</div><div class="data">
+		<div class="accordion" id="accordionNote">
+			<button class="collapsed" type="button" data-toggle="collapse" data-target="#collapseNoteContent"
+					aria-expanded="false" aria-controls="collapseNoteContent">
+				Informations utiles<span class="toggle-icon"></span>
+			</button>
+
+			<div id="collapseNoteContent" class="collapse ">
+				<div class="data-content">
+					<div class="note-global">
+ À l’exception des articles&nbsp;4 à 13, le présent décret entre en vigueur le 1
+ <sup>er</sup>&nbsp;mars 2019.
+ <br> Les articles&nbsp;4 à 13 entrent en vigueur le 1
+ <sup>er</sup>&nbsp;juillet 2019.
+ <br> 
+ <br> ANNEXE insérée par un addendum publié le 
+ <a href="http://www.ejustice.just.fgov.be/cgi/article.pl?numac=2019201604&amp;caller=list&amp;article_lang=F&amp;row_id=1&amp;numero=31&amp;pub_date=2019-04-08&amp;language=fr&amp;du=d&amp;fr=f&amp;choix1=ET&amp;choix2=ET&amp;fromtab=+moftxt+UNION+montxt+UNION+modtxt&amp;nl=n&amp;trier=promulgation&amp;bron=SERVICE+PUBLIC+DE+WALLONIE&amp;pdda=2019&amp;pddj=08&amp;pddm=04&amp;sql=bron+=%27SERVICE+PUBLIC+DE+WALLONIE%27+and+pd+=+date%272019-04-08%27&amp;rech=31&amp;tri=dd+AS+RANK+">08 avril 2019</a> au Moniteur belge.
+ <br> 
+ <br> Session 2018-2019.
+ <br> Documents du Parlement wallon, 
+ <a href="http://www.parlement-wallonie.be/pwpages?p=doc-recherche-det&amp;iddoc=89839">1226 (2018-2019) Nos 1 à 5.</a>
+ <br> Compte rendu intégral, séance plénière du 16&nbsp;janvier 2019.
+ <br> Discussion.
+ <br> Vote.
+ <br> 
+ <br> 
+ <br> Modifié par :
+ <br> - le Décret du 
+ <a href="/sites/wallex/contents/acts/20/20091/1.html">06 mai 2019</a>;
+ <br> -&nbsp;le Décret du 
+ <a href="/sites/wallex/contents/acts/80/80900/1.html">21 décembre 2022</a>;
+ <br> -&nbsp;le Décret du 
+ <a href="/sites/wallex/contents/acts/102/102399/1.html">13 décembre 2023</a>.
+</div></div>
+			</div>
+		</div>
+	</div><div class="data">
+    <div class="accordion" id="accordionThemes">
+        <button class="collapsed" type="button" data-toggle="collapse" data-target="#collapseThemesContent"
+                aria-expanded="false" aria-controls="collapseThemesContent">
+            Thème(s)<span class="toggle-icon"></span>
+        </button>
+
+        <div id="collapseThemesContent" class="collapse ">
+            <div id="treeView" class="data-content"></div>
+        </div>
+    </div>
+</div>
+
+<div class="data">
+		<div class="accordion" id="accordionReferences">
+			<button class="collapsed" type="button" data-toggle="collapse" data-target="#collapseReferencesContent" aria-expanded="false" aria-controls="collapseReferencesContent">
+				En lien avec :<span class="toggle-icon"></span>
+			</button>
+
+			<div id="collapseReferencesContent" class="collapse" aria-labelledby="accordionReferences" data-parent="#accordionReferences">
+				<ul class="data-content">
+					<li>
+								<a href="/sites/wallex/contents/acts/19/19797.html" target="_blank" class="referenceLink">
+									Loi relative à la lutte contre la pollution atmosphérique</a>
+							</li>
+						</ul>
+			</div>
+		</div>
+	</div></div>
+		</aside>
+	</div>
+</div><div id="my-account" class="my-account">
+<div class="logged-out btn btn-primary">
+		Mon compte</div>
+	<div class="dropdown-menu" id="dropdown-login">
+		<div class="arrow-up"></div>
+	
+     
+	    <form method="post" id="loginForm" name="loginForm" action="/cms/login" onsubmit="loginButton.disabled = true; return true;" class="loginForm">
+	        <input name="site" value="wallex" type="hidden">  
+            <input name="redirect" value="/cms/render/live/fr/sites/wallex/contents/acts/20/20147/3.html" type="hidden">
+            <input name="failureRedirect" value="/cms/render/live/fr/sites/wallex/contents/acts/20/20147/3.html" type="hidden">	        	
+	
+	        <p>
+	            <label class="left" for="username">Nom d'utilisateur</label>
+	            <input class="full" value="" maxlength="250" name="username" id="username" type="text">
+	        </p>
+	
+	        <p>
+	            <label class="left" for="password">Mot de passe</label>
+	            <input class="full" maxlength="250" name="password" id="password" autocomplete="off" type="password">
+	        </p>
+	        
+   			<p class="login-error" hidden="true">
+				<span>Nom d'utilisateur et/ou mot de passe invalide</span>
+			</p>
+			
+	        <p class="forgottenPassword">
+	            	<a href="/home/ask-recovery-password.html">Mot de passe oublié ?</a>
+	        </p>
+	        <div class="divButton">
+	            <input name="loginButton" class="btn btn-primary" type="submit" value="Connexion"/>
+	        </div>
+	    
+	    </form>
+	    
+		<div class="registration">
+			<a href="/home/registration.html">Inscrivez-vous dès maintenant !</a>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function(){		
+			var myAccount = $('.logged-out');
+			var login = $('#dropdown-login');
+			login.hide();
+			myAccount.click(function(){
+				if (login.is(":visible")){
+					login.hide();
+				} else {
+					login.show();
+				}
+			});	
+			var loginErrorText = $('.login-error');
+			
+			function checkParameters(){
+				var queryParamPart = "loginError";
+				var queryPos = window.location.href.indexOf(queryParamPart);
+				
+				if (queryPos > 0){									
+					login.show();
+					loginErrorText.fadeIn();
+				}			
+			}	
+			
+			checkParameters();
+		})
+		</script>
+	</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#loginMenuContainer").append($("#my-account"));
+    })
+</script></div></main>
+
+
+
+
+
+
+
+
+<footer id="footer">
+	<div class="top--footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-6 col-lg-3">
+					<h2>Accès rapides</h2>
+					<ul>
+        <li>
+                <a href="https://www.gallilex.cfwb.be/fr/index.php" >Gallilex</a></li>
+        </ul>
+<div class="clear"></div></div>
+				<div class="col-md-6 col-lg-3">
+					<h2>Liens utiles</h2>
+					<ul>
+        <li>
+                <a href="https://wallex.wallonie.be/contents/djas/1/1046.html" >Liens ELI</a></li>
+        </ul>
+<div class="clear"></div></div>
+				<div class="col-md-6 col-lg-3">
+					<h2>Sites généraux de la Wallonie</h2>
+					<ul>
+						<li><a href="https://www.wallonie.be" target="_blank" rel="nofollow noopener">Wallonie.be</a></li>
+						<li><a href="https://www.wallonie.be/fr/acteurs-et-institutions/wallonie/gouvernement-de-wallonie" target="_blank" rel="nofollow noopener">Gouvernement wallon</a></li>
+						<li><a href="https://spw.wallonie.be/" target="_blank" rel="nofollow noopener">Service public de Wallonie</a></li>
+						<li><a href="https://wallex.wallonie.be/home.html" target="_blank" rel="nofollow noopener">Wallex</a></li>
+						<li><a href="https://geoportail.wallonie.be/home.html" target="_blank" rel="nofollow noopener">Géoportail</a></li>
+						<li><a href="https://www.wallonie.be/jobs" target="_blank" rel="nofollow noopener">Jobs</a></li>
+					</ul>
+				</div>
+				<div class="col-md-6 col-lg-3">
+					<h2>Nous contacter</h2>
+					<a href="https://www.wallonie.be/fr/nous-contacter-par-telephone" target="_blank">
+								<img class="img171x" src="/modules/spw-dtic-cg-core/img/1718_vert.png" alt="Numéro vert">
+								</a>
+							<div class="clear"></div><ul>
+		<li><a href="https://www.wallonie.be/fr/les-espaces-wallonie" target="_blank">Espaces Wallonie</a></li>
+		<li><a href="https://www.wallonie.be/fr/presse" target="_blank">Presse</a></li>
+		<li><a href="https://www.wallonie.be/fr/introduire-une-plainte-spw" target="_blank">Introduire une plainte au SPW</a></li>
+		<li><a href="https://www.wallonie.be/fr/signalement-dune-irregularite" target="_blank">Signaler une irrégularité</a></li>
+	</ul></div>
+			</div>
+		</div>
+	</div>
+	<div class="bottom--footer">
+		<div class="container">
+			
+
+
+
+
+<div class="row">
+				<div class="col-lg-5 logo">
+					<img src="/modules/spw-dtic-cg-core/img/logo-wallonie-small.png"
+								 alt="Wallonie" class="cgFooterImageWallonie"><i>
+						Le site officiel de la Wallonie - Wallex</i>
+				</div>
+				<div class="col-lg-7">
+					<ul>
+						<li>
+								<a href="https://wallex.wallonie.be/contents/djas/1/1043.html" target="_blank">
+											Mentions légales</a>
+									</li>
+						<li>
+								<a href="https://www.wallonie.be/fr/vie-privee" target="_blank">
+											Vie privée</a>
+									</li>
+						<li>
+								<a href="https://www.wallonie.be/fr/mediateur" target="_blank">
+											Médiateur</a>
+									</li>
+						<li>
+								<a href="https://wallex.wallonie.be/contents/djas/1/1039.html" target="_blank">
+											Accessibilité</a>
+									</li>
+						</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<a href="#header" class="scroll"><i class="fas fa-chevron-up"><span class="sr-only sr-only-focusable">Up</span></i></a>
+</footer>
+
+
+
+
+
+
+		<script type="text/javascript">
+			<!-- 
+			var piwikSettings = {
+				trackingId: "75", 
+				trackingIDNoCookies: "null", 
+				trackingServer: "webanalytics.spw.wallonie.be",
+                idTagManager: "5Pk98dUs",
+                idTagManagerInstance: "null",
+                isLegacyTracker: "false",
+                isTagManager: "true",
+				isTrackingSearch: "false", 
+				searchResultCssSelector: "", 
+				searchKeywordCssSelector: "", 
+				searchCountCssSelector: "", 
+				isTrackingJahiaConnectionMode: "false", 
+				isTrackingJahiaLanguage: "false",
+				isTrackingDomain: "false", 
+				isMatomo: "false", 
+				trackingFileName: "piwik"
+			};
+			
+			// Retrieve Jahia connection mode
+			jahiaConnectionMode = "live"; 
+		
+			// Retrieve Jahia user name 
+			hashUserName=""; 
+			
+			renderContext="live"; 
+			language="fr";
+		-->
+		</script>
+		<noscript><p><img src="https://webanalytics.spw.wallonie.be/piwik/piwik.php?idsite=75&rec=1" style="border:0;" alt="" /></p></noscript>
+
+
+
+
+
+
+
+
+
+<script id="staticAssetJavascriptBODY0" src="/generated-resources/5301ffc6da051bdac1461b0693db3d2-defer.min.js"  defer></script>
+<script type="application/json" id="jahia-data-aggregatedjsBODY">{"scripts":["/modules/spw-dtic-cg-templates/javascript/popper.min.js","/modules/bootstrap4-core/javascript/bootstrap.min.js","/modules/spw-dtic-cg-templates/javascript/swiper.min.js","/modules/spw-dtic-cg-templates/javascript/macy.min.js","/modules/spw-dtic-cg-core/javascript/js.cookie.min.js","/modules/spw-dtic-cg-core/javascript/cg_header.js","/modules/spw-dtic-cg-core/javascript/cg_footer.js","/modules/piwik/javascript/piwikConfiguration.js","/modules/piwik/javascript/matomoVideoTracking.js"]}</script>
+
+</body>
+</html>

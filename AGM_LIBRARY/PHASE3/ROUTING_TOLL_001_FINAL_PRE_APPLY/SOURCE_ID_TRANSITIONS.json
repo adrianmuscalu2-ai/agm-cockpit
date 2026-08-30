@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "agm-routing-toll-001-source-id-transitions.v1",
+  "transitionCount": 16,
+  "preservedCount": 9,
+  "canonicalizedProposalIdCount": 7,
+  "transitions": [
+    {
+      "inputProposalId": "CS-AT-ASFINAG-GO-TOLL",
+      "approvedSourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "transition": "SOURCE_ID_PRESERVED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-B81C4FF79536018D158F"
+    },
+    {
+      "inputProposalId": "RT001-PROP-AT-VIGNETTE-SECTION-2026",
+      "approvedSourceId": "CS-AT-ASFINAG-VIGNETTE-SECTION-2026",
+      "transition": "PROPOSAL_ID_CANONICALIZED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-255F0C48352517C11A74"
+    },
+    {
+      "inputProposalId": "CS-BE-VIAPASS",
+      "approvedSourceId": "CS-BE-VIAPASS",
+      "transition": "SOURCE_ID_PRESERVED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "CONTEXTUAL",
+      "routingTollMembershipId": "DM-00F90101442792C219D2"
+    },
+    {
+      "inputProposalId": "RT001-PROP-BE-VIAPASS-RATES-2026",
+      "approvedSourceId": "CS-BE-VIAPASS-RATES-2026",
+      "transition": "PROPOSAL_ID_CANONICALIZED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-B9297AF7A1A12B360865"
+    },
+    {
+      "inputProposalId": "RT001-PROP-CZ-EDALNICE-LIGHT",
+      "approvedSourceId": "CS-CZ-EDALNICE-VIGNETTE-2026",
+      "transition": "PROPOSAL_ID_CANONICALIZED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-E419299FF9CD67F7F1CB"
+    },
+    {
+      "inputProposalId": "CS-CZ-MYTO-RATES-2026",
+      "approvedSourceId": "CS-CZ-MYTO-RATES-2026",
+      "transition": "SOURCE_ID_PRESERVED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-B7022036027FF542408E"
+    },
+    {
+      "inputProposalId": "CS-DE-BFSTRMG",
+      "approvedSourceId": "CS-DE-BFSTRMG",
+      "transition": "SOURCE_ID_PRESERVED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-4191368885E3104AD6F4"
+    },
+    {
+      "inputProposalId": "CS-DE-TOLL-COLLECT-RATES",
+      "approvedSourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "transition": "SOURCE_ID_PRESERVED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-6A302CC6F9423F0E39A8"
+    },
+    {
+      "inputProposalId": "CS-DK-KMTOLL-EETS",
+      "approvedSourceId": "CS-DK-KMTOLL-EETS",
+      "transition": "SOURCE_ID_PRESERVED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-D6D7BC06515A4B660F2D"
+    },
+    {
+      "inputProposalId": "RT001-PROP-DK-ORESUND-2026",
+      "approvedSourceId": "CS-DK-SE-ORESUND-RATES-2026",
+      "transition": "PROPOSAL_ID_CANONICALIZED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-4B10CE0AB75F3E21BE20"
+    },
+    {
+      "inputProposalId": "RT001-PROP-DK-STOREBAELT-2026",
+      "approvedSourceId": "CS-DK-STOREBAELT-RATES-2026",
+      "transition": "PROPOSAL_ID_CANONICALIZED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-B78DFD88FC65DFFA7619"
+    },
+    {
+      "inputProposalId": "RT001-PROP-FR-ART-TARIFF-GOVERNANCE",
+      "approvedSourceId": "CS-FR-ART-TARIFF-GOVERNANCE",
+      "transition": "PROPOSAL_ID_CANONICALIZED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "CONTEXTUAL",
+      "routingTollMembershipId": "DM-58D7DA001E5A665B8A57"
+    },
+    {
+      "inputProposalId": "CS-FR-MOTORWAY-TOLLS",
+      "approvedSourceId": "CS-FR-MOTORWAY-TOLLS",
+      "transition": "SOURCE_ID_PRESERVED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "CONTEXTUAL",
+      "routingTollMembershipId": "DM-3A6CE3602AFC4A89CC52"
+    },
+    {
+      "inputProposalId": "RT001-PROP-NL-A24-ETOL-2026",
+      "approvedSourceId": "CS-NL-A24-ETOL-2026",
+      "transition": "PROPOSAL_ID_CANONICALIZED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-93373BBABA5B02B7EB7D"
+    },
+    {
+      "inputProposalId": "CS-NL-TRUCK-TOLL",
+      "approvedSourceId": "CS-NL-TRUCK-TOLL",
+      "transition": "SOURCE_ID_PRESERVED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "CONTEXTUAL",
+      "routingTollMembershipId": "DM-979FA3EDD41FBB54FA04"
+    },
+    {
+      "inputProposalId": "CS-PL-ETOLL-RATES",
+      "approvedSourceId": "CS-PL-ETOLL-RATES",
+      "transition": "SOURCE_ID_PRESERVED",
+      "baselinePresence": "ABSENT",
+      "afterApprovedApplyPresence": "PRESENT_ONCE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "routingTollMembershipId": "DM-966CC6ACDACE0F6CBCB7"
+    }
+  ]
+}

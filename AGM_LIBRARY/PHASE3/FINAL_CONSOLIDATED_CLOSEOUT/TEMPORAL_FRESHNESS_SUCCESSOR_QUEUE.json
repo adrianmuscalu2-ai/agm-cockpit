@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "agm-phase3-temporal-freshness-successor-queue.v1",
+  "asOf": "2026-08-30",
+  "timezone": "Europe/Berlin",
+  "status": "ACTIVE_NON_BLOCKING_REVIEW_QUEUE",
+  "semantics": {
+    "effectiveUntil": "Inclusive through the end of the stated calendar day unless the source explicitly says otherwise.",
+    "postExpiry": "EXPIRED_REVIEW_REQUIRED from the first instant after the inclusive applicability window.",
+    "unknownFallback": "UNKNOWN_HUMAN_VERIFICATION",
+    "automaticPromotion": false,
+    "automaticSupersession": false,
+    "automaticRegistryOrViewMutation": false
+  },
+  "items": [
+    {
+      "sourceId": "CS-NL-GOV-TRUCK-TOLL-RATES-2026",
+      "domain": "ROUTING_TOLL",
+      "effectiveUntil": "2026-08-31",
+      "statusAtCloseout": "EXPIRY_WARNING",
+      "successorStatus": "NO_SUCCESSOR_DETECTED",
+      "requiredAction": "Capture, hash, validate and submit the official tariff evidence applicable from 2026-09-01 for Product Owner review.",
+      "postWindowUse": "FORBIDDEN_AS_CURRENT",
+      "fallback": "UNKNOWN_HUMAN_VERIFICATION",
+      "blockingPhase3Closeout": false
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "domain": "LEGISLATION_SAFETY",
+      "effectiveUntil": "2026-08-31",
+      "statusAtCloseout": "EXPIRY_WARNING",
+      "successorStatus": "NO_SUCCESSOR_DETECTED",
+      "requiredAction": "Retain as historical evidence after the inclusive window; require new official evidence before any current derogation is asserted.",
+      "postWindowUse": "FORBIDDEN_AS_CURRENT",
+      "fallback": "UNKNOWN_HUMAN_VERIFICATION",
+      "blockingPhase3Closeout": false
+    },
+    {
+      "sourceId": "CS-CH-ARV1-20250501",
+      "domain": "LEGISLATION_SAFETY",
+      "effectiveUntil": "2026-09-30",
+      "statusAtCloseout": "NEW_VERSION_DETECTED",
+      "successorStatus": "SUCCESSOR_METADATA_DETECTED_EVIDENCE_NOT_CAPTURED",
+      "successorEffectiveFrom": "2026-10-01",
+      "nextFreshnessCheck": "2026-09-01",
+      "requiredAction": "Officially capture, canonically store, hash, validate, compare and submit the 2026-10-01 version to a separate Product Owner review.",
+      "postWindowUse": "FORBIDDEN_AS_CURRENT",
+      "fallback": "UNKNOWN_HUMAN_VERIFICATION",
+      "blockingPhase3Closeout": false
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-TARIFF-TABLE-V1-2",
+      "domain": "ROUTING_TOLL",
+      "effectiveUntil": null,
+      "statusAtCloseout": "CURRENT",
+      "successorStatus": "NO_SUCCESSOR_DETECTED",
+      "nextFreshnessCheck": "2026-09-30",
+      "requiredAction": "Execute the Q3 2026 current-version check; a failed or inconclusive check becomes FRESHNESS_UNKNOWN without automatic extension.",
+      "fallback": "UNKNOWN_HUMAN_VERIFICATION",
+      "blockingPhase3Closeout": false
+    },
+    {
+      "sourceId": "CS-AT-HGV-BAN-CALENDAR-2026",
+      "domain": "LEGISLATION_SAFETY",
+      "effectiveUntil": "2026-12-31",
+      "statusAtCloseout": "CURRENT",
+      "successorStatus": "NO_SUCCESSOR_DETECTED",
+      "nextFreshnessCheck": "2026-12-01",
+      "postWindowUse": "EXPIRED_REVIEW_REQUIRED",
+      "blockingPhase3Closeout": false
+    },
+    {
+      "sourceId": "CS-AT-A10-SUMMER-HGV-BAN-2026",
+      "domain": "LEGISLATION_SAFETY",
+      "effectiveUntil": "2026-12-31",
+      "statusAtCloseout": "CURRENT",
+      "successorStatus": "NO_SUCCESSOR_DETECTED",
+      "nextFreshnessCheck": "2026-12-01",
+      "postWindowUse": "EXPIRED_REVIEW_REQUIRED",
+      "blockingPhase3Closeout": false
+    },
+    {
+      "sourceId": "CS-AT-LUEGBRUECKE-HGV-BAN-2026",
+      "domain": "LEGISLATION_SAFETY",
+      "effectiveUntil": "2026-12-31",
+      "statusAtCloseout": "CURRENT",
+      "successorStatus": "NO_SUCCESSOR_DETECTED",
+      "nextFreshnessCheck": "2026-12-01",
+      "postWindowUse": "EXPIRED_REVIEW_REQUIRED",
+      "blockingPhase3Closeout": false
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-2026",
+      "domain": "LEGISLATION_SAFETY",
+      "effectiveUntil": "2026-12-31",
+      "statusAtCloseout": "CURRENT",
+      "successorStatus": "NO_SUCCESSOR_DETECTED",
+      "nextFreshnessCheck": "2026-12-01",
+      "postWindowUse": "EXPIRED_REVIEW_REQUIRED",
+      "fallback": "UNKNOWN_HUMAN_VERIFICATION",
+      "blockingPhase3Closeout": false
+    },
+    {
+      "sourceId": "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026",
+      "domain": "ROUTING_TOLL",
+      "effectiveUntil": "2027-01-31",
+      "statusAtCloseout": "CURRENT",
+      "successorStatus": "NO_SUCCESSOR_DETECTED",
+      "nextFreshnessCheck": "2027-01-01",
+      "postWindowUse": "EXPIRED_REVIEW_REQUIRED",
+      "blockingPhase3Closeout": false
+    }
+  ],
+  "summary": {
+    "items": 9,
+    "expiryWarning": 2,
+    "newVersionDetected": 1,
+    "scheduledFreshnessReview": 6,
+    "successorDetected": 1,
+    "noSuccessorDetected": 8,
+    "phase3CloseoutBlockers": 0
+  }
+}

@@ -1,0 +1,379 @@
+{
+  "schemaVersion": "agm-phase3-product-owner-decisions.v1",
+  "authority": {
+    "role": "Product Owner",
+    "name": "Adrian Muscalu"
+  },
+  "decisionTimestamp": "2026-08-29",
+  "decisionCount": 15,
+  "counts": {
+    "approve": 12,
+    "reject": 0,
+    "keepUnresolved": 3
+  },
+  "humanAuthorityClosure": "DECISIONS_COMPLETE_PROMOTION_NOT_YET_CONFIRMED",
+  "aiFabricatedAuthority": false,
+  "decisions": [
+    {
+      "number": 1,
+      "gapId": "TACHO-001",
+      "decision": "APPROVE",
+      "conditions": [
+        "Authentic 561/2006 = AUTHORITATIVE_WITH_SCOPE.",
+        "Consolidated form = CONTEXTUAL.",
+        "Exceptions, AETR and operation type remain context-dependent."
+      ],
+      "reviewId": "REVIEW-TACHO-001",
+      "sourceIds": [
+        "CS-EU-REG-561-2006",
+        "CS-EU-REG-561-2006-CONS-20241231"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 2,
+      "gapId": "TACHO-002",
+      "decision": "APPROVE",
+      "conditions": [
+        "Authentic 165/2014 = AUTHORITATIVE_WITH_SCOPE.",
+        "Consolidated form = CONTEXTUAL.",
+        "Generation transitions and national exceptions are not generalized automatically."
+      ],
+      "reviewId": "REVIEW-TACHO-002",
+      "sourceIds": [
+        "CS-EU-REG-165-2014",
+        "CS-EU-REG-165-2014-CONS-20241231"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 3,
+      "gapId": "TACHO-003",
+      "decision": "APPROVE",
+      "conditions": [
+        "Authentic 2016/799 = AUTHORITATIVE_WITH_SCOPE.",
+        "Consolidated form = CONTEXTUAL.",
+        "Applicability must be correlated with tachograph generation, vehicle and retrofit dates."
+      ],
+      "reviewId": "REVIEW-TACHO-003",
+      "sourceIds": [
+        "CS-EU-IMPL-REG-2016-799",
+        "CS-EU-IMPL-REG-2016-799-CONS-20230821"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 4,
+      "gapId": "TACHO-004",
+      "decision": "APPROVE",
+      "conditions": [
+        "FPersG and FPersV = AUTHORITATIVE_WITH_SCOPE for Germany.",
+        "They supplement and do not replace directly applicable EU regulations."
+      ],
+      "reviewId": "REVIEW-TACHO-004",
+      "sourceIds": [
+        "CS-DE-FPERSG",
+        "CS-DE-FPERSV"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 5,
+      "gapId": "TACHO-005",
+      "decision": "APPROVE",
+      "conditions": [
+        "CS-AGM-TACHO-CHANGE-MAP-V1 = CONTEXTUAL ONLY.",
+        "It has no independent legal authority.",
+        "Updates require verification against primary sources."
+      ],
+      "reviewId": "REVIEW-TACHO-005",
+      "sourceIds": [
+        "CS-EU-REG-561-2006",
+        "CS-EU-REG-561-2006-CONS-20241231",
+        "CS-EU-REG-165-2014",
+        "CS-EU-REG-165-2014-CONS-20241231",
+        "CS-EU-IMPL-REG-2016-799",
+        "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+        "CS-DE-FPERSG",
+        "CS-DE-FPERSV",
+        "CS-AGM-TACHO-CHANGE-MAP-V1"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 6,
+      "gapId": "ROUTING-TOLL-001",
+      "decision": "KEEP_UNRESOLVED",
+      "conditions": [
+        "France remains fragmented.",
+        "Luxembourg evidence is old/insufficient.",
+        "Tariffs and effective dates are dynamic.",
+        "National sources require a separate individual review."
+      ],
+      "reviewId": "REVIEW-ROUTING-TOLL-001",
+      "sourceIds": [
+        "CS-DE-TOLL-COLLECT-RATES",
+        "CS-DE-BFSTRMG",
+        "CS-AT-ASFINAG-GO-TOLL",
+        "CS-CH-BAZG-ROAD-LEVIES",
+        "CS-BE-VIAPASS",
+        "CS-PL-ETOLL-RATES",
+        "CS-CZ-MYTO-RATES-2026",
+        "CS-DK-KMTOLL-EETS",
+        "CS-NL-TRUCK-TOLL",
+        "CS-FR-MOTORWAY-TOLLS",
+        "CS-LU-EVIGNETTE-2019"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 7,
+      "gapId": "FIELD-001",
+      "decision": "APPROVE",
+      "conditions": [
+        "AUTHORITATIVE_WITH_SCOPE only for the internal AGM protocol.",
+        "Measured results remain EVIDENCE_ONLY.",
+        "No Production or external-provider authorization."
+      ],
+      "reviewId": "REVIEW-FIELD-001",
+      "sourceIds": [
+        "CS-AGM-CM-FIELD-RUNBOOK-V1"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 8,
+      "gapId": "CAR-MOVER-001",
+      "decision": "APPROVE",
+      "conditions": [
+        "AUTHORITATIVE_WITH_SCOPE for internal Car Mover architecture.",
+        "Car Mover remains an AGM Premium component.",
+        "No runtime change and no separate product/project."
+      ],
+      "reviewId": "REVIEW-CAR-MOVER-001",
+      "sourceIds": [
+        "CS-AGM-CM-ARCH-V1"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 9,
+      "gapId": "CAR-MOVER-002",
+      "decision": "APPROVE",
+      "conditions": [
+        "AUTHORITATIVE_WITH_SCOPE for the internal Job File specification.",
+        "Existing runtime contracts remain operational until controlled promotion.",
+        "Referencing a document does not transfer source authority."
+      ],
+      "reviewId": "REVIEW-CAR-MOVER-002",
+      "sourceIds": [
+        "CS-AGM-CM-JOB-V1"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 10,
+      "gapId": "DOCS-001",
+      "decision": "APPROVE",
+      "conditions": [
+        "AUTHORITATIVE_WITH_SCOPE for the internal OCR/Documents/Evidence contract.",
+        "OCR output is not canonical truth without source-document verification.",
+        "Legal retention remains UNKNOWN pending separate legal review."
+      ],
+      "reviewId": "REVIEW-DOCS-001",
+      "sourceIds": [
+        "CS-AGM-CM-OCR-EVIDENCE-V1"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 11,
+      "gapId": "LEGAL-001",
+      "decision": "APPROVE",
+      "conditions": [
+        "StVO = AUTHORITATIVE_WITH_SCOPE for Germany.",
+        "Consumption must be provision-specific.",
+        "Registry presence does not validate every derived professional rule."
+      ],
+      "reviewId": "REVIEW-LEGAL-001",
+      "sourceIds": [
+        "CS-DE-STVO"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 12,
+      "gapId": "LEGAL-002",
+      "decision": "APPROVE",
+      "conditions": [
+        "StVZO = AUTHORITATIVE_WITH_SCOPE for Germany.",
+        "Applicability is vehicle-category and provision specific.",
+        "EU interactions remain context-dependent."
+      ],
+      "reviewId": "REVIEW-LEGAL-002",
+      "sourceIds": [
+        "CS-DE-STVZO"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 13,
+      "gapId": "LEGAL-003",
+      "decision": "KEEP_UNRESOLVED",
+      "conditions": [
+        "StVO §22 and HGB §412 may be reviewed individually later.",
+        "VDI metadata may be CONTEXTUAL.",
+        "The complete gap stays open until licensed normative material and exact VDI role are reviewed.",
+        "VDI content must not be reconstructed from summaries."
+      ],
+      "reviewId": "REVIEW-LEGAL-003",
+      "sourceIds": [
+        "CS-DE-STVO",
+        "CS-DE-HGB-412",
+        "CS-VDI-2700-HANDBOOK"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 14,
+      "gapId": "LEGAL-004",
+      "decision": "APPROVE",
+      "conditions": [
+        "ADR 2025 and GGVSEB = AUTHORITATIVE_WITH_SCOPE within their jurisdictions.",
+        "Goods classification, exceptions and per-transport applicability are not inferred automatically."
+      ],
+      "reviewId": "REVIEW-LEGAL-004",
+      "sourceIds": [
+        "CS-UNECE-ADR-2025",
+        "CS-DE-GGVSEB"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    },
+    {
+      "number": 15,
+      "gapId": "LEGAL-005",
+      "decision": "KEEP_UNRESOLVED",
+      "conditions": [
+        "Multi-jurisdiction coverage is incomplete.",
+        "BE, NL, LU, PL, CZ and DK complete sources remain missing.",
+        "AT and CH require reacquisition/validation.",
+        "French rules and derogations are date-dependent."
+      ],
+      "reviewId": "REVIEW-LEGAL-005",
+      "sourceIds": [
+        "CS-DE-STVO",
+        "CS-AT-STVO-42-20260213",
+        "CS-CH-VRV-20220401",
+        "CS-FR-TRUCK-BAN-BASE-2021",
+        "CS-FR-TRUCK-BAN-2026",
+        "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026"
+      ],
+      "authority": {
+        "role": "Product Owner",
+        "name": "Adrian Muscalu"
+      },
+      "decisionTimestamp": "2026-08-29",
+      "explicitHumanDecision": true,
+      "aiDecision": false,
+      "sourceEvidence": "C:/Users/adria/.codex/attachments/026172a4-e8e5-4134-8c87-ad109d4563e7/pasted-text.txt"
+    }
+  ]
+}

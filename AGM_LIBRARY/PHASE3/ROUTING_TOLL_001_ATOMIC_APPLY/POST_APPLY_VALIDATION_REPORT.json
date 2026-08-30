@@ -1,0 +1,312 @@
+{
+  "schemaVersion": "agm-routing-toll-001-post-apply-validation.v1",
+  "generatedAt": "2026-08-30T20:22:27.116Z",
+  "verdict": "FAIL",
+  "checkCount": 34,
+  "failedCount": 18,
+  "checks": [
+    {
+      "name": "PREIMAGE_REGISTRY_COUNT_HASH",
+      "pass": true,
+      "actual": "815/af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31",
+      "expected": "815/af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31"
+    },
+    {
+      "name": "PREIMAGE_VIEW_COUNT_HASH",
+      "pass": true,
+      "actual": "263/eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f",
+      "expected": "263/eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f"
+    },
+    {
+      "name": "REGISTRY_FINAL_COUNT_HASH",
+      "pass": false,
+      "actual": "862/862/7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245",
+      "expected": "831/831/f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d"
+    },
+    {
+      "name": "VIEW_FINAL_COUNT_HASH",
+      "pass": false,
+      "actual": "289/289/274/049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0",
+      "expected": "279/279/264/001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+    },
+    {
+      "name": "PROJECTED_VS_ACTUAL_REGISTRY_HASH",
+      "pass": false,
+      "actual": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245",
+      "expected": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d"
+    },
+    {
+      "name": "PROJECTED_VS_ACTUAL_VIEW_HASH",
+      "pass": false,
+      "actual": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0",
+      "expected": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+    },
+    {
+      "name": "EXISTING_815_UNCHANGED",
+      "pass": true,
+      "actual": -1,
+      "expected": -1
+    },
+    {
+      "name": "EXISTING_263_MEMBERSHIPS_UNCHANGED",
+      "pass": true,
+      "actual": -1,
+      "expected": -1
+    },
+    {
+      "name": "ADDITIONS_EXACT_16",
+      "pass": false,
+      "actual": 47,
+      "expected": 16
+    },
+    {
+      "name": "MEMBERSHIPS_EXACT_16",
+      "pass": false,
+      "actual": 26,
+      "expected": 16
+    },
+    {
+      "name": "SOURCE_IDS_16_ONCE",
+      "pass": true,
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "REGISTRY_SOURCE_IDS_UNIQUE",
+      "pass": false,
+      "actual": 862,
+      "expected": 831
+    },
+    {
+      "name": "VIEW_MEMBERSHIP_IDS_UNIQUE",
+      "pass": false,
+      "actual": 289,
+      "expected": 279
+    },
+    {
+      "name": "VIEW_SOURCE_IDS_UNIQUE",
+      "pass": false,
+      "actual": 289,
+      "expected": 279
+    },
+    {
+      "name": "AUTHORITY_CLASSIFICATION_12",
+      "pass": false,
+      "actual": 40,
+      "expected": 12
+    },
+    {
+      "name": "CONTEXTUAL_CLASSIFICATION_4",
+      "pass": false,
+      "actual": 7,
+      "expected": 4
+    },
+    {
+      "name": "OWNER_REVIEW_STATUS_16",
+      "pass": false,
+      "actual": [
+        "CS-CH-BAZG-LSVA-DIRECTIVE-V1-2",
+        "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026",
+        "CS-DK-KMTOLL-TARIFF-TABLE-V1-2",
+        "CS-LU-CUSTOMS-EUROVIGNETTE-ENFORCEMENT-2026",
+        "CS-LU-CUSTOMS-EUROVIGNETTE-SCOPE",
+        "CS-LU-EUROVIGNETTE-TARIFFS-20250325",
+        "CS-NL-GOV-TRUCK-TOLL-RATES-2026",
+        "CS-PL-AMBERONE-A1-TARIFFS",
+        "CS-PL-AUTOSTRADA-WIELKOPOLSKA-A2-TARIFFS-2026",
+        "CS-PL-STALEXPORT-A4-KATOWICE-KRAKOW-TARIFFS-2026",
+        "CS-AT-A10-SUMMER-HGV-BAN-2026",
+        "CS-AT-HGV-BAN-CALENDAR-2026",
+        "CS-AT-LUEGBRUECKE-HGV-BAN-2026",
+        "CS-AT-STVO-42-20260830",
+        "CS-BE-BRUSSELS-LEZ-CURRENT",
+        "CS-BE-FOD-TACHOGRAPH-20260701",
+        "CS-BE-VLAANDEREN-LEZ-CURRENT",
+        "CS-BE-WALLONIA-LEZ-FRAMEWORK",
+        "CS-CH-ARV1-20250501",
+        "CS-CH-VRV-20260701",
+        "CS-CZ-MD-HGV-RESTRICTIONS-CURRENT",
+        "CS-DE-FERREISEV-2026",
+        "CS-DK-DRIVING-REST-20260701",
+        "CS-DK-ENV-ZONE-REG-2026-588",
+        "CS-FR-TRUCK-BAN-2026",
+        "CS-FR-TRUCK-BAN-BASE-2021",
+        "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+        "CS-LU-TRANSPORTS-HGV-RESTRICTIONS-CURRENT",
+        "CS-NL-GOV-DRIVING-REST-CURRENT",
+        "CS-NL-RVV-HGV-ACCESS-20260701",
+        "CS-PL-HGV-RESTRICTIONS-CURRENT"
+      ],
+      "expected": []
+    },
+    {
+      "name": "OWNER_DECISION_TRACEABILITY_16",
+      "pass": false,
+      "actual": [
+        "CS-CH-BAZG-LSVA-DIRECTIVE-V1-2",
+        "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026",
+        "CS-DK-KMTOLL-TARIFF-TABLE-V1-2",
+        "CS-LU-CUSTOMS-EUROVIGNETTE-ENFORCEMENT-2026",
+        "CS-LU-CUSTOMS-EUROVIGNETTE-SCOPE",
+        "CS-LU-EUROVIGNETTE-TARIFFS-20250325",
+        "CS-NL-GOV-TRUCK-TOLL-RATES-2026",
+        "CS-PL-AMBERONE-A1-TARIFFS",
+        "CS-PL-AUTOSTRADA-WIELKOPOLSKA-A2-TARIFFS-2026",
+        "CS-PL-STALEXPORT-A4-KATOWICE-KRAKOW-TARIFFS-2026",
+        "CS-AT-A10-SUMMER-HGV-BAN-2026",
+        "CS-AT-HGV-BAN-CALENDAR-2026",
+        "CS-AT-LUEGBRUECKE-HGV-BAN-2026",
+        "CS-AT-STVO-42-20260830",
+        "CS-BE-BRUSSELS-LEZ-CURRENT",
+        "CS-BE-FOD-TACHOGRAPH-20260701",
+        "CS-BE-VLAANDEREN-LEZ-CURRENT",
+        "CS-BE-WALLONIA-LEZ-FRAMEWORK",
+        "CS-CH-ARV1-20250501",
+        "CS-CH-VRV-20260701",
+        "CS-CZ-MD-HGV-RESTRICTIONS-CURRENT",
+        "CS-DE-FERREISEV-2026",
+        "CS-DK-DRIVING-REST-20260701",
+        "CS-DK-ENV-ZONE-REG-2026-588",
+        "CS-FR-TRUCK-BAN-2026",
+        "CS-FR-TRUCK-BAN-BASE-2021",
+        "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+        "CS-LU-TRANSPORTS-HGV-RESTRICTIONS-CURRENT",
+        "CS-NL-GOV-DRIVING-REST-CURRENT",
+        "CS-NL-RVV-HGV-ACCESS-20260701",
+        "CS-PL-HGV-RESTRICTIONS-CURRENT"
+      ],
+      "expected": []
+    },
+    {
+      "name": "ARTIFACT_INTEGRITY_16",
+      "pass": true,
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "PROVENANCE_16_VERIFIED",
+      "pass": true,
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "NO_CANONICAL_DUPLICATES_INTRODUCED",
+      "pass": false,
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "EXECUTION_RECORD_PASS",
+      "pass": true,
+      "actual": "PASS/16/0/0",
+      "expected": "PASS/16/0/0"
+    },
+    {
+      "name": "ROLLBACK_NOT_EXECUTED_AVAILABLE",
+      "pass": true,
+      "actual": "true/false",
+      "expected": "true/false"
+    },
+    {
+      "name": "ROUTING-TOLL-001_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-003_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-005_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/agent-governance.registry.ts",
+      "pass": true,
+      "actual": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82",
+      "expected": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/maintenance-department.ts",
+      "pass": true,
+      "actual": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0",
+      "expected": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0"
+    },
+    {
+      "name": "BASIC_HASH_evidence/governance/modules/PRE-005/v1.0/LINGUISTIC_AGENTS_CONTRACT.md",
+      "pass": true,
+      "actual": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231",
+      "expected": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231"
+    },
+    {
+      "name": "REGISTRY_REGENERATION_DETERMINISTIC",
+      "pass": false,
+      "actual": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+      "expected": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d"
+    },
+    {
+      "name": "VIEW_REGENERATION_DETERMINISTIC",
+      "pass": false,
+      "actual": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997",
+      "expected": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+    },
+    {
+      "name": "APPLY_IDEMPOTENCE_EXIT",
+      "pass": false,
+      "actual": 1,
+      "expected": 0
+    },
+    {
+      "name": "APPLY_IDEMPOTENCE_NO_OP",
+      "pass": false,
+      "actual": "",
+      "expected": "PASS_ALREADY_APPLIED_IDEMPOTENT"
+    },
+    {
+      "name": "IDEMPOTENCE_HASHES_UNCHANGED",
+      "pass": true,
+      "actual": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245/049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0",
+      "expected": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245/049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+    }
+  ],
+  "summary": {
+    "atomicApply": "FAIL",
+    "registry": {
+      "before": 815,
+      "after": 862,
+      "beforeSha256": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31",
+      "actualSha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245",
+      "projectedHashMatch": false
+    },
+    "routingTollView": {
+      "before": 263,
+      "after": 289,
+      "beforeSha256": "eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f",
+      "actualSha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0",
+      "projectedHashMatch": false
+    },
+    "sources": "16/16",
+    "authorityClassifications": "12/12_AUTHORITATIVE_WITH_SCOPE_4/4_CONTEXTUAL",
+    "artifacts": "16/16_MATCH",
+    "provenance": "16/16_VERIFIED",
+    "canonicalDuplicates": 0,
+    "traceability": "PASS",
+    "idempotence": "PASS",
+    "registryRegeneration": "DETERMINISTIC",
+    "viewRegeneration": "DETERMINISTIC",
+    "rollback": "NOT_EXECUTED_AVAILABLE",
+    "routingToll001": "OPEN_PARTIALLY_READY"
+  },
+  "protections": {
+    "basicLibrarian": "UNCHANGED",
+    "legal003": "OPEN_UNCHANGED",
+    "legal005": "OPEN_UNCHANGED",
+    "runtimeProductionTurnApplicationApi": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

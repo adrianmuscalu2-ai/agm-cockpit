@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "agm-legal-gap-validation-evidence.v2",
+  "gapId": "LEGAL-003",
+  "validatedAt": "2026-08-30T18:00:00.000Z",
+  "readOnlyValidator": {
+    "script": "scripts/test-legal-003-owner-review-readonly.mjs",
+    "result": "PASS",
+    "passed": 29,
+    "total": 29
+  },
+  "idempotence": {
+    "script": "scripts/verify-legal-gap-owner-review-idempotence.mjs",
+    "result": "PASS",
+    "comparedFiles": 25,
+    "changed": []
+  },
+  "coverage": "3/4",
+  "officialEvidence": "3/4",
+  "candidateCount": 3,
+  "exactBlockers": [
+    "OWNER_LICENSED_ACQUISITION_REQUIRED"
+  ],
+  "protectedBaseline": {
+    "registry": {
+      "count": 841,
+      "sha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076"
+    },
+    "routingTollView": {
+      "count": 289,
+      "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+    },
+    "legislationSafetyView": {
+      "count": 44,
+      "sha256": "2db4f2b915e256f013bc4ed59188d810230a33c335333ec8cf364c6f1284dac1"
+    }
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-consolidated-validation.v1",
+  "validatedAt": "2026-08-30T13:30:00.000Z",
+  "status": "PASS_READY_FOR_PRODUCT_OWNER_APPLY_REVIEW_NOT_AUTHORIZED_NOT_EXECUTED",
+  "authorityDecisionReconciliation": {
+    "total": 10,
+    "approved": 10,
+    "rejected": 0,
+    "deferred": 0,
+    "pending": 0,
+    "authoritativeWithScope": 9,
+    "contextual": 1,
+    "limitationsPreservedInDecisionSnapshots": true
+  },
+  "sourceFreshnessRule": {
+    "apiBuild": "PASS",
+    "contractTests": "16/16 PASS",
+    "readOnlyValidator": "44/44 PASS",
+    "idempotence": {
+      "status": "PASS",
+      "firstSha256": "24bde3d238ffcec50d060b0df620b6bf4cad4ffbc4ae714083ecf827d007166e",
+      "secondSha256": "24bde3d238ffcec50d060b0df620b6bf4cad4ffbc4ae714083ecf827d007166e"
+    },
+    "nlAfter2026_08_31": "EXPIRED_REVIEW_REQUIRED / UNKNOWN_HUMAN_VERIFICATION",
+    "dkQ3Review": "FRESHNESS_TRIGGER_NO_AUTOMATIC_EXTENSION"
+  },
+  "email": {
+    "recipientConfiguration": "PASS",
+    "recipientCount": 2,
+    "senderConfiguration": "PASS",
+    "deliveryGate": "BLOCKED_CONFIGURATION_REQUIRED",
+    "deliveryTest": "NOT_EXECUTED",
+    "authenticationConfigured": false,
+    "missing": [
+      "GMAIL_ACCESS_TOKEN or GMAIL_OAUTH_CLIENT_ID + GMAIL_OAUTH_CLIENT_SECRET + GMAIL_OAUTH_REFRESH_TOKEN"
+    ],
+    "scope": "EMAIL_DELIVERY_ONLY",
+    "credentialsInventedOrExposed": false
+  },
+  "chVignetteRecapture": {
+    "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+    "sourceId": "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026",
+    "blockerState": "RESOLVED",
+    "applyCondition": "SATISFIED",
+    "officialProvenanceOnly": true,
+    "price": "CHF 40",
+    "vehicleScope": "up to 3.5 tonnes",
+    "effectiveFrom": "2025-12-01",
+    "effectiveUntil": "2027-01-31",
+    "primarySha256": "fc6f19ae9ec162f08542bca6fbfc065ddb7d3939567bf04bd91682ffa7350ffc",
+    "supportingViaSha256": "9075cfb58828ffae99b55f65f2123b1b097d56127e9395b0f449bb1c7f75da07",
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS"
+  },
+  "finalReadOnlyGate": {
+    "status": "59/59 PASS",
+    "validatorOutputIdempotence": {
+      "status": "PASS",
+      "firstSha256": "1dbe5335f615aedcb1de57245d419f6a067517c1d0ad6fa28f4ecdc028212fa3",
+      "secondSha256": "1dbe5335f615aedcb1de57245d419f6a067517c1d0ad6fa28f4ecdc028212fa3"
+    },
+    "evidenceIntegrity": "PASS",
+    "sourceIdsUnique": "PASS",
+    "canonicalDuplicatesIntroduced": 0,
+    "existingRegistrySourcesModified": 0,
+    "existingViewMembershipsModified": 0,
+    "freshnessMetadataPreserved": "PASS",
+    "dedup": "PASS"
+  },
+  "exactAtomicImpact": {
+    "operations": {
+      "add": 10,
+      "modify": 0,
+      "delete": 0
+    },
+    "registry": {
+      "baselineCount": 831,
+      "projectedCount": 841,
+      "baselineSha256": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+      "projectedSha256": "462db7f3a72204010972aa605901783997feff9ada7aac760ab03b358b2cd076"
+    },
+    "routingTollView": {
+      "baselineCount": 279,
+      "projectedCount": 289,
+      "baselineUniqueContentHashes": 264,
+      "projectedUniqueContentHashes": 274,
+      "uniqueContentHashDelta": 10,
+      "baselineSha256": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997",
+      "projectedSha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+    }
+  },
+  "deterministicRegeneration": {
+    "status": "PASS",
+    "artifacts": {
+      "CH_VIGNETTE_RECAPTURE_MANIFEST.json": "187db1bd2153d74165018ac89186af54d19b40edf535082752463a8339a3627f",
+      "FINAL_ATOMIC_CHANGESET.json": "1b3654578a99cca7fbae5761fed27c4ff4c8a9b57a4db53bc80f2163ea12c04a",
+      "EXACT_ATOMIC_APPLY_IMPACT.json": "17d3849fc5d4f498230d90530fbdfa1582f7026565f288c55f25b142164659be",
+      "FINAL_PRE_APPLY_PACKAGE.json": "9047cb3e0c11ec9bd7f7133df397ad0bed2bc3b6e6f4bcca591d186bf219eac7",
+      "FINAL_PRE_APPLY_REPORT.md": "74c9607e9a840c57996b561647d083b3adb73a66998c290bf3a0953617eb7093"
+    },
+    "firstEqualsSecond": true
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "routingTollViewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED",
+    "atomicApplyRequiresSeparateProductOwnerMandate": true
+  },
+  "remainingBlockers": [],
+  "nonBlockingRuntimeDependency": "Email delivery cannot be tested until Gmail authentication is supplied through the existing secret/configuration mechanism."
+}

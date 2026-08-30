@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "agm-routing-toll-001-atomic-apply.v1",
+  "authority": {
+    "role": "Product Owner",
+    "name": "Adrian Muscalu",
+    "decisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json"
+  },
+  "changeset": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/FINAL_ATOMIC_CHANGESET.json",
+  "result": "PASS",
+  "before": {
+    "registryCount": 815,
+    "registrySha256": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31",
+    "viewCount": 263,
+    "viewSha256": "eb8e0b1b02b34033ad689b0aa35da616b924cc333d2d22187e466505ffcc801f"
+  },
+  "after": {
+    "registryCount": 831,
+    "registrySha256": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+    "viewCount": 279,
+    "viewSha256": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+  },
+  "operations": {
+    "additions": 16,
+    "modifications": 0,
+    "deletions": 0,
+    "membershipsAdded": 16
+  },
+  "classifications": {
+    "AUTHORITATIVE_WITH_SCOPE": 12,
+    "CONTEXTUAL": 4
+  },
+  "integrity": {
+    "artifacts": "16/16_MATCH",
+    "provenance": "16/16_VERIFIED",
+    "canonicalDuplicates": 0
+  },
+  "rollback": {
+    "available": true,
+    "executed": false,
+    "registryBackup": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_ATOMIC_APPLY/PRE_APPLY_REGISTRY.json",
+    "viewBackup": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_ATOMIC_APPLY/PRE_APPLY_ROUTING_TOLL_VIEW.json"
+  },
+  "gapState": "ROUTING-TOLL-001_OPEN_PARTIALLY_READY",
+  "protections": {
+    "basicLibrarian": "UNCHANGED",
+    "legal003": "OPEN_UNCHANGED",
+    "legal005": "OPEN_UNCHANGED",
+    "runtimeProductionTurnApplicationApi": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

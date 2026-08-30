@@ -1,0 +1,251 @@
+{
+  "schemaVersion": "agm-phase2-current-superseded-unknown.v1",
+  "rule": "No candidate is promoted automatically. Unknown or unreviewed currentness remains UNKNOWN.",
+  "assessments": [
+    {
+      "sourceId": "CS-EU-REG-561-2006",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "OJ L 102, 11.4.2006"
+    },
+    {
+      "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "CELEX 02006R0561-20241231"
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "OJ L 60, 28.2.2014"
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "CELEX 02014R0165-20241231"
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "OJ L 139, 26.5.2016"
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "CELEX 02016R0799-20230821"
+    },
+    {
+      "sourceId": "CS-DE-FPERSG",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Last amended 2023-03-02, BGBl. 2023 I Nr. 56"
+    },
+    {
+      "sourceId": "CS-DE-FPERSV",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Last amended 2024-07-15, BGBl. 2024 I Nr. 236"
+    },
+    {
+      "sourceId": "CS-DE-STVO",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Last amended 2026-01-30, BGBl. 2026 I Nr. 32"
+    },
+    {
+      "sourceId": "CS-DE-STVZO",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Last amended 2024-06-10, BGBl. 2024 I Nr. 191"
+    },
+    {
+      "sourceId": "CS-DE-HGB-412",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Currentness to be confirmed at human review"
+    },
+    {
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Live VDI catalogue; individual sheet versions vary"
+    },
+    {
+      "sourceId": "CS-UNECE-ADR-2025",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "ECE/TRANS/352, ADR 2025"
+    },
+    {
+      "sourceId": "CS-DE-GGVSEB",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Last amended 2025-06-19, BGBl. 2025 I Nr. 147"
+    },
+    {
+      "sourceId": "CS-AT-STVO-42-20260213",
+      "assessment": "SUPERSEDED_OR_STALE_CANDIDATE",
+      "current": false,
+      "superseded": false,
+      "evidence": "Date-pinned RIS rendering"
+    },
+    {
+      "sourceId": "CS-CH-VRV-20220401",
+      "assessment": "SUPERSEDED_OR_STALE_CANDIDATE",
+      "current": false,
+      "superseded": false,
+      "evidence": "Official historical snapshot"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "JORFTEXT000043416004"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-2026",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "JORFTEXT000053324056"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Temporary measure observed valid through 2026-08-31; human verification required"
+    },
+    {
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Live official tariff page"
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Last amended 2026-05-15"
+    },
+    {
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Live official guidance"
+    },
+    {
+      "sourceId": "CS-CH-BAZG-ROAD-LEVIES",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Live official guidance"
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Live official guidance"
+    },
+    {
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Rates effective 2026-02-01"
+    },
+    {
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "2026 rates"
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Live official guidance"
+    },
+    {
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Truck toll effective 2026-07-01"
+    },
+    {
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "Live official overview; concession-specific tariffs remain distributed"
+    },
+    {
+      "sourceId": "CS-LU-EVIGNETTE-2019",
+      "assessment": "SUPERSEDED_OR_STALE_CANDIDATE",
+      "current": false,
+      "superseded": false,
+      "evidence": "Page last modified 2019"
+    },
+    {
+      "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "1.0.0-review-candidate"
+    },
+    {
+      "sourceId": "CS-AGM-CM-ARCH-V1",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "1.0.0-review-candidate"
+    },
+    {
+      "sourceId": "CS-AGM-CM-JOB-V1",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "1.0.0-review-candidate"
+    },
+    {
+      "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "1.0.0-review-candidate"
+    },
+    {
+      "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "assessment": "UNKNOWN_PENDING_HUMAN_REVIEW",
+      "current": false,
+      "superseded": false,
+      "evidence": "1.0.0-review-candidate"
+    }
+  ]
+}

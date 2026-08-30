@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "agm-routing-toll-001-validation.v1",
+  "generatedAt": "2026-08-29T21:59:28.801Z",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "name": "CENTRAL_REGISTRY_COUNT",
+      "pass": true,
+      "actual": 815,
+      "expected": 815
+    },
+    {
+      "name": "CENTRAL_REGISTRY_SHA256",
+      "pass": true,
+      "actual": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31",
+      "expected": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31"
+    },
+    {
+      "name": "ROUTING_TOLL_VIEW_COUNT",
+      "pass": true,
+      "actual": "263/263",
+      "expected": "263/263"
+    },
+    {
+      "name": "SOURCE_AUDIT_COUNT",
+      "pass": true,
+      "actual": "263/263",
+      "expected": "263/263"
+    },
+    {
+      "name": "SOURCE_AUDIT_INTEGRITY",
+      "pass": true,
+      "actual": "263 match / 0 mismatch",
+      "expected": "263 match / 0 mismatch"
+    },
+    {
+      "name": "EXTERNAL_AUTHORITY_IN_REGISTRY",
+      "pass": true,
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "INTERNAL_AUTHORITY_COUNT",
+      "pass": true,
+      "actual": 2,
+      "expected": 2
+    },
+    {
+      "name": "REQUIREMENT_MATRIX_VERDICT",
+      "pass": true,
+      "actual": "PARTIALLY_READY; closed=false",
+      "expected": "PARTIALLY_READY; closed=false"
+    },
+    {
+      "name": "CANDIDATE_MANIFEST_COUNT",
+      "pass": true,
+      "actual": "20/20",
+      "expected": "20/20"
+    },
+    {
+      "name": "CANDIDATES_NOT_REGISTERED",
+      "pass": true,
+      "actual": [],
+      "expected": []
+    },
+    {
+      "name": "NO_CANDIDATE_FAKE_HASH",
+      "pass": true,
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "ROUTING-TOLL-001_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-003_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-005_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/agent-governance.registry.ts",
+      "pass": true,
+      "actual": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82",
+      "expected": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/maintenance-department.ts",
+      "pass": true,
+      "actual": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0",
+      "expected": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0"
+    },
+    {
+      "name": "BASIC_HASH_evidence/governance/modules/PRE-005/v1.0/LINGUISTIC_AGENTS_CONTRACT.md",
+      "pass": true,
+      "actual": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231",
+      "expected": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231"
+    }
+  ],
+  "runtimeProductionTurnChange": "NONE",
+  "centralRegistryMutation": false,
+  "basicLibrarianChange": "NONE",
+  "commitPush": "NOT_EXECUTED"
+}

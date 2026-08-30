@@ -1,0 +1,313 @@
+{
+  "schemaVersion": "agm-routing-toll-001-owner-manual-artifact-validation.v1",
+  "generatedAt": "2026-08-30T09:54:56.974Z",
+  "artifactId": "RT001-FINAL-FR-ORDER-12-2026",
+  "verdict": "VALID",
+  "artifact": {
+    "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+    "filename": "RT001-FINAL-FR-ORDER-12-2026.owner-official.pdf",
+    "mediaType": "application/pdf",
+    "sizeBytes": 369638,
+    "sha256": "895c44e663dff2611ccf2bbe299a5472e9fd798df0cc0aaa66ba0b37f0720929"
+  },
+  "provenance": {
+    "authority": "Legifrance / Journal officiel de la Republique francaise",
+    "officialPageUrl": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053417592",
+    "officialDirectPdfUrl": "https://www.legifrance.gouv.fr/download/file/I7R9VS2t0PfielS4ACisQCFhcwyKu5xIeQs35Cxnt70=/JOE_TEXTE",
+    "title": "Journal officiel de la République française - N° 25 du 30 janvier 2026",
+    "producer": "PDFlib+PDI 9.0.6 \\(C++/Win32\\",
+    "creator": "PTC Arbortext Advanced Print Publisher 11.1.4243/W",
+    "creationDate": "D:20260129224424+01'00'",
+    "jurisdiction": "FR"
+  },
+  "scope": "ATMB, SFTRF, CEVM, ALIS, ARCOUR, ADELAC, A'LIENOR, ALICORNE, ATLANDES, ALBEA, ARCOS and ALIAE; tariff annexes I-XII",
+  "effectiveDate": "2026-02-01",
+  "evidenceCounts": {
+    "pages": 27,
+    "articles": 12,
+    "annexes": 12,
+    "operators": 12,
+    "tariffGridHeaders": 12,
+    "vehicleClassHeadings": 36
+  },
+  "checkCount": 19,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "FILE_EXISTS",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PDF_MAGIC",
+      "pass": true,
+      "actual": "%PDF-1.6",
+      "expected": "%PDF-*"
+    },
+    {
+      "name": "PDF_EOF",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PDF_OPEN_AND_EXTRACT",
+      "pass": true,
+      "actual": {
+        "pdftotextExit": 0,
+        "textLength": 64010
+      },
+      "expected": {
+        "pdftotextExit": 0,
+        "minimumTextLength": 50000
+      }
+    },
+    {
+      "name": "ALL_PAGES_NONEMPTY",
+      "pass": true,
+      "actual": {
+        "pageCount": 27,
+        "minimumPageText": 584
+      },
+      "expected": {
+        "pageCount": 27,
+        "minimumPageText": 500
+      }
+    },
+    {
+      "name": "NOR",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "JORF_TITLE_METADATA",
+      "pass": true,
+      "actual": "Journal officiel de la République française - N° 25 du 30 janvier 2026",
+      "expected": "Journal officiel ... N° 25 du 30 janvier 2026"
+    },
+    {
+      "name": "JORF_DATE_AND_TEXT_37",
+      "pass": true,
+      "actual": "30 janvier 2026  JOURNAL OFFICIEL DE LA RÉPUBLIQUE FRANÇAISE  Texte 37 sur 122\r",
+      "expected": "30 janvier 2026 / Texte 37 sur 122"
+    },
+    {
+      "name": "TITLE",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "ARTICLES_1_TO_12",
+      "pass": true,
+      "actual": [
+        {
+          "number": 1,
+          "present": true
+        },
+        {
+          "number": 2,
+          "present": true
+        },
+        {
+          "number": 3,
+          "present": true
+        },
+        {
+          "number": 4,
+          "present": true
+        },
+        {
+          "number": 5,
+          "present": true
+        },
+        {
+          "number": 6,
+          "present": true
+        },
+        {
+          "number": 7,
+          "present": true
+        },
+        {
+          "number": 8,
+          "present": true
+        },
+        {
+          "number": 9,
+          "present": true
+        },
+        {
+          "number": 10,
+          "present": true
+        },
+        {
+          "number": 11,
+          "present": true
+        },
+        {
+          "number": 12,
+          "present": true
+        }
+      ],
+      "expected": "12/12"
+    },
+    {
+      "name": "ANNEXES_I_TO_XII",
+      "pass": true,
+      "actual": [
+        {
+          "number": "I",
+          "present": true
+        },
+        {
+          "number": "II",
+          "present": true
+        },
+        {
+          "number": "III",
+          "present": true
+        },
+        {
+          "number": "IV",
+          "present": true
+        },
+        {
+          "number": "V",
+          "present": true
+        },
+        {
+          "number": "VI",
+          "present": true
+        },
+        {
+          "number": "VII",
+          "present": true
+        },
+        {
+          "number": "VIII",
+          "present": true
+        },
+        {
+          "number": "IX",
+          "present": true
+        },
+        {
+          "number": "X",
+          "present": true
+        },
+        {
+          "number": "XI",
+          "present": true
+        },
+        {
+          "number": "XII",
+          "present": true
+        }
+      ],
+      "expected": "12/12"
+    },
+    {
+      "name": "OPERATORS_12",
+      "pass": true,
+      "actual": [
+        {
+          "name": "ATMB",
+          "present": true
+        },
+        {
+          "name": "SFTRF",
+          "present": true
+        },
+        {
+          "name": "CEVM",
+          "present": true
+        },
+        {
+          "name": "ALIS",
+          "present": true
+        },
+        {
+          "name": "ARCOUR",
+          "present": true
+        },
+        {
+          "name": "ADELAC",
+          "present": true
+        },
+        {
+          "name": "A’LIENOR",
+          "present": true
+        },
+        {
+          "name": "ALICORNE",
+          "present": true
+        },
+        {
+          "name": "ATLANDES",
+          "present": true
+        },
+        {
+          "name": "ALBEA",
+          "present": true
+        },
+        {
+          "name": "ARCOS",
+          "present": true
+        },
+        {
+          "name": "ALIAE",
+          "present": true
+        }
+      ],
+      "expected": "12/12"
+    },
+    {
+      "name": "TARIFF_GRIDS_12",
+      "pass": true,
+      "actual": 12,
+      "expected": 12
+    },
+    {
+      "name": "VEHICLE_CLASS_HEADINGS",
+      "pass": true,
+      "actual": 36,
+      "expected": ">=36"
+    },
+    {
+      "name": "EFFECTIVE_DATE",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "NO_CHALLENGE_OR_ACCESS_DENIED",
+      "pass": true,
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "OFFICIAL_PRODUCER",
+      "pass": true,
+      "actual": "PDFlib+PDI 9.0.6 \\(C++/Win32\\",
+      "expected": "PDFlib+PDI 9.0.6"
+    },
+    {
+      "name": "OFFICIAL_CREATOR",
+      "pass": true,
+      "actual": "PTC Arbortext Advanced Print Publisher 11.1.4243/W",
+      "expected": "PTC Arbortext Advanced Print Publisher"
+    },
+    {
+      "name": "OFFICIAL_CREATION_DATE",
+      "pass": true,
+      "actual": "D:20260129224424+01'00'",
+      "expected": "D:20260129*"
+    }
+  ],
+  "registryMutation": "NONE",
+  "viewMutation": "NONE",
+  "authorityPromotion": "NONE"
+}

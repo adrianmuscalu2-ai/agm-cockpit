@@ -1,0 +1,958 @@
+{
+  "schemaVersion": "agm-phase3-final-pre-apply-changeset.v1",
+  "changesetId": "AGM-CANONICAL-PROMOTION-PHASE3-OWNER-001",
+  "supersedesProposal": "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PROPOSED_CANONICAL_PROMOTION_CHANGESET.json",
+  "status": "FINAL_PRE_APPLY_INTEGRITY_VERIFIED_NOT_APPLIED",
+  "authority": {
+    "role": "Product Owner",
+    "name": "Adrian Muscalu"
+  },
+  "integrityAcquisitionAuthorized": true,
+  "centralRegistryMutationAuthorized": false,
+  "atomicApply": true,
+  "partialApplyForbidden": true,
+  "operationCount": 17,
+  "verifiedOperationCount": 17,
+  "blockedOperationCount": 0,
+  "proposedAuthorityCounts": {
+    "AUTHORITATIVE_WITH_SCOPE": 13,
+    "CONTEXTUAL": 4
+  },
+  "before": {
+    "sourceCount": 798,
+    "sha256": "1c506707200d6c8b27217cdf00d00541a739ef5321bde1e5f892cb9098e61a34"
+  },
+  "actualAfterThisMandate": {
+    "sourceCount": 798,
+    "sha256": "1c506707200d6c8b27217cdf00d00541a739ef5321bde1e5f892cb9098e61a34",
+    "changed": false
+  },
+  "conditionalAfterSeparateOwnerApplyAuthorization": {
+    "sourceCount": 815,
+    "additions": 17,
+    "modifications": 0,
+    "removals": 0,
+    "sha256": null
+  },
+  "unresolvedGapsRemainOpen": [
+    "ROUTING-TOLL-001",
+    "LEGAL-003",
+    "LEGAL-005"
+  ],
+  "operations": [
+    {
+      "sourceId": "CS-EU-REG-561-2006",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-001",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-EU-REG-561-2006",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-561-2006.official.en.html",
+        "canonicalUri": "https://eur-lex.europa.eu/eli/reg/2006/561/oj?locale=en",
+        "mediaType": "text/html",
+        "sizeBytes": 468627,
+        "sha256": "a45bc455de4f7928d781bc8c237f0c56450c99f878555008d5e116f675ce9d1e",
+        "sourceDate": "2006-03-15",
+        "effectiveDate": "2007-04-11",
+        "version": "OJ L 102, 11.4.2006",
+        "status": "CURRENT",
+        "owner": "Transport Compliance Owner (designation required)",
+        "authority": {
+          "issuingBody": "European Parliament and Council of the European Union",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "EU",
+            "EEA"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://eur-lex.europa.eu/eli/reg/2006/561/oj?locale=en",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-561-2006.official.en.html",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://eur-lex.europa.eu/eli/reg/2006/561/oj",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-561-2006.official.en.html",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-001",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-561-2006-CONS-20241231.official.en.pdf",
+        "canonicalUri": "https://eur-lex.europa.eu/eli/reg/2006/561/2024-12-31/eng/pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 362777,
+        "sha256": "3c36e849d222cf7e7367ae9b246c7506dc801b1ee1cc697fa3db2acbe80f569b",
+        "sourceDate": "2024-12-31",
+        "effectiveDate": "2024-12-31",
+        "version": "CELEX 02006R0561-20241231",
+        "status": "CURRENT",
+        "owner": "Transport Compliance Owner (designation required)",
+        "authority": {
+          "issuingBody": "Publications Office of the European Union / EUR-Lex",
+          "authorityType": "CONTEXTUAL",
+          "jurisdictions": [
+            "EU",
+            "EEA"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://eur-lex.europa.eu/eli/reg/2006/561/2024-12-31/eng/pdf",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-561-2006-CONS-20241231.official.en.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:02006R0561-20241231",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-561-2006-CONS-20241231.official.en.pdf",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-002",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-EU-REG-165-2014",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-165-2014.official.en.pdf",
+        "canonicalUri": "https://eur-lex.europa.eu/eli/reg/2014/165/oj/eng/pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 1092439,
+        "sha256": "e472a0b04525bba513349f826c80faf39cc609978d9875a6e53126b3a41a2898",
+        "sourceDate": "2014-02-04",
+        "effectiveDate": "2014-03-01",
+        "version": "OJ L 60, 28.2.2014",
+        "status": "CURRENT",
+        "owner": "Transport Compliance Owner (designation required)",
+        "authority": {
+          "issuingBody": "European Parliament and Council of the European Union",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "EU",
+            "EEA"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://eur-lex.europa.eu/eli/reg/2014/165/oj/eng/pdf",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-165-2014.official.en.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://eur-lex.europa.eu/eli/reg/2014/165/oj",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-165-2014.official.en.pdf",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-002",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-165-2014-CONS-20241231.official.en.pdf",
+        "canonicalUri": "https://eur-lex.europa.eu/eli/reg/2014/165/2024-12-31/eng/pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 587386,
+        "sha256": "1b302c6b3dd9467ab3b5939ab5314fcd34606dec2ead722276ac2c0330c2f0ec",
+        "sourceDate": "2024-12-31",
+        "effectiveDate": "2024-12-31",
+        "version": "CELEX 02014R0165-20241231",
+        "status": "CURRENT",
+        "owner": "Transport Compliance Owner (designation required)",
+        "authority": {
+          "issuingBody": "Publications Office of the European Union / EUR-Lex",
+          "authorityType": "CONTEXTUAL",
+          "jurisdictions": [
+            "EU",
+            "EEA"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://eur-lex.europa.eu/eli/reg/2014/165/2024-12-31/eng/pdf",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-165-2014-CONS-20241231.official.en.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02014R0165-20241231",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-REG-165-2014-CONS-20241231.official.en.pdf",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-003",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-EU-IMPL-REG-2016-799",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-IMPL-REG-2016-799.official.en.pdf",
+        "canonicalUri": "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj/eng/pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 19009557,
+        "sha256": "038779b8740bde02689e7167862ef9ccf1358d7a06cb5fa87f280c9315a92c6b",
+        "sourceDate": "2016-03-18",
+        "effectiveDate": "2016-06-16",
+        "version": "OJ L 139, 26.5.2016",
+        "status": "CURRENT",
+        "owner": "Transport Compliance Owner (designation required)",
+        "authority": {
+          "issuingBody": "European Commission",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "EU",
+            "EEA"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj/eng/pdf",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-IMPL-REG-2016-799.official.en.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-IMPL-REG-2016-799.official.en.pdf",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-003",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-IMPL-REG-2016-799-CONS-20230821.official.en.pdf",
+        "canonicalUri": "https://eur-lex.europa.eu/eli/reg_impl/2016/799/2023-08-21/eng/pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 19257357,
+        "sha256": "3986fb1c3420743a8921733418d9380e3f7f7f7bb08ee86d4fc349cb60504576",
+        "sourceDate": "2023-08-21",
+        "effectiveDate": "2023-08-21",
+        "version": "CELEX 02016R0799-20230821",
+        "status": "CURRENT",
+        "owner": "Transport Compliance Owner (designation required)",
+        "authority": {
+          "issuingBody": "Publications Office of the European Union / EUR-Lex",
+          "authorityType": "CONTEXTUAL",
+          "jurisdictions": [
+            "EU",
+            "EEA"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://eur-lex.europa.eu/eli/reg_impl/2016/799/2023-08-21/eng/pdf",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-IMPL-REG-2016-799-CONS-20230821.official.en.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02016R0799-20230821",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-IMPL-REG-2016-799-CONS-20230821.official.en.pdf",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-DE-FPERSG",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-004",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-DE-FPERSG",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-FPERSG.official.de.pdf",
+        "canonicalUri": "https://www.gesetze-im-internet.de/fahrpersstg/FPersG.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 78585,
+        "sha256": "6f190e7c847325f315332419e2a4ea9485b7be01bbcc43b1da34f521dc6647c8",
+        "sourceDate": "1971-03-30",
+        "effectiveDate": null,
+        "version": "Last amended 2023-03-02, BGBl. 2023 I Nr. 56",
+        "status": "CURRENT",
+        "owner": "Transport Compliance Owner (designation required)",
+        "authority": {
+          "issuingBody": "German Federal Ministry of Justice / Federal Office of Justice",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "DE"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://www.gesetze-im-internet.de/fahrpersstg/FPersG.pdf",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-FPERSG.official.de.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://www.gesetze-im-internet.de/fahrpersstg/BJNR002770971.html",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-FPERSG.official.de.pdf",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-DE-FPERSV",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-004",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-DE-FPERSV",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-FPERSV.official.de.pdf",
+        "canonicalUri": "https://www.gesetze-im-internet.de/fpersv/FPersV.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 299687,
+        "sha256": "a8fa3807f0591b15612ea6cfb3b989ea59a0fc1640acbaeb6e6d376d9f0ccc30",
+        "sourceDate": "2005-06-27",
+        "effectiveDate": null,
+        "version": "Last amended 2024-07-15, BGBl. 2024 I Nr. 236",
+        "status": "CURRENT",
+        "owner": "Transport Compliance Owner (designation required)",
+        "authority": {
+          "issuingBody": "German Federal Ministry of Justice / Federal Office of Justice",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "DE"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://www.gesetze-im-internet.de/fpersv/FPersV.pdf",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-FPERSV.official.de.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://www.gesetze-im-internet.de/fpersv/BJNR188210005.html",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-FPERSV.official.de.pdf",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-DE-STVO",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-LEGAL-001"
+      ],
+      "overlapsWithUnresolvedReviewIds": [
+        "REVIEW-LEGAL-003",
+        "REVIEW-LEGAL-005"
+      ],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-DE-STVO",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-STVO.official.de.pdf",
+        "canonicalUri": "https://www.gesetze-im-internet.de/stvo_2013/StVO.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 1136624,
+        "sha256": "0173e104e503f6abfdd5b081aa6b0bb5ea816ce1c1613f50f3dfecdf9ec68559",
+        "sourceDate": "2013-03-06",
+        "effectiveDate": null,
+        "version": "Last amended 2026-01-30, BGBl. 2026 I Nr. 32",
+        "status": "CURRENT",
+        "owner": "Security & Legal / Human Reviewer",
+        "authority": {
+          "issuingBody": "German Federal Ministry of Justice / Federal Office of Justice",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "DE"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://www.gesetze-im-internet.de/stvo_2013/StVO.pdf",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-STVO.official.de.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://www.gesetze-im-internet.de/stvo_2013/BJNR036710013.html",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-STVO.official.de.pdf",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-DE-STVZO",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-LEGAL-002"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-DE-STVZO",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-STVZO.official.de.pdf",
+        "canonicalUri": "https://www.gesetze-im-internet.de/stvzo_2012/StVZO.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 2443724,
+        "sha256": "8ea9a586a934be85736639167e2e5fe1013158159447665cff8bb13d72471f5b",
+        "sourceDate": "2012-04-26",
+        "effectiveDate": null,
+        "version": "Last amended 2024-06-10, BGBl. 2024 I Nr. 191",
+        "status": "CURRENT",
+        "owner": "Security & Legal / Human Reviewer",
+        "authority": {
+          "issuingBody": "German Federal Ministry of Justice / Federal Office of Justice",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "DE"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://www.gesetze-im-internet.de/stvzo_2012/StVZO.pdf",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-STVZO.official.de.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://www.gesetze-im-internet.de/stvzo_2012/StVZO.pdf",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-STVZO.official.de.pdf",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-UNECE-ADR-2025",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-LEGAL-004"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-UNECE-ADR-2025",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-UNECE-ADR-2025.official.en.pdf",
+        "canonicalUri": "https://digitallibrary.un.org/record/4068196/files/ECE_TRANS_352-EN.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 19814247,
+        "sha256": "745d45dee198db7e65c9f5e983b6d6e174d33ffb470b72ff0439b7be7a90cd66",
+        "sourceDate": "2024-10-01",
+        "effectiveDate": "2025-01-01",
+        "version": "ECE/TRANS/352, ADR 2025",
+        "status": "CURRENT",
+        "owner": "Security & Legal / Human Reviewer",
+        "authority": {
+          "issuingBody": "United Nations Economic Commission for Europe",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "ADR_CONTRACTING_PARTIES"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://digitallibrary.un.org/record/4068196/files/ECE_TRANS_352-EN.pdf",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-UNECE-ADR-2025.official.en.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://unece.org/info/Transport/pub/395786",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-UNECE-ADR-2025.official.en.pdf",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-DE-GGVSEB",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-LEGAL-004"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-DE-GGVSEB",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-GGVSEB.official.de.pdf",
+        "canonicalUri": "https://www.gesetze-im-internet.de/ggvseb/GGVSEB.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 304260,
+        "sha256": "7946383522dcf0b4af414df08e7094e26a954c8122b49fb9badd6c76148561d1",
+        "sourceDate": "2023-08-18",
+        "effectiveDate": null,
+        "version": "Last amended 2025-06-19, BGBl. 2025 I Nr. 147",
+        "status": "CURRENT",
+        "owner": "Security & Legal / Human Reviewer",
+        "authority": {
+          "issuingBody": "German Federal Ministry of Justice / Federal Office of Justice",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "DE"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "https://www.gesetze-im-internet.de/ggvseb/GGVSEB.pdf",
+          "observedPath": "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-GGVSEB.official.de.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PRESERVE_CANDIDATE_AND_ALL_REVIEW_DECISIONS",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "https://www.gesetze-im-internet.de/ggvseb/GGVSEB.pdf",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-DE-GGVSEB.official.de.pdf",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+        "canonicalPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md",
+        "canonicalUri": null,
+        "mediaType": "text/markdown",
+        "sizeBytes": 1323,
+        "sha256": "6fcb9865f6d7265ca42919df79c8466c0aefc3966c7e79f92953b5c04e3088d9",
+        "sourceDate": "2026-08-29",
+        "effectiveDate": null,
+        "version": "1.0.0-review-candidate",
+        "status": "CURRENT",
+        "owner": "Transport Compliance Owner (designation required)",
+        "authority": {
+          "issuingBody": "AGM Transport Compliance",
+          "authorityType": "CONTEXTUAL",
+          "jurisdictions": [
+            "EU",
+            "DE"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+          "observedPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_REVIEW_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-FIELD-001"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+        "canonicalPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md",
+        "canonicalUri": null,
+        "mediaType": "text/markdown",
+        "sizeBytes": 1933,
+        "sha256": "4d9b92e65372cb80b88369e7e04a0c355b99ec87e47c407ac08763091202891f",
+        "sourceDate": "2026-08-29",
+        "effectiveDate": null,
+        "version": "1.0.0-review-candidate",
+        "status": "CURRENT",
+        "owner": "Mobility & Routing Steward",
+        "authority": {
+          "issuingBody": "AGM Field Validation Owner",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "AGM_INTERNAL"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+          "observedPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_REVIEW_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-AGM-CM-ARCH-V1",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-CAR-MOVER-001"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-AGM-CM-ARCH-V1",
+        "canonicalPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md",
+        "canonicalUri": null,
+        "mediaType": "text/markdown",
+        "sizeBytes": 1788,
+        "sha256": "1a592c5d4f41bc27f541c5ba867b8bf3a1b2b2b3955a533b115feae436fd6bc2",
+        "sourceDate": "2026-08-29",
+        "effectiveDate": null,
+        "version": "1.0.0-review-candidate",
+        "status": "CURRENT",
+        "owner": "AGM Product Owner / Car Mover Steward",
+        "authority": {
+          "issuingBody": "AGM Product Owner / Architecture Inspector",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "AGM_INTERNAL"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+          "observedPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_REVIEW_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-AGM-CM-JOB-V1",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-CAR-MOVER-002"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-AGM-CM-JOB-V1",
+        "canonicalPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md",
+        "canonicalUri": null,
+        "mediaType": "text/markdown",
+        "sizeBytes": 1908,
+        "sha256": "5061bce734fee8ce0e0a5c42729985091fc3b5e660ce60025131c9ef6fc22971",
+        "sourceDate": "2026-08-29",
+        "effectiveDate": null,
+        "version": "1.0.0-review-candidate",
+        "status": "CURRENT",
+        "owner": "AGM Product Owner / Car Mover Steward",
+        "authority": {
+          "issuingBody": "AGM Product Owner / Car Mover Steward",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "AGM_INTERNAL"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+          "observedPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_REVIEW_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "approvedByReviewIds": [
+        "REVIEW-DOCS-001"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "integrityStatus": "INTEGRITY_VERIFIED",
+      "applyReadiness": "INTEGRITY_VERIFIED_AWAITING_SEPARATE_OWNER_APPLY_AUTHORIZATION",
+      "applied": false,
+      "proposedRegistryEntry": {
+        "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+        "canonicalPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md",
+        "canonicalUri": null,
+        "mediaType": "text/markdown",
+        "sizeBytes": 1759,
+        "sha256": "fe613d7bb1339def15340e12a46756f34f6a80fef3f8a9ca9f80d3ae151811eb",
+        "sourceDate": "2026-08-29",
+        "effectiveDate": null,
+        "version": "1.0.0-review-candidate",
+        "status": "CURRENT",
+        "owner": "Inspector / Evidence Custody",
+        "authority": {
+          "issuingBody": "AGM Product Owner / Inspector / Evidence Custody",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "AGM_INTERNAL"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+          "observedPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_REVIEW_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md",
+          "AGM_LIBRARY/PHASE3/CLOSURE_PROPOSAL/PRODUCT_OWNER_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/FINAL_SOURCE_HASH_MANIFEST.json"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    }
+  ]
+}

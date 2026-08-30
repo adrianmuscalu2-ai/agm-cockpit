@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "agm-legal003-vdi-impact-validation.v1",
+  "validatedAt": "2026-08-30T21:00:00.000Z",
+  "validator": "scripts/validate-legal-003-vdi-impact-study-readonly.mjs",
+  "expectedResult": "PASS",
+  "expectedChecks": 30,
+  "targetedProductTests": [
+    {
+      "command": "pnpm.cmd exec tsx apps/web/scripts/test-pre007-load-safety-contract.ts",
+      "result": "PASS",
+      "evidence": "PRE-007 Load Safety client/interface contract: PASS"
+    },
+    {
+      "command": "pnpm.cmd exec tsx apps/api/scripts/test-api008-premium-load-safety-service.ts",
+      "result": "PASS",
+      "evidence": "API-008 Premium Load Safety Service contract: PASS"
+    }
+  ],
+  "nonTargetFailure": {
+    "command": "pnpm.cmd --filter @agm/web test:premium",
+    "result": "NOT_USED_FOR_STUDY_VERDICT",
+    "reason": "Existing broad Premium foundation assertion expected the literal text 'Pre-Departure'; the failure is outside the VDI impact slice and no retry or code mutation was performed."
+  },
+  "guardrails": {
+    "licensedContent": "NOT_ACCESSED_OR_INGESTED",
+    "purchase": "NOT_EXECUTED",
+    "registryViewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "apply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

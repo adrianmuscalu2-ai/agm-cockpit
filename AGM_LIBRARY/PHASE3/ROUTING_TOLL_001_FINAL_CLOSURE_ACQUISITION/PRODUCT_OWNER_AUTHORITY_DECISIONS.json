@@ -1,0 +1,311 @@
+{
+  "schemaVersion": "agm-routing-toll-001-product-owner-authority-decisions.v1",
+  "review": "ROUTING-TOLL-001_FINAL_PRODUCT_OWNER_AUTHORITY_REVIEW",
+  "recordedAt": "2026-08-30T14:39:14.6727917+02:00",
+  "status": "AUTHORITY_REVIEW_COMPLETE",
+  "summary": {
+    "total": 10,
+    "decided": 10,
+    "approved": 10,
+    "rejected": 0,
+    "deferred": 0,
+    "pending": 0
+  },
+  "decisions": [
+    {
+      "ordinal": 1,
+      "candidateId": "RT001-RES-PL-A1-2026",
+      "proposedSourceId": "CS-PL-AMBERONE-A1-TARIFFS",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "AmberOne / A1 Gdańsk–Toruń — tarife și categorii aplicabile sectorului concesionat capturat.",
+      "authorityExclusions": [
+        "e-TOLL național",
+        "alte concesiuni din Polonia",
+        "alte segmente A1 din afara scope-ului demonstrat"
+      ],
+      "freshnessLimitation": "Lipsa unei date explicite de actualizare/effectivity rămâne limitation documentată și necesită freshness verification înainte de utilizare.",
+      "verbatimDecision": "PRODUCT OWNER DECISION — CANDIDATE 1/10\n\ncandidateId: RT001-RES-PL-A1-2026\nSourceId: CS-PL-AMBERONE-A1-TARIFFS\n\nDECISION = APPROVE\nCLASSIFICATION = AUTHORITATIVE_WITH_SCOPE\n\nScope-ul aprobat rămâne strict:\nAmberOne / A1 Gdańsk–Toruń — tarife și categorii aplicabile sectorului concesionat capturat.\n\nNu extinde autoritatea la:\n- e-TOLL național;\n- alte concesiuni din Polonia;\n- alte segmente A1 din afara scope-ului demonstrat.\n\nLipsa unei date explicite de actualizare/effectivity rămâne limitation documentată și necesită freshness verification înainte de utilizare.",
+      "recordedAt": "2026-08-30T13:59:09.233+02:00",
+      "registryMutation": "NONE",
+      "routingTollViewMutation": "NONE",
+      "authorityPromotion": "NONE",
+      "runtimeProduction": "NO_CHANGE",
+      "commitPush": "NOT_EXECUTED",
+      "atomicApplyAuthorized": false
+    },
+    {
+      "ordinal": 2,
+      "candidateId": "RT001-RES-PL-A2-2026",
+      "proposedSourceId": "CS-PL-AUTOSTRADA-WIELKOPOLSKA-A2-TARIFFS-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Autostrada Wielkopolska S.A. — A2 Świecko–Nowy Tomyśl–Konin, pentru tarifele și categoriile documentate oficial în artefactul capturat.",
+      "authorityExclusions": [
+        "sistemul e-TOLL național",
+        "alte concesiuni din Polonia",
+        "alte sectoare A2 din afara scope-ului demonstrat",
+        "perioade tarifare care nu sunt susținute de document"
+      ],
+      "freshnessLimitation": "Effective period / freshness trebuie păstrate conform documentului oficial și reverificate înainte de utilizare atunci când data exactă de intrare în vigoare nu este explicit demonstrată separat.",
+      "verbatimDecision": "PRODUCT OWNER DECISION — CANDIDATE 2/10\n\ncandidateId: RT001-RES-PL-A2-2026\nSourceId: CS-PL-AUTOSTRADA-WIELKOPOLSKA-A2-TARIFFS-2026\n\nDECISION = APPROVE\nCLASSIFICATION = AUTHORITATIVE_WITH_SCOPE\n\nScope-ul aprobat rămâne strict:\nAutostrada Wielkopolska S.A. — A2 Świecko–Nowy Tomyśl–Konin, pentru tarifele și categoriile documentate oficial în artefactul capturat.\n\nNu extinde autoritatea la:\n- sistemul e-TOLL național;\n- alte concesiuni din Polonia;\n- alte sectoare A2 din afara scope-ului demonstrat;\n- perioade tarifare care nu sunt susținute de document.\n\nEffective period / freshness trebuie păstrate conform documentului oficial și reverificate înainte de utilizare atunci când data exactă de intrare în vigoare nu este explicit demonstrată separat.",
+      "recordedAt": "2026-08-30T14:02:11.810+02:00",
+      "registryMutation": "NONE",
+      "routingTollViewMutation": "NONE",
+      "authorityPromotion": "NONE",
+      "runtimeProduction": "NO_CHANGE",
+      "commitPush": "NOT_EXECUTED",
+      "atomicApplyAuthorized": false
+    },
+    {
+      "ordinal": 3,
+      "candidateId": "RT001-RES-PL-A4-2026",
+      "proposedSourceId": "CS-PL-STALEXPORT-A4-KATOWICE-KRAKOW-TARIFFS-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Stalexport Autostrada Małopolska S.A. — sectorul concesionat A4 Katowice–Kraków, pentru tarifele și categoriile oficial documentate.",
+      "effectiveDate": "2026-04-01",
+      "authorityExclusions": [
+        "e-TOLL național",
+        "alte concesiuni din Polonia",
+        "alte sectoare A4",
+        "perioade din afara aplicabilității demonstrate"
+      ],
+      "verbatimDecision": "PRODUCT OWNER DECISION — CANDIDATE 3/10\n\ncandidateId: RT001-RES-PL-A4-2026\nSourceId: CS-PL-STALEXPORT-A4-KATOWICE-KRAKOW-TARIFFS-2026\n\nDECISION = APPROVE\nCLASSIFICATION = AUTHORITATIVE_WITH_SCOPE\n\nScope-ul aprobat rămâne strict:\nStalexport Autostrada Małopolska S.A. — sectorul concesionat A4 Katowice–Kraków, pentru tarifele și categoriile oficial documentate.\n\nEffective date aprobat:\n2026-04-01\n\nNu extinde autoritatea la:\n- e-TOLL național;\n- alte concesiuni din Polonia;\n- alte sectoare A4;\n- perioade din afara aplicabilității demonstrate.",
+      "recordedAt": "2026-08-30T14:09:53.6548816+02:00",
+      "registryMutation": "NONE",
+      "routingTollViewMutation": "NONE",
+      "authorityPromotion": "NONE",
+      "runtimeProduction": "NO_CHANGE",
+      "commitPush": "NOT_EXECUTED",
+      "atomicApplyAuthorized": false
+    },
+    {
+      "ordinal": 4,
+      "candidateId": "RT001-RES-CH-LSVA-RATES",
+      "proposedSourceId": "CS-CH-BAZG-LSVA-DIRECTIVE-V1-2",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Elveția — LSVA pentru vehicule grele, conform Directivei oficiale BAZG/FOCBS versiunea 1.2 și numai pentru regulile, ratele și perioada de aplicabilitate demonstrată de document.",
+      "authorityExclusions": [
+        "perioade viitoare nedemonstrate",
+        "rate viitoare",
+        "alte regimuri elvețiene",
+        "vigneta elvețiană, care rămâne candidat separat"
+      ],
+      "mandatoryMetadata": "Versiunea documentului și aplicabilitatea temporală trebuie păstrate ca metadata obligatorie.",
+      "usageFallback": "UNKNOWN → FRESHNESS/HUMAN VERIFICATION",
+      "usageFallbackCondition": "La utilizare, dacă perioada aplicabilă nu poate fi demonstrată.",
+      "verbatimDecision": "PRODUCT OWNER DECISION — CANDIDATE 4/10\n\ncandidateId: RT001-RES-CH-LSVA-RATES\nSourceId: CS-CH-BAZG-LSVA-DIRECTIVE-V1-2\n\nDECISION = APPROVE\nCLASSIFICATION = AUTHORITATIVE_WITH_SCOPE\n\nScope-ul aprobat rămâne strict:\nElveția — LSVA pentru vehicule grele, conform Directivei oficiale BAZG/FOCBS versiunea 1.2 și numai pentru regulile, ratele și perioada de aplicabilitate demonstrată de document.\n\nNu extinde autoritatea:\n- la perioade viitoare nedemonstrate;\n- la rate viitoare;\n- la alte regimuri elvețiene;\n- la vigneta elvețiană, care rămâne candidat separat.\n\nVersiunea documentului și aplicabilitatea temporală trebuie păstrate ca metadata obligatorie.\n\nLa utilizare, dacă perioada aplicabilă nu poate fi demonstrată:\nUNKNOWN → FRESHNESS/HUMAN VERIFICATION",
+      "recordedAt": "2026-08-30T14:12:23.2249608+02:00",
+      "registryMutation": "NONE",
+      "routingTollViewMutation": "NONE",
+      "authorityPromotion": "NONE",
+      "runtimeProduction": "NO_CHANGE",
+      "commitPush": "NOT_EXECUTED",
+      "atomicApplyAuthorized": false
+    },
+    {
+      "ordinal": 5,
+      "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+      "proposedSourceId": "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "applyCondition": "EVIDENCE_RECAPTURE_REQUIRED",
+      "applyEligibility": "BLOCKED_BY_EVIDENCE_RECAPTURE",
+      "approvedScope": "Elveția — vigneta pentru autostrăzi și drumuri expres, pentru vehiculele și categoriile acoperite oficial, până la 3,5 t.",
+      "documentedPrice": "CHF 40",
+      "documentedValidity": {
+        "from": "2025-12-01",
+        "to": "2027-01-31"
+      },
+      "authorityExclusions": [
+        "vehicule >3,5 t",
+        "LSVA/PSVA",
+        "perioade viitoare nedemonstrate",
+        "alte regimuri de taxare elvețiene"
+      ],
+      "atomicApplyEvidenceRequirements": [
+        "evidence-ul oficial live recapturat canonic",
+        "evidence-ul oficial live validat",
+        "evidence-ul oficial live hash-uit SHA-256",
+        "evidence-ul oficial live reconciliat cu scope-ul și perioada aprobate"
+      ],
+      "verbatimDecision": "PRODUCT OWNER DECISION — CANDIDATE 5/10\n\ncandidateId: RT001-RES-CH-VIGNETTE-2026\nSourceId: CS-CH-BAZG-MOTORWAY-VIGNETTE-2026\n\nDECISION = APPROVE\nCLASSIFICATION = AUTHORITATIVE_WITH_SCOPE\nAPPLY_CONDITION = EVIDENCE_RECAPTURE_REQUIRED\n\nScope-ul aprobat rămâne strict:\nElveția — vigneta pentru autostrăzi și drumuri expres, pentru vehiculele și categoriile acoperite oficial, până la 3,5 t.\n\nPreț documentat:\nCHF 40\n\nValabilitate documentată:\n2025-12-01 → 2027-01-31\n\nNu extinde autoritatea:\n- la vehicule >3,5 t;\n- la LSVA/PSVA;\n- la perioade viitoare nedemonstrate;\n- la alte regimuri de taxare elvețiene.\n\nIMPORTANT:\nDecizia Product Owner aprobă autoritatea și clasificarea, dar NU autorizează includerea în atomic apply până când evidence-ul oficial live nu este:\n- recapturat canonic;\n- validat;\n- hash-uit SHA-256;\n- reconciliat cu scope-ul și perioada aprobate.\n\nPână atunci:\nAPPLY ELIGIBILITY = BLOCKED_BY_EVIDENCE_RECAPTURE",
+      "recordedAt": "2026-08-30T14:15:57.1413346+02:00",
+      "registryMutation": "NONE",
+      "routingTollViewMutation": "NONE",
+      "authorityPromotion": "NONE",
+      "runtimeProduction": "NO_CHANGE",
+      "commitPush": "NOT_EXECUTED",
+      "atomicApplyAuthorized": false
+    },
+    {
+      "ordinal": 6,
+      "candidateId": "RT001-RES-LU-EUROVIGNETTE-SCOPE",
+      "proposedSourceId": "CS-LU-CUSTOMS-EUROVIGNETTE-SCOPE",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Luxemburg — aplicabilitatea Eurovignette pentru vehiculele, pragurile de masă și infrastructura rutieră documentate de Administration des douanes et accises du Luxembourg.",
+      "mandatoryScopeMetadata": [
+        "pragul de masă documentat",
+        "tipurile de vehicule acoperite",
+        "aplicabilitatea rutieră demonstrată",
+        "effective/freshness metadata existentă"
+      ],
+      "tariffAuthority": "NONE",
+      "tariffSeparationRule": "Tarifele trebuie să rămână asociate candidatului/sursei tarifare separate și nu pot fi deduse din acest document de scope.",
+      "authorityExclusions": [
+        "alte state Eurovignette",
+        "alte regimuri de taxare",
+        "valori tarifare nedocumentate de această sursă"
+      ],
+      "verbatimDecision": "PRODUCT OWNER DECISION — CANDIDATE 6/10\n\ncandidateId: RT001-RES-LU-EUROVIGNETTE-SCOPE\nSourceId: CS-LU-CUSTOMS-EUROVIGNETTE-SCOPE\n\nDECISION = APPROVE\nCLASSIFICATION = AUTHORITATIVE_WITH_SCOPE\n\nScope-ul aprobat rămâne strict:\nLuxemburg — aplicabilitatea Eurovignette pentru vehiculele, pragurile de masă și infrastructura rutieră documentate de Administration des douanes et accises du Luxembourg.\n\nPăstrează explicit:\n- pragul de masă documentat;\n- tipurile de vehicule acoperite;\n- aplicabilitatea rutieră demonstrată;\n- effective/freshness metadata existentă.\n\nIMPORTANT:\nAceastă sursă NU constituie autoritate pentru valorile tarifare Eurovignette.\n\nTarifele trebuie să rămână asociate candidatului/sursei tarifare separate și nu pot fi deduse din acest document de scope.\n\nNu extinde autoritatea la:\n- alte state Eurovignette;\n- alte regimuri de taxare;\n- valori tarifare nedocumentate de această sursă.",
+      "recordedAt": "2026-08-30T14:18:24.9691816+02:00",
+      "registryMutation": "NONE",
+      "routingTollViewMutation": "NONE",
+      "authorityPromotion": "NONE",
+      "runtimeProduction": "NO_CHANGE",
+      "commitPush": "NOT_EXECUTED",
+      "atomicApplyAuthorized": false
+    },
+    {
+      "ordinal": 7,
+      "candidateId": "RT001-RES-LU-EUROVIGNETTE-RATES",
+      "proposedSourceId": "CS-LU-EUROVIGNETTE-TARIFFS-20250325",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Luxemburg — grila oficială Eurovignette aplicabilă de la 2025-03-25, pentru tarifele anuale, lunare, săptămânale și zilnice și diferențierile oficial documentate după clasa CO₂, norma Euro și categoria de axe.",
+      "authorityRole": "TARIFF",
+      "requiredAssociation": "Sursa de scope aprobată la candidatul 6/10.",
+      "usageDependencies": [
+        "scope-ul rutier/vehicul demonstrat",
+        "aplicabilitatea temporală demonstrată",
+        "evidence-ul separat care confirmă aplicabilitatea în 2026"
+      ],
+      "freshnessLimitation": "Nu extinde valorile tarifare la perioade ulterioare fără freshness verification.",
+      "usageFallback": "UNKNOWN → FRESHNESS/HUMAN VERIFICATION",
+      "usageFallbackCondition": "Dacă aplicabilitatea temporală sau combinația vehicul/scope nu poate fi demonstrată.",
+      "verbatimDecision": "PRODUCT OWNER DECISION — CANDIDATE 7/10\n\ncandidateId: RT001-RES-LU-EUROVIGNETTE-RATES\nSourceId: CS-LU-EUROVIGNETTE-TARIFFS-20250325\n\nDECISION = APPROVE\nCLASSIFICATION = AUTHORITATIVE_WITH_SCOPE\n\nScope-ul aprobat:\nLuxemburg — grila oficială Eurovignette aplicabilă de la 2025-03-25, pentru tarifele anuale, lunare, săptămânale și zilnice și diferențierile oficial documentate după:\n- clasa CO₂;\n- norma Euro;\n- categoria de axe.\n\nAceastă sursă reprezintă autoritatea TARIFARĂ și trebuie asociată cu sursa de scope aprobată la candidatul 6/10.\n\nNu utiliza grila independent de:\n- scope-ul rutier/vehicul demonstrat;\n- aplicabilitatea temporală demonstrată;\n- evidence-ul separat care confirmă aplicabilitatea în 2026.\n\nNu extinde valorile tarifare la perioade ulterioare fără freshness verification.\n\nDacă aplicabilitatea temporală sau combinația vehicul/scope nu poate fi demonstrată:\nUNKNOWN → FRESHNESS/HUMAN VERIFICATION",
+      "recordedAt": "2026-08-30T14:23:49.0142796+02:00",
+      "registryMutation": "NONE",
+      "routingTollViewMutation": "NONE",
+      "authorityPromotion": "NONE",
+      "runtimeProduction": "NO_CHANGE",
+      "commitPush": "NOT_EXECUTED",
+      "atomicApplyAuthorized": false
+    },
+    {
+      "ordinal": 8,
+      "candidateId": "RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT",
+      "proposedSourceId": "CS-LU-CUSTOMS-EUROVIGNETTE-ENFORCEMENT-2026",
+      "decision": "APPROVE",
+      "classification": "CONTEXTUAL",
+      "approvedScope": "Luxemburg — evidence contextual privind aplicabilitatea operațională și enforcement-ul Eurovignette în 2026.",
+      "supportedUses": [
+        "continuitatea operațională a regimului Eurovignette în 2026",
+        "existența controalelor",
+        "enforcement-ul pentru neplata dreptului de utilizare"
+      ],
+      "authorityExclusions": [
+        "valorile tarifare",
+        "calculul tarifelor",
+        "scope-ul complet rutier/vehicul",
+        "concluzia că tarifele au rămas neschimbate pe întreg anul 2026"
+      ],
+      "requiredAssociation": {
+        "6/10": "authority pentru scope",
+        "7/10": "authority pentru tariffs",
+        "8/10": "contextual evidence pentru operational/enforcement continuity"
+      },
+      "periodIntegrityRule": "Datele despre amenzi sau controale referitoare la perioade anterioare trebuie păstrate cu perioada lor reală și nu extrapolate.",
+      "verbatimDecision": "PRODUCT OWNER DECISION — CANDIDATE 8/10\n\ncandidateId: RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT\nSourceId: CS-LU-CUSTOMS-EUROVIGNETTE-ENFORCEMENT-2026\n\nDECISION = APPROVE\nCLASSIFICATION = CONTEXTUAL\n\nScope-ul aprobat rămâne strict:\nLuxemburg — evidence contextual privind aplicabilitatea operațională și enforcement-ul Eurovignette în 2026.\n\nAceastă sursă poate susține:\n- continuitatea operațională a regimului Eurovignette în 2026;\n- existența controalelor;\n- enforcement-ul pentru neplata dreptului de utilizare.\n\nAceastă sursă NU dobândește autoritate pentru:\n- valorile tarifare;\n- calculul tarifelor;\n- scope-ul complet rutier/vehicul;\n- concluzia că tarifele au rămas neschimbate pe întreg anul 2026.\n\nPăstrează asocierea:\n6/10 = authority pentru scope\n7/10 = authority pentru tariffs\n8/10 = contextual evidence pentru operational/enforcement continuity\n\nDatele despre amenzi sau controale referitoare la perioade anterioare trebuie păstrate cu perioada lor reală și nu extrapolate.",
+      "recordedAt": "2026-08-30T14:29:15.0565420+02:00",
+      "registryMutation": "NONE",
+      "routingTollViewMutation": "NONE",
+      "authorityPromotion": "NONE",
+      "runtimeProduction": "NO_CHANGE",
+      "commitPush": "NOT_EXECUTED",
+      "atomicApplyAuthorized": false
+    },
+    {
+      "ordinal": 9,
+      "candidateId": "RT001-RES-DK-KMTOLL-TARIFF-V12",
+      "proposedSourceId": "CS-DK-KMTOLL-TARIFF-TABLE-V1-2",
+      "identifierBindingBasis": "Product Owner decision 9/10 bound to the immediately preceding candidate presentation.",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Danemarca — KmToll distance-based road charging, exclusiv pentru tarifele DKK/km și dimensiunile tarifare documentate oficial în Annex B / Tariff Table, versiunea 1.2.",
+      "authorityCoverage": [
+        "KmToll Domain",
+        "categoriile de greutate documentate",
+        "clasele CO₂ 1–5",
+        "diferențierea aplicabilă Low Emission Zones",
+        "perioada și versiunea demonstrate de document"
+      ],
+      "authorityExclusions": [
+        "tarifele podurilor",
+        "alte sisteme daneze de taxare",
+        "versiuni tarifare viitoare",
+        "perioade pentru care versiunea 1.2 nu mai este current"
+      ],
+      "mandatoryMetadata": [
+        "VERSION",
+        "EFFECTIVE DATE",
+        "FRESHNESS STATUS"
+      ],
+      "freshnessRequirement": "Având în vedere review-ul indicat pentru Q3 2026, înainte de utilizare după o eventuală actualizare oficială, execută freshness verification.",
+      "usageFallback": "UNKNOWN → FRESHNESS/HUMAN VERIFICATION",
+      "usageFallbackCondition": "Dacă versiunea current nu poate fi demonstrată.",
+      "verbatimDecision": "PRODUCT OWNER DECISION — CANDIDATE 9/10\n\nDECISION = APPROVE\nCLASSIFICATION = AUTHORITATIVE_WITH_SCOPE\n\nScope-ul aprobat rămâne strict:\nDanemarca — KmToll distance-based road charging, exclusiv pentru tarifele DKK/km și dimensiunile tarifare documentate oficial în Annex B / Tariff Table, versiunea 1.2.\n\nAutoritatea acoperă numai:\n- KmToll Domain;\n- categoriile de greutate documentate;\n- clasele CO₂ 1–5;\n- diferențierea aplicabilă Low Emission Zones;\n- perioada și versiunea demonstrate de document.\n\nNu extinde autoritatea la:\n- tarifele podurilor;\n- alte sisteme daneze de taxare;\n- versiuni tarifare viitoare;\n- perioade pentru care versiunea 1.2 nu mai este current.\n\nVERSION + EFFECTIVE DATE + FRESHNESS STATUS\ntrebuie păstrate ca metadata obligatorie.\n\nAvând în vedere review-ul indicat pentru Q3 2026:\nînainte de utilizare după o eventuală actualizare oficială, execută freshness verification.\n\nDacă versiunea current nu poate fi demonstrată:\nUNKNOWN → FRESHNESS/HUMAN VERIFICATION",
+      "recordedAt": "2026-08-30T14:34:16.6854873+02:00",
+      "registryMutation": "NONE",
+      "routingTollViewMutation": "NONE",
+      "authorityPromotion": "NONE",
+      "runtimeProduction": "NO_CHANGE",
+      "commitPush": "NOT_EXECUTED",
+      "atomicApplyAuthorized": false
+    },
+    {
+      "ordinal": 10,
+      "candidateId": "RT001-RES-NL-TRUCK-RATES-2026",
+      "proposedSourceId": "CS-NL-GOV-TRUCK-TOLL-RATES-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Țările de Jos — taxarea per kilometru pentru camioane, conform grilei guvernamentale oficiale și dimensiunilor documentate privind masa tehnică maximă, clasele CO₂ 1–5, normele Euro și valorile EUR/km.",
+      "applicabilityWindow": {
+        "from": "2026-07-01",
+        "through": "2026-08-31"
+      },
+      "generic2026UseAuthorized": false,
+      "postWindowRequirements": [
+        "această versiune nu mai poate fi considerată current de la 2026-09-01",
+        "reducerea/modificarea tarifară publicată separat necesită evidence canonic propriu",
+        "utilizarea tarifelor după 2026-08-31 necesită authority/evidence separat și freshness verification"
+      ],
+      "authorityExclusions": [
+        "tarife 2027",
+        "alte perioade",
+        "alte clase sau regimuri olandeze nedocumentate"
+      ],
+      "usageFallback": "UNKNOWN → FRESHNESS/HUMAN VERIFICATION",
+      "usageFallbackCondition": "În afara ferestrei demonstrate.",
+      "verbatimDecision": "PRODUCT OWNER DECISION — CANDIDATE 10/10\n\ncandidateId: RT001-RES-NL-TRUCK-RATES-2026\nSourceId: CS-NL-GOV-TRUCK-TOLL-RATES-2026\n\nDECISION = APPROVE\nCLASSIFICATION = AUTHORITATIVE_WITH_SCOPE\n\nScope-ul aprobat rămâne strict:\nȚările de Jos — taxarea per kilometru pentru camioane, conform grilei guvernamentale oficiale și dimensiunilor documentate privind:\n- masa tehnică maximă;\n- clasele CO₂ 1–5;\n- normele Euro;\n- valorile EUR/km.\n\nAPPLICABILITY WINDOW aprobat pentru acest artefact:\n2026-07-01 → 2026-08-31\n\nIMPORTANT:\nAceastă grilă NU trebuie utilizată ca tarif generic pentru întreg anul 2026.\n\nDe la 2026-09-01:\n- această versiune nu mai poate fi considerată current;\n- reducerea/modificarea tarifară publicată separat necesită evidence canonic propriu;\n- utilizarea tarifelor după 2026-08-31 necesită authority/evidence separat și freshness verification.\n\nNu extinde autoritatea:\n- la tarife 2027;\n- la alte perioade;\n- la alte clase sau regimuri olandeze nedocumentate.\n\nÎn afara ferestrei demonstrate:\nUNKNOWN → FRESHNESS/HUMAN VERIFICATION",
+      "recordedAt": "2026-08-30T14:39:14.6727917+02:00",
+      "registryMutation": "NONE",
+      "routingTollViewMutation": "NONE",
+      "authorityPromotion": "NONE",
+      "runtimeProduction": "NO_CHANGE",
+      "commitPush": "NOT_EXECUTED",
+      "atomicApplyAuthorized": false
+    }
+  ],
+  "guardrails": {
+    "registryMutation": "NONE",
+    "routingTollViewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED",
+    "atomicApplyRequiresSeparateProductOwnerMandate": true
+  }
+}

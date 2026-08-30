@@ -1,0 +1,234 @@
+{
+  "schemaVersion": "agm-phase2-gap-register.v2",
+  "phase": "PHASE_2_CANONICAL_SOURCES_ACQUISITION_AND_CONSOLIDATION",
+  "status": "ACQUISITION_COMPLETE_HUMAN_REVIEW_OPEN",
+  "gapCount": 15,
+  "decisions": [
+    {
+      "gapId": "TACHO-001",
+      "status": "ACQUIRED_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-EU-REG-561-2006",
+        "CS-EU-REG-561-2006-CONS-20241231"
+      ],
+      "unresolved": [],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "TACHO-002",
+      "status": "ACQUIRED_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-EU-REG-165-2014",
+        "CS-EU-REG-165-2014-CONS-20241231"
+      ],
+      "unresolved": [],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "TACHO-003",
+      "status": "ACQUIRED_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-EU-IMPL-REG-2016-799",
+        "CS-EU-IMPL-REG-2016-799-CONS-20230821"
+      ],
+      "unresolved": [],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "TACHO-004",
+      "status": "ACQUIRED_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-DE-FPERSG",
+        "CS-DE-FPERSV"
+      ],
+      "unresolved": [],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "TACHO-005",
+      "status": "CONSOLIDATED_INTERNAL_CANDIDATE_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-EU-REG-561-2006",
+        "CS-EU-REG-561-2006-CONS-20241231",
+        "CS-EU-REG-165-2014",
+        "CS-EU-REG-165-2014-CONS-20241231",
+        "CS-EU-IMPL-REG-2016-799",
+        "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+        "CS-DE-FPERSG",
+        "CS-DE-FPERSV",
+        "CS-AGM-TACHO-CHANGE-MAP-V1"
+      ],
+      "unresolved": [
+        "Human amendment/applicability review and owner designation remain open."
+      ],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "LEGAL-001",
+      "status": "ACQUIRED_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-DE-STVO"
+      ],
+      "unresolved": [],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "LEGAL-002",
+      "status": "ACQUIRED_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-DE-STVZO"
+      ],
+      "unresolved": [],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "LEGAL-003",
+      "status": "PARTIAL_UNRESOLVED",
+      "candidateSourceIds": [
+        "CS-DE-STVO",
+        "CS-DE-HGB-412",
+        "CS-VDI-2700-HANDBOOK"
+      ],
+      "unresolved": [
+        "Licensed normative VDI text was not acquired; official catalogue metadata cannot replace technical content."
+      ],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "LEGAL-004",
+      "status": "ACQUIRED_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-UNECE-ADR-2025",
+        "CS-DE-GGVSEB"
+      ],
+      "unresolved": [],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "LEGAL-005",
+      "status": "OPEN_UNRESOLVED",
+      "candidateSourceIds": [
+        "CS-DE-STVO",
+        "CS-AT-STVO-42-20260213",
+        "CS-CH-VRV-20220401",
+        "CS-FR-TRUCK-BAN-BASE-2021",
+        "CS-FR-TRUCK-BAN-2026",
+        "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026"
+      ],
+      "unresolved": [
+        "No complete current official source set was demonstrated for BE, NL, LU, PL, CZ and DK professional-driver restrictions.",
+        "AT and CH candidates require current reacquisition.",
+        "Temporary and base French measures require human applicability review."
+      ],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "ROUTING-TOLL-001",
+      "status": "PARTIAL_UNRESOLVED",
+      "candidateSourceIds": [
+        "CS-DE-TOLL-COLLECT-RATES",
+        "CS-DE-BFSTRMG",
+        "CS-AT-ASFINAG-GO-TOLL",
+        "CS-CH-BAZG-ROAD-LEVIES",
+        "CS-BE-VIAPASS",
+        "CS-PL-ETOLL-RATES",
+        "CS-CZ-MYTO-RATES-2026",
+        "CS-DK-KMTOLL-EETS",
+        "CS-NL-TRUCK-TOLL",
+        "CS-FR-MOTORWAY-TOLLS",
+        "CS-LU-EVIGNETTE-2019"
+      ],
+      "unresolved": [
+        "France tariff data is concession-specific and not captured as a complete official set.",
+        "Luxembourg candidate is stale and must be replaced by a current official source."
+      ],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "FIELD-001",
+      "status": "CONSOLIDATED_INTERNAL_CANDIDATE_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-AGM-CM-FIELD-RUNBOOK-V1"
+      ],
+      "unresolved": [
+        "Owner approval remains required; measured field evidence remains separate and non-conclusive."
+      ],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "CAR-MOVER-001",
+      "status": "CONSOLIDATED_INTERNAL_CANDIDATE_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-AGM-CM-ARCH-V1"
+      ],
+      "unresolved": [
+        "Product Owner and Architecture Inspector review remains required."
+      ],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "CAR-MOVER-002",
+      "status": "CONSOLIDATED_INTERNAL_CANDIDATE_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-AGM-CM-JOB-V1"
+      ],
+      "unresolved": [
+        "Product Owner and Car Mover Steward review remains required."
+      ],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    },
+    {
+      "gapId": "DOCS-001",
+      "status": "CONSOLIDATED_INTERNAL_CANDIDATE_REVIEW_REQUIRED",
+      "candidateSourceIds": [
+        "CS-AGM-CM-OCR-EVIDENCE-V1"
+      ],
+      "unresolved": [
+        "Evidence Custody, Product Owner and privacy/legal retention review remain required."
+      ],
+      "promotedToCurrent": false,
+      "promotedToAuthoritative": false
+    }
+  ],
+  "domainVerdicts": [
+    {
+      "domain": "TACHO",
+      "verdict": "PARTIALLY READY",
+      "reason": "Primary official candidates acquired; human legal/currentness review and owner designation remain mandatory."
+    },
+    {
+      "domain": "LEGISLATION / SAFETY",
+      "verdict": "NOT READY",
+      "reason": "Licensed cargo-securing content and the complete current multi-jurisdiction restriction set remain unresolved."
+    },
+    {
+      "domain": "ROUTING / TOLL / FIELD",
+      "verdict": "PARTIALLY READY",
+      "reason": "Eight national toll authority paths are usable candidates; France is fragmented, Luxembourg is stale, and field evidence is not an official external specification."
+    },
+    {
+      "domain": "CAR MOVER CANONICAL SPECIFICATIONS",
+      "verdict": "PARTIALLY READY",
+      "reason": "Internal specifications were consolidated as review candidates only; Owner/Inspector approval is pending."
+    },
+    {
+      "domain": "DOCUMENTS / OCR / EVIDENCE",
+      "verdict": "PARTIALLY READY",
+      "reason": "A provenance/retention candidate exists; legal retention applicability and multi-owner approval remain open."
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "agm-legal-gap-residual-matrix.v1",
+  "gapId": "LEGAL-003",
+  "preparedAt": "2026-08-30T18:00:00.000Z",
+  "items": [
+    {
+      "requirementId": "LEGAL003-R1",
+      "requirement": "Public-law cargo securing duty and recognized-technical-rules hook",
+      "jurisdiction": "DE",
+      "officialAuthority": "BMJ / BfJ",
+      "evidenceStatus": "PASS_EXISTING_CANONICAL",
+      "currentness": "CURRENT_AS_CAPTURED",
+      "gap": "Authority scope decision only",
+      "proposedCandidate": "CS-DE-STVO",
+      "requiredProductOwnerDecision": "APPROVE / REJECT / DEFER AUTHORITATIVE_WITH_SCOPE for LEGAL-003 only"
+    },
+    {
+      "requirementId": "LEGAL003-R2",
+      "requirement": "Commercial allocation of loading, stowage and securing duties under HGB section 412",
+      "jurisdiction": "DE",
+      "officialAuthority": "BMJ / BfJ",
+      "evidenceStatus": "PASS_OFFICIAL_CAPTURED",
+      "currentness": "CURRENT_AS_CAPTURED_2026-08-30",
+      "gap": "Authority decision",
+      "proposedCandidate": "CS-DE-HGB-412",
+      "requiredProductOwnerDecision": "APPROVE / REJECT / DEFER AUTHORITATIVE_WITH_SCOPE"
+    },
+    {
+      "requirementId": "LEGAL003-R3",
+      "requirement": "Official standards-owner identity, family, edition and corrigendum metadata",
+      "jurisdiction": "DE",
+      "officialAuthority": "VDI e.V.",
+      "evidenceStatus": "PASS_METADATA_ONLY",
+      "currentness": "LIVE_CATALOG_CAPTURE_2026-08-30",
+      "gap": "Metadata cannot support normative instructions",
+      "proposedCandidate": "CS-VDI-2700-HANDBOOK",
+      "requiredProductOwnerDecision": "APPROVE / REJECT / DEFER CONTEXTUAL metadata only"
+    },
+    {
+      "requirementId": "LEGAL003-R4",
+      "requirement": "Licensed controlled normative technical rules applicable to vehicle transporters",
+      "jurisdiction": "DE / operational EU routes",
+      "officialAuthority": "VDI e.V.",
+      "evidenceStatus": "MISSING_LICENSED_CONTENT",
+      "currentness": "FRESHNESS_UNKNOWN_UNTIL_CONTROLLED_ACQUISITION",
+      "gap": "Exact licensed sheets and their current correction state are absent",
+      "proposedCandidate": null,
+      "requiredProductOwnerDecision": "DEFER; owner-controlled licensed acquisition required before any normative authority decision"
+    }
+  ]
+}

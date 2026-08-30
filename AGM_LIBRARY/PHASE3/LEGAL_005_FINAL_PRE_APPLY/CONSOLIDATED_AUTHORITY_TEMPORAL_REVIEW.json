@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "agm-legal-005-consolidated-authority-temporal-review.v1",
+  "generatedAt": "2026-08-30T20:00:00.000Z",
+  "asOfDate": "2026-08-30",
+  "decisionsReviewed": 23,
+  "expiryAt20260831": [
+    {
+      "candidateId": "LEGAL005-CAND-FR-FIRE-2026",
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "effectiveUntil": "2026-08-31",
+      "currentStatus": "EXPIRY_WARNING",
+      "currentForbiddenAfterExpiry": true,
+      "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+    }
+  ],
+  "allExplicitExpiryWindows": [
+    {
+      "candidateId": "LEGAL005-CAND-AT-CALENDAR-77-2026",
+      "sourceId": "CS-AT-HGV-BAN-CALENDAR-2026",
+      "effectiveUntil": "2026-12-31",
+      "currentStatus": "CURRENT",
+      "currentForbiddenAfterExpiry": true,
+      "fallback": "EXPIRED_REVIEW_REQUIRED_THEN_UNKNOWN_HUMAN_VERIFICATION_FOR_CURRENTNESS_DEPENDENT_USE"
+    },
+    {
+      "candidateId": "LEGAL005-CAND-AT-A10-190-2026",
+      "sourceId": "CS-AT-A10-SUMMER-HGV-BAN-2026",
+      "effectiveUntil": "2026-12-31",
+      "currentStatus": "CURRENT",
+      "currentForbiddenAfterExpiry": true,
+      "fallback": "EXPIRED_REVIEW_REQUIRED_THEN_UNKNOWN_HUMAN_VERIFICATION_FOR_CURRENTNESS_DEPENDENT_USE"
+    },
+    {
+      "candidateId": "LEGAL005-CAND-AT-LUEG-2026",
+      "sourceId": "CS-AT-LUEGBRUECKE-HGV-BAN-2026",
+      "effectiveUntil": "2026-12-31",
+      "currentStatus": "CURRENT",
+      "currentForbiddenAfterExpiry": true,
+      "fallback": "EXPIRED_REVIEW_REQUIRED_THEN_UNKNOWN_HUMAN_VERIFICATION_FOR_CURRENTNESS_DEPENDENT_USE"
+    },
+    {
+      "candidateId": "LEGAL005-CAND-FR-2026",
+      "sourceId": "CS-FR-TRUCK-BAN-2026",
+      "effectiveUntil": "2026-12-31",
+      "currentStatus": "CURRENT",
+      "currentForbiddenAfterExpiry": true,
+      "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+    },
+    {
+      "candidateId": "LEGAL005-CAND-FR-FIRE-2026",
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "effectiveUntil": "2026-08-31",
+      "currentStatus": "EXPIRY_WARNING",
+      "currentForbiddenAfterExpiry": true,
+      "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+    },
+    {
+      "candidateId": "LEGAL005-CAND-CH-ARV1-20250501",
+      "sourceId": "CS-CH-ARV1-20250501",
+      "effectiveUntil": "2026-09-30",
+      "currentStatus": "NEW_VERSION_DETECTED",
+      "currentForbiddenAfterExpiry": true,
+      "fallback": "UNKNOWN_HUMAN_VERIFICATION"
+    }
+  ],
+  "newVersionDetected": [
+    {
+      "candidateId": "LEGAL005-CAND-CH-ARV1-20250501",
+      "sourceId": "CS-CH-ARV1-20250501",
+      "currentVersionEffectiveUntil": "2026-09-30",
+      "detectedVersionEffectiveFrom": "2026-10-01",
+      "currentVersionForbiddenFrom": "2026-10-01",
+      "automaticSupersession": false,
+      "requiredAction": "OFFICIAL_CAPTURE_HASH_VALIDATE_COMPARE_SEPARATE_PRODUCT_OWNER_REVIEW",
+      "fallbackUntilReviewed": "UNKNOWN_HUMAN_VERIFICATION"
+    }
+  ],
+  "unknownHumanVerificationFallbacks": [
+    "CS-FR-TRUCK-BAN-BASE-2021",
+    "CS-FR-TRUCK-BAN-2026",
+    "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+    "CS-LU-TRANSPORTS-HGV-RESTRICTIONS-CURRENT",
+    "CS-PL-HGV-RESTRICTIONS-CURRENT",
+    "CS-CZ-MD-HGV-RESTRICTIONS-CURRENT",
+    "CS-DK-DRIVING-REST-20260701",
+    "CS-CH-ARV1-20250501",
+    "CS-BE-VLAANDEREN-LEZ-CURRENT",
+    "CS-BE-BRUSSELS-LEZ-CURRENT",
+    "CS-BE-WALLONIA-LEZ-FRAMEWORK",
+    "CS-NL-RVV-HGV-ACCESS-20260701",
+    "CS-DK-ENV-ZONE-REG-2026-588"
+  ],
+  "nextFreshnessChecks": {
+    "2026-08-31": [
+      "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026"
+    ],
+    "2026-09-01": [
+      "CS-CH-ARV1-20250501"
+    ],
+    "2026-09-30": [
+      "CS-DE-STVO",
+      "CS-EU-REG-561-2006",
+      "CS-DE-FERREISEV-2026",
+      "CS-AT-STVO-42-20260830",
+      "CS-FR-TRUCK-BAN-BASE-2021",
+      "CS-BE-FOD-TACHOGRAPH-20260701",
+      "CS-NL-GOV-DRIVING-REST-CURRENT",
+      "CS-LU-TRANSPORTS-HGV-RESTRICTIONS-CURRENT",
+      "CS-PL-HGV-RESTRICTIONS-CURRENT",
+      "CS-CZ-MD-HGV-RESTRICTIONS-CURRENT",
+      "CS-DK-DRIVING-REST-20260701",
+      "CS-CH-VRV-20260701",
+      "CS-BE-BRUSSELS-LEZ-CURRENT",
+      "CS-BE-WALLONIA-LEZ-FRAMEWORK",
+      "CS-NL-RVV-HGV-ACCESS-20260701",
+      "CS-DK-ENV-ZONE-REG-2026-588"
+    ],
+    "2026-11-30": [
+      "CS-BE-VLAANDEREN-LEZ-CURRENT"
+    ],
+    "2026-12-01": [
+      "CS-AT-HGV-BAN-CALENDAR-2026",
+      "CS-AT-A10-SUMMER-HGV-BAN-2026",
+      "CS-AT-LUEGBRUECKE-HGV-BAN-2026",
+      "CS-FR-TRUCK-BAN-2026"
+    ]
+  },
+  "invariants": {
+    "newSourceDetectedIsNotAutoPromotion": true,
+    "expiredIsNotZero": true,
+    "unknownIsNotSafePassZeroOrNoRestriction": true,
+    "currentAfterEffectiveUntil": "FORBIDDEN"
+  },
+  "specialTransitions": [
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "at20260830": "EXPIRY_WARNING",
+      "atAndAfter20260831": "EXPIRED_REVIEW_REQUIRED",
+      "postExpiryCurrent": "FORBIDDEN",
+      "postExpiryFallback": "UNKNOWN_HUMAN_VERIFICATION"
+    },
+    {
+      "sourceId": "CS-CH-ARV1-20250501",
+      "through20260930": "APPROVED_ONLY_WITHIN_DEMONSTRATED_SCOPE_AND_PERIOD_NEW_VERSION_DETECTED",
+      "from20261001": "CURRENT_FORBIDDEN",
+      "fallbackWithoutValidatedReplacement": "UNKNOWN_HUMAN_VERIFICATION"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "agm-phase3-central-registry-post-apply-validation.v1",
+  "result": "PASS",
+  "registry": {
+    "sourceCount": 815,
+    "sha256": "af9940ec068684b136a2e0b7499c27ffbb8489d15a3a89413c2160e9e77d6a31"
+  },
+  "sourceChanges": {
+    "additions": 17,
+    "modifications": 0,
+    "deletions": 0
+  },
+  "classifications": {
+    "AUTHORITATIVE_WITH_SCOPE": 13,
+    "CONTEXTUAL": 4
+  },
+  "basicLibrarian": "UNCHANGED_3_OF_3_MATCH",
+  "unresolvedGaps": [
+    "ROUTING-TOLL-001",
+    "LEGAL-003",
+    "LEGAL-005"
+  ],
+  "phase1Regression": "PASS",
+  "phase2Regression": "PASS",
+  "phase3Validation": "PASS",
+  "checks": [
+    {
+      "name": "APPLY_EVIDENCE_COMPLETE",
+      "status": "PASS"
+    },
+    {
+      "name": "REGISTRY_COUNT_AND_ATOMIC_DIFF_EXACT",
+      "status": "PASS"
+    },
+    {
+      "name": "EXISTING_798_SOURCES_BYTE_LOGIC_UNCHANGED",
+      "status": "PASS"
+    },
+    {
+      "name": "ALL_17_APPROVED_SOURCE_IDS_PRESENT_EXACTLY",
+      "status": "PASS"
+    },
+    {
+      "name": "CLASSIFICATIONS_13_AND_4_EXACT",
+      "status": "PASS"
+    },
+    {
+      "name": "CANONICAL_ARTIFACT_HASH_SIZE_AND_PROVENANCE_MATCH",
+      "status": "PASS"
+    },
+    {
+      "name": "REGISTRY_SCHEMA_CONTRACT_VALID_FOR_815",
+      "status": "PASS"
+    },
+    {
+      "name": "BASIC_LIBRARIAN_HASHES_3_OF_3_MATCH",
+      "status": "PASS"
+    },
+    {
+      "name": "UNRESOLVED_GAPS_EXACTLY_THREE_AND_OPEN",
+      "status": "PASS"
+    },
+    {
+      "name": "PHASE1_FOUNDATION_FILES_UNCHANGED",
+      "status": "PASS"
+    },
+    {
+      "name": "PHASE1_SINGLE_SOURCE_OF_TRUTH_PRESERVED",
+      "status": "PASS"
+    },
+    {
+      "name": "PHASE1_VIEWS_REMAIN_CONTROLLED_REFERENCE_INDEXES",
+      "status": "PASS"
+    },
+    {
+      "name": "PHASE2_PACKAGE_AND_HISTORY_UNCHANGED",
+      "status": "PASS"
+    },
+    {
+      "name": "PHASE2_SOURCE_ID_CONTINUITY_PRESERVED",
+      "status": "PASS"
+    },
+    {
+      "name": "PHASE3_CHANGESET_APPLIED_EXACTLY_ONCE",
+      "status": "PASS"
+    },
+    {
+      "name": "PHASE3_TRACEABILITY_COMPLETE",
+      "status": "PASS"
+    },
+    {
+      "name": "PHASE3_BOUNDARIES_UNCHANGED",
+      "status": "PASS"
+    }
+  ]
+}

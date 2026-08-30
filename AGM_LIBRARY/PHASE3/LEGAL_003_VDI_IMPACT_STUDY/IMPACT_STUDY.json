@@ -1,0 +1,324 @@
+{
+  "schemaVersion": "agm-legal003-vdi-impact-study.v1",
+  "studyId": "LEGAL003-VDI-2700-8-1-IMPACT-20260830",
+  "gapId": "LEGAL-003",
+  "preparedAt": "2026-08-30T21:00:00.000Z",
+  "studyMode": "READ_ONLY_NO_PURCHASE_NO_INGEST_NO_APPLY",
+  "documentUnderAssessment": {
+    "identifier": "VDI 2700 Blatt 8.1",
+    "edition": "2024-09",
+    "corrigendum": "2025-10",
+    "contentAccessed": false,
+    "metadataOnly": true,
+    "publicScopeMetadata": "Securing passenger cars and light commercial vehicles on vehicle transporters; official public catalogue metadata states applicability up to and including 4.5 t actual mass on transporters suitable and equipped for the standard.",
+    "licenseBoundary": "No licensed normative text, tables, figures, calculations, procedures or derived reconstruction was acquired or used."
+  },
+  "baseline": {
+    "legacyLegal003Coverage": "3/4",
+    "legacyLegal003OfficialEvidence": "3/4",
+    "legacyBlocker": "OWNER_LICENSED_ACQUISITION_REQUIRED",
+    "centralRegistry": {
+      "count": 862,
+      "sha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245"
+    },
+    "legislationSafetyView": {
+      "count": 66,
+      "sha256": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab"
+    },
+    "routingTollView": {
+      "count": 289,
+      "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+    }
+  },
+  "functionalImpact": [
+    {
+      "function": "Car Mover - vehicle driven on its own wheels",
+      "dependency": "NONE",
+      "existingAlternativeAuthority": ["Road traffic, driver, vehicle, route and operational authorities applicable to the driven vehicle"],
+      "safeWithoutVdi": "Plan and execute movement of a drivable vehicle on its own wheels, subject to the ordinary vehicle, driver, route and jurisdiction checks.",
+      "mustNotSayWithoutVdi": "Do not attach cargo-securing or VDI 2700 Blatt 8.1 compliance claims to an own-wheels movement.",
+      "requiredFallback": "NOT_APPLICABLE for VDI 2700 Blatt 8.1; use ordinary Car Mover safety and legal checks.",
+      "residualRisk": "LOW, provided the mode cannot silently change to platform/transporter."
+    },
+    {
+      "function": "Car Mover - passenger/light commercial vehicle on platform or trailer",
+      "dependency": "HIGH",
+      "existingAlternativeAuthority": ["StVO section 22", "HGB section 412", "Directive 2014/47/EU article 13 and Annex III within its scope"],
+      "safeWithoutVdi": "State public legal duties, require an applicable load plan/calculation, verify documented mass/equipment/anchor data and require competent human approval.",
+      "mustNotSayWithoutVdi": "No exact VDI-specific arrangement, equipment sufficiency, securing count, loading pattern or VDI compliance verdict.",
+      "requiredFallback": "LICENSED_STANDARD_REFERENCE_REQUIRED plus HUMAN_VERIFICATION_REQUIRED before departure.",
+      "residualRisk": "MEDIUM if hard-stopped and human-verified; HIGH if the product presents prescriptive securing output."
+    },
+    {
+      "function": "Autotransporter carrying passenger/light commercial vehicles within public Blatt 8.1 scope metadata",
+      "dependency": "CRITICAL",
+      "existingAlternativeAuthority": ["StVO section 22", "HGB section 412", "Directive 2014/47/EU within scope"],
+      "safeWithoutVdi": "Identify the legal duty and the need for the current standard, load plan, transporter instructions and qualified verification.",
+      "mustNotSayWithoutVdi": "No transporter-specific normative securing solution, no standard-compliance audit and no release decision.",
+      "requiredFallback": "INSUFFICIENT_AUTHORITY for normative solution; refer to licensed current standard and a competent person.",
+      "residualRisk": "HIGH because the missing material is the vehicle-transporter-specific technical layer."
+    },
+    {
+      "function": "Autotransporter carrying vehicles outside Blatt 8.1 public scope metadata",
+      "dependency": "NONE",
+      "existingAlternativeAuthority": ["Applicable law and the separately applicable standard or manufacturer/load-plan evidence"],
+      "safeWithoutVdi": "State that Blatt 8.1 applicability is not demonstrated and identify the need for the correct authority.",
+      "mustNotSayWithoutVdi": "Do not extrapolate Blatt 8.1 to vehicles above its public mass/scope metadata or to transporter configurations not demonstrated.",
+      "requiredFallback": "UNKNOWN plus HUMAN_VERIFICATION_REQUIRED; identify the separately applicable standard.",
+      "residualRisk": "HIGH if misclassified; LOW after correct scope routing."
+    },
+    {
+      "function": "General load-securing guidance",
+      "dependency": "MEDIUM",
+      "existingAlternativeAuthority": ["StVO section 22", "Directive 2014/47/EU Annex III", "UNECE CTU Code as non-mandatory guidance", "ADR for dangerous goods"],
+      "safeWithoutVdi": "Explain public duties, observable risks, general restraining method categories, missing-data checks and escalation.",
+      "mustNotSayWithoutVdi": "Do not label generic guidance as a substitute for the applicable calculation, standard, load plan or professional inspection.",
+      "requiredFallback": "PUBLIC_LEGAL_GUIDANCE, escalating to HUMAN_VERIFICATION_REQUIRED where technical sufficiency is asked.",
+      "residualRisk": "LOW to MEDIUM with advisory wording and a mandatory stop before operational release."
+    },
+    {
+      "function": "Pre-trip checklist",
+      "dependency": "LOW",
+      "existingAlternativeAuthority": ["StVO section 22", "Directive 2014/47/EU principles", "company and manufacturer instructions"],
+      "safeWithoutVdi": "Ask whether cargo position, straps, labels, anchor points, load plan/calculation, axle distribution and competent approval were checked.",
+      "mustNotSayWithoutVdi": "Checklist completion must not equal legal or VDI compliance.",
+      "requiredFallback": "If required evidence is missing, BLOCKED/HUMAN_VERIFICATION_REQUIRED rather than READY.",
+      "residualRisk": "LOW if checklist is evidence collection, not a technical sufficiency algorithm."
+    },
+    {
+      "function": "Vehicle-securing checklist for platform/transporter",
+      "dependency": "MEDIUM",
+      "existingAlternativeAuthority": ["Public legal duties", "transporter/load-plan/manufacturer instructions", "licensed standard used by a competent human"],
+      "safeWithoutVdi": "Collect proof that the applicable plan and equipment were checked and record deviations or unknowns.",
+      "mustNotSayWithoutVdi": "Do not embed or infer the Blatt 8.1-specific normative checklist or convert visual completion into compliance.",
+      "requiredFallback": "LICENSED_STANDARD_REFERENCE_REQUIRED and human sign-off.",
+      "residualRisk": "MEDIUM; becomes HIGH if the checklist contains prescriptive technical acceptance criteria."
+    },
+    {
+      "function": "Incident guidance",
+      "dependency": "LOW",
+      "existingAlternativeAuthority": ["Public safety duties", "authority instructions", "company emergency procedures"],
+      "safeWithoutVdi": "Stop safely, protect persons, do not continue with displaced/uncertain cargo, document, notify and obtain competent reassessment.",
+      "mustNotSayWithoutVdi": "Do not issue a post-incident VDI compliance clearance or a transporter-specific re-securing recipe.",
+      "requiredFallback": "HUMAN_VERIFICATION_REQUIRED; follow competent authority and company instructions.",
+      "residualRisk": "LOW for escalation guidance; HIGH for a return-to-service decision."
+    },
+    {
+      "function": "Driver Copilot",
+      "dependency": "MEDIUM",
+      "existingAlternativeAuthority": ["Validated public legal knowledge", "observable/user-confirmed facts", "company procedures"],
+      "safeWithoutVdi": "Explain public rules, identify missing facts, surface visible risks and route technical questions to the standard or a competent person.",
+      "mustNotSayWithoutVdi": "No invented VDI rule, no binding legal advice, no automatic acceptance, no normative strap count or compliance statement.",
+      "requiredFallback": "Use explicit state vocabulary and refuse normative transporter-specific conclusions.",
+      "residualRisk": "MEDIUM due to user over-reliance; controlled by hard output boundaries and audit."
+    },
+    {
+      "function": "Safety warnings",
+      "dependency": "LOW",
+      "existingAlternativeAuthority": ["StVO section 22", "Directive 2014/47/EU inspection principles", "observable hazards"],
+      "safeWithoutVdi": "Warn about movement, falling, tipping, damaged/unknown equipment, unreadable labels, missing plan and need to stop/escalate.",
+      "mustNotSayWithoutVdi": "Warnings cannot claim that a specific configuration fails or passes Blatt 8.1 unless supported by licensed authority and verified facts.",
+      "requiredFallback": "Use conservative warning plus HUMAN_VERIFICATION_REQUIRED.",
+      "residualRisk": "LOW."
+    },
+    {
+      "function": "Legal guidance",
+      "dependency": "MEDIUM",
+      "existingAlternativeAuthority": ["StVO section 22", "HGB section 412", "Directive 2014/47/EU within scope", "ADR where applicable"],
+      "safeWithoutVdi": "Describe the legal duties and allocation of responsibilities, and state that recognized technical rules/current standards may be required.",
+      "mustNotSayWithoutVdi": "Do not describe private standard details as law or give a definitive case-specific legal conclusion.",
+      "requiredFallback": "PUBLIC_LEGAL_GUIDANCE with legal/professional review for case-specific conclusions.",
+      "residualRisk": "MEDIUM because compliance depends on facts, jurisdiction, contracts and current technical rules."
+    },
+    {
+      "function": "Training/help content",
+      "dependency": "MEDIUM",
+      "existingAlternativeAuthority": ["Public legislation", "UNECE CTU Code where relevant and clearly non-mandatory", "original non-normative AGM safety content"],
+      "safeWithoutVdi": "Teach public duties, risk recognition, evidence collection, mode separation and escalation.",
+      "mustNotSayWithoutVdi": "Do not reproduce, paraphrase as a substitute, or teach the normative Blatt 8.1 method as if licensed.",
+      "requiredFallback": "REFER_TO_STANDARD for standard-specific training; use licensed trainers/material where required.",
+      "residualRisk": "LOW for public/general content; HIGH for purported VDI training."
+    },
+    {
+      "function": "Compliance decision support",
+      "dependency": "CRITICAL",
+      "existingAlternativeAuthority": ["Public law can establish duties but does not supply the missing transporter-specific technical decision layer"],
+      "safeWithoutVdi": "Return evidence status, missing inputs and required authorities; support a human decision without deciding compliance.",
+      "mustNotSayWithoutVdi": "No VDI COMPLIANT, SAFE TO DEPART, PASS or equivalent transporter-specific compliance verdict.",
+      "requiredFallback": "INSUFFICIENT_AUTHORITY or LICENSED_STANDARD_REFERENCE_REQUIRED; final human verification.",
+      "residualRisk": "CRITICAL if automated; MEDIUM if reduced to an evidence-readiness gate."
+    },
+    {
+      "function": "Audit and evidence",
+      "dependency": "MEDIUM",
+      "existingAlternativeAuthority": ["Public-law provenance", "photos and confirmed facts", "external licensed-standard reference and human attestation"],
+      "safeWithoutVdi": "Preserve source metadata, evidence, unknowns, standard edition/corrigendum reference and who performed the competent check.",
+      "mustNotSayWithoutVdi": "An audit trail proves what was checked; it does not prove VDI compliance without authorized normative evaluation.",
+      "requiredFallback": "Record LICENSED_STANDARD_REFERENCE_REQUIRED and the external attestation, without storing unlicensed content.",
+      "residualRisk": "LOW for traceability; HIGH if the audit label implies normative certification."
+    },
+    {
+      "function": "Recommendations about straps, anchoring points, blocking and fixing",
+      "dependency": "HIGH",
+      "existingAlternativeAuthority": ["Directive 2014/47/EU general principles and listed standards", "equipment labels", "manufacturer/load-plan data"],
+      "safeWithoutVdi": "Identify visible condition, read user-confirmed labels, describe general categories and require the applicable calculation/plan.",
+      "mustNotSayWithoutVdi": "No exact count, pattern, capacity acceptance, angles, loading image or sufficiency conclusion derived from Blatt 8.1.",
+      "requiredFallback": "recommendedCount remains null; LICENSED_STANDARD_REFERENCE_REQUIRED/HUMAN_VERIFICATION_REQUIRED.",
+      "residualRisk": "MEDIUM under current non-normative guardrails; CRITICAL if prescriptive output is enabled."
+    }
+  ],
+  "modeSeparation": {
+    "ownWheels": {
+      "vdiMateriality": "NOT_MATERIAL",
+      "reason": "The subject vehicle is the driven road vehicle, not cargo on a vehicle transporter.",
+      "mandatoryControl": "Mode must be explicit and immutable for the job; conversion to transport-on-platform requires reclassification and a new safety gate."
+    },
+    "platformOrTransporter": {
+      "vdiMateriality": "MATERIAL_FOR_TRANSPORTER_SPECIFIC_NORMATIVE_OUTPUT",
+      "reason": "The vehicle becomes cargo and public VDI metadata identifies Blatt 8.1 specifically with passenger/light commercial vehicles on vehicle transporters.",
+      "mandatoryControl": "Do not assume applicability from the word platform alone; confirm cargo type/mass, transporter configuration, jurisdiction, applicable standard, load plan and competent approval."
+    }
+  },
+  "authorityCoverage": [
+    {
+      "requirement": "German public-law duty to secure cargo and equipment against emergency braking/evasive movement and observe recognized technical rules",
+      "existingAuthority": "StVO section 22",
+      "registryStatus": "CURRENT_EXISTING_CS-DE-STVO",
+      "coverage": "FULL_FOR_STATED_PUBLIC_DUTY",
+      "residualGap": "Does not contain the vehicle-transporter-specific technical method."
+    },
+    {
+      "requirement": "Allocation of transport-safe loading/stowage/securing and operationally safe loading between sender and carrier",
+      "existingAuthority": "HGB section 412",
+      "registryStatus": "OFFICIAL_EVIDENCE_CAPTURED_CANDIDATE_NOT_IN_REGISTRY",
+      "coverage": "FULL_FOR_STATED_RESPONSIBILITY_ALLOCATION",
+      "residualGap": "Does not define technical sufficiency or a vehicle-specific securing solution."
+    },
+    {
+      "requirement": "EU roadside-inspection cargo-securing principles, force directions, axle distribution, component strength, method categories and standards references",
+      "existingAuthority": "Directive 2014/47/EU article 13 and Annex III, current consolidated version shown by EUR-Lex as 2022-09-27",
+      "registryStatus": "PUBLIC_OFFICIAL_KNOWLEDGE_PACKAGE_SOURCE_NOT_CENTRAL_REGISTRY_SOURCE",
+      "coverage": "PARTIAL_AND_SCOPE_LIMITED",
+      "residualGap": "Inspection framework, not a universal replacement for national law or Blatt 8.1 transporter-specific instructions."
+    },
+    {
+      "requirement": "Non-mandatory intermodal packing and securing good practice",
+      "existingAuthority": "IMO/ILO/UNECE CTU Code",
+      "registryStatus": "PUBLIC_OFFICIAL_KNOWLEDGE_PACKAGE_SOURCE_NOT_CENTRAL_REGISTRY_SOURCE",
+      "coverage": "CONTEXTUAL_ONLY",
+      "residualGap": "Non-mandatory and focused on cargo transport units; not a Blatt 8.1 substitute."
+    },
+    {
+      "requirement": "Dangerous-goods-specific securing where ADR applies",
+      "existingAuthority": "ADR 2025 / CS-UNECE-ADR-2025",
+      "registryStatus": "CURRENT_EXISTING",
+      "coverage": "FULL_ONLY_FOR_APPLICABLE_ADR_SCOPE",
+      "residualGap": "Does not replace general law or vehicle-transporter-specific technical rules outside ADR."
+    },
+    {
+      "requirement": "Official identity, edition, scope summary and corrigendum relationship for Blatt 8.1",
+      "existingAuthority": "VDI e.V. public catalogue metadata",
+      "registryStatus": "OFFICIAL_METADATA_CAPTURED_CANDIDATE_NOT_IN_REGISTRY",
+      "coverage": "FULL_FOR_METADATA_ONLY",
+      "residualGap": "No normative instructions, values, diagrams, calculations or compliance basis."
+    },
+    {
+      "requirement": "Exact technical solution and a Blatt 8.1 compliance determination",
+      "existingAuthority": "None available to AGM under the current license boundary",
+      "registryStatus": "NOT_AVAILABLE",
+      "coverage": "NONE",
+      "residualGap": "Licensed current standard plus corrigendum and explicit usage/AI rights, or external competent verification, are required."
+    }
+  ],
+  "architectureOptions": [
+    {
+      "option": "A_LICENSED_EXTERNAL_STANDARD",
+      "description": "AGM stores metadata, edition, corrigendum, official URI, applicability metadata and acquisition/access requirement only; normative evaluation occurs outside AGM by a licensed competent user.",
+      "functionalFit": "Supports reference, evidence routing and audit metadata, not technical answers.",
+      "legalRisk": "LOW if no content or derived normative output is stored and access is properly licensed externally.",
+      "operationalRisk": "MEDIUM due to workflow friction and dependence on human access.",
+      "closureEffect": "Can close the library architecture with an explicit external-standard boundary; cannot claim normative coverage 4/4."
+    },
+    {
+      "option": "B_PUBLIC_AUTHORITY_ONLY_GUIDANCE",
+      "description": "AGM answers only from reviewed public law and official public guidance; standard-specific questions are referred out.",
+      "functionalFit": "Sufficient for own-wheels Car Mover, legal-duty explanation, general warnings and evidence-readiness checks.",
+      "legalRisk": "LOW",
+      "operationalRisk": "MEDIUM/HIGH for platform/transporter users who need a concrete technical solution.",
+      "closureEffect": "Architectural closure is possible only after formally excluding normative transporter compliance from AGM scope."
+    },
+    {
+      "option": "C_HYBRID_SAFETY_MODEL",
+      "description": "AGM combines public legal rules, original non-normative safety checklists, visual observations, mandatory stop conditions and human confirmation, while refusing VDI compliance claims.",
+      "functionalFit": "Best fit for current product behavior and preserves useful load-safety assistance without licensed text.",
+      "legalRisk": "LOW/MEDIUM, controlled by output policy, provenance and explicit non-compliance wording.",
+      "operationalRisk": "LOW for own-wheels and advisory workflows; MEDIUM for transported-vehicle workflows because a qualified external decision remains necessary.",
+      "closureEffect": "Recommended basis for architectural closure with a declared licensed-standard capability boundary."
+    },
+    {
+      "option": "D_LICENSED_AI_ENTERPRISE_RIGHTS",
+      "description": "Acquire both document access and explicit rights for the intended AI processing, storage, retrieval, derivative output, multi-user access and audit model.",
+      "functionalFit": "Could enable grounded standard-specific Q&A, controlled normative checklists, rule/edition comparison, cited technical decision support and stronger compliance audit, subject to expert validation.",
+      "legalRisk": "Depends on written license scope and implementation controls; purchase alone is not proof of AI rights.",
+      "operationalRisk": "Lower technical workflow friction but higher governance, freshness, rights-management and validation burden.",
+      "closureEffect": "Required only if those additional normative capabilities are an approved product requirement. No purchase is justified solely to close a numeric 4/4 metric."
+    }
+  ],
+  "safetyBoundary": {
+    "allowedStates": {
+      "PUBLIC_LEGAL_GUIDANCE": "A reviewed public authority directly supports the statement within scope.",
+      "LICENSED_STANDARD_REFERENCE_REQUIRED": "The question requires the current private technical standard or an authorized external evaluation.",
+      "HUMAN_VERIFICATION_REQUIRED": "A competent person must verify the facts, plan, calculation, equipment or applicability.",
+      "INSUFFICIENT_AUTHORITY": "AGM lacks an authority capable of supporting the requested conclusion.",
+      "UNKNOWN": "Applicability, currentness or a material fact cannot be demonstrated; UNKNOWN is not safe, zero, pass or compliant."
+    },
+    "forbiddenOutputs": [
+      "Invented or reconstructed VDI requirements",
+      "VDI COMPLIANT or equivalent without licensed authority, verified inputs and authorized evaluation",
+      "SAFE TO DEPART/PASS based only on a photo, checklist or public-law summary",
+      "Exact transporter-specific strap count, loading pattern, angles, capacities or acceptance limits attributed to Blatt 8.1",
+      "Secondary recommendations presented as if they were the licensed standard",
+      "Automatic carry-over of own-wheels logic to platform/transporter mode",
+      "UNKNOWN converted to ZERO, SAFE, PASS, NO RESTRICTION or UNCHANGED"
+    ],
+    "mandatoryRuntimeRules": [
+      "Transport mode must be explicit before load-safety advice is selected.",
+      "Normative recommended strap count remains null without an authorized calculation path.",
+      "Platform/transporter technical sufficiency requires an applicable plan/calculation and human approval.",
+      "Every answer identifies authority type: public law, contextual guidance, user evidence or licensed external reference.",
+      "Standard edition and corrigendum currentness must be checked before any external reliance."
+    ]
+  },
+  "riskAssessment": {
+    "absenceForOwnWheelsCarMover": "LOW / NOT MATERIAL",
+    "absenceForAdvisoryLoadSafetyWithCurrentGuardrails": "MEDIUM / ACCEPTABLE WITH BOUNDARY",
+    "absenceForNormativeTransporterCompliance": "CRITICAL / FUNCTION MUST REMAIN UNAVAILABLE",
+    "legalRiskSummary": "The main legal risk is not absence itself but presenting public/general guidance as if it answered the recognized-technical-rules question for a concrete transporter configuration.",
+    "operationalRiskSummary": "A platform/transporter user still needs a current licensed standard/load plan and competent verification; AGM can safely manage evidence readiness and escalation but cannot release the load."
+  },
+  "recommendation": {
+    "preferredArchitecture": "C_HYBRID_SAFETY_MODEL_WITH_A_EXTERNAL_REFERENCE",
+    "purchaseJustifiedNow": false,
+    "reason": "Current Car Mover is own-wheels and current Load Safety already suppresses normative counts and compliance certification. The full licensed text is not required for these bounded functions.",
+    "purchaseTrigger": "Purchase/enterprise licensing becomes justified only after Product Owner approves a concrete requirement for standard-specific transporter instructions, normative calculations/checklists, VDI compliance decision support, or auditable standard-based release decisions.",
+    "closureRecommendation": "LEGAL-003 may be closed architecturally without acquisition only by replacing the legacy 4/4 normative-content requirement with an explicit excluded capability: LICENSED_STANDARD_REFERENCE_REQUIRED. Preserve 3/4 under the legacy evidence metric; do not relabel missing licensed evidence as 4/4.",
+    "proposedStatus": "READY_FOR_PRODUCT_OWNER_ARCHITECTURE_DECISION",
+    "productOwnerDecisionRequired": [
+      "Approve or reject the Hybrid Safety Model plus external licensed-standard reference boundary.",
+      "Approve or reject removal of in-product normative Blatt 8.1 compliance from current product scope.",
+      "If approved, close OWNER_LICENSED_ACQUISITION_REQUIRED as NOT_REQUIRED_FOR_APPROVED_SCOPE and retain LICENSED_STANDARD_REFERENCE_REQUIRED as a permanent capability limitation.",
+      "If normative transporter compliance remains required, keep LEGAL003-BLK-001 open and evaluate explicit enterprise/AI rights before purchase."
+    ]
+  },
+  "guardrails": {
+    "purchase": "NOT_EXECUTED",
+    "licensedContentAcquisition": "NOT_EXECUTED",
+    "licensedContentIngest": "NOT_EXECUTED",
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

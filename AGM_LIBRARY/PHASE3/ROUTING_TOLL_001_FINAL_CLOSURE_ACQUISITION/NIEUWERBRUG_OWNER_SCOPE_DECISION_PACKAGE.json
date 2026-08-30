@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "agm-routing-toll-001-nieuwerbrug-scope-decision.v1",
+  "generatedAt": "2026-08-30T11:41:16.455Z",
+  "item": {
+    "facility": "Tolbrug Nieuwerbrug",
+    "jurisdiction": "NL",
+    "currentEvidence": {
+      "sourceUrl": "https://tolbrugnieuwerbrug.nl/",
+      "artifactPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/REMOTE_ARTIFACTS/RT001-FINAL-FAC-NL-NIEUWERBRUG.official.html",
+      "sizeBytes": 205448,
+      "sha256": "0ff0a14f27f6cd29942b09d10c787c4dde2a75d44d64e4b0a4c50ed3c65d4cee",
+      "provenance": "Tolbrug Nieuwerbrug operator surface",
+      "limitation": "Confirms the bridge/operator but does not expose a stable canonical current vehicle tariff table with effective date and category scope."
+    }
+  },
+  "options": [
+    {
+      "option": "OPTION_1_IN_SCOPE",
+      "ownerDecision": "NOT_SELECTED_BY_PRODUCT_OWNER",
+      "justification": "Include if ROUTING-TOLL-001 is intended to cover local/private tolled road facilities in addition to national motorway, vignette, distance-based and material bridge/tunnel regimes.",
+      "exactMissingEvidence": [
+        "Official current tariff table issued by the operator or competent municipal authority.",
+        "Vehicle/category applicability.",
+        "Effective date and update/publication date.",
+        "Stable official URI or official signed/published artifact suitable for local integrity capture."
+      ],
+      "closureRequirement": "Capture and hash the exact official artifact; human authority review remains mandatory.",
+      "impactIfChosen": "Facilities remain 9/9 accounted and 7/9 integrity complete until both Nieuwerbrug and Liefkenshoek evidence are resolved."
+    },
+    {
+      "option": "OPTION_2_OUT_OF_SCOPE",
+      "ownerDecision": "APPROVED_BY_PRODUCT_OWNER",
+      "justification": "May be excluded only if Product Owner explicitly defines canonical ROUTING-TOLL coverage as national/state motorway toll systems plus separately governed material professional-route facilities, excluding local/private bridge micro-regimes.",
+      "architecturalEffect": "The facility remains documented as historical/contextual inventory evidence but is not a canonical closure requirement. No source is deleted and no authority is fabricated.",
+      "coverageImpact": "In-scope facilities denominator changes from 9 to 8. Current integrity is 8/8; after Liefkenshoek is resolved it becomes 8/8.",
+      "functionalImpact": "AGM must return UNKNOWN and require confirmation when a route specifically encounters the excluded local facility; exclusion cannot be interpreted as zero toll or safe passage."
+    }
+  ],
+  "decision": "OUT_OF_SCOPE_BY_PRODUCT_OWNER",
+  "decisionConsequences": {
+    "facilitiesDenominatorBefore": 9,
+    "facilitiesDenominatorAfter": 8,
+    "currentIntegrity": "8/8",
+    "afterLiefkenshoekResolution": "8/8",
+    "fieldEncounterRule": "UNKNOWN_TO_HUMAN_CONFIRMATION",
+    "zeroTollInference": "FORBIDDEN"
+  },
+  "aiDecision": "NONE",
+  "registryMutation": "NONE",
+  "viewMutation": "NONE"
+}

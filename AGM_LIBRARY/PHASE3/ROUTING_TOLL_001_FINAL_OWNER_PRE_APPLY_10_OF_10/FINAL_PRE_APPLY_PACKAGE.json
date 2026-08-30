@@ -1,0 +1,619 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-owner-pre-apply.v1",
+  "generatedAt": "2026-08-30T12:39:14.672Z",
+  "status": "PREPARED_WITH_OPEN_EVIDENCE_BLOCKER_NOT_AUTHORIZED_NOT_EXECUTED",
+  "authorityReview": {
+    "reference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+    "decisions": 10,
+    "approved": 10,
+    "authoritativeWithScope": 9,
+    "contextual": 1,
+    "rejected": 0,
+    "deferred": 0,
+    "pending": 0,
+    "stopped": true
+  },
+  "decisionRegisterSha256": "883a0477cb6609f8fb89de837affaec789146d2f40abaf0344c45d4159b19744",
+  "ownerReviewPackageSha256": "e446c025707e7cb4fa63801e62b094a40715e77856cd19e78d0493ea6d179e71",
+  "approvalVsApplyEligibility": {
+    "productOwnerApproved": 10,
+    "eligibleForInformationalPreApplyStaging": 9,
+    "blockedFromApply": 1
+  },
+  "blueprints": [
+    {
+      "ordinal": 1,
+      "candidateId": "RT001-RES-PL-A1-2026",
+      "sourceId": "CS-PL-AMBERONE-A1-TARIFFS",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "AmberOne / A1 Gdańsk–Toruń — tarife și categorii aplicabile sectorului concesionat capturat.",
+      "conditionedApproval": true,
+      "applyEligibility": "ELIGIBLE_FOR_PRE_APPLY_STAGING_ONLY",
+      "artifact": {
+        "status": "HASH_MATCH_REQUIRED",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A1-2026.official.html",
+        "mediaType": "text/html",
+        "sizeBytes": 104841,
+        "sha256": "eeda1db2bb7e800d62d1d33cb64946811d10783d84f197b5a2af0428e9285ce4"
+      },
+      "proposedSourceObject": {
+        "sourceId": "CS-PL-AMBERONE-A1-TARIFFS",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A1-2026.official.html",
+        "canonicalUri": "https://a1.com.pl/kalkulator-oplat-i-planowanie-podrozy/",
+        "mediaType": "text/html",
+        "sizeBytes": 104841,
+        "sha256": "eeda1db2bb7e800d62d1d33cb64946811d10783d84f197b5a2af0428e9285ce4",
+        "sourceDate": "2026-08-30",
+        "effectiveDate": null,
+        "version": "Official AmberOne tariff surface captured 2026-08-30; effectivity not stated",
+        "status": "EVIDENCE",
+        "owner": "Mobility & Routing Steward",
+        "authority": {
+          "issuingBody": "AmberOne / Gdansk Transport Company",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "PL"
+          ],
+          "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE_PRE_APPLY_NOT_PROMOTED",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A1-2026.official.html",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_AUTHORITY_REVIEW_PACKAGE.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/RESIDUAL_REMOTE_ACQUISITION_MANIFEST.json",
+          "https://a1.com.pl/kalkulator-oplat-i-planowanie-podrozy/"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "ordinal": 2,
+      "candidateId": "RT001-RES-PL-A2-2026",
+      "sourceId": "CS-PL-AUTOSTRADA-WIELKOPOLSKA-A2-TARIFFS-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Autostrada Wielkopolska S.A. — A2 Świecko–Nowy Tomyśl–Konin, pentru tarifele și categoriile documentate oficial în artefactul capturat.",
+      "conditionedApproval": true,
+      "applyEligibility": "ELIGIBLE_FOR_PRE_APPLY_STAGING_ONLY",
+      "artifact": {
+        "status": "HASH_MATCH_REQUIRED",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A2-2026.official.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 88726,
+        "sha256": "08f72502454ca1797ba418498e089d7834210ffcb7bd04ff9c219ec1a12dc588"
+      },
+      "proposedSourceObject": {
+        "sourceId": "CS-PL-AUTOSTRADA-WIELKOPOLSKA-A2-TARIFFS-2026",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A2-2026.official.pdf",
+        "canonicalUri": "https://www.autostrada-a2.pl/wp-content/uploads/2026/02/AW-tabele-oplat-03.2026_06.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 88726,
+        "sha256": "08f72502454ca1797ba418498e089d7834210ffcb7bd04ff9c219ec1a12dc588",
+        "sourceDate": "2026-08-30",
+        "effectiveDate": null,
+        "version": "Official A2 tariff PDF captured 2026-08-30; effective period bounded by document",
+        "status": "EVIDENCE",
+        "owner": "Mobility & Routing Steward",
+        "authority": {
+          "issuingBody": "Autostrada Wielkopolska",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "PL"
+          ],
+          "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE_PRE_APPLY_NOT_PROMOTED",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A2-2026.official.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_AUTHORITY_REVIEW_PACKAGE.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/RESIDUAL_REMOTE_ACQUISITION_MANIFEST.json",
+          "https://www.autostrada-a2.pl/wp-content/uploads/2026/02/AW-tabele-oplat-03.2026_06.pdf"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "ordinal": 3,
+      "candidateId": "RT001-RES-PL-A4-2026",
+      "sourceId": "CS-PL-STALEXPORT-A4-KATOWICE-KRAKOW-TARIFFS-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Stalexport Autostrada Małopolska S.A. — sectorul concesionat A4 Katowice–Kraków, pentru tarifele și categoriile oficial documentate.",
+      "conditionedApproval": false,
+      "applyEligibility": "ELIGIBLE_FOR_PRE_APPLY_STAGING_ONLY",
+      "artifact": {
+        "status": "HASH_MATCH_REQUIRED",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A4-2026.official.html",
+        "mediaType": "text/html",
+        "sizeBytes": 33882,
+        "sha256": "523ed685bfeb4ec4b3ce78a1acdeae8d376a3860409801f0e6f53df78ea41252"
+      },
+      "proposedSourceObject": {
+        "sourceId": "CS-PL-STALEXPORT-A4-KATOWICE-KRAKOW-TARIFFS-2026",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A4-2026.official.html",
+        "canonicalUri": "https://www.autostrada-a4.com.pl/pl/oplaty/oplaty-i-sposoby-wnoszenia-oplat-cennik?version=pl",
+        "mediaType": "text/html",
+        "sizeBytes": 33882,
+        "sha256": "523ed685bfeb4ec4b3ce78a1acdeae8d376a3860409801f0e6f53df78ea41252",
+        "sourceDate": "2026-08-30",
+        "effectiveDate": "2026-04-01",
+        "version": "Tariffs effective 2026-04-01",
+        "status": "EVIDENCE",
+        "owner": "Mobility & Routing Steward",
+        "authority": {
+          "issuingBody": "Stalexport Autostrada Malopolska",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "PL"
+          ],
+          "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE_PRE_APPLY_NOT_PROMOTED",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-PL-A4-2026.official.html",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_AUTHORITY_REVIEW_PACKAGE.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/RESIDUAL_REMOTE_ACQUISITION_MANIFEST.json",
+          "https://www.autostrada-a4.com.pl/pl/oplaty/oplaty-i-sposoby-wnoszenia-oplat-cennik?version=pl"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "ordinal": 4,
+      "candidateId": "RT001-RES-CH-LSVA-RATES",
+      "sourceId": "CS-CH-BAZG-LSVA-DIRECTIVE-V1-2",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Elveția — LSVA pentru vehicule grele, conform Directivei oficiale BAZG/FOCBS versiunea 1.2 și numai pentru regulile, ratele și perioada de aplicabilitate demonstrată de document.",
+      "conditionedApproval": true,
+      "applyEligibility": "ELIGIBLE_FOR_PRE_APPLY_STAGING_ONLY",
+      "artifact": {
+        "status": "HASH_MATCH_REQUIRED",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-CH-LSVA-RATES.official.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 796842,
+        "sha256": "f359b81076db5db646775a01c06abc38e3e15cc90063623df8bfad1a097919c8"
+      },
+      "proposedSourceObject": {
+        "sourceId": "CS-CH-BAZG-LSVA-DIRECTIVE-V1-2",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-CH-LSVA-RATES.official.pdf",
+        "canonicalUri": "https://www.bazg.admin.ch/dam/en/sd-web/kpSj-tYrf6uC/r_15-02-02_%20bestimmungen_lsva%20iii%20v1.2%20E.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 796842,
+        "sha256": "f359b81076db5db646775a01c06abc38e3e15cc90063623df8bfad1a097919c8",
+        "sourceDate": "2025-12-01",
+        "effectiveDate": null,
+        "version": "Directive 15-02 LSVA III v1.2 (December 2025)",
+        "status": "EVIDENCE",
+        "owner": "Mobility & Routing Steward",
+        "authority": {
+          "issuingBody": "Swiss Federal Office for Customs and Border Security (BAZG)",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "CH"
+          ],
+          "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE_PRE_APPLY_NOT_PROMOTED",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-CH-LSVA-RATES.official.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_AUTHORITY_REVIEW_PACKAGE.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/RESIDUAL_REMOTE_ACQUISITION_MANIFEST.json",
+          "https://www.bazg.admin.ch/dam/en/sd-web/kpSj-tYrf6uC/r_15-02-02_%20bestimmungen_lsva%20iii%20v1.2%20E.pdf"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "ordinal": 5,
+      "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+      "sourceId": "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Elveția — vigneta pentru autostrăzi și drumuri expres, pentru vehiculele și categoriile acoperite oficial, până la 3,5 t.",
+      "conditionedApproval": true,
+      "applyEligibility": "BLOCKED_BY_EVIDENCE_RECAPTURE",
+      "artifact": {
+        "status": "INVALID_404_NOT_ELIGIBLE",
+        "previousCanonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-CH-VIGNETTE-2026.official.html",
+        "previousSha256": "81e3d84fbd6ddaa2d16699f2a7761e8756a456b02613131159d719e4a89fe063",
+        "requiredReplacementSha256": null
+      },
+      "proposedSourceObject": null
+    },
+    {
+      "ordinal": 6,
+      "candidateId": "RT001-RES-LU-EUROVIGNETTE-SCOPE",
+      "sourceId": "CS-LU-CUSTOMS-EUROVIGNETTE-SCOPE",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Luxemburg — aplicabilitatea Eurovignette pentru vehiculele, pragurile de masă și infrastructura rutieră documentate de Administration des douanes et accises du Luxembourg.",
+      "conditionedApproval": false,
+      "applyEligibility": "ELIGIBLE_FOR_PRE_APPLY_STAGING_ONLY",
+      "artifact": {
+        "status": "HASH_MATCH_REQUIRED",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-SCOPE.official.html",
+        "mediaType": "text/html",
+        "sizeBytes": 53855,
+        "sha256": "19aa2c109ba4d92257096be64fe1292089b482b83089fb74cd94c3b70c62be35"
+      },
+      "proposedSourceObject": {
+        "sourceId": "CS-LU-CUSTOMS-EUROVIGNETTE-SCOPE",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-SCOPE.official.html",
+        "canonicalUri": "https://douanes.public.lu/fr/vehicules/eurovignette.html",
+        "mediaType": "text/html",
+        "sizeBytes": 53855,
+        "sha256": "19aa2c109ba4d92257096be64fe1292089b482b83089fb74cd94c3b70c62be35",
+        "sourceDate": "2026-08-30",
+        "effectiveDate": null,
+        "version": "Official Luxembourg Eurovignette scope captured 2026-08-30",
+        "status": "EVIDENCE",
+        "owner": "Mobility & Routing Steward",
+        "authority": {
+          "issuingBody": "Luxembourg Customs and Excise Agency",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "LU"
+          ],
+          "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE_PRE_APPLY_NOT_PROMOTED",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-SCOPE.official.html",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_AUTHORITY_REVIEW_PACKAGE.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/RESIDUAL_REMOTE_ACQUISITION_MANIFEST.json",
+          "https://douanes.public.lu/fr/vehicules/eurovignette.html"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "ordinal": 7,
+      "candidateId": "RT001-RES-LU-EUROVIGNETTE-RATES",
+      "sourceId": "CS-LU-EUROVIGNETTE-TARIFFS-20250325",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Luxemburg — grila oficială Eurovignette aplicabilă de la 2025-03-25, pentru tarifele anuale, lunare, săptămânale și zilnice și diferențierile oficial documentate după clasa CO₂, norma Euro și categoria de axe.",
+      "conditionedApproval": true,
+      "applyEligibility": "ELIGIBLE_FOR_PRE_APPLY_STAGING_ONLY",
+      "artifact": {
+        "status": "HASH_MATCH_REQUIRED",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-RATES.official.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 488794,
+        "sha256": "86fd475481957476f08c17b5d571988ce3a353058588b7f291ff2e4348cf2faf"
+      },
+      "proposedSourceObject": {
+        "sourceId": "CS-LU-EUROVIGNETTE-TARIFFS-20250325",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-RATES.official.pdf",
+        "canonicalUri": "https://douanes.public.lu/content/dam/douanes/fr/v%C3%A9hicules/eurovignette/ev-tarif-from-25032025.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 488794,
+        "sha256": "86fd475481957476f08c17b5d571988ce3a353058588b7f291ff2e4348cf2faf",
+        "sourceDate": "2025-03-25",
+        "effectiveDate": "2025-03-25",
+        "version": "Eurovignette tariff grid effective 2025-03-25",
+        "status": "EVIDENCE",
+        "owner": "Mobility & Routing Steward",
+        "authority": {
+          "issuingBody": "Eurovignette / AGES official tariff publication",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "LU"
+          ],
+          "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE_PRE_APPLY_NOT_PROMOTED",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-RATES.official.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_AUTHORITY_REVIEW_PACKAGE.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/RESIDUAL_REMOTE_ACQUISITION_MANIFEST.json",
+          "https://douanes.public.lu/content/dam/douanes/fr/v%C3%A9hicules/eurovignette/ev-tarif-from-25032025.pdf"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "ordinal": 8,
+      "candidateId": "RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT",
+      "sourceId": "CS-LU-CUSTOMS-EUROVIGNETTE-ENFORCEMENT-2026",
+      "decision": "APPROVE",
+      "classification": "CONTEXTUAL",
+      "approvedScope": "Luxemburg — evidence contextual privind aplicabilitatea operațională și enforcement-ul Eurovignette în 2026.",
+      "conditionedApproval": false,
+      "applyEligibility": "ELIGIBLE_FOR_PRE_APPLY_STAGING_ONLY",
+      "artifact": {
+        "status": "HASH_MATCH_REQUIRED",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT.official.html",
+        "mediaType": "text/html",
+        "sizeBytes": 52558,
+        "sha256": "1e0b28907ed12f589b4c4d1c199a7f038b69b7b50df75c61aab819f79ac91e65"
+      },
+      "proposedSourceObject": {
+        "sourceId": "CS-LU-CUSTOMS-EUROVIGNETTE-ENFORCEMENT-2026",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT.official.html",
+        "canonicalUri": "https://douanes.public.lu/fr/actualites/2026/amendes-transports-routiers.html",
+        "mediaType": "text/html",
+        "sizeBytes": 52558,
+        "sha256": "1e0b28907ed12f589b4c4d1c199a7f038b69b7b50df75c61aab819f79ac91e65",
+        "sourceDate": "2026-01-19",
+        "effectiveDate": null,
+        "version": "Published 2026-01-19; updated 2026-02-10",
+        "status": "EVIDENCE",
+        "owner": "Mobility & Routing Steward",
+        "authority": {
+          "issuingBody": "Luxembourg Customs and Excise Agency",
+          "authorityType": "CONTEXTUAL",
+          "jurisdictions": [
+            "LU"
+          ],
+          "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE_PRE_APPLY_NOT_PROMOTED",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT.official.html",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_AUTHORITY_REVIEW_PACKAGE.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/RESIDUAL_REMOTE_ACQUISITION_MANIFEST.json",
+          "https://douanes.public.lu/fr/actualites/2026/amendes-transports-routiers.html"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "ordinal": 9,
+      "candidateId": "RT001-RES-DK-KMTOLL-TARIFF-V12",
+      "sourceId": "CS-DK-KMTOLL-TARIFF-TABLE-V1-2",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Danemarca — KmToll distance-based road charging, exclusiv pentru tarifele DKK/km și dimensiunile tarifare documentate oficial în Annex B / Tariff Table, versiunea 1.2.",
+      "conditionedApproval": true,
+      "applyEligibility": "ELIGIBLE_FOR_PRE_APPLY_STAGING_ONLY",
+      "artifact": {
+        "status": "HASH_MATCH_REQUIRED",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-DK-KMTOLL-TARIFF-V12.official.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 295654,
+        "sha256": "a61667515f888b6fd8df6ea8494060967865a5e9b7aedda6707a74b520192608"
+      },
+      "proposedSourceObject": {
+        "sourceId": "CS-DK-KMTOLL-TARIFF-TABLE-V1-2",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-DK-KMTOLL-TARIFF-V12.official.pdf",
+        "canonicalUri": "https://vejafgifter.dk/media/rtopb53s/annex-b-tariff-table-_v12.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 295654,
+        "sha256": "a61667515f888b6fd8df6ea8494060967865a5e9b7aedda6707a74b520192608",
+        "sourceDate": "2025-11-07",
+        "effectiveDate": null,
+        "version": "Annex B Tariff Table v1.2; last update 2025-11-07; Q3 2026 review due",
+        "status": "EVIDENCE",
+        "owner": "Mobility & Routing Steward",
+        "authority": {
+          "issuingBody": "Sund & Baelt / KmToll",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "DK"
+          ],
+          "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE_PRE_APPLY_NOT_PROMOTED",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-DK-KMTOLL-TARIFF-V12.official.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_AUTHORITY_REVIEW_PACKAGE.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/RESIDUAL_REMOTE_ACQUISITION_MANIFEST.json",
+          "https://vejafgifter.dk/media/rtopb53s/annex-b-tariff-table-_v12.pdf"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "ordinal": 10,
+      "candidateId": "RT001-RES-NL-TRUCK-RATES-2026",
+      "sourceId": "CS-NL-GOV-TRUCK-TOLL-RATES-2026",
+      "decision": "APPROVE",
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "approvedScope": "Țările de Jos — taxarea per kilometru pentru camioane, conform grilei guvernamentale oficiale și dimensiunilor documentate privind masa tehnică maximă, clasele CO₂ 1–5, normele Euro și valorile EUR/km.",
+      "conditionedApproval": true,
+      "applyEligibility": "ELIGIBLE_FOR_PRE_APPLY_STAGING_ONLY",
+      "artifact": {
+        "status": "HASH_MATCH_REQUIRED",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-NL-TRUCK-RATES-2026.official.pdf",
+        "mediaType": "application/pdf",
+        "sizeBytes": 824728,
+        "sha256": "313e308e8486c37fcdf0a2baf2ce888a6c13a5ca3c713857125366f4e0940422"
+      },
+      "proposedSourceObject": {
+        "sourceId": "CS-NL-GOV-TRUCK-TOLL-RATES-2026",
+        "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-NL-TRUCK-RATES-2026.official.pdf",
+        "canonicalUri": "https://www.vrachtwagenheffing.nl/-/media/trucktol/website/wat-gaat-het-kosten/toegankelijke-pdfs/rdw-tabellen-bedragen-vrachtwagenheffing.pdf?hash=65AEA64054AD8D4BBD1D7D0C7707D5B6&rev=790ab60be70848829bbe40c5e2360320",
+        "mediaType": "application/pdf",
+        "sizeBytes": 824728,
+        "sha256": "313e308e8486c37fcdf0a2baf2ce888a6c13a5ca3c713857125366f4e0940422",
+        "sourceDate": "2025-11-24",
+        "effectiveDate": "2026-07-01",
+        "version": "Tariffs price level 2026; applicability 2026-07-01 through 2026-08-31",
+        "status": "EVIDENCE",
+        "owner": "Mobility & Routing Steward",
+        "authority": {
+          "issuingBody": "Government of the Netherlands",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "NL"
+          ],
+          "reviewStatus": "PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE_PRE_APPLY_NOT_PROMOTED",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "observedPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-NL-TRUCK-RATES-2026.official.pdf",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_JURISDICTION_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/PRODUCT_OWNER_AUTHORITY_DECISIONS.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_AUTHORITY_REVIEW_PACKAGE.json",
+          "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/RESIDUAL_REMOTE_ACQUISITION_MANIFEST.json",
+          "https://www.vrachtwagenheffing.nl/-/media/trucktol/website/wat-gaat-het-kosten/toegankelijke-pdfs/rdw-tabellen-bedragen-vrachtwagenheffing.pdf?hash=65AEA64054AD8D4BBD1D7D0C7707D5B6&rev=790ab60be70848829bbe40c5e2360320"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    }
+  ],
+  "blockers": [
+    {
+      "blockerId": "PREAPPLY-EVIDENCE-RECAPTURE-CH-VIGNETTE-2026",
+      "candidateId": "RT001-RES-CH-VIGNETTE-2026",
+      "sourceId": "CS-CH-BAZG-MOTORWAY-VIGNETTE-2026",
+      "state": "OPEN",
+      "reason": "The pinned local artifact is an official-domain 404 page and cannot support the approved source object.",
+      "requiredForResolution": [
+        "evidence-ul oficial live recapturat canonic",
+        "evidence-ul oficial live validat",
+        "evidence-ul oficial live hash-uit SHA-256",
+        "evidence-ul oficial live reconciliat cu scope-ul și perioada aprobate"
+      ],
+      "currentApplyEligibility": "BLOCKED_BY_EVIDENCE_RECAPTURE"
+    }
+  ],
+  "impact": {
+    "currentlyEvidencedInformationalSubset": {
+      "operations": {
+        "add": 9,
+        "modify": 0,
+        "delete": 0
+      },
+      "projected": {
+        "registryCount": 840,
+        "registrySha256": "0befb69cdf662ce1234155478b123bdc7cee82c521493736e7a706f52740762e",
+        "routingTollViewCount": 288,
+        "routingTollViewUniqueContentHashes": 273,
+        "routingTollViewSha256": "add4a71027f0e31fc627d911eda8aef9a7294b0c567742448bc32db88a61925d"
+      }
+    },
+    "fullTenSourceAfterBlockerResolution": {
+      "activationCondition": "BLOCKER_RESOLVED_AND_SEPARATE_EXPLICIT_PRODUCT_OWNER_ATOMIC_APPLY_MANDATE",
+      "operations": {
+        "add": 10,
+        "modify": 0,
+        "delete": 0
+      },
+      "projectedCounts": {
+        "registry": 841,
+        "routingTollView": 289
+      },
+      "projectedHashes": "UNAVAILABLE_UNTIL_RECAPTURED_CANONICAL_BYTES_AND_SHA256_EXIST",
+      "projectedUniqueContentHashes": "UNAVAILABLE_UNTIL_RECAPTURED_HASH_IS_TESTED_FOR_DUPLICATION"
+    }
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "routingTollViewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED",
+    "atomicApplyAuthorized": false,
+    "atomicApplyRequiresSeparateProductOwnerMandate": true
+  }
+}

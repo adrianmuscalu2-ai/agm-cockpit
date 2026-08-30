@@ -1,0 +1,248 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-provenance-verification.v1",
+  "sourceCount": 16,
+  "verifiedCount": 16,
+  "sources": [
+    {
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "issuingBody": "ASFINAG",
+      "jurisdiction": [
+        "AT"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "Austria GO regime for vehicles above 3.5 t.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://media.asfinag.at/media/p31n1jxq/go-maut-tarife-2026_de.pdf",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-AT-ASFINAG-VIGNETTE-SECTION-2026",
+      "issuingBody": "ASFINAG",
+      "jurisdiction": [
+        "AT"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "Austria vignette and section-toll regime for vehicles up to and including 3.5 t.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://media.asfinag.at/media/1mpjid2j/asf_vignettenfolder_2026_de.pdf",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS",
+      "issuingBody": "Viapass interregional entity",
+      "jurisdiction": [
+        "BE"
+      ],
+      "classification": "CONTEXTUAL",
+      "exactApprovedScope": "Belgian authority portal and regime boundary; not the complete tariff table.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://www.viapass.be/en/",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS-RATES-2026",
+      "issuingBody": "Viapass interregional entity",
+      "jurisdiction": [
+        "BE"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "Belgian regional tariffs dependent on vehicle and emissions.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://www.viapass.be/de/tarife/",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-CZ-EDALNICE-VIGNETTE-2026",
+      "issuingBody": "Czech State Fund for Transport Infrastructure / official eDalnice portal",
+      "jurisdiction": [
+        "CZ"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "Czech eDalnice regime for vehicles up to and including 3.5 t.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://edalnice.gov.cz/en",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "issuingBody": "Czech Ministry of Transport electronic toll system",
+      "jurisdiction": [
+        "CZ"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "Czech myto regime for vehicles above 3.5 t.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "issuingBody": "German Federal Ministry of Justice / Federal Office of Justice",
+      "jurisdiction": [
+        "DE"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "German federal legal basis for goods transport vehicles above 3.5 t.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "issuingBody": "Toll Collect / German federal toll system",
+      "jurisdiction": [
+        "DE"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "Operational German tariffs for goods transport vehicles above 3.5 t.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "issuingBody": "Danish road toll authority / Sund & Bælt",
+      "jurisdiction": [
+        "DK"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "Danish KmToll documented vehicle scope; no authority over bridge tolls.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://vejafgifter.dk/en/which-roads/",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-DK-SE-ORESUND-RATES-2026",
+      "issuingBody": "Øresundsbro Konsortiet",
+      "jurisdiction": [
+        "DK",
+        "SE"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "Oresund tariffs for 2026.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://www.oresundsbron.com/en/prices",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-DK-STOREBAELT-RATES-2026",
+      "issuingBody": "A/S Storebælt",
+      "jurisdiction": [
+        "DK"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "Storebaelt tariffs for 2026.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://www.storebaelt.dk/en/prices-and-discounts/private/",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-FR-ART-TARIFF-GOVERNANCE",
+      "issuingBody": "Autorité de régulation des transports",
+      "jurisdiction": [
+        "FR"
+      ],
+      "classification": "CONTEXTUAL",
+      "exactApprovedScope": "Governance of French concession motorway tariffs.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://www.autorite-transports.fr/les-autoroutes/les-tarifs-des-peages/",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "issuingBody": "French Ministry for Ecological Transition",
+      "jurisdiction": [
+        "FR"
+      ],
+      "classification": "CONTEXTUAL",
+      "exactApprovedScope": "French concession framework; not exact concession-by-concession tariff grids.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-NL-A24-ETOL-2026",
+      "issuingBody": "Government of the Netherlands / Ministry of Infrastructure and Water Management",
+      "jurisdiction": [
+        "NL"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "A24 e-TOL and documented non-stacking rule.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://www.rijksoverheid.nl/themas/verkeer-en-vervoer/wegen/tijdelijke-tolheffing-blankenburgverbinding-en-via15",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "issuingBody": "Government of the Netherlands",
+      "jurisdiction": [
+        "NL"
+      ],
+      "classification": "CONTEXTUAL",
+      "exactApprovedScope": "Dutch truck-charging portal/regime; not an exact tariff substitute.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://www.vrachtwagenheffing.nl/en",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    },
+    {
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "issuingBody": "Polish Ministry of Finance / National Revenue Administration",
+      "jurisdiction": [
+        "PL"
+      ],
+      "classification": "AUTHORITATIVE_WITH_SCOPE",
+      "exactApprovedScope": "Poland e-TOLL for vehicles above 3.5 t and buses.",
+      "ownerDecisionReference": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+      "officialUri": "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/",
+      "officialHttps": true,
+      "artifactIntegrity": "MATCH",
+      "authorityExtrapolation": "FORBIDDEN_OUTSIDE_EXACT_APPROVED_SCOPE",
+      "provenanceStatus": "VERIFIED_FOR_PRE_APPLY"
+    }
+  ]
+}

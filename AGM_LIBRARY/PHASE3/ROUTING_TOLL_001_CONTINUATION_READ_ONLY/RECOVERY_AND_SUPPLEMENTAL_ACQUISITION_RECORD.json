@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "agm-routing-toll-001-residual-recovery.v1",
+  "generatedAt": "2026-08-30T10:20:43.6822321+02:00",
+  "baseline": {
+    "registryCount": 831,
+    "registrySha256": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+    "routingTollViewCount": 279,
+    "routingTollViewSha256": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+  },
+  "recoveryAttempts": [
+    {
+      "candidateId": "RT001-RES-CH-LSVA-RATES",
+      "initialResult": "HTTP_502",
+      "recoveryRoute": "Current BAZG R-15 page to its official Directive 15-02 PDF",
+      "officialUrl": "https://www.bazg.admin.ch/dam/en/sd-web/kpSj-tYrf6uC/r_15-02-02_%20bestimmungen_lsva%20iii%20v1.2%20E.pdf",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-CH-LSVA-RATES.official.pdf",
+      "mediaType": "application/pdf",
+      "sizeBytes": 796842,
+      "sha256": "f359b81076db5db646775a01c06abc38e3e15cc90063623df8bfad1a097919c8",
+      "result": "INTEGRITY_CAPTURED_PROPOSAL_ONLY"
+    },
+    {
+      "candidateId": "RT001-RES-BE-LIEFKENSHOEK-2026",
+      "initialResult": "HTTP_403",
+      "recoveryRoute": "Official Dutch 2026 PDF with browser user-agent and official referer",
+      "officialUrl": "https://www.liefkenshoektunnel.be/sites/default/files/media/files/2025-12/algemene_voorwaarden_tlh_v2026.pdf",
+      "result": "INTEGRITY_BLOCKED_CLOUDFLARE_JAVASCRIPT_CHALLENGE",
+      "remoteContentVerification": "PASS_VIA_OFFICIAL_WEB_SURFACE",
+      "localCanonicalHash": null,
+      "note": "No unofficial mirror or generated substitute was used."
+    }
+  ],
+  "supplementalEvidence": [
+    {
+      "candidateId": "RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT",
+      "residualId": "RT001-RES-004",
+      "officialUrl": "https://douanes.public.lu/fr/actualites/2026/amendes-transports-routiers.html",
+      "canonicalPath": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CONTINUATION_READ_ONLY/REMOTE_ARTIFACTS/RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT.official.html",
+      "mediaType": "text/html",
+      "sizeBytes": 52558,
+      "sha256": "1e0b28907ed12f589b4c4d1c199a7f038b69b7b50df75c61aab819f79ac91e65",
+      "scope": "Official 2026 enforcement evidence that Eurovignette obligations remain operational in Luxembourg",
+      "result": "INTEGRITY_CAPTURED_PROPOSAL_ONLY"
+    }
+  ],
+  "registryMutation": "NOT_AUTHORIZED_NOT_EXECUTED",
+  "authorityPromotion": "NOT_AUTHORIZED_NOT_EXECUTED"
+}

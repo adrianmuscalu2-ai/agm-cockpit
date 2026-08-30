@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "agm-phase3-final-consolidated-closeout-validation.v1",
+  "validatedAt": "2026-08-30T23:00:00.000Z",
+  "validator": "scripts/validate-phase3-final-consolidated-closeout-readonly.mjs",
+  "validationMode": "READ_ONLY_NO_APPLY",
+  "result": "PASS",
+  "passed": 132,
+  "total": 132,
+  "failed": 0,
+  "idempotence": {
+    "result": "PASS",
+    "firstOutputSha256": "1aa003d51ab12b20bad4e3b234285445bec2236b1e53b838b9fdfbad7f5de0c4",
+    "secondOutputSha256": "1aa003d51ab12b20bad4e3b234285445bec2236b1e53b838b9fdfbad7f5de0c4",
+    "operationsExecuted": 0,
+    "mutations": "NONE"
+  },
+  "determinism": {
+    "result": "PASS",
+    "registryMatchesProjectedBytes": true,
+    "legislationSafetyViewMatchesProjectedBytes": true,
+    "routingTollViewMatchesProtectedFinalBytes": true
+  },
+  "finalBaseline": {
+    "centralRegistry": {
+      "count": 862,
+      "sha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245"
+    },
+    "legislationSafetyView": {
+      "count": 66,
+      "sha256": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab"
+    },
+    "routingTollView": {
+      "count": 289,
+      "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+    }
+  },
+  "integrity": {
+    "registrySourceIds": "862/862 UNIQUE",
+    "candidateIds": "36/36 UNIQUE",
+    "legalViewOrphans": 0,
+    "routingViewOrphans": 0,
+    "registryDuplicateHashGroups": 62,
+    "registryDuplicateHashExcess": 195,
+    "newUnexpectedDuplicateImpact": 0,
+    "newlyAppliedArtifactHashes": "31/31 MATCH",
+    "legal003EvidenceHashes": "5/5 MATCH",
+    "unexpectedModifyDelete": "NONE",
+    "transactionResidue": "NONE"
+  },
+  "objectiveResults": {
+    "ROUTING-TOLL-001": "CLOSED_ATOMIC_APPLY_PASS",
+    "LEGAL-005": "CLOSED_ATOMIC_APPLY_PASS",
+    "LEGAL-003": "PASS_WITH_EXTERNAL_LICENSED_DEPENDENCY_CLOSED"
+  },
+  "emailDelivery": {
+    "status": "BLOCKED_CONFIGURATION_REQUIRED",
+    "scope": "EMAIL_DELIVERY_ONLY",
+    "phase3ClosureBlocker": false
+  },
+  "artifactHashes": {
+    "closeoutPackage": "90b0c99595e3b214f08d81931f0033a766eb9b9899ed705f40aec60f8781f263",
+    "closeoutReport": "6824d2ed55943789b4ead61633ba515968cd0e5d349ea5a87edc5fd66255da42",
+    "technicalDebtRegister": "a119539bd35e3f13903b284f05b3a2d338532dbd23e7ae451ff9147eaa120eca",
+    "temporalFreshnessQueue": "ed10ef0601ff953528390d512d24f61f3be3921fe53ca3457200c2cbd5cf37ad",
+    "validator": "0e66db9795480be260e6a47b98052968c3c144966192fdb5d488b7bb5b5e79f5"
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "legislationSafetyViewMutation": "NONE",
+    "routingTollViewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "apply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

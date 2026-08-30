@@ -1,0 +1,243 @@
+{
+  "schemaVersion": "agm-routing-toll-001-continuation-validation.v1",
+  "generatedAt": "2026-08-30T08:27:20.394Z",
+  "verdict": "PASS",
+  "checkCount": 35,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "REGISTRY_BASELINE_COUNT",
+      "pass": true,
+      "actual": "831/831",
+      "expected": "831/831"
+    },
+    {
+      "name": "REGISTRY_BASELINE_HASH",
+      "pass": true,
+      "actual": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+      "expected": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d"
+    },
+    {
+      "name": "VIEW_BASELINE_COUNT",
+      "pass": true,
+      "actual": "279/279",
+      "expected": "279/279"
+    },
+    {
+      "name": "VIEW_BASELINE_HASH",
+      "pass": true,
+      "actual": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997",
+      "expected": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997"
+    },
+    {
+      "name": "INITIAL_ACQUISITION_TOTAL",
+      "pass": true,
+      "actual": {
+        "requested": 14,
+        "captured": 12,
+        "blocked": 2
+      },
+      "expected": {
+        "requested": 14,
+        "captured": 12,
+        "blocked": 2
+      }
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-PL-A1-2026",
+      "pass": true,
+      "actual": "eeda1db2bb7e800d62d1d33cb64946811d10783d84f197b5a2af0428e9285ce4",
+      "expected": "eeda1db2bb7e800d62d1d33cb64946811d10783d84f197b5a2af0428e9285ce4"
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-PL-A2-2026",
+      "pass": true,
+      "actual": "08f72502454ca1797ba418498e089d7834210ffcb7bd04ff9c219ec1a12dc588",
+      "expected": "08f72502454ca1797ba418498e089d7834210ffcb7bd04ff9c219ec1a12dc588"
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-PL-A4-2026",
+      "pass": true,
+      "actual": "523ed685bfeb4ec4b3ce78a1acdeae8d376a3860409801f0e6f53df78ea41252",
+      "expected": "523ed685bfeb4ec4b3ce78a1acdeae8d376a3860409801f0e6f53df78ea41252"
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-CH-VIGNETTE-2026",
+      "pass": true,
+      "actual": "81e3d84fbd6ddaa2d16699f2a7761e8756a456b02613131159d719e4a89fe063",
+      "expected": "81e3d84fbd6ddaa2d16699f2a7761e8756a456b02613131159d719e4a89fe063"
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-LU-EUROVIGNETTE-SCOPE",
+      "pass": true,
+      "actual": "19aa2c109ba4d92257096be64fe1292089b482b83089fb74cd94c3b70c62be35",
+      "expected": "19aa2c109ba4d92257096be64fe1292089b482b83089fb74cd94c3b70c62be35"
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-LU-EUROVIGNETTE-RATES",
+      "pass": true,
+      "actual": "86fd475481957476f08c17b5d571988ce3a353058588b7f291ff2e4348cf2faf",
+      "expected": "86fd475481957476f08c17b5d571988ce3a353058588b7f291ff2e4348cf2faf"
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-DE-WARNOW-2025",
+      "pass": true,
+      "actual": "2c0e39f68843cfc0b0952c0bf570b34f93b1e649334d468672f3163989a60f52",
+      "expected": "2c0e39f68843cfc0b0952c0bf570b34f93b1e649334d468672f3163989a60f52"
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-DE-HERREN",
+      "pass": true,
+      "actual": "7f895cc23fb416df0a1eb9d66649ca1d5650922ccb6c3638513e995a98077af8",
+      "expected": "7f895cc23fb416df0a1eb9d66649ca1d5650922ccb6c3638513e995a98077af8"
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-NL-KILTUNNEL",
+      "pass": true,
+      "actual": "1e5bb07525394bdd253396932296d1c56cc946b60d753245e07092c0e9aaa679",
+      "expected": "1e5bb07525394bdd253396932296d1c56cc946b60d753245e07092c0e9aaa679"
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-NL-WESTERSCHELDE-2026",
+      "pass": true,
+      "actual": "d364d349469b70807ef14840132ea3d78e8aa1f3a4b790d397d8dee8714b731a",
+      "expected": "d364d349469b70807ef14840132ea3d78e8aa1f3a4b790d397d8dee8714b731a"
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-DK-KMTOLL-TARIFF-V12",
+      "pass": true,
+      "actual": "a61667515f888b6fd8df6ea8494060967865a5e9b7aedda6707a74b520192608",
+      "expected": "a61667515f888b6fd8df6ea8494060967865a5e9b7aedda6707a74b520192608"
+    },
+    {
+      "name": "ARTIFACT_RT001-RES-NL-TRUCK-RATES-2026",
+      "pass": true,
+      "actual": "313e308e8486c37fcdf0a2baf2ce888a6c13a5ca3c713857125366f4e0940422",
+      "expected": "313e308e8486c37fcdf0a2baf2ce888a6c13a5ca3c713857125366f4e0940422"
+    },
+    {
+      "name": "CH_RECOVERY_INTEGRITY",
+      "pass": true,
+      "actual": "f359b81076db5db646775a01c06abc38e3e15cc90063623df8bfad1a097919c8",
+      "expected": "f359b81076db5db646775a01c06abc38e3e15cc90063623df8bfad1a097919c8"
+    },
+    {
+      "name": "BE_BLOCK_RECORDED_NO_SUBSTITUTE",
+      "pass": true,
+      "actual": "INTEGRITY_BLOCKED_CLOUDFLARE_JAVASCRIPT_CHALLENGE",
+      "expected": "INTEGRITY_BLOCKED_CLOUDFLARE_JAVASCRIPT_CHALLENGE"
+    },
+    {
+      "name": "LU_2026_SUPPLEMENT_INTEGRITY",
+      "pass": true,
+      "actual": "1e0b28907ed12f589b4c4d1c199a7f038b69b7b50df75c61aab819f79ac91e65",
+      "expected": "1e0b28907ed12f589b4c4d1c199a7f038b69b7b50df75c61aab819f79ac91e65"
+    },
+    {
+      "name": "TOTAL_LOCAL_NEW_ARTIFACTS",
+      "pass": true,
+      "actual": 14,
+      "expected": 14
+    },
+    {
+      "name": "MATRIX_GAP_OPEN",
+      "pass": true,
+      "actual": "OPEN_PARTIALLY_READY/NOT_READY_FOR_CLOSURE",
+      "expected": "OPEN_PARTIALLY_READY/NOT_READY_FOR_CLOSURE"
+    },
+    {
+      "name": "RESIDUAL_ITEM_COUNT",
+      "pass": true,
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "RES008_CLOSED_ONLY",
+      "pass": true,
+      "actual": [
+        "RT001-RES-008"
+      ],
+      "expected": [
+        "RT001-RES-008"
+      ]
+    },
+    {
+      "name": "FR_REMAINS_BLOCKED",
+      "pass": true,
+      "actual": "OPEN_BLOCKED_INCOMPLETE_CONCESSION_SET",
+      "expected": "OPEN_BLOCKED_INCOMPLETE_CONCESSION_SET"
+    },
+    {
+      "name": "FACILITIES_REMAIN_PARTIAL",
+      "pass": true,
+      "actual": "PARTIALLY_READY",
+      "expected": "PARTIALLY_READY"
+    },
+    {
+      "name": "RUNBOOK_DRAFT_NOT_OPERATIONAL",
+      "pass": true,
+      "actual": "DRAFT_SAFETY_GATES_PRESENT",
+      "expected": "DRAFT_SAFETY_GATES_PRESENT"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/agent-governance.registry.ts",
+      "pass": true,
+      "actual": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82",
+      "expected": "f74c4b0341048badace3a19449170ff34fa1c8943078cca7e618472aaa7bfa82"
+    },
+    {
+      "name": "BASIC_HASH_apps/web/src/maintenance-department.ts",
+      "pass": true,
+      "actual": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0",
+      "expected": "5b8746e9a7e12b9a0b769fc762869d9fa977734a4af1eef0704e7975e8c3aaf0"
+    },
+    {
+      "name": "BASIC_HASH_evidence/governance/modules/PRE-005/v1.0/LINGUISTIC_AGENTS_CONTRACT.md",
+      "pass": true,
+      "actual": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231",
+      "expected": "3234d8b0f5dcbb4ba3b3242e7da9c355ebe1edc5d4159cec67a80f8348260231"
+    },
+    {
+      "name": "ROUTING-TOLL-001_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-003_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "LEGAL-005_OPEN",
+      "pass": true,
+      "actual": "OPEN",
+      "expected": "OPEN"
+    },
+    {
+      "name": "NO_REGISTRY_MUTATION_IN_PACKAGE",
+      "pass": true,
+      "actual": "NOT_AUTHORIZED_NOT_EXECUTED/NOT_AUTHORIZED_NOT_EXECUTED",
+      "expected": "NOT_AUTHORIZED_NOT_EXECUTED/NOT_AUTHORIZED_NOT_EXECUTED"
+    },
+    {
+      "name": "NO_AUTHORITY_PROMOTION",
+      "pass": true,
+      "actual": "NONE",
+      "expected": "NONE"
+    }
+  ],
+  "summary": {
+    "registry": "831/f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+    "routingTollView": "279/001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997",
+    "newLocalArtifacts": 14,
+    "officialLocalIntegrityBlocked": 1,
+    "routingToll001": "OPEN_PARTIALLY_READY",
+    "legal003": "OPEN_UNCHANGED",
+    "legal005": "OPEN_UNCHANGED",
+    "basicLibrarian": "3/3_MATCH",
+    "registryRuntimeProductionTurnApplicationApi": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "agm-owner-manual-ingest-validation.v1",
+  "gapId": "LEGAL-005",
+  "documentNumber": 2,
+  "candidateId": "LEGAL005-CAND-FR-2026",
+  "sourceId": "CS-FR-TRUCK-BAN-2026",
+  "filename": "LEGAL005-FR-ANNUAL-2026.owner-official.pdf",
+  "status": "RESOLVED_VALIDATED",
+  "move": {
+    "source": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/LEGAL005-FR-ANNUAL-2026.owner-official.pdf",
+    "destination": "AGM_LIBRARY/PHASE3/LEGAL_005_OWNER_REVIEW/OWNER_MANUAL_INGEST/LEGAL005-FR-ANNUAL-2026.owner-official.pdf",
+    "sourceExistsAfter": false,
+    "destinationExistsAfter": true,
+    "duplicateCreated": false,
+    "sizeBytesBefore": 141836,
+    "sizeBytesAfter": 141836,
+    "sha256Before": "9b7a644b8a86c720293856629da867a93c9fd8d32ff761c5a9f9dd269e925f98",
+    "sha256After": "9b7a644b8a86c720293856629da867a93c9fd8d32ff761c5a9f9dd269e925f98",
+    "binaryMatch": true
+  },
+  "identity": {
+    "authority": "French Republic / Légifrance",
+    "officialUrl": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053324056",
+    "nor": "TRAT2529272A",
+    "jorf": "JORF n°0006 du 8 janvier 2026, texte n°28",
+    "textId": "JORFTEXT000053324056",
+    "effectiveFrom": "2026-01-09",
+    "effectiveUntil": "2026-12-31",
+    "effectiveUntilBasis": "Order explicitly applies to the year 2026"
+  },
+  "validation": {
+    "pdfOpenable": true,
+    "pdfMagic": true,
+    "pdfEof": true,
+    "pages": 2,
+    "expectedPages": 2,
+    "noBlankPages": true,
+    "nor": true,
+    "jorfAndTextIdentity": true,
+    "articles1Through4": true,
+    "completeAuvergneRhoneAlpesAnnex": true,
+    "scopeOver7Point5T": true,
+    "winterHours": "07:00-18:00",
+    "winterDates": [
+      "2026-02-07",
+      "2026-02-14",
+      "2026-02-21",
+      "2026-02-28",
+      "2026-03-07"
+    ],
+    "summerHours": "07:00-19:00",
+    "summerDates": [
+      "2026-07-11",
+      "2026-07-18",
+      "2026-07-25",
+      "2026-08-01",
+      "2026-08-08"
+    ],
+    "noCloudflareOrChallengePage": true,
+    "result": "PASS"
+  },
+  "browserEvidence": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS",
+    "probe": "Isolated Playwright/Chrome local PDF open plus official Légifrance page inspection; two-page structure and complete extracted content reconciled"
+  },
+  "guardrails": {
+    "registryMutation": "NONE",
+    "viewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "atomicApply": "NOT_EXECUTED",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

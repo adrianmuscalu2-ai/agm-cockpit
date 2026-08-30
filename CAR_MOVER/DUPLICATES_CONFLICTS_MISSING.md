@@ -1,0 +1,450 @@
+# Car Mover duplicates, conflicts and missing documents
+
+## Conflicts
+
+### CM-CONFLICT-001 — Product-boundary terminology
+
+Status: **CONFLICT DETECTED → OWNER/INSPECTOR REVIEW**
+
+- Source A: `evidence/governance/AGM_CAR_MOVER_FOUNDATION_REUSE_AUDIT_2026-08-12.md` — Car Mover is described as a separate product context on the shared AGM platform.
+- Source B: `evidence/car-mover/CAR_MOVER_HANDOFF_2026-08-23.md` — Car Mover is described as an AGM Premium component and not a separate project.
+- Automatic resolution: **NO**
+
+## Time-bound state transitions (not silently rewritten)
+
+- **P0-02 Android** — HISTORICAL_STATE_SUPERSEDED_BY_LATER_EVIDENCE; historical: `evidence/governance/AGM_CAR_MOVER_FREEZE_2026-08-12.md`; later evidence: `evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/report.json`.
+- **Field data** — NO_FIELD_DATA_SUPERSEDED_BY_ONE_PENDING_NON_CONCLUSIVE_OBSERVATION; historical: `evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_REPORT.md`; later evidence: `evidence/field-test-backend/2026-08-29/PREPARATION_REPORT.md`.
+- **Paid route providers** — HERE_AND_TOLLGURU_NOT_REQUIRED_CURRENT_OWNER_DIRECTION; historical: `Earlier provider-capability registrations`; later evidence: `evidence/routing-architecture/2026-08-29/IMPLEMENTATION_REPORT.md`.
+
+## Exact duplicates
+
+Policy: report only; no original is deleted. Full data is in `DUPLICATES.json`.
+
+- `823342da2356347e90efb5fb6545e0757d218f5707e0e5138cf2235bd04efdb9` — 14 files
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-entry-hero-v1.png`
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-entry-hero-v2.png`
+  - `tmp/pages-ui-4b5871a/images/car-mover-entry-hero-v1.png`
+  - `tmp/pages-ui-4b5871a/images/car-mover-entry-hero-v2.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-entry-hero-v1.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-entry-hero-v2.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-entry-hero-v1.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-entry-hero-v2.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-entry-hero-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-entry-hero-v2.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-entry-hero-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-entry-hero-v2.png`
+  - `apps/web/public/images/car-mover-entry-hero-v1.png`
+  - `apps/web/public/images/car-mover-entry-hero-v2.png`
+- `a14f85163cdf7863437b0df7243df551754a75a5914149e51af1b48591a0b41e` — 14 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-40-56-243Z/desktop-class-agnostic.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-42-59-254Z/desktop-class-agnostic.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-44-14-460Z/desktop-class-agnostic.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-53-09-422Z/desktop-class-agnostic.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/desktop-class-agnostic.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/desktop-class-agnostic.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/desktop-class-agnostic.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/desktop-class-agnostic.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/desktop-class-agnostic.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/desktop-class-agnostic.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/desktop-class-agnostic.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/desktop-class-agnostic.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/desktop-class-agnostic.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/desktop-class-agnostic.png`
+- `ee5fd9f35b929f6ab7287d46f4b243503d247d9520f64e392edfa38583858f11` — 11 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-53-09-422Z/desktop-job-file.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/desktop-job-file.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/desktop-job-file.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/desktop-job-file.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/desktop-job-file.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/desktop-job-file.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/desktop-job-file.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/desktop-job-file.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/desktop-job-file.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/desktop-job-file.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/desktop-job-file.png`
+- `7eaf3165e8c0e983cfbc986e60aa8ce86d28a1b49c0868ff9d29c4b39a43a417` — 8 files
+  - `tmp/pages-ui-4b5871a/images/car-mover-route-entry-bg-v4.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-route-entry-bg-v4.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-route-entry-bg-v4.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-route-entry-bg-v4.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-route-entry-bg-v4.png`
+  - `agmcockpit-website/public/images/car-mover-route-entry-bg-v4.png`
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-route-entry-bg-v4.png`
+  - `apps/web/public/images/car-mover-route-entry-bg-v4.png`
+- `12d4f9ba151378717e8f7f881810b3fc65854a138a3a758b4ddcbf27cbf871c1` — 7 files
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-module-guide-bg-v1.png`
+  - `tmp/pages-ui-4b5871a/images/car-mover-module-guide-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-guide-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-guide-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-guide-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-guide-bg-v1.png`
+  - `apps/web/public/images/car-mover-module-guide-bg-v1.png`
+- `2c7d73b798b713a3c7896ae51c527da22a3f4a9fbe5d8d9117ce01b895d2ce9c` — 7 files
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-module-incidents-bg-v2.png`
+  - `tmp/pages-ui-4b5871a/images/car-mover-module-incidents-bg-v2.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-incidents-bg-v2.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-incidents-bg-v2.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-incidents-bg-v2.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-incidents-bg-v2.png`
+  - `apps/web/public/images/car-mover-module-incidents-bg-v2.png`
+- `31965dd418020883c21de1277e2054f784c4761d77a5d7080c804441c57fa55c` — 7 files
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-module-planning-bg-v2.png`
+  - `tmp/pages-ui-4b5871a/images/car-mover-module-planning-bg-v2.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-planning-bg-v2.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-planning-bg-v2.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-planning-bg-v2.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-planning-bg-v2.png`
+  - `apps/web/public/images/car-mover-module-planning-bg-v2.png`
+- `656ef9f5f6c41c7fd8b648a686e139372a8e23e0337116bb12a73fb273677356` — 7 files
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-module-planning-bg-v1.png`
+  - `tmp/pages-ui-4b5871a/images/car-mover-module-planning-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-planning-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-planning-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-planning-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-planning-bg-v1.png`
+  - `apps/web/public/images/car-mover-module-planning-bg-v1.png`
+- `82503d55672114080bb5f14918bb0e7118df780102aa22f406b677ad223f344b` — 7 files
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-module-archive-bg-v1.png`
+  - `tmp/pages-ui-4b5871a/images/car-mover-module-archive-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-archive-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-archive-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-archive-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-archive-bg-v1.png`
+  - `apps/web/public/images/car-mover-module-archive-bg-v1.png`
+- `90d8c2c2c8ad2daac0ab67bd913dd5e17cb43f57fbb3186bdd96fae2795c18eb` — 7 files
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/android-first-viewport.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/android-first-viewport.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/android-first-viewport.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-40-56-243Z/android-first-viewport.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/android-first-viewport.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/android-first-viewport.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/android-first-viewport.png`
+- `9de52751f5e7eb202c7ccad9584aff736689afb479aa4f9c509bcbf368381184` — 7 files
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-module-active-bg-v1.png`
+  - `tmp/pages-ui-4b5871a/images/car-mover-module-active-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-active-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-active-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-active-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-active-bg-v1.png`
+  - `apps/web/public/images/car-mover-module-active-bg-v1.png`
+- `c4b800bae650773bc5b43561ce3b24677150695fdd52ecd13e847a13b80b3ef8` — 7 files
+  - `tmp/pages-ui-4b5871a/images/car-mover-route-entry-bg-v3.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-route-entry-bg-v3.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-route-entry-bg-v3.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-route-entry-bg-v3.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-route-entry-bg-v3.png`
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-route-entry-bg-v3.png`
+  - `apps/web/public/images/car-mover-route-entry-bg-v3.png`
+- `cc2bf1479c476cdf7ad36c8ded75753c13cee7813cab5df4e3de70bc22e2027d` — 7 files
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-module-incidents-bg-v1.png`
+  - `tmp/pages-ui-4b5871a/images/car-mover-module-incidents-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-incidents-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-incidents-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-incidents-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-incidents-bg-v1.png`
+  - `apps/web/public/images/car-mover-module-incidents-bg-v1.png`
+- `d551401eba09356ffc60eebc7c71d7d613304ec8239ccfe2b7f988310f4a85e1` — 7 files
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-module-archive-bg-v2.png`
+  - `tmp/pages-ui-4b5871a/images/car-mover-module-archive-bg-v2.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-archive-bg-v2.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-archive-bg-v2.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-archive-bg-v2.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-archive-bg-v2.png`
+  - `apps/web/public/images/car-mover-module-archive-bg-v2.png`
+- `da0a8055fe39457700063c55934ab428352415c184ef22826b329bbf90e92534` — 7 files
+  - `apps/web/android/app/src/main/assets/public/images/car-mover-module-accounting-bg-v1.png`
+  - `tmp/pages-ui-4b5871a/images/car-mover-module-accounting-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/images/car-mover-module-accounting-bg-v1.png`
+  - `tmp/ui-assistant-production/apps/web/public/images/car-mover-module-accounting-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/images/car-mover-module-accounting-bg-v1.png`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/images/car-mover-module-accounting-bg-v1.png`
+  - `apps/web/public/images/car-mover-module-accounting-bg-v1.png`
+- `dec68768c36f2551ee9a0d71baa6e1cfcce6a0c66f497d311dacbafe46084148` — 7 files
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/android-first-viewport.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/android-first-viewport.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-42-59-254Z/android-first-viewport.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-44-14-460Z/android-first-viewport.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-53-09-422Z/android-first-viewport.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/android-first-viewport.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/android-first-viewport.png`
+- `2acc27238259929fd0cb41b2f744a918dfd8e3f5ea0abcd1bc38bd4bef16014e` — 5 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-53-09-422Z/car-mover-entry.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/car-mover-entry.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/car-mover-entry.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T19-46-01-425Z/car-mover-entry.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T19-54-39-556Z/car-mover-entry.png`
+- `598daa57eb44908c5f5f66e67d24f1cb87e0996c6e6c5d1cee647129d3beb3ec` — 5 files
+  - `tmp/pages-dist-agent-state-20260822/assets/main-BUAHiHwL.js`
+  - `tmp/pages-dist-minimap-clean-20260822/assets/main-BUAHiHwL.js`
+  - `tmp/pages-dist-orbital-layout-20260822/assets/main-BUAHiHwL.js`
+  - `tmp/pages-dist-planetary-ui-20260822/assets/main-BUAHiHwL.js`
+  - `tmp/pages-dist-procedural-audit-20260822/assets/main-BUAHiHwL.js`
+- `69d047425c7c80566945196975cbfcad3108923716cdd6753bb625ebfa3a2a58` — 5 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/hero-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/hero-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/hero-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-31-53-798Z/hero-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/hero-desktop.png`
+- `a143ce0d028bcde3bbf362e7f836babe34b8da3d9280dba1b35d6d5dd499aed4` — 5 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/module-carMoverGuide.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/module-carMoverGuide.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/module-carMoverGuide.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/module-carMoverGuide.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/module-carMoverGuide.png`
+- `14ed3c8aa4d82ee430193ec7cb299e5db97afdb41c60191c46ec854615cb758f` — 4 files
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-27-42-640Z/desktop-class-agnostic.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-29-53-483Z/desktop-class-agnostic.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-12T05-27-42-640Z/desktop-class-agnostic.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-12T05-29-53-483Z/desktop-class-agnostic.png`
+- `289de5d1d3798fe0243531c7fa7af6336c8b61be4e184b76942fcc5569223121` — 4 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-17T04-32-18-035Z/android-car-mover.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-17T04-39-58-113Z/android-car-mover.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-22T12-52-40-419Z/android-car-mover.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/owner-review-2026-08-17/agm-car-mover-owner-review.png`
+- `568667ead123dacf8569164afdb77227c6f8930d14858bf262ada6ca601d6a9d` — 4 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-49-48-272Z/android-car-mover-p1-operations.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-51-24-418Z/android-car-mover-p1-operations.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-52-33-200Z/android-car-mover-p1-operations.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-17-05-549Z/android-car-mover-p1-operations.png`
+- `593c7f3faf3cc64bac0fce1ac3a61c0bee0153dbc6d2f19b79c797b1c6201d12` — 4 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/menu-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/menu-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/menu-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/menu-desktop.png`
+- `9ce0469290078043318d79fd8ab6e6bbc477d0be3b4a49b5e70f071d604ccbfe` — 4 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-40-45-957Z/menu-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-38-15-859Z/menu-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-48-26-849Z/menu-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/menu-mobile.png`
+- `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` — 4 files
+  - `evidence/car-mover/p0-02/android-installed.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/android-installed.png`
+  - `.runtime-state/agm-field-test-apk-8765.stderr.log`
+  - `evidence/car-mover/runtime-recovery/2026-08-24T17-42-browser/server.stderr.log`
+- `e8be8ca07ef735107a95c742e171f2a8c81138ad391d6ced7d0ab13d7f304054` — 4 files
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/car-mover-entry.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/car-mover-entry.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-10-19-842Z/car-mover-entry.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-16-20-543Z/car-mover-entry.png`
+- `0d015d74db9420c9af716555b5e8cd33a52f1ec3084fc3c6c8b330e6d276724c` — 3 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/hero-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/hero-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/hero-mobile.png`
+- `459e2a9713a43e3e7935f57a8d0a93cc34cc642d5c85c354e5d2f43a6550ebc8` — 3 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-28-53-141Z/android-car-mover-p1-operations.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-30-07-901Z/android-car-mover-p1-operations.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-31-21-808Z/android-car-mover-p1-operations.png`
+- `4620c803d270ac18c9eaa5052dfc4fbb7ea3fc1b556acd8d1143ee4e83a2ea4c` — 3 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-15-10-459Z/menu-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-21-45-563Z/menu-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-25-22-157Z/menu-mobile.png`
+- `6589217cdfd47e9e7da3b5de1e3c5c175cc56f53354c5958895afdbf7a84fc6b` — 3 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T20-54-08-841Z/failure.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T20-59-14-746Z/failure.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-02-32-912Z/failure.png`
+- `bb0d8f53eb2b55918631a17da2096a2b4e93f73a150e1b3b5768c9161b1fb824` — 3 files
+  - `evidence/car-mover/p1-operations/android/2026-08-23T19-13-03-041Z/android-car-mover-p1-operations.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-40-12-386Z/android-car-mover-p1-operations.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p1-operations/android/2026-08-23T19-13-03-041Z/android-car-mover-p1-operations.png`
+- `cf279151ea2bcc2699370680f25ab71f85f847d2b45be4780f99e4de6730aed4` — 3 files
+  - `tmp/pages-ui-4b5871a/assets/main-kXBvi7SF.css`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/assets/main-kXBvi7SF.css`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/assets/main-kXBvi7SF.css`
+- `ea3f06d28859f09ece61f2f0ba5b5fef705b930bcef3edcd74f482456c1c57c2` — 3 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T17-35-57-281Z/menu-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/menu-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/menu-mobile.png`
+- `f29b6e9e48e4e89057f74fe0b0eddcbf664a71066cf663a58c92c9d953911872` — 3 files
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/assets/main-jb5rSQZ-.js`
+  - `tmp/ui-assistant-production/tmp/pages-voice-47b264d/assets/main-Cwif-vNh.js`
+  - `tmp/ui-assistant-production/tmp/pages-voice-e2512bf/assets/main-Cwif-vNh.js`
+- `192765006d7131740c6c54bf510eca36261106bb73ce95c4f818e5dd63159912` — 2 files
+  - `tmp/ui-assistant-production/evidence/car-mover/production/2026-08-23-final/car-mover-production.png`
+  - `evidence/car-mover/production/2026-08-23-final/car-mover-production.png`
+- `20f38f56105e451f75e18e5abebe7dda948a445df078528a82b9772810424e2b` — 2 files
+  - `tmp/ui-assistant-production/apps/web/android/app/src/main/assets/public/assets/main-PZh983Ku.css`
+  - `apps/web/android/app/src/main/assets/public/assets/main-PZh983Ku.css`
+- `286028ebb33a10856f163ef02f295f40f9e2d329abcaee11d69e44f5a9981da8` — 2 files
+  - `prisma/migrations/20260812090000_add_car_mover_p0_01/migration.sql`
+  - `tmp/ui-assistant-production/prisma/migrations/20260812090000_add_car_mover_p0_01/migration.sql`
+- `34898dec487aef0afb836ca4eda5e257148be9a5a99cd1198a39aa4333cd4247` — 2 files
+  - `evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/android-car-mover-production-e2e.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/android-car-mover-production-e2e.png`
+- `59789c076a5bcbef46643270047ef8ba75be6c825772557875dd8e12c9871e89` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-48-26-849Z/hero-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/hero-mobile.png`
+- `6257a75d32a6924f7e3afd7b9e0aa55e5dca8e73ee1e7d2cdd8701a3af0a5ff0` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23-reentry/02-car-mover-first-entry.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/android/2026-08-23-reentry/03-car-mover-reentry.png`
+- `64a712c14831941b01dc9c93ba5241d815d82743228df1e056b86835a51044cf` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-42-59-254Z/desktop-job-file.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-44-14-460Z/desktop-job-file.png`
+- `66081361a642c67910b0eaa8571416381dff53dcaee59a0d74bb856e694b70cf` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-40-45-957Z/menu-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-38-15-859Z/menu-desktop.png`
+- `670b5500cf4a0a811f717001b68b5c1822d22309ce2cf171c6879c25e5df2368` — 2 files
+  - `tmp/ui-assistant-production/prisma/migrations/20260823180000_add_car_mover_p1_operations/migration.sql`
+  - `prisma/migrations/20260823180000_add_car_mover_p1_operations/migration.sql`
+- `676d12dec347f645e3859f52a894fa3a4fab5839c158c3e48d8ce2ca6a214497` — 2 files
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/desktop-class-agnostic.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/desktop-class-agnostic.png`
+- `73e3e5844c7a29a7e5b08e1b88fc2b0587d3b27013ac9e75184640a27275932c` — 2 files
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/car-mover-entry.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-23T20-06-32-815Z/car-mover-entry.png`
+- `82b9f60ab25bf6812f8fe7a0512f367d5f95d1cfbd992ee991fb396ab40dabae` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-48-26-849Z/hero-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/hero-desktop.png`
+- `8cc757027ac573d11d583855ddb89bc43da3d6b9591f79b49ec5dcc590937c65` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T17-52-33-200Z/android-car-mover-job-file.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p1-operations/android/2026-08-23T18-17-05-549Z/android-car-mover-job-file.png`
+- `8d0ba3fd71a0514e886c636928b1a523a3e8d72c9441d55023728a1b0a75aad2` — 2 files
+  - `tmp/ui-assistant-production/evidence/car-mover/p1-operations/final-2026-08-23/meta-whatsapp-restriction.png`
+  - `evidence/car-mover/p1-operations/final-2026-08-23/meta-whatsapp-restriction.png`
+- `8d2f913f391df77f71f767219429f5c1f0127734dec582b3236b6757cd66abf7` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/menu-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/menu-desktop.png`
+- `98391ce517b1c8881ef2ee0e1f43bbf0345dc1e621cf6f4d3f5f58a3d9e46b2f` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-09-19-083Z/hero-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T18-26-26-966Z/hero-mobile.png`
+- `a0bc200b4e3c1343671285c0dffaa3b926b0a69658529b2fc25c2f821fcc1d2b` — 2 files
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-33-56-710Z/desktop-class-agnostic.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-12T05-33-56-710Z/desktop-class-agnostic.png`
+- `a7d571a687737200c37d41252707d4b9f531182851d5ec28328a0e79a7c42a07` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-39-18-524Z/car-mover-entry.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/p0-02/desktop/2026-08-23T19-40-56-243Z/car-mover-entry.png`
+- `c24d016b1657d0fa253a24cc4ed8abfc022be31872606266cc3d7ec2d3c22d69` — 2 files
+  - `evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/android-first-viewport.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/android-first-viewport.png`
+- `c6a4a2eddc8973b948639cd2edbb84af8cae1e53a384cdfc33638a5348f89acb` — 2 files
+  - `evidence/car-mover/p0-02/android-ui.xml`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/android-ui.xml`
+- `cf6b794b897d436be3b03e30e0e5b960f0d61e08de7df27b251cd46f850c35f5` — 2 files
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/desktop-job-file.png`
+  - `evidence/car-mover/p0-02/desktop/2026-08-12T05-37-00-431Z/desktop-job-file.png`
+- `d2da6a462017c0c6b051df08156be29ec144ba7985955a06e67491f09acc04de` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/hero-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/hero-mobile.png`
+- `dd3bc93668021bde7311a3f841b5fbaa1438f0054be6670898836c940b2d0cf7` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T19-04-03-674Z/menu-mobile.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T21-05-10-929Z/menu-mobile.png`
+- `eb74e74b2fa730c69e45b345af222ceb8c082dcff1c20b1bff0b0fee78789526` — 2 files
+  - `evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/android-car-mover-production-after-restart.png`
+  - `tmp/ui-assistant-production/evidence/car-mover/p0-02/android/2026-08-23T15-03-00-221Z/android-car-mover-production-after-restart.png`
+- `ebe400dad4257ab05bfbcb062149791187a21e10acbfde5fdf4407c15c9163dc` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-48-26-849Z/menu-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T16-55-54-902Z/menu-desktop.png`
+- `ed449837203799423cf0e76d4d13a45570e2d9a0c1082f6813a91833e4c42d3a` — 2 files
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-38-26-570Z/hero-desktop.png`
+  - `local-preserved/production-release-20260827/evidence/car-mover/navigation-path/2026-08-24T15-40-45-957Z/hero-desktop.png`
+- `f299e3e20ff6a41a0fcbbfeeca1add66b47f0c32c937c64736186f9b20aaf6ec` — 2 files
+  - `tmp/ui-assistant-production/evidence/car-mover/p1-operations/final-2026-08-23/car-mover-production.png`
+  - `evidence/car-mover/p1-operations/final-2026-08-23/car-mover-production.png`
+
+## Logical version families
+
+These are candidates for version review, not automatic duplicates.
+
+- **report.json** — 122 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **desktop-class-agnostic.png** — 23 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **runner.log.jsonl** — 23 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **android-first-viewport.png** — 16 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **desktop-job-file.png** — 16 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover-entry.png** — 15 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover-route-entry-bg-<version>.png** — 15 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover-module-archive-bg-<version>.png** — 14 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover-module-incidents-bg-<version>.png** — 14 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover-module-planning-bg-<version>.png** — 14 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **hero-desktop.png** — 14 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **active-transfer-mobile.png** — 13 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **menu-desktop.png** — 13 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **menu-mobile.png** — 13 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **android-car-mover-production-e2e.png** — 11 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **hero-mobile.png** — 11 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **android-car-mover-p1-operations.png** — 10 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **module-carmoveraccounting.png** — 9 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **module-carmoveractive.png** — 9 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **module-carmoverarchive.png** — 9 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **module-carmovercompletion.png** — 9 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **module-carmoverguide.png** — 9 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **module-carmoverplanning.png** — 9 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **failure.png** — 6 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **android-car-mover-production-after-restart.png** — 4 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover-production.png** — 4 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **migration.sql** — 4 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **<date>.json** — 3 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **final-report.json** — 3 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **final-report.md** — 3 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **schema.prisma** — 3 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **session.json** — 3 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **agm_car_mover_foundation_reuse_audit_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **agm_car_mover_freeze_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **agm_car_mover_p0_01_owner_review_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **agm_car_mover_p0_01_product_owner_acceptance_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **agm_car_mover_p0_02_owner_review_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **agm_car_mover_vehicle_class_amendment_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **agm_premium_single_copilot_c0_owner_review_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **agm-prod-<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **android-hub-native.png** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **api002-access-entitlements.spec.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **app-i18n.dictionary.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **authority-control-plane-contract.spec.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car_mover_handoff_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car_mover_production_evidence_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover-opportunity-planning-1440x1100.png** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover-opportunity-planning-412x915.png** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover-p0-01.spec.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover.client.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover.contract.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover.controller.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover.css** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover.i18n.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover.landing.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover.module.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover.runtime.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover.service.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **car-mover.view.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **create-car-mover-job.dto.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **final_validation_report.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **main.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium_assistant_android_first_ui_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium_assistant_conversational_continuity_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium_assistant_future_delegated_communication_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium_assistant_real_engine_foundation_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium_voice_multi_product_extension_<date>.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium-access.navigation.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium-app.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium-assistant-product-context.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium-assistant.runtime.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium-conversation.contract.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium-governance.view.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium-network.seed.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **premium-routes.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **production-release.yml** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **record-car-mover-finance.dto.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **record-car-mover-invoice.dto.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **record-car-mover-protocol.dto.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **rescue_journal.md** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **review-car-mover-offer.dto.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **role-provisioning.service.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **role-provisioning.spec.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **rollback.sql** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **test-car-mover-p0-01-db.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **test-car-mover-p0-01-rollback.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **test-car-mover-p0-02.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **test-premium-conversation-foundation.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **test-premium-foundation.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **transition-car-mover-job.dto.ts** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **validate-car-mover-p0-02-android.mjs** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **validate-car-mover-p0-02-desktop.mjs** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+- **validate-car-mover-p1-android.mjs** — 2 variants (VERSION_FAMILY_REVIEW_NO_AUTO_DELETE)
+
+## Missing or partial documents
+
+- **CM-MISSING-001 · MISSING** — One versioned canonical Car Mover architecture document covering P0, P1 and the 2026-08-29 routing policy Impact: Current truth is distributed across source, owner decisions and implementation reports.
+- **CM-MISSING-002 · MISSING** — Current standalone Job File specification with version and field ownership Impact: Job File behavior exists in implementation/evidence but lacks one current canonical document.
+- **CM-MISSING-003 · MISSING** — Car Mover-specific OCR/document intake contract Impact: Generic OCR evidence exists, but Car Mover document ownership and retention are not specified canonically.
+- **CM-MISSING-004 · MISSING_BY_DESIGN** — Runtime-ready AGM Toll Library specification and verified source-update runbook Impact: The component is registered but explicitly not runtime-ready.
+- **CM-MISSING-005 · MISSING** — Car Mover-specific incident response runbook Impact: Generic incident governance exists; no dedicated Car Mover runbook was found.
+- **CM-MISSING-006 · MISSING_SOURCE_RECORD** — Persisted originals for conversation-only Owner mandates Impact: Implementation reports capture outcomes, but not every original mandate exists as a repository document.
+- **CM-MISSING-007 · PARTIAL** — Field tester client integration/runbook for non-technical remote testers Impact: The controlled backend and protocol are available; direct phone HTTPS evidence exists, but a field-client workflow is not catalogued as complete.

@@ -1,0 +1,686 @@
+{
+  "schemaVersion": "agm-phase3-source-status-transitions.v1",
+  "transitionCount": 17,
+  "transitions": [
+    {
+      "sourceId": "CS-EU-REG-561-2006",
+      "title": "Regulation (EC) No 561/2006 — authentic legal act",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-001",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "https://eur-lex.europa.eu/eli/reg/2006/561/oj"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    },
+    {
+      "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+      "title": "Regulation (EC) No 561/2006 — consolidated text at 2024-12-31",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-001",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "CONTEXTUAL",
+        "canonicalLocation": "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:02006R0561-20241231"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014",
+      "title": "Regulation (EU) No 165/2014 on tachographs — authentic legal act",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-002",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "https://eur-lex.europa.eu/eli/reg/2014/165/oj"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+      "title": "Regulation (EU) No 165/2014 — consolidated text at 2024-12-31",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-002",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "CONTEXTUAL",
+        "canonicalLocation": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02014R0165-20241231"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799",
+      "title": "Commission Implementing Regulation (EU) 2016/799 — authentic legal act",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-003",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "title": "Commission Implementing Regulation (EU) 2016/799 — consolidated text at 2023-08-21",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-003",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "CONTEXTUAL",
+        "canonicalLocation": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02016R0799-20230821"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    },
+    {
+      "sourceId": "CS-DE-FPERSG",
+      "title": "Fahrpersonalgesetz (FPersG)",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-004",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "https://www.gesetze-im-internet.de/fahrpersstg/BJNR002770971.html"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    },
+    {
+      "sourceId": "CS-DE-FPERSV",
+      "title": "Fahrpersonalverordnung (FPersV)",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-004",
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "https://www.gesetze-im-internet.de/fpersv/BJNR188210005.html"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    },
+    {
+      "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "title": "Tacho primary-source change map",
+      "approvedByReviewIds": [
+        "REVIEW-TACHO-005"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "CONTEXTUAL",
+        "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "SCHEMA_READY_PENDING_OWNER_DIFF_CONFIRMATION",
+      "blockers": [],
+      "proposedRegistryEntry": {
+        "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+        "canonicalPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md",
+        "canonicalUri": null,
+        "mediaType": "text/markdown",
+        "sizeBytes": 1323,
+        "sha256": "6fcb9865f6d7265ca42919df79c8466c0aefc3966c7e79f92953b5c04e3088d9",
+        "sourceDate": "2026-08-29",
+        "effectiveDate": null,
+        "version": "1.0.0-review-candidate",
+        "status": "CURRENT",
+        "owner": "Transport Compliance Owner (designation required)",
+        "authority": {
+          "issuingBody": "AGM Transport Compliance",
+          "authorityType": "CONTEXTUAL",
+          "jurisdictions": [
+            "EU",
+            "DE"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_PENDING_CHANGESET_CONFIRMATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+          "observedPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_REVIEW_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "DRAFT / HUMAN LEGAL REVIEW REQUIRED"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "title": "Controlled field tester client runbook",
+      "approvedByReviewIds": [
+        "REVIEW-FIELD-001"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "SCHEMA_READY_PENDING_OWNER_DIFF_CONFIRMATION",
+      "blockers": [],
+      "proposedRegistryEntry": {
+        "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+        "canonicalPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md",
+        "canonicalUri": null,
+        "mediaType": "text/markdown",
+        "sizeBytes": 1933,
+        "sha256": "4d9b92e65372cb80b88369e7e04a0c355b99ec87e47c407ac08763091202891f",
+        "sourceDate": "2026-08-29",
+        "effectiveDate": null,
+        "version": "1.0.0-review-candidate",
+        "status": "CURRENT",
+        "owner": "Mobility & Routing Steward",
+        "authority": {
+          "issuingBody": "AGM Field Validation Owner",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "AGM_INTERNAL"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_PENDING_CHANGESET_CONFIRMATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+          "observedPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_REVIEW_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "DRAFT / HUMAN REVIEW REQUIRED",
+          "GET /api/v1/car-mover/routing/field-protocol",
+          "POST /api/v1/car-mover/routing/observations",
+          "GET /api/v1/car-mover/routing/telemetry",
+          "evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_PROTOCOL.md",
+          "evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_REPORT.md",
+          "evidence/field-test-backend/2026-08-29/PREPARATION_REPORT.md",
+          "evidence/field-test-backend/2026-08-29/AUTHORIZED_TESTERS.md",
+          "apps/api/src/car-mover/car-mover-routing-telemetry.service.ts"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-AGM-CM-ARCH-V1",
+      "title": "Car Mover canonical architecture specification",
+      "approvedByReviewIds": [
+        "REVIEW-CAR-MOVER-001"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "SCHEMA_READY_PENDING_OWNER_DIFF_CONFIRMATION",
+      "blockers": [],
+      "proposedRegistryEntry": {
+        "sourceId": "CS-AGM-CM-ARCH-V1",
+        "canonicalPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md",
+        "canonicalUri": null,
+        "mediaType": "text/markdown",
+        "sizeBytes": 1788,
+        "sha256": "1a592c5d4f41bc27f541c5ba867b8bf3a1b2b2b3955a533b115feae436fd6bc2",
+        "sourceDate": "2026-08-29",
+        "effectiveDate": null,
+        "version": "1.0.0-review-candidate",
+        "status": "CURRENT",
+        "owner": "AGM Product Owner / Car Mover Steward",
+        "authority": {
+          "issuingBody": "AGM Product Owner / Architecture Inspector",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "AGM_INTERNAL"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_PENDING_CHANGESET_CONFIRMATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+          "observedPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_REVIEW_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "DRAFT / HUMAN REVIEW REQUIRED",
+          "AGM Product Owner / Car Mover Steward",
+          "apps/api/src/car-mover/car-mover.contract.ts",
+          "apps/api/src/car-mover/car-mover-routing.policy.ts",
+          "apps/api/src/car-mover/car-mover-routing-telemetry.service.ts",
+          "evidence/routing-architecture/2026-08-29/IMPLEMENTATION_REPORT.md",
+          "evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_PROTOCOL.md",
+          "AGM_LIBRARY/GOVERNANCE/CAR_MOVER_BOUNDARY_DECISION.md"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-AGM-CM-JOB-V1",
+      "title": "Car Mover Job File specification",
+      "approvedByReviewIds": [
+        "REVIEW-CAR-MOVER-002"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "SCHEMA_READY_PENDING_OWNER_DIFF_CONFIRMATION",
+      "blockers": [],
+      "proposedRegistryEntry": {
+        "sourceId": "CS-AGM-CM-JOB-V1",
+        "canonicalPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md",
+        "canonicalUri": null,
+        "mediaType": "text/markdown",
+        "sizeBytes": 1908,
+        "sha256": "5061bce734fee8ce0e0a5c42729985091fc3b5e660ce60025131c9ef6fc22971",
+        "sourceDate": "2026-08-29",
+        "effectiveDate": null,
+        "version": "1.0.0-review-candidate",
+        "status": "CURRENT",
+        "owner": "AGM Product Owner / Car Mover Steward",
+        "authority": {
+          "issuingBody": "AGM Product Owner / Car Mover Steward",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "AGM_INTERNAL"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_PENDING_CHANGESET_CONFIRMATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+          "observedPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_REVIEW_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "DRAFT / HUMAN REVIEW REQUIRED",
+          "AGM Product Owner / Car Mover Steward",
+          "apps/api/src/car-mover/car-mover.contract.ts",
+          "apps/api/src/car-mover/car-mover.service.ts",
+          "apps/api/src/car-mover/dto/",
+          "CAR_MOVER/API/",
+          "CAR_MOVER/JOB_FILE/",
+          "CAR_MOVER/LIFECYCLE/"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "title": "Car Mover OCR, document and evidence contract",
+      "approvedByReviewIds": [
+        "REVIEW-DOCS-001"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "SCHEMA_READY_PENDING_OWNER_DIFF_CONFIRMATION",
+      "blockers": [],
+      "proposedRegistryEntry": {
+        "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+        "canonicalPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md",
+        "canonicalUri": null,
+        "mediaType": "text/markdown",
+        "sizeBytes": 1759,
+        "sha256": "fe613d7bb1339def15340e12a46756f34f6a80fef3f8a9ca9f80d3ae151811eb",
+        "sourceDate": "2026-08-29",
+        "effectiveDate": null,
+        "version": "1.0.0-review-candidate",
+        "status": "CURRENT",
+        "owner": "Inspector / Evidence Custody",
+        "authority": {
+          "issuingBody": "AGM Product Owner / Inspector / Evidence Custody",
+          "authorityType": "AUTHORITATIVE_WITH_SCOPE",
+          "jurisdictions": [
+            "AGM_INTERNAL"
+          ],
+          "reviewStatus": "HUMAN_APPROVED_PENDING_CHANGESET_CONFIRMATION",
+          "humanReviewRequired": false
+        },
+        "provenance": {
+          "importedFrom": "PRESERVED_IMPLEMENTATION_AND_EVIDENCE_REFERENCES",
+          "observedPath": "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md",
+          "originalPreserved": true,
+          "libraryCopyCreated": false
+        },
+        "retention": {
+          "classification": "PERMANENT_VERSION_AND_REVIEW_HISTORY",
+          "deleteAuthorized": false,
+          "historicalEvidencePreserved": true
+        },
+        "evidenceRefs": [
+          "DRAFT / HUMAN REVIEW REQUIRED",
+          "Inspector / Evidence Custody",
+          "apps/web/src/ocr-translator.ts",
+          "apps/api/src/car-mover/",
+          "CAR_MOVER/OCR_DOCUMENTS/",
+          "CAR_MOVER/EVIDENCE/"
+        ],
+        "supersedes": [],
+        "supersededBy": []
+      }
+    },
+    {
+      "sourceId": "CS-DE-STVO",
+      "title": "Straßenverkehrs-Ordnung (StVO)",
+      "approvedByReviewIds": [
+        "REVIEW-LEGAL-001"
+      ],
+      "overlapsWithUnresolvedReviewIds": [
+        "REVIEW-LEGAL-003",
+        "REVIEW-LEGAL-005"
+      ],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "https://www.gesetze-im-internet.de/stvo_2013/BJNR036710013.html"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    },
+    {
+      "sourceId": "CS-DE-STVZO",
+      "title": "Straßenverkehrs-Zulassungs-Ordnung (StVZO)",
+      "approvedByReviewIds": [
+        "REVIEW-LEGAL-002"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "https://www.gesetze-im-internet.de/stvzo_2012/StVZO.pdf"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    },
+    {
+      "sourceId": "CS-UNECE-ADR-2025",
+      "title": "ADR 2025 — Agreement concerning the International Carriage of Dangerous Goods by Road",
+      "approvedByReviewIds": [
+        "REVIEW-LEGAL-004"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "https://unece.org/info/Transport/pub/395786"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    },
+    {
+      "sourceId": "CS-DE-GGVSEB",
+      "title": "Gefahrgutverordnung Straße, Eisenbahn und Binnenschifffahrt (GGVSEB)",
+      "approvedByReviewIds": [
+        "REVIEW-LEGAL-004"
+      ],
+      "overlapsWithUnresolvedReviewIds": [],
+      "before": {
+        "presence": "ABSENT",
+        "documentStatus": null,
+        "authorityClassification": null
+      },
+      "proposedAfter": {
+        "presence": "PRESENT",
+        "documentStatus": "CURRENT",
+        "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+        "canonicalLocation": "https://www.gesetze-im-internet.de/ggvseb/GGVSEB.pdf"
+      },
+      "sourceIdContinuity": "PRESERVE_PHASE2_SOURCE_ID",
+      "operation": "ADD_NEW_CANONICAL_SOURCE",
+      "applyReadiness": "NOT_APPLY_READY_PENDING_CANONICAL_INTEGRITY_CAPTURE",
+      "blockers": [
+        "CENTRAL_SCHEMA_REQUIRES_LOCAL_CANONICAL_PATH_SIZE_AND_SHA256",
+        "REMOTE_OFFICIAL_SOURCE_INTEGRITY_NOT_CAPTURED",
+        "VALUES_MUST_NOT_BE_INVENTED"
+      ],
+      "proposedRegistryEntry": null
+    }
+  ]
+}

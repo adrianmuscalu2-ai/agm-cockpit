@@ -1,0 +1,362 @@
+{
+  "schemaVersion": "agm-routing-toll-001-owner-manual-artifact-validation.v1",
+  "generatedAt": "2026-08-30T11:41:16.455Z",
+  "artifactId": "RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026",
+  "verdict": "VALID",
+  "artifact": {
+    "path": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_CLOSURE_ACQUISITION/OWNER_MANUAL_INGEST/RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026.owner-official.pdf",
+    "filename": "RT001-FINAL-FAC-BE-LIEFKENSHOEK-2026.owner-official.pdf",
+    "mediaType": "application/pdf",
+    "sizeBytes": 429035,
+    "sha256": "2a8d05846ba96759c777ee6a9211474a8b61fcf6efd0123339010c1eecba3435"
+  },
+  "provenance": {
+    "authority": "Tunnel Liefkenshoek NV",
+    "officialPageUrl": "https://www.liefkenshoektunnel.be/nl/algemene-voorwaarden-tunnel-liefkenshoek-nv",
+    "acceptedOfficialPdfUrls": [
+      "https://www.liefkenshoektunnel.be/sites/default/files/media/files/2025-12/algemene_voorwaarden_tlh_v2026.pdf",
+      "https://www.liefkenshoektunnel.be/sites/default/files/media/files/2025-12/algemene_voorwaarden_tlh_v2026_engels.pdf"
+    ],
+    "officialHost": "www.liefkenshoektunnel.be",
+    "language": "en",
+    "titleMetadata": null,
+    "producer": null,
+    "creator": null,
+    "jurisdiction": "BE",
+    "ownerAssistedCapture": true
+  },
+  "scope": "Liefkenshoek Tunnel 2026 vehicle categories, tariff and payment-method distinctions, and attached conditions",
+  "effectiveDate": "2026-01-01",
+  "sourceDocumentObservations": {
+    "v2026Markers": 4,
+    "legacyV2024FooterMarkers": 5,
+    "note": "The official English PDF retains historical V2024 footer labels on early pages; Article XII, V2026 footer labels and the tariff appendix establish the official 2026 applicability. The source artifact is preserved without alteration."
+  },
+  "evidenceCounts": {
+    "pages": 10,
+    "clippedPages": 10,
+    "pagesWithoutContentLoss": 10,
+    "articles": 12,
+    "tariffValues": 6
+  },
+  "checkCount": 19,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "FILE_EXISTS",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PDF_MAGIC",
+      "pass": true,
+      "actual": "%PDF-1.6",
+      "expected": "%PDF-*"
+    },
+    {
+      "name": "PDF_EOF",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PDF_OPEN_AND_EXTRACT",
+      "pass": true,
+      "actual": {
+        "pdftotextExit": 0,
+        "textLength": 21132
+      },
+      "expected": {
+        "pdftotextExit": 0,
+        "minimumTextLength": 15000
+      }
+    },
+    {
+      "name": "COMPLETE_PAGE_SET_10_OF_10",
+      "pass": true,
+      "actual": {
+        "pageCount": 10,
+        "pageTextLengths": [
+          2691,
+          2397,
+          2561,
+          2636,
+          2414,
+          606,
+          2519,
+          2010,
+          990,
+          2243
+        ]
+      },
+      "expected": {
+        "pageCount": 10,
+        "minimumPageTextLength": 100
+      }
+    },
+    {
+      "name": "CLIPPED_TEXT_EXTRACTION_10_OF_10",
+      "pass": true,
+      "actual": {
+        "clippedTextExit": 0,
+        "pageCount": 10,
+        "pageTextLengths": [
+          2691,
+          2397,
+          2561,
+          2636,
+          2414,
+          606,
+          2519,
+          2010,
+          990,
+          2243
+        ]
+      },
+      "expected": {
+        "clippedTextExit": 0,
+        "pageCount": 10
+      }
+    },
+    {
+      "name": "NO_PAGE_CONTENT_LOSS_OR_CUTS",
+      "pass": true,
+      "actual": [
+        {
+          "page": 1,
+          "layoutChars": 2691,
+          "clippedChars": 2691,
+          "identical": true
+        },
+        {
+          "page": 2,
+          "layoutChars": 2397,
+          "clippedChars": 2397,
+          "identical": true
+        },
+        {
+          "page": 3,
+          "layoutChars": 2561,
+          "clippedChars": 2561,
+          "identical": true
+        },
+        {
+          "page": 4,
+          "layoutChars": 2636,
+          "clippedChars": 2636,
+          "identical": true
+        },
+        {
+          "page": 5,
+          "layoutChars": 2414,
+          "clippedChars": 2414,
+          "identical": true
+        },
+        {
+          "page": 6,
+          "layoutChars": 606,
+          "clippedChars": 606,
+          "identical": true
+        },
+        {
+          "page": 7,
+          "layoutChars": 2519,
+          "clippedChars": 2519,
+          "identical": true
+        },
+        {
+          "page": 8,
+          "layoutChars": 2010,
+          "clippedChars": 2010,
+          "identical": true
+        },
+        {
+          "page": 9,
+          "layoutChars": 990,
+          "clippedChars": 990,
+          "identical": true
+        },
+        {
+          "page": 10,
+          "layoutChars": 2243,
+          "clippedChars": 2243,
+          "identical": true
+        }
+      ],
+      "expected": "10/10 pages identical with clip-aware extraction"
+    },
+    {
+      "name": "OFFICIAL_OPERATOR_IDENTITY",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "OFFICIAL_DOCUMENT_LANGUAGE",
+      "pass": true,
+      "actual": {
+        "isDutch": false,
+        "isEnglish": true
+      },
+      "expected": "Dutch or English official publication"
+    },
+    {
+      "name": "DOCUMENT_2026_MARKERS",
+      "pass": true,
+      "actual": {
+        "v2026Markers": 4,
+        "legacyV2024FooterMarkers": 5,
+        "explicitEffectiveDate2026": true
+      },
+      "expected": "V2026 marker(s) and explicit 2026 effective date"
+    },
+    {
+      "name": "ARTICLES_I_TO_XII",
+      "pass": true,
+      "actual": [
+        {
+          "numeral": "I",
+          "present": true
+        },
+        {
+          "numeral": "II",
+          "present": true
+        },
+        {
+          "numeral": "III",
+          "present": true
+        },
+        {
+          "numeral": "IV",
+          "present": true
+        },
+        {
+          "numeral": "V",
+          "present": true
+        },
+        {
+          "numeral": "VI",
+          "present": true
+        },
+        {
+          "numeral": "VII",
+          "present": true
+        },
+        {
+          "numeral": "VIII",
+          "present": true
+        },
+        {
+          "numeral": "IX",
+          "present": true
+        },
+        {
+          "numeral": "X",
+          "present": true
+        },
+        {
+          "numeral": "XI",
+          "present": true
+        },
+        {
+          "numeral": "XII",
+          "present": true
+        }
+      ],
+      "expected": "12/12"
+    },
+    {
+      "name": "EFFECTIVE_DATE_2026_01_01",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "VEHICLE_CATEGORIES_1_AND_2",
+      "pass": true,
+      "actual": {
+        "category1": true,
+        "category2": true
+      },
+      "expected": "2/2"
+    },
+    {
+      "name": "HEIGHT_CLASSIFICATION_3M",
+      "pass": true,
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "PAYMENT_METHOD_DISTINCTIONS",
+      "pass": true,
+      "actual": {
+        "cash": true,
+        "obu": true,
+        "teletol": true,
+        "cards": true
+      },
+      "expected": "cash / OBU / Teletol / cards"
+    },
+    {
+      "name": "EXACT_2026_TARIFF_VALUES",
+      "pass": true,
+      "actual": [
+        {
+          "pattern": "8[,.]00",
+          "present": true
+        },
+        {
+          "pattern": "25[,.]00",
+          "present": true
+        },
+        {
+          "pattern": "4[,.]40",
+          "present": true
+        },
+        {
+          "pattern": "17[,.]60",
+          "present": true
+        },
+        {
+          "pattern": "6[,.]20",
+          "present": true
+        },
+        {
+          "pattern": "21[,.]90",
+          "present": true
+        }
+      ],
+      "expected": "6/6 exact distinct values"
+    },
+    {
+      "name": "OTHER_COSTS_SECTION",
+      "pass": true,
+      "actual": {
+        "section": true,
+        "badge": true,
+        "invoice": true
+      },
+      "expected": true
+    },
+    {
+      "name": "NO_CHALLENGE_OR_ACCESS_DENIED",
+      "pass": true,
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "OFFICIAL_SOURCE_HOSTS",
+      "pass": true,
+      "actual": [
+        "www.liefkenshoektunnel.be",
+        "www.liefkenshoektunnel.be",
+        "www.liefkenshoektunnel.be"
+      ],
+      "expected": "www.liefkenshoektunnel.be x3"
+    }
+  ],
+  "registryMutation": "NONE",
+  "viewMutation": "NONE",
+  "authorityPromotion": "NONE"
+}

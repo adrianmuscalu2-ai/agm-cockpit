@@ -1,0 +1,70 @@
+{
+  "contractVersion": "agm-source-freshness-initial-scope.v1",
+  "preparedAt": "2026-08-30T00:00:00.000Z",
+  "activation": "PREPARED_NOT_PRODUCTION_ACTIVATED",
+  "sources": [
+    {
+      "sourceId": "CS-NL-GOV-TRUCK-TOLL-RATES-2026",
+      "candidateId": "RT001-RES-NL-TRUCK-RATES-2026",
+      "country": "NL",
+      "domain": "ROUTING_TOLL",
+      "authority": "Government of the Netherlands",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "title": "Truck toll tariff table — price level 2026",
+      "officialUrl": "https://www.vrachtwagenheffing.nl/-/media/trucktol/website/wat-gaat-het-kosten/toegankelijke-pdfs/rdw-tabellen-bedragen-vrachtwagenheffing.pdf?hash=65AEA64054AD8D4BBD1D7D0C7707D5B6&rev=790ab60be70848829bbe40c5e2360320",
+      "effectiveFrom": "2026-07-01",
+      "effectiveUntil": "2026-08-31",
+      "version": "Tariffs price level 2026; applicability 2026-07-01 through 2026-08-31",
+      "capturedAt": "2026-08-30T00:00:00.000Z",
+      "lastFreshnessCheck": "2026-08-30T00:00:00.000Z",
+      "nextFreshnessCheck": "2026-08-31",
+      "sha256": "313e308e8486c37fcdf0a2baf2ce888a6c13a5ca3c713857125366f4e0940422",
+      "currentStatus": "EXPIRY_WARNING",
+      "supersedes": [],
+      "supersededBy": [],
+      "reviewRequired": true,
+      "reviewContext": {
+        "condition": "The approved artifact cannot be CURRENT after 2026-08-31.",
+        "replacementEffectiveFrom": "2026-09-01",
+        "newCandidateUrl": null,
+        "newCandidateVersion": null,
+        "candidateEvidenceStatus": "CANONICAL_CAPTURE_REQUIRED_NO_URL_OR_VERSION_INVENTED",
+        "usageAfter2026-08-31": "UNKNOWN_HUMAN_VERIFICATION"
+      }
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-TARIFF-TABLE-V1-2",
+      "candidateId": "RT001-RES-DK-KMTOLL-TARIFF-V12",
+      "country": "DK",
+      "domain": "ROUTING_TOLL",
+      "authority": "Sund & Baelt / KmToll",
+      "authorityClassification": "AUTHORITATIVE_WITH_SCOPE",
+      "title": "Annex B / KmToll Tariff Table v1.2",
+      "officialUrl": "https://vejafgifter.dk/media/rtopb53s/annex-b-tariff-table-_v12.pdf",
+      "effectiveFrom": null,
+      "effectiveUntil": null,
+      "version": "1.2; last update 2025-11-07",
+      "capturedAt": "2026-08-30T00:00:00.000Z",
+      "lastFreshnessCheck": "2026-08-30T00:00:00.000Z",
+      "nextFreshnessCheck": "2026-09-30",
+      "sha256": "a61667515f888b6fd8df6ea8494060967865a5e9b7aedda6707a74b520192608",
+      "currentStatus": "CURRENT",
+      "supersedes": [],
+      "supersededBy": [],
+      "reviewRequired": false,
+      "reviewContext": {
+        "condition": "Q3 2026 freshness review",
+        "triggerDate": "2026-09-30",
+        "automaticVersionExtension": false,
+        "failedOrMissingCheckResult": "FRESHNESS_UNKNOWN"
+      }
+    }
+  ],
+  "guardrails": {
+    "registryMutation": "NONE",
+    "routingTollViewMutation": "NONE",
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED"
+  }
+}

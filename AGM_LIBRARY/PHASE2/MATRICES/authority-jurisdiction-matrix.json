@@ -1,0 +1,362 @@
+{
+  "schemaVersion": "agm-phase2-authority-jurisdiction-matrix.v1",
+  "sources": [
+    {
+      "sourceId": "CS-EU-REG-561-2006",
+      "issuingAuthority": "European Parliament and Council of the European Union",
+      "authorityLevel": "OFFICIAL_PRIMARY_LEGISLATION",
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+      "issuingAuthority": "Publications Office of the European Union / EUR-Lex",
+      "authorityLevel": "OFFICIAL_CONSOLIDATED_REFERENCE",
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014",
+      "issuingAuthority": "European Parliament and Council of the European Union",
+      "authorityLevel": "OFFICIAL_PRIMARY_LEGISLATION",
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+      "issuingAuthority": "Publications Office of the European Union / EUR-Lex",
+      "authorityLevel": "OFFICIAL_CONSOLIDATED_REFERENCE",
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799",
+      "issuingAuthority": "European Commission",
+      "authorityLevel": "OFFICIAL_PRIMARY_IMPLEMENTING_LEGISLATION",
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+      "issuingAuthority": "Publications Office of the European Union / EUR-Lex",
+      "authorityLevel": "OFFICIAL_CONSOLIDATED_REFERENCE",
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-DE-FPERSG",
+      "issuingAuthority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "jurisdictions": [
+        "DE"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-DE-FPERSV",
+      "issuingAuthority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "jurisdictions": [
+        "DE"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-DE-STVO",
+      "issuingAuthority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "jurisdictions": [
+        "DE"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-STVZO",
+      "issuingAuthority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "jurisdictions": [
+        "DE"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-HGB-412",
+      "issuingAuthority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "jurisdictions": [
+        "DE"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-VDI-2700-HANDBOOK",
+      "issuingAuthority": "VDI e.V.",
+      "authorityLevel": "OFFICIAL_STANDARDS_OWNER_METADATA_LICENSED_TECHNICAL_STANDARD",
+      "jurisdictions": [
+        "DE"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-UNECE-ADR-2025",
+      "issuingAuthority": "United Nations Economic Commission for Europe",
+      "authorityLevel": "OFFICIAL_PRIMARY_INTERNATIONAL_LEGAL_PUBLICATION",
+      "jurisdictions": [
+        "ADR_CONTRACTING_PARTIES"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-GGVSEB",
+      "issuingAuthority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "jurisdictions": [
+        "DE"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-AT-STVO-42-20260213",
+      "issuingAuthority": "Republic of Austria / RIS",
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION_DATE_PINNED",
+      "jurisdictions": [
+        "AT"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-CH-VRV-20220401",
+      "issuingAuthority": "Swiss Confederation / Fedlex",
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION_STALE_SNAPSHOT",
+      "jurisdictions": [
+        "CH"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+      "issuingAuthority": "French Republic / Légifrance",
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "jurisdictions": [
+        "FR"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-2026",
+      "issuingAuthority": "French Republic / Légifrance",
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "jurisdictions": [
+        "FR"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+      "issuingAuthority": "French Republic / Légifrance",
+      "authorityLevel": "OFFICIAL_TEMPORARY_NATIONAL_LEGISLATION",
+      "jurisdictions": [
+        "FR"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Security & Legal / Human Reviewer"
+    },
+    {
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "issuingAuthority": "Toll Collect GmbH / Federal toll system",
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "jurisdictions": [
+        "DE"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "issuingAuthority": "German Federal Ministry of Justice / Federal Office of Justice",
+      "authorityLevel": "OFFICIAL_NATIONAL_LEGISLATION",
+      "jurisdictions": [
+        "DE"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "issuingAuthority": "ASFINAG",
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "jurisdictions": [
+        "AT"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-CH-BAZG-ROAD-LEVIES",
+      "issuingAuthority": "Swiss Federal Office for Customs and Border Security (FOCBS/BAZG)",
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "jurisdictions": [
+        "CH"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS",
+      "issuingAuthority": "Viapass",
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "jurisdictions": [
+        "BE"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "issuingAuthority": "Polish Ministry of Finance / National Revenue Administration",
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "jurisdictions": [
+        "PL"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "issuingAuthority": "Czech electronic toll system / Ministry of Transport",
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "jurisdictions": [
+        "CZ"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "issuingAuthority": "Danish Road Toll authority",
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "jurisdictions": [
+        "DK"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "issuingAuthority": "Government of the Netherlands",
+      "authorityLevel": "OFFICIAL_TOLL_AUTHORITY_GUIDANCE",
+      "jurisdictions": [
+        "NL"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "issuingAuthority": "French Ministry for Ecological Transition",
+      "authorityLevel": "OFFICIAL_GOVERNMENT_GUIDANCE",
+      "jurisdictions": [
+        "FR"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-LU-EVIGNETTE-2019",
+      "issuingAuthority": "Grand Duchy of Luxembourg / Guichet.lu",
+      "authorityLevel": "OFFICIAL_GOVERNMENT_GUIDANCE_STALE",
+      "jurisdictions": [
+        "LU"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+      "issuingAuthority": "AGM Transport Compliance",
+      "authorityLevel": "AGM_INTERNAL_CONTROLLED_DRAFT",
+      "jurisdictions": [
+        "EU",
+        "DE"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Transport Compliance Owner (designation required)"
+    },
+    {
+      "sourceId": "CS-AGM-CM-ARCH-V1",
+      "issuingAuthority": "AGM Product Owner / Architecture Inspector",
+      "authorityLevel": "AGM_INTERNAL_CONTROLLED_DRAFT",
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "AGM Product Owner / Car Mover Steward"
+    },
+    {
+      "sourceId": "CS-AGM-CM-JOB-V1",
+      "issuingAuthority": "AGM Product Owner / Car Mover Steward",
+      "authorityLevel": "AGM_INTERNAL_CONTROLLED_DRAFT",
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "AGM Product Owner / Car Mover Steward"
+    },
+    {
+      "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+      "issuingAuthority": "AGM Field Validation Owner",
+      "authorityLevel": "AGM_INTERNAL_CONTROLLED_DRAFT",
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Mobility & Routing Steward"
+    },
+    {
+      "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+      "issuingAuthority": "AGM Product Owner / Inspector / Evidence Custody",
+      "authorityLevel": "AGM_INTERNAL_CONTROLLED_DRAFT",
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "humanReviewRequired": true,
+      "reviewOwner": "Inspector / Evidence Custody"
+    }
+  ]
+}

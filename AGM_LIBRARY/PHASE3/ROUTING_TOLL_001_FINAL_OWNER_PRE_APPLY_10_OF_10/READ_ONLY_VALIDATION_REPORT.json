@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-owner-pre-apply-read-only-validation.v1",
+  "generatedAt": "2026-08-30T12:44:48.981Z",
+  "verdict": "PASS",
+  "checks": {
+    "passed": 23,
+    "failed": 0,
+    "total": 23
+  },
+  "idempotence": "PASS",
+  "packageGenerationRunsCompared": 2,
+  "packageHashes": {
+    "FINAL_PRE_APPLY_PACKAGE.json": "ff6aed83d20e313cb8bb00e2c42684bfc7eca64d92301fd2d516f9e168cc67a8",
+    "ELIGIBLE_9_SOURCE_INFORMATIONAL_CHANGESET.json": "c574c8108c9cb34f9340e23743fda6857107e89a2e3708f9cd32b6b579916cb7",
+    "BLOCKERS_AND_CONDITIONS.json": "3825bab7e122ef2225a2a414a77dcfa7d1ccc793b0f45a48fadb81c8baf00748",
+    "EXACT_ATOMIC_APPLY_IMPACT.json": "31675a5d3860d011ff57e757d6c8b51c971de04e4658e3305aaa98016ca753d8",
+    "FINAL_PRE_APPLY_REPORT.md": "f799c8270aa7706174bfc7b5b77d749d1f6c31a2371f10310f38b5c70dcf290e"
+  },
+  "protectedState": {
+    "registry": {
+      "count": 831,
+      "sha256": "f1584be1f37ad9bb1de2c2dc2fe27b8551b56465bdfc4ae529d2b31a289a7b3d",
+      "mutation": "NONE"
+    },
+    "routingTollView": {
+      "count": 279,
+      "sha256": "001e74ec86c2abe6ffed2a0d83114361782b18edbfa595894fc440fb1c4e9997",
+      "mutation": "NONE"
+    },
+    "authorityPromotion": "NONE",
+    "runtimeProduction": "NO_CHANGE",
+    "commitPush": "NOT_EXECUTED"
+  },
+  "validatedImpact": {
+    "currentlyEvidencedInformationalSubset": {
+      "add": 9,
+      "modify": 0,
+      "delete": 0,
+      "projectedRegistryCount": 840,
+      "projectedRoutingTollViewCount": 288,
+      "projectedRegistrySha256": "0befb69cdf662ce1234155478b123bdc7cee82c521493736e7a706f52740762e",
+      "projectedRoutingTollViewSha256": "add4a71027f0e31fc627d911eda8aef9a7294b0c567742448bc32db88a61925d"
+    },
+    "fullTenSourceAfterEvidenceRecapture": {
+      "add": 10,
+      "modify": 0,
+      "delete": 0,
+      "projectedRegistryCount": 841,
+      "projectedRoutingTollViewCount": 289,
+      "projectedHashes": "UNAVAILABLE_UNTIL_RECAPTURED_CANONICAL_BYTES_AND_SHA256_EXIST"
+    }
+  },
+  "openBlockers": [
+    "PREAPPLY-EVIDENCE-RECAPTURE-CH-VIGNETTE-2026"
+  ],
+  "atomicApplyAuthorized": false,
+  "atomicApplyExecuted": false
+}

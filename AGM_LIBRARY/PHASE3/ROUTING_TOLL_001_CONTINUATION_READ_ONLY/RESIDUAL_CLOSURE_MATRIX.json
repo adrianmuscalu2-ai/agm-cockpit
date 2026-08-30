@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "agm-routing-toll-001-residual-closure-matrix.v2",
+  "generatedAt": "2026-08-30T10:20:43.6822321+02:00",
+  "gapId": "ROUTING-TOLL-001",
+  "gapState": "OPEN_PARTIALLY_READY",
+  "historicalDefinition": "Official toll and vignette authority registry with jurisdiction, update cadence and effective dates",
+  "requiredJurisdictions": ["DE", "AT", "CH", "FR", "BE", "NL", "LU", "PL", "CZ", "DK"],
+  "items": [
+    {
+      "id": "RT001-RES-001",
+      "jurisdiction": "FR",
+      "requirement": "Complete current concessionaire route/class tariff grids",
+      "previousStatus": "OPEN",
+      "currentStatus": "OPEN_BLOCKED_INCOMPLETE_CONCESSION_SET",
+      "existingRegistrySources": ["CS-FR-MOTORWAY-TOLLS", "CS-FR-ART-TARIFF-GOVERNANCE"],
+      "newOfficialEvidence": [
+        "https://www.vinci-autoroutes.com/fr/conseils/autoroute-mode-demploi/tarifs-peage-vinci-autoroutes/",
+        "https://www.autoroutes.sanef.com/fr/grilles-tarifs-de-peage",
+        "https://voyage.aprr.fr/tarifs-de-peage"
+      ],
+      "finding": "Current 2026 grids exist for several major networks, but the official French framework identifies a larger concession set. Three operator groups do not demonstrate complete concessionaire-by-concessionaire coverage.",
+      "coverage": "PARTIAL",
+      "proposedAction": "Enumerate the complete official concession list, capture every current operator grid by route and vehicle class, then submit one scoped human-authority package. Do not infer missing networks from major operators."
+    },
+    {
+      "id": "RT001-RES-002",
+      "jurisdiction": "PL",
+      "requirement": "Official passenger/light concession motorway tariffs",
+      "previousStatus": "OPEN",
+      "currentStatus": "READY_FOR_OWNER_AUTHORITY_REVIEW",
+      "newCandidateIds": ["RT001-RES-PL-A1-2026", "RT001-RES-PL-A2-2026", "RT001-RES-PL-A4-2026"],
+      "integrity": "3/3_CAPTURED_HASHED",
+      "coverage": "A1_GDANSK_TORUN + A2_SWIECKO_KONIN + A4_KATOWICE_KRAKOW",
+      "limitations": "Authority and exact effective applicability still require Product Owner review; no Registry addition is proposed as approved."
+    },
+    {
+      "id": "RT001-RES-003",
+      "jurisdiction": "CH",
+      "requirement": "Exact current LSVA and vignette tariff/effective artifacts",
+      "previousStatus": "OPEN",
+      "currentStatus": "READY_FOR_OWNER_AUTHORITY_REVIEW",
+      "newCandidateIds": ["RT001-RES-CH-LSVA-RATES", "RT001-RES-CH-VIGNETTE-2026"],
+      "integrity": "2/2_CAPTURED_HASHED",
+      "coverage": "LSVA_SCOPE_AND_RATE + VIGNETTE_PRICE_VALIDITY_AND_LIGHT_VEHICLE_SCOPE",
+      "limitations": "The owner must approve exact scope and currentness; no automatic authority promotion."
+    },
+    {
+      "id": "RT001-RES-004",
+      "jurisdiction": "LU",
+      "requirement": "Human-verified 2026 Eurovignette applicability and current tariff status",
+      "previousStatus": "OPEN",
+      "currentStatus": "READY_FOR_OWNER_AUTHORITY_REVIEW",
+      "newCandidateIds": [
+        "RT001-RES-LU-EUROVIGNETTE-SCOPE",
+        "RT001-RES-LU-EUROVIGNETTE-RATES",
+        "RT001-RES-LU-EUROVIGNETTE-2026-ENFORCEMENT"
+      ],
+      "integrity": "3/3_CAPTURED_HASHED",
+      "coverage": "OFFICIAL_SCOPE + TARIFF_EFFECTIVE_2025_03_25 + 2026_OPERATIONAL_ENFORCEMENT",
+      "limitations": "Human review must reconcile the tariff effective date and any multi-country wording with 2026 national applicability."
+    },
+    {
+      "id": "RT001-RES-005",
+      "jurisdiction": "BE/NL/DE",
+      "requirement": "Separately governed tunnel/facility coverage or explicit human exclusion",
+      "previousStatus": "OPEN",
+      "currentStatus": "PARTIALLY_READY",
+      "newCandidateIds": [
+        "RT001-RES-BE-LIEFKENSHOEK-2026",
+        "RT001-RES-DE-WARNOW-2025",
+        "RT001-RES-DE-HERREN",
+        "RT001-RES-NL-KILTUNNEL",
+        "RT001-RES-NL-WESTERSCHELDE-2026"
+      ],
+      "integrity": "4_CAPTURED_HASHED + 1_REMOTE_VERIFIED_LOCAL_INTEGRITY_BLOCKED",
+      "coverage": "Named material facilities located, but exhaustive national facility coverage or explicit owner exclusion is not demonstrated.",
+      "limitations": "Liefkenshoek local canonical capture is blocked by an official-site JavaScript challenge. No unofficial substitute was used."
+    },
+    {
+      "id": "RT001-RES-006",
+      "jurisdiction": "DK/NL",
+      "requirement": "Exact current distance-charge tariff artifacts",
+      "previousStatus": "OPEN",
+      "currentStatus": "READY_FOR_OWNER_AUTHORITY_REVIEW",
+      "newCandidateIds": ["RT001-RES-DK-KMTOLL-TARIFF-V12", "RT001-RES-NL-TRUCK-RATES-2026"],
+      "integrity": "2/2_CAPTURED_HASHED",
+      "coverage": "DK_KMTOLL_WEIGHT_CO2_ENVIRONMENTAL_ZONE_TABLE + NL_2026_WEIGHT_CO2_TIME_BANDS",
+      "limitations": "NL includes time-bounded 2026 tariff periods; effective-date gating is mandatory."
+    },
+    {
+      "id": "RT001-RES-007",
+      "jurisdiction": "ALL",
+      "requirement": "Per-source freshness, invalidation and stale-data runbook",
+      "previousStatus": "OPEN",
+      "currentStatus": "DRAFT_READY_FOR_OWNER_REVIEW_NOT_OPERATIONAL",
+      "evidence": "FRESHNESS_INVALIDATION_RUNBOOK_DRAFT.md",
+      "coverage": "Documentary control model only",
+      "limitations": "No runtime, scheduler, application or API integration is authorized or implemented."
+    },
+    {
+      "id": "RT001-RES-008",
+      "jurisdiction": "ALL",
+      "requirement": "Human authority/applicability decisions for the original 16 proposed sources",
+      "previousStatus": "OPEN",
+      "currentStatus": "PASS_CLOSED_BY_PRODUCT_OWNER_16_OF_16",
+      "evidence": [
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
+        "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_ATOMIC_APPLY/POST_APPLY_VALIDATION_REPORT.json"
+      ],
+      "coverage": "16/16 decisions and atomic apply accepted",
+      "limitations": "This closes only the former authority-decision blocker, not ROUTING-TOLL-001."
+    }
+  ],
+  "summary": {
+    "closedResidualItems": 1,
+    "readyForOwnerReview": 4,
+    "partiallyReady": 1,
+    "openBlocked": 1,
+    "draftNotOperational": 1,
+    "closureVerdict": "NOT_READY_FOR_CLOSURE"
+  }
+}

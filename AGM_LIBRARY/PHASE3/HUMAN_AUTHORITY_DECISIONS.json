@@ -1,0 +1,1063 @@
+{
+  "schemaVersion": "agm-phase3-human-authority-decisions.v1",
+  "phase": "PHASE_3_HUMAN_AUTHORITY_REVIEW_AND_CONTROLLED_CANONICAL_PROMOTION",
+  "generatedAt": "2026-08-29T00:00:00+02:00",
+  "rule": "Technical recommendation is not a human authority decision.",
+  "allowedVerdicts": [
+    "AUTHORITATIVE_CURRENT",
+    "AUTHORITATIVE_WITH_SCOPE",
+    "CONTEXTUAL",
+    "EVIDENCE_ONLY",
+    "SUPERSEDED",
+    "REJECTED",
+    "UNRESOLVED"
+  ],
+  "decisionCount": 15,
+  "completedHumanDecisions": 0,
+  "pendingHumanDecisions": 15,
+  "decisions": [
+    {
+      "reviewId": "REVIEW-TACHO-001",
+      "gapId": "TACHO-001",
+      "candidateSourceIds": [
+        "CS-EU-REG-561-2006",
+        "CS-EU-REG-561-2006-CONS-20241231"
+      ],
+      "domain": "tacho",
+      "issuingAuthorities": [
+        "European Parliament and Council of the European Union",
+        "Publications Office of the European Union / EUR-Lex"
+      ],
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "applicabilityScope": "Driving times, breaks and rest periods for road carriage within Regulation 561/2006 scope. Goods vehicles generally exceed 3.5 t; from 2026-07-01 the scope also covers international transport/cabotage above 2.5 t. Passenger and AETR boundaries and exemptions remain operation-specific.",
+      "effectiveDate": "2007-04-11; scope extension applicable 2026-07-01",
+      "versionRevision": "Base act OJ L 102, 11.4.2006; current consolidated reference observed CELEX 02006R0561-20241231",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [
+        {
+          "relation": "REPEALS",
+          "target": "Council Regulation (EEC) No 3820/85"
+        },
+        {
+          "relation": "AMENDS",
+          "target": "Council Regulations (EEC) No 3821/85 and (EC) No 2135/98"
+        },
+        {
+          "relation": "AMENDED_BY",
+          "target": "Regulation (EU) 2020/1054 and other amendments listed in the official EUR-Lex history"
+        }
+      ],
+      "authorityRationale": "The base act is authentic and in force as amended. The consolidated text is useful for current reading but EUR-Lex explicitly denies it independent legal effect.",
+      "provenanceEvidence": [
+        "https://eur-lex.europa.eu/eli/reg/2006/561/oj",
+        "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:02006R0561-20241231"
+      ],
+      "reviewOwner": "Transport Compliance Owner (designation required)",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "AUTHORITATIVE_WITH_SCOPE",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-EU-REG-561-2006",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+          "recommendedClassification": "CONTEXTUAL",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "Original OJ act must be read with amendments and corrigenda.",
+        "AETR applies to specified operations partly outside EU/EEA/Switzerland.",
+        "Named Transport Compliance Owner has not signed the applicability decision."
+      ],
+      "evidenceReferences": [
+        "https://eur-lex.europa.eu/eli/reg/2006/561/oj",
+        "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:02006R0561-20241231"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-002",
+      "gapId": "TACHO-002",
+      "candidateSourceIds": [
+        "CS-EU-REG-165-2014",
+        "CS-EU-REG-165-2014-CONS-20241231"
+      ],
+      "domain": "tacho",
+      "issuingAuthorities": [
+        "European Parliament and Council of the European Union",
+        "Publications Office of the European Union / EUR-Lex"
+      ],
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "applicabilityScope": "Construction, installation, use, testing and control of tachographs for vehicles to which Regulation 561/2006 applies, subject to exemptions and transitional provisions.",
+      "effectiveDate": "Generally applicable from 2016-03-02; Articles 24, 34 and 45 from 2015-03-02",
+      "versionRevision": "Base act OJ L 60, 28.2.2014; consolidated reference 02014R0165-20241231 (003.001)",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [
+        {
+          "relation": "REPEALS",
+          "target": "Council Regulation (EEC) No 3821/85"
+        },
+        {
+          "relation": "AMENDS",
+          "target": "Regulation (EC) No 561/2006"
+        },
+        {
+          "relation": "AMENDED_BY",
+          "target": "Regulations (EU) 2020/1054 and 2024/1230"
+        }
+      ],
+      "authorityRationale": "Regulation 165/2014 is in force, repeals Regulation 3821/85, and is amended by 2020/1054 and 2024/1230 in the current consolidated reference.",
+      "provenanceEvidence": [
+        "https://eur-lex.europa.eu/eli/reg/2014/165/oj",
+        "https://eur-lex.europa.eu/eli/reg/2014/165"
+      ],
+      "reviewOwner": "Transport Compliance Owner (designation required)",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "AUTHORITATIVE_WITH_SCOPE",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-EU-REG-165-2014",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+          "recommendedClassification": "CONTEXTUAL",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "Consolidated text is contextual, not the authentic act.",
+        "Vehicle retrofit and national exemption applicability must be evaluated per operation.",
+        "Named Transport Compliance Owner has not signed."
+      ],
+      "evidenceReferences": [
+        "https://eur-lex.europa.eu/eli/reg/2014/165/oj",
+        "https://eur-lex.europa.eu/eli/reg/2014/165"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-003",
+      "gapId": "TACHO-003",
+      "candidateSourceIds": [
+        "CS-EU-IMPL-REG-2016-799",
+        "CS-EU-IMPL-REG-2016-799-CONS-20230821"
+      ],
+      "domain": "tacho",
+      "issuingAuthorities": [
+        "European Commission",
+        "Publications Office of the European Union / EUR-Lex"
+      ],
+      "jurisdictions": [
+        "EU",
+        "EEA"
+      ],
+      "applicabilityScope": "Technical requirements for construction, testing, installation, operation and repair of smart tachographs and components under Regulation 165/2014.",
+      "effectiveDate": "2016-06-16; technical consolidation observed at 2023-08-21",
+      "versionRevision": "OJ L 139, 26.5.2016; consolidated reference CELEX 02016R0799-20230821",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [
+        {
+          "relation": "IMPLEMENTS",
+          "target": "Regulation (EU) No 165/2014"
+        }
+      ],
+      "authorityRationale": "Implementing Regulation 2016/799 supplies Annex IC technical rules used by Regulation 165/2014. It is not a substitute for the parent regulation.",
+      "provenanceEvidence": [
+        "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj",
+        "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02016R0799-20230821",
+        "https://eur-lex.europa.eu/eli/reg/2014/165"
+      ],
+      "reviewOwner": "Transport Compliance Owner (designation required)",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "AUTHORITATIVE_WITH_SCOPE",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-EU-IMPL-REG-2016-799",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+          "recommendedClassification": "CONTEXTUAL",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "Applicability depends on tachograph generation, vehicle and transition dates.",
+        "Technical annex size and amendments require specialist review.",
+        "Named Transport Compliance Owner has not signed."
+      ],
+      "evidenceReferences": [
+        "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj",
+        "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02016R0799-20230821",
+        "https://eur-lex.europa.eu/eli/reg/2014/165"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-004",
+      "gapId": "TACHO-004",
+      "candidateSourceIds": [
+        "CS-DE-FPERSG",
+        "CS-DE-FPERSV"
+      ],
+      "domain": "tacho",
+      "issuingAuthorities": [
+        "German Federal Ministry of Justice / Federal Office of Justice"
+      ],
+      "jurisdictions": [
+        "DE"
+      ],
+      "applicabilityScope": "German implementation, supervision, exemptions, card administration, records and offence rules supplementing EU 561/2006, EU 165/2014, 2016/799 and AETR.",
+      "effectiveDate": null,
+      "versionRevision": "FPersG last amended 2023-03-02; FPersV last amended 2024-07-15 in the official federal publication",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [
+        {
+          "relation": "NATIONAL_IMPLEMENTATION_AND_ENFORCEMENT",
+          "target": "Regulations (EC) 561/2006, (EU) 165/2014, Implementing Regulation 2016/799 and AETR within German competence"
+        }
+      ],
+      "authorityRationale": "FPersG authorises and structures German implementation/enforcement; FPersV contains operative national implementation and exemptions. Neither replaces directly applicable EU rules.",
+      "provenanceEvidence": [
+        "https://www.gesetze-im-internet.de/fahrpersstg/BJNR002770971.html",
+        "https://www.gesetze-im-internet.de/fpersv/BJNR188210005.html"
+      ],
+      "reviewOwner": "Transport Compliance Owner (designation required)",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "AUTHORITATIVE_WITH_SCOPE",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-DE-FPERSG",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-DE-FPERSV",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "No universal effective date applies to the combined framework.",
+        "Specific national exemptions must be assessed against the exact vehicle/operation.",
+        "Named Transport Compliance Owner has not signed."
+      ],
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/fahrpersstg/BJNR002770971.html",
+        "https://www.gesetze-im-internet.de/fpersv/BJNR188210005.html"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-005",
+      "gapId": "TACHO-005",
+      "candidateSourceIds": [
+        "CS-EU-REG-561-2006",
+        "CS-EU-REG-561-2006-CONS-20241231",
+        "CS-EU-REG-165-2014",
+        "CS-EU-REG-165-2014-CONS-20241231",
+        "CS-EU-IMPL-REG-2016-799",
+        "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+        "CS-DE-FPERSG",
+        "CS-DE-FPERSV",
+        "CS-AGM-TACHO-CHANGE-MAP-V1"
+      ],
+      "domain": "tacho",
+      "issuingAuthorities": [
+        "European Parliament and Council of the European Union",
+        "Publications Office of the European Union / EUR-Lex",
+        "European Commission",
+        "German Federal Ministry of Justice / Federal Office of Justice",
+        "AGM Transport Compliance"
+      ],
+      "jurisdictions": [
+        "EU",
+        "EEA",
+        "DE"
+      ],
+      "applicabilityScope": "AGM internal change map linking reviewed primary acts, amendments, consolidated references and German implementation.",
+      "effectiveDate": null,
+      "versionRevision": "AGM-TACHO-MAP-001 v1.0.0-review-candidate",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [],
+      "authorityRationale": "An internal index can improve traceability but cannot create legal authority. Its entries require source-by-source legal review and an assigned owner.",
+      "provenanceEvidence": [
+        "https://eur-lex.europa.eu/eli/reg/2006/561/oj",
+        "https://eur-lex.europa.eu/eli/reg/2014/165/oj",
+        "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj",
+        "https://www.gesetze-im-internet.de/fahrpersstg/BJNR002770971.html",
+        "https://www.gesetze-im-internet.de/fpersv/BJNR188210005.html",
+        "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md"
+      ],
+      "reviewOwner": "Transport Compliance Owner (designation required)",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "CONTEXTUAL",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-EU-REG-561-2006",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-EU-REG-561-2006-CONS-20241231",
+          "recommendedClassification": "CONTEXTUAL",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-EU-REG-165-2014",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-EU-REG-165-2014-CONS-20241231",
+          "recommendedClassification": "CONTEXTUAL",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-EU-IMPL-REG-2016-799",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-EU-IMPL-REG-2016-799-CONS-20230821",
+          "recommendedClassification": "CONTEXTUAL",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-DE-FPERSG",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-DE-FPERSV",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-AGM-TACHO-CHANGE-MAP-V1",
+          "recommendedClassification": "CONTEXTUAL",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "Transport Compliance Owner remains undesignated.",
+        "Amendments must be linked as amendments, not incorrectly modelled as supersession.",
+        "The map remains DRAFT.",
+        "Human amendment/applicability review and owner designation remain open."
+      ],
+      "evidenceReferences": [
+        "https://eur-lex.europa.eu/eli/reg/2006/561/oj",
+        "https://eur-lex.europa.eu/eli/reg/2014/165/oj",
+        "https://eur-lex.europa.eu/eli/reg_impl/2016/799/oj",
+        "https://www.gesetze-im-internet.de/fahrpersstg/BJNR002770971.html",
+        "https://www.gesetze-im-internet.de/fpersv/BJNR188210005.html",
+        "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/TACHO_CHANGE_MAP.v1.md"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-001",
+      "gapId": "LEGAL-001",
+      "candidateSourceIds": [
+        "CS-DE-STVO"
+      ],
+      "domain": "legislation-safety",
+      "issuingAuthorities": [
+        "German Federal Ministry of Justice / Federal Office of Justice"
+      ],
+      "jurisdictions": [
+        "DE"
+      ],
+      "applicabilityScope": "German road-traffic rules relevant to drivers and road operations; individual provisions must be selected for the concrete operation.",
+      "effectiveDate": "Constitutive recast effective 2013-04-01; later amendments provision-specific",
+      "versionRevision": "StVO last amended 2026-01-30, BGBl. 2026 I Nr. 32",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [],
+      "authorityRationale": "The BMJ/BfJ official publication is primary national legislation and current at retrieval, but a broad StVO reference is not sufficient to validate every professional-driver rule.",
+      "provenanceEvidence": [
+        "https://www.gesetze-im-internet.de/stvo_2013/BJNR036710013.html"
+      ],
+      "reviewOwner": "Security & Legal / Human Reviewer",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "AUTHORITATIVE_WITH_SCOPE",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-DE-STVO",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "Provision-level applicability and exceptions remain required.",
+        "Security & Legal reviewer has not signed."
+      ],
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/stvo_2013/BJNR036710013.html"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-002",
+      "gapId": "LEGAL-002",
+      "candidateSourceIds": [
+        "CS-DE-STVZO"
+      ],
+      "domain": "legislation-safety",
+      "issuingAuthorities": [
+        "German Federal Ministry of Justice / Federal Office of Justice"
+      ],
+      "jurisdictions": [
+        "DE"
+      ],
+      "applicabilityScope": "German vehicle construction, approval, inspection and operational-safety requirements within the cited StVZO provisions.",
+      "effectiveDate": "Recast effective 2012-05-05; later amendments provision-specific",
+      "versionRevision": "StVZO last amended 2024-06-10, BGBl. 2024 I Nr. 191",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [],
+      "authorityRationale": "The official federal text is a primary national legal source. Exact vehicle-category and provision-level applicability still requires review.",
+      "provenanceEvidence": [
+        "https://www.gesetze-im-internet.de/stvzo_2012/StVZO.pdf"
+      ],
+      "reviewOwner": "Security & Legal / Human Reviewer",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "AUTHORITATIVE_WITH_SCOPE",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-DE-STVZO",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "EU type-approval law may also govern a concrete vehicle.",
+        "Security & Legal reviewer has not signed."
+      ],
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/stvzo_2012/StVZO.pdf"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-003",
+      "gapId": "LEGAL-003",
+      "candidateSourceIds": [
+        "CS-DE-STVO",
+        "CS-DE-HGB-412",
+        "CS-VDI-2700-HANDBOOK"
+      ],
+      "domain": "legislation-safety",
+      "issuingAuthorities": [
+        "German Federal Ministry of Justice / Federal Office of Justice",
+        "VDI e.V."
+      ],
+      "jurisdictions": [
+        "DE"
+      ],
+      "applicabilityScope": "German legal duties for safe loading/securing plus applicable recognized technical rules, especially vehicle transporters.",
+      "effectiveDate": null,
+      "versionRevision": "StVO last amended 2026-01-30; VDI 2700 family has sheet-specific versions, including 8.1:2024-09 and later corrigendum metadata",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [],
+      "authorityRationale": "StVO §22 and HGB §412 are legal sources. VDI metadata identifies relevant recognized technical standards, but licensed normative content has not been acquired and cannot be reconstructed from summaries.",
+      "provenanceEvidence": [
+        "https://www.gesetze-im-internet.de/stvo_2013/__22.html",
+        "https://www.gesetze-im-internet.de/hgb/__412.html",
+        "https://www.vdi.de/mitgliedschaft/vdi-richtlinien/details/vdi-handbuch-ladungssicherung",
+        "https://www.vdi.de/en/home/vdi-standards/details/vdi-2700-blatt-81-ladungssicherung-auf-strassenfahrzeugen-sicherung-von-pkw-und-leichten-nutzfahrzeugen-auf-fahrzeugtransportern"
+      ],
+      "reviewOwner": "Security & Legal / Human Reviewer",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "UNRESOLVED",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-DE-STVO",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-DE-HGB-412",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-VDI-2700-HANDBOOK",
+          "recommendedClassification": "CONTEXTUAL",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "VDI normative content is unavailable in the controlled corpus.",
+        "Metadata/reference may remain contextual only.",
+        "A secondary summary cannot replace the standard.",
+        "Security & Legal reviewer has not signed.",
+        "Licensed normative VDI text was not acquired; official catalogue metadata cannot replace technical content."
+      ],
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/stvo_2013/__22.html",
+        "https://www.gesetze-im-internet.de/hgb/__412.html",
+        "https://www.vdi.de/mitgliedschaft/vdi-richtlinien/details/vdi-handbuch-ladungssicherung",
+        "https://www.vdi.de/en/home/vdi-standards/details/vdi-2700-blatt-81-ladungssicherung-auf-strassenfahrzeugen-sicherung-von-pkw-und-leichten-nutzfahrzeugen-auf-fahrzeugtransportern"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-004",
+      "gapId": "LEGAL-004",
+      "candidateSourceIds": [
+        "CS-UNECE-ADR-2025",
+        "CS-DE-GGVSEB"
+      ],
+      "domain": "legislation-safety",
+      "issuingAuthorities": [
+        "United Nations Economic Commission for Europe",
+        "German Federal Ministry of Justice / Federal Office of Justice"
+      ],
+      "jurisdictions": [
+        "ADR_CONTRACTING_PARTIES",
+        "DE"
+      ],
+      "applicabilityScope": "ADR dangerous-goods rules for contracting parties and German national implementation through GGVSEB.",
+      "effectiveDate": "ADR 2025 amendments applicable 2025-01-01; German incorporation/amendments are provision-specific",
+      "versionRevision": "ADR 2025 ECE/TRANS/352; GGVSEB last amended 2025-06-19",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [],
+      "authorityRationale": "UNECE ADR 2025 is the official international publication; GGVSEB applies the ADR framework for German domestic and cross-border transport. Classification and exemptions remain consignment-specific.",
+      "provenanceEvidence": [
+        "https://unece.org/info/Transport/pub/395786",
+        "https://www.gesetze-im-internet.de/ggvseb/GGVSEB.pdf"
+      ],
+      "reviewOwner": "Security & Legal / Human Reviewer",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "AUTHORITATIVE_WITH_SCOPE",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-UNECE-ADR-2025",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-DE-GGVSEB",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "Dangerous-goods applicability cannot be inferred from ordinary Car Mover data.",
+        "Security & Legal reviewer has not signed."
+      ],
+      "evidenceReferences": [
+        "https://unece.org/info/Transport/pub/395786",
+        "https://www.gesetze-im-internet.de/ggvseb/GGVSEB.pdf"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-005",
+      "gapId": "LEGAL-005",
+      "candidateSourceIds": [
+        "CS-DE-STVO",
+        "CS-AT-STVO-42-20260213",
+        "CS-CH-VRV-20220401",
+        "CS-FR-TRUCK-BAN-BASE-2021",
+        "CS-FR-TRUCK-BAN-2026",
+        "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026"
+      ],
+      "domain": "legislation-safety",
+      "issuingAuthorities": [
+        "German Federal Ministry of Justice / Federal Office of Justice",
+        "Republic of Austria / RIS",
+        "Swiss Confederation / Fedlex",
+        "French Republic / Légifrance"
+      ],
+      "jurisdictions": [
+        "DE",
+        "AT",
+        "CH",
+        "FR"
+      ],
+      "applicabilityScope": "Current professional-driver road restrictions across DE, AT, CH, FR, BE, NL, LU, PL, CZ and DK.",
+      "effectiveDate": null,
+      "versionRevision": "Mixed date-pinned, historical, temporary and missing national sources",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [],
+      "authorityRationale": "The assembled set is not complete or uniformly current. German and selected French rules are identifiable, but missing jurisdictions and stale AT/CH material prevent authoritative coverage.",
+      "provenanceEvidence": [
+        "https://www.gesetze-im-internet.de/stvo_2013/__30.html",
+        "https://ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Gesetzesnummer=10011336&Paragraf=42",
+        "https://www.fedlex.admin.ch/",
+        "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000043416004"
+      ],
+      "reviewOwner": "Security & Legal / Human Reviewer",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "UNRESOLVED",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-DE-STVO",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-AT-STVO-42-20260213",
+          "recommendedClassification": "EVIDENCE_ONLY",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-CH-VRV-20220401",
+          "recommendedClassification": "EVIDENCE_ONLY",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-FR-TRUCK-BAN-BASE-2021",
+          "recommendedClassification": "CONTEXTUAL",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-FR-TRUCK-BAN-2026",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "BE, NL, LU, PL, CZ and DK restriction-source coverage remains incomplete.",
+        "AT/CH candidates require current reacquisition.",
+        "French temporary derogations require date-sensitive handling.",
+        "Security & Legal reviewer has not signed.",
+        "No complete current official source set was demonstrated for BE, NL, LU, PL, CZ and DK professional-driver restrictions.",
+        "AT and CH candidates require current reacquisition.",
+        "Temporary and base French measures require human applicability review."
+      ],
+      "evidenceReferences": [
+        "https://www.gesetze-im-internet.de/stvo_2013/__30.html",
+        "https://ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Gesetzesnummer=10011336&Paragraf=42",
+        "https://www.fedlex.admin.ch/",
+        "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000043416004"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-ROUTING-TOLL-001",
+      "gapId": "ROUTING-TOLL-001",
+      "candidateSourceIds": [
+        "CS-DE-TOLL-COLLECT-RATES",
+        "CS-DE-BFSTRMG",
+        "CS-AT-ASFINAG-GO-TOLL",
+        "CS-CH-BAZG-ROAD-LEVIES",
+        "CS-BE-VIAPASS",
+        "CS-PL-ETOLL-RATES",
+        "CS-CZ-MYTO-RATES-2026",
+        "CS-DK-KMTOLL-EETS",
+        "CS-NL-TRUCK-TOLL",
+        "CS-FR-MOTORWAY-TOLLS",
+        "CS-LU-EVIGNETTE-2019"
+      ],
+      "domain": "routing-toll",
+      "issuingAuthorities": [
+        "Toll Collect GmbH / Federal toll system",
+        "German Federal Ministry of Justice / Federal Office of Justice",
+        "ASFINAG",
+        "Swiss Federal Office for Customs and Border Security (FOCBS/BAZG)",
+        "Viapass",
+        "Polish Ministry of Finance / National Revenue Administration",
+        "Czech electronic toll system / Ministry of Transport",
+        "Danish Road Toll authority",
+        "Government of the Netherlands",
+        "French Ministry for Ecological Transition",
+        "Grand Duchy of Luxembourg / Guichet.lu"
+      ],
+      "jurisdictions": [
+        "DE",
+        "AT",
+        "CH",
+        "BE",
+        "PL",
+        "CZ",
+        "DK",
+        "NL",
+        "FR",
+        "LU"
+      ],
+      "applicabilityScope": "Country-specific official toll/vignette legislation and operational guidance for DE, AT, CH, FR, BE, NL, LU, PL, CZ and DK, including vehicle scope and effective tariffs.",
+      "effectiveDate": null,
+      "versionRevision": "Dynamic country source set; multiple 2024–2026 effective dates",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [],
+      "authorityRationale": "Official authorities cover most jurisdictions and prove different vehicle thresholds and tariff factors. France remains concession-specific and the located Luxembourg page is stale.",
+      "provenanceEvidence": [
+        "https://www.toll-collect.de/en/toll_collect/rund_um_die_maut/3_5_tonnen_maut/p1745_3_5_tonnen_maut.html",
+        "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html",
+        "https://bmp.asfinag.at/en/go-toll/?lng=en",
+        "https://www.bazg.admin.ch/en/hvc-lsva-overview",
+        "https://www.viapass.be/en/",
+        "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/",
+        "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026",
+        "https://vejafgifter.dk/en/customer-service/payment/who-has-to-pay-toll/",
+        "https://www.vrachtwagenheffing.nl/en/you-will-pay-this-amount/find-out-how-much-you-have-to-pay-per-kilometre",
+        "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+        "https://guichet.public.lu/fr/entreprises/import-export/transit/transit-ue/e-vignette-poids-lourds.html"
+      ],
+      "reviewOwner": "Mobility & Routing Steward",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "UNRESOLVED",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-DE-BFSTRMG",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-CH-BAZG-ROAD-LEVIES",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-BE-VIAPASS",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-PL-ETOLL-RATES",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-CZ-MYTO-RATES-2026",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-DK-KMTOLL-EETS",
+          "recommendedClassification": "CONTEXTUAL",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-NL-TRUCK-TOLL",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-FR-MOTORWAY-TOLLS",
+          "recommendedClassification": "CONTEXTUAL",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        },
+        {
+          "sourceId": "CS-LU-EVIGNETTE-2019",
+          "recommendedClassification": "EVIDENCE_ONLY",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "No single cross-border source is authoritative for all jurisdictions.",
+        "Dynamic tariff pages require country-specific freshness checks before every operational use.",
+        "France tariff grids are distributed across concessionaires.",
+        "Luxembourg current source remains unresolved.",
+        "Mobility & Routing Steward has not signed.",
+        "France tariff data is concession-specific and not captured as a complete official set.",
+        "Luxembourg candidate is stale and must be replaced by a current official source."
+      ],
+      "evidenceReferences": [
+        "https://www.toll-collect.de/en/toll_collect/rund_um_die_maut/3_5_tonnen_maut/p1745_3_5_tonnen_maut.html",
+        "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html",
+        "https://bmp.asfinag.at/en/go-toll/?lng=en",
+        "https://www.bazg.admin.ch/en/hvc-lsva-overview",
+        "https://www.viapass.be/en/",
+        "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/",
+        "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026",
+        "https://vejafgifter.dk/en/customer-service/payment/who-has-to-pay-toll/",
+        "https://www.vrachtwagenheffing.nl/en/you-will-pay-this-amount/find-out-how-much-you-have-to-pay-per-kilometre",
+        "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+        "https://guichet.public.lu/fr/entreprises/import-export/transit/transit-ue/e-vignette-poids-lourds.html"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-FIELD-001",
+      "gapId": "FIELD-001",
+      "candidateSourceIds": [
+        "CS-AGM-CM-FIELD-RUNBOOK-V1"
+      ],
+      "domain": "routing-toll",
+      "issuingAuthorities": [
+        "AGM Field Validation Owner"
+      ],
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "applicabilityScope": "AGM internal controlled field protocol, tester access boundary, telemetry contract and non-conclusive sample thresholds only.",
+      "effectiveDate": null,
+      "versionRevision": "AGM-CM-FIELD-001 v1.0.0-review-candidate",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [],
+      "authorityRationale": "The runbook accurately consolidates current implementation and preserved evidence, but measured observations are evidence only and never official toll/provider policy.",
+      "provenanceEvidence": [
+        "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md",
+        "evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_PROTOCOL.md",
+        "apps/api/src/car-mover/car-mover-routing-telemetry.service.ts"
+      ],
+      "reviewOwner": "Mobility & Routing Steward",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "AUTHORITATIVE_WITH_SCOPE",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-AGM-CM-FIELD-RUNBOOK-V1",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "Field thresholds do not constitute measured results.",
+        "The protocol does not authorize Production or external providers.",
+        "Mobility & Routing Steward has not signed.",
+        "Owner approval remains required; measured field evidence remains separate and non-conclusive."
+      ],
+      "evidenceReferences": [
+        "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/FIELD_TESTER_CLIENT_RUNBOOK.v1.md",
+        "evidence/routing-architecture/2026-08-29/FIELD_MEASUREMENT_PROTOCOL.md",
+        "apps/api/src/car-mover/car-mover-routing-telemetry.service.ts"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-CAR-MOVER-001",
+      "gapId": "CAR-MOVER-001",
+      "candidateSourceIds": [
+        "CS-AGM-CM-ARCH-V1"
+      ],
+      "domain": "car-mover",
+      "issuingAuthorities": [
+        "AGM Product Owner / Architecture Inspector"
+      ],
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "applicabilityScope": "Internal product architecture and routing policy for the Car Mover component inside AGM Premium.",
+      "effectiveDate": null,
+      "versionRevision": "AGM-CM-ARCH-001 v1.0.0-review-candidate",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [],
+      "authorityRationale": "The candidate matches the approved boundary and current implementation: Car Mover is a Premium component, PASSENGER_CAR is default, UNKNOWN requires confirmation, and paid providers are inactive.",
+      "provenanceEvidence": [
+        "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md",
+        "AGM_LIBRARY/GOVERNANCE/CAR_MOVER_BOUNDARY_DECISION.md",
+        "apps/api/src/car-mover/car-mover-routing.policy.ts"
+      ],
+      "reviewOwner": "AGM Product Owner / Car Mover Steward",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "AUTHORITATIVE_WITH_SCOPE",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-AGM-CM-ARCH-V1",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "It is not a separate product/project.",
+        "It does not itself change runtime.",
+        "Product Owner and Architecture Inspector signatures are absent.",
+        "Product Owner and Architecture Inspector review remains required."
+      ],
+      "evidenceReferences": [
+        "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_ARCHITECTURE_SPEC.v1.md",
+        "AGM_LIBRARY/GOVERNANCE/CAR_MOVER_BOUNDARY_DECISION.md",
+        "apps/api/src/car-mover/car-mover-routing.policy.ts"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-CAR-MOVER-002",
+      "gapId": "CAR-MOVER-002",
+      "candidateSourceIds": [
+        "CS-AGM-CM-JOB-V1"
+      ],
+      "domain": "car-mover",
+      "issuingAuthorities": [
+        "AGM Product Owner / Car Mover Steward"
+      ],
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "applicabilityScope": "Internal Job File aggregate, lifecycle, ownership and evidence-link relationships for Car Mover inside AGM Premium.",
+      "effectiveDate": null,
+      "versionRevision": "AGM-CM-JOB-001 v1.0.0-review-candidate",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [],
+      "authorityRationale": "The candidate consolidates the implemented lifecycle and Job File read model without transferring authority from referenced evidence or subsidiary records.",
+      "provenanceEvidence": [
+        "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md",
+        "apps/api/src/car-mover/car-mover.contract.ts",
+        "apps/api/src/car-mover/car-mover.service.ts"
+      ],
+      "reviewOwner": "AGM Product Owner / Car Mover Steward",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "AUTHORITATIVE_WITH_SCOPE",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-AGM-CM-JOB-V1",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "Implementation remains the operative runtime contract until Owner approval.",
+        "No historical Job File evidence is replaced.",
+        "Product Owner and Car Mover Steward signatures are absent.",
+        "Product Owner and Car Mover Steward review remains required."
+      ],
+      "evidenceReferences": [
+        "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_JOB_FILE_SPEC.v1.md",
+        "apps/api/src/car-mover/car-mover.contract.ts",
+        "apps/api/src/car-mover/car-mover.service.ts"
+      ]
+    },
+    {
+      "reviewId": "REVIEW-DOCS-001",
+      "gapId": "DOCS-001",
+      "candidateSourceIds": [
+        "CS-AGM-CM-OCR-EVIDENCE-V1"
+      ],
+      "domain": "documents-ocr-evidence",
+      "issuingAuthorities": [
+        "AGM Product Owner / Inspector / Evidence Custody"
+      ],
+      "jurisdictions": [
+        "AGM_INTERNAL"
+      ],
+      "applicabilityScope": "Internal provenance and evidence-custody rules for Car Mover source documents, derived OCR output, extracted values and retention decisions.",
+      "effectiveDate": null,
+      "versionRevision": "AGM-CM-OCR-001 v1.0.0-review-candidate",
+      "supersedes": [],
+      "supersededBy": [],
+      "legalRelationships": [],
+      "authorityRationale": "The candidate correctly separates canonical source documents from implementation, derived OCR data and evidence. OCR output cannot become canonical truth without source-document verification.",
+      "provenanceEvidence": [
+        "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md",
+        "AGM_OCR_ARCHIVE_CONTRACT_V1.md",
+        "apps/web/src/ocr-translator.ts"
+      ],
+      "reviewOwner": "Inspector / Evidence Custody",
+      "reviewTimestamp": "2026-08-29T00:00:00+02:00",
+      "humanDecision": "PENDING_NAMED_OWNER_SIGNATURE",
+      "verdict": "UNRESOLVED",
+      "technicalRecommendation": "AUTHORITATIVE_WITH_SCOPE",
+      "sourceAssessments": [
+        {
+          "sourceId": "CS-AGM-CM-OCR-EVIDENCE-V1",
+          "recommendedClassification": "AUTHORITATIVE_WITH_SCOPE",
+          "humanApproved": false,
+          "currentStatus": "UNKNOWN_PENDING_HUMAN_DECISION"
+        }
+      ],
+      "conditionsLimitations": [
+        "Applicable legal retention periods are intentionally unresolved by document class and jurisdiction.",
+        "Runtime OCR is unchanged.",
+        "Evidence Custody, Product Owner and privacy/legal signatures are absent.",
+        "Evidence Custody, Product Owner and privacy/legal retention review remain required."
+      ],
+      "evidenceReferences": [
+        "AGM_LIBRARY/PHASE2/CANONICAL_INTERNAL/CAR_MOVER_OCR_EVIDENCE_CONTRACT.v1.md",
+        "AGM_OCR_ARCHIVE_CONTRACT_V1.md",
+        "apps/web/src/ocr-translator.ts"
+      ]
+    }
+  ]
+}

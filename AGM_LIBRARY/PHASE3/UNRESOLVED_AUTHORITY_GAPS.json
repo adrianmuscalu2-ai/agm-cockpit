@@ -1,0 +1,214 @@
+{
+  "schemaVersion": "agm-phase3-unresolved-authority-gaps.v1",
+  "gapCount": 15,
+  "commonBlocker": "NAMED_HUMAN_REVIEW_OWNER_DECISION_NOT_RECORDED",
+  "gaps": [
+    {
+      "reviewId": "REVIEW-TACHO-001",
+      "gapId": "TACHO-001",
+      "domain": "tacho",
+      "owner": "Transport Compliance Owner (designation required)",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "Original OJ act must be read with amendments and corrigenda.",
+        "AETR applies to specified operations partly outside EU/EEA/Switzerland.",
+        "Named Transport Compliance Owner has not signed the applicability decision."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-002",
+      "gapId": "TACHO-002",
+      "domain": "tacho",
+      "owner": "Transport Compliance Owner (designation required)",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "Consolidated text is contextual, not the authentic act.",
+        "Vehicle retrofit and national exemption applicability must be evaluated per operation.",
+        "Named Transport Compliance Owner has not signed."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-003",
+      "gapId": "TACHO-003",
+      "domain": "tacho",
+      "owner": "Transport Compliance Owner (designation required)",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "Applicability depends on tachograph generation, vehicle and transition dates.",
+        "Technical annex size and amendments require specialist review.",
+        "Named Transport Compliance Owner has not signed."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-004",
+      "gapId": "TACHO-004",
+      "domain": "tacho",
+      "owner": "Transport Compliance Owner (designation required)",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "No universal effective date applies to the combined framework.",
+        "Specific national exemptions must be assessed against the exact vehicle/operation.",
+        "Named Transport Compliance Owner has not signed."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-TACHO-005",
+      "gapId": "TACHO-005",
+      "domain": "tacho",
+      "owner": "Transport Compliance Owner (designation required)",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "Transport Compliance Owner remains undesignated.",
+        "Amendments must be linked as amendments, not incorrectly modelled as supersession.",
+        "The map remains DRAFT.",
+        "Human amendment/applicability review and owner designation remain open."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-001",
+      "gapId": "LEGAL-001",
+      "domain": "legislation-safety",
+      "owner": "Security & Legal / Human Reviewer",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "Provision-level applicability and exceptions remain required.",
+        "Security & Legal reviewer has not signed."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-002",
+      "gapId": "LEGAL-002",
+      "domain": "legislation-safety",
+      "owner": "Security & Legal / Human Reviewer",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "EU type-approval law may also govern a concrete vehicle.",
+        "Security & Legal reviewer has not signed."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-003",
+      "gapId": "LEGAL-003",
+      "domain": "legislation-safety",
+      "owner": "Security & Legal / Human Reviewer",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "VDI normative content is unavailable in the controlled corpus.",
+        "Metadata/reference may remain contextual only.",
+        "A secondary summary cannot replace the standard.",
+        "Security & Legal reviewer has not signed.",
+        "Licensed normative VDI text was not acquired; official catalogue metadata cannot replace technical content."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-004",
+      "gapId": "LEGAL-004",
+      "domain": "legislation-safety",
+      "owner": "Security & Legal / Human Reviewer",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "Dangerous-goods applicability cannot be inferred from ordinary Car Mover data.",
+        "Security & Legal reviewer has not signed."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-LEGAL-005",
+      "gapId": "LEGAL-005",
+      "domain": "legislation-safety",
+      "owner": "Security & Legal / Human Reviewer",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "BE, NL, LU, PL, CZ and DK restriction-source coverage remains incomplete.",
+        "AT/CH candidates require current reacquisition.",
+        "French temporary derogations require date-sensitive handling.",
+        "Security & Legal reviewer has not signed.",
+        "No complete current official source set was demonstrated for BE, NL, LU, PL, CZ and DK professional-driver restrictions.",
+        "AT and CH candidates require current reacquisition.",
+        "Temporary and base French measures require human applicability review."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-ROUTING-TOLL-001",
+      "gapId": "ROUTING-TOLL-001",
+      "domain": "routing-toll",
+      "owner": "Mobility & Routing Steward",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "No single cross-border source is authoritative for all jurisdictions.",
+        "Dynamic tariff pages require country-specific freshness checks before every operational use.",
+        "France tariff grids are distributed across concessionaires.",
+        "Luxembourg current source remains unresolved.",
+        "Mobility & Routing Steward has not signed.",
+        "France tariff data is concession-specific and not captured as a complete official set.",
+        "Luxembourg candidate is stale and must be replaced by a current official source."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-FIELD-001",
+      "gapId": "FIELD-001",
+      "domain": "routing-toll",
+      "owner": "Mobility & Routing Steward",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "Field thresholds do not constitute measured results.",
+        "The protocol does not authorize Production or external providers.",
+        "Mobility & Routing Steward has not signed.",
+        "Owner approval remains required; measured field evidence remains separate and non-conclusive."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-CAR-MOVER-001",
+      "gapId": "CAR-MOVER-001",
+      "domain": "car-mover",
+      "owner": "AGM Product Owner / Car Mover Steward",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "It is not a separate product/project.",
+        "It does not itself change runtime.",
+        "Product Owner and Architecture Inspector signatures are absent.",
+        "Product Owner and Architecture Inspector review remains required."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-CAR-MOVER-002",
+      "gapId": "CAR-MOVER-002",
+      "domain": "car-mover",
+      "owner": "AGM Product Owner / Car Mover Steward",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "Implementation remains the operative runtime contract until Owner approval.",
+        "No historical Job File evidence is replaced.",
+        "Product Owner and Car Mover Steward signatures are absent.",
+        "Product Owner and Car Mover Steward review remains required."
+      ]
+    },
+    {
+      "reviewId": "REVIEW-DOCS-001",
+      "gapId": "DOCS-001",
+      "domain": "documents-ocr-evidence",
+      "owner": "Inspector / Evidence Custody",
+      "verdict": "UNRESOLVED",
+      "blockers": [
+        "Named human decision/signature absent.",
+        "Applicable legal retention periods are intentionally unresolved by document class and jurisdiction.",
+        "Runtime OCR is unchanged.",
+        "Evidence Custody, Product Owner and privacy/legal signatures are absent.",
+        "Evidence Custody, Product Owner and privacy/legal retention review remain required."
+      ]
+    }
+  ]
+}

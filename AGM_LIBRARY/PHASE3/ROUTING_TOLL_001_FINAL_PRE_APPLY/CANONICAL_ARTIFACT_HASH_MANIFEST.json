@@ -1,0 +1,185 @@
+{
+  "schemaVersion": "agm-routing-toll-001-final-artifact-hashes.v1",
+  "artifactCount": 16,
+  "matchCount": 16,
+  "mismatchCount": 0,
+  "duplicateExistingCanonicalHashCount": 0,
+  "artifacts": [
+    {
+      "sourceId": "CS-AT-ASFINAG-GO-TOLL",
+      "canonicalUri": "https://media.asfinag.at/media/p31n1jxq/go-maut-tarife-2026_de.pdf",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-AT-ASFINAG-GO-TOLL.official.pdf",
+      "mediaType": "application/pdf",
+      "byteSize": 2094992,
+      "expectedSha256": "b42f76fc5a0ed7f137774d229c130a0642d308bdb993e6aa71acc6d89ed49d9a",
+      "actualSha256": "b42f76fc5a0ed7f137774d229c130a0642d308bdb993e6aa71acc6d89ed49d9a",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-AT-ASFINAG-VIGNETTE-SECTION-2026",
+      "canonicalUri": "https://media.asfinag.at/media/1mpjid2j/asf_vignettenfolder_2026_de.pdf",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-AT-VIGNETTE-SECTION-2026.official.pdf",
+      "mediaType": "application/pdf",
+      "byteSize": 2945729,
+      "expectedSha256": "ca63e71609ab26cf6b72fadecab8212ccfd949944ede10ae5c2205dba7fec4de",
+      "actualSha256": "ca63e71609ab26cf6b72fadecab8212ccfd949944ede10ae5c2205dba7fec4de",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS",
+      "canonicalUri": "https://www.viapass.be/en/",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-BE-VIAPASS.official.html",
+      "mediaType": "text/html",
+      "byteSize": 34471,
+      "expectedSha256": "529fe6da1f40367f446b134932247c16842bad5fafe6f79f7c0885e6eca32cf0",
+      "actualSha256": "529fe6da1f40367f446b134932247c16842bad5fafe6f79f7c0885e6eca32cf0",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-BE-VIAPASS-RATES-2026",
+      "canonicalUri": "https://www.viapass.be/de/tarife/",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-BE-VIAPASS-RATES-2026.official.html",
+      "mediaType": "text/html",
+      "byteSize": 45682,
+      "expectedSha256": "dd2de360607f5ad160c61f52b398144b03f35ce68316888a4eb3d28ad21e21fa",
+      "actualSha256": "dd2de360607f5ad160c61f52b398144b03f35ce68316888a4eb3d28ad21e21fa",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-CZ-EDALNICE-VIGNETTE-2026",
+      "canonicalUri": "https://edalnice.gov.cz/en",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-CZ-EDALNICE-LIGHT.official.html",
+      "mediaType": "text/html",
+      "byteSize": 690606,
+      "expectedSha256": "d3b67219685dc87801d36e81fd4a155a74d26651b739ce37794e6764057e4627",
+      "actualSha256": "d3b67219685dc87801d36e81fd4a155a74d26651b739ce37794e6764057e4627",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-CZ-MYTO-RATES-2026",
+      "canonicalUri": "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-CZ-MYTO-RATES-2026.official.html",
+      "mediaType": "text/html",
+      "byteSize": 41269,
+      "expectedSha256": "b751f29b3d6431067aabfec3ca07967a655f0727f120a00864464dccd90b1b97",
+      "actualSha256": "b751f29b3d6431067aabfec3ca07967a655f0727f120a00864464dccd90b1b97",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-DE-BFSTRMG",
+      "canonicalUri": "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-DE-BFSTRMG.official.html",
+      "mediaType": "text/html",
+      "byteSize": 191248,
+      "expectedSha256": "87ebec688b9950fa7402e4e72ff37b829837b287a9072e5dc7d622c1becb56f2",
+      "actualSha256": "87ebec688b9950fa7402e4e72ff37b829837b287a9072e5dc7d622c1becb56f2",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-DE-TOLL-COLLECT-RATES",
+      "canonicalUri": "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-DE-TOLL-COLLECT-RATES.official.html",
+      "mediaType": "text/html",
+      "byteSize": 694100,
+      "expectedSha256": "341dcd1845c6f84ad9c99d0f8a1c904fbc7d1c8cc28fe095490a54b75749b915",
+      "actualSha256": "341dcd1845c6f84ad9c99d0f8a1c904fbc7d1c8cc28fe095490a54b75749b915",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-DK-KMTOLL-EETS",
+      "canonicalUri": "https://vejafgifter.dk/en/which-roads/",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-DK-KMTOLL-EETS.official.html",
+      "mediaType": "text/html",
+      "byteSize": 73179,
+      "expectedSha256": "38a2bba8be39983c78a4df69d6f450187351ccf051c10b6b28c7d36ba5f08d4c",
+      "actualSha256": "38a2bba8be39983c78a4df69d6f450187351ccf051c10b6b28c7d36ba5f08d4c",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-DK-SE-ORESUND-RATES-2026",
+      "canonicalUri": "https://www.oresundsbron.com/en/prices",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-DK-ORESUND-2026.official.html",
+      "mediaType": "text/html",
+      "byteSize": 335565,
+      "expectedSha256": "a73027f86d5a6cf1485a1afff7eeb760d5959a6ce8d6a306ca25e8e3fe706522",
+      "actualSha256": "a73027f86d5a6cf1485a1afff7eeb760d5959a6ce8d6a306ca25e8e3fe706522",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-DK-STOREBAELT-RATES-2026",
+      "canonicalUri": "https://www.storebaelt.dk/en/prices-and-discounts/private/",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-DK-STOREBAELT-2026.official.html",
+      "mediaType": "text/html",
+      "byteSize": 164428,
+      "expectedSha256": "70179a5b188d849660fad7613c122ed96f2a69df05ccaffdd98352f3340ab253",
+      "actualSha256": "70179a5b188d849660fad7613c122ed96f2a69df05ccaffdd98352f3340ab253",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-FR-ART-TARIFF-GOVERNANCE",
+      "canonicalUri": "https://www.autorite-transports.fr/les-autoroutes/les-tarifs-des-peages/",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-FR-ART-TARIFF-GOVERNANCE.official.html",
+      "mediaType": "text/html",
+      "byteSize": 115958,
+      "expectedSha256": "06f27b7f0b91d9530c45a790a72e52d8dc00acd83f333947fbee3f851af91842",
+      "actualSha256": "06f27b7f0b91d9530c45a790a72e52d8dc00acd83f333947fbee3f851af91842",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-FR-MOTORWAY-TOLLS",
+      "canonicalUri": "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-FR-MOTORWAY-TOLLS.official.html",
+      "mediaType": "text/html",
+      "byteSize": 120284,
+      "expectedSha256": "aeebc94376060a75044cb00483922aa53cdc2f082e8f45f5636ea719d24b8a2c",
+      "actualSha256": "aeebc94376060a75044cb00483922aa53cdc2f082e8f45f5636ea719d24b8a2c",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-NL-A24-ETOL-2026",
+      "canonicalUri": "https://www.rijksoverheid.nl/themas/verkeer-en-vervoer/wegen/tijdelijke-tolheffing-blankenburgverbinding-en-via15",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/RT001-PROP-NL-A24-ETOL-2026.official.html",
+      "mediaType": "text/html",
+      "byteSize": 246982,
+      "expectedSha256": "852d1a5fcd502ee89b8c9dc0082ed45b114f07ad909b156de980f35783717198",
+      "actualSha256": "852d1a5fcd502ee89b8c9dc0082ed45b114f07ad909b156de980f35783717198",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-NL-TRUCK-TOLL",
+      "canonicalUri": "https://www.vrachtwagenheffing.nl/en",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-NL-TRUCK-TOLL.official.html",
+      "mediaType": "text/html",
+      "byteSize": 51010,
+      "expectedSha256": "db40d5423310854c9391b3d8edb8bf972e3c566a1a224b94958bf37437ec4776",
+      "actualSha256": "db40d5423310854c9391b3d8edb8bf972e3c566a1a224b94958bf37437ec4776",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    },
+    {
+      "sourceId": "CS-PL-ETOLL-RATES",
+      "canonicalUri": "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/",
+      "canonicalArtifact": "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ARTIFACTS/CS-PL-ETOLL-RATES.official.html",
+      "mediaType": "text/html",
+      "byteSize": 267230,
+      "expectedSha256": "b90e4b2bc4e6cb461060eaa9ded63401bf278c248e17e2591ff73ac98ed1af4c",
+      "actualSha256": "b90e4b2bc4e6cb461060eaa9ded63401bf278c248e17e2591ff73ac98ed1af4c",
+      "integrity": "MATCH",
+      "duplicatesExistingCanonicalHash": false
+    }
+  ]
+}
