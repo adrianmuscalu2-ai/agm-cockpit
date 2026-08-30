@@ -1303,3 +1303,43 @@ model GmailPilotTelemetry {
   lastErrorCode          String?   @db.VarChar(80)
   updatedAt              DateTime  @updatedAt
 }
+
+model SourceFreshnessRuntimeState {
+  sourceId        String   @id @db.VarChar(180)
+  status          String   @db.VarChar(48)
+  reviewRequired  Boolean
+  lastEvaluatedAt DateTime
+  lastObservation Json
+  candidateReview Json?
+  updatedAt       DateTime @updatedAt
+
+  @@index([status, reviewRequired])
+}
+
+model SourceFreshnessAlertLedger {
+  id             String    @id @default(uuid()) @db.Uuid
+  dedupKey       String    @db.VarChar(500)
+  sourceId       String    @db.VarChar(180)
+  alertType      String    @db.VarChar(48)
+  status         String    @db.VarChar(48)
+  sentAt         DateTime
+  acknowledgedAt DateTime?
+
+  @@unique([dedupKey, sentAt])
+  @@index([sourceId, sentAt])
+}
+
+model SourceFreshnessReviewQueue {
+  id              String   @id @default(uuid()) @db.Uuid
+  reviewKey       String   @unique @db.VarChar(500)
+  sourceId        String   @db.VarChar(180)
+  status          String   @db.VarChar(48)
+  reason          String   @db.VarChar(500)
+  candidate       Json?
+  reviewState     String   @default("PENDING_PRODUCT_OWNER_REVIEW") @db.VarChar(48)
+  firstDetectedAt DateTime
+  lastDetectedAt  DateTime
+  updatedAt       DateTime @updatedAt
+
+  @@index([reviewState, status, lastDetectedAt])
+}

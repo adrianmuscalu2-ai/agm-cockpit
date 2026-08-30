@@ -24,6 +24,7 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     ['20260824170000_add_opportunity_intelligence', '820ea1dc6fc1c1b2379d871d6a098a432836f2383cb54af88364f139f3d795a1'],
     ['20260824183000_add_live_mobility_adapters', 'b2b09e0f2a828940e30e5cf1bb0657ba645113dd77ffdfe72ff4dc6139dd3636'],
     ['20260824194500_add_provider_pilot_activation', '52caf9030c345bb7feed58025d61cc05707b092647abc37afb8854d6afca4b6e'],
+    ['20260830213000_add_source_freshness_runtime', 'a939a71f4ea4312ee5e637dad7e1869e247bd35270fbeefea921fb7106c80881'],
   ] as const,
   criticalModels: [
     'Company',
@@ -54,6 +55,9 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     'DataSubjectRequest',
     'AgentRuntimeEvent',
     'ComponentHeartbeat',
+    'SourceFreshnessRuntimeState',
+    'SourceFreshnessAlertLedger',
+    'SourceFreshnessReviewQueue',
   ] as const,
   tenantScopedModels: [
     'User',

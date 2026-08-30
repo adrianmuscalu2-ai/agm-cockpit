@@ -1,5 +1,18 @@
 # AGM Release & Operations Checklist
 
+## Release Candidate freeze gate — v1.3.0
+
+- [ ] `pnpm release:freeze-check` returns `READY_FOR_RELEASE_CANDIDATE_FREEZE` for one clean Git HEAD.
+- [ ] Canonical baselines are exact: Registry 862, Legislation/Safety 66, Routing/Toll 289, with protected SHA-256 values.
+- [ ] API build and full tests pass, including canonical authority and Source Freshness runtime tests.
+- [ ] Database migration for freshness runtime state, alert ledger, and Product Owner review queue is included in the immutable migration set.
+- [ ] Web build and all 12 application-language gates pass.
+- [ ] Website build, i18n contract, controlled Browser run, and public claims report 12/12 active languages.
+- [ ] Android release signing credentials are supplied externally; no key material is committed.
+- [ ] `pnpm --filter @agm/web android:aab` produces a signed release AAB for version 1.3.0.
+- [ ] Exactly one authorized physical Android device validates the current 1.3.0 release build.
+- [ ] Release manifest records HEAD, clean workspace, lockfile, migration set, artifact SHA-256 values, and validator results.
+
 ## Purpose
 
 Acest document definește procesul oficial AGM pentru pregătirea unei versiuni înainte de testare internă, distribuție APK sau publicare Google Play.
@@ -25,7 +38,7 @@ Abia apoi versiunea se arhivează sau se publică.
 - [ ] API tests/build and Web build pass for the same commit.
 - [ ] `pnpm audit:canonical-route` proves `/` -> 308 `/basic` and `/basic` -> 200.
 - [ ] Browser preflight is recorded according to `deploy/operations/BROWSER_VALIDATION_RUNBOOK.md`.
-- [ ] `pnpm audit:wave1-browser` passes Translator, Email, OCR, all nine languages, persistence, screenshots, and responsive overflow checks.
+- [ ] `pnpm audit:wave1-browser` passes Translator, Email, OCR, all 12 languages, persistence, screenshots, and responsive overflow checks.
 - [ ] The approved release manifest supplies immutable image digests, revisions, and the exact migration set/count.
 - [ ] Post-deployment validation repeats the canonical public-route and controlled Browser checks against the deployed image.
 
@@ -106,10 +119,13 @@ Abia apoi versiunea se arhivează sau se publică.
 - [ ] Registru oficial agenți.
 - [ ] Rapoarte read-only.
 
-## 4. Android / APK Checklist
+## 4. Android / AAB and device checklist
 
 - [ ] `corepack pnpm --filter @agm/web exec cap sync android`
 - [ ] `corepack pnpm --filter @agm/web android:apk`
+- [ ] `corepack pnpm --filter @agm/web android:release-preflight`
+- [ ] `corepack pnpm --filter @agm/web android:aab`
+- [ ] Signed AAB generated at `apps/web/android/app/build/outputs/bundle/release/app-release.aab`.
 - [ ] APK generat în `apps/web/android/app/build/outputs/apk/debug/app-debug.apk`.
 - [ ] APK instalat pe Android.
 - [ ] Layout verificat pe telefon.

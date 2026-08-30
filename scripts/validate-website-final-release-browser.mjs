@@ -16,7 +16,7 @@ const engines = Object.fromEntries(Object.entries(allEngines).filter(([name]) =>
 const allViewports = { desktop: { width: 1440, height: 1000 }, mobile: { width: 390, height: 844 } };
 const requestedViewports = process.env.AGM_WEBSITE_AUDIT_VIEWPORTS?.split(',').map((viewport) => viewport.trim()).filter(Boolean);
 const viewports = Object.fromEntries(Object.entries(allViewports).filter(([name]) => !requestedViewports?.length || requestedViewports.includes(name)));
-const staleClaims = /not yet publicly released|no public access|keinen öffentlichen Zugang|noch nicht öffentlich freigegeben|fără acces public|nu sunt încă lansate public|owner review required|not ready for publication|nicht zur veröffentlichung/i;
+const staleClaims = /not yet publicly released|no public access|keinen öffentlichen Zugang|noch nicht öffentlich freigegeben|fără acces public|nu sunt încă lansate public|owner review required|not ready for publication|nicht zur veröffentlichung|9 active|9 activ|9 aktiv|9 attive|9 activos|9 aktiva|3 (?:în următorul val|in the next wave|in der nächsten welle|nella prossima fase|en la próxima fase|i nästa fas)/i;
 
 await mkdir(evidenceDir, { recursive: true });
 const scenarios = [];
@@ -69,7 +69,7 @@ try {
             if (href.startsWith('/')) discoveredInternalPaths.add(new URL(href, baseUrl).pathname);
             if (href.startsWith('https://app.agmcockpit.com')) externalAppLinks.add(href);
           }
-          const expectedLang = route.startsWith('/de/') || route === '/de/' ? 'de' : route.startsWith('/en/') || route === '/en/' ? 'en' : 'ro';
+          const expectedLang = route.match(/^\/(de|en|it|es|sv)(?:\/|$)/)?.[1] ?? 'ro';
           const checks = {
             http200: response?.status() === 200,
             language: facts.lang === expectedLang,
@@ -87,9 +87,9 @@ try {
             currentContent: !staleClaims.test(facts.text),
             performanceBudget: durationMs < 10_000,
           };
-          if (['/', '/de/', '/en/'].includes(route)) {
+          if (['/', '/de/', '/en/', '/it/', '/es/', '/sv/'].includes(route)) {
             checks.languagePresentation12 = new Set(facts.languageCodes).size === 12;
-            checks.languageStatusHonest = /9 (active|aktiv|active)|9 active|9 aktiv|9 active/i.test(facts.text) && /3 (în următorul val|in der nächsten welle|in the next wave)/i.test(facts.text);
+            checks.languageStatusHonest = /12 (active|aktiv|attive|activos|aktiva)|12 active/i.test(facts.text) && !/next wave|următorul val|nächsten welle|prossima fase|próxima fase|nästa fas/i.test(facts.text);
           }
           if (route.endsWith('/contact/')) {
             checks.contactChannels = facts.links.some((href) => href.startsWith('mailto:agm.transporte.logistik@gmail.com')) && facts.links.some((href) => href.startsWith('tel:'));
@@ -164,7 +164,7 @@ const gates = {
   desktop: scenarios.filter((scenario) => scenario.viewport === 'desktop').every((scenario) => Object.values(scenario.checks).every(Boolean)),
   mobile: scenarios.filter((scenario) => scenario.viewport === 'mobile').every((scenario) => Object.values(scenario.checks).every(Boolean)),
   majorBrowsers: Object.keys(engines).every((engine) => scenarios.some((scenario) => scenario.engine === engine && Object.values(scenario.checks).every(Boolean))),
-  languages12Presented: scenarios.filter((scenario) => ['/', '/de/', '/en/'].includes(scenario.route)).every((scenario) => scenario.checks.languagePresentation12 && scenario.checks.languageStatusHonest),
+  languages12Presented: scenarios.filter((scenario) => ['/', '/de/', '/en/', '/it/', '/es/', '/sv/'].includes(scenario.route)).every((scenario) => scenario.checks.languagePresentation12 && scenario.checks.languageStatusHonest),
   metadata: infrastructurePass && scenarios.every((scenario) => scenario.checks.canonical && scenario.checks.openGraph && scenario.checks.indexable),
   externalAppCta: !routes.includes('/') || externalAppLinks.size > 0,
 };

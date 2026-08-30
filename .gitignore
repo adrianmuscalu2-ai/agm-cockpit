@@ -14,6 +14,8 @@ coverage/
 .codex-*.log
 *.tsbuildinfo
 *.traineddata
+*.jks
+*.keystore
 .tmp/
 .tmp-video-tools/
 .video-work/
@@ -33,6 +35,11 @@ coverage/
 # Generated audit evidence retained locally, outside the release snapshot
 /evidence/internal-total-audit-2026-08-15/
 /evidence/website-final-release/
+
+# Device and release packages are retained in controlled artifact storage,
+# never in normal source/evidence commits.
+/evidence/**/*.apk
+/evidence/**/*.aab
 
 # Superseded local Android packages; 1.3.0 remains the release artifact
 /apps/web/public/downloads/AGM-Cockpit-Android.apk

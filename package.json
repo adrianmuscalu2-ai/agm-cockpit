@@ -40,7 +40,8 @@
     "audit:agma-wave2a-slice1": "node scripts/validate-agma-wave2a-slice1-desktop.mjs",
     "test:surface-sync": "node scripts/validate-product-surface.mjs",
     "test:browser-validation-flow": "tsx scripts/test-browser-validation-flow.ts",
-    "test:physical-owner-session-isolation": "node scripts/test-physical-owner-session-isolation.mjs"
+    "test:physical-owner-session-isolation": "node scripts/test-physical-owner-session-isolation.mjs",
+    "release:freeze-check": "node scripts/validate-release-candidate-freeze.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed/seed.ts"

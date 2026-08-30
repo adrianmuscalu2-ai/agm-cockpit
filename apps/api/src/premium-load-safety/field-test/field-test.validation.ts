@@ -132,6 +132,9 @@ function confirmedOcrItem(input: FieldTestInput, language: string): FieldReportI
           statement: `Confirmed label values: ${values}.`,
           explanation: 'LC is the lashing capacity and STF is the standard tension force. These label values came from local text recognition and were checked or corrected by the driver.',
         }
+      : language === 'it' ? { statement:`Valori confermati dell’etichetta: ${values}.`,explanation:'LC è la capacità di ancoraggio e STF la forza di pretensionamento standard. Questi valori provengono dal riconoscimento locale del testo e sono stati controllati o corretti dal conducente.' }
+      : language === 'es' ? { statement:`Valores confirmados de la etiqueta: ${values}.`,explanation:'LC es la capacidad de amarre y STF la fuerza de pretensado estándar. Estos valores proceden del reconocimiento local de texto y fueron revisados o corregidos por el conductor.' }
+      : language === 'sv' ? { statement:`Bekräftade etikettvärden: ${values}.`,explanation:'LC är surrningskapaciteten och STF den standardiserade förspänningskraften. Värdena kommer från lokal textigenkänning och har kontrollerats eller korrigerats av föraren.' }
       : {
           statement: `Valori confirmate de pe etichetă: ${values}.`,
           explanation: 'LC reprezintă capacitatea de ancorare, iar STF reprezintă forța standard de tensionare. Valorile provin din recunoașterea locală și au fost verificate sau corectate de șofer.',
@@ -184,6 +187,9 @@ function oppositeSideWarning(language: string): FieldReportItem {
           statement: 'The opposite side is not visible. Analysis of this area is based on the available information and may be incomplete.',
           explanation: 'AGM does not automatically extend visible features to a hidden area. There is no direct visual confirmation for this side.',
         }
+      : language === 'it' ? { statement:'Il lato opposto non è visibile. L’analisi di questa area si basa sulle informazioni disponibili e potrebbe essere incompleta.',explanation:'AGM non estende automaticamente le caratteristiche visibili a un’area nascosta. Non esiste una conferma visiva diretta per questo lato.' }
+      : language === 'es' ? { statement:'El lado opuesto no es visible. El análisis de esta zona se basa en la información disponible y puede estar incompleto.',explanation:'AGM no extiende automáticamente las características visibles a una zona oculta. No hay confirmación visual directa de este lado.' }
+      : language === 'sv' ? { statement:'Den motsatta sidan är inte synlig. Analysen av området bygger på tillgänglig information och kan vara ofullständig.',explanation:'AGM överför inte automatiskt synliga egenskaper till ett dolt område. Det finns ingen direkt visuell bekräftelse för den här sidan.' }
       : {
           statement: 'Partea opusă nu este vizibilă. Analiza acestei zone se bazează pe informațiile disponibile și poate fi incompletă.',
           explanation: 'AGM nu presupune că o zonă ascunsă este identică cu partea vizibilă. Pentru această parte lipsește confirmarea vizuală directă.',
@@ -199,6 +205,14 @@ function oppositeSideWarning(language: string): FieldReportItem {
 }
 
 function oppositeSideConfirmation(language: string): FieldReportItem {
+  if (language === 'it' || language === 'es' || language === 'sv') {
+    const copy = {
+      it: { statement:'Il conducente conferma che il lato opposto è identico o simmetrico.', explanation:'Questa informazione proviene dalla dichiarazione esplicita del conducente e non è un’osservazione visiva di AGM.' },
+      es: { statement:'El conductor confirma que el lado opuesto es idéntico o simétrico.', explanation:'Esta información procede de la declaración explícita del conductor y no es una observación visual de AGM.' },
+      sv: { statement:'Föraren bekräftar att den motsatta sidan är identisk eller symmetrisk.', explanation:'Informationen kommer från förarens uttryckliga uppgift och är inte en visuell observation från AGM.' },
+    }[language];
+    return { id:'opposite-side-driver-confirmation', statement:copy.statement, certainty:'probable', sources:['user-declared'], explanation:copy.explanation, photoRoles:[] };
+  }
   const copy = language === 'de'
     ? {
         statement: 'Der Fahrer bestätigt, dass die gegenüberliegende Seite identisch oder symmetrisch ist.',

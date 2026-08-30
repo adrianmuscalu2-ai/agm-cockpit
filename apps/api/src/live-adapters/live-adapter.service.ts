@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import type { RequestContext } from '../common/request-context';
+import { CanonicalAuthorityService } from '../canonical-authority/canonical-authority.service';
 import { hash } from '../opportunity-intelligence/opportunity-intelligence.engine';
 import { OpportunityIntelligenceService } from '../opportunity-intelligence/opportunity-intelligence.service';
 import { PilotOperationsService } from '../pilot-operations/pilot-operations.service';
@@ -32,6 +33,8 @@ import {
 import type { MobilityInputDto, PlatformFeedDto } from './live-adapter.dto';
 
 const json = (value:unknown) => value as Prisma.InputJsonValue;
+const OPTIONAL_EXTERNAL_PROVIDERS=new Set(['here','tollguru']);
+export type OptionalExternalProviderAuthorization={providerIds:readonly ('here'|'tollguru')[];authorizationReference:string};
 
 @Injectable()
 export class LiveAdapterService {
@@ -49,41 +52,62 @@ export class LiveAdapterService {
     tollGuru:TollGuruAdapter,
     hereTransit:HereTransitAdapter,
     @Optional() private readonly pilot?:PilotOperationsService,
+    @Optional() private readonly canonicalAuthority?:CanonicalAuthorityService,
   ) {
     this.providers=[tomtomGeo,hereGeo,tomtomRoute,hereRoute,tomtomTraffic,tollGuru,hereTransit];
   }
 
-  resolve(category:AdapterCategory,input:AdapterInput,ctx:RequestContext,forceRefresh=false){
+  resolve(category:AdapterCategory,input:AdapterInput,ctx:RequestContext,forceRefresh=false,optionalExternal?:OptionalExternalProviderAuthorization){
     this.authorize(ctx);
-    const inputHash=hash(input),key=`${ctx.companyId}:${category}:${inputHash}`;
+    const allowedOptional=this.authorizedOptionalProviders(optionalExternal,ctx);
+    const inputHash=hash(input),key=`${ctx.companyId}:${category}:${inputHash}:${[...allowedOptional].sort().join(',')}`;
     if(category==='TOLL'){
       const toll=input as TollInput;
       if(toll.tollRequired!==true||!toll.tollReason){
         void this.safeRecord({providerId:'tollguru',adapterId:'live.toll.tollguru',category,eventType:'TOLL_CALL_SKIPPED',inputHash,outcome:'NOT_REQUIRED',metrics:{reason:toll.tollRequired===true?'TOLL_REASON_REQUIRED':'TOLL_NOT_REQUIRED'}},ctx);
         return Promise.resolve({mode:'SKIPPED',status:'HEALTHY',warning:toll.tollRequired===true?'TOLL_REASON_REQUIRED_PROVIDER_NOT_CALLED':'TOLL_NOT_REQUIRED_PROVIDER_NOT_CALLED'} as LiveResolution);
       }
+      if(!this.canonicalAuthority||!toll.authorityScopeConfirmed||!toll.authoritySources?.length){
+        return Promise.resolve({mode:'MANUAL',status:'DEGRADED',warning:'CANONICAL_AUTHORITY_REQUIRED:UNKNOWN_HUMAN_VERIFICATION',canonicalAuthority:{resolvedValue:null,fallback:'UNKNOWN_HUMAN_VERIFICATION',decisions:[]}} as LiveResolution);
+      }
+      const evaluatedAt=toll.departureTime??new Date().toISOString();
+      const authority=this.canonicalAuthority.evaluateMany(toll.authoritySources.map((item)=>({domain:'ROUTING_TOLL' as const,sourceId:item.sourceId,jurisdiction:item.jurisdiction,evaluatedAt,purpose:'NORMATIVE' as const,scopeConfirmed:true})));
+      if(!authority.allNormativelyUsable){
+        return Promise.resolve({mode:'MANUAL',status:'DEGRADED',warning:'CANONICAL_AUTHORITY_NOT_CURRENT:UNKNOWN_HUMAN_VERIFICATION',canonicalAuthority:authority} as LiveResolution);
+      }
+      return this.resolveWithAuthority(category,input,ctx,forceRefresh,allowedOptional,authority);
     }
     const existing=this.coalesced.get(key);
     if(existing){
       void existing.then((result)=>{if(result.provider)return this.safeRecord({providerId:result.provider,adapterId:`live.${category.toLowerCase()}.${result.provider}`,category,eventType:'REQUEST_COALESCED',inputHash,outcome:'DEDUPLICATED',coalesced:true},ctx);});
       return existing;
     }
-    const promise=this.resolveOnce(category,input,ctx,forceRefresh).finally(()=>this.coalesced.delete(key));
+    const promise=this.resolveOnce(category,input,ctx,forceRefresh,allowedOptional).finally(()=>this.coalesced.delete(key));
     this.coalesced.set(key,promise);
     return promise;
   }
 
-  private async resolveOnce(category:AdapterCategory,input:AdapterInput,ctx:RequestContext,forceRefresh:boolean):Promise<LiveResolution>{
+  private resolveWithAuthority(category:AdapterCategory,input:AdapterInput,ctx:RequestContext,forceRefresh:boolean,allowedOptional:ReadonlySet<string>,authority:unknown){
+    const inputHash=hash(input),key=`${ctx.companyId}:${category}:${inputHash}:${[...allowedOptional].sort().join(',')}`;
+    const existing=this.coalesced.get(key);
+    if(existing)return existing;
+    const promise=this.resolveOnce(category,input,ctx,forceRefresh,allowedOptional).then((result)=>({...result,canonicalAuthority:authority})).finally(()=>this.coalesced.delete(key));
+    this.coalesced.set(key,promise);
+    return promise;
+  }
+
+  private async resolveOnce(category:AdapterCategory,input:AdapterInput,ctx:RequestContext,forceRefresh:boolean,allowedOptional:ReadonlySet<string>):Promise<LiveResolution>{
     const inputHash=hash(input),cacheKey=hash({category,input});
     const cached=await this.prisma.liveAdapterCache.findUnique({where:{companyId_category_cacheKey:{companyId:ctx.companyId,category,cacheKey}}});
+    const usableCached=cached&&(!OPTIONAL_EXTERNAL_PROVIDERS.has(cached.providerId)||allowedOptional.has(cached.providerId))?cached:null;
     const now=new Date();
-    if(cached&&!forceRefresh&&cached.validUntil>now){
-      await this.cacheTelemetry(ctx.companyId,category,cached.providerId,cached.fetchedAt);
-      await this.safeRecord({providerId:cached.providerId,adapterId:`live.${category.toLowerCase()}.${cached.providerId}`,category,eventType:'CACHE_HIT',inputHash,outcome:'HIT',cacheHit:true},ctx);
-      return{mode:'CACHE',status:'HEALTHY',provider:cached.providerId,data:cached.payload as unknown as NormalizedLiveContract,cacheAgeSeconds:Math.floor((Date.now()-cached.fetchedAt.getTime())/1000)};
+    if(usableCached&&!forceRefresh&&usableCached.validUntil>now){
+      await this.cacheTelemetry(ctx.companyId,category,usableCached.providerId,usableCached.fetchedAt);
+      await this.safeRecord({providerId:usableCached.providerId,adapterId:`live.${category.toLowerCase()}.${usableCached.providerId}`,category,eventType:'CACHE_HIT',inputHash,outcome:'HIT',cacheHit:true},ctx);
+      return{mode:'CACHE',status:'HEALTHY',provider:usableCached.providerId,data:usableCached.payload as unknown as NormalizedLiveContract,cacheAgeSeconds:Math.floor((Date.now()-usableCached.fetchedAt.getTime())/1000)};
     }
 
-    const configured=this.providers.filter((item)=>item.category===category&&item.configured()).sort((a,b)=>a.priority-b.priority);
+    const configured=this.providers.filter((item)=>item.category===category&&item.configured()&&(!OPTIONAL_EXTERNAL_PROVIDERS.has(item.providerId)||allowedOptional.has(item.providerId))).sort((a,b)=>a.priority-b.priority);
     const adapters:LiveProviderAdapter[]=[];
     let lastCode=configured.length?'PROVIDER_NOT_ACTIVE':'NO_CONFIGURED_PROVIDER';
     for(const adapter of configured){
@@ -106,7 +130,7 @@ export class LiveAdapterService {
           });
           return tx.liveMobilitySnapshot.create({data:{companyId:ctx.companyId,category,contractType:data.contractType,contractVersion:LIVE_ADAPTER_CONTRACT_VERSION,providerId:adapter.providerId,sourceReference:data.sourceReference,inputHash,payloadHash,payload:json(data),fetchedAt,validUntil,confidence:data.confidence}});
         });
-        const latencyMs=Date.now()-started,fallback=index>0||adapter.priority>10,recalculation=category==='ROUTE'&&forceRefresh&&Boolean(cached);
+        const latencyMs=Date.now()-started,fallback=index>0||adapter.priority>10,recalculation=category==='ROUTE'&&forceRefresh&&Boolean(usableCached);
         await this.telemetry(ctx.companyId,adapter,'HEALTHY',latencyMs,fallback?`PRIMARY_TO_${adapter.providerId.toUpperCase()}`:undefined);
         await this.safeRecord({providerId:adapter.providerId,adapterId:adapter.adapterId,category,eventType:'PROVIDER_REQUEST',inputHash,outcome:'SUCCESS',latencyMs,recalculation,fallbackActivation:fallback},ctx);
         return{mode:'LIVE',status:fallback?'DEGRADED':'HEALTHY',snapshotId:snapshot.id,provider:adapter.providerId,data,warning:fallback?'PRIMARY_PROVIDER_UNAVAILABLE_SECONDARY_USED':undefined};
@@ -115,16 +139,16 @@ export class LiveAdapterService {
         lastCode=lastError.code;
         const latencyMs=Date.now()-started;
         await this.telemetry(ctx.companyId,adapter,lastCode==='RATE_LIMITED'?'RATE_LIMITED':'UNAVAILABLE',latencyMs,undefined,lastCode);
-        await this.safeRecord({providerId:adapter.providerId,adapterId:adapter.adapterId,category,eventType:'PROVIDER_REQUEST',inputHash,outcome:'ERROR',latencyMs,recalculation:category==='ROUTE'&&forceRefresh&&Boolean(cached),rateLimited:lastCode==='RATE_LIMITED',timeout:lastCode==='TIMEOUT',errorCode:lastCode},ctx);
+        await this.safeRecord({providerId:adapter.providerId,adapterId:adapter.adapterId,category,eventType:'PROVIDER_REQUEST',inputHash,outcome:'ERROR',latencyMs,recalculation:category==='ROUTE'&&forceRefresh&&Boolean(usableCached),rateLimited:lastCode==='RATE_LIMITED',timeout:lastCode==='TIMEOUT',errorCode:lastCode},ctx);
       }
     }
 
-    if(cached){
-      const cachedData=cached.payload as unknown as NormalizedLiveContract;
-      const staleData={...cachedData,freshness:'STALE' as const,warnings:[...cachedData.warnings,'STALE_CACHE_FALLBACK'],validUntil:cached.validUntil.toISOString()};
-      await this.cacheTelemetry(ctx.companyId,category,cached.providerId,cached.fetchedAt,true);
-      await this.safeRecord({providerId:cached.providerId,adapterId:`live.${category.toLowerCase()}.${cached.providerId}`,category,eventType:'STALE_CACHE_HIT',inputHash,outcome:'STALE',cacheHit:true,stale:true,errorCode:lastCode},ctx);
-      return{mode:'STALE_CACHE',status:'STALE',provider:cached.providerId,data:staleData,warning:'STALE_CACHE_EXPLICIT_WARNING',cacheAgeSeconds:Math.floor((Date.now()-cached.fetchedAt.getTime())/1000)};
+    if(usableCached){
+      const cachedData=usableCached.payload as unknown as NormalizedLiveContract;
+      const staleData={...cachedData,freshness:'STALE' as const,warnings:[...cachedData.warnings,'STALE_CACHE_FALLBACK'],validUntil:usableCached.validUntil.toISOString()};
+      await this.cacheTelemetry(ctx.companyId,category,usableCached.providerId,usableCached.fetchedAt,true);
+      await this.safeRecord({providerId:usableCached.providerId,adapterId:`live.${category.toLowerCase()}.${usableCached.providerId}`,category,eventType:'STALE_CACHE_HIT',inputHash,outcome:'STALE',cacheHit:true,stale:true,errorCode:lastCode},ctx);
+      return{mode:'STALE_CACHE',status:'STALE',provider:usableCached.providerId,data:staleData,warning:'STALE_CACHE_EXPLICIT_WARNING',cacheAgeSeconds:Math.floor((Date.now()-usableCached.fetchedAt.getTime())/1000)};
     }
     return{mode:'MANUAL',status:'DEGRADED',warning:`${lastCode}:MANUAL_FALLBACK_REQUIRED`};
   }
@@ -178,6 +202,12 @@ export class LiveAdapterService {
     return this.prisma.liveAdapterTelemetry.upsert({where:{companyId_adapterId:{companyId,adapterId}},create:{companyId,adapterId,category,providerId,status:stale?'STALE':'HEALTHY',lastAttemptAt:new Date(),lastSuccessAt:fetchedAt,requestCount:0,errorCount:0,errorRateBps:0,rateLimitState:'CLEAR',cacheAgeSeconds:Math.floor((Date.now()-fetchedAt.getTime())/1000),contractVersion:LIVE_ADAPTER_CONTRACT_VERSION},update:{status:stale?'STALE':'HEALTHY',lastAttemptAt:new Date(),cacheAgeSeconds:Math.floor((Date.now()-fetchedAt.getTime())/1000)}});
   }
   private async safeRecord(input:Parameters<PilotOperationsService['record']>[0],ctx:RequestContext){try{await this.pilot?.record(input,ctx);}catch{/* telemetry cannot block Car Mover */}}
+  private authorizedOptionalProviders(authorization:OptionalExternalProviderAuthorization|undefined,ctx:RequestContext):ReadonlySet<string>{
+    if(!authorization)return new Set();
+    if(!ctx.roles.some((role)=>['OWNER','company_owner'].includes(role)))throw new ForbiddenException('OPTIONAL_EXTERNAL_PROVIDER_OWNER_AUTHORIZATION_REQUIRED');
+    if(!/^[A-Z0-9][A-Z0-9_.:-]{2,159}$/i.test(authorization.authorizationReference))throw new ForbiddenException('OPTIONAL_EXTERNAL_PROVIDER_AUTHORIZATION_REFERENCE_INVALID');
+    return new Set(authorization.providerIds);
+  }
   private authorize(ctx:RequestContext){if(!ctx.roles.includes('PREMIUM_ACCESS')&&!ctx.roles.includes('OWNER'))throw new ForbiddenException('Premium access required.');}
 }
 

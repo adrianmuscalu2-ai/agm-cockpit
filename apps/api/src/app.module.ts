@@ -31,6 +31,8 @@ import { AuthorityControlPlaneModule } from './authority-control-plane/authority
 import { OpportunityIntelligenceModule } from './opportunity-intelligence/opportunity-intelligence.module';
 import { LiveAdapterModule } from './live-adapters/live-adapter.module';
 import { PilotOperationsModule } from './pilot-operations/pilot-operations.module';
+import { CanonicalAuthorityModule } from './canonical-authority/canonical-authority.module';
+import { SourceFreshnessModule } from './source-freshness/source-freshness.module';
 
 @Module({
   imports: [
@@ -70,6 +72,8 @@ import { PilotOperationsModule } from './pilot-operations/pilot-operations.modul
     AuthorityControlPlaneModule,
     OpportunityIntelligenceModule,
     LiveAdapterModule,
+    CanonicalAuthorityModule,
+    SourceFreshnessModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

@@ -1,7 +1,9 @@
 import { IsIn, IsNotEmpty, IsString, MaxLength } from 'class-validator';
-
-export const supportedTranslationLanguages = ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq'] as const;
-export type TranslationLanguage = (typeof supportedTranslationLanguages)[number];
+import {
+  supportedTranslationLanguages,
+  type TranslationLanguage,
+} from './translation-languages';
+export { supportedTranslationLanguages, type TranslationLanguage } from './translation-languages';
 
 export class TranslateTextDto {
   @IsString()

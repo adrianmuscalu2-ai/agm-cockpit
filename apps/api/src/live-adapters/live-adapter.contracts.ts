@@ -18,7 +18,7 @@ export type RouteInput = { origin:Coordinates; destination:Coordinates; departur
 export type TrafficInput = { origin:Coordinates; destination:Coordinates };
 export const TOLL_REQUIRED_REASONS = ['ROUTE_TOLL_SEGMENTS','COST_RISK_EXPLICIT','ROUTE_PROVIDER_INSUFFICIENT','USER_REQUESTED','JUDGE_DISCRIMINATOR'] as const;
 export type TollRequiredReason = typeof TOLL_REQUIRED_REASONS[number];
-export type TollInput = { routeReference:string; origin:Coordinates; destination:Coordinates; tollRequired:boolean; tollReason?:TollRequiredReason; departureTime?:string; vehicle?:{ type?:string; axles?:number; weightKg?:number; emissionClass?:string } };
+export type TollInput = { routeReference:string; origin:Coordinates; destination:Coordinates; tollRequired:boolean; tollReason?:TollRequiredReason; departureTime?:string; vehicle?:{ type?:string; axles?:number; weightKg?:number; emissionClass?:string }; authoritySources?:readonly {sourceId:string;jurisdiction:string}[]; authorityScopeConfirmed?:boolean };
 export type TransitInput = { origin:Coordinates; destination:Coordinates; departureTime:string };
 export type AdapterInput = GeocodingInput|RouteInput|TrafficInput|TollInput|TransitInput;
 
@@ -28,7 +28,7 @@ export interface LiveProviderAdapter<TInput extends AdapterInput = AdapterInput>
   fetch(input:TInput):Promise<NormalizedLiveContract>;
 }
 
-export type LiveResolution = { mode:'LIVE'|'CACHE'|'STALE_CACHE'|'MANUAL'|'SKIPPED'; status:AdapterStatus; snapshotId?:string; provider?:string; data?:NormalizedLiveContract; warning?:string; cacheAgeSeconds?:number };
+export type LiveResolution = { mode:'LIVE'|'CACHE'|'STALE_CACHE'|'MANUAL'|'SKIPPED'; status:AdapterStatus; snapshotId?:string; provider?:string; data?:NormalizedLiveContract; warning?:string; cacheAgeSeconds?:number; canonicalAuthority?:unknown };
 
 export const FRESHNESS_MS:Record<AdapterCategory,number>={GEOCODING:30*24*60*60_000,ROUTE:30*60_000,TRAFFIC:3*60_000,TOLL:30*60_000,TRANSIT:15*60_000};
 

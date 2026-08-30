@@ -1,6 +1,6 @@
 export const PRE_DEPARTURE_CONTRACT_VERSION = '1.0.0' as const;
 
-export const PRE_DEPARTURE_LANGUAGES = ['ro', 'de', 'en'] as const;
+export const PRE_DEPARTURE_LANGUAGES = ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv'] as const;
 export const PRE_DEPARTURE_CONTEXTS = [
   'local',
   'long-distance',
@@ -118,4 +118,3 @@ export type PreDepartureValidationIssue = {
 export type PreDepartureValidationResult =
   | { valid: true; value: PreDepartureSessionPayload }
   | { valid: false; issues: PreDepartureValidationIssue[] };
-

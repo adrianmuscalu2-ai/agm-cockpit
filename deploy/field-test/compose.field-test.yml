@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file: [/opt/agm-field-test/secrets/field.env]
+    volumes: [agm_field_postgres:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [field_internal]
+
+  api:
+    build:
+      context: ../..
+      dockerfile: deploy/cloud/api.Dockerfile
+    image: agm-api:field-validation-local
+    restart: unless-stopped
+    env_file: [/opt/agm-field-test/secrets/field.env]
+    environment:
+      NODE_ENV: production
+      API_HOST: 0.0.0.0
+      PORT: 3000
+      TRUST_PROXY_HOPS: 0
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      CORS_ALLOWED_ORIGINS: https://validation-api.agmcockpit.com
+      OPENAI_API_KEY: field-validation-disabled
+      JWT_EXPIRES_IN: 5m
+    depends_on:
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD","node","-e","fetch('http://127.0.0.1:3000/api/v1/health/ready').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks: [field_internal]
+
+  gateway:
+    build:
+      context: ../..
+      dockerfile: deploy/field-test/gateway.Dockerfile
+    image: agm-field-gateway:local
+    restart: unless-stopped
+    env_file: [/opt/agm-field-test/secrets/field.env]
+    environment:
+      FIELD_GATEWAY_PORT: 3301
+      FIELD_UPSTREAM_URL: http://api:3000
+      FIELD_ALLOWED_ORIGINS_JSON: '["capacitor://localhost","https://localhost","http://localhost"]'
+    ports: ["127.0.0.1:3301:3301"]
+    depends_on:
+      api: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD","node","-e","const s=require('net').connect(3301,'127.0.0.1',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+    networks: [field_internal, field_ingress]
+
+volumes:
+  agm_field_postgres: {}
+
+networks:
+  field_internal:
+    driver: bridge
+    internal: true
+  field_ingress:
+    driver: bridge

@@ -1,7 +1,12 @@
 export const COMPONENT_TELEMETRY_CONTRACT = {
   version: 'component-heartbeat.v1',
   staleAfterMs: 90_000,
-  supportedComponents: ['android'] as const,
+  supportedComponents: [
+    'android',
+    'premium-linguist-it',
+    'premium-linguist-es',
+    'premium-linguist-sv',
+  ] as const,
 } as const;
 
 export type ComponentHealthStatus = 'ONLINE' | 'DEGRADED' | 'OFFLINE' | 'UNKNOWN';

@@ -33,7 +33,7 @@ describe('ComponentTelemetryService', () => {
     expect(service.snapshotFrom(null, checkedAt, 'android').status).toBe('UNKNOWN');
   });
 
-  it('persists tenant-bound Android heartbeat and rejects unsupported components', async () => {
+  it('persists tenant-bound Android and linguistic-agent heartbeats and rejects unsupported components', async () => {
     const upsert = jest.fn(async (input) => ({
       componentId: input.create.componentId,
       reportedStatus: input.create.reportedStatus,
@@ -44,9 +44,11 @@ describe('ComponentTelemetryService', () => {
       lastDetail: input.create.lastDetail,
     }));
     const service = new ComponentTelemetryService({ componentHeartbeat: { upsert } } as unknown as PrismaService);
-    const result = await service.heartbeat('android', { status: 'ONLINE', reason: 'HEARTBEAT_RECEIVED' }, ctx);
-    expect(result.status).toBe('ONLINE');
-    expect(upsert.mock.calls[0][0].where.companyId_componentId).toEqual({ companyId: ctx.companyId, componentId: 'android' });
+    for (const componentId of ['android', 'premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv']) {
+      const result = await service.heartbeat(componentId, { status: 'ONLINE', reason: 'HEARTBEAT_RECEIVED' }, ctx);
+      expect(result.status).toBe('ONLINE');
+      expect(upsert.mock.calls.at(-1)?.[0].where.companyId_componentId).toEqual({ companyId: ctx.companyId, componentId });
+    }
     await expect(service.health('unregistered-component', ctx)).rejects.toBeInstanceOf(BadRequestException);
   });
 });

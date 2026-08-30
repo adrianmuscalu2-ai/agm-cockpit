@@ -9,7 +9,7 @@ class ConversationTurnDto {
 export class PremiumAssistantRequestDto {
   @IsIn(['agm-cockpit']) productId!: 'agm-cockpit';
   @IsString() @IsNotEmpty() @MaxLength(80) moduleId!: string;
-  @IsIn(['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq']) language!: string;
+  @IsIn(['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv']) language!: string;
   @IsString() @IsNotEmpty() @MaxLength(2_000) confirmedText!: string;
   @IsOptional() @IsString() @MaxLength(120) tripId?: string;
   @IsOptional() @IsString() @MaxLength(120) operationalCaseId?: string;
@@ -17,4 +17,3 @@ export class PremiumAssistantRequestDto {
   @IsArray() @ArrayMaxSize(20) @ValidateNested({ each: true }) @Type(() => ConversationTurnDto)
   history!: ConversationTurnDto[];
 }
-

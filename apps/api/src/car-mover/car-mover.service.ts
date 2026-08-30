@@ -12,6 +12,7 @@ import type { RecordCarMoverProtocolDto } from './dto/record-car-mover-protocol.
 import type { RecordCarMoverFinanceDto } from './dto/record-car-mover-finance.dto';
 import type { RecordCarMoverInvoiceDto } from './dto/record-car-mover-invoice.dto';
 import type { ReviewCarMoverOfferDto } from './dto/review-car-mover-offer.dto';
+import { classifyCarMoverVehicle, confirmedRoutingPolicy, routingPolicyFor } from './car-mover-routing.policy';
 
 @Injectable()
 export class CarMoverService {
@@ -147,8 +148,13 @@ export class CarMoverService {
       const current=await tx.carMoverPlatformOffer.findFirst({where:{id,companyId:ctx.companyId}});
       if(!current)throw new NotFoundException('Car Mover platform offer not found.');
       if(dto.linkedJobId){const job=await tx.carMoverJob.findFirst({where:{id:dto.linkedJobId,companyId:ctx.companyId,productId:CAR_MOVER_SCOPE.productId}});if(!job)throw new BadRequestException('Linked Car Mover job not found.');}
-      const offer=await tx.carMoverPlatformOffer.update({where:{id},data:{status:dto.status,linkedJobId:dto.linkedJobId,version:{increment:1}}});
-      const event=await this.appendOfferEvent(tx,id,offer.version,'CAR_MOVER_PLATFORM_OFFER_REVIEWED',{from:current.status,to:offer.status,linkedJobId:offer.linkedJobId},ctx);
+      const detectedVehicleClass=classifyCarMoverVehicle(current.vehicleDescription??undefined);
+      const detectedPolicy=routingPolicyFor(detectedVehicleClass);
+      if(dto.status==='ACCEPTED'&&detectedPolicy.requiresVehicleConfirmation&&!dto.confirmedVehicleClass)throw new BadRequestException('CAR_MOVER_VEHICLE_CLASS_CONFIRMATION_REQUIRED');
+      const routingPolicy=dto.confirmedVehicleClass?confirmedRoutingPolicy(dto.confirmedVehicleClass):detectedPolicy;
+      const analysis={...jsonRecord(current.analysis),routingPolicy,vehicleClassConfirmed:Boolean(dto.confirmedVehicleClass),unknownIsNotZero:true,unknownIsNotSafe:true,unknownIsNotPass:true};
+      const offer=await tx.carMoverPlatformOffer.update({where:{id},data:{status:dto.status,linkedJobId:dto.linkedJobId,analysis:analysis as Prisma.InputJsonValue,version:{increment:1}}});
+      const event=await this.appendOfferEvent(tx,id,offer.version,'CAR_MOVER_PLATFORM_OFFER_REVIEWED',{from:current.status,to:offer.status,linkedJobId:offer.linkedJobId,vehicleClass:routingPolicy.vehicleClass,vehicleClassConfirmed:Boolean(dto.confirmedVehicleClass),routingProfile:routingPolicy.routingProfile},ctx);
       const audit=await this.audit.create({actionCode:'car-mover-platform-offer-reviewed',entityType:'CarMoverPlatformOffer',entityId:id,reason:'Human review of extracted platform alert.',beforeSnapshot:current,afterSnapshot:offer,productId:CAR_MOVER_SCOPE.productId,moduleId:'platform-alerts',subjectType:'CarMoverPlatformOffer',subjectId:id},ctx,tx);
       return {offer,eventId:event.eventId,auditEventId:audit.id};
     });
@@ -232,7 +238,9 @@ export function parsePlatformOffer(text:string,provider:string,from:string){
   const currencyCode=amount?'EUR':undefined;
   const offeredAmount=amount?String(amount[1]??amount[2]).replace(',','.'):undefined;
   const isOffer=Boolean(route)&&(Boolean(amount)||Boolean(vehicle)||Boolean(reference));
-  return {isOffer,platformName,externalReference:reference?.[1],pickupLabel:route?.[1]?.trim(),destinationLabel:route?.[2]?.trim(),pickupAt:undefined,vehicleDescription:vehicle?.[1]?.trim(),offeredAmount,currencyCode,estimatedKm:km?Number(km[1]):undefined,score,confidence,analysis:{contractVersion:'car-mover-offer-analysis.v1',signals:{route:Boolean(route),amount:Boolean(amount),distance:Boolean(km),vehicle:Boolean(vehicle),reference:Boolean(reference)},reason:score>=70?'Date suficiente pentru evaluare umană.':'Ofertă incompletă; necesită verificare.',automaticDecision:false,sourceProvider:provider,sourceAddressHash:createHash('sha256').update(from.toLowerCase()).digest('hex')}};
+  const vehicleDescription=vehicle?.[1]?.trim();
+  const routingPolicy=routingPolicyFor(classifyCarMoverVehicle(vehicleDescription));
+  return {isOffer,platformName,externalReference:reference?.[1],pickupLabel:route?.[1]?.trim(),destinationLabel:route?.[2]?.trim(),pickupAt:undefined,vehicleDescription,offeredAmount,currencyCode,estimatedKm:km?Number(km[1]):undefined,score,confidence,analysis:{contractVersion:'car-mover-offer-analysis.v1',signals:{route:Boolean(route),amount:Boolean(amount),distance:Boolean(km),vehicle:Boolean(vehicle),reference:Boolean(reference)},reason:score>=70?'Date suficiente pentru evaluare umană.':'Ofertă incompletă; necesită verificare.',automaticDecision:false,sourceProvider:provider,sourceAddressHash:createHash('sha256').update(from.toLowerCase()).digest('hex'),routingPolicy,unknownIsNotZero:true,unknownIsNotSafe:true,unknownIsNotPass:true}};
 }
 
 export function classifyOfferCorrelation(existingHash:string,existingTimestamp:Date|undefined,incomingTimestamp:Date,incomingHash:string):'DUPLICATE'|'OUTDATED_DUPLICATE'|'UPDATE'{
@@ -240,3 +248,5 @@ export function classifyOfferCorrelation(existingHash:string,existingTimestamp:D
   if(existingTimestamp&&incomingTimestamp<=existingTimestamp)return'OUTDATED_DUPLICATE';
   return'UPDATE';
 }
+
+function jsonRecord(value:Prisma.JsonValue):Record<string,unknown>{return value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};}

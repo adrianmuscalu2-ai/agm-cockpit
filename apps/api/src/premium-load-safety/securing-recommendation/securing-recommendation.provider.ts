@@ -13,7 +13,7 @@ type OpenAiResponsePayload = {
   output?: Array<{ content?: Array<{ text?: string }> }>;
 };
 
-const languageNames: Record<string, string> = { ro: 'Romanian', de: 'German', en: 'English' };
+const languageNames: Record<string, string> = { ro:'Romanian',de:'German',en:'English',fr:'French',nl:'Dutch',ru:'Russian',pl:'Polish',tr:'Turkish',sq:'Albanian',it:'Italian',es:'Spanish',sv:'Swedish' };
 
 @Injectable()
 export class SecuringRecommendationProvider {

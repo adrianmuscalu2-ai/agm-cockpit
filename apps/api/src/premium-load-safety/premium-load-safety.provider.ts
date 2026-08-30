@@ -15,6 +15,8 @@ const languageNames: Record<string, string> = {
   ro: 'Romanian',
   de: 'German',
   en: 'English',
+  fr: 'French', nl: 'Dutch', ru: 'Russian', pl: 'Polish', tr: 'Turkish', sq: 'Albanian',
+  it: 'Italian', es: 'Spanish', sv: 'Swedish',
 };
 
 @Injectable()

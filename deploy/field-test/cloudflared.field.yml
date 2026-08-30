@@ -1,0 +1,4 @@
+ingress:
+  - hostname: validation-api.agmcockpit.com
+    service: http://127.0.0.1:3301
+  - service: http_status:404

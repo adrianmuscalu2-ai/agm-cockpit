@@ -56,7 +56,7 @@ export class PremiumLoadSafetyController {
       throw new BadRequestException('A JPEG, PNG, or WEBP image is required.');
     }
 
-    const language = requestedLanguage === 'de' || requestedLanguage === 'en' ? requestedLanguage : 'ro';
+    const language = normalizeLanguage(requestedLanguage);
     const result = await this.provider.analyze(image, language);
     if (!result.available) {
       throw new ServiceUnavailableException('AI analysis provider is unavailable.');
@@ -94,7 +94,7 @@ export class PremiumLoadSafetyController {
       throw new BadRequestException('Recommendation data is invalid.');
     }
 
-    const language = requestedLanguage === 'de' || requestedLanguage === 'en' ? requestedLanguage : 'ro';
+    const language = normalizeLanguage(requestedLanguage);
     const recommendation = await this.recommendationProvider.recommend(image, language, input, visualAnalysis);
     if (!recommendation) {
       throw new ServiceUnavailableException('AI recommendation provider is unavailable.');
@@ -129,7 +129,7 @@ export class PremiumLoadSafetyController {
     } catch {
       throw new BadRequestException('Field test data is invalid.');
     }
-    const language = requestedLanguage === 'de' || requestedLanguage === 'en' ? requestedLanguage : 'ro';
+    const language = normalizeLanguage(requestedLanguage);
     const report = await this.fieldTestProvider.analyze(
       photos.map((photo, index) => ({ ...photo, role: roles[index] })),
       input,
@@ -142,6 +142,12 @@ export class PremiumLoadSafetyController {
       provider: 'openai',
     });
   }
+}
+
+const supportedLanguages = new Set(['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv']);
+
+function normalizeLanguage(language: string | undefined) {
+  return language && supportedLanguages.has(language) ? language : 'ro';
 }
 
 function requireConsent(rawConsent: string | undefined, purpose: 'load-safety-analysis' | 'load-safety-recommendation' | 'load-safety-field-test') {

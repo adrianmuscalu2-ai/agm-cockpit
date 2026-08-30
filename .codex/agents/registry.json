@@ -9,6 +9,17 @@
       "vscodeAgent": ".github/agents/rescue.agent.md",
       "browserPreflight": "pnpm rescue:browser-preflight",
       "route": "VS CODE BLOCKED → RESCUE → CODEX DESKTOP iab → PROBĂ MINIMĂ → HANDOFF → ÎNCHIDERE"
+    },
+    {
+      "id": "agm-central-librarian",
+      "name": "AGM Central Librarian",
+      "status": "OFFICIAL_PERSISTENT",
+      "agentDefinition": ".github/agents/agm-central-librarian.agent.md",
+      "contract": "CAR_MOVER/GOVERNANCE/AGM_CENTRAL_LIBRARIAN_CONTRACT.md",
+      "initialCollection": "CAR_MOVER",
+      "runtimeAuthority": "NONE",
+      "publicationAuthority": "NONE",
+      "separation": "BASIC LIBRARIAN != AGM CENTRAL LIBRARIAN"
     }
   ]
 }

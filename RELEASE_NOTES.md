@@ -1,5 +1,13 @@
 # Release Notes
 
+## v1.3.0 — Release candidate remediation (not frozen)
+
+- Canonical Routing/Toll and Legislation/Safety authority libraries are loaded and enforced at runtime with SourceId traceability, jurisdiction, scope confirmation, temporal validity, freshness, and authority-class boundaries.
+- Source Freshness is registered end-to-end with persistent runtime state, scheduler, review queue, successor hooks, alert deduplication, and Gmail dispatch integration. Expiry-day use is fail-closed.
+- All 12 application languages are validated; the public website claim is reconciled to 12 active languages.
+- Android release signing and AAB gates are implemented. A signed AAB and current physical-device evidence remain invalid until external signing credentials and an authorized device are present.
+- No production deployment is implied by these notes. Freeze requires a clean, committed workspace and all release gates passing for the same HEAD.
+
 ## v0.5.0 - Android Stable Foundation
 
 This checkpoint establishes the validated Android baseline for AGM Translator and Cockpit.

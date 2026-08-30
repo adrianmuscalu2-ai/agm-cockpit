@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "release": "1.3.0",
+  "status": "ACTIVE",
+  "canonicalBaseline": {
+    "registry": {
+      "count": 862,
+      "sha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245"
+    },
+    "legislationSafety": {
+      "count": 66,
+      "sha256": "c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab"
+    },
+    "routingToll": {
+      "count": 289,
+      "sha256": "049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0"
+    }
+  },
+  "mandatoryValidators": [
+    "pnpm --filter @agm/api lint",
+    "pnpm --filter @agm/api build",
+    "pnpm --filter @agm/api test -- --runInBand",
+    "pnpm --filter @agm/web build",
+    "pnpm --filter @agm/web test:multilingual-wave1",
+    "pnpm --filter @agm/web test:final-language-wave",
+    "pnpm --filter @agm/web test:final-language-agents",
+    "node scripts/validate-source-freshness-alert-rule.mjs",
+    "node scripts/validate-phase3-final-consolidated-closeout-readonly.mjs",
+    "node scripts/classify-rc-workspace.mjs",
+    "pnpm release:freeze-check",
+    "pnpm --filter @agm/web android:release-preflight",
+    "pnpm --filter @agm/web android:aab:validate",
+    "git diff --check"
+  ],
+  "browserEvidence": {
+    "policy": "deploy/operations/BROWSER_VALIDATION_RUNBOOK.md",
+    "path": "evidence/website-final-release/2026-08-30T20-21-05-892Z",
+    "scenarios": 60,
+    "status": "PASS_REUSABLE_WHILE_VISUAL_SIGNATURE_UNCHANGED"
+  },
+  "historicalValidators": {
+    "policy": "Historical atomic-apply validators retain their original baseline and are not mandatory release validators for Registry 862.",
+    "examples": [
+      "scripts/test-routing-toll-001-post-apply.mjs"
+    ]
+  }
+}

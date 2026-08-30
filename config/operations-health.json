@@ -104,6 +104,39 @@
       "source": "Component heartbeat v1 · Android foreground · persistent, tenant-bound · stale după 90s"
     },
     {
+      "id": "premium-linguist-it",
+      "label": "Agent lingvistic Italiană",
+      "kind": "runtime",
+      "url": "api:/operations/components/premium-linguist-it/health",
+      "evaluator": "component",
+      "requiresAuth": true,
+      "healthyStatus": "ONLINE",
+      "source": "Component heartbeat v1 · audit runtime APP / Premium / Car Mover",
+      "showInOperations": false
+    },
+    {
+      "id": "premium-linguist-es",
+      "label": "Agent lingvistic Spaniolă",
+      "kind": "runtime",
+      "url": "api:/operations/components/premium-linguist-es/health",
+      "evaluator": "component",
+      "requiresAuth": true,
+      "healthyStatus": "ONLINE",
+      "source": "Component heartbeat v1 · audit runtime APP / Premium / Car Mover",
+      "showInOperations": false
+    },
+    {
+      "id": "premium-linguist-sv",
+      "label": "Agent lingvistic Suedeză",
+      "kind": "runtime",
+      "url": "api:/operations/components/premium-linguist-sv/health",
+      "evaluator": "component",
+      "requiresAuth": true,
+      "healthyStatus": "ONLINE",
+      "source": "Component heartbeat v1 · audit runtime APP / Premium / Car Mover",
+      "showInOperations": false
+    },
+    {
       "id": "ai",
       "label": "AI",
       "kind": "http",

@@ -13,6 +13,9 @@ const languageNames = {
   pl: 'Polish',
   tr: 'Turkish',
   sq: 'Albanian',
+  it: 'Italian',
+  es: 'Spanish',
+  sv: 'Swedish',
 };
 
 type OpenAiResponsePayload = {
