@@ -23,4 +23,14 @@ public class MainActivity extends BridgeActivity {
         CookieManager.getInstance().flush();
         super.onPause();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getBridge() == null || getBridge().getWebView() == null) return;
+        getBridge().getWebView().post(() -> getBridge().getWebView().evaluateJavascript(
+            "window.dispatchEvent(new Event('agm-native-resume'))",
+            null
+        ));
+    }
 }

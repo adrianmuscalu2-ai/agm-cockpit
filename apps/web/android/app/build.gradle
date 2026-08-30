@@ -17,6 +17,27 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    def releaseSigning = [
+        storeFile: System.getenv('AGM_ANDROID_RELEASE_KEYSTORE'),
+        storePassword: System.getenv('AGM_ANDROID_RELEASE_STORE_PASSWORD'),
+        keyAlias: System.getenv('AGM_ANDROID_RELEASE_KEY_ALIAS'),
+        keyPassword: System.getenv('AGM_ANDROID_RELEASE_KEY_PASSWORD')
+    ]
+    def releaseSigningConfigured = releaseSigning.values().every { it != null && !it.trim().isEmpty() }
+    signingConfigs {
+        if (releaseSigningConfigured) {
+            release {
+                storeFile file(releaseSigning.storeFile)
+                storePassword releaseSigning.storePassword
+                keyAlias releaseSigning.keyAlias
+                keyPassword releaseSigning.keyPassword
+                enableV1Signing true
+                enableV2Signing true
+                enableV3Signing true
+                enableV4Signing true
+            }
+        }
+    }
     buildTypes {
         debug {
             manifestPlaceholders = [usesCleartextTraffic: "true"]
@@ -30,7 +51,20 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (releaseSigningConfigured) signingConfig signingConfigs.release
         }
+    }
+}
+
+gradle.taskGraph.whenReady { graph ->
+    def releaseRequested = graph.allTasks.any { task ->
+        task.project == project && (task.name == 'bundleRelease' || task.name == 'assembleRelease')
+    }
+    if (releaseRequested && !releaseSigningConfigured) {
+        throw new GradleException('AGM_ANDROID_RELEASE_SIGNING_NOT_CONFIGURED: set AGM_ANDROID_RELEASE_KEYSTORE, AGM_ANDROID_RELEASE_STORE_PASSWORD, AGM_ANDROID_RELEASE_KEY_ALIAS, and AGM_ANDROID_RELEASE_KEY_PASSWORD')
+    }
+    if (releaseRequested && !file(releaseSigning.storeFile).isFile()) {
+        throw new GradleException('AGM_ANDROID_RELEASE_KEYSTORE_NOT_FOUND')
     }
 }
 
