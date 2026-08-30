@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, X509Certificate } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { existsSync, statSync } from 'node:fs';
 import { isAbsolute, resolve } from 'node:path';
@@ -29,13 +29,34 @@ if (!existsSync(keytool)) {
   process.exit(1);
 }
 
-let certificate;
+let keyEntry;
+let certificatePem;
 try {
-  certificate = execFileSync(
+  keyEntry = execFileSync(
     keytool,
     [
+      '-J-Duser.language=en',
+      '-J-Duser.country=US',
+      '-J-Duser.timezone=UTC',
       '-list',
       '-v',
+      '-keystore',
+      keystore,
+      '-alias',
+      process.env.AGM_ANDROID_RELEASE_KEY_ALIAS,
+      '-storepass:env',
+      'AGM_ANDROID_RELEASE_STORE_PASSWORD',
+    ],
+    { encoding: 'utf8', env: process.env, windowsHide: true },
+  );
+  certificatePem = execFileSync(
+    keytool,
+    [
+      '-J-Duser.language=en',
+      '-J-Duser.country=US',
+      '-J-Duser.timezone=UTC',
+      '-exportcert',
+      '-rfc',
       '-keystore',
       keystore,
       '-alias',
@@ -50,13 +71,33 @@ try {
   process.exit(1);
 }
 
-const sha256 = certificate.match(/SHA256:\s*([0-9A-F:]+)/i)?.[1] ?? null;
-const sha1 = certificate.match(/SHA1:\s*([0-9A-F:]+)/i)?.[1] ?? null;
-const validity = certificate.match(/Valid from:\s*(.+?)\s+until:\s*(.+)/i);
-const validUntil = validity?.[2]?.trim() ?? null;
-const validUntilTimestamp = validUntil ? Date.parse(validUntil) : Number.NaN;
-if (!sha256 || !validUntil || !Number.isFinite(validUntilTimestamp)) {
+if (!/Entry type:\s*PrivateKeyEntry/i.test(keyEntry)) {
+  console.error('ANDROID_RELEASE_ALIAS_NOT_PRIVATE_KEY');
+  process.exit(1);
+}
+
+let x509;
+try {
+  x509 = new X509Certificate(certificatePem);
+} catch {
   console.error('ANDROID_RELEASE_CERTIFICATE_METADATA_UNREADABLE');
+  process.exit(1);
+}
+const sha256 = x509.fingerprint256;
+const sha1 = x509.fingerprint;
+const validFromDate = x509.validFromDate;
+const validUntilDate = x509.validToDate;
+const validFromTimestamp = validFromDate.getTime();
+const validUntilTimestamp = validUntilDate.getTime();
+const validFrom = validFromDate.toISOString();
+const validUntil = validUntilDate.toISOString();
+if (!sha256 || !validFrom || !validUntil
+  || !Number.isFinite(validFromTimestamp) || !Number.isFinite(validUntilTimestamp)) {
+  console.error('ANDROID_RELEASE_CERTIFICATE_METADATA_UNREADABLE');
+  process.exit(1);
+}
+if (validFromTimestamp > Date.now()) {
+  console.error('ANDROID_RELEASE_CERTIFICATE_NOT_YET_VALID');
   process.exit(1);
 }
 if (validUntilTimestamp <= Date.now()) {
@@ -70,9 +111,12 @@ console.log(JSON.stringify({
   keystorePath: keystore,
   keyAliasConfigured: true,
   keyAliasValidated: true,
+  privateKeyEntryValidated: true,
+  certificateValidFrom: validFrom,
   certificateValidUntil: validUntil,
   certificateSha1: sha1,
   certificateSha256: sha256,
+  certificateMetadataParser: 'node:X509Certificate',
   keystoreSha256: createHash('sha256').update(readFileSync(keystore)).digest('hex'),
   secretsPrinted: false,
 }));

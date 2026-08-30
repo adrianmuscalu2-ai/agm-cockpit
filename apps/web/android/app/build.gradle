@@ -1,5 +1,20 @@
 apply plugin: 'com.android.application'
 
+ext.releaseSigning = [
+    storeFile: System.getenv('AGM_ANDROID_RELEASE_KEYSTORE'),
+    storePassword: System.getenv('AGM_ANDROID_RELEASE_STORE_PASSWORD'),
+    keyAlias: System.getenv('AGM_ANDROID_RELEASE_KEY_ALIAS'),
+    keyPassword: System.getenv('AGM_ANDROID_RELEASE_KEY_PASSWORD')
+]
+ext.releaseSigningInputsPresent = project.ext.releaseSigning.values().every {
+    it != null && !it.trim().isEmpty()
+}
+ext.releaseSigningKeystore = project.ext.releaseSigningInputsPresent
+    ? file(project.ext.releaseSigning.storeFile)
+    : null
+ext.releaseSigningConfigured = project.ext.releaseSigningInputsPresent
+    && project.ext.releaseSigningKeystore.isFile()
+
 android {
     namespace = "com.agm.cockpit"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -17,20 +32,13 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
-    def releaseSigning = [
-        storeFile: System.getenv('AGM_ANDROID_RELEASE_KEYSTORE'),
-        storePassword: System.getenv('AGM_ANDROID_RELEASE_STORE_PASSWORD'),
-        keyAlias: System.getenv('AGM_ANDROID_RELEASE_KEY_ALIAS'),
-        keyPassword: System.getenv('AGM_ANDROID_RELEASE_KEY_PASSWORD')
-    ]
-    def releaseSigningConfigured = releaseSigning.values().every { it != null && !it.trim().isEmpty() }
     signingConfigs {
-        if (releaseSigningConfigured) {
+        if (project.ext.releaseSigningConfigured) {
             release {
-                storeFile file(releaseSigning.storeFile)
-                storePassword releaseSigning.storePassword
-                keyAlias releaseSigning.keyAlias
-                keyPassword releaseSigning.keyPassword
+                storeFile project.ext.releaseSigningKeystore
+                storePassword project.ext.releaseSigning.storePassword
+                keyAlias project.ext.releaseSigning.keyAlias
+                keyPassword project.ext.releaseSigning.keyPassword
                 enableV1Signing true
                 enableV2Signing true
                 enableV3Signing true
@@ -51,7 +59,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            if (releaseSigningConfigured) signingConfig signingConfigs.release
+            if (project.ext.releaseSigningConfigured) signingConfig signingConfigs.release
         }
     }
 }
@@ -60,10 +68,10 @@ gradle.taskGraph.whenReady { graph ->
     def releaseRequested = graph.allTasks.any { task ->
         task.project == project && (task.name == 'bundleRelease' || task.name == 'assembleRelease')
     }
-    if (releaseRequested && !releaseSigningConfigured) {
+    if (releaseRequested && !project.ext.releaseSigningInputsPresent) {
         throw new GradleException('AGM_ANDROID_RELEASE_SIGNING_NOT_CONFIGURED: set AGM_ANDROID_RELEASE_KEYSTORE, AGM_ANDROID_RELEASE_STORE_PASSWORD, AGM_ANDROID_RELEASE_KEY_ALIAS, and AGM_ANDROID_RELEASE_KEY_PASSWORD')
     }
-    if (releaseRequested && !file(releaseSigning.storeFile).isFile()) {
+    if (releaseRequested && !project.ext.releaseSigningConfigured) {
         throw new GradleException('AGM_ANDROID_RELEASE_KEYSTORE_NOT_FOUND')
     }
 }

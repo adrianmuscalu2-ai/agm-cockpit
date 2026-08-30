@@ -57,8 +57,10 @@ pnpm --filter @agm/web android:aab:validate
 
 The last command fails unless the AAB is release-signed, structurally valid,
 uses the fixed application/version metadata, and is not Android Debug signed.
-Record the AAB SHA-256 and signer certificate fingerprints; never record
-passwords.
+It also requires the signer fingerprint to match the public, non-secret
+production signing identity pinned in
+`apps/web/android/release-signing-identity.json`. Record the AAB SHA-256 and
+signer certificate fingerprint; never record passwords.
 
 ## Physical device
 
