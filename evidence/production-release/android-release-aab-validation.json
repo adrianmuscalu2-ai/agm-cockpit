@@ -1,0 +1,57 @@
+{
+  "validatedAt": "2026-08-30T22:31:21.0066614Z",
+  "verdict": "AAB_SIGNATURE_VALID / POST_BUILD_VALIDATOR_DEFECT_RESOLVED",
+  "aab": {
+    "path": "apps/web/android/app/build/outputs/bundle/release/app-release.aab",
+    "bytes": 40561151,
+    "sha256": "889741baf1b43b6d54b9da23493e6ab35aeda159b731f1d876334c7795e31f79",
+    "zipReadable": true,
+    "entryCount": 525,
+    "bundleConfigPresent": true,
+    "baseManifestPresent": true,
+    "jarManifestPresent": true,
+    "jarSignatureFiles": [
+      "META-INF/AGM-RELE.SF",
+      "META-INF/AGM-RELE.RSA"
+    ]
+  },
+  "application": {
+    "package": "com.agm.cockpit",
+    "versionName": "1.3.0",
+    "versionCode": 21,
+    "artifactManifestValidation": {
+      "status": "PASS",
+      "source": "AAB base manifest extracted read-only with locally cached bundletool 1.18.1",
+      "package": "com.agm.cockpit",
+      "versionName": "1.3.0",
+      "versionCode": 21,
+      "compileSdkVersion": 36,
+      "minSdkVersion": 24,
+      "targetSdkVersion": 36
+    }
+  },
+  "signature": {
+    "verificationCommand": "jarsigner -verify -verbose -certs <AAB>",
+    "status": "PASS",
+    "releaseSigned": true,
+    "debugSigned": false,
+    "subject": "CN=AGM Transporte, OU=IT, O=AGM Transporte, L=Heilbronn, ST=Germany, C=DE",
+    "issuer": "CN=AGM Transporte, OU=IT, O=AGM Transporte, L=Heilbronn, ST=Germany, C=DE",
+    "validFrom": "2026-08-30T22:05:17.000Z",
+    "validUntil": "2051-08-24T22:05:17.000Z",
+    "certificateSha256": "6E:18:2B:67:BD:A9:E4:C4:F6:EE:93:D7:95:F6:19:AF:06:88:D3:96:7F:9B:74:B5:37:9A:42:FE:67:AC:C8:C1",
+    "expectedCertificateSha256": "6E:18:2B:67:BD:A9:E4:C4:F6:EE:93:D7:95:F6:19:AF:06:88:D3:96:7F:9B:74:B5:37:9A:42:FE:67:AC:C8:C1",
+    "certificateFingerprintMatch": true,
+    "publicKeyType": "rsa",
+    "publicKeyBits": 4096,
+    "publicKeySpkiSha256": "76ea8c1ec85b74a1ffd7def6122a95b6310123e3533ef3dc40456270c56d9bef"
+  },
+  "validator": {
+    "defect": "jarsigner -verify -strict treated upload-certificate trust warnings as an invalid AAB signature",
+    "repair": "verify JAR integrity with jarsigner -verify -verbose -certs and independently require the pinned AGM Production certificate fingerprint",
+    "repeatValidation": "PASS",
+    "failClosed": true,
+    "secretsPrinted": false,
+    "keystoreMutation": "NONE"
+  }
+}

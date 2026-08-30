@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "testType": "CONTROLLED_SOURCE_FRESHNESS_EMAIL",
+  "sentAt": "2026-08-30T21:57:00.793Z",
+  "sender": "agm.transporte.logistik@gmail.com",
+  "recipients": [
+    "agm.transporte.logistik@gmail.com",
+    "adrianmuscalu2@gmail.com"
+  ],
+  "sentEmailCount": 2,
+  "alertType": "FRESHNESS_UNKNOWN",
+  "sourceId": "RC-CONTROLLED-SOURCE-FRESHNESS-TEST",
+  "dedupKey": "RC-CONTROLLED-SOURCE-FRESHNESS-TEST|FRESHNESS_UNKNOWN|RC-CONTROLLED-2026-08-30",
+  "secondEvaluation": "DEDUP_SUPPRESSED",
+  "registryMutation": "NONE",
+  "viewMutation": "NONE",
+  "authorityPromotion": "NONE",
+  "productionDataMutation": "NONE",
+  "secretsPrinted": false
+}
