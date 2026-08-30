@@ -17,13 +17,14 @@ export type OperationProbeOutcome =
   | 'HTTP_STATUS'
   | 'TIMEOUT'
   | 'TRANSPORT_ERROR'
+  | 'RUNTIME_VALIDATION'
   | 'STALE'
   | 'NOT_AVAILABLE';
 
 export type OperationService = {
   id: string;
   label: string;
-  kind: 'http' | 'static' | 'aggregate';
+  kind: 'http' | 'static' | 'aggregate' | 'runtime';
   url?: string;
   evaluator?: 'http' | 'live' | 'ready' | 'dependency' | 'component' | 'guardian' | 'website-guardian';
   requiresAuth?: boolean;
@@ -67,7 +68,7 @@ export function operationFreshness(snapshot: OperationSnapshot, now = new Date()
 }
 
 export function agentAvailability(source: OperationService): AgentAvailability {
-  if (source.kind === 'http' || source.kind === 'aggregate') return 'ACTIVE';
+  if (source.kind === 'http' || source.kind === 'aggregate' || source.kind === 'runtime') return 'ACTIVE';
   return source.staticStatus === 'NOT IMPLEMENTED' ? 'DEGRADED' : 'ACTIVE';
 }
 
@@ -290,6 +291,30 @@ function updateSnapshot(
   snapshotListener?.(source, snapshot);
 }
 
+export function recordRuntimeOperationSnapshot(
+  sourceId: string,
+  status: Extract<OperationStatus, 'ONLINE' | 'DEGRADED'>,
+  reason: string,
+  detail?: string,
+) {
+  const source = monitoringHealthSources.find((candidate) => candidate.id === sourceId) ?? {
+    id: sourceId,
+    label: sourceId,
+    kind: 'static' as const,
+    source: detail ?? 'Runtime validation',
+    showInOperations: false,
+  };
+  const checkedAt = new Date();
+  updateSnapshot(source, status, checkedAt, 0, {
+    outcome: 'RUNTIME_VALIDATION',
+    effectiveUrl: 'local:i18n-runtime',
+    reason,
+    ...(status === 'ONLINE'
+      ? { lastSuccessAt: checkedAt }
+      : { lastFailureAt: checkedAt, lastFailureReason: reason }),
+  });
+}
+
 function persistSnapshots() {
   if (typeof window === 'undefined') return;
   try {
@@ -374,6 +399,7 @@ function renderSnapshot(source: OperationService, snapshot: OperationSnapshot) {
 
 async function checkSource(source: OperationService) {
   const checkedAt = new Date();
+  if (source.kind === 'runtime') return;
   if (source.kind === 'aggregate') {
     const inputs = (source.dependencies ?? []).map((id) => snapshots.get(id));
     const complete = inputs.length > 0 && inputs.every(Boolean);
@@ -473,7 +499,7 @@ export function bindOperationsHealthChecks(onSnapshot?: (source: OperationServic
       const source = monitoringHealthSources.find(
         (candidate) => candidate.id === button.dataset.operationRecheck,
       );
-      if (!source || source.kind === 'static') return;
+      if (!source || source.kind === 'static' || source.kind === 'runtime') return;
       button.disabled = true;
       if (source.kind === 'aggregate') await runHealthCycle();
       else await checkSource(source);

@@ -104,6 +104,15 @@ export function professionalizeMessage(text: string, language: LanguageCode, sig
     return `Guten Tag,\n\n${polishSentence(core, 'de')}\n\nBitte teilen Sie mir mit, falls weitere Informationen benoetigt werden.\n\n${closing}`;
   }
 
+  if (language === 'it') {
+    return `Buongiorno,\n\n${polishSentence(core, 'it')}\n\nLa prego di comunicarmi se sono necessarie ulteriori informazioni.\n\n${closing}`;
+  }
+  if (language === 'es') {
+    return `Buenos días,\n\n${polishSentence(core, 'es')}\n\nPor favor, indíqueme si necesita información adicional.\n\n${closing}`;
+  }
+  if (language === 'sv') {
+    return `Hej,\n\n${polishSentence(core, 'sv')}\n\nMeddela mig gärna om ytterligare information behövs.\n\n${closing}`;
+  }
   if (language !== 'ro') {
     return `Hello,\n\n${polishSentence(core, 'en')}\n\nPlease let me know if any additional information is required.\n\n${closing}`;
   }
@@ -121,6 +130,7 @@ export function localizedDefaultClosing(language: LanguageCode): string {
   }
 
   const closingByLanguage: Partial<Record<LanguageCode, string>> = {
+    it: 'Cordiali saluti', es: 'Un cordial saludo', sv: 'Med vänliga hälsningar',
     fr: 'Cordialement', nl: 'Met vriendelijke groet', ru: 'С уважением',
     pl: 'Z poważaniem', tr: 'Saygılarımla', sq: 'Me respekt',
   };
@@ -189,6 +199,10 @@ export function detectMessageLanguage(text: string, fallbackLanguage: LanguageCo
   if (/\b(araç|taşıma|belgeler|teşekkür|konum)\b/u.test(lower)) return 'tr';
   if (/\b(automjet|transport|dokumente|faleminderit|vendndodhje)\b/u.test(lower)) return 'sq';
 
+  if (/\b(veicolo|trasporto|documenti|grazie|posizione|buongiorno)\b/u.test(lower)) return 'it';
+  if (/\b(vehículo|vehiculo|transporte|documentos|gracias|ubicación|ubicacion|buenos días)\b/u.test(lower)) return 'es';
+  if (/\b(fordon|transport|dokument|tack|plats|hej)\b/u.test(lower)) return 'sv';
+
   return fallbackLanguage;
 }
 
@@ -205,6 +219,9 @@ function polishSentence(text: string, language: LanguageCode): string {
     return `Ich moechte Sie darueber informieren, dass ${removeFinalPeriod(body)}.`;
   }
 
+  if (language === 'it') return `Desidero informarla che ${removeFinalPeriod(body)}.`;
+  if (language === 'es') return `Quisiera informarle de que ${removeFinalPeriod(body)}.`;
+  if (language === 'sv') return `Jag vill informera dig om att ${removeFinalPeriod(body)}.`;
   return `Doresc sa va informez ca ${removeFinalPeriod(body)}.`;
 }
 
@@ -230,6 +247,9 @@ function defaultIntent(language: LanguageCode): string {
   if (language === 'pl') return 'Kontaktuję się w sprawie transportu pojazdu.';
   if (language === 'tr') return 'Araç taşımacılığı hakkında sizinle iletişime geçiyorum.';
   if (language === 'sq') return 'Po ju kontaktoj në lidhje me transportin e automjetit.';
+  if (language === 'it') return 'La contatto in merito al trasporto del veicolo.';
+  if (language === 'es') return 'Me pongo en contacto con usted en relación con el transporte del vehículo.';
+  if (language === 'sv') return 'Jag kontaktar dig angående fordonstransporten.';
   return 'va contactez in legatura cu transportul vehiculului.';
 }
 

@@ -40,6 +40,7 @@ import {
   moreLanguagesLabels,
   quickLanguagesLabels,
   normalizeQuickLanguages,
+  type BasicLanguageCode,
 } from './language-registry';
 import {
   type ProfileSettings,
@@ -134,6 +135,8 @@ import './premium-governance/premium-glass-overrides.css';
 import './premium-governance/turn-authority-control-plane.css';
 import './car-mover/car-mover.css';
 import { bindCopilotRuntime } from './premium-copilot/copilot.runtime';
+import { androidAssistantText } from './premium-copilot/copilot.i18n';
+import { isAndroidAssistantAvailable, openAndroidAssistantSettings } from './premium-capabilities/android-assistant.gateway';
 import './premium-copilot/copilot.css';
 import './styles/60-global-glass-translucency.css';
 import { isPremiumNavigationAllowed, registerVerifiedPremiumAccess } from './premium-access/premium-access.navigation';
@@ -149,6 +152,7 @@ import { bindTurnOrganizationChart } from './turn-organization-chart';
 import { bindP9TurnProjection } from './p9-turn-projection';
 import { bindTurnAgentLiveState } from './turn-agent-live-state';
 import { bindAndroidComponentHeartbeat } from './component-heartbeat';
+import { bindPremiumLinguisticAgentHeartbeats } from './premium-linguistic-agents/premium-linguistic-agents.runtime';
 import {
   TURN_REPORT_RECIPIENT,
   adminReportModuleForView,
@@ -212,6 +216,20 @@ type EmailComposeMode = 'general' | 'manual';
 type ServiceAvailability = 'checking' | 'online' | 'offline';
 
 const APP_VERSION = 'A.G.M. Cockpit 1.3.0';
+const APP_BRAND_RELATION: Record<BasicLanguageCode, string> = {
+  ro: 'A.G.M. Cockpit — parte din ecosistemul AGM Transporte.',
+  de: 'A.G.M. Cockpit — Teil des AGM-Transporte-Ökosystems.',
+  en: 'A.G.M. Cockpit — part of the AGM Transporte ecosystem.',
+  fr: 'A.G.M. Cockpit — fait partie de l’écosystème AGM Transporte.',
+  nl: 'A.G.M. Cockpit — onderdeel van het AGM Transporte-ecosysteem.',
+  ru: 'A.G.M. Cockpit — часть экосистемы AGM Transporte.',
+  pl: 'A.G.M. Cockpit — część ekosystemu AGM Transporte.',
+  tr: 'A.G.M. Cockpit — AGM Transporte ekosisteminin bir parçasıdır.',
+  sq: 'A.G.M. Cockpit — pjesë e ekosistemit AGM Transporte.',
+  it: 'A.G.M. Cockpit — parte dell’ecosistema AGM Transporte.',
+  es: 'A.G.M. Cockpit — forma parte del ecosistema AGM Transporte.',
+  sv: 'A.G.M. Cockpit — en del av AGM Transporte-ekosystemet.',
+};
 const PRIVACY_POLICY_VERSION = 'privacy-v2026.07.13';
 const TERMS_VERSION = 'terms-v2026.07.13';
 const LEGAL_ACCEPTANCE_KEY = `agm.legal.acceptance.${PRIVACY_POLICY_VERSION}.${TERMS_VERSION}`;
@@ -729,7 +747,7 @@ function renderCurrentView() {
 
   if (state.view === 'access') {
     const language = uiLanguage();
-    return renderPremiumAccessView(language === 'ro' || language === 'de' ? language : 'en', escapeHtml);
+    return renderPremiumAccessView(language, escapeHtml);
   }
 
   const premiumView = renderPremiumView(state.view, (key) => t(uiLanguage(), key), escapeHtml, uiLanguage());
@@ -1944,6 +1962,18 @@ function renderProfile() {
         </section>
       </details>
 
+      ${isAndroidAssistantAvailable() ? `
+        <details class="module-section" data-android-voice-settings>
+          <summary>${escapeHtml(androidAssistantText(language, 'voiceSettingsTitle'))}</summary>
+          <section class="compliance-note">
+            <strong>${escapeHtml(androidAssistantText(language, 'voiceSettingsAction'))}</strong>
+            <p>${escapeHtml(androidAssistantText(language, 'voiceSettingsDescription'))}</p>
+            <button id="openAndroidVoiceSettings" type="button">${escapeHtml(androidAssistantText(language, 'voiceSettingsAction'))}</button>
+            <p role="status" aria-live="polite" data-android-voice-settings-status></p>
+          </section>
+        </details>
+      ` : ''}
+
       <div class="actions">
         <button id="saveProfile" type="button" class="primary">${escapeHtml(t(language, 'profile.saveProfile'))}</button>
         <button id="resetProfile" type="button">${escapeHtml(t(language, 'profile.resetDefaults'))}</button>
@@ -2081,6 +2111,7 @@ function renderAboutApp() {
         <div>
           <h1>${escapeHtml(t(language, 'about.moduleName'))}</h1>
           <p>${escapeHtml(t(language, 'about.description'))}</p>
+          <p class="about-brand-relation">${escapeHtml(APP_BRAND_RELATION[language])}</p>
         </div>
         <span>${escapeHtml(APP_VERSION)}</span>
       </header>
@@ -2263,7 +2294,8 @@ function renderLegalCard(titleKey: string, bodyKey: string, extra = '') {
 
 function bindShared() {
   bindAndroidComponentHeartbeat();
-  bindPremiumAccessRuntime();
+  bindPremiumLinguisticAgentHeartbeats(() => publishPanelAgentModel());
+  bindPremiumAccessRuntime(uiLanguage());
   bindCommunicationRuntime();
     bindPremiumAssistantRuntime();
     bindCarMoverRuntime();
@@ -3202,6 +3234,14 @@ function bindTextCorrector() {
       render();
     });
   });
+
+  document.querySelector<HTMLSelectElement>('[data-language-more="correctorTargetLanguage"]')?.addEventListener('change', (event) => {
+    const language = normalizeLanguage((event.target as HTMLSelectElement).value);
+    if (!language) return;
+    state.translatorTargetLanguage = language;
+    state.status = t(uiLanguage(), 'textCorrector.status.languageChanged', { language: languageLabel(language) });
+    render();
+  });
 }
 
 function bindContactManager() {
@@ -3253,6 +3293,18 @@ function bindContactManager() {
 }
 
 function bindProfile() {
+  document.querySelector<HTMLButtonElement>('#openAndroidVoiceSettings')?.addEventListener('click', async () => {
+    const language = uiLanguage();
+    const feedback = document.querySelector<HTMLElement>('[data-android-voice-settings-status]');
+    if (!feedback) return;
+    try {
+      const result = await openAndroidAssistantSettings();
+      feedback.textContent = androidAssistantText(language, result.status === 'OPENED' ? 'settingsOpened' : 'settingsUnavailable');
+    } catch {
+      feedback.textContent = androidAssistantText(language, 'actionFailed');
+    }
+  });
+
   document.querySelectorAll<HTMLButtonElement>('button[data-language-group="profilePreferredLanguage"]').forEach((control) => {
     control.addEventListener('click', () => {
       const preferredLanguage = normalizeLanguage(control.dataset.language);
@@ -3263,6 +3315,28 @@ function bindProfile() {
 
       setProfileLanguage(preferredLanguage);
       state.status = t(uiLanguage(), 'profile.status.languageSaved', { language: languageLabel(preferredLanguage) });
+      render();
+    });
+  });
+
+  document.querySelector<HTMLSelectElement>('[data-language-more="profilePreferredLanguage"]')?.addEventListener('change', (event) => {
+    const preferredLanguage = normalizeLanguage((event.target as HTMLSelectElement).value);
+    if (!preferredLanguage) return;
+    setProfileLanguage(preferredLanguage);
+    state.status = t(uiLanguage(), 'profile.status.languageSaved', { language: languageLabel(preferredLanguage) });
+    render();
+  });
+
+  document.querySelectorAll<HTMLSelectElement>('[data-favorite-language-slot]').forEach((control) => {
+    control.addEventListener('change', () => {
+      const selected = [...document.querySelectorAll<HTMLSelectElement>('[data-favorite-language-slot]')]
+        .map((item) => normalizeLanguage(item.value))
+        .filter((item): item is LanguageCode => item !== null);
+      state.profile = {
+        ...state.profile,
+        favoriteLanguages: normalizeQuickLanguages(selected, state.profile.preferredLanguage),
+      };
+      saveProfile(window.sessionStorage, state.profile);
       render();
     });
   });
@@ -3333,35 +3407,6 @@ function registerServiceWorker() {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js?v=agm-1.3.0-browser-recovery-v2-20260826', { updateViaCache: 'none' }).catch(() => {
       state.status = t(uiLanguage(), 'status.pwaUnavailable');
-    });
-  });
-  document.querySelector<HTMLSelectElement>('[data-language-more="correctorTargetLanguage"]')?.addEventListener('change', (event) => {
-    const language = normalizeLanguage((event.target as HTMLSelectElement).value);
-    if (!language) return;
-    state.translatorTargetLanguage = language;
-    state.status = t(uiLanguage(), 'textCorrector.status.languageChanged', { language: languageLabel(language) });
-    render();
-  });
-
-  document.querySelector<HTMLSelectElement>('[data-language-more="profilePreferredLanguage"]')?.addEventListener('change', (event) => {
-    const preferredLanguage = normalizeLanguage((event.target as HTMLSelectElement).value);
-    if (!preferredLanguage) return;
-    setProfileLanguage(preferredLanguage);
-    state.status = t(uiLanguage(), 'profile.status.languageSaved', { language: languageLabel(preferredLanguage) });
-    render();
-  });
-
-  document.querySelectorAll<HTMLSelectElement>('[data-favorite-language-slot]').forEach((control) => {
-    control.addEventListener('change', () => {
-      const selected = [...document.querySelectorAll<HTMLSelectElement>('[data-favorite-language-slot]')]
-        .map((item) => normalizeLanguage(item.value))
-        .filter((item): item is LanguageCode => item !== null);
-      state.profile = {
-        ...state.profile,
-        favoriteLanguages: normalizeQuickLanguages(selected, state.profile.preferredLanguage),
-      };
-      saveProfile(window.sessionStorage, state.profile);
-      render();
     });
   });
 }

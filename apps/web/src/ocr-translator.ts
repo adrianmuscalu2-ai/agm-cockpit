@@ -1,6 +1,7 @@
 import { createWorker, PSM } from 'tesseract.js';
 import { type LanguageCode } from './emailLanguage';
 import { basicLanguageRegistry } from './language-registry';
+import { recordRoutingMetric, routeDeviceOperation } from './device-capability-router/device-capability.runtime';
 
 export type OcrRecognitionResult = {
   text: string;
@@ -9,20 +10,32 @@ export type OcrRecognitionResult = {
 };
 
 export async function recognizeTextFromImage(image: Blob | File, language: LanguageCode): Promise<OcrRecognitionResult> {
+  const route = await routeDeviceOperation({
+    operation: 'OCR',
+    sensitivity: 'DOCUMENT',
+    localCandidateAvailable: true,
+    safetyCritical: true,
+  });
+  if (route.authority !== 'LOCAL_DEVICE') throw new Error('LOCAL_OCR_UNAVAILABLE_MANUAL_REVIEW_REQUIRED');
+  const startedAt = performance.now();
   const preparedImages = await prepareImagesForOcr(image);
   const languages = [language, 'en' as const]
     .map((code) => basicLanguageRegistry[code].ocrCode)
     .filter((code, index, all) => all.indexOf(code) === index)
     .join('+');
-  const worker = await createWorker(languages);
+  let worker: Awaited<ReturnType<typeof createWorker>> | undefined;
 
   try {
+    worker = await createWorker(languages);
     await worker.setParameters({
       tessedit_pageseg_mode: PSM.AUTO,
       preserve_interword_spaces: '1',
     });
     const firstResult = await recognizePreparedImage(worker, preparedImages.grayscale);
-    if (firstResult.isUsable) return firstResult;
+    if (firstResult.isUsable) {
+      recordRoutingMetric({ operation: 'OCR', authority: 'LOCAL_DEVICE', executionMode: route.executionMode, decisionLatencyMs: route.decisionLatencyMs, executionLatencyMs: performance.now() - startedAt, success: true, atEpochMs: Date.now() });
+      return firstResult;
+    }
 
     // Small LCD messages are often a tiny, isolated text region in a much larger
     // dashboard photo. A high-contrast sparse-text pass gives Tesseract a second
@@ -32,9 +45,14 @@ export async function recognizeTextFromImage(image: Blob | File, language: Langu
       preserve_interword_spaces: '1',
     });
     const displayResult = await recognizePreparedImage(worker, preparedImages.highContrast);
-    return preferOcrResult(firstResult, displayResult);
+    const result = preferOcrResult(firstResult, displayResult);
+    recordRoutingMetric({ operation: 'OCR', authority: 'LOCAL_DEVICE', executionMode: route.executionMode, decisionLatencyMs: route.decisionLatencyMs, executionLatencyMs: performance.now() - startedAt, success: result.isUsable, atEpochMs: Date.now() });
+    return result;
+  } catch (error) {
+    recordRoutingMetric({ operation: 'OCR', authority: 'LOCAL_DEVICE', executionMode: route.executionMode, decisionLatencyMs: route.decisionLatencyMs, executionLatencyMs: performance.now() - startedAt, success: false, atEpochMs: Date.now() });
+    throw error;
   } finally {
-    await worker.terminate();
+    await worker?.terminate();
   }
 }
 

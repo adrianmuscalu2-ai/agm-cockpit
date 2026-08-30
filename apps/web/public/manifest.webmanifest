@@ -1,7 +1,7 @@
 {
-  "name": "A.G.M. Cockpit",
-  "short_name": "A.G.M.",
-  "description": "A.G.M. Cockpit test app for translator, voice and e-mail assistant workflows.",
+  "name": "AGM Transporte",
+  "short_name": "AGM Transporte",
+  "description": "AGM Transporte application powered by the A.G.M. Cockpit operational experience.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

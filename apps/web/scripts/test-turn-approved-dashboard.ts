@@ -10,14 +10,19 @@ const html = renderTurnCommandCenter({
   incidentFilters: emptyIncidentFilters(),
 });
 
-assert.equal(agentGovernanceRegistry.length, 34, 'Registry must contain the existing 32 entries plus exactly two Website Guardians');
-assert.equal((html.match(/data-entry-agent-id=/g) ?? []).length, 34, 'Entry panel must show every registered agent');
-assert.equal((html.match(/data-agent-row-id=/g) ?? []).length, 33, 'Canonical table must show every non-P9 registry row');
+assert.equal(agentGovernanceRegistry.length, 37, 'Registry must contain the three final-language agents');
+assert.equal((html.match(/data-entry-agent-id=/g) ?? []).length, 37, 'Entry panel must show every registered agent');
+assert.equal((html.match(/data-agent-row-id=/g) ?? []).length, 36, 'Canonical table must show every non-P9 registry row');
 for (const id of ['website-content-visual-guardian', 'website-runtime-release-guardian']) {
   assert.match(html, new RegExp(`data-agent-row-id="${id}"`));
 }
 for (const id of ['agent-linguistic-ro-de', 'agent-linguistic-ro-en', 'agent-linguistic-de-en']) {
   assert.equal(agentGovernanceRegistry.find((agent) => agent.id === id)?.status, 'active', `${id} must reflect the implemented APP-006 runtime`);
+}
+for (const id of ['premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv']) {
+  assert.equal(agentGovernanceRegistry.find((agent) => agent.id === id)?.status, 'active', `${id} must be operational`);
+  assert.match(html, new RegExp(`data-agent-row-id="${id}"`));
+  assert.match(html, new RegExp(`data-live-agent-id="${id}"`));
 }
 assert.equal((html.match(/id="turn-dashboard"/g) ?? []).length, 1, 'There must be one primary dashboard');
 assert.match(html, /ARHITECTURĂ ȘI GUVERNANȚĂ/);

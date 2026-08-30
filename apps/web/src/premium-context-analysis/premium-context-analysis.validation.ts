@@ -5,7 +5,7 @@ import {
 } from './premium-context-analysis.contract';
 
 const idPattern = /^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$/;
-const allowedLanguages = new Set(['ro', 'de', 'en']);
+const allowedLanguages = new Set(['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv']);
 
 export type PremiumContextValidationResult =
   | { valid: true }

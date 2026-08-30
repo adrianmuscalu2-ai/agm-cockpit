@@ -15,7 +15,7 @@ assert.equal(aiGovernanceModule.enabled, false);
 assert.equal(aiGovernanceModule.authorizationEngine.enabled, false);
 assert.equal(initialAiGovernanceKillSwitch.engaged, true);
 assert.equal(governedAiModules.length, 4);
-assert.ok(governedAiModules.every(({ enabled }) => !enabled));
+assert.equal(governedAiModules.filter(({ enabled }) => enabled).map(({ id }) => id).join(','), 'professional-linguistic-agents');
 assert.ok(aiGovernancePolicies.every(({ enabled, requiresInspector, requiresUserConfirmation, retention }) =>
   !enabled && requiresInspector && requiresUserConfirmation && retention === 'none'));
 

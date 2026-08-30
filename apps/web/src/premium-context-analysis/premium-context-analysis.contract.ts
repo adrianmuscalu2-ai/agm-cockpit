@@ -11,7 +11,7 @@ export type PremiumContextAnalysisRequest = {
   id: string;
   source: PremiumContextSource;
   content: string;
-  language: 'ro' | 'de' | 'en';
+  language: 'ro' | 'de' | 'en' | 'fr' | 'nl' | 'ru' | 'pl' | 'tr' | 'sq' | 'it' | 'es' | 'sv';
   contextRefs: readonly string[];
   usesPersonalData: false;
   producesExternalEffect: false;

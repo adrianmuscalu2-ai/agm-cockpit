@@ -8,4 +8,4 @@ const cases = [
 ] as const;
 for (const [language, value, expected] of cases) assert.equal(parseVoiceDecision(language, value), expected);
 assert.equal(parseVoiceDecision('ro', 'poate'), 'unknown');
-console.log('Premium hands-free confirmation: PASS (9/9 languages)');
+console.log('Premium hands-free confirmation: PASS (12/12 languages)');

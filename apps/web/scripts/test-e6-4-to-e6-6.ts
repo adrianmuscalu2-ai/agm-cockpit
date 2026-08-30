@@ -7,7 +7,7 @@ import { renderPreDepartureShell } from '../src/pre-departure/pre-departure.shel
 import { preDepartureCore } from '../src/pre-departure/pre-departure.module';
 import { createWebBuildDefinition } from '../web-build-definition.mjs';
 
-assert.deepEqual([...preDepartureLanguages], ['ro', 'de', 'en']);
+assert.deepEqual([...preDepartureLanguages], ['ro','de','en','fr','nl','ru','pl','tr','sq','it','es','sv']);
 assert.equal(preDepartureCore.stateCount, 8);
 assert.equal(preDepartureCore.transitionCount, 18);
 assert.equal(preDepartureCore.externalSideEffects, false);

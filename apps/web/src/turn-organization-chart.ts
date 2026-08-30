@@ -120,6 +120,8 @@ const secretGuardianNode: TurnOrganizationAgent = {
   escalationLevel: 'L3', subordinateAgentIds: [],
 };
 
+const linguisticAgentIds = ['premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv'] as const;
+
 const operationalUnits: TurnOrganizationAgent[] = atlasUnits.map(([id, name, responsibility]) => ({
   id: `unit-${id}`,
   name,
@@ -133,7 +135,9 @@ const operationalUnits: TurnOrganizationAgent[] = atlasUnits.map(([id, name, res
   escalationLevel: 'L2',
   subordinateAgentIds: id === 'website'
     ? ['website-content-visual-guardian', 'website-runtime-release-guardian']
-    : [],
+    : id === 'i18n'
+      ? [...linguisticAgentIds]
+      : [],
 }));
 
 const websiteGuardianNodes: TurnOrganizationAgent[] = [
@@ -149,6 +153,30 @@ const websiteGuardianNodes: TurnOrganizationAgent[] = [
     departmentId: 'operational-coordination', coordinatorId: 'unit-website', reportsToId: 'unit-website',
     responsibility: 'Build, rute publice, deploy, redirects, assets, health și validare post-deploy pentru website.',
     accessLevel: 'operational-readonly', procedure: 'VALIDATION → RELEASE → POST-DEPLOY HEALTH; separă defectele runtime de cele de conținut și nu modifică DNS fără mandat.',
+    escalationLevel: 'L2', subordinateAgentIds: [],
+  },
+];
+
+const linguisticAgentNodes: TurnOrganizationAgent[] = [
+  {
+    id: 'premium-linguist-it', name: 'ITALIAN LANGUAGE AGENT', kind: 'agent',
+    departmentId: 'operational-coordination', coordinatorId: 'unit-i18n', reportsToId: 'unit-i18n',
+    responsibility: 'Autoritate operațională exclusivă pentru validarea resurselor IT din APP, Premium și Car Mover.',
+    accessLevel: 'operational-readonly', procedure: 'CATALOG AUDIT → KEY/PARAMETER PARITY → RUNTIME HEARTBEAT → TURN EVIDENCE; fără publicare sau modificare automată de text.',
+    escalationLevel: 'L2', subordinateAgentIds: [],
+  },
+  {
+    id: 'premium-linguist-es', name: 'SPANISH LANGUAGE AGENT', kind: 'agent',
+    departmentId: 'operational-coordination', coordinatorId: 'unit-i18n', reportsToId: 'unit-i18n',
+    responsibility: 'Autoritate operațională exclusivă pentru validarea resurselor ES din APP, Premium și Car Mover.',
+    accessLevel: 'operational-readonly', procedure: 'CATALOG AUDIT → KEY/PARAMETER PARITY → RUNTIME HEARTBEAT → TURN EVIDENCE; fără publicare sau modificare automată de text.',
+    escalationLevel: 'L2', subordinateAgentIds: [],
+  },
+  {
+    id: 'premium-linguist-sv', name: 'SWEDISH LANGUAGE AGENT', kind: 'agent',
+    departmentId: 'operational-coordination', coordinatorId: 'unit-i18n', reportsToId: 'unit-i18n',
+    responsibility: 'Autoritate operațională exclusivă pentru validarea resurselor SV din APP, Premium și Car Mover.',
+    accessLevel: 'operational-readonly', procedure: 'CATALOG AUDIT → KEY/PARAMETER PARITY → RUNTIME HEARTBEAT → TURN EVIDENCE; fără publicare sau modificare automată de text.',
     escalationLevel: 'L2', subordinateAgentIds: [],
   },
 ];
@@ -172,6 +200,7 @@ export const turnOrganizationAgents: TurnOrganizationAgent[] = [
   secretGuardianNode,
   ...operationalUnits,
   ...websiteGuardianNodes,
+  ...linguisticAgentNodes,
   ...monitoringNodes,
 ];
 
@@ -218,7 +247,7 @@ export function renderTurnOrganizationChart() {
       <div class="turn-org-tree">
         <details open data-org-branch="leadership"><summary>Nivelul 1 · Conducere</summary>${nodeButton(mentor)}<div class="turn-org-connector">↓</div>${nodeButton(adrian)}<div class="turn-org-connector">↓</div>${nodeButton(secretGuardianNode)}</details>
         <details open data-org-branch="coordination"><summary>Nivelul 2 · Coordonare</summary><div class="turn-org-peer-row">${nodeButton(atlas)}${nodeButton(inspector)}</div></details>
-        <details open data-org-branch="operational-coordination"><summary>Nivelul 3 · Subordonare Atlas</summary><div class="turn-org-node-grid">${operationalUnits.map(nodeButton).join('')}</div></details>
+        <details open data-org-branch="operational-coordination"><summary>Nivelul 3 · Subordonare Atlas</summary><div class="turn-org-node-grid">${[...operationalUnits, ...websiteGuardianNodes, ...linguisticAgentNodes].map(nodeButton).join('')}</div></details>
         <details open data-org-branch="monitoring"><summary>Nivelul 3 · Subordonare Inspector Șef Monitorizare</summary><div class="turn-org-node-grid">${monitoringNodes.map(nodeButton).join('')}</div></details>
       </div>
       <aside class="turn-org-relations" id="turnOrgRelations" aria-live="polite"><header><span>Relații selectate</span><h3 data-org-field="name">${escapeHtml(adrian.name)}</h3></header>${relationDetails(adrian)}</aside>

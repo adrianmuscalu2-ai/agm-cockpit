@@ -3,7 +3,7 @@ import { appI18nDictionary } from '../src/i18n/app-i18n.dictionary';
 import { t, uiLanguageFromProfile } from '../src/i18n/app-i18n';
 import { i18nCatalogRegistry, supportedUiLanguages } from '../src/i18n/i18n-catalog.registry';
 
-assert.deepEqual([...supportedUiLanguages], ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq']);
+assert.deepEqual([...supportedUiLanguages], ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv']);
 assert.deepEqual(i18nCatalogRegistry.map((catalog) => catalog.id), [
   'app', 'premium', 'pre-departure', 'after-departure',
 ]);
@@ -22,7 +22,10 @@ for (const language of supportedUiLanguages) {
 
 const fallbackKey = 'home.title';
 assert.equal(t('fr', fallbackKey), 'Accueil');
-assert.equal(t('fr', 'about.scopeBody'), appI18nDictionary.en?.['about.scopeBody']);
+const syntheticFallbackKey = 'app008.synthetic-english-only';
+appI18nDictionary.en![syntheticFallbackKey] = 'Synthetic English fallback';
+assert.equal(t('fr', syntheticFallbackKey), 'Synthetic English fallback');
+delete appI18nDictionary.en![syntheticFallbackKey];
 assert.equal(t('ro', 'app008.unknown-key'), 'app008.unknown-key');
 
 console.log('APP-008 I18n runtime languages, catalogs, interpolation and fallbacks: PASS');

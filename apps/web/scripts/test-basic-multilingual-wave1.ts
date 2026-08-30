@@ -11,11 +11,11 @@ import { t } from '../src/i18n/app-i18n';
 import { defaultProfile, normalizeLanguage, normalizeProfile, readProfile, saveProfile } from '../src/profileSettings';
 import { emailTemplates, templateContent } from '../src/emailTemplates';
 
-const expected = ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq'] as const;
+const expected = ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv'] as const;
 assert.deepEqual([...basicLanguageCodes], expected);
 assert.equal(maximumBasicLanguageCapacity, 12);
-assert.equal(12 - basicLanguageCodes.length, 3);
-assert.equal(normalizeLanguage('it'), null);
+assert.equal(12 - basicLanguageCodes.length, 0);
+assert.equal(normalizeLanguage('it'), 'it');
 
 for (const language of expected) {
   const definition = basicLanguageRegistry[language];
@@ -30,7 +30,7 @@ for (const language of expected) {
   assert.ok(templateContent(emailTemplates[0], language).subject);
 }
 
-for (const language of ['fr', 'nl', 'ru', 'pl', 'tr', 'sq'] as const) {
+for (const language of ['fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv'] as const) {
   assert.ok(appI18nDictionary[language]?.['language.more']);
   assert.ok(appI18nDictionary[language]?.['language.favorites']);
 }
@@ -42,7 +42,7 @@ for (const language of expected) {
   const missing = basicKeys.filter((key) => !catalog[key]?.trim());
   assert.deepEqual(missing, [], `${language} missing Basic i18n keys: ${missing.join(', ')}`);
 }
-for (const language of ['fr', 'nl', 'ru', 'pl', 'tr', 'sq'] as const) {
+for (const language of ['fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv'] as const) {
   const catalog = appI18nDictionary[language] ?? {};
   const unjustifiedEnglish = basicKeys.filter((key) => {
     const value = catalog[key]?.trim();
@@ -65,9 +65,9 @@ saveProfile(storage, profile);
 assert.equal(readProfile(storage).preferredLanguage, 'ru');
 assert.deepEqual(readProfile(storage).favoriteLanguages, ['fr', 'ru', 'pl']);
 
-const apiDto = readFileSync(new URL('../../api/src/translation/dto/translate-text.dto.ts', import.meta.url), 'utf8');
+const apiDto = readFileSync(new URL('../../api/src/translation/dto/translation-languages.ts', import.meta.url), 'utf8');
 for (const language of expected) assert.match(apiDto, new RegExp(`['"]${language}['"]`));
-for (const forbidden of ['it', 'es', 'hu']) assert.doesNotMatch(apiDto, new RegExp(`['"]${forbidden}['"]`));
+for (const forbidden of ['hu']) assert.doesNotMatch(apiDto, new RegExp(`['"]${forbidden}['"]`));
 
 const main = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
 assert.match(main, /normalizeQuickLanguages/);

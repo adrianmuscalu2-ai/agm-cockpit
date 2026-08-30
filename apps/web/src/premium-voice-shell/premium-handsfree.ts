@@ -12,6 +12,9 @@ const confirmWords: Record<BasicLanguageCode, string[]> = {
   pl: ['tak', 'potwierdź', 'potwierdzam', 'wyślij'],
   tr: ['evet', 'onayla', 'onaylıyorum', 'gönder'],
   sq: ['po', 'konfirmo', 'konfirmoj', 'dërgo'],
+  it: ['sì', 'si', 'conferma', 'invia'],
+  es: ['sí', 'si', 'confirmar', 'enviar'],
+  sv: ['ja', 'bekräfta', 'skicka'],
 };
 
 const cancelWords: Record<BasicLanguageCode, string[]> = {
@@ -24,6 +27,9 @@ const cancelWords: Record<BasicLanguageCode, string[]> = {
   pl: ['nie', 'anuluj', 'stop'],
   tr: ['hayır', 'iptal', 'dur'],
   sq: ['jo', 'anulo', 'ndalo'],
+  it: ['no', 'annulla', 'ferma'],
+  es: ['no', 'cancelar', 'detener'],
+  sv: ['nej', 'avbryt', 'stopp'],
 };
 
 export const handsfreeText: Record<BasicLanguageCode, { review: (text: string) => string; retry: string; standby: string }> = {
@@ -36,6 +42,9 @@ export const handsfreeText: Record<BasicLanguageCode, { review: (text: string) =
   pl: { review: text => `Zrozumiałem: ${text}. Powiedz tak, aby potwierdzić, lub nie, aby anulować.`, retry: 'Nie rozumiem potwierdzenia. Powiedz tak lub nie.', standby: 'AGM jest gotowy na kolejne pytanie.' },
   tr: { review: text => `Şunu anladım: ${text}. Onaylamak için evet, iptal etmek için hayır deyin.`, retry: 'Onay anlaşılamadı. Evet veya hayır deyin.', standby: 'AGM bir sonraki istek için hazır.' },
   sq: { review: text => `Kuptova: ${text}. Thuaj po për konfirmim ose jo për anulim.`, retry: 'Konfirmimi nuk u kuptua. Thuaj po ose jo.', standby: 'AGM është gati për kërkesën tjetër.' },
+  it: { review: text => `Ho capito: ${text}. Di sì per confermare o no per annullare.`, retry: 'Non ho capito la conferma. Di sì o no.', standby: 'AGM è pronto per la prossima richiesta.' },
+  es: { review: text => `He entendido: ${text}. Di sí para confirmar o no para cancelar.`, retry: 'No he entendido la confirmación. Di sí o no.', standby: 'AGM está listo para la siguiente solicitud.' },
+  sv: { review: text => `Jag uppfattade: ${text}. Säg ja för att bekräfta eller nej för att avbryta.`, retry: 'Jag förstod inte bekräftelsen. Säg ja eller nej.', standby: 'AGM är redo för nästa begäran.' },
 };
 
 export function parseVoiceDecision(language: BasicLanguageCode, value: string): VoiceDecision {

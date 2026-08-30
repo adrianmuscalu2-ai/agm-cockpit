@@ -9,14 +9,20 @@ const officialTurnIds = new Set([...agentGovernanceIds, ...turnOrganizationAgent
 const model = buildPanelAgentModel();
 const report = panelAgentMappingReport();
 
-assert.equal(panelAgentSources.length, 16, 'operational panel must contain only canonical or organization-backed identities');
-assert.equal(agentGovernanceRegistry.length, 34, 'canonical registry must include exactly two Website Guardians');
+assert.equal(panelAgentSources.length, 19, 'operational panel must include the three final-language runtime identities');
+assert.equal(agentGovernanceRegistry.length, 37, 'canonical registry must include the three final-language agents');
 assert.equal(model.length, panelAgentSources.length, 'every approved visual agent must be normalized');
 assert.equal(new Set(model.map((agent) => agent.panelAgentId)).size, model.length, 'panel IDs must be unique');
 assert.ok(turnOrganizationAgents.some((agent) => agent.id === 'atlas-operations'), 'official Turn organization registry must contain Atlas');
-assert.equal(model.filter((agent) => agent.mappingStatus === 'MAPPED').length, 16, 'every operational panel identity must be mapped');
+assert.equal(model.filter((agent) => agent.mappingStatus === 'MAPPED').length, 19, 'every operational panel identity must be mapped');
 for (const id of ['website-content-visual-guardian', 'website-runtime-release-guardian']) {
   assert.ok(model.some((agent) => agent.turnAgentId === id && agent.mappingStatus === 'MAPPED'), `${id} must be registered in TURN`);
+}
+for (const id of ['premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv']) {
+  const agent = model.find((entry) => entry.turnAgentId === id);
+  assert.ok(agent && agent.mappingStatus === 'MAPPED', `${id} must be registered in TURN`);
+  assert.equal(agent.sourceId, id, `${id} must use its canonical heartbeat source`);
+  assert.match(agent.telemetrySource ?? '', /Component heartbeat v1/);
 }
 assert.ok(model.some((agent) => agent.mappingStatus === 'MAPPED' && agent.turnAgentId === 'monitor-api' && agent.registryName === 'Agent Monitorizare API'), 'API monitor must be mapped from registry');
 assert.ok(model.some((agent) => agent.mappingStatus === 'MAPPED' && agent.turnAgentId === 'atlas-operations' && agent.registrySource === 'turn-organization-chart'), 'Atlas must be mapped from official Turn registry');

@@ -1,5 +1,6 @@
 param(
-    [string]$MasterPath = (Join-Path $PSScriptRoot '..\assets\brand\agm-app-icon-dual-route-master.png')
+    [string]$MasterPath = (Join-Path $PSScriptRoot '..\assets\brand\agm-app-icon-dual-route-master.png'),
+    [string]$AndroidMasterPath = (Join-Path $PSScriptRoot '..\assets\brand\agm-android-icon-master.png')
 )
 
 Set-StrictMode -Version Latest
@@ -9,6 +10,7 @@ Add-Type -AssemblyName System.Drawing
 
 $webRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $resolvedMaster = [System.IO.Path]::GetFullPath($MasterPath)
+$resolvedAndroidMaster = [System.IO.Path]::GetFullPath($AndroidMasterPath)
 $publicIcons = Join-Path $webRoot 'public\icons'
 $windowsIcons = Join-Path $publicIcons 'windows'
 $androidRes = Join-Path $webRoot 'android\app\src\main\res'
@@ -117,6 +119,18 @@ try {
     }
     Write-MultiSizeIco -PngPaths $windowsPngs -Sizes $windowsSizes -Destination (Join-Path $publicIcons 'agm-cockpit.ico')
 
+}
+finally {
+    $source.Dispose()
+}
+
+# Android remains an independent application surface. Its approved launcher
+# artwork must never be regenerated from the website/Windows icon master.
+$androidSource = [System.Drawing.Image]::FromFile($resolvedAndroidMaster)
+try {
+    if ($androidSource.Width -ne $androidSource.Height) {
+        throw "Android icon master must be square; received $($androidSource.Width)x$($androidSource.Height)."
+    }
     $androidDensities = [ordered]@{
         'mdpi' = @{ Legacy = 48; Foreground = 108 }
         'hdpi' = @{ Legacy = 72; Foreground = 162 }
@@ -128,13 +142,14 @@ try {
         $destination = Join-Path $androidRes "mipmap-$density"
         $legacySize = $androidDensities[$density].Legacy
         $foregroundSize = $androidDensities[$density].Foreground
-        Save-SquarePng -Source $source -Size $legacySize -Destination (Join-Path $destination 'ic_launcher.png')
-        Save-SquarePng -Source $source -Size $legacySize -Destination (Join-Path $destination 'ic_launcher_round.png') -Round
-        Save-SquarePng -Source $source -Size $foregroundSize -Destination (Join-Path $destination 'ic_launcher_foreground.png')
+        Save-SquarePng -Source $androidSource -Size $legacySize -Destination (Join-Path $destination 'ic_launcher.png')
+        Save-SquarePng -Source $androidSource -Size $legacySize -Destination (Join-Path $destination 'ic_launcher_round.png') -Round
+        Save-SquarePng -Source $androidSource -Size $foregroundSize -Destination (Join-Path $destination 'ic_launcher_foreground.png')
     }
 }
 finally {
-    $source.Dispose()
+    $androidSource.Dispose()
 }
 
-Write-Output "AGM application icons generated from $resolvedMaster"
+Write-Output "AGM website/Windows icons generated from $resolvedMaster"
+Write-Output "AGM Android icons generated independently from $resolvedAndroidMaster"

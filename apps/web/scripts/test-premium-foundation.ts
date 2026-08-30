@@ -243,18 +243,10 @@ assert.equal(
   premiumApplicationModules.linguisticAgents,
   premiumLinguisticAgentsModule,
 );
-assert.equal(premiumLinguisticAgentsModule.enabled, false);
-assert.deepEqual(
-  premiumLinguisticAgents.map((agent) => agent.language),
-  ['ro', 'de', 'en'],
-);
-assert.ok(premiumLinguisticAgents.every((agent) => agent.enabled === false));
-assert.ok(
-  premiumLinguisticAgents.every((agent) => agent.status === 'preparing'),
-);
-assert.ok(
-  premiumLinguisticAgents.every((agent) => agent.capabilities.length === 0),
-);
+assert.equal(premiumLinguisticAgentsModule.enabled, true);
+assert.deepEqual(premiumLinguisticAgents.map((agent) => agent.language), ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv']);
+assert.ok(premiumLinguisticAgents.filter((agent) => ['it', 'es', 'sv'].includes(agent.language)).every((agent) => agent.enabled && agent.status === 'active' && agent.capabilities.length === 5));
+assert.ok(premiumLinguisticAgents.filter((agent) => !['it', 'es', 'sv'].includes(agent.language)).every((agent) => !agent.enabled && agent.status === 'preparing' && agent.capabilities.length === 0));
 assert.equal(premiumLinguisticBoundaries.changesBasicCorrection, false);
 assert.equal(premiumLinguisticBoundaries.changesBasicTranslation, false);
 assert.equal(premiumLinguisticBoundaries.appliesHiddenCorrections, false);
@@ -427,7 +419,7 @@ assert.equal(initialAiGovernanceKillSwitch.engaged, true);
 assert.equal(initialAiGovernanceKillSwitch.reason, 'foundation-disabled');
 assert.equal(governedAiModules.length, 4);
 assert.equal(new Set(governedAiModules.map((module) => module.id)).size, 4);
-assert.ok(governedAiModules.every((module) => module.enabled === false));
+assert.equal(governedAiModules.filter((module) => module.enabled).map((module) => module.id).join(','), 'professional-linguistic-agents');
 assert.equal(aiGovernancePolicies.length, governedAiModules.length);
 assert.ok(aiGovernancePolicies.every((policy) => policy.enabled === false));
 assert.ok(

@@ -4,7 +4,7 @@ const allowLanHttp = process.env.AGM_ALLOW_LAN_HTTP_BUILD === 'true';
 
 const config: CapacitorConfig = {
   appId: 'com.agm.cockpit',
-  appName: 'A.G.M. Cockpit',
+  appName: 'AGM Transporte',
   webDir: 'dist',
   bundledWebRuntime: false,
   android: {

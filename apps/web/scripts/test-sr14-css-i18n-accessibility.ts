@@ -29,14 +29,12 @@ assert.equal(
   'The modular CSS must reconstruct the approved Access/Premium and Android Wave 1 cascade.',
 );
 
-assert.deepEqual([...supportedUiLanguages], ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq']);
+assert.deepEqual([...supportedUiLanguages], ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv']);
 assert.equal(i18nCatalogRegistry.length, 4);
 assert.deepEqual([...i18nCatalogRegistry[0].languages], [...supportedUiLanguages], 'app language coverage');
-for (const catalog of i18nCatalogRegistry.slice(1)) {
-  assert.deepEqual([...catalog.languages], ['ro', 'de', 'en'], `${catalog.id} language coverage`);
-}
+for (const catalog of i18nCatalogRegistry.slice(1)) assert.deepEqual([...catalog.languages], [...supportedUiLanguages], `${catalog.id} language coverage`);
 
-assertCatalogParity('app', appI18nDictionary as Record<string, Record<string, string>>, ['ro', 'de', 'en']);
+assertCatalogParity('app', appI18nDictionary as Record<string, Record<string, string>>, ['ro','de','en','it','es','sv']);
 assertCatalogParity('premium', premiumI18nDictionary, ['ro', 'de', 'en']);
 assertTopologyParity('pre-departure', preDepartureCopy);
 assertTopologyParity('after-departure', afterDepartureCopy);

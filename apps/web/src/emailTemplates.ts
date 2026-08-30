@@ -1,5 +1,6 @@
 import { type LanguageCode } from './emailLanguage';
 import { supportedLanguages } from './emailLanguage';
+import { finalLanguageOperationalDictionary } from './i18n/final-language-operational.dictionary';
 
 export type MessageCategory = 'transport' | 'clients' | 'logistics' | 'documents' | 'emergencies';
 
@@ -29,9 +30,11 @@ function template(id: string, category: MessageCategory, variables: string[], co
     message: content.ro[1],
     translations: Object.fromEntries(
       supportedLanguages.map((language) => {
-        const localized = language === 'ro' || language === 'de' || language === 'en'
-          ? content[language]
-          : content.en;
+        if (language === 'it' || language === 'es' || language === 'sv') {
+          const translatedTemplates = finalLanguageOperationalDictionary[language].emailTemplates as Record<string, EmailTemplateContent>;
+          return [language, translatedTemplates[id]];
+        }
+        const localized = language === 'ro' || language === 'de' || language === 'en' ? content[language] : content.en;
         return [language, { subject: localized[0], message: localized[1] }];
       }),
     ) as Record<LanguageCode, EmailTemplateContent>,

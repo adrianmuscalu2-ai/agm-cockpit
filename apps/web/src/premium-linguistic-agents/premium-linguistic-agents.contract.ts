@@ -1,4 +1,4 @@
-export const premiumLinguisticLanguages = ['ro', 'de', 'en'] as const;
+export const premiumLinguisticLanguages = ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv'] as const;
 
 export type PremiumLinguisticLanguage = (typeof premiumLinguisticLanguages)[number];
 

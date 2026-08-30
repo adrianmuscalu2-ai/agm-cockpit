@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { basicLanguageCodes } from '../src/language-registry';
 import { copilotCapabilities, PREMIUM_COPILOT_FLAG, copilotEnabled, routeCopilotIntent } from '../src/premium-copilot/copilot.contract';
-import { copilotKeys, copilotText } from '../src/premium-copilot/copilot.i18n';
+import { androidAssistantKeys, androidAssistantText, copilotKeys, copilotText } from '../src/premium-copilot/copilot.i18n';
 import { renderCopilot } from '../src/premium-copilot/copilot.view';
 import { readFileSync } from 'node:fs';
 
 for (const language of basicLanguageCodes) {
   for (const key of copilotKeys) assert.ok(copilotText(language, key).trim(), `${language}:${key}`);
+  for (const key of androidAssistantKeys) assert.ok(androidAssistantText(language, key).trim(), `${language}:android:${key}`);
   const html = renderCopilot(language, value => value);
   for (const marker of ['data-assistant-start','data-assistant-transcript','data-copilot-route','data-copilot-camera','data-assistant-replay','data-copilot-safety','data-assistant-open-settings','data-assistant-latency','data-assistant-retry']) assert.match(html, new RegExp(marker));
   assert.doesNotMatch(html, /HUB-0|foundation|Înainte de Plecare|După Plecare/);
@@ -27,8 +28,19 @@ const copilotRuntime = readFileSync(new URL('../src/premium-copilot/copilot.runt
 assert.match(copilotRuntime, /launchAndroidAssistant/);
 assert.match(copilotRuntime, /androidAssistant/);
 assert.match(copilotRuntime, /shareWithAndroidAi/);
-assert.match(copilotRuntime, /openAndroidAssistantSettings/);
+assert.match(copilotRuntime, /isAndroidAssistantAvailable\(\)/, 'Android handoffs must only render on Android');
+assert.doesNotMatch(copilotRuntime, /openAndroidAssistantSettings/, 'Android voice settings must not remain in the Copilot action grid');
+assert.doesNotMatch(copilotRuntime, /AI Android|Întrebare către AI|Setări AI/, 'Legacy hardcoded Romanian labels must be removed');
 assert.match(copilotRuntime, /window\.location\.assign\('\/ocr'\)/, 'Camera\/OCR must open the existing OCR workspace');
+const appRuntime = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
+assert.match(appRuntime, /data-android-voice-settings/, 'Android voice settings must be rendered in Profile settings');
+assert.match(appRuntime, /openAndroidAssistantSettings/, 'Profile settings must use the existing Android settings handoff');
+const androidGateway = readFileSync(new URL('../src/premium-capabilities/android-assistant.gateway.ts', import.meta.url), 'utf8');
+assert.match(androidGateway, /Capacitor\.getPlatform\(\) === 'android'/, 'Android controls must be gated by the exact platform');
+assert.match(androidGateway, /chooserTitle/, 'The Android share chooser must receive its localized generic title');
+const androidCapability = readFileSync(new URL('../android/app/src/main/java/com/agm/cockpit/AgmCapabilityPlugin.java', import.meta.url), 'utf8');
+assert.match(androidCapability, /call\.getString\("chooserTitle"/, 'The native share chooser must consume the localized title');
+assert.doesNotMatch(androidCapability, /Trimite întrebarea către aplicația AI/, 'The native chooser must not retain the legacy AI-specific Romanian title');
 const copilotCss = readFileSync(new URL('../src/premium-copilot/copilot.css', import.meta.url), 'utf8');
 const sharedCss = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
 assert.match(copilotCss, /grid-template-columns:\s*repeat\(2,minmax\(0,1fr\)\)/, 'Mobile controls must fit in two bounded columns');
@@ -37,4 +49,4 @@ assert.match(copilotCss, /main \* \{ min-width: 0; max-width: 100%; \}/, 'Every 
 assert.match(sharedCss, /--agm-ai-assistant-visual:\s*url\('\/images\/agm-ai-assistant-microphone-v1\.png'\)/, 'Copilot and Voice must use the supplied full-page assistant visual');
 assert.match(copilotCss, /background:\s*rgba\(2,12,28,\.22\)/, 'Copilot functional panels must remain translucent');
 assert.match(copilotCss, /\.copilot-mic/, 'The microphone must remain the central visual control');
-console.log('Premium Single Copilot C0 contracts/i18n 9/9/safety/authority/rollback: PASS');
+console.log(`Premium Single Copilot C0 contracts/i18n ${basicLanguageCodes.length}/12; Android UI ${androidAssistantKeys.length} keys/language; safety/authority/rollback: PASS`);

@@ -1,4 +1,4 @@
-export const basicLanguageCodes = ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq'] as const;
+export const basicLanguageCodes = ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv'] as const;
 export type BasicLanguageCode = (typeof basicLanguageCodes)[number];
 
 export const maximumBasicLanguageCapacity = 12;
@@ -22,6 +22,9 @@ export const basicLanguageRegistry: Readonly<Record<BasicLanguageCode, BasicLang
   pl: { code: 'pl', nativeLabel: 'Polski', englishLabel: 'Polish', speechLocale: 'pl-PL', ocrCode: 'pol' },
   tr: { code: 'tr', nativeLabel: 'Türkçe', englishLabel: 'Turkish', speechLocale: 'tr-TR', ocrCode: 'tur' },
   sq: { code: 'sq', nativeLabel: 'Shqip', englishLabel: 'Albanian', speechLocale: 'sq-AL', ocrCode: 'sqi' },
+  it: { code: 'it', nativeLabel: 'Italiano', englishLabel: 'Italian', speechLocale: 'it-IT', ocrCode: 'ita' },
+  es: { code: 'es', nativeLabel: 'Español', englishLabel: 'Spanish', speechLocale: 'es-ES', ocrCode: 'spa' },
+  sv: { code: 'sv', nativeLabel: 'Svenska', englishLabel: 'Swedish', speechLocale: 'sv-SE', ocrCode: 'swe' },
 };
 
 export const defaultQuickLanguages: readonly BasicLanguageCode[] = ['ro', 'de', 'en'];
@@ -30,12 +33,14 @@ export const moreLanguagesLabels: Readonly<Record<BasicLanguageCode, string>> = 
   ro: 'Mai multe limbi', de: 'Weitere Sprachen', en: 'More languages',
   fr: 'Plus de langues', nl: 'Meer talen', ru: 'Другие языки',
   pl: 'Więcej języków', tr: 'Daha fazla dil', sq: 'Më shumë gjuhë',
+  it: 'Altre lingue', es: 'Más idiomas', sv: 'Fler språk',
 };
 
 export const quickLanguagesLabels: Readonly<Record<BasicLanguageCode, string>> = {
   ro: 'Limbi rapide', de: 'Schnellsprachen', en: 'Quick languages',
   fr: 'Langues rapides', nl: 'Snelle talen', ru: 'Быстрые языки',
   pl: 'Szybkie języki', tr: 'Hızlı diller', sq: 'Gjuhë të shpejta',
+  it: 'Lingue rapide', es: 'Idiomas rápidos', sv: 'Snabbspråk',
 };
 
 export function isBasicLanguageCode(value: unknown): value is BasicLanguageCode {

@@ -3,6 +3,7 @@ import type {
   AfterDepartureScenario,
 } from './after-departure.types';
 import type { AfterDepartureLanguage } from './after-departure.i18n';
+import { finalLanguageOperationalDictionary } from '../i18n/final-language-operational.dictionary';
 
 type ScenarioContent = {
   actions: readonly string[];
@@ -137,6 +138,15 @@ const unsafeActions = {
   en: ['Do not use the detailed flow while driving.', 'Stop at the first safe opportunity.'],
 };
 
+export const afterDepartureOperationalEnglish = {
+  scenarios: en,
+  limitations: limitations.en,
+  escalationLabels: escalationLabels.en!,
+  factLabels: factLabels.en!,
+  emergencyActions: emergencyActions.en,
+  unsafeActions: unsafeActions.en,
+};
+
 export function localizeAssessmentContent(
   assessment: AfterDepartureAssessment,
   language: AfterDepartureLanguage,
@@ -148,6 +158,23 @@ export function localizeAssessmentContent(
       limitations: assessment.limitations,
       escalation: assessment.escalation,
       missingFacts: assessment.missingFacts,
+    };
+  }
+
+  if (language === 'it' || language === 'es' || language === 'sv') {
+    const dictionary = finalLanguageOperationalDictionary[language].afterDepartureOperational;
+    const content = dictionary.scenarios[assessment.scenario];
+    const actions = assessment.state === 'UNSAFE_TO_INTERACT'
+      ? dictionary.unsafeActions
+      : assessment.state === 'EMERGENCY' && assessment.scenario !== 'incident'
+        ? dictionary.emergencyActions
+        : content.actions;
+    return {
+      actions,
+      prohibited: content.prohibited,
+      limitations: dictionary.limitations,
+      escalation: assessment.escalation.map((item) => dictionary.escalationLabels[item as keyof typeof dictionary.escalationLabels] ?? item),
+      missingFacts: assessment.missingFacts.map((item) => dictionary.factLabels[item as keyof typeof dictionary.factLabels] ?? item),
     };
   }
 

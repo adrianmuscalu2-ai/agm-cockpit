@@ -1,11 +1,15 @@
 import { premiumLinguisticBoundaries } from './premium-linguistic-agents.contract';
 import { premiumLinguisticAgents } from './premium-linguistic-agents.registry';
-import { disabledPremiumLinguisticWorkflowState } from './premium-linguistic-agents.states';
+import type { PremiumLinguisticWorkflowState } from './premium-linguistic-agents.states';
+
+const operationalPremiumLinguisticWorkflowState: PremiumLinguisticWorkflowState = {
+  status: 'idle',
+};
 
 export const premiumLinguisticAgentsModule = {
   id: 'professional-linguistic-agents',
-  enabled: false,
+  enabled: true,
   agents: premiumLinguisticAgents,
-  initialState: disabledPremiumLinguisticWorkflowState,
+  initialState: operationalPremiumLinguisticWorkflowState,
   boundaries: premiumLinguisticBoundaries,
 } as const;

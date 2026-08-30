@@ -1,5 +1,5 @@
 import { PREMIUM_COPILOT_STATE, routeCopilotIntent, type CopilotDecision } from './copilot.contract';
-import { copilotText as t } from './copilot.i18n';
+import { androidAssistantText, copilotText as t } from './copilot.i18n';
 import type { BasicLanguageCode } from '../language-registry';
 import { CapabilityBroker } from '../premium-capabilities/capability.broker';
 import { ActionConfirmationStore } from '../premium-capabilities/action-confirmation';
@@ -11,7 +11,7 @@ import { capabilityText } from '../premium-capabilities/capability.i18n';
 import { ConversationalRoutingLedger, selectConversationalCapability } from '../premium-capabilities/conversational-routing';
 import type { ActionPreview, CapabilityRequest, ConfirmationMethod } from '../premium-capabilities/capability.types';
 import { verifiedPremiumSubject } from '../premium-access/premium-access.navigation';
-import { launchAndroidAssistant, openAndroidAssistantSettings, shareWithAndroidAi } from '../premium-capabilities/android-assistant.gateway';
+import { isAndroidAssistantAvailable, launchAndroidAssistant, shareWithAndroidAi } from '../premium-capabilities/android-assistant.gateway';
 
 type State = {
   schemaVersion: 1;
@@ -27,9 +27,6 @@ export function bindCopilotRuntime() {
   const runtimeRoot = root;
   const l = root.dataset.language as BasicLanguageCode;
   const transcript = root.querySelector<HTMLTextAreaElement>('[data-assistant-transcript]')!;
-  const assistantButton=document.createElement('button');assistantButton.type='button';assistantButton.dataset.androidAssistant='';assistantButton.textContent='✨ AI Android';root.querySelector('[data-copilot-camera]')?.parentElement?.append(assistantButton);
-  const shareAiButton=document.createElement('button');shareAiButton.type='button';shareAiButton.dataset.shareAndroidAi='';shareAiButton.textContent='↗ Întrebare către AI';assistantButton.after(shareAiButton);
-  const assistantSettingsButton=document.createElement('button');assistantSettingsButton.type='button';assistantSettingsButton.dataset.androidAssistantSettings='';assistantSettingsButton.textContent='⚙ Setări AI';shareAiButton.after(assistantSettingsButton);
   const active = root.querySelector<HTMLElement>('[data-copilot-active]')!;
   const intent = root.querySelector<HTMLElement>('[data-copilot-intent]')!;
   const safety = root.querySelector<HTMLElement>('[data-copilot-safety]')!;
@@ -108,17 +105,53 @@ export function bindCopilotRuntime() {
     window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));
     window.location.assign('/ocr');
   });
-  assistantButton.addEventListener('click', async () => {
-    window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));
-    const result = await launchAndroidAssistant();
-    root.querySelector<HTMLElement>('[data-assistant-status]')!.textContent = result.status === 'OPENED' ? 'Asistentul Android a fost deschis.' : 'Asistentul Android nu este disponibil.';
-  });
-  shareAiButton.addEventListener('click', async () => {
-    const text=transcript.value.trim();if(!text){root.querySelector<HTMLElement>('[data-assistant-status]')!.textContent='Scrieți sau dictați întâi întrebarea.';return;}
-    window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));
-    await shareWithAndroidAi(text);
-  });
-  assistantSettingsButton.addEventListener('click', async () => { await openAndroidAssistantSettings(); });
+  if (isAndroidAssistantAvailable()) {
+    const tools = root.querySelector('[data-copilot-camera]')?.parentElement;
+    const assistantButton = document.createElement('button');
+    assistantButton.type = 'button';
+    assistantButton.dataset.androidAssistant = '';
+    assistantButton.textContent = `✨ ${androidAssistantText(l, 'openAssistant')}`;
+    tools?.append(assistantButton);
+
+    const shareQuestionButton = document.createElement('button');
+    shareQuestionButton.type = 'button';
+    shareQuestionButton.dataset.shareAndroidQuestion = '';
+    shareQuestionButton.textContent = `↗ ${androidAssistantText(l, 'shareQuestion')}`;
+    assistantButton.after(shareQuestionButton);
+
+    assistantButton.addEventListener('click', async () => {
+      const status = root.querySelector<HTMLElement>('[data-assistant-status]')!;
+      window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));
+      try {
+        const result = await launchAndroidAssistant({
+          moduleId: 'premium-copilot', sensitivity: 'USER_TEXT',
+          draftSelector: '[data-assistant-transcript]', draft: transcript.value,
+        });
+        status.textContent = androidAssistantText(l, result.status === 'OPENED' ? 'assistantOpened' : 'assistantUnavailable');
+      } catch {
+        status.textContent = androidAssistantText(l, 'actionFailed');
+      }
+    });
+
+    shareQuestionButton.addEventListener('click', async () => {
+      const status = root.querySelector<HTMLElement>('[data-assistant-status]')!;
+      const text = transcript.value.trim();
+      if (!text) {
+        status.textContent = androidAssistantText(l, 'textRequired');
+        return;
+      }
+      window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));
+      try {
+        const result = await shareWithAndroidAi(text, androidAssistantText(l, 'shareQuestion'), {
+          moduleId: 'premium-copilot', sensitivity: 'USER_TEXT',
+          draftSelector: '[data-assistant-transcript]',
+        });
+        status.textContent = androidAssistantText(l, result.status === 'OPENED' ? 'shareOpened' : 'shareUnavailable');
+      } catch {
+        status.textContent = androidAssistantText(l, 'actionFailed');
+      }
+    });
+  }
 
   const restored = read();
   if (restored) render(restored);
@@ -146,4 +179,4 @@ function extractCommunication(text:string,capabilityId:'SEND_EMAIL'|'SEND_WHATSA
 
 function extractPhone(text:string){const match=text.match(/\+?[0-9][0-9 ()-]{4,24}/);const withoutNumber=match?text.replace(match[0],''):text;const name=withoutNumber.replace(/\b(sun[aă]|apel|telefon|call|anrufen|pe|pentru|for|für)\b/gi,' ').replace(/\s+/g,' ').trim();return{phoneNumber:match?.[0].trim(),displayName:name||undefined};}
 function extractDestination(text:string){const cleaned=text.replace(/\b(deschide|naviga(?:ție|tia)|maps|hart[aă]|route|navigation|karte|către|catre|spre|to|nach)\b/gi,' ').replace(/\s+/g,' ').trim();return{destination:cleaned||undefined,grounded:true};}
-function isVoiceConfirmation(value:string,language:BasicLanguageCode){const normalized=value.toLocaleLowerCase().trim().replace(/[.!?]/g,'');const phrases:Record<BasicLanguageCode,string[]>={ro:['da','confirm','confirmă'],de:['ja','bestätigen','bestätige'],en:['yes','confirm'],fr:['oui','confirmer'],nl:['ja','bevestigen'],ru:['да','подтвердить'],pl:['tak','potwierdź'],tr:['evet','onayla'],sq:['po','konfirmo']};return phrases[language].includes(normalized);}
+function isVoiceConfirmation(value:string,language:BasicLanguageCode){const normalized=value.toLocaleLowerCase().trim().replace(/[.!?]/g,'');const phrases:Record<BasicLanguageCode,string[]>={ro:['da','confirm','confirmă'],de:['ja','bestätigen','bestätige'],en:['yes','confirm'],fr:['oui','confirmer'],nl:['ja','bevestigen'],ru:['да','подтвердить'],pl:['tak','potwierdź'],tr:['evet','onayla'],sq:['po','konfirmo'],it:['sì','si','conferma'],es:['sí','si','confirmar'],sv:['ja','bekräfta']};return phrases[language].includes(normalized);}

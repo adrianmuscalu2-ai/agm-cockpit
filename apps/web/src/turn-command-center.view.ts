@@ -348,7 +348,7 @@ function renderApprovedTurnDashboard(language: UiLanguage) {
     </section>
 
     <section class="turn-agent-register" aria-labelledby="turn-agent-register-title">
-      <header><div><span class="turn-kicker">REGISTRU CANONIC COMPLET</span><h3 id="turn-agent-register-title">Tabelul celor 31 de agenți</h3></div><strong>${agentGovernanceRegistry.length} poziții</strong></header>
+      <header><div><span class="turn-kicker">REGISTRU CANONIC COMPLET</span><h3 id="turn-agent-register-title">Tabelul celor ${approvedAgents.length} de agenți</h3></div><strong>${agentGovernanceRegistry.length} poziții</strong></header>
       <div class="turn-agent-table-wrap"><table><thead><tr><th>#</th><th>Semnal</th><th>Cod</th><th>Agent</th><th>Rol</th><th>Departament</th><th>Stare</th></tr></thead><tbody>${approvedAgents.map((agent, index) => `<tr data-agent-row-id="${escapeHtml(agent.id)}"><td>${index + 1}</td><td><span class="turn-light ${escapeHtml(agent.status)}" aria-label="${escapeHtml(agent.status)}"></span></td><td><code>${escapeHtml(agent.code)}</code></td><td><strong>${escapeHtml(agentDisplayName(language, agent))}</strong></td><td>${escapeHtml(agentDisplayRole(language, agent))}</td><td>${escapeHtml(departmentDisplayName(agent.ownerDepartmentId))}</td><td><span class="turn-status ${agent.status === 'monitoring' ? 'watch' : agent.status === 'planned' ? 'planned' : 'active'}">${escapeHtml(agent.status)}</span></td></tr>`).join('')}</tbody></table></div>
     </section>
 

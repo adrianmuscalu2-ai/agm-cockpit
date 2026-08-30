@@ -1,4 +1,5 @@
 import { type LanguageCode, translateMessageWithStatus } from './emailLanguage';
+import { recordRoutingMetric, routeDeviceOperation } from './device-capability-router/device-capability.runtime';
 
 export interface TranslateRequest {
   text: string;
@@ -35,27 +36,37 @@ export const translationReadyEndpointUrl = `${translationApiBaseUrl}/health/read
 export const translationFunctionalHealthEndpointUrl = `${translationApiBaseUrl}/translation/health`;
 
 export async function translateText(request: TranslateRequest): Promise<TranslateResult> {
-  const apiResult = await translateWithAgmApi(request);
-
-  if (apiResult.available) {
-    return apiResult;
-  }
-
-  if (request.sourceLanguage === request.targetLanguage) {
-    return {
-      text: request.text,
-      available: true,
-      provider: 'local-fallback',
-    };
-  }
-
   const fallback = translateMessageWithStatus(request.text, request.targetLanguage);
+  const localResult: TranslateResult = request.sourceLanguage === request.targetLanguage
+    ? { text: request.text, available: true, provider: 'local-fallback' }
+    : { text: fallback.text, available: fallback.available, provider: fallback.available ? 'local-fallback' : 'unavailable' };
+  const decision = await routeDeviceOperation({
+    operation: 'SIMPLE_TRANSLATION',
+    sensitivity: 'USER_TEXT',
+    localCandidateAvailable: localResult.available,
+  });
 
-  return {
-    text: fallback.text,
-    available: fallback.available,
-    provider: fallback.available ? 'local-fallback' : 'unavailable',
-  };
+  if (decision.authority === 'LOCAL_DEVICE') {
+    recordRoutingMetric({
+      operation: 'SIMPLE_TRANSLATION', authority: 'LOCAL_DEVICE', executionMode: decision.executionMode,
+      decisionLatencyMs: decision.decisionLatencyMs, executionLatencyMs: 0, success: true,
+      fallbackUsed: false, atEpochMs: Date.now(),
+    });
+    return localResult;
+  }
+
+  if (decision.authority === 'AGM_AI') {
+    const startedAt = performance.now();
+    const apiResult = await translateWithAgmApi(request);
+    recordRoutingMetric({
+      operation: 'SIMPLE_TRANSLATION', authority: 'AGM_AI', executionMode: decision.executionMode,
+      decisionLatencyMs: decision.decisionLatencyMs, executionLatencyMs: performance.now() - startedAt,
+      success: apiResult.available, fallbackUsed: !apiResult.available && localResult.available, atEpochMs: Date.now(),
+    });
+    if (apiResult.available) return apiResult;
+  }
+
+  return localResult;
 }
 
 async function translateWithAgmApi(request: TranslateRequest): Promise<TranslateResult> {

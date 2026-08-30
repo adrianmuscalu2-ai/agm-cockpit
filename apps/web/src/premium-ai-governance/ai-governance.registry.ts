@@ -11,24 +11,24 @@ export type GovernedAiModuleRegistration = {
 };
 
 export const governedAiModules: readonly GovernedAiModuleRegistration[] = [
-  registerDisabledModule(premiumCopilotModule.id, premiumCopilotModule.enabled),
-  registerDisabledModule(
+  registerModule(premiumCopilotModule.id, premiumCopilotModule.enabled),
+  registerModule(
     premiumLinguisticAgentsModule.id,
     premiumLinguisticAgentsModule.enabled,
   ),
-  registerDisabledModule(
+  registerModule(
     premiumContextAnalysisModule.id,
     premiumContextAnalysisModule.enabled,
   ),
-  registerDisabledModule(
+  registerModule(
     proactiveRecommendationsModule.id,
     proactiveRecommendationsModule.enabled,
   ),
 ];
 
-function registerDisabledModule(
+function registerModule(
   id: GovernedAiModuleId,
-  enabled: false,
+  enabled: boolean,
 ): GovernedAiModuleRegistration {
   return {
     id,

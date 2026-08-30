@@ -40,6 +40,9 @@ const notApplicableReasons: Record<PreDepartureLanguage, string> = {
   fr: 'Non applicable au contexte sélectionné', nl: 'Niet van toepassing op de geselecteerde context',
   ru: 'Не применимо к выбранным условиям', pl: 'Nie dotyczy wybranego kontekstu',
   tr: 'Seçilen bağlam için uygulanamaz', sq: 'Nuk zbatohet për kontekstin e zgjedhur',
+  it: 'Non applicabile al contesto selezionato',
+  es: 'No aplicable al contexto seleccionado',
+  sv: 'Inte tillämpligt för vald kontext',
 };
 
 export function applyPreDepartureAnswer(
