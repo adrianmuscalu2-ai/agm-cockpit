@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-30T19-07-12-741Z",
+  "status": "FAIL",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "buildContext": {
+    "revision": "dc8d793d45fe4108bf3f9b8eb833d8423cd27201"
+  },
+  "target": "http://127.0.0.1:5174",
+  "iab": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "results": [],
+  "fatal": "TimeoutError: page.waitForSelector: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-premium-copilot]') to be visible\u001b[22m\n"
+}

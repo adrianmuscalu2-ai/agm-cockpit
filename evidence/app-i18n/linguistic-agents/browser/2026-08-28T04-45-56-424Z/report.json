@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T04-45-56-424Z",
+  "startedAt": "2026-08-28T04:45:56.425Z",
+  "target": "http://127.0.0.1:5174/turn",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "results": [
+    {
+      "id": "desktop",
+      "status": "PASS",
+      "viewport": {
+        "width": 1440,
+        "height": 1100
+      },
+      "heartbeats": {
+        "premium-linguist-it": {
+          "status": "ONLINE",
+          "reason": "I18N_RESOURCES_VALIDATED",
+          "detail": "language=it;app=1155;operational=308;carMover=37;premium=199;total=1699;errors=0"
+        },
+        "premium-linguist-es": {
+          "status": "ONLINE",
+          "reason": "I18N_RESOURCES_VALIDATED",
+          "detail": "language=es;app=1155;operational=308;carMover=37;premium=199;total=1699;errors=0"
+        },
+        "premium-linguist-sv": {
+          "status": "ONLINE",
+          "reason": "I18N_RESOURCES_VALIDATED",
+          "detail": "language=sv;app=1155;operational=308;carMover=37;premium=199;total=1699;errors=0"
+        }
+      },
+      "statusScreenshot": "evidence\\app-i18n\\linguistic-agents\\browser\\2026-08-28T04-45-56-424Z\\desktop-turn-language-agent-status.png",
+      "organizationScreenshot": "evidence\\app-i18n\\linguistic-agents\\browser\\2026-08-28T04-45-56-424Z\\desktop-turn-language-agent-organization.png",
+      "registryRows": 3,
+      "organizationNodes": 3
+    },
+    {
+      "id": "mobile",
+      "status": "PASS",
+      "viewport": {
+        "width": 412,
+        "height": 915
+      },
+      "heartbeats": {
+        "premium-linguist-it": {
+          "status": "ONLINE",
+          "reason": "I18N_RESOURCES_VALIDATED",
+          "detail": "language=it;app=1155;operational=308;carMover=37;premium=199;total=1699;errors=0"
+        },
+        "premium-linguist-es": {
+          "status": "ONLINE",
+          "reason": "I18N_RESOURCES_VALIDATED",
+          "detail": "language=es;app=1155;operational=308;carMover=37;premium=199;total=1699;errors=0"
+        },
+        "premium-linguist-sv": {
+          "status": "ONLINE",
+          "reason": "I18N_RESOURCES_VALIDATED",
+          "detail": "language=sv;app=1155;operational=308;carMover=37;premium=199;total=1699;errors=0"
+        }
+      },
+      "statusScreenshot": "evidence\\app-i18n\\linguistic-agents\\browser\\2026-08-28T04-45-56-424Z\\mobile-turn-language-agent-status.png",
+      "organizationScreenshot": "evidence\\app-i18n\\linguistic-agents\\browser\\2026-08-28T04-45-56-424Z\\mobile-turn-language-agent-organization.png",
+      "registryRows": 3,
+      "organizationNodes": 3
+    }
+  ],
+  "probe": "TURN / three canonical agent rows / three runtime heartbeat component rows / governance table / organization mapping / desktop + mobile",
+  "status": "PASS",
+  "runtimeErrors": [],
+  "finishedAt": "2026-08-28T04:46:10.931Z",
+  "revision": "dc8d793d45fe4108bf3f9b8eb833d8423cd27201"
+}

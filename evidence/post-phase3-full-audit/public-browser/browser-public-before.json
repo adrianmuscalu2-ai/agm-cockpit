@@ -1,0 +1,49 @@
+{
+  "contract": "agm-instrumentation-observer-public-browser.v1",
+  "phase": "BEFORE",
+  "generatedAt": "2026-08-30T19:29:09.181Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "targetUrl": "https://app.agmcockpit.com/",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "FAIL",
+  "probe": {
+    "action": "NAVIGATE_DOMCONTENTLOADED_AND_CAPTURE",
+    "startedAt": "2026-08-30T19:29:07.479Z",
+    "launchMs": 411.49,
+    "navigationStartedAt": "2026-08-30T19:29:08.115Z",
+    "navigationCompletedAt": "2026-08-30T19:29:09.032Z",
+    "navigationWallMs": 916.925,
+    "finalUrl": "https://app.agmcockpit.com/basic",
+    "httpStatus": 200,
+    "bodyVisible": true,
+    "bodyTextLength": 0,
+    "screenshot": "C:\\Users\\adria\\Documents\\AGM\\evidence\\post-phase3-full-audit\\public-browser\\browser-public-before.png",
+    "navigationTiming": {
+      "type": "navigate",
+      "startTime": 0,
+      "duration": 0,
+      "domainLookupMs": 0,
+      "connectMs": 0,
+      "tlsMs": 0,
+      "requestToFirstByteMs": 101.80000001192093,
+      "responseDownloadMs": 16.80000001192093,
+      "domContentLoadedMs": 897.6000000238419,
+      "transferSize": 32797,
+      "encodedBodySize": 32497,
+      "decodedBodySize": 162368
+    },
+    "error": null
+  },
+  "custody": {
+    "p9": "STOPPED",
+    "killSwitch": "ACTIVE",
+    "officialBasicSloMs": 3000,
+    "officialBasicSloUnchanged": true,
+    "officialSoakRestarted": false,
+    "serviceStarted": false,
+    "faultInjection": false,
+    "externalWrites": 0
+  }
+}

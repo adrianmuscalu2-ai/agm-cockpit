@@ -1,0 +1,39 @@
+--------- beginning of main
+08-28 08:51:04.445 21119 21119 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-28 08:51:04.448 21119 21119 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-28 08:51:04.658 21119 21119 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-28 08:51:04.713 21119 21119 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-28 08:51:04.715 21119 21119 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-28 08:51:04.788 21119 21196 I AGM-Audio: TTS requested; language=en-US; characters=28
+08-28 08:51:04.788 21119 21119 I AGM-Audio: TTS authority granted; turnId=turn:5:1787899864714; generation=6; utteranceId=agm-tts-1-g6
+08-28 08:51:04.789 21119 21119 I AGM-Audio: Using Google Speech Services for AGM voice playback
+08-28 08:51:05.041 21119 21119 I AGM-Audio: TTS initialization status=0
+08-28 08:51:05.126 21119 21119 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-28 08:51:05.127 21119 21119 I AGM-Audio: TTS audio focus granted=true
+08-28 08:51:05.749 21119 21137 I AGM-Audio: TTS playback started; turnId=turn:5:1787899864714; generation=6; utteranceId=agm-tts-1-g6
+08-28 08:51:06.776 21119 21119 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=turn:5:1787899864714; utteranceId=agm-tts-1-g6; stoppedGeneration=6; stopResult=0
+08-28 08:51:06.776 21119 21229 I AGM-Audio: TTS stop acknowledged; turnId=turn:5:1787899864714; utteranceId=agm-tts-1-g6; interrupted=true; requestToStopAckMs=3
+08-28 08:51:06.789 21119 21119 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-28 08:51:06.791 21119 21119 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-28 08:51:06.868 21119 21196 I AGM-Audio: TTS requested; language=en-US; characters=134
+08-28 08:51:06.868 21119 21119 I AGM-Audio: TTS authority granted; turnId=turn:8:1787899866790; generation=10; utteranceId=agm-tts-2-g10
+08-28 08:51:06.983 21119 21119 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-28 08:51:06.984 21119 21119 I AGM-Audio: TTS audio focus granted=true
+08-28 08:51:07.021 21119 21229 I AGM-Audio: TTS playback started; turnId=turn:8:1787899866790; generation=10; utteranceId=agm-tts-2-g10
+08-28 08:51:07.146 21119 21119 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=turn:8:1787899866790; utteranceId=agm-tts-2-g10; stoppedGeneration=10; stopResult=0
+08-28 08:51:07.147 21119 21229 I AGM-Audio: TTS stop acknowledged; turnId=turn:8:1787899866790; utteranceId=agm-tts-2-g10; interrupted=true; requestToStopAckMs=2
+08-28 08:51:07.156 21119 21196 I AGM-Audio: Requesting microphone permission
+08-28 08:51:07.210 21119 21119 I AGM-Audio: Microphone permission result: granted
+08-28 08:51:07.218 21119 21196 I AGM-Audio: Starting speech recognition; language=en-US
+08-28 08:51:07.251 21119 21119 I AGM-Audio: Speech recognizer ready
+08-28 08:51:12.303 21119 21119 E AGM-Audio: Speech recognition error=7
+08-28 08:51:13.011 21119 21196 I AGM-Audio: Starting speech recognition; language=en-US
+08-28 08:51:13.048 21119 21119 I AGM-Audio: Speech recognizer ready
+08-28 08:51:18.095 21119 21119 E AGM-Audio: Speech recognition error=7
+08-28 08:51:18.804 21119 21196 I AGM-Audio: Starting speech recognition; language=en-US
+08-28 08:51:18.845 21119 21119 I AGM-Audio: Speech recognizer ready
+08-28 08:51:23.897 21119 21119 E AGM-Audio: Speech recognition error=7
+08-28 08:51:24.602 21119 21196 I AGM-Audio: Starting speech recognition; language=en-US
+08-28 08:51:24.644 21119 21119 I AGM-Audio: Speech recognizer ready
+08-28 08:51:29.835 21119 21119 E AGM-Audio: Speech recognition error=7
+08-28 08:51:30.540 21119 21196 I AGM-Audio: Starting speech recognition; language=en-US

@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T05-33-24-405Z",
+  "status": "PASS",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserContract": {
+    "plugin": "PASS",
+    "integratedControl": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "session": "PASS",
+    "target": "PASS"
+  },
+  "viewports": [
+    {
+      "id": "desktop",
+      "status": "PASS",
+      "scenarios": [
+        {
+          "id": "B+E-model-generation-and-delayed-stale-response",
+          "status": "PASS",
+          "staleModelSuppressed": true,
+          "delayedResponseArrivedAfterAbort": true
+        },
+        {
+          "id": "A-interrupt-during-tts",
+          "status": "PASS",
+          "measuredNewSpeechToOldAudioStopMs": 0,
+          "runtimeTelemetry": {
+            "kind": "barge-in",
+            "platform": "browser",
+            "cycleId": "3606601a-cc17-4518-a576-ea5999350f86",
+            "newSpeechDetectedToOldAudioStopMs": 0,
+            "audioQueueFlushed": true,
+            "at": 1787895210162
+          }
+        },
+        {
+          "id": "C-new-question-immediately-after-stt",
+          "status": "PASS"
+        },
+        {
+          "id": "D-rapid-5-interruptions",
+          "status": "PASS",
+          "staleRapidAnswersSuppressed": 4
+        },
+        {
+          "id": "single-active-turn-authority",
+          "status": "PASS",
+          "maxRecognitionActiveCount": 1,
+          "maxActiveAudioCount": 1,
+          "maxActiveAuthorityMarkers": 1,
+          "activeAuthorityMarkers": 1
+        }
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "Capacitor plugin \"AgmCapability\" already registered. Cannot register plugins twice."
+        }
+      ]
+    },
+    {
+      "id": "mobile",
+      "status": "PASS",
+      "scenarios": [
+        {
+          "id": "B+E-model-generation-and-delayed-stale-response",
+          "status": "PASS",
+          "staleModelSuppressed": true,
+          "delayedResponseArrivedAfterAbort": true
+        },
+        {
+          "id": "A-interrupt-during-tts",
+          "status": "PASS",
+          "measuredNewSpeechToOldAudioStopMs": 0,
+          "runtimeTelemetry": {
+            "kind": "barge-in",
+            "platform": "browser",
+            "cycleId": "5542d66f-6f8a-414b-8b01-b74c937d21d1",
+            "newSpeechDetectedToOldAudioStopMs": 0,
+            "audioQueueFlushed": true,
+            "at": 1787895216712
+          }
+        },
+        {
+          "id": "C-new-question-immediately-after-stt",
+          "status": "PASS"
+        },
+        {
+          "id": "D-rapid-5-interruptions",
+          "status": "PASS",
+          "staleRapidAnswersSuppressed": 4
+        },
+        {
+          "id": "single-active-turn-authority",
+          "status": "PASS",
+          "maxRecognitionActiveCount": 1,
+          "maxActiveAudioCount": 1,
+          "maxActiveAuthorityMarkers": 1,
+          "activeAuthorityMarkers": 1
+        }
+      ],
+      "console": [
+        {
+          "type": "warning",
+          "text": "Capacitor plugin \"AgmCapability\" already registered. Cannot register plugins twice."
+        }
+      ]
+    }
+  ],
+  "target": "http://127.0.0.1:59574",
+  "revision": "dc8d793d45fe4108bf3f9b8eb833d8423cd27201",
+  "finishedAt": "2026-08-28T05:33:39.888Z"
+}

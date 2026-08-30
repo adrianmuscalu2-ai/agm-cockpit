@@ -1,0 +1,80 @@
+{
+  "contractVersion": "agm-field-backend-evidence.v1",
+  "capturedAt": "2026-08-29T11:08:56.0794665Z",
+  "environment": "FIELD-VALIDATION",
+  "baseUrl": "https://validation-api.agmcockpit.com",
+  "verdict": {
+    "fieldTestBackend": "PASS",
+    "fieldMeasurement": "READY_TO_START",
+    "fieldValidation": "INSUFFICIENT_DATA",
+    "productionAuthorization": "SEPARATE_OWNER_DECISION"
+  },
+  "publicBoundary": {
+    "authorizedTesterProtocolStatus": 200,
+    "authorizedTesterObservationStatus": 201,
+    "authorizedOwnerTelemetryStatus": 200,
+    "unauthenticatedProtocolStatus": 401,
+    "testerTelemetryStatus": 403,
+    "ownerObservationStatus": 403,
+    "nonFieldHealthStatus": 404,
+    "fieldTokenForwardedUpstream": false
+  },
+  "device": {
+    "model": "SM-S931B",
+    "android": "16",
+    "serialSha256": "d4d5214d68c4da2ac62ea381e6b82f06a18d87e9f7decee3d09ff95442db7d37",
+    "buildFingerprint": "samsung/pa1qxeea/pa1q:16/BP4A.251205.006/S931BXXSBCZG3_OXMBCZG3:user/release-keys",
+    "authenticatedConnectivity": "PASS"
+  },
+  "authorizedTechnicalIdentities": {
+    "testers": 3,
+    "ownerReaders": 1,
+    "assignedCasesPerTester": 40,
+    "plaintextTokensDisplayed": false
+  },
+  "firstObservation": {
+    "status": "RECORDED_PENDING_NON_CONCLUSIVE",
+    "observationIdSha256": "5aca6de27bb844b104fe009099e6ece7d179dc8d75e6de3deb4fda2c2f46743f",
+    "vehicleClass": "PASSENGER_CAR",
+    "routeSource": "UNKNOWN",
+    "coreAvailability": "UNKNOWN",
+    "routeLatencyMs": null,
+    "finalRouteDecision": "PENDING",
+    "paidExternalLookup": false
+  },
+  "telemetry": {
+    "rawObservations": 1,
+    "uniqueCases": 1,
+    "finalizedCases": 0,
+    "pendingCases": 1,
+    "latencyP50Ms": null,
+    "paidExternalLookups": 0,
+    "sampleSufficient": false,
+    "reasons": [
+      "FINALIZED_CASES_BELOW_MINIMUM",
+      "DISTINCT_TESTERS_BELOW_MINIMUM",
+      "ACTIVE_DAYS_BELOW_MINIMUM",
+      "ELAPSED_DAYS_BELOW_MINIMUM"
+    ]
+  },
+  "policy": {
+    "defaultVehicleProfile": "PASSENGER_CAR",
+    "unknown": "HUMAN_CONFIRMATION_REQUIRED",
+    "here": "INACTIVE_NOT_REQUIRED",
+    "tollGuru": "INACTIVE_NOT_REQUIRED",
+    "valhallaOsm": "REGISTERED_NOT_RUNTIME_READY",
+    "agmTollLibrary": "REGISTERED_NOT_RUNTIME_READY",
+    "planningFallbackPercent": "HYPOTHESES_NOT_PASS",
+    "planningPaidExternalPercent": "HYPOTHESES_NOT_PASS",
+    "fallbackTarget": "TARGET_NOT_VERDICT"
+  },
+  "isolation": {
+    "validationTunnelId": "f4343acc-7303-4422-a10a-587a9dc96114",
+    "productionTunnelId": "1c7d88b4-f2bb-40bb-82b0-37da35ee30a9",
+    "tunnelIdsDiffer": true,
+    "productionApiHealthStatus": 200,
+    "productionContainerIdsUnchanged": true,
+    "dnsModified": false,
+    "productionModified": false
+  }
+}

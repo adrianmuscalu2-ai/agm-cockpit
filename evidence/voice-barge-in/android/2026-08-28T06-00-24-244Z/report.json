@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T06-00-24-244Z",
+  "status": "FAIL",
+  "device": "SM-S931B",
+  "serial": "RFCY70WDHXK",
+  "package": "com.agm.cockpit",
+  "results": [
+    {
+      "id": "B+E-model-generation-delayed-stale",
+      "status": "PASS",
+      "staleDelivered": true,
+      "staleSuppressed": true,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T06-00-24-244Z\\01-stale-model-suppressed.png"
+    }
+  ],
+  "build": {
+    "apk": "apps\\web\\android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+    "apkSha256": "C40CA6D795B62A3DF469ED35FA95E8ABEA87B5983C44CDB33CA26F69BA63CA48",
+    "installedSha256": "C40CA6D795B62A3DF469ED35FA95E8ABEA87B5983C44CDB33CA26F69BA63CA48",
+    "versionCode": "21",
+    "versionName": "1.3.0",
+    "lastUpdateTime": "2026-08-28 07:53:04"
+  },
+  "deviceEvidence": {
+    "model": "SM-S931B",
+    "android": "16",
+    "sdk": "36",
+    "state": "device"
+  },
+  "fatal": "Error: Command failed: powershell.exe -NoProfile -Command $voice=New-Object -ComObject SAPI.SpVoice; $voice.Volume=100; $voice.Rate=-1; [void]$voice.Speak('what is the next safe step')\nAccess is denied. (Exception from HRESULT: 0x80070005 (E_ACCESSDENIED))\r\nAt line:1 char:79\r\n+ ... 100; $voice.Rate=-1; [void]$voice.Speak('what is the next safe step')\r\n+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : OperationStopped: (:) [], UnauthorizedAccessException\r\n    + FullyQualifiedErrorId : System.UnauthorizedAccessException\r\n \r\n\n    at genericNodeError (node:internal/errors:985:15)\n    at wrappedFn (node:internal/errors:539:14)\n    at checkExecSyncError (node:child_process:925:11)\n    at execFileSync (node:child_process:961:15)\n    at speakNearDevice (file:///C:/Users/adria/Documents/AGM/scripts/validate-voice-barge-in-android.mjs:22:33)\n    at file:///C:/Users/adria/Documents/AGM/scripts/validate-voice-barge-in-android.mjs:114:3",
+  "failureState": {
+    "url": "https://localhost/premium/copilot",
+    "state": "LISTENING",
+    "status": "Listening",
+    "transcript": "ANDROID_TTS_OLD",
+    "response": "",
+    "telemetry": "[{\"kind\":\"interrupt\",\"reason\":\"new-user-input\",\"interruptedState\":\"OFF\",\"sequence\":1,\"cancelLatencyMs\":3,\"newTurnToOldAudioStopMs\":3,\"audioQueueFlushed\":true,\"at\":1787896826380},{\"kind\":\"interrupt\",\"reason\":\"new-user-input\",\"interruptedState\":\"UNDERSTANDING\",\"cancelledTurnId\":\"turn:2:1787896826381\",\"sequence\":3,\"cancelLatencyMs\":4,\"newTurnToOldAudioStopMs\":4,\"audioQueueFlushed\":true,\"at\":1787896826490},{\"kind\":\"interrupt\",\"reason\":\"new-user-input\",\"interruptedState\":\"OFF\",\"sequence\":4,\"cancelLatencyMs\":3,\"newTurnToOldAudioStopMs\":3,\"audioQueueFlushed\":true,\"at\":1787896826565},{\"kind\":\"stale-suppressed\",\"turnId\":\"turn:2:1787896826381\",\"stage\":\"model-response\",\"sequence\":5,\"at\":1787896827286},{\"cycleId\":\"fd53d644-f537-4714-82c5-4434e9bd049d\",\"listeningStartedAt\":763.6000000089407,\"finalTranscriptAt\":763.6000000089407,\"nativeTiming\":{\"manualInputMs\":0},\"engineRequestAt\":765.9000000059605,\"engineResponseAt\":837.7000000029802,\"engineLatencyMs\":72,\"serverTiming\":{\"orchestratorMs\":8,\"modelMs\":62,\"serverTotalMs\":70},\"networkLatencyMs\":2,\"ttsRequestedAt\":839,\"transcriptToTtsMs\":75,\"audioStartedAt\":2015.2000000029802,\"ttsStartedAt\":2015.2000000029802,\"ttsRequestToAudioStartMs\":1171,\"transcriptToAudioStartMs\":1252},{\"kind\":\"stale-suppressed\",\"turnId\":\"tts-event:turn:5:1787896826565:stopped\",\"stage\":\"tts-callback\",\"sequence\":6,\"at\":1787896828447},{\"kind\":\"stale-suppressed\",\"turnId\":\"turn:5:1787896826565\",\"stage\":\"tts-completion\",\"sequence\":6,\"at\":1787896828448},{\"kind\":\"interrupt\",\"reason\":\"new-user-input\",\"interruptedState\":\"SPEAKING\",\"cancelledTurnId\":\"turn:5:1787896826565\",\"sequence\":6,\"cancelLatencyMs\":7,\"newTurnToOldAudioStopMs\":7,\"audioQueueFlushed\":true,\"at\":1787896828448},{\"kind\":\"interrupt\",\"reason\":\"new-user-input\",\"interruptedState\":\"OFF\",\"sequence\":7,\"cancelLatencyMs\":3,\"newTurnToOldAudioStopMs\":2,\"audioQueueFlushed\":true,\"at\":1787896828475},{\"cycleId\":\"270c957f-251b-46e4-8004-62ee289e2c5d\",\"listeningStartedAt\":2673.800000011921,\"finalTranscriptAt\":2673.800000011921,\"nativeTiming\":{\"manualInputMs\":0},\"engineRequestAt\":2675.300000011921,\"engineResponseAt\":2745.800000011921,\"engineLatencyMs\":71,\"serverTiming\":{\"orchestratorMs\":8,\"modelMs\":62,\"serverTotalMs\":70},\"networkLatencyMs\":1,\"ttsRequestedAt\":2746.6000000089407,\"transcriptToTtsMs\":73,\"audioStartedAt\":2912.4000000059605,\"ttsStartedAt\":2912.4000000059605,\"ttsRequestToAudioStartMs\":163,\"transcriptToAudioStartMs\":239},{\"kind\":\"stale-suppressed\",\"turnId\":\"tts-event:turn:8:1787896828475:stopped\",\"stage\":\"tts-callback\",\"sequence\":9,\"at\":1787896828847},{\"kind\":\"stale-suppressed\",\"turnId\":\"turn:8:1787896828475\",\"stage\":\"tts-completion\",\"sequence\":9,\"at\":1787896828848},{\"kind\":\"interrupt\",\"reason\":\"microphone-barge-in\",\"interruptedState\":\"SPEAKING\",\"cancelledTurnId\":\"turn:8:1787896828475\",\"sequence\":9,\"cancelLatencyMs\":33,\"newTurnToOldAudioStopMs\":33,\"audioQueueFlushed\":true,\"at\":1787896828848}]",
+    "probe": {
+      "requests": [
+        {
+          "actualText": "ANDROID_SLOW_MODEL_OLD",
+          "scripted": "ANDROID_SLOW_MODEL_OLD",
+          "receivedAt": 583.8000000119209,
+          "signalWasPassed": true,
+          "signalAbortedAtDelivery": true,
+          "deliveredAt": 1484.2000000029802
+        },
+        {
+          "actualText": "ANDROID_FAST_MODEL_NEW",
+          "scripted": "ANDROID_FAST_MODEL_NEW",
+          "receivedAt": 765.9000000059605,
+          "signalWasPassed": true,
+          "signalAbortedAtDelivery": false,
+          "deliveredAt": 836.3000000119209
+        },
+        {
+          "actualText": "ANDROID_TTS_OLD",
+          "scripted": "ANDROID_TTS_OLD",
+          "receivedAt": 2675.300000011921,
+          "signalWasPassed": true,
+          "signalAbortedAtDelivery": false,
+          "deliveredAt": 2745.4000000059605
+        }
+      ],
+      "nextUnscripted": "VOICE_NEW",
+      "authorityCounts": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "staleDeliveryCount": 1
+    }
+  },
+  "runtimeLog": "evidence\\voice-barge-in\\android\\2026-08-28T06-00-24-244Z\\runtime-logcat.txt",
+  "deviceScreenshot": "evidence\\voice-barge-in\\android\\2026-08-28T06-00-24-244Z\\device-final.png",
+  "finishedAt": "2026-08-28T06:00:35.387Z"
+}

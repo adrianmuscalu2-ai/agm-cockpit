@@ -1,0 +1,597 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T21-05-56-398Z",
+  "startedAt": "2026-08-28T21:05:56.398Z",
+  "runner": "Physical Android WebView + Capacitor native bridge + controlled CDP",
+  "status": "FAIL",
+  "checks": [
+    {
+      "id": "NATIVE_CAPABILITY_DETECTION",
+      "status": "PASS",
+      "evidence": {
+        "sdkInt": 36,
+        "online": true,
+        "speechRecognition": true,
+        "onDeviceSpeechRecognition": true,
+        "textToSpeech": true,
+        "camera": true,
+        "shareText": true,
+        "processText": true,
+        "translateText": false,
+        "assist": true,
+        "voiceSettings": true
+      }
+    },
+    {
+      "id": "CAPABILITY_CACHE",
+      "status": "PASS",
+      "evidence": {
+        "coldLookupLatencyMs": 6.799999997019768,
+        "warmLookupLatencyMs": 0.20000000298023224
+      }
+    },
+    {
+      "id": "LOCAL_STT_ROUTE",
+      "status": "PASS",
+      "evidence": {
+        "operation": "STT",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "ON_DEVICE",
+        "reason": "ON_DEVICE_STT_AVAILABLE",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": false,
+        "fallbackChain": [],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      }
+    },
+    {
+      "id": "LOCAL_TTS_ROUTE",
+      "status": "PASS",
+      "evidence": {
+        "route": {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "reason": "ANDROID_TTS_SERVICE_AVAILABLE",
+          "decisionLatencyMs": 0,
+          "requiresUserConfirmation": false,
+          "fallbackChain": [],
+          "snapshotCapturedAtEpochMs": 1787951159579
+        },
+        "execution": {
+          "status": "PASS",
+          "latencyMs": 4142
+        }
+      }
+    },
+    {
+      "id": "LOCAL_TRANSLATION_ROUTE",
+      "status": "PASS",
+      "evidence": {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "reason": "LOCAL_TRANSLATION_RESULT_AVAILABLE",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": false,
+        "fallbackChain": [],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      }
+    },
+    {
+      "id": "AGM_CONTEXT_AUTHORITY",
+      "status": "PASS",
+      "evidence": {
+        "operation": "AGM_CONTEXT_REASONING",
+        "authority": "AGM_AI",
+        "executionMode": "AGM_NETWORK",
+        "reason": "AGM_CONTEXT_AUTHORITY_REQUIRED",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": false,
+        "fallbackChain": [],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      }
+    },
+    {
+      "id": "EXTERNAL_CONFIRMATION_GATE",
+      "status": "PASS",
+      "evidence": {
+        "without": {
+          "operation": "SHARE_CONTEXT",
+          "authority": "UNAVAILABLE",
+          "executionMode": "NONE",
+          "reason": "EXTERNAL_SHARE_NOT_CONFIRMED",
+          "decisionLatencyMs": 0.1,
+          "requiresUserConfirmation": true,
+          "fallbackChain": [],
+          "snapshotCapturedAtEpochMs": 1787951159579
+        },
+        "confirmed": {
+          "operation": "SHARE_CONTEXT",
+          "authority": "EXTERNAL_DEVICE_AI",
+          "executionMode": "ANDROID_SHARE",
+          "reason": "ANDROID_SHARE_CONFIRMED",
+          "decisionLatencyMs": 0,
+          "requiresUserConfirmation": true,
+          "fallbackChain": [],
+          "snapshotCapturedAtEpochMs": 1787951159579
+        }
+      }
+    },
+    {
+      "id": "SENSITIVE_EXTERNAL_BLOCK",
+      "status": "PASS",
+      "evidence": {
+        "operation": "SHARE_CONTEXT",
+        "authority": "UNAVAILABLE",
+        "executionMode": "NONE",
+        "reason": "SENSITIVE_DATA_BLOCKS_EXTERNAL_SHARE",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": true,
+        "fallbackChain": [],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      }
+    },
+    {
+      "id": "FAIL_CLOSED_SAFETY_READING",
+      "status": "PASS",
+      "evidence": {
+        "operation": "SAFETY_CRITICAL_READING",
+        "authority": "UNAVAILABLE",
+        "executionMode": "NONE",
+        "reason": "SAFETY_CRITICAL_VALUE_CANNOT_BE_READ_SAFELY",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": false,
+        "fallbackChain": [
+          "LOCAL_DEVICE:READING_NOT_VERIFIED",
+          "AGM_AI:GENERATION_PROHIBITED_FOR_MISSING_MEASUREMENT",
+          "EXTERNAL_DEVICE_AI:TRANSFER_PROHIBITED",
+          "SAFE_FALLBACK:MANUAL_MEASUREMENT_REQUIRED"
+        ],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      }
+    },
+    {
+      "id": "LOCAL_LATENCY_BENCHMARK",
+      "status": "PASS",
+      "evidence": [
+        {
+          "latencyMs": 0.7999999970197678,
+          "provider": "local-fallback",
+          "available": true
+        },
+        {
+          "latencyMs": 0.29999999701976776,
+          "provider": "local-fallback",
+          "available": true
+        },
+        {
+          "latencyMs": 0.10000000894069672,
+          "provider": "local-fallback",
+          "available": true
+        },
+        {
+          "latencyMs": 0.20000000298023224,
+          "provider": "local-fallback",
+          "available": true
+        },
+        {
+          "latencyMs": 0.29999999701976776,
+          "provider": "local-fallback",
+          "available": true
+        }
+      ]
+    },
+    {
+      "id": "AGM_LATENCY_BENCHMARK",
+      "status": "PASS",
+      "evidence": {
+        "latencyMs": 3418.7000000029802,
+        "provider": "agm-api",
+        "available": true
+      }
+    }
+  ],
+  "device": "RFCY70WDHXK            device product:pa1qxeea model:SM_S931B device:pa1q transport_id:1",
+  "model": "SM-S931B",
+  "androidVersion": "16",
+  "package": [
+    "versionCode=21 minSdk=24 targetSdk=36",
+    "versionName=1.3.0",
+    "lastUpdateTime=2026-08-28 23:01:40"
+  ],
+  "apkSha256": "30A34ACDB67E2282D24AC084ED4B962349CB8E9299C93308CADA874B632569E6",
+  "runtime": {
+    "nativeCapabilities": {
+      "sdkInt": 36,
+      "online": true,
+      "speechRecognition": true,
+      "onDeviceSpeechRecognition": true,
+      "textToSpeech": true,
+      "camera": true,
+      "shareText": true,
+      "processText": true,
+      "translateText": false,
+      "assist": true,
+      "voiceSettings": true
+    },
+    "directCapabilityLatencyMs": 9.299999997019768,
+    "coldSnapshot": {
+      "schemaVersion": 1,
+      "platform": "android",
+      "capturedAtEpochMs": 1787951159579,
+      "expiresAtEpochMs": 1787951459579,
+      "sdkInt": 36,
+      "online": true,
+      "capabilities": {
+        "speechRecognition": true,
+        "onDeviceSpeechRecognition": true,
+        "textToSpeech": true,
+        "camera": true,
+        "localWebOcr": true,
+        "shareText": true,
+        "processText": true,
+        "translateText": false,
+        "assist": true,
+        "voiceSettings": true
+      }
+    },
+    "warmSnapshot": {
+      "schemaVersion": 1,
+      "platform": "android",
+      "capturedAtEpochMs": 1787951159579,
+      "expiresAtEpochMs": 1787951459579,
+      "sdkInt": 36,
+      "online": true,
+      "capabilities": {
+        "speechRecognition": true,
+        "onDeviceSpeechRecognition": true,
+        "textToSpeech": true,
+        "camera": true,
+        "localWebOcr": true,
+        "shareText": true,
+        "processText": true,
+        "translateText": false,
+        "assist": true,
+        "voiceSettings": true
+      }
+    },
+    "coldLookupLatencyMs": 6.799999997019768,
+    "warmLookupLatencyMs": 0.20000000298023224,
+    "routes": {
+      "stt": {
+        "operation": "STT",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "ON_DEVICE",
+        "reason": "ON_DEVICE_STT_AVAILABLE",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": false,
+        "fallbackChain": [],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      },
+      "tts": {
+        "operation": "TTS",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "SYSTEM_SERVICE",
+        "reason": "ANDROID_TTS_SERVICE_AVAILABLE",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": false,
+        "fallbackChain": [],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      },
+      "localTranslation": {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "reason": "LOCAL_TRANSLATION_RESULT_AVAILABLE",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": false,
+        "fallbackChain": [],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      },
+      "agmReasoning": {
+        "operation": "AGM_CONTEXT_REASONING",
+        "authority": "AGM_AI",
+        "executionMode": "AGM_NETWORK",
+        "reason": "AGM_CONTEXT_AUTHORITY_REQUIRED",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": false,
+        "fallbackChain": [],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      },
+      "externalWithoutConfirmation": {
+        "operation": "SHARE_CONTEXT",
+        "authority": "UNAVAILABLE",
+        "executionMode": "NONE",
+        "reason": "EXTERNAL_SHARE_NOT_CONFIRMED",
+        "decisionLatencyMs": 0.1,
+        "requiresUserConfirmation": true,
+        "fallbackChain": [],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      },
+      "externalConfirmed": {
+        "operation": "SHARE_CONTEXT",
+        "authority": "EXTERNAL_DEVICE_AI",
+        "executionMode": "ANDROID_SHARE",
+        "reason": "ANDROID_SHARE_CONFIRMED",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": true,
+        "fallbackChain": [],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      },
+      "sensitiveExternal": {
+        "operation": "SHARE_CONTEXT",
+        "authority": "UNAVAILABLE",
+        "executionMode": "NONE",
+        "reason": "SENSITIVE_DATA_BLOCKS_EXTERNAL_SHARE",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": true,
+        "fallbackChain": [],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      },
+      "unsafeReading": {
+        "operation": "SAFETY_CRITICAL_READING",
+        "authority": "UNAVAILABLE",
+        "executionMode": "NONE",
+        "reason": "SAFETY_CRITICAL_VALUE_CANNOT_BE_READ_SAFELY",
+        "decisionLatencyMs": 0,
+        "requiresUserConfirmation": false,
+        "fallbackChain": [
+          "LOCAL_DEVICE:READING_NOT_VERIFIED",
+          "AGM_AI:GENERATION_PROHIBITED_FOR_MISSING_MEASUREMENT",
+          "EXTERNAL_DEVICE_AI:TRANSFER_PROHIBITED",
+          "SAFE_FALLBACK:MANUAL_MEASUREMENT_REQUIRED"
+        ],
+        "snapshotCapturedAtEpochMs": 1787951159579
+      }
+    },
+    "benchmark": {
+      "localRuns": [
+        {
+          "latencyMs": 0.7999999970197678,
+          "provider": "local-fallback",
+          "available": true
+        },
+        {
+          "latencyMs": 0.29999999701976776,
+          "provider": "local-fallback",
+          "available": true
+        },
+        {
+          "latencyMs": 0.10000000894069672,
+          "provider": "local-fallback",
+          "available": true
+        },
+        {
+          "latencyMs": 0.20000000298023224,
+          "provider": "local-fallback",
+          "available": true
+        },
+        {
+          "latencyMs": 0.29999999701976776,
+          "provider": "local-fallback",
+          "available": true
+        }
+      ],
+      "agmRun": {
+        "latencyMs": 3418.7000000029802,
+        "provider": "agm-api",
+        "available": true
+      }
+    },
+    "tts": {
+      "status": "PASS",
+      "latencyMs": 4142
+    },
+    "metrics": [
+      {
+        "operation": "TTS",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "SYSTEM_SERVICE",
+        "decisionLatencyMs": 0.1,
+        "capabilityLookupLatencyMs": 6,
+        "capabilityCacheHit": false,
+        "atEpochMs": 1787951159585
+      },
+      {
+        "operation": "TTS",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "SYSTEM_SERVICE",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159585
+      },
+      {
+        "operation": "STT",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "ON_DEVICE",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159585
+      },
+      {
+        "operation": "TTS",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "SYSTEM_SERVICE",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159585
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159586
+      },
+      {
+        "operation": "AGM_CONTEXT_REASONING",
+        "authority": "AGM_AI",
+        "executionMode": "AGM_NETWORK",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159586
+      },
+      {
+        "operation": "SHARE_CONTEXT",
+        "authority": "UNAVAILABLE",
+        "executionMode": "NONE",
+        "decisionLatencyMs": 0.1,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159586
+      },
+      {
+        "operation": "SHARE_CONTEXT",
+        "authority": "EXTERNAL_DEVICE_AI",
+        "executionMode": "ANDROID_SHARE",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159586
+      },
+      {
+        "operation": "SHARE_CONTEXT",
+        "authority": "UNAVAILABLE",
+        "executionMode": "NONE",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0.1,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159586
+      },
+      {
+        "operation": "SAFETY_CRITICAL_READING",
+        "authority": "UNAVAILABLE",
+        "executionMode": "NONE",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159586
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159587
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "decisionLatencyMs": 0,
+        "executionLatencyMs": 0,
+        "success": true,
+        "fallbackUsed": false,
+        "atEpochMs": 1787951159587
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159587
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "decisionLatencyMs": 0,
+        "executionLatencyMs": 0,
+        "success": true,
+        "fallbackUsed": false,
+        "atEpochMs": 1787951159588
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159588
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "decisionLatencyMs": 0,
+        "executionLatencyMs": 0,
+        "success": true,
+        "fallbackUsed": false,
+        "atEpochMs": 1787951159588
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159588
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "decisionLatencyMs": 0,
+        "executionLatencyMs": 0,
+        "success": true,
+        "fallbackUsed": false,
+        "atEpochMs": 1787951159588
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159588
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "LOCAL_DEVICE",
+        "executionMode": "WEB_LOCAL",
+        "decisionLatencyMs": 0,
+        "executionLatencyMs": 0,
+        "success": true,
+        "fallbackUsed": false,
+        "atEpochMs": 1787951159588
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "AGM_AI",
+        "executionMode": "AGM_NETWORK",
+        "decisionLatencyMs": 0,
+        "capabilityLookupLatencyMs": 0,
+        "capabilityCacheHit": true,
+        "atEpochMs": 1787951159588
+      },
+      {
+        "operation": "SIMPLE_TRANSLATION",
+        "authority": "AGM_AI",
+        "executionMode": "AGM_NETWORK",
+        "decisionLatencyMs": 0,
+        "executionLatencyMs": 3415.7999999970198,
+        "success": true,
+        "fallbackUsed": false,
+        "atEpochMs": 1787951163004
+      }
+    ],
+    "url": "https://localhost/"
+  },
+  "logcat": "--------- beginning of main\r\n08-28 23:06:03.011 22801 22870 I AGM-Audio: TTS requested; language=en-US; characters=27\r\n08-28 23:06:03.011 22801 22801 I AGM-Audio: TTS authority granted; turnId=router-test-1787951163007; generation=1; utteranceId=agm-tts-1-g1\r\n08-28 23:06:03.011 22801 22801 I AGM-Audio: Using the user-selected Android default TTS engine\r\n08-28 23:06:03.623 22801 22801 I AGM-Audio: TTS initialization status=0\r\n08-28 23:06:03.741 22801 22801 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US\r\n08-28 23:06:03.743 22801 22801 I AGM-Audio: TTS audio focus granted=true\r\n08-28 23:06:04.534 22801 22898 I AGM-Audio: TTS playback started; turnId=router-test-1787951163007; generation=1; utteranceId=agm-tts-1-g1\r\n08-28 23:06:07.142 22801 22898 I AGM-Audio: TTS playback completed; turnId=router-test-1787951163007; generation=1; utteranceId=agm-tts-1-g1\r\n",
+  "fatal": "page.screenshot: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\n    at C:\\Users\\adria\\Documents\\AGM\\scripts\\validate-device-capability-router-android.mjs:138:14",
+  "finishedAt": "2026-08-28T21:06:17.942Z"
+}

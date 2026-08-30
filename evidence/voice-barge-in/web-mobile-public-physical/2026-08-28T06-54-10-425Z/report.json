@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T06-54-10-425Z",
+  "status": "PASS",
+  "device": "Samsung SM-S931B",
+  "serial": "RFCY70WDHXK",
+  "browser": "Chrome Android physical",
+  "target": "https://app.agmcockpit.com/",
+  "results": [
+    {
+      "id": "public-web-mobile-load-responsive-cache-assets",
+      "status": "PASS",
+      "mainStatus": 200,
+      "url": "https://app.agmcockpit.com/basic?physicalReview=2026-08-28T06-54-10-425Z",
+      "title": "A.G.M. Cockpit",
+      "width": 384,
+      "scrollWidth": 384,
+      "bodyText": "PROFIL\nRO\nDE\nEN\nMai multe limbi\nFrançais (fr)\nNederlands (nl)\nРусский (ru)\nPolski (pl)\nTürkçe (tr)\nShqip (sq)\nAcasă\nBasic\nPremium\nAGM BASIC\nBASIC\n\nModulul Basic reunește instrumentele validate pentru comunicare, documente și activitatea zilnică.\n\n⇄\nTraducător contextual\nTraduce și adaptează mesaje pentru situații reale de transport\nValidat\nDeschide\n✉︎\nAsistent e-mail\nDictează, ajustează, traduce și pregătește e-mailuri profesionale\nValidat\nDeschide\n▤\nAnalizează document de transport\nFotografie, confirmare OCR și răspuns contextual cu acțiuni recomandate\nValidat\nDeschide\n◷\nAnalizează tahograf\nFotografie, confirmare OCR și explicație contextuală a mesajului afișat\nValidat\nDeschide\n▰\nAnalizează mesaj din bord\nFotografie, confirmare OCR și acțiune prudentă pentru mesajul textual afișat\nValidat\nDeschide\n!\nMartori în bord\nConsultă catalogul cu explicații și recomandări generale. Pentru moment, identificarea automată din fotografie nu este disponibilă.\nDeschide catalogul\nDeschide catalogul\n⚖\nAnalizează situație legislativă\nFotografie, confirmare OCR și orientare contextuală din sursele juridice publicate\nValidat\nDeschide\n⌁\nAnalizează siguranța încărcăturii\nFotografie, confirmare OCR și acțiune prudentă pe baza etichetelor sau instrucțiunilor vizibile\nValidat\nDeschide\n▣\nOCR documente\nFotografiere, recunoaștere locală și istoric OCR.\nValidat\nDeschide\n⌁\nAncorarea mărfii\nReguli validate, limite de siguranță și escaladare prudentă\nValidat\nDeschide\nMOD ACTIV\nTraducător\nVorbește\nCameră OCR\nCorectează\nTradu\nCreează E-mail\nAscultă\nCopiază\nȘterge\n▣\nCameră OCR\n✉\nE-mail Assistant\n●\nVorbește\nPregătit.\nAjutor\nRoadmap\nConformitate juridică\nDespre aplicație\nA.G.M. Cockpit 1.3.0",
+      "assets": [
+        "https://app.agmcockpit.com/assets/main-r6bybWmM.js",
+        "https://app.agmcockpit.com/assets/src-DzTAeQno.js",
+        "https://app.agmcockpit.com/assets/required-document.evidence-store-a5LpFzjr.js",
+        "https://app.agmcockpit.com/assets/handoff.facade-BDNO5TYp.js",
+        "https://app.agmcockpit.com/assets/language-registry-BIaz4IjA.js",
+        "https://app.agmcockpit.com/assets/emailLanguage-D80lripL.js",
+        "https://app.agmcockpit.com/assets/load-safety-DsVm5Cz-.css",
+        "https://app.agmcockpit.com/assets/translationAdapter-PBRmXoi6.js"
+      ],
+      "serviceWorkers": [
+        "https://app.agmcockpit.com/"
+      ],
+      "browserScreenshot": "evidence\\voice-barge-in\\web-mobile-public-physical\\2026-08-28T06-54-10-425Z\\public-mobile-full-page.png",
+      "deviceScreenshot": "evidence\\voice-barge-in\\web-mobile-public-physical\\2026-08-28T06-54-10-425Z\\public-mobile-device.png",
+      "cacheDisabledForReload": true
+    }
+  ],
+  "deviceEvidence": {
+    "model": "SM-S931B",
+    "android": "16",
+    "sdk": "36",
+    "chrome": "151.0.7922.173"
+  },
+  "finishedAt": "2026-08-28T06:54:18.399Z"
+}

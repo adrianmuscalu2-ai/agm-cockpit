@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T14-01-09-027Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "status": "PASS",
+  "browserGate": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS"
+  },
+  "results": [
+    {
+      "id": "desktop",
+      "status": "PASS",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "copilot": {
+        "androidAssistantControls": 0,
+        "androidShareControls": 0,
+        "legacyAndroidSettingsControls": 0,
+        "internalAssistantStart": 1,
+        "internalAssistantTranscript": 1,
+        "internalAssistantConfirm": 1,
+        "horizontalOverflow": false
+      },
+      "profile": {
+        "androidVoiceSettingsSections": 0
+      },
+      "screenshots": [
+        "evidence\\android-ai-controls\\browser\\2026-08-28T14-01-09-027Z\\desktop-copilot.png",
+        "evidence\\android-ai-controls\\browser\\2026-08-28T14-01-09-027Z\\desktop-profile.png"
+      ]
+    },
+    {
+      "id": "mobile",
+      "status": "PASS",
+      "viewport": {
+        "width": 412,
+        "height": 915
+      },
+      "copilot": {
+        "androidAssistantControls": 0,
+        "androidShareControls": 0,
+        "legacyAndroidSettingsControls": 0,
+        "internalAssistantStart": 1,
+        "internalAssistantTranscript": 1,
+        "internalAssistantConfirm": 1,
+        "horizontalOverflow": false
+      },
+      "profile": {
+        "androidVoiceSettingsSections": 0
+      },
+      "screenshots": [
+        "evidence\\android-ai-controls\\browser\\2026-08-28T14-01-09-027Z\\mobile-copilot.png",
+        "evidence\\android-ai-controls\\browser\\2026-08-28T14-01-09-027Z\\mobile-profile.png"
+      ]
+    }
+  ],
+  "target": "http://127.0.0.1:62338",
+  "revision": "dc8d793d45fe4108bf3f9b8eb833d8423cd27201",
+  "finishedAt": "2026-08-28T14:01:28.130Z"
+}

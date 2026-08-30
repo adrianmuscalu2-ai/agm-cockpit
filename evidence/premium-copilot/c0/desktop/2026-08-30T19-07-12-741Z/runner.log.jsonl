@@ -1,0 +1,4 @@
+{"at":"2026-08-30T19:07:17.766Z","event":"console","type":"debug","text":"[vite] connecting..."}
+{"at":"2026-08-30T19:07:17.838Z","event":"console","type":"debug","text":"[vite] connected."}
+{"at":"2026-08-30T19:07:18.189Z","event":"console","type":"warning","text":"Capacitor plugin \"AgmCapability\" already registered. Cannot register plugins twice."}
+{"at":"2026-08-30T19:07:18.202Z","event":"console","type":"warning","text":"Capacitor plugin \"AgmCapability\" already registered. Cannot register plugins twice."}

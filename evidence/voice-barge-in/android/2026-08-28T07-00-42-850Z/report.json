@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T07-00-42-850Z",
+  "status": "PARTIAL",
+  "device": "SM-S931B",
+  "serial": "RFCY70WDHXK",
+  "package": "com.agm.cockpit",
+  "results": [
+    {
+      "id": "B+E-model-generation-delayed-stale",
+      "status": "PASS",
+      "staleDelivered": true,
+      "staleSuppressed": true,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T07-00-42-850Z\\01-stale-model-suppressed.png"
+    },
+    {
+      "id": "A-microphone-authority-cancels-active-tts",
+      "status": "PASS",
+      "cancelLatencyMs": 60,
+      "audioQueueFlushed": true,
+      "nativeStopRequested": true,
+      "nativeStopAcknowledged": true,
+      "requestToNativeStopAckMs": 3,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T07-00-42-850Z\\02-native-tts-barge-in.png"
+    },
+    {
+      "id": "C-new-manual-question-cancels-active-stt",
+      "status": "PASS",
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T07-00-42-850Z\\03-post-stt-preemption.png"
+    },
+    {
+      "id": "A-text-question-cancels-active-tts",
+      "status": "PASS",
+      "requestToNativeStopAckMs": 5,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T07-00-42-850Z\\04-text-question-stops-tts.png"
+    },
+    {
+      "id": "D-rapid-5-interruptions",
+      "status": "PASS",
+      "obsoleteRapidAnswersSuppressed": 4,
+      "maxAuthorityCount": 1,
+      "currentAuthorityCount": 1,
+      "staleDeliveryCount": 5,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T07-00-42-850Z\\05-rapid-final-authority.png"
+    },
+    {
+      "id": "old-audio-does-not-return",
+      "status": "PASS",
+      "oldAudioRestarted": false
+    }
+  ],
+  "build": {
+    "apk": "apps\\web\\android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+    "apkSha256": "A38235AEEF6BC921AC8C20903AE02A7DD36721F28E716623B3AC444A9070B81D",
+    "installedSha256": "A38235AEEF6BC921AC8C20903AE02A7DD36721F28E716623B3AC444A9070B81D",
+    "versionCode": "21",
+    "versionName": "1.3.0",
+    "lastUpdateTime": "2026-08-28 08:50:01"
+  },
+  "deviceEvidence": {
+    "model": "SM-S931B",
+    "android": "16",
+    "sdk": "36",
+    "state": "device"
+  },
+  "runtimeLog": "evidence\\voice-barge-in\\android\\2026-08-28T07-00-42-850Z\\runtime-logcat.txt",
+  "deviceScreenshot": "evidence\\voice-barge-in\\android\\2026-08-28T07-00-42-850Z\\device-final.png",
+  "finishedAt": "2026-08-28T07:01:00.432Z"
+}

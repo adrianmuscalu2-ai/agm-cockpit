@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T06-13-45-098Z",
+  "status": "FAIL",
+  "device": "Samsung SM-S931B",
+  "serial": "RFCY70WDHXK",
+  "browser": "Chrome Android physical",
+  "results": [
+    {
+      "id": "public-web-mobile-load-responsive",
+      "status": "PASS",
+      "url": "https://app.agmcockpit.com/basic",
+      "title": "A.G.M. Cockpit",
+      "width": 384,
+      "scrollWidth": 384,
+      "bodyText": "PROFIL\nRO\nDE\nEN\nMai multe limbi\nFrançais (fr)\nNederlands (nl)\nРусский (ru)\nPolski (pl)\nTürkçe (tr)\nShqip (sq)\nAcasă\nBasic\nPremium\nAGM BASIC\nBASIC\n\nModulul Basic reunește instrumentele validate pentru comunicare, documente și activitatea zilnică.\n\n⇄\nTraducător contextual\nTraduce și adaptează mesaje pentru situații reale de transport\nValidat\nDeschide\n✉︎\nAsistent e-mail\nDictează, ajustează, traduce și pregătește e-mailuri profesionale\nValidat\nDeschide\n▤\nAnalizează document de transport\nFotografie, confirmare OCR și răspuns contextual cu acțiuni recomandate\nValidat\nDeschide\n◷\nAnalizează tahograf\nFotografie, confirmare OCR și explicație contextuală a mesajului afișat\nValidat\nDeschide\n▰\nAnalizează mesaj din bord\nFotografie, confirmare OCR și acțiune prudentă pentru mesajul textual afișat\nValidat\nDeschide\n!\nMartori în bord\nConsultă catalogul cu explicații și recomandări generale. Pentru moment, identificarea automată din fotografie nu este disponibilă.\nDeschide catalogul\nDeschide catalogul\n⚖\n",
+      "scripts": [
+        "https://app.agmcockpit.com/assets/main-r6bybWmM.js",
+        "https://app.agmcockpit.com/assets/src-DzTAeQno.js",
+        "https://app.agmcockpit.com/assets/required-document.evidence-store-a5LpFzjr.js",
+        "https://app.agmcockpit.com/assets/handoff.facade-BDNO5TYp.js",
+        "https://app.agmcockpit.com/assets/language-registry-BIaz4IjA.js",
+        "https://app.agmcockpit.com/assets/emailLanguage-D80lripL.js",
+        "https://app.agmcockpit.com/assets/load-safety-DsVm5Cz-.css",
+        "https://app.agmcockpit.com/assets/translationAdapter-PBRmXoi6.js"
+      ],
+      "serviceWorkersSupported": true,
+      "deviceScreenshot": "evidence\\voice-barge-in\\web-mobile-physical\\2026-08-28T06-13-45-098Z\\01-public-mobile-device.png"
+    }
+  ],
+  "fatal": "page.waitForFunction: Timeout 20000ms exceeded.\n    at C:\\Users\\adria\\Documents\\AGM\\scripts\\validate-voice-barge-in-web-mobile-android-chrome.mjs:115:16",
+  "failureState": {
+    "url": "http://127.0.0.1:61033/premium/copilot",
+    "title": "A.G.M. Cockpit",
+    "body": "AGM\nPREMIUM\nBack to Basic\nAGM PREMIUM\nAGM COPILOT\n\nTell AGM what you need. AGM selects the right tool and guides you safely.\n\nHow can I help?\nASCULTARE OFF\n🎤\n📷 Camera / OCR\n⌨ Text\n🔊 Listen\n🔔 Alertă\nWhatsApp\nEmail\n✨ AI Android\n↗ Întrebare către AI\n⚙ Setări AI\n\nListening\n\nReview what AGM understood\nCancel\nConfirm\nAGM\n\nMIC→speech — ms · VAD — ms · STT — ms · orchestrator 8 ms · model 62 ms · network 1 ms · TTS→audio 222 ms · transcript→audio 295 ms · MIC→audio — ms\nCancel\nTranscript\n\nWEB_TTS_OLD\n\nAGM\n\nThis old browser answer must stop now and never return after the new mobile question starts.\n\nRecovery\nAGM Copilot · Voice Wave 1\n▣\nCamera OCR\n✉\nEmail Assistant\n●\nTalk to AGM\nThe AGM Premium foundation is active.\nHelp\nRoadmap\nLegal & Compliance\nAbout app\nA.G.M. Cockpit 1.3.0",
+    "state": "LISTENING",
+    "status": "Listening",
+    "response": "",
+    "telemetry": "[{\"kind\":\"interrupt\",\"reason\":\"new-user-input\",\"interruptedState\":\"OFF\",\"sequence\":1,\"cancelLatencyMs\":1,\"newTurnToOldAudioStopMs\":1,\"audioQueueFlushed\":true,\"at\":1787897632461},{\"cycleId\":\"c83c6ac9-fd8a-43b0-ad0e-26fb2a3ed802\",\"listeningStartedAt\":1080.5,\"finalTranscriptAt\":1080.5,\"nativeTiming\":{\"manualInputMs\":0},\"engineRequestAt\":1081.5,\"engineResponseAt\":1152.2999999970198,\"engineLatencyMs\":71,\"serverTiming\":{\"orchestratorMs\":8,\"modelMs\":62,\"serverTotalMs\":70},\"networkLatencyMs\":1,\"ttsRequestedAt\":1152.7999999970198,\"transcriptToTtsMs\":72,\"audioStartedAt\":1375,\"ttsStartedAt\":1375,\"ttsRequestToAudioStartMs\":222,\"transcriptToAudioStartMs\":295},{\"kind\":\"stale-suppressed\",\"turnId\":\"turn:2:1787897632462\",\"stage\":\"tts-completion\",\"sequence\":3,\"at\":1787897632849},{\"kind\":\"interrupt\",\"reason\":\"microphone-barge-in\",\"interruptedState\":\"SPEAKING\",\"cancelledTurnId\":\"turn:2:1787897632462\",\"sequence\":3,\"cancelLatencyMs\":1,\"newTurnToOldAudioStopMs\":1,\"audioQueueFlushed\":true,\"at\":1787897632849},{\"kind\":\"stale-suppressed\",\"turnId\":\"turn:2:1787897632462\",\"stage\":\"tts-error\",\"sequence\":3,\"at\":1787897632855}]"
+  },
+  "finishedAt": "2026-08-28T06:14:42.131Z"
+}

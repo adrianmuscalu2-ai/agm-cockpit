@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "classification": "ANDROID_RELEASE_ARTIFACT",
+  "gitPolicy": "EXCLUDED_FROM_NORMAL_GIT",
+  "artifacts": [
+    {
+      "path": "evidence/android-ai-controls/physical/2026-08-28T21-11-15/installed-base.apk",
+      "bytes": 119484692,
+      "sha256": "6c93cf9e2c4904da14d986a2556c9f23ae051a61ff6beab91c96d7d3d6c9a6e5",
+      "releaseArtifact": false,
+      "reason": "Previously installed physical-device package; not the signed 1.3.0 RC AAB."
+    },
+    {
+      "path": "evidence/website-pwa/android/2026-08-28/agm-cockpit-website-webapk.apk",
+      "bytes": 326171,
+      "sha256": "96f9cf91bc2145eacc86a3a6e7609c14e23d1658a6e44ffedf4d00895e695aed",
+      "releaseArtifact": false,
+      "reason": "Generated website WebAPK evidence; not an AGM application release package."
+    }
+  ],
+  "temporaryReleaseResidue": 0,
+  "secretRisk": "NONE_DETECTED",
+  "mutation": "NONE"
+}

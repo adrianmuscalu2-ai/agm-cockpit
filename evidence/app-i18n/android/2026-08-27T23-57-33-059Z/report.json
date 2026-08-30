@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-27T23-57-33-059Z",
+  "startedAt": "2026-08-27T23:57:33.063Z",
+  "runner": "Physical Android WebView + controlled CDP",
+  "deviceStatus": "PASS",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "FAIL",
+  "results": [],
+  "device": "RFCY70WDHXK            device product:pa1qxeea model:SM_S931B device:pa1q transport_id:1",
+  "package": [
+    "versionCode=21 minSdk=24 targetSdk=36",
+    "versionName=1.3.0",
+    "lastUpdateTime=2026-08-28 01:57:16"
+  ],
+  "display": "Physical size: 1080x2340",
+  "apkSha256": "B4C5470794F6EFE3C1CB487409B99D9D51A6E84ABD8D8F271461E78777BBB8AC",
+  "status": "FAIL",
+  "fatal": "page.screenshot: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\n    at capture (C:\\Users\\adria\\Documents\\AGM\\scripts\\validate-final-language-wave-android.mjs:107:387)\n    at async file:///C:/Users/adria/Documents/AGM/scripts/validate-final-language-wave-android.mjs:76:5",
+  "runtimeErrors": [],
+  "finishedAt": "2026-08-27T23:58:38.741Z",
+  "revision": "dc8d793d45fe4108bf3f9b8eb833d8423cd27201"
+}

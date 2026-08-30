@@ -1,0 +1,36 @@
+{
+    "schemaVersion":  1,
+    "operation":  "AUTHORIZED_EXACT_TMP_CLEANUP",
+    "authorizedTarget":  "C:\\Users\\adria\\Documents\\AGM\\.tmp",
+    "resolvedCanonicalPath":  "C:\\Users\\adria\\Documents\\AGM\\.tmp",
+    "repositoryRoot":  "C:\\Users\\adria\\Documents\\AGM",
+    "targetIsRepositoryRoot":  false,
+    "targetIsAgmLibrary":  false,
+    "targetIsCanonicalEvidence":  false,
+    "topLevelItemsDeleted":  5,
+    "deletedFiles":  99698,
+    "deletedDirectories":  18411,
+    "deletedBytes":  1497632667,
+    "reparsePointsDetected":  0,
+    "escapingReparsePoints":  0,
+    "unresolvedReparsePoints":  0,
+    "inventoryEnumerationFailures":  59,
+    "deletionFailures":  [
+                             "C:\\Users\\adria\\Documents\\AGM\\.tmp\\services:MethodInvocationException"
+                         ],
+    "remaining":  {
+                      "files":  2,
+                      "directories":  1,
+                      "bytes":  5508257,
+                      "reparsePoints":  [
+
+                                        ],
+                      "enumerationFailures":  [
+
+                                              ]
+                  },
+    "temporaryReleaseResidue":  1,
+    "deleted":  false,
+    "completedAt":  "2026-08-30T21:33:51.3349213Z",
+    "recovery":  "NOT_RECOVERABLE_FROM_LOCAL_TMP"
+}

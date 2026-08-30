@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T04-38-47-711Z",
+  "startedAt": "2026-08-28T04:38:47.712Z",
+  "target": "http://127.0.0.1:5174/turn",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "FAIL",
+  "results": [],
+  "status": "FAIL",
+  "fatal": "Error: desktop: TURN relation mapping is incomplete\n    at file:///C:/Users/adria/Documents/AGM/scripts/validate-final-language-agents-browser.mjs:120:95",
+  "runtimeErrors": [],
+  "finishedAt": "2026-08-28T04:39:04.622Z",
+  "revision": "dc8d793d45fe4108bf3f9b8eb833d8423cd27201"
+}

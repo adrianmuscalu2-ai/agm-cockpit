@@ -1,0 +1,72 @@
+--------- beginning of main
+08-28 08:08:09.100  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:09.102  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:09.203  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:09.235  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:09.237  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:09.310  2946  3034 I AGM-Audio: TTS requested; language=en-US; characters=28
+08-28 08:08:09.310  2946  3034 I AGM-Audio: Using Google Speech Services for AGM voice playback
+08-28 08:08:09.582  2946  2946 I AGM-Audio: TTS initialization status=0
+08-28 08:08:09.677  2946  2946 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-28 08:08:09.679  2946  2946 I AGM-Audio: TTS audio focus granted=true
+08-28 08:08:10.214  2946  2961 I AGM-Audio: TTS playback started
+08-28 08:08:11.399  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:11.414  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:11.416  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:11.492  2946  3034 I AGM-Audio: TTS requested; language=en-US; characters=134
+08-28 08:08:11.628  2946  3034 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-28 08:08:11.629  2946  3034 I AGM-Audio: TTS audio focus granted=true
+08-28 08:08:11.654  2946  2963 I AGM-Audio: TTS playback started
+08-28 08:08:11.741  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:11.794  2946  3034 I AGM-Audio: Requesting microphone permission
+08-28 08:08:11.806  2946  2946 I AGM-Audio: Microphone permission result: granted
+08-28 08:08:11.807  2946  3034 I AGM-Audio: Starting speech recognition; language=en-US
+08-28 08:08:11.854  2946  2946 I AGM-Audio: Speech recognizer ready
+08-28 08:08:13.364  2946  2946 I AGM-Audio: Speech detected
+08-28 08:08:14.358  2946  2946 I AGM-Audio: AGM endpoint timeout reached; stopping recognition after 850ms
+08-28 08:08:14.406  2946  2946 I AGM-Audio: Speech processing started
+08-28 08:08:14.422  2946  2946 I AGM-Audio: Speech recognition result; characters=11
+08-28 08:08:14.422  2946  2946 I AGM-Audio: Speech timing: {"startToSpeechMs":1556,"speechToEndMs":1041,"silenceToEndMs":10,"endToResultMs":17,"totalRecognitionMs":2614}
+08-28 08:08:14.427  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:14.502  2946  3034 I AGM-Audio: TTS requested; language=en-US; characters=28
+08-28 08:08:14.614  2946  3034 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-28 08:08:14.615  2946  3034 I AGM-Audio: TTS audio focus granted=true
+08-28 08:08:14.663  2946  2961 I AGM-Audio: TTS playback started
+08-28 08:08:16.566  2946  2961 I AGM-Audio: TTS playback completed
+08-28 08:08:16.856  2946  3034 I AGM-Audio: Starting speech recognition; language=en-US
+08-28 08:08:16.877  2946  2946 I AGM-Audio: Speech recognizer ready
+08-28 08:08:19.112  2946  2946 I AGM-Audio: Speech detected
+08-28 08:08:20.182  2946  2946 I AGM-Audio: AGM endpoint timeout reached; stopping recognition after 850ms
+08-28 08:08:20.233  2946  2946 I AGM-Audio: Speech processing started
+08-28 08:08:20.252  2946  2946 I AGM-Audio: Speech recognition result; characters=11
+08-28 08:08:20.252  2946  2946 I AGM-Audio: Speech timing: {"startToSpeechMs":2255,"speechToEndMs":1122,"silenceToEndMs":13,"endToResultMs":19,"totalRecognitionMs":3396}
+08-28 08:08:20.256  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:20.289  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:20.331  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:20.332  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:20.404  2946  3034 I AGM-Audio: TTS requested; language=en-US; characters=26
+08-28 08:08:20.483  2946  3034 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-28 08:08:20.484  2946  3034 I AGM-Audio: TTS audio focus granted=true
+08-28 08:08:20.528  2946  2963 I AGM-Audio: TTS playback started
+08-28 08:08:22.548  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.567  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.568  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.620  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.655  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.661  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.725  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.764  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.771  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.834  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.862  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.864  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.923  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.978  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:22.993  2946  3034 I AGM-Audio: TTS playback stopped
+08-28 08:08:23.213  2946  3034 I AGM-Audio: TTS requested; language=en-US; characters=22
+08-28 08:08:23.325  2946  3034 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-28 08:08:23.326  2946  3034 I AGM-Audio: TTS audio focus granted=true
+08-28 08:08:23.359  2946  2962 I AGM-Audio: TTS playback started
+08-28 08:08:25.241  2946  2962 I AGM-Audio: TTS playback completed
+08-28 08:08:25.503  2946  3034 I AGM-Audio: Starting speech recognition; language=en-US
+08-28 08:08:25.534  2946  2946 I AGM-Audio: Speech recognizer ready

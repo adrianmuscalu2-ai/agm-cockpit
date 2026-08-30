@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T00-11-13-940Z",
+  "startedAt": "2026-08-28T00:11:13.942Z",
+  "runner": "Physical Android WebView + controlled CDP",
+  "deviceStatus": "PASS",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "results": [
+    {
+      "id": "it-android-basic",
+      "status": "PASS",
+      "language": "it",
+      "surface": "basic",
+      "capture": "CONTROLLED_WEBVIEW_DOM",
+      "marker": "Traduttore contestuale"
+    },
+    {
+      "id": "it-android-premium",
+      "status": "PASS",
+      "language": "it",
+      "surface": "premium",
+      "capture": "CONTROLLED_WEBVIEW_DOM",
+      "marker": "Ecosistema premium"
+    },
+    {
+      "id": "it-android-car-mover",
+      "status": "PASS",
+      "language": "it",
+      "surface": "car-mover",
+      "capture": "CONTROLLED_WEBVIEW_DOM",
+      "marker": "Pianifica, confronta ed esegui gli spostamenti dei veicoli usando dati AGM reali."
+    },
+    {
+      "id": "es-android-basic",
+      "status": "PASS",
+      "language": "es",
+      "surface": "basic",
+      "capture": "CONTROLLED_WEBVIEW_DOM",
+      "marker": "Traductor contextual"
+    },
+    {
+      "id": "es-android-premium",
+      "status": "PASS",
+      "language": "es",
+      "surface": "premium",
+      "capture": "CONTROLLED_WEBVIEW_DOM",
+      "marker": "Ecosistema premium"
+    },
+    {
+      "id": "es-android-car-mover",
+      "status": "PASS",
+      "language": "es",
+      "surface": "car-mover",
+      "capture": "CONTROLLED_WEBVIEW_DOM",
+      "marker": "Planifica, compara y ejecuta movimientos de vehículos con datos reales de AGM."
+    },
+    {
+      "id": "sv-android-basic",
+      "status": "PASS",
+      "language": "sv",
+      "surface": "basic",
+      "capture": "CONTROLLED_WEBVIEW_DOM",
+      "marker": "Kontextöversättare"
+    },
+    {
+      "id": "sv-android-premium",
+      "status": "PASS",
+      "language": "sv",
+      "surface": "premium",
+      "capture": "CONTROLLED_WEBVIEW_DOM",
+      "marker": "Premium-ekosystem"
+    },
+    {
+      "id": "sv-android-car-mover",
+      "status": "PASS",
+      "language": "sv",
+      "surface": "car-mover",
+      "capture": "CONTROLLED_WEBVIEW_DOM",
+      "marker": "Planera, jämför och utför fordonsförflyttningar med verkliga AGM-data."
+    }
+  ],
+  "device": "RFCY70WDHXK            device product:pa1qxeea model:SM_S931B device:pa1q transport_id:1",
+  "package": [
+    "versionCode=21 minSdk=24 targetSdk=36",
+    "versionName=1.3.0",
+    "lastUpdateTime=2026-08-28 01:57:16"
+  ],
+  "display": "Physical size: 1080x2340",
+  "apkSha256": "B4C5470794F6EFE3C1CB487409B99D9D51A6E84ABD8D8F271461E78777BBB8AC",
+  "probe": "Physical Samsung WebView: IT/ES/SV selector, localized Access view, Basic, Premium and Car Mover; 9 controlled DOM checks; no horizontal overflow",
+  "status": "PASS",
+  "runtimeErrors": [],
+  "finishedAt": "2026-08-28T00:11:20.776Z",
+  "revision": "dc8d793d45fe4108bf3f9b8eb833d8423cd27201"
+}

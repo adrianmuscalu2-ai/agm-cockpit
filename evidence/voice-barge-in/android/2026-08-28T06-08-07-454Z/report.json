@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T06-08-07-454Z",
+  "status": "PASS",
+  "device": "SM-S931B",
+  "serial": "RFCY70WDHXK",
+  "package": "com.agm.cockpit",
+  "results": [
+    {
+      "id": "B+E-model-generation-delayed-stale",
+      "status": "PASS",
+      "staleDelivered": true,
+      "staleSuppressed": true,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T06-08-07-454Z\\01-stale-model-suppressed.png"
+    },
+    {
+      "id": "A-tts-barge-in",
+      "status": "PASS",
+      "transcript": "hello there",
+      "newSpeechDetectedToOldAudioStopMs": 0,
+      "stoppedTurnId": "turn:8:1787897291415",
+      "audioQueueFlushed": true,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T06-08-07-454Z\\02-native-tts-barge-in.png"
+    },
+    {
+      "id": "C-immediate-after-stt",
+      "status": "PASS",
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T06-08-07-454Z\\03-post-stt-preemption.png"
+    },
+    {
+      "id": "D-rapid-5-interruptions",
+      "status": "PASS",
+      "obsoleteRapidAnswersSuppressed": 4,
+      "maxAuthorityCount": 1,
+      "currentAuthorityCount": 1,
+      "staleDeliveryCount": 6,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T06-08-07-454Z\\04-rapid-final-authority.png"
+    },
+    {
+      "id": "old-audio-does-not-return",
+      "status": "PASS",
+      "oldAudioRestarted": false
+    }
+  ],
+  "build": {
+    "apk": "apps\\web\\android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+    "apkSha256": "C40CA6D795B62A3DF469ED35FA95E8ABEA87B5983C44CDB33CA26F69BA63CA48",
+    "installedSha256": "C40CA6D795B62A3DF469ED35FA95E8ABEA87B5983C44CDB33CA26F69BA63CA48",
+    "versionCode": "21",
+    "versionName": "1.3.0",
+    "lastUpdateTime": "2026-08-28 07:53:04"
+  },
+  "deviceEvidence": {
+    "model": "SM-S931B",
+    "android": "16",
+    "sdk": "36",
+    "state": "device"
+  },
+  "runtimeLog": "evidence\\voice-barge-in\\android\\2026-08-28T06-08-07-454Z\\runtime-logcat.txt",
+  "deviceScreenshot": "evidence\\voice-barge-in\\android\\2026-08-28T06-08-07-454Z\\device-final.png",
+  "finishedAt": "2026-08-28T06:08:30.361Z"
+}

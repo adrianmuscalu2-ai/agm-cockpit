@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T21-09-05-363Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "status": "PASS",
+  "browserGate": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS"
+  },
+  "results": [
+    {
+      "id": "desktop",
+      "status": "PASS",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "result": {
+        "snapshot": {
+          "schemaVersion": 1,
+          "platform": "web",
+          "capturedAtEpochMs": 1787951350664,
+          "expiresAtEpochMs": 1787951650664,
+          "online": true,
+          "capabilities": {
+            "speechRecognition": false,
+            "onDeviceSpeechRecognition": false,
+            "textToSpeech": true,
+            "camera": true,
+            "localWebOcr": true,
+            "shareText": false,
+            "processText": false,
+            "translateText": false,
+            "assist": false,
+            "voiceSettings": false
+          }
+        },
+        "local": {
+          "operation": "SIMPLE_TRANSLATION",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "WEB_LOCAL",
+          "reason": "LOCAL_TRANSLATION_RESULT_AVAILABLE",
+          "decisionLatencyMs": 0.1,
+          "requiresUserConfirmation": false,
+          "fallbackChain": [],
+          "snapshotCapturedAtEpochMs": 1787951350664
+        },
+        "agm": {
+          "operation": "AGM_CONTEXT_REASONING",
+          "authority": "AGM_AI",
+          "executionMode": "AGM_NETWORK",
+          "reason": "AGM_CONTEXT_AUTHORITY_REQUIRED",
+          "decisionLatencyMs": 0.3,
+          "requiresUserConfirmation": false,
+          "fallbackChain": [],
+          "snapshotCapturedAtEpochMs": 1787951350664
+        },
+        "external": {
+          "operation": "SHARE_CONTEXT",
+          "authority": "UNAVAILABLE",
+          "executionMode": "NONE",
+          "reason": "ANDROID_SHARE_UNAVAILABLE",
+          "decisionLatencyMs": 0,
+          "requiresUserConfirmation": false,
+          "fallbackChain": [],
+          "snapshotCapturedAtEpochMs": 1787951350664
+        },
+        "unsafe": {
+          "operation": "SAFETY_CRITICAL_READING",
+          "authority": "UNAVAILABLE",
+          "executionMode": "NONE",
+          "reason": "SAFETY_CRITICAL_VALUE_CANNOT_BE_READ_SAFELY",
+          "decisionLatencyMs": 0,
+          "requiresUserConfirmation": false,
+          "fallbackChain": [
+            "LOCAL_DEVICE:READING_NOT_VERIFIED",
+            "AGM_AI:GENERATION_PROHIBITED_FOR_MISSING_MEASUREMENT",
+            "EXTERNAL_DEVICE_AI:TRANSFER_PROHIBITED",
+            "SAFE_FALLBACK:MANUAL_MEASUREMENT_REQUIRED"
+          ],
+          "snapshotCapturedAtEpochMs": 1787951350664
+        },
+        "androidControls": 0,
+        "horizontalOverflow": false
+      },
+      "screenshot": "evidence\\device-capability-router\\browser\\2026-08-28T21-09-05-363Z\\desktop.png"
+    },
+    {
+      "id": "mobile",
+      "status": "PASS",
+      "viewport": {
+        "width": 412,
+        "height": 915
+      },
+      "result": {
+        "snapshot": {
+          "schemaVersion": 1,
+          "platform": "web",
+          "capturedAtEpochMs": 1787951353197,
+          "expiresAtEpochMs": 1787951653197,
+          "online": true,
+          "capabilities": {
+            "speechRecognition": false,
+            "onDeviceSpeechRecognition": false,
+            "textToSpeech": true,
+            "camera": true,
+            "localWebOcr": true,
+            "shareText": false,
+            "processText": false,
+            "translateText": false,
+            "assist": false,
+            "voiceSettings": false
+          }
+        },
+        "local": {
+          "operation": "SIMPLE_TRANSLATION",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "WEB_LOCAL",
+          "reason": "LOCAL_TRANSLATION_RESULT_AVAILABLE",
+          "decisionLatencyMs": 0,
+          "requiresUserConfirmation": false,
+          "fallbackChain": [],
+          "snapshotCapturedAtEpochMs": 1787951353197
+        },
+        "agm": {
+          "operation": "AGM_CONTEXT_REASONING",
+          "authority": "AGM_AI",
+          "executionMode": "AGM_NETWORK",
+          "reason": "AGM_CONTEXT_AUTHORITY_REQUIRED",
+          "decisionLatencyMs": 0.1,
+          "requiresUserConfirmation": false,
+          "fallbackChain": [],
+          "snapshotCapturedAtEpochMs": 1787951353197
+        },
+        "external": {
+          "operation": "SHARE_CONTEXT",
+          "authority": "UNAVAILABLE",
+          "executionMode": "NONE",
+          "reason": "ANDROID_SHARE_UNAVAILABLE",
+          "decisionLatencyMs": 0,
+          "requiresUserConfirmation": false,
+          "fallbackChain": [],
+          "snapshotCapturedAtEpochMs": 1787951353197
+        },
+        "unsafe": {
+          "operation": "SAFETY_CRITICAL_READING",
+          "authority": "UNAVAILABLE",
+          "executionMode": "NONE",
+          "reason": "SAFETY_CRITICAL_VALUE_CANNOT_BE_READ_SAFELY",
+          "decisionLatencyMs": 0,
+          "requiresUserConfirmation": false,
+          "fallbackChain": [
+            "LOCAL_DEVICE:READING_NOT_VERIFIED",
+            "AGM_AI:GENERATION_PROHIBITED_FOR_MISSING_MEASUREMENT",
+            "EXTERNAL_DEVICE_AI:TRANSFER_PROHIBITED",
+            "SAFE_FALLBACK:MANUAL_MEASUREMENT_REQUIRED"
+          ],
+          "snapshotCapturedAtEpochMs": 1787951353197
+        },
+        "androidControls": 0,
+        "horizontalOverflow": false
+      },
+      "screenshot": "evidence\\device-capability-router\\browser\\2026-08-28T21-09-05-363Z\\mobile.png"
+    }
+  ],
+  "target": "http://127.0.0.1:60398",
+  "revision": "dc8d793d45fe4108bf3f9b8eb833d8423cd27201",
+  "finishedAt": "2026-08-28T21:09:16.283Z"
+}

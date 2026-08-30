@@ -1,0 +1,87 @@
+--------- beginning of main
+08-29 01:34:01.970 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:01.972 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:02.066 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:02.094 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:02.095 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:02.169 30810 30883 I AGM-Audio: TTS requested; language=en-US; characters=28
+08-29 01:34:02.169 30810 30810 I AGM-Audio: TTS authority granted; turnId=turn:5:1787960042095; generation=6; utteranceId=agm-tts-1-g6
+08-29 01:34:02.169 30810 30810 I AGM-Audio: Using the user-selected Android default TTS engine
+08-29 01:34:02.482 30810 30810 I AGM-Audio: TTS initialization status=0
+08-29 01:34:02.585 30810 30810 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-29 01:34:02.586 30810 30810 I AGM-Audio: TTS audio focus granted=true
+08-29 01:34:03.255 30810 30926 I AGM-Audio: TTS playback started; turnId=turn:5:1787960042095; generation=6; utteranceId=agm-tts-1-g6
+08-29 01:34:03.927 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=turn:5:1787960042095; utteranceId=agm-tts-1-g6; stoppedGeneration=6; stopResult=0
+08-29 01:34:03.937 30810 30926 I AGM-Audio: TTS stop acknowledged; turnId=turn:5:1787960042095; utteranceId=agm-tts-1-g6; interrupted=true; requestToStopAckMs=11
+08-29 01:34:03.978 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:03.979 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:04.063 30810 30883 I AGM-Audio: TTS requested; language=en-US; characters=134
+08-29 01:34:04.079 30810 30810 I AGM-Audio: TTS authority granted; turnId=turn:8:1787960043979; generation=10; utteranceId=agm-tts-2-g10
+08-29 01:34:04.178 30810 30810 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-29 01:34:04.179 30810 30810 I AGM-Audio: TTS audio focus granted=true
+08-29 01:34:04.219 30810 30926 I AGM-Audio: TTS playback started; turnId=turn:8:1787960043979; generation=10; utteranceId=agm-tts-2-g10
+08-29 01:34:04.358 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=turn:8:1787960043979; utteranceId=agm-tts-2-g10; stoppedGeneration=10; stopResult=0
+08-29 01:34:04.361 30810 30926 I AGM-Audio: TTS stop acknowledged; turnId=turn:8:1787960043979; utteranceId=agm-tts-2-g10; interrupted=true; requestToStopAckMs=5
+08-29 01:34:04.369 30810 30883 I AGM-Audio: Requesting microphone permission
+08-29 01:34:04.371 30810 30810 I AGM-Audio: Microphone permission result: granted
+08-29 01:34:04.373 30810 30883 I AGM-Audio: Starting speech recognition; language=en-US
+08-29 01:34:04.374 30810 30810 I AGM-Audio: Using Android on-device speech recognizer
+08-29 01:34:04.440 30810 30810 E AGM-Audio: Speech recognition error=13
+08-29 01:34:04.440 30810 30810 W AGM-Audio: On-device speech recognizer unavailable for this request; falling back once to Android default service; error=13
+08-29 01:34:04.440 30810 30810 I AGM-Audio: Using Android default speech recognition service
+08-29 01:34:04.468 30810 30810 I AGM-Audio: Speech recognizer ready
+08-29 01:34:06.429 30810 30883 I AGM-Audio: Immediate speech cancellation requested
+08-29 01:34:06.432 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:06.466 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:06.469 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:06.542 30810 30883 I AGM-Audio: TTS requested; language=en-US; characters=26
+08-29 01:34:06.543 30810 30810 I AGM-Audio: TTS authority granted; turnId=turn:12:1787960046467; generation=15; utteranceId=agm-tts-3-g15
+08-29 01:34:06.629 30810 30810 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-29 01:34:06.630 30810 30810 I AGM-Audio: TTS audio focus granted=true
+08-29 01:34:06.675 30810 30926 I AGM-Audio: TTS playback started; turnId=turn:12:1787960046467; generation=15; utteranceId=agm-tts-3-g15
+08-29 01:34:07.329 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=turn:12:1787960046467; utteranceId=agm-tts-3-g15; stoppedGeneration=15; stopResult=0
+08-29 01:34:07.331 30810 30926 I AGM-Audio: TTS stop acknowledged; turnId=turn:12:1787960046467; utteranceId=agm-tts-3-g15; interrupted=true; requestToStopAckMs=6
+08-29 01:34:07.385 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:07.388 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:07.467 30810 30883 I AGM-Audio: TTS requested; language=en-US; characters=134
+08-29 01:34:07.467 30810 30810 I AGM-Audio: TTS authority granted; turnId=turn:15:1787960047386; generation=19; utteranceId=agm-tts-4-g19
+08-29 01:34:07.607 30810 30810 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-29 01:34:07.608 30810 30810 I AGM-Audio: TTS audio focus granted=true
+08-29 01:34:07.658 30810 30833 I AGM-Audio: TTS playback started; turnId=turn:15:1787960047386; generation=19; utteranceId=agm-tts-4-g19
+08-29 01:34:07.715 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=turn:15:1787960047386; utteranceId=agm-tts-4-g19; stoppedGeneration=19; stopResult=0
+08-29 01:34:07.718 30810 30833 I AGM-Audio: TTS stop acknowledged; turnId=turn:15:1787960047386; utteranceId=agm-tts-4-g19; interrupted=true; requestToStopAckMs=4
+08-29 01:34:07.776 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:07.812 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:07.894 30810 30883 I AGM-Audio: TTS requested; language=en-US; characters=28
+08-29 01:34:07.910 30810 30810 I AGM-Audio: TTS authority granted; turnId=turn:18:1787960047777; generation=23; utteranceId=agm-tts-5-g23
+08-29 01:34:08.010 30810 30810 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-29 01:34:08.010 30810 30810 I AGM-Audio: TTS audio focus granted=true
+08-29 01:34:08.047 30810 30926 I AGM-Audio: TTS playback started; turnId=turn:18:1787960047777; generation=23; utteranceId=agm-tts-5-g23
+08-29 01:34:08.822 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=turn:18:1787960047777; utteranceId=agm-tts-5-g23; stoppedGeneration=23; stopResult=0
+08-29 01:34:08.822 30810 30926 I AGM-Audio: TTS stop acknowledged; turnId=turn:18:1787960047777; utteranceId=agm-tts-5-g23; interrupted=true; requestToStopAckMs=3
+08-29 01:34:08.846 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:08.847 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:08.899 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:08.921 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:08.922 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:08.982 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:09.024 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:09.032 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:09.088 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:09.146 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:09.151 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:09.223 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:09.276 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:09.310 30810 30810 I AGM-Audio: TTS stop requested; reason=javascript-cancellation; turnId=null; utteranceId=null; stoppedGeneration=0; stopResult=0
+08-29 01:34:09.518 30810 30883 I AGM-Audio: TTS requested; language=en-US; characters=22
+08-29 01:34:09.518 30810 30810 I AGM-Audio: TTS authority granted; turnId=turn:33:1787960049277; generation=39; utteranceId=agm-tts-6-g39
+08-29 01:34:09.623 30810 30810 I AGM-Audio: Selected AGM adult TTS voice=en-us-x-iom-local; locale=en-US
+08-29 01:34:09.624 30810 30810 I AGM-Audio: TTS audio focus granted=true
+08-29 01:34:09.661 30810 30833 I AGM-Audio: TTS playback started; turnId=turn:33:1787960049277; generation=39; utteranceId=agm-tts-6-g39
+08-29 01:34:11.548 30810 30926 I AGM-Audio: TTS playback completed; turnId=turn:33:1787960049277; generation=39; utteranceId=agm-tts-6-g39
+08-29 01:34:11.562 30810 30883 I AGM-Audio: Starting speech recognition; language=en-US
+08-29 01:34:11.577 30810 30810 I AGM-Audio: Using Android on-device speech recognizer
+08-29 01:34:11.625 30810 30810 E AGM-Audio: Speech recognition error=13
+08-29 01:34:11.625 30810 30810 W AGM-Audio: On-device speech recognizer unavailable for this request; falling back once to Android default service; error=13
+08-29 01:34:11.625 30810 30810 I AGM-Audio: Using Android default speech recognition service
+08-29 01:34:11.675 30810 30810 I AGM-Audio: Speech recognizer ready

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T06-53-08-189Z",
+  "status": "FAIL",
+  "device": "Samsung SM-S931B",
+  "serial": "RFCY70WDHXK",
+  "browser": "Chrome Android physical",
+  "target": "https://app.agmcockpit.com/",
+  "results": [],
+  "deviceEvidence": {
+    "model": "SM-S931B",
+    "android": "16",
+    "sdk": "36",
+    "chrome": "151.0.7922.173"
+  },
+  "fatal": "page.reload: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for navigation until \"networkidle\"\u001b[22m\n\u001b[2m    - navigated to \"https://app.agmcockpit.com/basic?physicalReview=2026-08-28T06-53-08-189Z\"\u001b[22m\n\n    at C:\\Users\\adria\\Documents\\AGM\\scripts\\validate-web-mobile-public-physical.mjs:41:31",
+  "finishedAt": "2026-08-28T06:53:42.720Z"
+}

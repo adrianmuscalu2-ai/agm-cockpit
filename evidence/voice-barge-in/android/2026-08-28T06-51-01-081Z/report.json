@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T06-51-01-081Z",
+  "status": "FAIL",
+  "device": "SM-S931B",
+  "serial": "RFCY70WDHXK",
+  "package": "com.agm.cockpit",
+  "results": [
+    {
+      "id": "B+E-model-generation-delayed-stale",
+      "status": "PASS",
+      "staleDelivered": true,
+      "staleSuppressed": true,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T06-51-01-081Z\\01-stale-model-suppressed.png"
+    }
+  ],
+  "build": {
+    "apk": "apps\\web\\android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+    "apkSha256": "A38235AEEF6BC921AC8C20903AE02A7DD36721F28E716623B3AC444A9070B81D",
+    "installedSha256": "A38235AEEF6BC921AC8C20903AE02A7DD36721F28E716623B3AC444A9070B81D",
+    "versionCode": "21",
+    "versionName": "1.3.0",
+    "lastUpdateTime": "2026-08-28 08:50:01"
+  },
+  "deviceEvidence": {
+    "model": "SM-S931B",
+    "android": "16",
+    "sdk": "36",
+    "state": "device"
+  },
+  "fatal": "page.waitForFunction: Timeout 20000ms exceeded.\n    at C:\\Users\\adria\\Documents\\AGM\\scripts\\validate-voice-barge-in-android.mjs:130:14",
+  "failureState": {
+    "url": "https://localhost/premium/copilot",
+    "state": "LISTENING",
+    "status": "Listening",
+    "transcript": "ANDROID_TTS_OLD",
+    "response": "",
+    "telemetry": "[{\"kind\":\"interrupt\",\"reason\":\"new-user-input\",\"interruptedState\":\"OFF\",\"sequence\":1,\"cancelLatencyMs\":3,\"newTurnToOldAudioStopMs\":3,\"audioQueueFlushed\":true,\"at\":1787899864446},{\"kind\":\"interrupt\",\"reason\":\"new-user-input\",\"interruptedState\":\"UNDERSTANDING\",\"cancelledTurnId\":\"turn:2:1787899864447\",\"sequence\":3,\"cancelLatencyMs\":3,\"newTurnToOldAudioStopMs\":3,\"audioQueueFlushed\":true,\"at\":1787899864659},{\"kind\":\"interrupt\",\"reason\":\"new-user-input\",\"interruptedState\":\"OFF\",\"sequence\":4,\"cancelLatencyMs\":2,\"newTurnToOldAudioStopMs\":2,\"audioQueueFlushed\":true,\"at\":1787899864714},{\"kind\":\"stale-suppressed\",\"turnId\":\"turn:2:1787899864447\",\"stage\":\"model-response\",\"sequence\":5,\"at\":1787899865349},{\"cycleId\":\"cb7fcfe7-4679-41e1-a8e3-135bd72ce5dc\",\"listeningStartedAt\":834.2999999970198,\"finalTranscriptAt\":834.2999999970198,\"nativeTiming\":{\"manualInputMs\":0},\"engineRequestAt\":835.7999999970198,\"engineResponseAt\":906.5,\"engineLatencyMs\":71,\"serverTiming\":{\"orchestratorMs\":8,\"modelMs\":62,\"serverTotalMs\":70},\"networkLatencyMs\":1,\"ttsRequestedAt\":907.0999999940395,\"transcriptToTtsMs\":73,\"audioStartedAt\":1870.3999999910593,\"ttsStartedAt\":1870.3999999910593,\"ttsRequestToAudioStartMs\":960,\"transcriptToAudioStartMs\":1036},{\"kind\":\"stale-suppressed\",\"turnId\":\"turn:5:1787899864714\",\"stage\":\"tts-completion\",\"sequence\":6,\"at\":1787899866778},{\"kind\":\"interrupt\",\"reason\":\"new-user-input\",\"interruptedState\":\"SPEAKING\",\"cancelledTurnId\":\"turn:5:1787899864714\",\"sequence\":6,\"cancelLatencyMs\":27,\"newTurnToOldAudioStopMs\":26,\"audioQueueFlushed\":true,\"at\":1787899866779},{\"kind\":\"stale-suppressed\",\"turnId\":\"tts-event:turn:5:1787899864714:stopped\",\"stage\":\"tts-callback\",\"sequence\":6,\"at\":1787899866780},{\"kind\":\"interrupt\",\"reason\":\"new-user-input\",\"interruptedState\":\"OFF\",\"sequence\":7,\"cancelLatencyMs\":2,\"newTurnToOldAudioStopMs\":2,\"audioQueueFlushed\":true,\"at\":1787899866790},{\"cycleId\":\"f1c44bba-8d8d-4d86-98ea-5d54bf21f317\",\"listeningStartedAt\":2910.2000000029802,\"finalTranscriptAt\":2910.2000000029802,\"nativeTiming\":{\"manualInputMs\":0},\"engineRequestAt\":2912.5,\"engineResponseAt\":2983.3999999910593,\"engineLatencyMs\":71,\"serverTiming\":{\"orchestratorMs\":8,\"modelMs\":62,\"serverTotalMs\":70},\"networkLatencyMs\":1,\"ttsRequestedAt\":2984.3999999910593,\"transcriptToTtsMs\":74,\"audioStartedAt\":3142.2000000029802,\"ttsStartedAt\":3142.2000000029802,\"ttsRequestToAudioStartMs\":152,\"transcriptToAudioStartMs\":232},{\"kind\":\"stale-suppressed\",\"turnId\":\"turn:8:1787899866790\",\"stage\":\"tts-completion\",\"sequence\":9,\"at\":1787899867147},{\"kind\":\"interrupt\",\"reason\":\"microphone-barge-in\",\"interruptedState\":\"SPEAKING\",\"cancelledTurnId\":\"turn:8:1787899866790\",\"sequence\":9,\"cancelLatencyMs\":51,\"newTurnToOldAudioStopMs\":51,\"audioQueueFlushed\":true,\"at\":1787899867151},{\"kind\":\"stale-suppressed\",\"turnId\":\"tts-event:turn:8:1787899866790:stopped\",\"stage\":\"tts-callback\",\"sequence\":9,\"at\":1787899867156}]",
+    "probe": {
+      "requests": [
+        {
+          "actualText": "ANDROID_SLOW_MODEL_OLD",
+          "scripted": "ANDROID_SLOW_MODEL_OLD",
+          "receivedAt": 569.0999999940395,
+          "signalWasPassed": true,
+          "signalAbortedAtDelivery": true,
+          "deliveredAt": 1469.2999999970198
+        },
+        {
+          "actualText": "ANDROID_FAST_MODEL_NEW",
+          "scripted": "ANDROID_FAST_MODEL_NEW",
+          "receivedAt": 835.7999999970198,
+          "signalWasPassed": true,
+          "signalAbortedAtDelivery": false,
+          "deliveredAt": 906
+        },
+        {
+          "actualText": "ANDROID_TTS_OLD",
+          "scripted": "ANDROID_TTS_OLD",
+          "receivedAt": 2912.5999999940395,
+          "signalWasPassed": true,
+          "signalAbortedAtDelivery": false,
+          "deliveredAt": 2982.7000000029802
+        }
+      ],
+      "nextUnscripted": "VOICE_NEW",
+      "authorityCounts": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "staleDeliveryCount": 1
+    }
+  },
+  "runtimeLog": "evidence\\voice-barge-in\\android\\2026-08-28T06-51-01-081Z\\runtime-logcat.txt",
+  "deviceScreenshot": "evidence\\voice-barge-in\\android\\2026-08-28T06-51-01-081Z\\device-final.png",
+  "finishedAt": "2026-08-28T06:51:34.152Z"
+}

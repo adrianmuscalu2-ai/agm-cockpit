@@ -1,0 +1,461 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-30T19-05-24-029Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "results": [
+    {
+      "id": "premium-hero-to-car-mover",
+      "status": "PASS",
+      "route": "/premium -> /car-mover",
+      "detail": "The visible AGM Car Mover action in Premium opens the dedicated Car Mover HERO."
+    },
+    {
+      "id": "hero-desktop",
+      "status": "PASS",
+      "route": "/car-mover",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshot": "evidence\\car-mover\\navigation-path\\2026-08-30T19-05-24-029Z\\hero-desktop.png",
+      "detail": "HERO exposes one Car Mover hub action plus direct Premium Copilot, OCR and Voice controls."
+    },
+    {
+      "id": "hero-mobile",
+      "status": "PASS",
+      "route": "/car-mover",
+      "viewport": {
+        "width": 412,
+        "height": 915
+      },
+      "screenshot": "evidence\\car-mover\\navigation-path\\2026-08-30T19-05-24-029Z\\hero-mobile.png",
+      "detail": "Mobile HERO 412x915: route background, human boundary and primary action remain visible without horizontal overflow."
+    },
+    {
+      "id": "hero-hub-boundary",
+      "status": "PASS",
+      "route": "/car-mover",
+      "detail": "HERO has one operational entry to the six-card hub and does not bypass it with direct module cards."
+    },
+    {
+      "id": "premium-microphone-reuse",
+      "status": "PASS",
+      "route": "/premium/copilot",
+      "detail": "Car Mover HERO opens the existing Premium Copilot microphone; no Car Mover microphone instance is rendered."
+    },
+    {
+      "id": "menu-desktop",
+      "status": "PASS",
+      "route": "/car-mover/menu",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshot": "evidence\\car-mover\\navigation-path\\2026-08-30T19-05-24-029Z\\menu-desktop.png",
+      "detail": "Exactly six real module paths are visible."
+    },
+    {
+      "id": "hub-direct-ocr-voice",
+      "status": "PASS",
+      "route": "/car-mover/menu -> /ocr + /premium/voice",
+      "detail": "Hub OCR and Voice controls both open their real existing AGM pages."
+    },
+    {
+      "id": "module-carMoverPlanning",
+      "status": "PASS",
+      "route": "/car-mover/planning",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshot": "evidence\\car-mover\\navigation-path\\2026-08-30T19-05-24-029Z\\module-carMoverPlanning.png",
+      "detail": "Planning / Opportunity Intelligence: themed background, live contract surface, explicit Menu/HERO return, no placeholder."
+    },
+    {
+      "id": "module-carMoverActive",
+      "status": "PASS",
+      "route": "/car-mover/active-transfer",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshot": "evidence\\car-mover\\navigation-path\\2026-08-30T19-05-24-029Z\\module-carMoverActive.png",
+      "detail": "Active Transfer: themed background, live contract surface, explicit Menu/HERO return, no placeholder."
+    },
+    {
+      "id": "module-carMoverCompletion",
+      "status": "PASS",
+      "route": "/car-mover/completion-incidents",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshot": "evidence\\car-mover\\navigation-path\\2026-08-30T19-05-24-029Z\\module-carMoverCompletion.png",
+      "detail": "Completion / Incidents: themed background, live contract surface, explicit Menu/HERO return, no placeholder."
+    },
+    {
+      "id": "module-carMoverAccounting",
+      "status": "PASS",
+      "route": "/car-mover/accounting",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshot": "evidence\\car-mover\\navigation-path\\2026-08-30T19-05-24-029Z\\module-carMoverAccounting.png",
+      "detail": "Post-Trip / Primary Accounting: themed background, live contract surface, explicit Menu/HERO return, no placeholder."
+    },
+    {
+      "id": "module-carMoverGuide",
+      "status": "PASS",
+      "route": "/car-mover/guide",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshot": "evidence\\car-mover\\navigation-path\\2026-08-30T19-05-24-029Z\\module-carMoverGuide.png",
+      "detail": "Car Mover Guide: themed background, live contract surface, explicit Menu/HERO return, no placeholder."
+    },
+    {
+      "id": "module-carMoverArchive",
+      "status": "PASS",
+      "route": "/car-mover/archive",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshot": "evidence\\car-mover\\navigation-path\\2026-08-30T19-05-24-029Z\\module-carMoverArchive.png",
+      "detail": "Archive: themed background, live contract surface, explicit Menu/HERO return, no placeholder."
+    },
+    {
+      "id": "menu-mobile",
+      "status": "PASS",
+      "route": "/car-mover/menu",
+      "viewport": {
+        "width": 412,
+        "height": 915
+      },
+      "screenshot": "evidence\\car-mover\\navigation-path\\2026-08-30T19-05-24-029Z\\menu-mobile.png",
+      "detail": "Mobile menu 412x915: six paths, no horizontal overflow."
+    },
+    {
+      "id": "active-transfer-mobile",
+      "status": "PASS",
+      "route": "/car-mover/active-transfer",
+      "viewport": {
+        "width": 412,
+        "height": 915
+      },
+      "screenshot": "evidence\\car-mover\\navigation-path\\2026-08-30T19-05-24-029Z\\active-transfer-mobile.png",
+      "detail": "Android-sized layout preserves the operational path and controls."
+    }
+  ],
+  "target": "http://127.0.0.1:65228/",
+  "targetSource": "CONTROLLED_EPHEMERAL",
+  "probe": "http://127.0.0.1:65228/access -> /car-mover HERO -> /car-mover/menu six-card hub -> six module pages -> menu/HERO returns; OCR/Voice direct access on every page; Premium Copilot on HERO; Premium microphone reuse; Incident write; desktop/mobile captures",
+  "status": "PASS",
+  "finishedAt": "2026-08-30T19:05:52.448Z",
+  "revision": "dc8d793d45fe4108bf3f9b8eb833d8423cd27201",
+  "requestTrace": [
+    {
+      "direction": "intercept",
+      "method": "POST",
+      "path": "/api/v1/auth/refresh"
+    },
+    {
+      "direction": "response",
+      "method": "POST",
+      "path": "/api/v1/auth/refresh",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/auth/entitlements"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/auth/entitlements",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "POST",
+      "path": "/api/v1/operations/components/premium-linguist-it/heartbeat"
+    },
+    {
+      "direction": "intercept",
+      "method": "POST",
+      "path": "/api/v1/operations/components/premium-linguist-es/heartbeat"
+    },
+    {
+      "direction": "intercept",
+      "method": "POST",
+      "path": "/api/v1/operations/components/premium-linguist-sv/heartbeat"
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/auth/entitlements"
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/auth/entitlements"
+    },
+    {
+      "direction": "response",
+      "method": "POST",
+      "path": "/api/v1/operations/components/premium-linguist-it/heartbeat",
+      "status": 200
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/auth/entitlements",
+      "status": 200
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/auth/entitlements",
+      "status": 200
+    },
+    {
+      "direction": "response",
+      "method": "POST",
+      "path": "/api/v1/operations/components/premium-linguist-es/heartbeat",
+      "status": 200
+    },
+    {
+      "direction": "response",
+      "method": "POST",
+      "path": "/api/v1/operations/components/premium-linguist-sv/heartbeat",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/health/live"
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/health/ready"
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/translation/health"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/health/live",
+      "status": 200
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/health/ready",
+      "status": 200
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/translation/health",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "POST",
+      "path": "/api/v1/auth/login"
+    },
+    {
+      "direction": "response",
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/auth/entitlements"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/auth/entitlements",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs/platform-offers/list"
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/communications/providers/status"
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/opportunity-intelligence/planning"
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/opportunity-intelligence/copilot"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs/platform-offers/list",
+      "status": 200
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/communications/providers/status",
+      "status": 200
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/opportunity-intelligence/planning",
+      "status": 200
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/opportunity-intelligence/copilot",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs/job-accepted"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs/job-accepted",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/incidents"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/incidents",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "POST",
+      "path": "/api/v1/incidents"
+    },
+    {
+      "direction": "response",
+      "method": "POST",
+      "path": "/api/v1/incidents",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/incidents"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/incidents",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs/job-completed"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs/job-completed",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs/job-cancelled"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs/job-cancelled",
+      "status": 200
+    },
+    {
+      "direction": "intercept",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs"
+    },
+    {
+      "direction": "response",
+      "method": "GET",
+      "path": "/api/v1/car-mover/jobs",
+      "status": 200
+    }
+  ]
+}

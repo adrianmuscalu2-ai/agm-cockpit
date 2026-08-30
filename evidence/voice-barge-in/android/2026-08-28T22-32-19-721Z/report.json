@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-08-28T22-32-19-721Z",
+  "status": "PASS",
+  "device": "SM-S931B",
+  "serial": "RFCY70WDHXK",
+  "package": "com.agm.cockpit",
+  "results": [
+    {
+      "id": "B+E-model-generation-delayed-stale",
+      "status": "PASS",
+      "staleDelivered": true,
+      "staleSuppressed": true,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T22-32-19-721Z\\01-stale-model-suppressed.png"
+    },
+    {
+      "id": "A-microphone-authority-cancels-active-tts",
+      "status": "PASS",
+      "cancelLatencyMs": 25,
+      "audioQueueFlushed": true,
+      "nativeStopRequested": true,
+      "nativeStopAcknowledged": true,
+      "requestToNativeStopAckMs": 2,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T22-32-19-721Z\\02-native-tts-barge-in.png"
+    },
+    {
+      "id": "C-new-manual-question-cancels-active-stt",
+      "status": "PASS",
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T22-32-19-721Z\\03-post-stt-preemption.png"
+    },
+    {
+      "id": "A-text-question-cancels-active-tts",
+      "status": "PASS",
+      "requestToNativeStopAckMs": 4,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T22-32-19-721Z\\04-text-question-stops-tts.png"
+    },
+    {
+      "id": "D-rapid-5-interruptions",
+      "status": "PASS",
+      "obsoleteRapidAnswersSuppressed": 4,
+      "maxAuthorityCount": 1,
+      "currentAuthorityCount": 1,
+      "staleDeliveryCount": 5,
+      "screenshot": "evidence\\voice-barge-in\\android\\2026-08-28T22-32-19-721Z\\05-rapid-final-authority.png"
+    },
+    {
+      "id": "old-audio-does-not-return",
+      "status": "PASS",
+      "oldAudioRestarted": false
+    },
+    {
+      "id": "device-router-no-material-voice-latency-regression",
+      "status": "PASS",
+      "maxCachedCapabilityLookupMs": 0.1,
+      "maxColdCapabilityLookupMs": 0,
+      "budget": {
+        "cachedMs": 2,
+        "coldMs": 25
+      },
+      "metrics": [
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0,
+          "capabilityLookupLatencyMs": 0,
+          "capabilityCacheHit": true,
+          "atEpochMs": 1787956344309
+        },
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0,
+          "executionLatencyMs": 1766.3999999761581,
+          "success": true,
+          "atEpochMs": 1787956346075
+        },
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0,
+          "capabilityLookupLatencyMs": 0,
+          "capabilityCacheHit": true,
+          "atEpochMs": 1787956346207
+        },
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0,
+          "executionLatencyMs": 275.90000000596046,
+          "success": true,
+          "atEpochMs": 1787956346483
+        },
+        {
+          "operation": "STT",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "ON_DEVICE",
+          "decisionLatencyMs": 0,
+          "capabilityLookupLatencyMs": 0,
+          "capabilityCacheHit": true,
+          "atEpochMs": 1787956346490
+        },
+        {
+          "operation": "STT",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "ON_DEVICE",
+          "decisionLatencyMs": 0,
+          "executionLatencyMs": 2198.300000011921,
+          "success": false,
+          "fallbackUsed": false,
+          "atEpochMs": 1787956348689
+        },
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0,
+          "capabilityLookupLatencyMs": 0,
+          "capabilityCacheHit": true,
+          "atEpochMs": 1787956348812
+        },
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0,
+          "executionLatencyMs": 1099.4000000059605,
+          "success": true,
+          "atEpochMs": 1787956349911
+        },
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0.1,
+          "capabilityLookupLatencyMs": 0.1,
+          "capabilityCacheHit": true,
+          "atEpochMs": 1787956350013
+        },
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0.1,
+          "executionLatencyMs": 266.60000002384186,
+          "success": true,
+          "atEpochMs": 1787956350280
+        },
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0,
+          "capabilityLookupLatencyMs": 0,
+          "capabilityCacheHit": true,
+          "atEpochMs": 1787956350471
+        },
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0,
+          "executionLatencyMs": 1730.199999988079,
+          "success": true,
+          "atEpochMs": 1787956352201
+        },
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0,
+          "capabilityLookupLatencyMs": 0,
+          "capabilityCacheHit": true,
+          "atEpochMs": 1787956352836
+        },
+        {
+          "operation": "TTS",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "SYSTEM_SERVICE",
+          "decisionLatencyMs": 0,
+          "executionLatencyMs": 2465.800000011921,
+          "success": true,
+          "atEpochMs": 1787956355302
+        },
+        {
+          "operation": "STT",
+          "authority": "LOCAL_DEVICE",
+          "executionMode": "ON_DEVICE",
+          "decisionLatencyMs": 0,
+          "capabilityLookupLatencyMs": 0,
+          "capabilityCacheHit": true,
+          "atEpochMs": 1787956355303
+        }
+      ]
+    }
+  ],
+  "build": {
+    "apk": "apps\\web\\android\\app\\build\\outputs\\apk\\debug\\app-debug.apk",
+    "apkSha256": "92B358D70BB4BD86F5FAE16F40BD86133274E0B8D834ECEFE90847933738B56F",
+    "installedSha256": "92B358D70BB4BD86F5FAE16F40BD86133274E0B8D834ECEFE90847933738B56F",
+    "versionCode": "21",
+    "versionName": "1.3.0",
+    "lastUpdateTime": "2026-08-28 23:12:14"
+  },
+  "deviceEvidence": {
+    "model": "SM-S931B",
+    "android": "16",
+    "sdk": "36",
+    "state": "device"
+  },
+  "sameReleaseCandidate": {
+    "status": "PASS",
+    "apkSha256": "92B358D70BB4BD86F5FAE16F40BD86133274E0B8D834ECEFE90847933738B56F",
+    "installedSha256": "92B358D70BB4BD86F5FAE16F40BD86133274E0B8D834ECEFE90847933738B56F",
+    "exactMatch": true
+  },
+  "runtimeLog": "evidence\\voice-barge-in\\android\\2026-08-28T22-32-19-721Z\\runtime-logcat.txt",
+  "deviceScreenshot": "evidence\\voice-barge-in\\android\\2026-08-28T22-32-19-721Z\\device-final.png",
+  "finishedAt": "2026-08-28T22:32:38.562Z"
+}
