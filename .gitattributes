@@ -1,6 +1,6 @@
 prisma/migrations/**/migration.sql text eol=lf
 *.pdf -diff -text
-AGM_LIBRARY/**/*.official.html -diff -text
+AGM_LIBRARY/**/*.official*.html -diff -text
 AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-IMPL-REG-2016-799-CONS-20230821.official.en.pdf filter=lfs diff=lfs merge=lfs -text
 AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-IMPL-REG-2016-799.official.en.pdf filter=lfs diff=lfs merge=lfs -text
 AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-UNECE-ADR-2025.official.en.pdf filter=lfs diff=lfs merge=lfs -text
