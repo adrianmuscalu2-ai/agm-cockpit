@@ -7,7 +7,7 @@ import { createServer } from 'node:net';
 const root = process.cwd();
 const runId = new Date().toISOString().replace(/[:.]/g, '-');
 const evidenceDir = path.join(root, '.tmp', 'wave1-browser-validation', runId);
-const languageCodes = ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq'];
+const languageCodes = ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv'];
 const wave1Codes = ['fr', 'nl', 'ru', 'pl', 'tr', 'sq'];
 const expectedLabels = {
   fr: 'Français (fr)', nl: 'Nederlands (nl)', ru: 'Русский (ru)',
@@ -117,10 +117,13 @@ try {
 
   const languageSurface = page.locator('.quick-language-controls:visible').first();
   const quick = languageSurface.locator('[data-quick-language]');
-  const more = languageSurface.locator('[data-more-language]');
+  const nativeMore = languageSurface.locator('[data-more-language]');
+  const menuTrigger = languageSurface.locator('[data-more-language-trigger]');
   record('THREE QUICK LANGUAGES', (await quick.count()) === 3, `count=${await quick.count()}`);
-  const optionValues = await more.locator('option').evaluateAll((items) => items.map((item) => item.value).filter(Boolean));
-  record('NINE LANGUAGE UI', languageCodes.every((code) => [...optionValues, 'ro', 'de', 'en'].includes(code)), optionValues.join(','));
+  const optionValues = await nativeMore.count()
+    ? await nativeMore.locator('option').evaluateAll((items) => items.map((item) => item.value).filter(Boolean))
+    : await languageSurface.locator('[data-more-language-option]').evaluateAll((items) => items.map((item) => item.getAttribute('data-more-language-option')).filter(Boolean));
+  record('TWELVE LANGUAGE UI', languageCodes.every((code) => optionValues.includes(code)), optionValues.join(','));
 
   const visualLanguageViolations = [];
   for (const code of languageCodes) {
@@ -129,10 +132,19 @@ try {
     if (await currentQuick.count()) {
       await currentQuick.click();
     } else {
-      const currentMore = currentSurface.locator('[data-more-language]');
-      const label = await currentMore.locator(`option[value="${code}"]`).textContent();
-      if (wave1Codes.includes(code)) record(`LANGUAGE ${code.toUpperCase()}`, label?.trim() === expectedLabels[code], label ?? 'missing');
-      await currentMore.selectOption(code);
+      const currentNativeMore = currentSurface.locator('[data-more-language]');
+      if (await currentNativeMore.count()) {
+        const label = await currentNativeMore.locator(`option[value="${code}"]`).textContent();
+        if (wave1Codes.includes(code)) record(`LANGUAGE ${code.toUpperCase()}`, label?.trim() === expectedLabels[code], label ?? 'missing');
+        await currentNativeMore.selectOption(code);
+      } else {
+        const currentTrigger = currentSurface.locator('[data-more-language-trigger]');
+        await currentTrigger.click();
+        const currentOption = currentSurface.locator(`[data-more-language-option="${code}"]`);
+        const label = await currentOption.textContent();
+        if (wave1Codes.includes(code)) record(`LANGUAGE ${code.toUpperCase()}`, Boolean(label?.trim()), label ?? 'missing');
+        await currentOption.click();
+      }
     }
     await page.waitForFunction((language) => document.documentElement.lang === language, code);
     await navigateWithinApp(page, '/basic');
@@ -156,7 +168,7 @@ try {
   const persistedQuick = await page.locator('.quick-language-controls:visible').first().locator('[data-quick-language]').allTextContents();
   record(
     'LANGUAGE FAVORITES / PERSISTENCE',
-    persistedLanguage === 'sq' && persistedQuick.length === 3 && persistedQuick.includes('SQ'),
+    persistedLanguage === languageCodes.at(-1) && persistedQuick.length === 3 && persistedQuick.includes(languageCodes.at(-1).toUpperCase()),
     `language=${persistedLanguage}; favorites=${persistedQuick.join('/')}`,
   );
   record('VISUAL LANGUAGE COHERENCE', visualLanguageViolations.length === 0, visualLanguageViolations.join(' | '));
