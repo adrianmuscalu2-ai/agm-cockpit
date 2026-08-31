@@ -22,6 +22,7 @@
    contextual imagery on every Car Mover surface. Button styling is unchanged. */
 .car-mover-entry-image{filter:brightness(1.22) saturate(1.1) contrast(1.02)}
 .car-mover-entry-shade{background:linear-gradient(90deg,rgba(1,7,17,.88) 0%,rgba(2,12,28,.76) 31%,rgba(2,13,28,.3) 58%,rgba(0,6,14,.06) 78%),linear-gradient(180deg,rgba(0,5,13,.42) 0%,transparent 34%,rgba(0,5,13,.46) 100%)}
+@media(max-width:760px){.car-mover-entry{padding-bottom:calc(1rem + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)));scroll-padding-bottom:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px));overflow-x:hidden;overflow-y:auto}}
 .car-mover-menu::before{filter:brightness(1.24) saturate(1.08) contrast(1.02)}
 .car-mover-menu::after{background:linear-gradient(90deg,rgba(2,12,22,.8),rgba(3,18,30,.56) 58%,rgba(2,12,22,.18)),linear-gradient(180deg,rgba(2,11,20,.28),rgba(2,14,24,.54))}
 .car-mover-menu .car-mover-menu-intro{background:rgba(4,20,31,.58)}

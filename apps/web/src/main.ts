@@ -211,7 +211,7 @@ type ViewName =
 type EmailComposeMode = 'general' | 'manual';
 type ServiceAvailability = 'checking' | 'online' | 'offline';
 
-const APP_VERSION = 'A.G.M. Cockpit 1.3.0';
+const APP_VERSION = 'A.G.M. Cockpit 1.4.0';
 const PRIVACY_POLICY_VERSION = 'privacy-v2026.07.13';
 const TERMS_VERSION = 'terms-v2026.07.13';
 const LEGAL_ACCEPTANCE_KEY = `agm.legal.acceptance.${PRIVACY_POLICY_VERSION}.${TERMS_VERSION}`;
@@ -331,6 +331,7 @@ const state = attachMailLegacyFacade(attachTranslatorLegacyFacade(attachContacts
 let activeTranslatorVoiceInput: Promise<void> | null = null;
 let lastTranslatorHealthCapturedAt: string | null = null;
 let lastRenderedProductionPreflightAt: string | null = null;
+let activeQuickLanguageMenuCleanup: (() => void) | null = null;
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
 
@@ -435,6 +436,8 @@ window.addEventListener('popstate', () => {
 });
 
 function render() {
+  activeQuickLanguageMenuCleanup?.();
+  activeQuickLanguageMenuCleanup = null;
   document.documentElement.lang = state.profile.preferredLanguage;
   const language = uiLanguage();
   const premiumLayout = usesPremiumLayout(state.view);
@@ -443,10 +446,10 @@ function render() {
       <section class="workspace" aria-labelledby="page-title">
         ${state.view === 'home' ? renderHomeHeader() : premiumLayout ? '' : `<header class="topbar">
           <nav class="module-strip" aria-label="${escapeHtml(t(language, 'nav.moduleStripLabel'))}">
-            <label class="profile-chip" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
+            <div class="profile-chip" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}" aria-label="${escapeHtml(t(language, 'header.quickProfileAria'))}">
               <span>${escapeHtml(t(language, 'nav.profile'))}</span>
               ${renderQuickLanguageControls('header')}
-            </label>
+            </div>
             <div class="module-nav">
               <button data-module="home" type="button">
                 <span class="nav-code">HOME</span>
@@ -590,13 +593,13 @@ function renderHomeHeader() {
     <header class="home-topbar">
       <button class="home-brand" data-module="home" data-admin-trigger type="button" aria-label="${escapeHtml(t(language, 'home.title'))}">
         <strong>A.G.M.</strong>
-        <span>Cockpit 1.3.0</span>
+        <span>Cockpit 1.4.0</span>
       </button>
       <div class="home-profile-control">
-        <label class="home-language-control" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
+        <div class="home-language-control" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
           <span class="visually-hidden">${escapeHtml(t(language, 'header.quickProfileAria'))}</span>
           ${renderQuickLanguageControls('home')}
-        </label>
+        </div>
         <button data-module="home" type="button"><span>${escapeHtml(t(language, 'home.title'))}</span></button>
         <button data-module="basic" type="button"><span>${escapeHtml(t(language, 'home.basic'))}</span></button>
         <button data-module="premium" type="button"><span>Premium</span></button>
@@ -2324,21 +2327,167 @@ function bindShared() {
     });
   });
 
-  document.querySelectorAll<HTMLSelectElement>('[data-more-language]').forEach((control) => {
-    control.addEventListener('change', () => {
-    const language = normalizeLanguage(control.value);
-
-    if (!language) {
-      return;
-    }
-
-    setProfileLanguage(language);
-    state.status = t(uiLanguage(), 'status.profileLanguageChanged', { language: languageLabel(language) });
-    render();
-    });
-  });
+  bindQuickLanguageMenus();
 
   bindMaskedAdminAccess();
+}
+
+function bindQuickLanguageMenus() {
+  const triggers = [...document.querySelectorAll<HTMLButtonElement>('[data-more-language-trigger]')];
+
+  const closeMenu = (trigger: HTMLButtonElement, menu: HTMLElement, restoreFocus = false) => {
+    menu.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+    activeQuickLanguageMenuCleanup?.();
+    activeQuickLanguageMenuCleanup = null;
+    if (restoreFocus) trigger.focus();
+  };
+
+  const focusOption = (menu: HTMLElement, mode: 'selected' | 'first' | 'last') => {
+    const options = [...menu.querySelectorAll<HTMLButtonElement>('[data-more-language-option]')];
+    const target = mode === 'last'
+      ? options.at(-1)
+      : mode === 'selected'
+        ? options.find((option) => option.getAttribute('aria-selected') === 'true') ?? options[0]
+        : options[0];
+    target?.focus();
+  };
+
+  const openMenu = (trigger: HTMLButtonElement, menu: HTMLElement, focusMode?: 'selected' | 'first' | 'last') => {
+    activeQuickLanguageMenuCleanup?.();
+    menu.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    positionQuickLanguageMenu(trigger, menu);
+
+    const onOutsidePointer = (event: PointerEvent) => {
+      if (trigger.contains(event.target as Node) || menu.contains(event.target as Node)) return;
+      closeMenu(trigger, menu);
+    };
+    const onDocumentKeydown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      closeMenu(trigger, menu, true);
+    };
+    const onViewportChange = () => positionQuickLanguageMenu(trigger, menu);
+    document.addEventListener('pointerdown', onOutsidePointer, true);
+    document.addEventListener('keydown', onDocumentKeydown);
+    window.addEventListener('resize', onViewportChange);
+    window.addEventListener('scroll', onViewportChange, true);
+    activeQuickLanguageMenuCleanup = () => {
+      document.removeEventListener('pointerdown', onOutsidePointer, true);
+      document.removeEventListener('keydown', onDocumentKeydown);
+      window.removeEventListener('resize', onViewportChange);
+      window.removeEventListener('scroll', onViewportChange, true);
+    };
+
+    if (focusMode) focusOption(menu, focusMode);
+  };
+
+  triggers.forEach((trigger) => {
+    const menuId = trigger.getAttribute('aria-controls');
+    const menu = menuId ? document.getElementById(menuId) : null;
+    if (!menu) return;
+
+    trigger.addEventListener('click', (event) => {
+      if (menu.hidden) openMenu(trigger, menu, event.detail === 0 ? 'selected' : undefined);
+      else closeMenu(trigger, menu);
+    });
+
+    trigger.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (menu.hidden) openMenu(trigger, menu, event.key === 'ArrowUp' ? 'last' : 'selected');
+      }
+    });
+
+    menu.querySelectorAll<HTMLButtonElement>('[data-more-language-option]').forEach((option) => {
+      option.addEventListener('click', () => {
+        const language = normalizeLanguage(option.dataset.moreLanguageOption);
+        if (!language) return;
+        setProfileLanguage(language);
+        state.status = t(uiLanguage(), 'status.profileLanguageChanged', { language: languageLabel(language) });
+        render();
+      });
+
+      option.addEventListener('keydown', (event) => {
+        const options = [...menu.querySelectorAll<HTMLButtonElement>('[data-more-language-option]')];
+        const currentIndex = options.indexOf(option);
+        let nextIndex: number | null = null;
+
+        if (event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % options.length;
+        if (event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + options.length) % options.length;
+        if (event.key === 'Home') nextIndex = 0;
+        if (event.key === 'End') nextIndex = options.length - 1;
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeMenu(trigger, menu, true);
+          return;
+        }
+        if (event.key === 'Tab') {
+          closeMenu(trigger, menu);
+          return;
+        }
+        if (nextIndex !== null) {
+          event.preventDefault();
+          options[nextIndex]?.focus();
+        }
+      });
+    });
+  });
+}
+
+function positionQuickLanguageMenu(trigger: HTMLButtonElement, menu: HTMLElement) {
+  const viewportPadding = 8;
+  const anchorGap = 6;
+  const anchor = trigger.getBoundingClientRect();
+  const viewportWidth = document.documentElement.clientWidth;
+  const viewportHeight = document.documentElement.clientHeight;
+
+  if (viewportWidth <= 700) {
+    menu.style.visibility = 'hidden';
+    menu.style.position = 'static';
+    menu.style.inset = 'auto';
+    menu.style.width = '100%';
+    menu.style.maxHeight = `${Math.max(160, Math.min(256, viewportHeight - 32))}px`;
+    menu.dataset.placement = 'inline';
+    menu.style.visibility = 'visible';
+    return;
+  }
+
+  const width = Math.min(Math.max(anchor.width, 272), Math.max(0, viewportWidth - viewportPadding * 2));
+  const containingTopbar = trigger.closest<HTMLElement>('.topbar');
+  const topbarBounds = containingTopbar?.getBoundingClientRect();
+  const constrainToTopbar = Boolean(topbarBounds && topbarBounds.height >= 220);
+  const upperLimit = constrainToTopbar && topbarBounds
+    ? Math.max(viewportPadding, topbarBounds.top + viewportPadding)
+    : viewportPadding;
+  const lowerLimit = constrainToTopbar && topbarBounds
+    ? Math.min(viewportHeight - viewportPadding, topbarBounds.bottom - viewportPadding)
+    : viewportHeight - viewportPadding;
+  const availableBelow = Math.max(0, lowerLimit - anchor.bottom - anchorGap);
+  const availableAbove = Math.max(0, anchor.top - anchorGap - upperLimit);
+  const openAbove = availableBelow < 160 && availableAbove > availableBelow;
+  const availableHeight = openAbove ? availableAbove : availableBelow;
+  const fixedContainingBlock = menu.offsetParent instanceof HTMLElement
+    ? menu.offsetParent.getBoundingClientRect()
+    : null;
+  const containingBlockLeft = fixedContainingBlock?.left ?? 0;
+  const containingBlockTop = fixedContainingBlock?.top ?? 0;
+  const viewportLeft = Math.min(Math.max(viewportPadding, anchor.left), Math.max(viewportPadding, viewportWidth - width - viewportPadding));
+
+  menu.style.visibility = 'hidden';
+  menu.style.position = 'fixed';
+  menu.style.inset = 'auto';
+  menu.style.width = `${width}px`;
+  menu.style.maxHeight = `${Math.max(48, Math.min(320, availableHeight))}px`;
+  menu.style.left = `${viewportLeft - containingBlockLeft}px`;
+  menu.dataset.placement = openAbove ? 'top' : 'bottom';
+
+  const measuredHeight = menu.getBoundingClientRect().height;
+  const preferredTop = openAbove ? anchor.top - anchorGap - measuredHeight : anchor.bottom + anchorGap;
+  const clampedTop = Math.min(Math.max(upperLimit, preferredTop), Math.max(upperLimit, lowerLimit - measuredHeight));
+  menu.style.top = `${clampedTop - containingBlockTop}px`;
+  menu.style.visibility = 'visible';
 }
 
 function activateGlobalAction(action: string | undefined) {
@@ -3331,7 +3480,7 @@ function registerServiceWorker() {
   }
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js?v=agm-1.3.0-browser-recovery-v2-20260826', { updateViaCache: 'none' }).catch(() => {
+    navigator.serviceWorker.register('/sw.js?v=agm-1.4.0-browser-recovery-v2-20260826', { updateViaCache: 'none' }).catch(() => {
       state.status = t(uiLanguage(), 'status.pwaUnavailable');
     });
   });
@@ -5569,15 +5718,41 @@ function languageButtons(name: string, selectedLanguage: LanguageCode) {
 function renderQuickLanguageControls(surface: 'header' | 'home') {
   const language = uiLanguage();
   const favorites = normalizeQuickLanguages(state.profile.favoriteLanguages, state.profile.preferredLanguage);
-  const remaining = supportedLanguages.filter((code) => !favorites.includes(code));
+  const menuId = `quick-language-menu-${surface}`;
   return `<span class="quick-language-controls" data-language-surface="${surface}">
     <span class="quick-language-buttons" aria-label="${escapeHtml(quickLanguagesLabels[language])}">
       ${favorites.map((code) => `<button type="button" data-quick-language="${code}" class="${state.profile.preferredLanguage === code ? 'active' : ''}" aria-pressed="${state.profile.preferredLanguage === code}">${escapeHtml(code.toUpperCase())}</button>`).join('')}
     </span>
-    <select data-more-language aria-label="${escapeHtml(moreLanguagesLabels[language])}">
-      <option value="">${escapeHtml(moreLanguagesLabels[language])}</option>
-      ${remaining.map((code) => `<option value="${code}" ${state.profile.preferredLanguage === code ? 'selected' : ''}>${escapeHtml(languageLabel(code))}</option>`).join('')}
-    </select>
+    <span class="quick-language-menu">
+      <button
+        type="button"
+        class="quick-language-more-trigger"
+        data-more-language-trigger
+        aria-haspopup="listbox"
+        aria-expanded="false"
+        aria-controls="${menuId}"
+      >
+        <span>${escapeHtml(moreLanguagesLabels[language])}</span>
+        <span class="quick-language-chevron" aria-hidden="true">&#9662;</span>
+      </button>
+      <span id="${menuId}" class="quick-language-menu-popover" role="listbox" aria-label="${escapeHtml(moreLanguagesLabels[language])}" hidden>
+        ${supportedLanguages.map((code) => {
+          const selected = state.profile.preferredLanguage === code;
+          return `<button
+            type="button"
+            class="quick-language-menu-option${selected ? ' selected' : ''}"
+            data-more-language-option="${code}"
+            role="option"
+            aria-selected="${selected}"
+            tabindex="-1"
+          >
+            <span>${escapeHtml(languageLabels[code])}</span>
+            <small>${escapeHtml(code.toUpperCase())}</small>
+            <span class="quick-language-selected-mark" aria-hidden="true">&#10003;</span>
+          </button>`;
+        }).join('')}
+      </span>
+    </span>
   </span>`;
 }
 

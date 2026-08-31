@@ -11,6 +11,9 @@ const refusal: Record<BasicLanguageCode,string> = {
   pl:'Nie mogę jeszcze podać zweryfikowanego lokalnego kontaktu, ponieważ AGM nie ma obecnie dostępu do zweryfikowanego źródła na żywo. Nie będę wymyślać numerów, firm ani adresów.',
   tr:'AGM şu anda doğrulanmış canlı bir kaynağa erişemediği için henüz doğrulanmış yerel iletişim bilgisi veremem. Telefon numarası, şirket veya adres uydurmayacağım.',
   sq:'Nuk mund të jap ende një kontakt lokal të verifikuar, sepse AGM aktualisht nuk ka qasje në një burim të verifikuar drejtpërdrejt. Nuk do të shpik numra telefoni, kompani ose adresa.',
+  it:'Non posso ancora fornire un contatto locale verificato perché AGM non dispone attualmente di una fonte live verificata. Non inventerò numeri di telefono, aziende o indirizzi.',
+  es:'Todavía no puedo proporcionar un contacto local verificado porque AGM no dispone actualmente de una fuente en directo verificada. No inventaré números de teléfono, empresas ni direcciones.',
+  sv:'Jag kan ännu inte tillhandahålla en verifierad lokal kontakt eftersom AGM för närvarande saknar tillgång till en verifierad livekälla. Jag kommer inte att hitta på telefonnummer, företag eller adresser.',
 };
 
 export function enforceVerifiedContactBoundary(query:string,response:string,language:BasicLanguageCode){

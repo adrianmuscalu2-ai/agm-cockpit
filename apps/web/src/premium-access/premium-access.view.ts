@@ -1,4 +1,5 @@
-type AccessLanguage = 'ro' | 'de' | 'en';
+import type { BasicLanguageCode } from '../language-registry';
+type AccessLanguage = BasicLanguageCode;
 
 const copy = {
   ro: {
@@ -31,10 +32,13 @@ const copy = {
     login: 'Sign in', email: 'Email', password: 'Password', remember: 'Keep me signed in',
     showPassword: 'Show password', verify: 'Verify access', logout: 'Sign out',
   },
+  it: { eyebrow:'AGM · ACCESSO',title:'Accesso e abbonamento',description:'Qui vengono verificati i diritti di accesso. Gli strumenti Premium restano in uno spazio operativo separato.',basic:'AGM Basic',basicBody:'Le funzioni essenziali restano disponibili indipendentemente da Premium.',premium:'AGM Premium',premiumBody:'Gli strumenti avanzati sono disponibili solo dopo la convalida del diritto di accesso.',status:'Accedi per verificare l’accesso Premium.',openBasic:'Apri Basic',openPremium:'Visualizza Premium',back:'Indietro',login:'Accedi',email:'E-mail',password:'Password',remember:'Resta connesso',showPassword:'Mostra password',verify:'Verifica accesso',logout:'Esci' },
+  es: { eyebrow:'AGM · ACCESO',title:'Acceso y suscripción',description:'Aquí se verifican los derechos de acceso. Las herramientas Premium permanecen en un espacio operativo separado.',basic:'AGM Basic',basicBody:'Las funciones esenciales siguen disponibles independientemente de Premium.',premium:'AGM Premium',premiumBody:'Las herramientas avanzadas solo están disponibles tras validar el derecho de acceso.',status:'Inicia sesión para verificar el acceso Premium.',openBasic:'Abrir Basic',openPremium:'Ver Premium',back:'Atrás',login:'Iniciar sesión',email:'Correo electrónico',password:'Contraseña',remember:'Mantener la sesión iniciada',showPassword:'Mostrar contraseña',verify:'Verificar acceso',logout:'Cerrar sesión' },
+  sv: { eyebrow:'AGM · ÅTKOMST',title:'Åtkomst och abonnemang',description:'Här verifieras åtkomsträttigheter. Premium-verktygen finns kvar i en separat operativ arbetsyta.',basic:'AGM Basic',basicBody:'Grundläggande funktioner är tillgängliga oberoende av Premium.',premium:'AGM Premium',premiumBody:'Avancerade verktyg är tillgängliga först efter att behörigheten har validerats.',status:'Logga in för att verifiera Premium-åtkomst.',openBasic:'Öppna Basic',openPremium:'Visa Premium',back:'Tillbaka',login:'Logga in',email:'E-post',password:'Lösenord',remember:'Håll mig inloggad',showPassword:'Visa lösenord',verify:'Verifiera åtkomst',logout:'Logga ut' },
 } as const;
 
 export function renderPremiumAccessView(language: AccessLanguage, escapeHtml: (value: string) => string) {
-  const text = copy[language];
+  const text = language in copy ? copy[language as keyof typeof copy] : copy.en;
   return `<section class="premium-view premium-access-view" aria-labelledby="access-title" data-access-enforcement="session" data-access-state="checking">
     <header class="premium-topbar">
       <a href="/" data-module="home" class="premium-brand" aria-label="${escapeHtml(text.back)}"><strong>AGM</strong><span>${escapeHtml(text.eyebrow)}</span></a>

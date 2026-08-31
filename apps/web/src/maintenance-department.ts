@@ -1,4 +1,5 @@
 import { type UiLanguage } from './i18n/app-i18n.types';
+import { finalLanguageOperationalDictionary } from './i18n/final-language-operational.dictionary';
 
 export type MaintenanceDepartmentMember = {
   id: string;
@@ -68,6 +69,16 @@ export const maintenanceDepartmentMembers: MaintenanceDepartmentMember[] = [
 ];
 
 export function renderMaintenanceDepartment(language: UiLanguage) {
+  if (language === 'it' || language === 'es' || language === 'sv') {
+    const source = finalLanguageOperationalDictionary[language].maintenance;
+    const copy = source.department;
+    return `<section class="maintenance-department" aria-labelledby="maintenance-department-title">
+      <header><div><span>AGM · PERMANENT DEPARTMENT</span><h2 id="maintenance-department-title">${escapeHtml(copy.title)}</h2><p>${escapeHtml(copy.mission)}</p></div><strong class="maintenance-official">${escapeHtml(copy.official)}</strong></header>
+      <div class="maintenance-principles"><strong>${escapeHtml(copy.rule)}</strong><ol><li>${escapeHtml(copy.step1)}</li><li>${escapeHtml(copy.step2)}</li><li>${escapeHtml(copy.step3)}</li><li>${escapeHtml(copy.step4)}</li><li>${escapeHtml(copy.step5)}</li><li>${escapeHtml(copy.step6)}</li></ol></div>
+      <div class="maintenance-members">${source.members.map((member) => `<article><header><span>${member.icon}</span><div><strong>${escapeHtml(member.name)}</strong><small>${escapeHtml(member.title)}</small></div></header><ul>${member.responsibilities.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul><p><strong>${escapeHtml(copy.authority)}:</strong> ${escapeHtml(member.authority)}</p></article>`).join('')}</div>
+      <footer><strong>${escapeHtml(copy.principle)}</strong><p>${escapeHtml(copy.principleText)}</p></footer>
+    </section>`;
+  }
   const effectiveLanguage = language === 'ro' || language === 'de' ? language : 'en';
   const copy = departmentCopy[effectiveLanguage];
   return `<section class="maintenance-department" aria-labelledby="maintenance-department-title">
@@ -87,4 +98,16 @@ const departmentCopy: Record<MaintenanceLanguage, Record<string, string>> = {
   ro: { title: 'Departamentul AGM – Mentenanță, Calitate și Evoluție', mission: 'Asigură stabilitatea platformei, păstrează experiența acumulată și transformă fiecare incident și implementare într-un avantaj reutilizabil.', official: 'ÎNFIINȚAT OFICIAL', rule: 'Flux operațional obligatoriu', step1: 'Incident sau propunere înregistrată', step2: 'Analiză și decizie tehnică Atlas', step3: 'Implementare controlată', step4: 'Test automat și audit Inspector', step5: 'Test real și validare umană', step6: 'Documentare, standard AGM și arhivare Turn', authority: 'Limită de autoritate', principle: 'Regula oficială AGM', principleText: 'Nicio eroare rezolvată nu se pierde. Nicio soluție validată nu se reinventează. Nicio decizie importantă nu rămâne nedocumentată.' },
   de: { title: 'AGM-Abteilung – Wartung, Qualität und Weiterentwicklung', mission: 'Sichert die Plattformstabilität, bewahrt Erfahrungen und macht jeden Vorfall und jede Implementierung wiederverwendbar.', official: 'OFFIZIELL GEGRÜNDET', rule: 'Verbindlicher Betriebsablauf', step1: 'Vorfall oder Vorschlag erfasst', step2: 'Analyse und technische Atlas-Entscheidung', step3: 'Kontrollierte Implementierung', step4: 'Automatischer Test und Inspector-Audit', step5: 'Praxistest und menschliche Validierung', step6: 'Dokumentation, AGM-Standard und Turn-Archivierung', authority: 'Befugnisgrenze', principle: 'Offizielle AGM-Regel', principleText: 'Kein gelöster Fehler geht verloren. Keine validierte Lösung wird neu erfunden. Keine wichtige Entscheidung bleibt undokumentiert.' },
   en: { title: 'AGM Department – Maintenance, Quality and Evolution', mission: 'Ensures platform stability, preserves accumulated experience, and turns every incident and implementation into reusable advantage.', official: 'OFFICIALLY ESTABLISHED', rule: 'Mandatory operational workflow', step1: 'Incident or proposal recorded', step2: 'Atlas analysis and technical decision', step3: 'Controlled implementation', step4: 'Automated test and Inspector audit', step5: 'Real-world test and human validation', step6: 'Documentation, AGM standard, and Turn archiving', authority: 'Authority boundary', principle: 'Official AGM rule', principleText: 'No resolved error is lost. No validated solution is reinvented. No important decision remains undocumented.' },
+};
+
+export const maintenanceEnglishSource = {
+  department: departmentCopy.en,
+  members: maintenanceDepartmentMembers.map((member) => ({
+    id: member.id,
+    icon: member.icon,
+    name: member.name.en,
+    title: member.title.en,
+    responsibilities: member.responsibilities.en,
+    authority: member.authority.en,
+  })),
 };

@@ -17,6 +17,9 @@ const containmentCopy: Readonly<Record<BasicLanguageCode, { title: string; descr
   pl: { title: 'Kontrolki na desce rozdzielczej', description: 'Skorzystaj z katalogu ogólnych wyjaśnień i zaleceń. Automatyczne rozpoznawanie ze zdjęcia jest obecnie niedostępne.', action: 'Otwórz katalog' },
   tr: { title: 'Gösterge paneli uyarı ışıkları', description: 'Genel açıklamalar ve öneriler için kataloğu inceleyin. Fotoğraftan otomatik tanımlama şu anda kullanılamıyor.', action: 'Kataloğu aç' },
   sq: { title: 'Dritat paralajmëruese të panelit', description: 'Konsulto katalogun për shpjegime dhe rekomandime të përgjithshme. Identifikimi automatik nga fotografia aktualisht nuk është i disponueshëm.', action: 'Hap katalogun' },
+  it: { title: 'Spie del cruscotto', description: 'Consulta il catalogo per spiegazioni e raccomandazioni generali. Il riconoscimento automatico da una foto non è attualmente disponibile.', action: 'Apri il catalogo' },
+  es: { title: 'Testigos del salpicadero', description: 'Consulta el catálogo para obtener explicaciones y recomendaciones generales. La identificación automática mediante una foto no está disponible actualmente.', action: 'Abrir el catálogo' },
+  sv: { title: 'Varningslampor på instrumentpanelen', description: 'Se katalogen för allmänna förklaringar och rekommendationer. Automatisk identifiering från ett foto är inte tillgänglig just nu.', action: 'Öppna katalogen' },
 };
 
 export function dashboardWarningContainmentCopy(language: BasicLanguageCode) {

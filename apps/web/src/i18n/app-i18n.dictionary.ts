@@ -1,9 +1,11 @@
 import { type AppI18nDictionary } from './app-i18n.types';
 import { premiumI18nDictionary } from './premium-i18n.dictionary';
 import { wave1BasicI18nDictionary } from './wave1-basic-i18n.dictionary';
+import { finalLanguageAppDictionary } from './final-language-app.dictionary';
 
 export const appI18nDictionary: AppI18nDictionary = {
   ...wave1BasicI18nDictionary,
+  ...finalLanguageAppDictionary,
   ro: {
     ...premiumI18nDictionary.ro,
     'home.title': 'Acasă',

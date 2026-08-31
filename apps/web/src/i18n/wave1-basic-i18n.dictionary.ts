@@ -1,6 +1,6 @@
 import type { LanguageCode } from '../emailLanguage';
 
-type Wave1Language = Exclude<LanguageCode, 'ro' | 'de' | 'en'>;
+type Wave1Language = Exclude<LanguageCode, 'ro' | 'de' | 'en' | 'it' | 'es' | 'sv'>;
 
 export const wave1BasicI18nDictionary = {
   "fr": {
@@ -42,6 +42,10 @@ export const wave1BasicI18nDictionary = {
     "home.basicDescription": "Tous les outils essentiels dans un seul module",
     "home.basicHubDescription": "Le module Basique rassemble les outils validés pour la communication, les documents, et le travail quotidien.",
     "home.basicStatus": "Le module Basique AGM est actif.",
+    "legal.operatorTitle": "Exploitant et coordonnées",
+    "legal.operatorBody": "A.G.M. Transporten\nTitulaire : Alexandru-Adrian Muscalu\nEntreprise individuelle (Einzelunternehmen)\nStaufenbergstraße 72\n74081 Heilbronn (Sontheim)\nBade-Wurtemberg, Allemagne\nTéléphone : 0173 4021893\nE-mail : agm.transporte.logistik@gmail.com",
+    "legal.gdprTitle": "Demandes relatives à la protection des données",
+    "legal.gdprBody": "E-mail : agm.transporte.logistik@gmail.com\nObjet : Datenschutz / GDPR-Anfrage",
     "home.description": "Outils essentiels pour la communication professionnelle, organisés pour un accès simple et direct.",
     "home.emailDescription": "Messages professionnels, contacts, et bibliothèque",
     "home.eyebrow": "AGM BASIQUE",
@@ -742,6 +746,10 @@ export const wave1BasicI18nDictionary = {
     "home.basicDescription": "Alle essentiële tools in één module",
     "home.basicHubDescription": "De Basismodule brengt de gevalideerde tools voor communicatie, documenten en dagelijks werk samen.",
     "home.basicStatus": "De AGM Basismodule is actief.",
+    "legal.operatorTitle": "Exploitant en contactgegevens",
+    "legal.operatorBody": "A.G.M. Transporten\nEigenaar: Alexandru-Adrian Muscalu\nEenmanszaak (Einzelunternehmen)\nStaufenbergstraße 72\n74081 Heilbronn (Sontheim)\nBaden-Württemberg, Duitsland\nTelefoon: 0173 4021893\nE-mail: agm.transporte.logistik@gmail.com",
+    "legal.gdprTitle": "Verzoeken inzake gegevensbescherming",
+    "legal.gdprBody": "E-mail: agm.transporte.logistik@gmail.com\nOnderwerp: Datenschutz / GDPR-Anfrage",
     "home.description": "Essentiële tools voor professionele communicatie, georganiseerd voor eenvoudige en directe toegang.",
     "home.emailDescription": "Professionele berichten, contacten en bibliotheek",
     "home.eyebrow": "AGM BASIS",
@@ -1442,6 +1450,10 @@ export const wave1BasicI18nDictionary = {
     "home.basicDescription": "Все необходимые инструменты в одном модуле",
     "home.basicHubDescription": "Модуль Basic объединяет проверенные инструменты для коммуникации, документов и повседневной работы.",
     "home.basicStatus": "Модуль AGM Basic активен.",
+    "legal.operatorTitle": "Оператор и контактные данные",
+    "legal.operatorBody": "A.G.M. Transporten\nВладелец: Alexandru-Adrian Muscalu\nИндивидуальное предприятие (Einzelunternehmen)\nStaufenbergstraße 72\n74081 Heilbronn (Sontheim)\nБаден-Вюртемберг, Германия\nТелефон: 0173 4021893\nЭл. почта: agm.transporte.logistik@gmail.com",
+    "legal.gdprTitle": "Запросы по защите данных",
+    "legal.gdprBody": "Эл. почта: agm.transporte.logistik@gmail.com\nТема: Datenschutz / GDPR-Anfrage",
     "home.description": "Основные инструменты для профессиональной коммуникации, организованные для простого и прямого доступа.",
     "home.emailDescription": "Профессиональные сообщения, контакты и библиотека",
     "home.eyebrow": "AGM BASIC",
@@ -2142,6 +2154,10 @@ export const wave1BasicI18nDictionary = {
     "home.basicDescription": "Wszystkie niezbędne narzędzia w jednym module",
     "home.basicHubDescription": "Moduł Podstawowy łączy zweryfikowane narzędzia do komunikacji, dokumentów i codziennej pracy.",
     "home.basicStatus": "Moduł AGM Podstawowy jest aktywny.",
+    "legal.operatorTitle": "Operator i dane kontaktowe",
+    "legal.operatorBody": "A.G.M. Transporten\nWłaściciel: Alexandru-Adrian Muscalu\nJednoosobowa działalność gospodarcza (Einzelunternehmen)\nStaufenbergstraße 72\n74081 Heilbronn (Sontheim)\nBadenia-Wirtembergia, Niemcy\nTelefon: 0173 4021893\nE-mail: agm.transporte.logistik@gmail.com",
+    "legal.gdprTitle": "Wnioski dotyczące ochrony danych",
+    "legal.gdprBody": "E-mail: agm.transporte.logistik@gmail.com\nTemat: Datenschutz / GDPR-Anfrage",
     "home.description": "Niezbędne narzędzia do profesjonalnej komunikacji, zorganizowane dla prostego i bezpośredniego dostępu.",
     "home.emailDescription": "Profesjonalne wiadomości, kontakty i biblioteka",
     "home.eyebrow": "AGM PODSTAWOWY",
@@ -2842,6 +2858,10 @@ export const wave1BasicI18nDictionary = {
     "home.basicDescription": "Tüm temel araçlar tek modülde",
     "home.basicHubDescription": "Temel modül, iletişim, belgeler ve günlük işler için doğrulanmış araçları bir araya getirir.",
     "home.basicStatus": "AGM Temel modül aktiftir.",
+    "legal.operatorTitle": "İşletmeci ve iletişim bilgileri",
+    "legal.operatorBody": "A.G.M. Transporten\nİşletme sahibi: Alexandru-Adrian Muscalu\nŞahıs işletmesi (Einzelunternehmen)\nStaufenbergstraße 72\n74081 Heilbronn (Sontheim)\nBaden-Württemberg, Almanya\nTelefon: 0173 4021893\nE-posta: agm.transporte.logistik@gmail.com",
+    "legal.gdprTitle": "Veri koruma talepleri",
+    "legal.gdprBody": "E-posta: agm.transporte.logistik@gmail.com\nKonu: Datenschutz / GDPR-Anfrage",
     "home.description": "Basit ve doğrudan erişim için düzenlenmiş profesyonel iletişim için temel araçlar.",
     "home.emailDescription": "Profesyonel mesajlar, kişiler ve kütüphane",
     "home.eyebrow": "AGM TEMEL",
@@ -3542,6 +3562,10 @@ export const wave1BasicI18nDictionary = {
     "home.basicDescription": "Të gjitha mjetet thelbësore në një modul",
     "home.basicHubDescription": "Moduli Bazik bashkon mjetet e verifikuara për komunikim, dokumente, dhe punë ditore.",
     "home.basicStatus": "Moduli Bazik i AGM është aktiv.",
+    "legal.operatorTitle": "Operatori dhe të dhënat e kontaktit",
+    "legal.operatorBody": "A.G.M. Transporten\nPronari: Alexandru-Adrian Muscalu\nBiznes individual (Einzelunternehmen)\nStaufenbergstraße 72\n74081 Heilbronn (Sontheim)\nBaden-Württemberg, Gjermani\nTelefon: 0173 4021893\nE-mail: agm.transporte.logistik@gmail.com",
+    "legal.gdprTitle": "Kërkesat për mbrojtjen e të dhënave",
+    "legal.gdprBody": "E-mail: agm.transporte.logistik@gmail.com\nSubjekti: Datenschutz / GDPR-Anfrage",
     "home.description": "Mjetet thelbësore për komunikim profesional, të organizuara për akses të thjeshtë dhe të drejtpërdrejtë.",
     "home.emailDescription": "Mesazhe profesionale, kontakte, dhe bibliotekë",
     "home.eyebrow": "AGM BAZIK",

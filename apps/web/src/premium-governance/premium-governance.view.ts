@@ -4,17 +4,17 @@ type Translate = (key: string) => string;
 type Escape = (value: string) => string;
 
 const workspaces = [
-  { title: 'Pre-Departure', href: '/before-departure.html' },
-  { title: 'Journey Operations Workspace', href: '/after-departure.html' },
+  { titleKey: 'premium.module.beforeDeparture.title', href: '/before-departure.html' },
+  { titleKey: 'premium.module.afterDeparture.title', href: '/after-departure.html' },
   { title: 'AGM Car Mover', href: '/car-mover', module: 'carMover' },
-  { title: 'Vorbește cu AGM', href: '/premium/voice', module: 'premiumVoice' },
+  { titleKey: 'premium.module.aiFriend.title', href: '/premium/voice', module: 'premiumVoice' },
 ] as const;
 
 export function renderPremiumUserDashboard(translate: Translate, escapeHtml: Escape) {
   const workspaceCards = workspaces.map((workspace) => `
     <article class="premium-module premium-user-workspace">
       <div class="premium-module-content">
-        <h2>${escapeHtml(workspace.title)}</h2>
+        <h2>${escapeHtml('titleKey' in workspace ? translate(workspace.titleKey) : workspace.title)}</h2>
         <a class="premium-module-action" href="${workspace.href}"${'module' in workspace ? ` data-module="${workspace.module}"` : ''}>${escapeHtml(translate('premium.module.open'))}</a>
       </div>
     </article>
@@ -30,10 +30,10 @@ export function renderPremiumUserDashboard(translate: Translate, escapeHtml: Esc
     content: `
       <header class="premium-governance-heading">
         <span>AGM PREMIUM</span>
-        <h1 id="premium-dashboard-title">Centru Premium</h1>
-        <p>Spațiul utilizatorului pentru operațiunile de transport, Car Mover și asistența AGM.</p>
+        <h1 id="premium-dashboard-title">${escapeHtml(translate('premium.title'))}</h1>
+        <p>${escapeHtml(translate('premium.description'))}</p>
       </header>
-      <section class="premium-modules premium-user-workspaces" aria-label="Premium operational workspaces">${workspaceCards}</section>
+      <section class="premium-modules premium-user-workspaces" aria-label="${escapeHtml(translate('premium.modulesLabel'))}">${workspaceCards}</section>
     `,
     footer: `<a href="/" data-module="home" class="premium-back premium-back-footer">${escapeHtml(translate('premium.backToBasic'))}</a>`,
   });
