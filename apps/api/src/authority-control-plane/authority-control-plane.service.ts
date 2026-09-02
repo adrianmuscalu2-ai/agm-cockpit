@@ -105,9 +105,11 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       };
     });
     const conflicts = findLeaseConflicts(leases);
+    const controlPlaneNode = nodes.find((node) => node.canonicalId === AUTHORITY_CONTROL_PLANE_ID);
+    const controlPlaneStatus = conflicts.length ? 'FAIL' : controlPlaneNode?.status ?? 'NO_TELEMETRY';
     return {
       generatedAt: new Date().toISOString(), contractVersion: PREMIUM_NETWORK_CONTRACT_VERSION,
-      controlPlane: { canonicalId: 'agm.authority.control-plane', status: conflicts.length ? 'FAIL' : 'PASS', invariant: 'ONE SCOPE â†’ ONE ACTIVE EXECUTIVE AUTHORITY', activeExecutiveAuthorities: leases.filter((lease) => lease.mode === 'EXECUTIVE').length, conflicts },
+      controlPlane: { canonicalId: AUTHORITY_CONTROL_PLANE_ID, status: controlPlaneStatus, statusSource: controlPlaneNode?.statusSource ?? 'NO_TELEMETRY', statusObservedAt: controlPlaneNode?.statusObservedAt ?? null, invariant: 'ONE SCOPE â†’ ONE ACTIVE EXECUTIVE AUTHORITY', activeExecutiveAuthorities: leases.filter((lease) => lease.mode === 'EXECUTIVE').length, conflicts },
       nodes,
       departments: [...new Set(nodes.map((node) => node.module))].map((module) => ({ module, nodeCount: nodes.filter((node) => node.module === module).length })),
       incidents: incidents.map((item) => ({ eventId: item.eventId, eventType: item.eventType, scopeId: item.scopeId, reasonCode: item.reasonCode, occurredAt: item.occurredAt })),
@@ -340,4 +342,3 @@ function findLeaseConflicts(leases: Array<{ id: string; scopeId: string; mode: s
 function hash(value: unknown) {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
-
