@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { createHash, randomUUID } from 'node:crypto';
 import type { RequestContext } from '../common/request-context';
@@ -10,11 +10,49 @@ import { resolveCanonicalNodeState } from './canonical-node-state';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
 const AUTHORITY_ADMIN_ROLES = new Set(['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN']);
+const AUTHORITY_CONTROL_PLANE_ID = 'agm.authority.control-plane';
+const AUTHORITY_CONTROL_PLANE_HEARTBEAT_INTERVAL_MS = 60_000;
 const json = (value: unknown) => value as Prisma.InputJsonValue;
 
 @Injectable()
-export class AuthorityControlPlaneService {
+export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnApplicationShutdown {
+  private heartbeatTimer?: NodeJS.Timeout;
+
   constructor(private readonly prisma: PrismaService) {}
+
+  onApplicationBootstrap() {
+    void this.publishRuntimeHeartbeats().catch(() => undefined);
+    this.heartbeatTimer = setInterval(() => void this.publishRuntimeHeartbeats().catch(() => undefined), AUTHORITY_CONTROL_PLANE_HEARTBEAT_INTERVAL_MS);
+    this.heartbeatTimer.unref();
+  }
+
+  onApplicationShutdown() {
+    if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
+  }
+
+  private async publishRuntimeHeartbeats() {
+    const companies = await this.prisma.company.findMany({ where: { isActive: true }, select: { id: true } });
+    const observedAt = new Date();
+    await Promise.all(companies.map(({ id: companyId }) => this.prisma.componentHeartbeat.upsert({
+      where: { companyId_componentId: { companyId, componentId: AUTHORITY_CONTROL_PLANE_ID } },
+      create: {
+        companyId,
+        componentId: AUTHORITY_CONTROL_PLANE_ID,
+        reportedStatus: 'ONLINE',
+        lastSeenAt: observedAt,
+        lastSuccessAt: observedAt,
+        lastDetail: 'AUTHORITY_CONTROL_PLANE_HEARTBEAT Â· runtime service active',
+      },
+      update: {
+        reportedStatus: 'ONLINE',
+        lastSeenAt: observedAt,
+        lastSuccessAt: observedAt,
+        lastFailureAt: null,
+        lastFailureReason: null,
+        lastDetail: 'AUTHORITY_CONTROL_PLANE_HEARTBEAT Â· runtime service active',
+      },
+    })));
+  }
 
   async dashboard(ctx: RequestContext) {
     await this.ensureFoundation(ctx);
@@ -69,7 +107,7 @@ export class AuthorityControlPlaneService {
     const conflicts = findLeaseConflicts(leases);
     return {
       generatedAt: new Date().toISOString(), contractVersion: PREMIUM_NETWORK_CONTRACT_VERSION,
-      controlPlane: { canonicalId: 'agm.authority.control-plane', status: conflicts.length ? 'FAIL' : 'PASS', invariant: 'ONE SCOPE → ONE ACTIVE EXECUTIVE AUTHORITY', activeExecutiveAuthorities: leases.filter((lease) => lease.mode === 'EXECUTIVE').length, conflicts },
+      controlPlane: { canonicalId: 'agm.authority.control-plane', status: conflicts.length ? 'FAIL' : 'PASS', invariant: 'ONE SCOPE â†’ ONE ACTIVE EXECUTIVE AUTHORITY', activeExecutiveAuthorities: leases.filter((lease) => lease.mode === 'EXECUTIVE').length, conflicts },
       nodes,
       departments: [...new Set(nodes.map((node) => node.module))].map((module) => ({ module, nodeCount: nodes.filter((node) => node.module === module).length })),
       incidents: incidents.map((item) => ({ eventId: item.eventId, eventType: item.eventType, scopeId: item.scopeId, reasonCode: item.reasonCode, occurredAt: item.occurredAt })),
@@ -302,3 +340,4 @@ function findLeaseConflicts(leases: Array<{ id: string; scopeId: string; mode: s
 function hash(value: unknown) {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
+
