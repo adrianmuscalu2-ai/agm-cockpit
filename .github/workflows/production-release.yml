@@ -98,6 +98,9 @@ jobs:
     needs: [publish, publish-web]
     runs-on: ubuntu-latest
     environment: Production
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v5
       - name: Stage approved Production lifecycle files
@@ -223,17 +226,19 @@ jobs:
             --data "{\"targetUserId\":\"$TARGET_USER_ID\"}")
           echo "$response" | jq -e '.data.role == "CAR_MOVER_ACCESS" and .data.active == true and (.data.auditEventId | type == "string")'
       - name: Verify canonical M2M lifecycle in Production
-        env:
-          PROVISIONING_TOKEN: ${{ secrets.PRODUCTION_ROLE_PROVISIONING_TOKEN }}
         run: |
           set -euo pipefail
-          test -n "$PROVISIONING_TOKEN"
+          oidc_response=$(curl --fail --silent --show-error \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=agm%3Aproduction-machine-provisioning")
+          PROVISIONING_TOKEN=$(jq -er '.value' <<<"$oidc_response")
+          echo "::add-mask::$PROVISIONING_TOKEN"
           client_id=''
           cleanup() {
             if [ -n "$client_id" ]; then
               cleanup_body=$(jq -nc '{reason:"Production release validation cleanup."}')
               curl --fail --silent --show-error \
-                -X POST "https://api.agmcockpit.com/api/v1/auth/machines/$client_id/revoke" \
+                -X POST "https://api.agmcockpit.com/api/v1/auth/deploy/machines/$client_id/revoke" \
                 -H "Authorization: Bearer $PROVISIONING_TOKEN" \
                 -H 'Content-Type: application/json' \
                 --data "$cleanup_body" >/dev/null || true
@@ -244,7 +249,7 @@ jobs:
           subject="production-release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           provision_body=$(jq -nc --arg subject "$subject" '{subject:$subject,expiresInDays:1}')
           provisioned=$(curl --fail --silent --show-error \
-            -X POST https://api.agmcockpit.com/api/v1/auth/machines \
+            -X POST https://api.agmcockpit.com/api/v1/auth/deploy/machines \
             -H "Authorization: Bearer $PROVISIONING_TOKEN" \
             -H 'Content-Type: application/json' \
             --data "$provision_body")
@@ -270,7 +275,7 @@ jobs:
           test "$(curl --silent --output /dev/null --write-out '%{http_code}' -X POST https://api.agmcockpit.com/api/v1/auth/m2m/token -H 'Content-Type: application/json' --data "$injected_body")" = '400'
 
           rotated=$(curl --fail --silent --show-error \
-            -X POST "https://api.agmcockpit.com/api/v1/auth/machines/$client_id/credentials/rotate" \
+            -X POST "https://api.agmcockpit.com/api/v1/auth/deploy/machines/$client_id/credentials/rotate" \
             -H "Authorization: Bearer $PROVISIONING_TOKEN" \
             -H 'Content-Type: application/json' \
             --data '{"expiresInDays":1}')
@@ -289,7 +294,7 @@ jobs:
 
           revoke_body=$(jq -nc '{reason:"Production release credential lifecycle validation."}')
           curl --fail --silent --show-error \
-            -X POST "https://api.agmcockpit.com/api/v1/auth/machines/$client_id/credentials/$next_credential_id/revoke" \
+            -X POST "https://api.agmcockpit.com/api/v1/auth/deploy/machines/$client_id/credentials/$next_credential_id/revoke" \
             -H "Authorization: Bearer $PROVISIONING_TOKEN" \
             -H 'Content-Type: application/json' \
             --data "$revoke_body" | jq -e '.data.revokedAt | type == "string"' >/dev/null

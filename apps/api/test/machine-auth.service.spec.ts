@@ -89,4 +89,50 @@ describe('canonical machine credentials', () => {
       correlationId: '',
     })).rejects.toBeInstanceOf(ForbiddenException);
   });
+
+  it('accepts only the dedicated deployment role for OIDC provisioning and records the federated authority', async () => {
+    const createdCredential = credential();
+    const tx = {
+      machineIdentity: { create: jest.fn().mockResolvedValue(identity) },
+      machineCredential: { create: jest.fn().mockResolvedValue(createdCredential) },
+      auditEvent: { create: jest.fn().mockResolvedValue({ id: 'audit' }) },
+    };
+    const prisma = { $transaction: jest.fn(async (operation: (client: typeof tx) => unknown) => operation(tx)) };
+    const service = new MachineAuthService(prisma as never, { signAsync: jest.fn() } as never);
+    const result = await service.provision(identity.subject, 1, {
+      userId: 'github-actions-oidc',
+      companyId,
+      roles: ['DEPLOYMENT_PROVISIONER'],
+      requestId: '50000000-0000-4000-8000-000000000001',
+      correlationId: '60000000-0000-4000-8000-000000000001',
+      actorType: 'GitHubActionsOIDC',
+      actorSubject: 'repo:adrianmuscalu2-ai/agm-cockpit:environment:Production',
+      actorMetadata: { sha: 'a'.repeat(40), runId: '33773656386' },
+    });
+
+    expect(result).toMatchObject({ clientId: identityId, companyId, subject: identity.subject });
+    expect(tx.auditEvent.create).toHaveBeenCalledWith({ data: expect.objectContaining({
+      actorType: 'GitHubActionsOIDC',
+      actorUserId: undefined,
+      metadata: expect.objectContaining({
+        provisioningAuthority: expect.objectContaining({
+          type: 'GitHubActionsOIDC',
+          sha: 'a'.repeat(40),
+          runId: '33773656386',
+        }),
+      }),
+    }) });
+    expect(JSON.stringify(tx.auditEvent.create.mock.calls)).not.toContain(result.clientSecret);
+  });
+
+  it('rejects a deployment role presented outside the OIDC boundary', async () => {
+    const { service } = serviceFor(null);
+    await expect(service.provision('reader', 1, {
+      userId: 'attacker',
+      companyId,
+      roles: ['DEPLOYMENT_PROVISIONER'],
+      requestId: '',
+      correlationId: '',
+    })).rejects.toBeInstanceOf(ForbiddenException);
+  });
 });

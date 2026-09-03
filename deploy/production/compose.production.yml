@@ -10,6 +10,7 @@ services:
       - /opt/agm/production/secrets/agm-production.env
     environment:
       AGM_TURN_ADMIN_ACCESS_MODE: open-pre-release
+      AGM_REVISION: "${AGM_REVISION:?AGM_REVISION must be set by Release & Operations}"
       AGM_PRODUCTION_PREFLIGHT_REPORT_PATH: /run/agm/production-preflight.latest.json
     volumes:
       - /opt/agm/production/runtime/production-preflight.latest.json:/run/agm/production-preflight.latest.json:ro

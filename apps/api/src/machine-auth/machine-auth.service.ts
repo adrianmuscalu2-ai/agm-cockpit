@@ -7,12 +7,17 @@ import { PrismaService } from '../prisma/prisma.service';
 import { MACHINE_AUTH_CONTRACT, type MachineJwtPayload, type MachineRequestContext } from './machine-auth.contract';
 
 type CredentialWithIdentity = MachineCredential & { identity: MachineIdentity };
+type ProvisioningContext = RequestContext & {
+  actorType?: 'User' | 'GitHubActionsOIDC';
+  actorSubject?: string;
+  actorMetadata?: Record<string, string>;
+};
 
 @Injectable()
 export class MachineAuthService {
   constructor(private readonly prisma: PrismaService, private readonly jwt: JwtService) {}
 
-  async provision(subject: string, expiresInDays: number, ctx: RequestContext) {
+  async provision(subject: string, expiresInDays: number, ctx: ProvisioningContext) {
     requireProvisioningAuthority(ctx);
     const credentialId = randomUUID();
     const rawSecret = createCredentialSecret(credentialId);
@@ -32,14 +37,13 @@ export class MachineAuthService {
       });
       await this.audit(tx, {
         companyId: identity.companyId,
-        actorType: 'User',
-        actorUserId: ctx.userId,
+        ...auditActor(ctx),
         actionCode: 'M2M_IDENTITY_PROVISIONED',
         entityType: 'MachineIdentity',
         entityId: identity.id,
         requestId: ctx.requestId,
         correlationId: ctx.correlationId,
-        metadata: { subject: identity.subject, credentialId: credential.id, scopes: [MACHINE_AUTH_CONTRACT.scope], expiresAt },
+        metadata: { subject: identity.subject, credentialId: credential.id, scopes: [MACHINE_AUTH_CONTRACT.scope], expiresAt, provisioningAuthority: authorityMetadata(ctx) },
       });
       return { identity, credential };
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
@@ -47,7 +51,7 @@ export class MachineAuthService {
     return credentialResponse(result.identity, result.credential, rawSecret);
   }
 
-  async rotate(identityId: string, expiresInDays: number, ctx: RequestContext) {
+  async rotate(identityId: string, expiresInDays: number, ctx: ProvisioningContext) {
     requireProvisioningAuthority(ctx);
     const credentialId = randomUUID();
     const rawSecret = createCredentialSecret(credentialId);
@@ -64,14 +68,13 @@ export class MachineAuthService {
       });
       await this.audit(tx, {
         companyId: identity.companyId,
-        actorType: 'User',
-        actorUserId: ctx.userId,
+        ...auditActor(ctx),
         actionCode: 'M2M_CREDENTIAL_ROTATED',
         entityType: 'MachineIdentity',
         entityId: identity.id,
         requestId: ctx.requestId,
         correlationId: ctx.correlationId,
-        metadata: { credentialId: credential.id, version: credential.version, priorCredentialsRevokedAt: revokedAt, expiresAt },
+        metadata: { credentialId: credential.id, version: credential.version, priorCredentialsRevokedAt: revokedAt, expiresAt, provisioningAuthority: authorityMetadata(ctx) },
       });
       return { identity, credential };
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
@@ -79,7 +82,7 @@ export class MachineAuthService {
     return credentialResponse(result.identity, result.credential, rawSecret);
   }
 
-  async revoke(identityId: string, credentialId: string, reason: string, ctx: RequestContext) {
+  async revoke(identityId: string, credentialId: string, reason: string, ctx: ProvisioningContext) {
     requireProvisioningAuthority(ctx);
     return this.prisma.$transaction(async (tx) => {
       const credential = await tx.machineCredential.findFirst({
@@ -91,20 +94,19 @@ export class MachineAuthService {
       if (!credential.revokedAt) await tx.machineCredential.update({ where: { id: credential.id }, data: { revokedAt } });
       await this.audit(tx, {
         companyId: credential.identity.companyId,
-        actorType: 'User',
-        actorUserId: ctx.userId,
+        ...auditActor(ctx),
         actionCode: 'M2M_CREDENTIAL_REVOKED',
         entityType: 'MachineCredential',
         entityId: credential.id,
         requestId: ctx.requestId,
         correlationId: ctx.correlationId,
-        metadata: { identityId: credential.identity.id, reason, revokedAt, idempotent: Boolean(credential.revokedAt) },
+        metadata: { identityId: credential.identity.id, reason, revokedAt, idempotent: Boolean(credential.revokedAt), provisioningAuthority: authorityMetadata(ctx) },
       });
       return { identityId: credential.identity.id, credentialId: credential.id, revokedAt, idempotent: Boolean(credential.revokedAt) };
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 
-  async revokeIdentity(identityId: string, reason: string, ctx: RequestContext) {
+  async revokeIdentity(identityId: string, reason: string, ctx: ProvisioningContext) {
     requireProvisioningAuthority(ctx);
     return this.prisma.$transaction(async (tx) => {
       const identity = await tx.machineIdentity.findFirst({ where: { id: identityId, companyId: ctx.companyId } });
@@ -115,14 +117,13 @@ export class MachineAuthService {
       await tx.machineCredential.updateMany({ where: { identityId: identity.id, revokedAt: null }, data: { revokedAt } });
       await this.audit(tx, {
         companyId: identity.companyId,
-        actorType: 'User',
-        actorUserId: ctx.userId,
+        ...auditActor(ctx),
         actionCode: 'M2M_IDENTITY_REVOKED',
         entityType: 'MachineIdentity',
         entityId: identity.id,
         requestId: ctx.requestId,
         correlationId: ctx.correlationId,
-        metadata: { reason, revokedAt, idempotent },
+        metadata: { reason, revokedAt, idempotent, provisioningAuthority: authorityMetadata(ctx) },
       });
       return { identityId: identity.id, status: 'REVOKED', revokedAt, idempotent };
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
@@ -203,7 +204,7 @@ export class MachineAuthService {
 
   private audit(tx: Prisma.TransactionClient | PrismaService, input: {
     companyId: string;
-    actorType: 'User' | 'Machine';
+    actorType: 'User' | 'Machine' | 'GitHubActionsOIDC';
     actorUserId?: string;
     actionCode: string;
     entityType: string;
@@ -231,10 +232,24 @@ export class MachineAuthService {
   }
 }
 
-function requireProvisioningAuthority(ctx: RequestContext) {
-  if (!MACHINE_AUTH_CONTRACT.provisioningRoles.some((role) => ctx.roles.includes(role))) {
+function requireProvisioningAuthority(ctx: ProvisioningContext) {
+  const authorizedUser = ctx.actorType !== 'GitHubActionsOIDC' && MACHINE_AUTH_CONTRACT.provisioningRoles.some((role) => ctx.roles.includes(role));
+  const authorizedDeployment = ctx.actorType === 'GitHubActionsOIDC' && ctx.roles.length === 1 && ctx.roles[0] === 'DEPLOYMENT_PROVISIONER';
+  if (!authorizedUser && !authorizedDeployment) {
     throw new ForbiddenException('Machine identity provisioning requires tenant owner authority.');
   }
+}
+
+function auditActor(ctx: ProvisioningContext) {
+  return ctx.actorType === 'GitHubActionsOIDC'
+    ? { actorType: 'GitHubActionsOIDC' as const }
+    : { actorType: 'User' as const, actorUserId: ctx.userId };
+}
+
+function authorityMetadata(ctx: ProvisioningContext) {
+  return ctx.actorType === 'GitHubActionsOIDC'
+    ? { type: ctx.actorType, subject: ctx.actorSubject, ...ctx.actorMetadata }
+    : { type: 'User', subject: ctx.userId };
 }
 
 function credentialExpiry(days: number) {

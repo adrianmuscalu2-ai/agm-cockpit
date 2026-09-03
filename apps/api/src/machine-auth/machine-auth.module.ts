@@ -4,7 +4,9 @@ import { JwtModule, type JwtModuleOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthModule } from '../auth/auth.module';
 import { AuthorityControlPlaneModule } from '../authority-control-plane/authority-control-plane.module';
-import { MachineProvisioningController, MachineTokenController } from './machine-auth.controller';
+import { DeploymentMachineProvisioningController, MachineProvisioningController, MachineTokenController } from './machine-auth.controller';
+import { GitHubActionsOidcGuard } from './github-actions-oidc.guard';
+import { GitHubActionsOidcService } from './github-actions-oidc.service';
 import { MachineAuthorityController } from './machine-authority.controller';
 import { MACHINE_AUTH_CONTRACT } from './machine-auth.contract';
 import { MachineAuthService } from './machine-auth.service';
@@ -25,8 +27,8 @@ import { MachineJwtStrategy } from './machine-jwt.strategy';
       }),
     }),
   ],
-  controllers: [MachineProvisioningController, MachineTokenController, MachineAuthorityController],
-  providers: [MachineAuthService, MachineJwtStrategy, MachineJwtAuthGuard],
+  controllers: [MachineProvisioningController, DeploymentMachineProvisioningController, MachineTokenController, MachineAuthorityController],
+  providers: [MachineAuthService, MachineJwtStrategy, MachineJwtAuthGuard, GitHubActionsOidcService, GitHubActionsOidcGuard],
   exports: [MachineAuthService],
 })
 export class MachineAuthModule {}
