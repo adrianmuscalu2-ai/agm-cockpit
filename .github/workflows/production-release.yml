@@ -248,11 +248,18 @@ jobs:
 
           subject="production-release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           provision_body=$(jq -nc --arg subject "$subject" '{subject:$subject,expiresInDays:1}')
-          provisioned=$(curl --fail --silent --show-error \
+          provision_result=$(curl --silent --show-error --write-out $'\n%{http_code}' \
             -X POST https://api.agmcockpit.com/api/v1/auth/deploy/machines \
             -H "Authorization: Bearer $PROVISIONING_TOKEN" \
             -H 'Content-Type: application/json' \
             --data "$provision_body")
+          provision_status="${provision_result##*$'\n'}"
+          provisioned="${provision_result%$'\n'*}"
+          if [ "$provision_status" != '201' ]; then
+            provision_error=$(jq -c '{statusCode,message,error}' <<<"$provisioned" 2>/dev/null || printf '%s' 'non-json response')
+            printf 'M2M_PROVISION_FAILED status=%s response=%s\n' "$provision_status" "$provision_error" >&2
+            exit 1
+          fi
           client_id=$(jq -er '.data.clientId' <<<"$provisioned")
           company_id=$(jq -er '.data.companyId' <<<"$provisioned")
           credential_id=$(jq -er '.data.credentialId' <<<"$provisioned")

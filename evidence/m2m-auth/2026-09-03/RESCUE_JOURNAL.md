@@ -1,6 +1,6 @@
 # M2M authentication rescue journal
 
-Status: `RECOVERED / HANDOFF TO ATLAS`
+Status: `RESCUE ACTIVE / PRODUCTION M2M SMOKE RECOVERY`
 
 ## Blocker
 
@@ -47,3 +47,14 @@ Status: `RECOVERED / HANDOFF TO ATLAS`
 - Minimal recovery: copied only `canonical-sources.json`, `routing-toll.view.json` and `legislation-safety.view.json` into `/app/AGM_LIBRARY` during the image build. No loader fallback, hash relaxation or substitute data was introduced.
 - Minimal retest: the exact Production Dockerfile built locally PASS and its build record shows all three canonical COPY stages followed by Prisma generation, copilot build and API build PASS. A requested ephemeral container hash command was not authorized by the execution approval service; no indirect workaround was attempted. The already accepted canonical hash tests cover the source bytes.
 - Residual bounded action: publish the Docker image correction, repeat the Production deployment/readiness and canonical M2M lifecycle smoke, then record the Production result before granting FINAL PASS.
+
+## Production continuation — run 33808053843
+
+- Published revision: `a5bebeba7232d8c7b27a45e6477c950593692323`.
+- Preserved PASS: verify, 345 API tests, API lint/build, Copilot build, Web build, canonical route, Browser preflight, controlled Wave 1 Browser, API image publish, Web image publish, Production deployment and readiness.
+- Federated authority: GitHub Actions OIDC with exact repository, repository/owner IDs, Production environment, branch, workflow, event, runner and deployed-revision allowlist; no static provisioning token.
+- Failure: the first `POST /api/v1/auth/deploy/machines` returned HTTP `503`; no machine identity was created and no cleanup residue exists.
+- Affected component: Production OIDC provisioning boundary only. Published containers and readiness remain PASS.
+- Candidate causes retained for evidence: missing container revision binding, GitHub JWKS reachability, or absent/ambiguous eligible Production tenant.
+- Recovery decision: no unchanged retry. The smoke procedure now captures only the sanitized `{statusCode,message,error}` response on a non-201 provision result, sufficient to classify the fail-closed branch without exposing the OIDC token or client secret.
+- Next minimal retest: publish the diagnostic-only workflow correction, rerun the protected Production job, and use the first provision response to recover only the confirmed cause.

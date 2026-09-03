@@ -1,7 +1,7 @@
 {
   "contract": "m2m-client-credentials.v1",
-  "recordedAt": "2026-09-03T14:30:00.000Z",
-  "status": "RELEASE_CANDIDATE_PASS_PRODUCTION_PENDING",
+  "recordedAt": "2026-09-03T21:36:00.000Z",
+  "status": "PRODUCTION_DEPLOY_PASS_M2M_SMOKE_RECOVERY_ACTIVE",
   "canonicalClaims": {
     "issuer": "https://api.agmcockpit.com",
     "audience": "agm:authority-control-plane",
@@ -16,8 +16,8 @@
     "migrationSha256": "29679edaff237b4f724ee4d1aadb1f7315927356b6c5e7272c8de20d5b0a1721"
   },
   "tests": {
-    "m2mFocused": "16_PASS",
-    "apiFull": "330_PASS",
+    "m2mFocused": "28_PASS",
+    "apiFull": "345_PASS",
     "apiLint": "PASS",
     "apiBuild": "PASS",
     "copilotBuild": "PASS",
@@ -49,11 +49,26 @@
     "integratedBrowserControlStatus": "PLATFORM_LIMITATION_OPTIONAL_EVIDENCE_UNAVAILABLE",
     "browserSessionStatus": "PASS_CONTROLLED_CHROMIUM",
     "targetPageStatus": "PASS",
-    "report": "evidence/m2m-auth/2026-09-03/browser-report.json"
+    "report": "evidence/m2m-auth/2026-09-03/browser-report.json",
+    "productionCiRun": 33808053843,
+    "productionCiWave1Browser": "PASS"
+  },
+  "federatedReleaseAuthority": {
+    "provider": "GitHub Actions OIDC",
+    "staticProvisioningSecretRequired": false,
+    "claimAllowlist": "PASS_LOCAL_AND_CI",
+    "deployedRevisionBinding": "CONFIGURED",
+    "jwksCacheAndUnknownKeyThrottling": "PASS",
+    "httpBoundary": "PASS_LOCAL",
+    "productionProvisioningBoundary": "RECOVERY_ACTIVE_HTTP_503"
   },
   "production": {
-    "deployment": "PENDING",
-    "m2mLifecycleSmoke": "PENDING",
+    "releaseSha": "a5bebeba7232d8c7b27a45e6477c950593692323",
+    "ciRun": 33808053843,
+    "deployment": "PASS",
+    "readiness": "PASS",
+    "m2mLifecycleSmoke": "FAIL_FIRST_PROVISION_HTTP_503_RECOVERY_ACTIVE",
+    "temporaryIdentityCreated": false,
     "finalPass": false
   }
 }
