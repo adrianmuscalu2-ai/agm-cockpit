@@ -58,3 +58,13 @@ Status: `RESCUE ACTIVE / PRODUCTION M2M SMOKE RECOVERY`
 - Candidate causes retained for evidence: missing container revision binding, GitHub JWKS reachability, or absent/ambiguous eligible Production tenant.
 - Recovery decision: no unchanged retry. The smoke procedure now captures only the sanitized `{statusCode,message,error}` response on a non-201 provision result, sufficient to classify the fail-closed branch without exposing the OIDC token or client secret.
 - Next minimal retest: publish the diagnostic-only workflow correction, rerun the protected Production job, and use the first provision response to recover only the confirmed cause.
+
+## Confirmed cause — run 33810128359
+
+- The sanitized response proved: `Production provisioning tenant binding is ambiguous or unavailable.`
+- Revision binding and GitHub JWKS verification passed before the failing database lookup.
+- Classification: `DEFECT DE CONFIGURARE / PRODUCT TENANT BINDING`.
+- Canonical evidence: `prisma/seed/seed.ts` pins the AGM company to `00000000-0000-0000-0000-000000000001` and creates role `company_owner`; the read-only Production identity audit confirms this exact seeded tenant/role lineage.
+- Defect: the OIDC resolver required global uniqueness across all eligible companies, and the M2M provisioning-role allowlist omitted the canonical lowercase `company_owner` code.
+- Minimal recovery: pin OIDC provisioning to the canonical seeded company ID, require that exact company to remain active with an active owner, and add `company_owner` to the existing owner-role allowlist. No request-controlled company ID, first-row selection, database mutation, or authority relaxation is introduced.
+- Next minimal retest: focused OIDC/service tests, API lint/build, then the protected Production lifecycle smoke on the corrected revision.

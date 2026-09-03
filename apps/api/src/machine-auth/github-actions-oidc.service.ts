@@ -86,8 +86,9 @@ export class GitHubActionsOidcService {
   }
 
   private async resolveTenant() {
-    const companies = await this.prisma.company.findMany({
+    const company = await this.prisma.company.findFirst({
       where: {
+        id: GITHUB_ACTIONS_PROVISIONING_CONTRACT.companyId,
         isActive: true,
         users: {
           some: {
@@ -97,10 +98,9 @@ export class GitHubActionsOidcService {
         },
       },
       select: { id: true },
-      take: 2,
     });
-    if (companies.length !== 1) throw new ServiceUnavailableException('Production provisioning tenant binding is ambiguous or unavailable.');
-    return companies[0].id;
+    if (!company) throw new ServiceUnavailableException('Canonical Production provisioning tenant is unavailable.');
+    return company.id;
   }
 
   private async signingKey(kid: string) {

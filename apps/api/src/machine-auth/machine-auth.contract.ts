@@ -8,7 +8,7 @@ export const MACHINE_AUTH_CONTRACT = {
   defaultCredentialLifetimeDays: 90,
   maximumCredentialLifetimeDays: 365,
   activeIdentityStatus: 'ACTIVE',
-  provisioningRoles: ['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN'],
+  provisioningRoles: ['company_owner', 'OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN'],
 } as const;
 
 export interface MachineJwtPayload {

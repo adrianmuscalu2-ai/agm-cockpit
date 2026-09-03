@@ -11,6 +11,7 @@ export const GITHUB_ACTIONS_PROVISIONING_CONTRACT = {
   workflowRef: 'adrianmuscalu2-ai/agm-cockpit/.github/workflows/production-release.yml@refs/heads/agm-canonical-20260820',
   eventName: 'push',
   runnerEnvironment: 'github-hosted',
+  companyId: '00000000-0000-0000-0000-000000000001',
   role: 'DEPLOYMENT_PROVISIONER',
   maxTokenLifetimeSeconds: 600,
   clockToleranceSeconds: 30,

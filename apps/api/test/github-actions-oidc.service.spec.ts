@@ -6,7 +6,7 @@ import { GITHUB_ACTIONS_PROVISIONING_CONTRACT } from '../src/machine-auth/github
 import { GitHubActionsOidcService } from '../src/machine-auth/github-actions-oidc.service';
 
 const revision = 'a'.repeat(40);
-const companyId = '30000000-0000-4000-8000-000000000001';
+const companyId = GITHUB_ACTIONS_PROVISIONING_CONTRACT.companyId;
 const keyId = 'github-actions-test-key';
 const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
 const privatePem = privateKey.export({ type: 'pkcs8', format: 'pem' });
@@ -17,10 +17,10 @@ const publicJwk = {
   use: 'sig',
 };
 
-function harness(options: { configuredRevision?: string; companies?: Array<{ id: string }> } = {}) {
+function harness(options: { configuredRevision?: string; company?: { id: string } | null } = {}) {
   const prisma = {
     company: {
-      findMany: jest.fn().mockResolvedValue(options.companies ?? [{ id: companyId }]),
+      findFirst: jest.fn().mockResolvedValue(options.company === undefined ? { id: companyId } : options.company),
     },
   };
   const verifier = new JwtService();
@@ -114,7 +114,12 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
         runId: '33773656386',
       },
     });
-    expect(prisma.company.findMany).toHaveBeenCalledWith(expect.objectContaining({ take: 2 }));
+    expect(prisma.company.findFirst).toHaveBeenCalledWith({
+      where: expect.objectContaining({ id: companyId, isActive: true }),
+      select: { id: true },
+    });
+    const lookup = prisma.company.findFirst.mock.calls[0][0];
+    expect(lookup.where.users.some.roles.some.role.code.in).toContain('company_owner');
   });
 
   it('caches a validated signing key only within the bounded JWKS cache window', async () => {
@@ -154,8 +159,8 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
     await expect(service.authenticate(await token())).rejects.toBeInstanceOf(ServiceUnavailableException);
   });
 
-  it('fails closed when the provisioning tenant is absent or ambiguous', async () => {
-    const { service } = harness({ companies: [{ id: companyId }, { id: '30000000-0000-4000-8000-000000000002' }] });
+  it('fails closed when the canonical provisioning tenant is unavailable', async () => {
+    const { service } = harness({ company: null });
     await expect(service.authenticate(await token())).rejects.toBeInstanceOf(ServiceUnavailableException);
   });
 
