@@ -1,7 +1,7 @@
 {
   "contract": "m2m-client-credentials.v1",
-  "recordedAt": "2026-09-03T21:36:00.000Z",
-  "status": "PRODUCTION_DEPLOY_PASS_M2M_SMOKE_RECOVERY_ACTIVE",
+  "recordedAt": "2026-09-03T22:18:07.784Z",
+  "status": "FINAL_PASS_PRODUCTION",
   "canonicalClaims": {
     "issuer": "https://api.agmcockpit.com",
     "audience": "agm:authority-control-plane",
@@ -50,7 +50,7 @@
     "browserSessionStatus": "PASS_CONTROLLED_CHROMIUM",
     "targetPageStatus": "PASS",
     "report": "evidence/m2m-auth/2026-09-03/browser-report.json",
-    "productionCiRun": 33808053843,
+    "productionCiRun": 33811781066,
     "productionCiWave1Browser": "PASS"
   },
   "federatedReleaseAuthority": {
@@ -60,18 +60,24 @@
     "deployedRevisionBinding": "CONFIGURED",
     "jwksCacheAndUnknownKeyThrottling": "PASS",
     "httpBoundary": "PASS_LOCAL",
-    "productionProvisioningBoundary": "RECOVERY_ACTIVE_CANONICAL_TENANT_BINDING_FIX",
+    "productionProvisioningBoundary": "PASS",
     "canonicalTenantId": "00000000-0000-0000-0000-000000000001",
     "callerControlledTenantAccepted": false
   },
   "production": {
-    "releaseSha": "a5bebeba7232d8c7b27a45e6477c950593692323",
-    "ciRun": 33808053843,
+    "releaseSha": "b47d04d99a81034121894dd3aebcc8fdccdab89f",
+    "ciRun": 33811781066,
+    "ciRunUrl": "https://github.com/adrianmuscalu2-ai/agm-cockpit/actions/runs/33811781066",
     "deployment": "PASS",
     "readiness": "PASS",
     "diagnosticCiRun": 33810128359,
-    "m2mLifecycleSmoke": "FAIL_CANONICAL_TENANT_BINDING_CONFIRMED_RECOVERY_ACTIVE",
-    "temporaryIdentityCreated": false,
-    "finalPass": false
+    "m2mLifecycleSmoke": "PASS",
+    "terminalMarker": "M2M_PRODUCTION_LIFECYCLE=PASS",
+    "temporaryIdentityCreated": true,
+    "temporaryIdentityRevoked": true,
+    "cleanup": "PASS_EXIT_TRAP_NO_HTTP_ERROR",
+    "postReleaseReadyHttpStatus": 200,
+    "postReleaseLiveHttpStatus": 200,
+    "finalPass": true
   }
 }

@@ -1,6 +1,6 @@
 # M2M authentication rescue journal
 
-Status: `RESCUE ACTIVE / PRODUCTION M2M SMOKE RECOVERY`
+Status: `RECOVERED / HANDOFF TO ATLAS / FINAL PASS`
 
 ## Blocker
 
@@ -68,3 +68,23 @@ Status: `RESCUE ACTIVE / PRODUCTION M2M SMOKE RECOVERY`
 - Defect: the OIDC resolver required global uniqueness across all eligible companies, and the M2M provisioning-role allowlist omitted the canonical lowercase `company_owner` code.
 - Minimal recovery: pin OIDC provisioning to the canonical seeded company ID, require that exact company to remain active with an active owner, and add `company_owner` to the existing owner-role allowlist. No request-controlled company ID, first-row selection, database mutation, or authority relaxation is introduced.
 - Next minimal retest: focused OIDC/service tests, API lint/build, then the protected Production lifecycle smoke on the corrected revision.
+
+## Final Production recovery — run 33811781066
+
+- Published revision: `b47d04d99a81034121894dd3aebcc8fdccdab89f`.
+- Verify PASS: Prisma generation, Copilot build, API lint, all 345 API tests, API build, Web build, canonical route, Browser preflight and controlled Wave 1 Browser.
+- Publish PASS: immutable API and Web images.
+- Deploy PASS: approved Production lifecycle files, immutable digests, API/Web restart, image binding, database migration/readiness, protected-route checks and public canonical routes.
+- A transient HTTP `502` occurred inside the bounded readiness retry loop; the same approved deploy attempt recovered automatically and completed without rollback.
+- Production OIDC lifecycle PASS: exact GitHub claim allowlist, deployed-revision binding, canonical tenant binding, machine provision, client-credentials issuance, tenant-scoped registry read, caller-controlled subject/company rejection, rotation, old-secret rejection, new credential use, credential revocation, revoked-secret rejection and unknown-credential rejection.
+- Terminal evidence: `M2M_PRODUCTION_LIFECYCLE=PASS` at `2026-09-03T22:17:31.2705280Z`.
+- Cleanup evidence: the EXIT trap ran after the terminal marker with no HTTP/curl error before successful job completion; the temporary machine identity and its credentials were revoked.
+- Independent post-release probes: `/api/v1/health/ready` HTTP `200` with database available and translation provider configured; `/api/v1/health/live` HTTP `200` with `agent-runtime-events.v1.3`.
+- Static Production provisioning secret: not required and not introduced.
+- Rescue verdict: `RECOVERED`.
+
+## Handoff to Atlas — final
+
+- Preserved PASS evidence remains valid.
+- Residual release action: none.
+- Production verdict: `FINAL PASS`.
