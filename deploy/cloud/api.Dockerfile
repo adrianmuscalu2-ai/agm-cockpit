@@ -19,6 +19,9 @@ RUN pnpm install --frozen-lockfile
 
 COPY apps/api apps/api
 COPY packages/copilot-control-plane packages/copilot-control-plane
+COPY AGM_LIBRARY/REGISTRY/canonical-sources.json AGM_LIBRARY/REGISTRY/canonical-sources.json
+COPY AGM_LIBRARY/VIEWS/routing-toll.view.json AGM_LIBRARY/VIEWS/routing-toll.view.json
+COPY AGM_LIBRARY/VIEWS/legislation-safety.view.json AGM_LIBRARY/VIEWS/legislation-safety.view.json
 
 RUN pnpm exec prisma generate
 RUN pnpm --filter @agm/copilot-control-plane build

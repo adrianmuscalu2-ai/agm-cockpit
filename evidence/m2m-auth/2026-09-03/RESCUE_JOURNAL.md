@@ -42,4 +42,8 @@ Status: `RECOVERED / HANDOFF TO ATLAS`
 
 - Recovered capabilities: Prisma generation, schema/migration validation, DB lifecycle validation, Browser release evidence.
 - Preserved verdicts: all 330 API tests, builds, lint and existing accepted evidence.
-- Residual bounded action: publish the isolated M2M release, wait for the Production workflow, then record the Production lifecycle smoke result before granting FINAL PASS.
+- First Production run `33769233819`: verify, API publish and Web publish PASS. The API container failed closed during readiness with `CANONICAL_LIBRARY_ROOT_NOT_FOUND`; the release script preserved its pre-release database backup and automatically rolled both services back.
+- Classification: `DEFECT DE CONFIGURARE` in `deploy/cloud/api.Dockerfile`; the compiled loader was present but its three hash-pinned canonical inputs were absent from the image.
+- Minimal recovery: copied only `canonical-sources.json`, `routing-toll.view.json` and `legislation-safety.view.json` into `/app/AGM_LIBRARY` during the image build. No loader fallback, hash relaxation or substitute data was introduced.
+- Minimal retest: the exact Production Dockerfile built locally PASS and its build record shows all three canonical COPY stages followed by Prisma generation, copilot build and API build PASS. A requested ephemeral container hash command was not authorized by the execution approval service; no indirect workaround was attempted. The already accepted canonical hash tests cover the source bytes.
+- Residual bounded action: publish the Docker image correction, repeat the Production deployment/readiness and canonical M2M lifecycle smoke, then record the Production result before granting FINAL PASS.
