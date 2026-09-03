@@ -112,7 +112,7 @@ try {
   const runtimeErrors = [];
   page.on('pageerror', (error) => runtimeErrors.push(error.message));
   await navigateToApp(page, target.url);
-  record('BROWSER SESSION', (await page.title()).includes('A.G.M.'), await page.title());
+  record('BROWSER SESSION', (await page.title()) === 'AGM Transporte', await page.title());
   record('TARGET PAGE', (await page.locator('#app').count()) === 1, page.url());
 
   const languageSurface = page.locator('.quick-language-controls:visible').first();

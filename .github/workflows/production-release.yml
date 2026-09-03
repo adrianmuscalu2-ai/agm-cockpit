@@ -222,6 +222,83 @@ jobs:
             -H 'Content-Type: application/json' \
             --data "{\"targetUserId\":\"$TARGET_USER_ID\"}")
           echo "$response" | jq -e '.data.role == "CAR_MOVER_ACCESS" and .data.active == true and (.data.auditEventId | type == "string")'
+      - name: Verify canonical M2M lifecycle in Production
+        env:
+          PROVISIONING_TOKEN: ${{ secrets.PRODUCTION_ROLE_PROVISIONING_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$PROVISIONING_TOKEN"
+          client_id=''
+          cleanup() {
+            if [ -n "$client_id" ]; then
+              cleanup_body=$(jq -nc '{reason:"Production release validation cleanup."}')
+              curl --fail --silent --show-error \
+                -X POST "https://api.agmcockpit.com/api/v1/auth/machines/$client_id/revoke" \
+                -H "Authorization: Bearer $PROVISIONING_TOKEN" \
+                -H 'Content-Type: application/json' \
+                --data "$cleanup_body" >/dev/null || true
+            fi
+          }
+          trap cleanup EXIT
+
+          subject="production-release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          provision_body=$(jq -nc --arg subject "$subject" '{subject:$subject,expiresInDays:1}')
+          provisioned=$(curl --fail --silent --show-error \
+            -X POST https://api.agmcockpit.com/api/v1/auth/machines \
+            -H "Authorization: Bearer $PROVISIONING_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data "$provision_body")
+          client_id=$(jq -er '.data.clientId' <<<"$provisioned")
+          company_id=$(jq -er '.data.companyId' <<<"$provisioned")
+          credential_id=$(jq -er '.data.credentialId' <<<"$provisioned")
+          client_secret=$(jq -er '.data.clientSecret' <<<"$provisioned")
+          echo "::add-mask::$client_secret"
+
+          token_body=$(jq -nc --arg id "$client_id" --arg secret "$client_secret" '{grant_type:"client_credentials",client_id:$id,client_secret:$secret}')
+          issued=$(curl --fail --silent --show-error \
+            -X POST https://api.agmcockpit.com/api/v1/auth/m2m/token \
+            -H 'Content-Type: application/json' \
+            --data "$token_body")
+          access_token=$(jq -er '.access_token' <<<"$issued")
+          echo "::add-mask::$access_token"
+          test "$(jq -er '.scope' <<<"$issued")" = 'acp:read'
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer $access_token" \
+            "https://api.agmcockpit.com/api/v1/m2m/authority-control-plane/companies/$company_id/network-registry" | jq -e '.data | type == "array"' >/dev/null
+
+          injected_body=$(jq -nc --arg id "$client_id" --arg secret "$client_secret" --arg company "$company_id" '{grant_type:"client_credentials",client_id:$id,client_secret:$secret,subject:"caller-controlled",companyId:$company}')
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' -X POST https://api.agmcockpit.com/api/v1/auth/m2m/token -H 'Content-Type: application/json' --data "$injected_body")" = '400'
+
+          rotated=$(curl --fail --silent --show-error \
+            -X POST "https://api.agmcockpit.com/api/v1/auth/machines/$client_id/credentials/rotate" \
+            -H "Authorization: Bearer $PROVISIONING_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data '{"expiresInDays":1}')
+          next_credential_id=$(jq -er '.data.credentialId' <<<"$rotated")
+          next_client_secret=$(jq -er '.data.clientSecret' <<<"$rotated")
+          echo "::add-mask::$next_client_secret"
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' -X POST https://api.agmcockpit.com/api/v1/auth/m2m/token -H 'Content-Type: application/json' --data "$token_body")" = '401'
+
+          next_token_body=$(jq -nc --arg id "$client_id" --arg secret "$next_client_secret" '{grant_type:"client_credentials",client_id:$id,client_secret:$secret}')
+          next_issued=$(curl --fail --silent --show-error -X POST https://api.agmcockpit.com/api/v1/auth/m2m/token -H 'Content-Type: application/json' --data "$next_token_body")
+          next_access_token=$(jq -er '.access_token' <<<"$next_issued")
+          echo "::add-mask::$next_access_token"
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer $next_access_token" \
+            "https://api.agmcockpit.com/api/v1/m2m/authority-control-plane/companies/$company_id/network-registry" | jq -e '.data | type == "array"' >/dev/null
+
+          revoke_body=$(jq -nc '{reason:"Production release credential lifecycle validation."}')
+          curl --fail --silent --show-error \
+            -X POST "https://api.agmcockpit.com/api/v1/auth/machines/$client_id/credentials/$next_credential_id/revoke" \
+            -H "Authorization: Bearer $PROVISIONING_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data "$revoke_body" | jq -e '.data.revokedAt | type == "string"' >/dev/null
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' -X POST https://api.agmcockpit.com/api/v1/auth/m2m/token -H 'Content-Type: application/json' --data "$next_token_body")" = '401'
+
+          unknown_secret="00000000-0000-4000-8000-000000000099.$(printf 'a%.0s' {1..64})"
+          unknown_body=$(jq -nc --arg id "$client_id" --arg secret "$unknown_secret" '{grant_type:"client_credentials",client_id:$id,client_secret:$secret}')
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' -X POST https://api.agmcockpit.com/api/v1/auth/m2m/token -H 'Content-Type: application/json' --data "$unknown_body")" = '401'
+          echo 'M2M_PRODUCTION_LIFECYCLE=PASS'
       - name: Verify Car Mover entitlement
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_car_mover }}
         env:

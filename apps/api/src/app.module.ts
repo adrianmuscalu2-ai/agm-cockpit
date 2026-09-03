@@ -33,6 +33,7 @@ import { LiveAdapterModule } from './live-adapters/live-adapter.module';
 import { PilotOperationsModule } from './pilot-operations/pilot-operations.module';
 import { CanonicalAuthorityModule } from './canonical-authority/canonical-authority.module';
 import { SourceFreshnessModule } from './source-freshness/source-freshness.module';
+import { MachineAuthModule } from './machine-auth/machine-auth.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { SourceFreshnessModule } from './source-freshness/source-freshness.modul
     LiveAdapterModule,
     CanonicalAuthorityModule,
     SourceFreshnessModule,
+    MachineAuthModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

@@ -1,0 +1,59 @@
+{
+  "contract": "m2m-client-credentials.v1",
+  "recordedAt": "2026-09-03T14:30:00.000Z",
+  "status": "RELEASE_CANDIDATE_PASS_PRODUCTION_PENDING",
+  "canonicalClaims": {
+    "issuer": "https://api.agmcockpit.com",
+    "audience": "agm:authority-control-plane",
+    "scope": "acp:read",
+    "tokenUse": "machine_access"
+  },
+  "schema": {
+    "prismaClient": "PASS_GENERATED_5.22.0_BINARY_RECOVERY_AND_STANDARD_LIBRARY_RELEASE_WORKTREE",
+    "schemaValidation": "PASS",
+    "migrationStatus": "PASS_DATABASE_UP_TO_DATE",
+    "migration": "20260903040000_add_machine_identity",
+    "migrationSha256": "29679edaff237b4f724ee4d1aadb1f7315927356b6c5e7272c8de20d5b0a1721"
+  },
+  "tests": {
+    "m2mFocused": "16_PASS",
+    "apiFull": "330_PASS",
+    "apiLint": "PASS",
+    "apiBuild": "PASS",
+    "copilotBuild": "PASS",
+    "webBuild": "PASS",
+    "canonicalRoute": "PASS",
+    "databaseLifecycle": "PASS_STANDARD_LIBRARY_CLIENT_RELEASE_WORKTREE"
+  },
+  "negativeTests": {
+    "callerControlledSubjectCompanyId": "PASS_REJECTED",
+    "revokedCredential": "PASS_REJECTED",
+    "expiredCredential": "PASS_REJECTED",
+    "wrongIssuer": "PASS_REJECTED",
+    "wrongAudience": "PASS_REJECTED",
+    "insufficientScope": "PASS_REJECTED",
+    "unknownCredential": "PASS_REJECTED",
+    "crossCompanyAccess": "PASS_REJECTED"
+  },
+  "audit": {
+    "provisioning": "PASS",
+    "issuance": "PASS",
+    "usage": "PASS",
+    "rotation": "PASS",
+    "credentialRevocation": "PASS",
+    "identityRevocation": "PASS",
+    "rawSecretPersistedOrAudited": false
+  },
+  "browser": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM_LIMITATION_OPTIONAL_EVIDENCE_UNAVAILABLE",
+    "browserSessionStatus": "PASS_CONTROLLED_CHROMIUM",
+    "targetPageStatus": "PASS",
+    "report": "evidence/m2m-auth/2026-09-03/browser-report.json"
+  },
+  "production": {
+    "deployment": "PENDING",
+    "m2mLifecycleSmoke": "PENDING",
+    "finalPass": false
+  }
+}

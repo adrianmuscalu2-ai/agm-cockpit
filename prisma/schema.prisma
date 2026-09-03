@@ -18,6 +18,7 @@ model Company {
   updatedAt                  DateTime                    @updatedAt
   users                      User[]
   roles                      Role[]
+  machineIdentities          MachineIdentity[]
   lifecycleStates            LifecycleState[]
   transports                 TransportJob[]
   preDepartureSessions       PreDepartureSession[]
@@ -161,6 +162,37 @@ model TurnAdminCredential {
   lockedUntil    DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+}
+
+model MachineIdentity {
+  id          String              @id @default(uuid()) @db.Uuid
+  companyId   String              @db.Uuid
+  company     Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  subject     String              @db.VarChar(160)
+  issuer      String              @db.VarChar(160)
+  audience    String              @db.VarChar(160)
+  scopes      Json
+  status      String              @default("ACTIVE") @db.VarChar(24)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  credentials MachineCredential[]
+
+  @@unique([companyId, subject])
+  @@index([companyId, status])
+}
+
+model MachineCredential {
+  id         String          @id @default(uuid()) @db.Uuid
+  identityId String          @db.Uuid
+  secretHash String          @unique @db.VarChar(64)
+  version    Int             @default(1)
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  lastUsedAt DateTime?
+  createdAt  DateTime        @default(now())
+  identity   MachineIdentity @relation(fields: [identityId], references: [id], onDelete: Cascade)
+
+  @@index([identityId, expiresAt, revokedAt])
 }
 
 model LifecycleState {

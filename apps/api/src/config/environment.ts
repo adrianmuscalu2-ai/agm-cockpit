@@ -7,7 +7,6 @@ export type AgmEnvironment = Record<string, unknown> & {
   TRUST_PROXY_HOPS: number;
   CORS_ALLOWED_ORIGINS: string;
   JWT_SECRET: string;
-  AGM_MACHINE_AUTH_SECRET?: string;
   DATABASE_URL: string;
   OPENAI_API_KEY: string;
 };
@@ -22,10 +21,6 @@ export function validateEnvironment(values: Record<string, unknown>): AgmEnviron
   if (jwtSecret.length < 32 || insecureSecrets.has(jwtSecret.toLowerCase())) {
     throw new Error('JWT_SECRET must contain at least 32 characters and must not be a placeholder.');
   }
-  const machineSecret = optionalString(values.AGM_MACHINE_AUTH_SECRET, '');
-  if (machineSecret && (machineSecret.length < 32 || insecureSecrets.has(machineSecret.toLowerCase()))) {
-    throw new Error('AGM_MACHINE_AUTH_SECRET must contain at least 32 characters and must not be a placeholder.');
-  }
 
   const allowedOrigins = optionalString(values.CORS_ALLOWED_ORIGINS, defaultCorsOrigins(nodeEnvironment));
   validateCorsOrigins(allowedOrigins, nodeEnvironment === 'production');
@@ -38,7 +33,6 @@ export function validateEnvironment(values: Record<string, unknown>): AgmEnviron
     TRUST_PROXY_HOPS: integerInRange(values.TRUST_PROXY_HOPS, nodeEnvironment === 'production' ? 1 : 0, 0, 10, 'TRUST_PROXY_HOPS'),
     CORS_ALLOWED_ORIGINS: allowedOrigins,
     JWT_SECRET: jwtSecret,
-    ...(machineSecret ? { AGM_MACHINE_AUTH_SECRET: machineSecret } : {}),
     DATABASE_URL: requiredString(values, 'DATABASE_URL'),
     OPENAI_API_KEY: requiredString(values, 'OPENAI_API_KEY'),
   };

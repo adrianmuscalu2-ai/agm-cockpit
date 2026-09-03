@@ -18,6 +18,7 @@
     "gate:authority-control-plane": "ts-node scripts/record-authority-control-plane-gate.ts",
     "test:opportunity-intelligence-db": "ts-node scripts/test-opportunity-intelligence-db.ts",
     "test:live-adapters-db": "ts-node scripts/test-live-adapters-db.ts",
+    "test:machine-auth-db": "ts-node scripts/validate-machine-auth-db.ts",
     "pilot:seed": "ts-node scripts/seed-provider-pilot.ts",
     "pilot:report": "ts-node scripts/report-provider-pilot.ts"
   },

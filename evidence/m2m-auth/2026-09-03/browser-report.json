@@ -1,0 +1,179 @@
+{
+  "runId": "2026-09-03T14-41-15-148Z",
+  "startedAt": "2026-09-03T14:41:15.148Z",
+  "checks": [
+    {
+      "name": "HOST DETECTION",
+      "status": "PASS",
+      "detail": "unattended-runner/windows; target source=dynamic-vite-bootstrap"
+    },
+    {
+      "name": "TARGET DISCOVERY",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:55698/"
+    },
+    {
+      "name": "BROWSER BOOTSTRAP",
+      "status": "PASS",
+      "detail": "isolated Chromium session created"
+    },
+    {
+      "name": "BROWSER SESSION",
+      "status": "PASS",
+      "detail": "AGM Transporte"
+    },
+    {
+      "name": "TARGET PAGE",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:55698/"
+    },
+    {
+      "name": "THREE QUICK LANGUAGES",
+      "status": "PASS",
+      "detail": "count=3"
+    },
+    {
+      "name": "TWELVE LANGUAGE UI",
+      "status": "PASS",
+      "detail": "ro,de,en,fr,nl,ru,pl,tr,sq,it,es,sv"
+    },
+    {
+      "name": "LANGUAGE RO ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "ro"
+    },
+    {
+      "name": "LANGUAGE DE ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "de"
+    },
+    {
+      "name": "LANGUAGE EN ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "en"
+    },
+    {
+      "name": "LANGUAGE FR",
+      "status": "PASS",
+      "detail": "\n            Français\n            FR\n            ✓\n          "
+    },
+    {
+      "name": "LANGUAGE FR ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "fr"
+    },
+    {
+      "name": "LANGUAGE NL",
+      "status": "PASS",
+      "detail": "\n            Nederlands\n            NL\n            ✓\n          "
+    },
+    {
+      "name": "LANGUAGE NL ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "nl"
+    },
+    {
+      "name": "LANGUAGE RU",
+      "status": "PASS",
+      "detail": "\n            Русский\n            RU\n            ✓\n          "
+    },
+    {
+      "name": "LANGUAGE RU ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "ru"
+    },
+    {
+      "name": "LANGUAGE PL",
+      "status": "PASS",
+      "detail": "\n            Polski\n            PL\n            ✓\n          "
+    },
+    {
+      "name": "LANGUAGE PL ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "pl"
+    },
+    {
+      "name": "LANGUAGE TR",
+      "status": "PASS",
+      "detail": "\n            Türkçe\n            TR\n            ✓\n          "
+    },
+    {
+      "name": "LANGUAGE TR ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "tr"
+    },
+    {
+      "name": "LANGUAGE SQ",
+      "status": "PASS",
+      "detail": "\n            Shqip\n            SQ\n            ✓\n          "
+    },
+    {
+      "name": "LANGUAGE SQ ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "sq"
+    },
+    {
+      "name": "LANGUAGE IT ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "it"
+    },
+    {
+      "name": "LANGUAGE ES ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "es"
+    },
+    {
+      "name": "LANGUAGE SV ROUTE PERSISTENCE",
+      "status": "PASS",
+      "detail": "sv"
+    },
+    {
+      "name": "LANGUAGE FAVORITES / PERSISTENCE",
+      "status": "PASS",
+      "detail": "language=sv; favorites=SV/ES/IT"
+    },
+    {
+      "name": "VISUAL LANGUAGE COHERENCE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "MULTILINGUAL TRANSLATOR",
+      "status": "PASS",
+      "detail": "/translator"
+    },
+    {
+      "name": "EMAIL ASSISTANT",
+      "status": "PASS",
+      "detail": "/email"
+    },
+    {
+      "name": "MULTILINGUAL OCR",
+      "status": "PASS",
+      "detail": "/ocr"
+    },
+    {
+      "name": "NO OVERFLOW 1440",
+      "status": "PASS",
+      "detail": "{\"client\":1440,\"scroll\":1440}"
+    },
+    {
+      "name": "NO OVERFLOW 1024",
+      "status": "PASS",
+      "detail": "{\"client\":1024,\"scroll\":1024}"
+    },
+    {
+      "name": "RESPONSIVE DESKTOP",
+      "status": "PASS",
+      "detail": "1440x1000 and 1024x768"
+    },
+    {
+      "name": "BROWSER REAL VALIDATION",
+      "status": "PASS",
+      "detail": "navigation, persistence, multilingual UI and captures passed"
+    }
+  ],
+  "evidenceDir": "C:\\Users\\adria\\Documents\\AGM\\.tmp\\release-m2m-20260903\\.tmp\\wave1-browser-validation\\2026-09-03T14-41-15-148Z",
+  "finishedAt": "2026-09-03T14:42:18.339Z",
+  "status": "PASS"
+}

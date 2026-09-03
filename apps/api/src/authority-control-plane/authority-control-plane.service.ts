@@ -41,7 +41,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         reportedStatus: 'ONLINE',
         lastSeenAt: observedAt,
         lastSuccessAt: observedAt,
-        lastDetail: 'AUTHORITY_CONTROL_PLANE_HEARTBEAT Â· runtime service active',
+        lastDetail: 'AUTHORITY_CONTROL_PLANE_HEARTBEAT · runtime service active',
       },
       update: {
         reportedStatus: 'ONLINE',
@@ -49,7 +49,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         lastSuccessAt: observedAt,
         lastFailureAt: null,
         lastFailureReason: null,
-        lastDetail: 'AUTHORITY_CONTROL_PLANE_HEARTBEAT Â· runtime service active',
+        lastDetail: 'AUTHORITY_CONTROL_PLANE_HEARTBEAT · runtime service active',
       },
     })));
   }
@@ -109,7 +109,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     const controlPlaneStatus = conflicts.length ? 'FAIL' : controlPlaneNode?.status ?? 'NO_TELEMETRY';
     return {
       generatedAt: new Date().toISOString(), contractVersion: PREMIUM_NETWORK_CONTRACT_VERSION,
-      controlPlane: { canonicalId: AUTHORITY_CONTROL_PLANE_ID, status: controlPlaneStatus, statusSource: controlPlaneNode?.statusSource ?? 'NO_TELEMETRY', statusObservedAt: controlPlaneNode?.statusObservedAt ?? null, invariant: 'ONE SCOPE â†’ ONE ACTIVE EXECUTIVE AUTHORITY', activeExecutiveAuthorities: leases.filter((lease) => lease.mode === 'EXECUTIVE').length, conflicts },
+      controlPlane: { canonicalId: AUTHORITY_CONTROL_PLANE_ID, status: controlPlaneStatus, statusSource: controlPlaneNode?.statusSource ?? 'NO_TELEMETRY', statusObservedAt: controlPlaneNode?.statusObservedAt ?? null, invariant: 'ONE SCOPE → ONE ACTIVE EXECUTIVE AUTHORITY', activeExecutiveAuthorities: leases.filter((lease) => lease.mode === 'EXECUTIVE').length, conflicts },
       nodes,
       departments: [...new Set(nodes.map((node) => node.module))].map((module) => ({ module, nodeCount: nodes.filter((node) => node.module === module).length })),
       incidents: incidents.map((item) => ({ eventId: item.eventId, eventType: item.eventType, scopeId: item.scopeId, reasonCode: item.reasonCode, occurredAt: item.occurredAt })),
@@ -121,6 +121,10 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
   async registry(ctx: RequestContext) {
     await this.ensureFoundation(ctx);
     return this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId: ctx.companyId }, orderBy: { canonicalId: 'asc' } });
+  }
+
+  registryReadOnly(companyId: string) {
+    return this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId }, orderBy: { canonicalId: 'asc' } });
   }
 
   async createMandate(dto: CreateMandateDto, ctx: RequestContext) {
