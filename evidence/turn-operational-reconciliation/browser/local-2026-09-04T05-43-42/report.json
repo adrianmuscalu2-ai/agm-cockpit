@@ -1,0 +1,590 @@
+{
+  "contract": "turn-operational-truth-browser.v1",
+  "startedAt": "2026-09-04T03:43:44.739Z",
+  "targetUrl": "http://127.0.0.1:60562/turn",
+  "apiUrl": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+  "browser": "AGM controlled Playwright/Chromium",
+  "status": "PASS",
+  "checks": {
+    "apiHttp": 200,
+    "apiTruth": {
+      "contractVersion": "turn-operational-truth.v1",
+      "generatedAt": "2026-09-04T03:43:37.571Z",
+      "overallStatus": "PASS",
+      "reason": "AUTHENTICATED_M2M_ACP_READ_LIVE",
+      "falseGreen": 0,
+      "unexplainedDegraded": 0,
+      "observedAt": "2026-09-04T03:43:37.571Z",
+      "ageSeconds": 0,
+      "freshness": "LIVE",
+      "authStatus": "M2M AUTHENTICATED",
+      "telemetryStatus": "LIVE TELEMETRY",
+      "authorityControlPlane": {
+        "canonicalId": "agm.authority.control-plane",
+        "status": "PASS",
+        "statusSource": "M2M_AUTHENTICATED_ACP_READ",
+        "observedAt": "2026-09-04T03:43:37.571Z"
+      },
+      "chain": {
+        "machineIdentity": {
+          "status": "VERIFIED",
+          "ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "source": "VALIDATED_MACHINE_JWT_CONTEXT"
+        },
+        "credential": {
+          "status": "VERIFIED",
+          "ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "source": "ACTIVE_CREDENTIAL_AT_AUTHENTICATION"
+        },
+        "token": {
+          "status": "VERIFIED",
+          "scope": "acp:read",
+          "contract": "m2m-client-credentials.v1",
+          "source": "MACHINE_JWT_GUARD"
+        },
+        "authenticatedAcpRead": {
+          "status": "PASS",
+          "route": "/api/v1/m2m/authority-control-plane/companies/{sha256:fixture}/network-registry",
+          "requestId": "10000000-0000-4000-8000-000000000001",
+          "responseDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "registryNodeCount": 31
+        },
+        "telemetry": {
+          "status": "PASS",
+          "source": "CORRELATED_COMPONENT_HEARTBEAT",
+          "observedAt": "2026-09-04T03:43:37.571Z"
+        },
+        "eventStore": {
+          "status": "PERSISTED",
+          "eventId": "50000000-0000-4000-8000-000000000001",
+          "recordedAt": "2026-09-04T03:43:37.571Z"
+        },
+        "api": {
+          "status": "PASS",
+          "source": "TURN_OPERATIONAL_TRUTH_PROJECTION",
+          "responseDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "turn": {
+          "status": "EVIDENCE AVAILABLE",
+          "source": "LIVE API ONLY",
+          "eventId": "50000000-0000-4000-8000-000000000001"
+        },
+        "ui": {
+          "status": "READY FOR LIVE RENDER",
+          "source": "NO FALLBACK"
+        }
+      },
+      "latestEvent": {
+        "eventId": "50000000-0000-4000-8000-000000000001",
+        "mandateId": "local-ui-proof",
+        "agentId": "agm.authority.control-plane",
+        "dossierId": "10000000-0000-4000-8000-000000000001",
+        "lifecycle": "COMPLETED",
+        "sequence": 1,
+        "occurredAt": "2026-09-04T03:43:37.571Z",
+        "recordedAt": "2026-09-04T03:43:37.571Z",
+        "evidenceRef": "urn:agm:m2m-authenticated-acp-read:10000000-0000-4000-8000-000000000001",
+        "evidenceHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "detail": "Local deterministic UI proof; not Production runtime evidence."
+      }
+    },
+    "legalAcceptance": "ACCEPTED_FOR_CONTROLLED_SESSION",
+    "firstRunTutorial": "DISMISSED_FOR_CONTROLLED_SESSION",
+    "ui": {
+      "liveState": "pass",
+      "liveFalseGreen": "0",
+      "liveUnexplainedDegraded": "0",
+      "heroState": "pass",
+      "heroFalseGreen": "0",
+      "heroUnexplainedDegraded": "0",
+      "connection": "M2M AUTHENTICATED · LIVE TELEMETRY",
+      "controlStatus": "M2M AUTHENTICATED · LIVE",
+      "message": "AUTHENTICATED_M2M_ACP_READ_LIVE · M2M_AUTHENTICATED_ACP_READ · 04.09.2026, 05:43:37 · FALSE GREEN 0",
+      "steps": [
+        {
+          "step": "machine-identity",
+          "status": "VERIFIED",
+          "source": "VALIDATED_MACHINE_JWT_CONTEXT",
+          "evidence": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        {
+          "step": "credential",
+          "status": "VERIFIED",
+          "source": "ACTIVE_CREDENTIAL_AT_AUTHENTICATION",
+          "evidence": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        {
+          "step": "token",
+          "status": "VERIFIED",
+          "source": "MACHINE_JWT_GUARD",
+          "evidence": "acp:read"
+        },
+        {
+          "step": "authenticated-acp-read",
+          "status": "PASS",
+          "source": "AUTHENTICATED_M2M_ACP_READ_LIVE",
+          "evidence": "10000000-0000-4000-8000-000000000001"
+        },
+        {
+          "step": "telemetry",
+          "status": "PASS",
+          "source": "CORRELATED_COMPONENT_HEARTBEAT",
+          "evidence": "2026-09-04T03:43:37.571Z"
+        },
+        {
+          "step": "eventstore",
+          "status": "PERSISTED",
+          "source": "AUTHENTICATED_M2M_ACP_READ_LIVE",
+          "evidence": "50000000-0000-4000-8000-000000000001"
+        },
+        {
+          "step": "api",
+          "status": "PASS",
+          "source": "TURN_OPERATIONAL_TRUTH_PROJECTION",
+          "evidence": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "step": "turn",
+          "status": "EVIDENCE AVAILABLE",
+          "source": "LIVE API ONLY",
+          "evidence": "50000000-0000-4000-8000-000000000001"
+        },
+        {
+          "step": "ui",
+          "status": "PASS",
+          "source": "NO FALLBACK",
+          "evidence": "turn-operational-truth.v1@2026-09-04T03:43:37.571Z"
+        }
+      ],
+      "displayedStatuses": [
+        {
+          "id": "adrian-turn-commander",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "mentor",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "secret-credentials-guardian",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "atlas-operations",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "chief-monitoring-inspector",
+          "status": "REGISTRY ONLY",
+          "evidence": "Agregat MON-001–MON-012 · UNKNOWN"
+        },
+        {
+          "id": "monitor-api",
+          "status": "DEGRADED",
+          "evidence": "API · health/ready · 2026-09-04T03:43:52.505Z"
+        },
+        {
+          "id": "monitor-browser",
+          "status": "ACTIVE",
+          "evidence": "Origin curent · HTTP probe · 2026-09-04T03:43:52.505Z"
+        },
+        {
+          "id": "monitor-android",
+          "status": "WAITING FOR LIVE PROBE",
+          "evidence": "Component heartbeat v1 · persistent și tenant-bound · 2026-09-04T03:43:52.506Z"
+        },
+        {
+          "id": "monitor-incidents",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "architecture-inspector",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "frontend-experience",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "backend-infrastructure",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "premium-linguist-it",
+          "status": "ACTIVE",
+          "evidence": "Component heartbeat v1 · audit runtime 1.699 resurse · 2026-09-04T03:43:46.935Z"
+        },
+        {
+          "id": "premium-linguist-es",
+          "status": "ACTIVE",
+          "evidence": "Component heartbeat v1 · audit runtime 1.699 resurse · 2026-09-04T03:43:46.945Z"
+        },
+        {
+          "id": "premium-linguist-sv",
+          "status": "ACTIVE",
+          "evidence": "Component heartbeat v1 · audit runtime 1.699 resurse · 2026-09-04T03:43:46.953Z"
+        },
+        {
+          "id": "release-operations",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "website-content-visual-guardian",
+          "status": "WAITING FOR LIVE PROBE",
+          "evidence": "Website health manifest · content/visual gates · 2026-09-04T03:43:52.508Z"
+        },
+        {
+          "id": "website-runtime-release-guardian",
+          "status": "WAITING FOR LIVE PROBE",
+          "evidence": "Cloudflare Pages · public HTTP probe · 2026-09-04T03:43:52.508Z"
+        },
+        {
+          "id": "documentation",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "server-primary",
+          "status": "DEGRADED",
+          "evidence": "API public · health/live · 2026-09-04T03:43:52.501Z · HTTP_STATUS"
+        },
+        {
+          "id": "server-backup",
+          "status": "PLANNED · LOCAL BACKUP DEFINED · LIVE HEARTBEAT NOT CONNECTED",
+          "evidence": "Arhitectură PostgreSQL backup local definită · release/timer și restore gate neverificate în runtime-ul curent · off-site target neconfigurat · 2026-09-04T03:43:52.502Z · NOT_AVAILABLE"
+        },
+        {
+          "id": "api",
+          "status": "DEGRADED",
+          "evidence": "API public · health/ready · 2026-09-04T03:43:52.505Z · HTTP_STATUS"
+        },
+        {
+          "id": "browser",
+          "status": "ONLINE",
+          "evidence": "Origin AGM curent · aceeași rută ca UI LIVE · 2026-09-04T03:43:52.505Z · HTTP_STATUS"
+        },
+        {
+          "id": "android",
+          "status": "UNKNOWN",
+          "evidence": "Component heartbeat v1 · Android foreground · persistent, tenant-bound · stale după 90s · 2026-09-04T03:43:52.506Z · TRANSPORT_ERROR"
+        },
+        {
+          "id": "premium-linguist-it",
+          "status": "ONLINE",
+          "evidence": "Component heartbeat v1 · audit runtime APP / Premium / Car Mover · 2026-09-04T03:43:46.935Z · RUNTIME_VALIDATION"
+        },
+        {
+          "id": "premium-linguist-es",
+          "status": "ONLINE",
+          "evidence": "Component heartbeat v1 · audit runtime APP / Premium / Car Mover · 2026-09-04T03:43:46.945Z · RUNTIME_VALIDATION"
+        },
+        {
+          "id": "premium-linguist-sv",
+          "status": "ONLINE",
+          "evidence": "Component heartbeat v1 · audit runtime APP / Premium / Car Mover · 2026-09-04T03:43:46.953Z · RUNTIME_VALIDATION"
+        },
+        {
+          "id": "ai",
+          "status": "DEGRADED",
+          "evidence": "API ready · dependencies.translationProvider · 2026-09-04T03:43:52.506Z · HTTP_STATUS"
+        },
+        {
+          "id": "databases",
+          "status": "DEGRADED",
+          "evidence": "API ready · dependencies.database · 2026-09-04T03:43:52.507Z · HTTP_STATUS"
+        },
+        {
+          "id": "cloudflare-public",
+          "status": "DEGRADED",
+          "evidence": "MON-008 extern · https://app.agmcockpit.com/turn · 2026-09-04T03:43:52.507Z · HTTP_STATUS"
+        },
+        {
+          "id": "website-content-health",
+          "status": "UNKNOWN",
+          "evidence": "Website health manifest · visual/content/i18n gates · 2026-09-04T03:43:52.508Z · TRANSPORT_ERROR"
+        },
+        {
+          "id": "website-runtime",
+          "status": "UNKNOWN",
+          "evidence": "Cloudflare Pages · public website root · 2026-09-04T03:43:52.508Z · TRANSPORT_ERROR"
+        },
+        {
+          "id": "ui-live",
+          "status": "UI LIVE PASS",
+          "evidence": "Runner UI LIVE · ultimul audit integral PASS · 2026-09-04T03:43:52.509Z · NOT_AVAILABLE"
+        },
+        {
+          "id": "telemetry",
+          "status": "READY",
+          "evidence": "Strat minim operațional · health + heartbeat + freshness; fără analytics · 2026-09-04T03:43:52.772Z · NOT_AVAILABLE"
+        },
+        {
+          "id": "security",
+          "status": "UNKNOWN",
+          "evidence": "Secret Guardian telemetry v1 · metadate sigure · sesiune autorizată · 2026-09-04T03:43:52.511Z · TRANSPORT_ERROR"
+        }
+      ],
+      "unjustifiedStatuses": [],
+      "staticGreenCount": 0
+    }
+  },
+  "consoleErrors": [
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/auth/refresh' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/auth/entitlements' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/auth/refresh' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/components/premium-linguist-it/heartbeat' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/components/premium-linguist-es/heartbeat' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/components/premium-linguist-sv/heartbeat' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/auth/refresh' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/auth/refresh' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/auth/refresh' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:60561/api/v1/security/secrets/health' from origin 'http://127.0.0.1:60562' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "pageErrors": [],
+  "network": [
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:48.506Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:48.509Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:49.894Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:49.895Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:50.045Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:50.047Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:50.106Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:50.107Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:50.108Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:50.108Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:50.179Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:50.180Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:51.619Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:51.629Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:52.734Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:52.747Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:53.093Z"
+    },
+    {
+      "url": "http://127.0.0.1:60561/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:43:57.541Z"
+    }
+  ],
+  "completedAt": "2026-09-04T03:44:01.803Z"
+}

@@ -1,0 +1,333 @@
+{
+  "contract": "turn-operational-truth-browser.v1",
+  "startedAt": "2026-09-04T03:40:08.519Z",
+  "targetUrl": "http://127.0.0.1:59974/turn",
+  "apiUrl": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+  "browser": "AGM controlled Playwright/Chromium",
+  "status": "FAIL",
+  "checks": {
+    "apiHttp": 200,
+    "apiTruth": {
+      "contractVersion": "turn-operational-truth.v1",
+      "generatedAt": "2026-09-04T03:40:00.725Z",
+      "overallStatus": "PASS",
+      "reason": "AUTHENTICATED_M2M_ACP_READ_LIVE",
+      "falseGreen": 0,
+      "unexplainedDegraded": 0,
+      "observedAt": "2026-09-04T03:40:00.725Z",
+      "ageSeconds": 0,
+      "freshness": "LIVE",
+      "authStatus": "M2M AUTHENTICATED",
+      "telemetryStatus": "LIVE TELEMETRY",
+      "authorityControlPlane": {
+        "canonicalId": "agm.authority.control-plane",
+        "status": "PASS",
+        "statusSource": "M2M_AUTHENTICATED_ACP_READ",
+        "observedAt": "2026-09-04T03:40:00.725Z"
+      },
+      "chain": {
+        "machineIdentity": {
+          "status": "VERIFIED",
+          "ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "source": "VALIDATED_MACHINE_JWT_CONTEXT"
+        },
+        "credential": {
+          "status": "VERIFIED",
+          "ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "source": "ACTIVE_CREDENTIAL_AT_AUTHENTICATION"
+        },
+        "token": {
+          "status": "VERIFIED",
+          "scope": "acp:read",
+          "contract": "m2m-client-credentials.v1",
+          "source": "MACHINE_JWT_GUARD"
+        },
+        "authenticatedAcpRead": {
+          "status": "PASS",
+          "route": "/api/v1/m2m/authority-control-plane/companies/{sha256:fixture}/network-registry",
+          "requestId": "10000000-0000-4000-8000-000000000001",
+          "responseDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "registryNodeCount": 31
+        },
+        "telemetry": {
+          "status": "PASS",
+          "source": "CORRELATED_COMPONENT_HEARTBEAT",
+          "observedAt": "2026-09-04T03:40:00.725Z"
+        },
+        "eventStore": {
+          "status": "PERSISTED",
+          "eventId": "50000000-0000-4000-8000-000000000001",
+          "recordedAt": "2026-09-04T03:40:00.725Z"
+        },
+        "api": {
+          "status": "PASS",
+          "source": "TURN_OPERATIONAL_TRUTH_PROJECTION"
+        },
+        "turn": {
+          "status": "EVIDENCE AVAILABLE",
+          "source": "LIVE API ONLY"
+        },
+        "ui": {
+          "status": "READY FOR LIVE RENDER",
+          "source": "NO FALLBACK"
+        }
+      },
+      "latestEvent": {
+        "eventId": "50000000-0000-4000-8000-000000000001",
+        "mandateId": "local-ui-proof",
+        "agentId": "agm.authority.control-plane",
+        "dossierId": "10000000-0000-4000-8000-000000000001",
+        "lifecycle": "COMPLETED",
+        "sequence": 1,
+        "occurredAt": "2026-09-04T03:40:00.725Z",
+        "recordedAt": "2026-09-04T03:40:00.725Z",
+        "evidenceRef": "urn:agm:m2m-authenticated-acp-read:10000000-0000-4000-8000-000000000001",
+        "evidenceHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "detail": "Local deterministic UI proof; not Production runtime evidence."
+      }
+    },
+    "legalAcceptance": "ACCEPTED_FOR_CONTROLLED_SESSION"
+  },
+  "consoleErrors": [
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/auth/refresh' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/auth/entitlements' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/auth/refresh' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/components/premium-linguist-it/heartbeat' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/components/premium-linguist-es/heartbeat' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/components/premium-linguist-sv/heartbeat' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/auth/refresh' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/auth/refresh' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/production-preflight' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/authority-control-plane/dashboard' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/operations/components/android/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED",
+    "Access to fetch at 'http://127.0.0.1:59973/api/v1/security/secrets/health' from origin 'http://127.0.0.1:59974' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "pageErrors": [],
+  "network": [
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:11.984Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:11.984Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:13.269Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:13.273Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:13.347Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:13.396Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:13.405Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:13.405Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:13.502Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:13.503Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:13.653Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:13.759Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:14.727Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:14.734Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:19.534Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:24.544Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:29.534Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:34.529Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:39.531Z"
+    },
+    {
+      "url": "http://127.0.0.1:59973/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T03:40:44.532Z"
+    }
+  ],
+  "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-live-refresh]')\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" data-live-refresh=\"\">Reîncarcă starea</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"tutorial-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"tutorial-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    52 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"tutorial-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at C:\\Users\\adria\\Documents\\AGM\\.tmp\\release-m2m-20260903\\scripts\\validate-turn-operational-truth-browser.mjs:66:45",
+  "completedAt": "2026-09-04T03:40:45.062Z"
+}

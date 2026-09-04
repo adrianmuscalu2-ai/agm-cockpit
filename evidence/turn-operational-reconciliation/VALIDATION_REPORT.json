@@ -1,0 +1,53 @@
+{
+  "contract": "turn-operational-truth-release-candidate.v1",
+  "recordedAt": "2026-09-04T03:48:41.1025129Z",
+  "status": "RELEASE_CANDIDATE_PASS_PRODUCTION_AUTHORITY_PENDING",
+  "sourceRevision": "b769c38c979d5218545550fa98e348ef4866de83",
+  "baseRevision": "b2a342f63696c3470ea9352ea9fe9f0c9c48a5a9",
+  "requirements": {
+    "authenticatedM2mChain": "PASS",
+    "persistentEventCorrelation": "PASS",
+    "nineStepEvidenceReferences": "PASS",
+    "falseGreen": 0,
+    "unexplainedDegraded": 0,
+    "registryOnlyNotRuntimeGreen": "PASS",
+    "staleTelemetryExplicit": "PASS",
+    "publicIdentifiersHashed": "PASS"
+  },
+  "tests": {
+    "apiFocused": "6_PASS",
+    "apiFull": "351_PASS_60_SUITES",
+    "apiLint": "PASS",
+    "apiBuild": "PASS",
+    "copilotBuild": "PASS",
+    "webBuild": "PASS",
+    "webOperationalTruthContract": "PASS",
+    "webLiveStateContract": "PASS",
+    "canonicalPublicRoute": "PASS"
+  },
+  "browser": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM_LIMITATION_OPTIONAL_EVIDENCE_UNAVAILABLE",
+    "browserSessionStatus": "PASS_CONTROLLED_PLAYWRIGHT_CHROMIUM",
+    "targetPageStatus": "PASS_LOCAL_DYNAMIC_TARGET",
+    "visualSignature": "DCD4257D0C90F3207F4A9FE39FA9E5594E0C3F1B06E493D7E973620CE00E0C1E",
+    "evidenceScope": "LOCAL_CONTROLLED_UI_PROOF_ONLY",
+    "productionPass": false,
+    "report": "evidence/turn-operational-reconciliation/browser/local-2026-09-04T05-45-49/report.json",
+    "hashes": {
+      "report": "7FAE247EB4E5BCF53EAE232F7CDA593B383F1CC02D998677BBFD81C4366D2D4E",
+      "authenticatedChainScreenshot": "4EEB627EF4A1F4092722843FA1652065F6A467F64DFB5EBD34228E6CBB9BBEDF",
+      "authorityControlPlaneScreenshot": "D5B389AD0C6926F2DA428D94651BA689073D30DFE8DEF6AEEA3FECE166CB24AB",
+      "fullPageScreenshot": "73BF4984DD56C9D10715EB28A777904FB736F84BBBF368CC389DE662B620BDB0"
+    }
+  },
+  "production": {
+    "remoteHead": "b2a342f63696c3470ea9352ea9fe9f0c9c48a5a9",
+    "candidatePushed": false,
+    "deployment": "PENDING_EXPLICIT_PRODUCT_OWNER_APPROVAL",
+    "m2mLifecycleSmoke": "PENDING",
+    "turnOperationalTruthSmoke": "PENDING",
+    "controlledBrowserAudit": "PENDING",
+    "finalPass": false
+  }
+}
