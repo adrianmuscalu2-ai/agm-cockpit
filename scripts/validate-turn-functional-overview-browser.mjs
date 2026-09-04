@@ -5,6 +5,7 @@ import { chromium } from 'playwright';
 const targetUrl = process.env.AGM_TURN_FUNCTIONAL_URL || 'https://app.agmcockpit.com/turn';
 const apiUrl = process.env.AGM_TURN_FUNCTIONAL_API_URL || 'https://api.agmcockpit.com/api/v1/operations/turn/functional-overview';
 const ownerAccessToken = process.env.AGM_TURN_OWNER_ACCESS_TOKEN?.trim();
+const interactiveOwnerLogin = process.env.AGM_TURN_INTERACTIVE_OWNER_LOGIN === '1';
 const evidenceScope = targetUrl === 'https://app.agmcockpit.com/turn' && apiUrl === 'https://api.agmcockpit.com/api/v1/operations/turn/functional-overview'
   ? 'PRODUCTION_LIVE'
   : 'NON_PRODUCTION_LIVE';
@@ -20,7 +21,7 @@ const report = {
   evidenceScope,
   browser: 'AGM controlled Playwright/Chromium',
   realSourcePolicy: 'NO_ROUTE_STUBS_NO_MOCK_PAYLOAD_NO_STATUS_FALLBACK',
-  ownerAccess: ownerAccessToken ? 'REAL_BEARER_TOKEN_PROVIDED_REDACTED' : 'MISSING',
+  ownerAccess: ownerAccessToken ? 'REAL_BEARER_TOKEN_PROVIDED_REDACTED' : interactiveOwnerLogin ? 'INTERACTIVE_OWNER_LOGIN_PENDING' : 'MISSING',
   status: 'FAIL',
   productOwnerAcceptance: 'NOT_GRANTED',
   finalProductPass: false,
@@ -38,7 +39,7 @@ const report = {
 
 let browser;
 try {
-  assert(ownerAccessToken, 'AGM_TURN_OWNER_ACCESS_TOKEN is required; no authentication stub is permitted.');
+  assert(ownerAccessToken || interactiveOwnerLogin, 'Provide AGM_TURN_OWNER_ACCESS_TOKEN or set AGM_TURN_INTERACTIVE_OWNER_LOGIN=1; no authentication stub is permitted.');
   const preflight = JSON.parse(await readFile(resolve('tmp/rescue-browser-preflight.json'), 'utf8'));
   const preflightAgeMs = Date.now() - Date.parse(preflight.checkedAt);
   assert(Number.isFinite(preflightAgeMs) && preflightAgeMs <= 10 * 60_000, 'Browser preflight is missing or older than 10 minutes.');
@@ -57,22 +58,14 @@ try {
     controlledRunner: preflight.controlledRunner,
   };
 
-  const apiResponse = await fetch(apiUrl, {
-    cache: 'no-store',
-    headers: { Accept: 'application/json', Authorization: `Bearer ${ownerAccessToken}` },
-  });
-  const apiPayload = await apiResponse.json().catch(() => ({}));
-  assert(apiResponse.status === 200, `Functional overview API HTTP ${apiResponse.status}`);
-  const overview = apiPayload?.data;
-  validateOverview(overview);
-  report.checks.api = { httpStatus: apiResponse.status, overview };
-
-  browser = await chromium.launch({ headless: true });
+  browser = await chromium.launch({ headless: !interactiveOwnerLogin });
   const context = await browser.newContext({ viewport: { width: 1600, height: 1000 }, locale: 'ro-RO' });
   report.browserFields.browserSessionStatus = 'PASS';
-  await context.addInitScript(({ token }) => {
-    localStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: token, expiresInSeconds: 300 }));
-  }, { token: ownerAccessToken });
+  if (ownerAccessToken) {
+    await context.addInitScript(({ token }) => {
+      localStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: token, expiresInSeconds: 300 }));
+    }, { token: ownerAccessToken });
+  }
   const page = await context.newPage();
   page.on('console', (message) => {
     if (message.type() === 'error') report.consoleErrors.push(message.text());
@@ -93,9 +86,30 @@ try {
   const navigation = await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
   assert(navigation?.status() === 200, `TURN target HTTP ${navigation?.status()}`);
   await dismissFirstRun(page, report.checks);
-  await page.waitForSelector('[data-turn-functional-overview][data-functional-verdict="READY_FOR_PRODUCT_OWNER_REVIEW"]', { timeout: 60_000 });
+  if (interactiveOwnerLogin) {
+    process.stdout.write('OWNER_ACTION_REQUIRED: Introdu PIN-ul direct în fereastra Chromium controlată și apasă Deblochează. PIN-ul nu este citit sau jurnalizat de validator.\n');
+  }
+  await page.waitForSelector('[data-turn-functional-overview][data-functional-verdict="READY_FOR_PRODUCT_OWNER_REVIEW"]', { timeout: interactiveOwnerLogin ? 300_000 : 60_000 });
   await page.waitForSelector('[data-functional-zone]', { timeout: 30_000 });
   await dismissFirstRun(page, report.checks);
+  const effectiveOwnerAccessToken = ownerAccessToken || await page.evaluate(() => {
+    try {
+      return JSON.parse(localStorage.getItem('agm.admin.session') || 'null')?.accessToken || '';
+    } catch {
+      return '';
+    }
+  });
+  assert(effectiveOwnerAccessToken, 'Interactive Owner Access did not yield a session token.');
+  report.ownerAccess = interactiveOwnerLogin ? 'INTERACTIVE_OWNER_LOGIN_SUCCEEDED_TOKEN_REDACTED' : report.ownerAccess;
+  const apiResponse = await fetch(apiUrl, {
+    cache: 'no-store',
+    headers: { Accept: 'application/json', Authorization: `Bearer ${effectiveOwnerAccessToken}` },
+  });
+  const apiPayload = await apiResponse.json().catch(() => ({}));
+  assert(apiResponse.status === 200, `Functional overview API HTTP ${apiResponse.status}`);
+  const overview = apiPayload?.data;
+  validateOverview(overview);
+  report.checks.api = { httpStatus: apiResponse.status, overview };
   const functionalNav = page.locator('a[href="#turn-functional-overview"]');
   await functionalNav.click();
   await page.waitForFunction(() => location.hash === '#turn-functional-overview');
