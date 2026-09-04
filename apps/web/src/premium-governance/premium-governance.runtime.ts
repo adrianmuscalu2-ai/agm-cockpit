@@ -4,7 +4,7 @@ type NodeStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
 type AuthorityChain = { leaseId: string; scopeId: string; agentId: string; providerId: string; mode: string; mandateKey: string | null; decisionKey: string | null; actionType: string | null; epoch: number; fencingToken: number; issuedAt: string; expiresAt: string };
 type NetworkNode = {
   canonicalId: string; kind: string; module: string; ownerId: string; supervisorId: string | null; scope: string;
-  lifecycleStatus: string; runtimeMode: string; runtimePresence: string; currentFunction: string;
+  registryPresence: 'PRESENT' | 'MISSING'; lifecycleStatus: string; runtimeMode: string; runtimePresence: string; currentFunction: string;
   status: NodeStatus; statusLabel: string; statusSource: string; statusObservedAt: string | null;
   health: string; freshness: string; lastHeartbeat: string | null; lastActivity: string | null;
   reason: string | null; requiredAction: string | null; dependencyState: string; dependencyFailures: string[];
@@ -114,7 +114,7 @@ function renderDetail(root: HTMLElement, data: Dashboard) {
 
 function renderAgent(node: NetworkNode) {
   const failures = node.dependencyFailures.length ? node.dependencyFailures.join(', ') : 'NONE OBSERVED';
-  return `<article class="premium-network-agent status-${statusClass(node.status)}" data-canonical-agent-id="${escapeHtml(node.canonicalId)}" data-canonical-status="${escapeHtml(node.status)}"><header><span class="network-status-dot" aria-hidden="true"></span><div><strong>${escapeHtml(node.canonicalId)}</strong><small>${escapeHtml(node.kind)} · ${escapeHtml(node.statusLabel)}</small></div></header><dl>
+  return `<article class="premium-network-agent status-${statusClass(node.status)}" data-canonical-agent-id="${escapeHtml(node.canonicalId)}" data-canonical-status="${escapeHtml(node.status)}" data-registry-presence="${escapeHtml(node.registryPresence)}"><header><span class="network-status-dot" aria-hidden="true"></span><div><strong>${escapeHtml(node.canonicalId)}</strong><small>${escapeHtml(node.kind)} · ${escapeHtml(node.statusLabel)}</small></div></header><dl>
     <div><dt>Runtime</dt><dd>${escapeHtml(node.runtimePresence)} · ${escapeHtml(node.runtimeMode)}</dd></div>
     <div><dt>Current state / health</dt><dd>${escapeHtml(node.status)} · ${escapeHtml(node.health)}</dd></div>
     <div><dt>Last heartbeat</dt><dd>${formatOptionalDate(node.lastHeartbeat)}</dd></div>
@@ -126,7 +126,7 @@ function renderAgent(node: NetworkNode) {
     <div><dt>Why</dt><dd>${escapeHtml(node.reason ?? 'No defect or unknown reason in the current evidence.')}</dd></div>
     <div><dt>Required action</dt><dd>${escapeHtml(node.requiredAction ?? 'NONE')}</dd></div>
     <div><dt>Authority</dt><dd>${escapeHtml(node.authorityState.state)} · ${escapeHtml(node.scope)}</dd></div>
-    <div><dt>Identity registry</dt><dd>${escapeHtml(node.lifecycleStatus)} (identity only)</dd></div>
+    <div><dt>Identity registry</dt><dd>${escapeHtml(node.registryPresence)} · ${escapeHtml(node.lifecycleStatus)} (identity only)</dd></div>
   </dl></article>`;
 }
 

@@ -43,6 +43,16 @@ describe('DATA-001 persistence contract', () => {
       expect(sql).not.toMatch(/\b(?:DROP\s+(?:TABLE|SCHEMA|DATABASE)|TRUNCATE)\b/i);
     }
   });
+
+  it('provisions every heartbeat-emitting Premium linguist without asserting runtime state', () => {
+    const sql = readFileSync(resolve(migrationsRoot, '20260905010000_reconcile_premium_linguist_registry', 'migration.sql'), 'utf8');
+    for (const identity of ['premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv']) {
+      expect(sql).toContain(identity);
+    }
+    expect(sql).toMatch(/ON CONFLICT \("companyId", "canonicalId"\) DO UPDATE/);
+    expect(sql).toMatch(/ON CONFLICT \("companyId", "scopeId"\) DO UPDATE/);
+    expect(sql).not.toMatch(/"lifecycleStatus"[^;]*(?:PASS|ONLINE|HEALTHY)/);
+  });
 });
 
 function modelBody(value: string, model: string) {

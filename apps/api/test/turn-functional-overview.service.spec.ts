@@ -1,4 +1,5 @@
 import { TurnFunctionalOverviewService } from '../src/turn-operational-truth/turn-functional-overview.service';
+import { premiumNetworkSeed } from '../src/authority-control-plane/premium-network.seed';
 
 function delegate(counts: number[] = [], latest: unknown = null) {
   return {
@@ -29,6 +30,7 @@ function fixture() {
     liveAdapterTelemetry: { findMany: jest.fn().mockResolvedValue([{ status: 'HEALTHY', lastAttemptAt: observedAt, lastSuccessAt: observedAt, errorCount: 0 }]) },
     agentRuntimeEvent: delegate([6, 0], { occurredAt: observedAt }),
     componentHeartbeat: { findMany: jest.fn().mockResolvedValue([{ reportedStatus: 'ONLINE', lastSeenAt: observedAt, lastFailureAt: null }]) },
+    premiumNetworkRegistryEntry: { findMany: jest.fn().mockResolvedValue(premiumNetworkSeed.map((item) => ({ canonicalId: item.canonicalId }))) },
     providerUsageEvent: {
       count: jest.fn().mockResolvedValueOnce(0).mockResolvedValueOnce(0),
       findFirst: jest.fn().mockResolvedValue(null),
@@ -75,6 +77,16 @@ describe('TurnFunctionalOverviewService', () => {
       evidence: { failedMessages: 2, gmailBacklog: 4 },
       action: { href: '/email' },
     });
+  });
+
+  it('fails functional completeness when a canonical identity is absent from the persistent registry', async () => {
+    const { service, prisma } = fixture();
+    prisma.premiumNetworkRegistryEntry.findMany.mockResolvedValue([{ canonicalId: 'agm.human.product-owner' }]);
+
+    const overview = await service.snapshot(new Date('2026-09-04T12:02:00.000Z'));
+    expect(overview.summary.capabilityMissing).toBeGreaterThan(0);
+    expect(overview.verdict.turnFunctionalCompleteness).toBe('FAIL');
+    expect(overview.zones.find((zone) => zone.id === 'premium.team')).toMatchObject({ status: 'ATTENTION' });
   });
 
   it('records Basic execution metadata without OCR content', async () => {

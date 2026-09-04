@@ -47,7 +47,11 @@ export class AuthorityControlPlaneService {
     for (const event of runtimeEvents) if (!lastRunByAgent.has(event.agentId)) lastRunByAgent.set(event.agentId, event);
     const leaseByAgent = new Map(leases.map((lease) => [lease.agentId, lease]));
     const failoverByScope = new Map(failover.map((item) => [item.scopeId, item]));
-    const nodes = registry.map((item) => {
+    const registryById = new Map(registry.map((item) => [item.canonicalId, item]));
+    const nodes = premiumNetworkSeed.map((seed) => {
+      const persisted = registryById.get(seed.canonicalId);
+      const item = persisted ?? { ...seed, lifecycleStatus: 'MISSING_FROM_REGISTRY' };
+      const registryPresence = persisted ? 'PRESENT' : 'MISSING';
       const profile = operationalProfile({ canonicalId: item.canonicalId, kind: item.kind, capabilities: stringArray(item.capabilities) });
       const heartbeat = heartbeatById.get(item.canonicalId);
       const opportunityRun = opportunityTelemetryById.get(item.canonicalId);
@@ -69,13 +73,15 @@ export class AuthorityControlPlaneService {
       const observedAt = canonicalState.observedAt;
       const stale = Boolean(observedAt && profile.freshnessWindowMs && now.getTime() - observedAt.getTime() > profile.freshnessWindowMs);
       const runtimePresence = profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'ABSENT' : observedAt ? 'OBSERVED' : 'NOT_OBSERVED';
-      const effectiveStatus = profile.runtimeMode === 'HUMAN' ? 'STANDBY' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'FAIL' : stale && canonicalState.status === 'PASS' ? 'DEGRADED' : canonicalState.status;
+      const sourceStatus = profile.runtimeMode === 'HUMAN' ? 'STANDBY' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'FAIL' : stale && canonicalState.status === 'PASS' ? 'DEGRADED' : canonicalState.status;
+      const effectiveStatus = persisted ? sourceStatus : 'FAIL';
       const secretIssue = secretRun?.secrets.filter((secret) => secret.status !== 'CONFIGURED').map((secret) => `${secret.id}:${secret.status}`).join(', ') || null;
-      const reason = profile.missingCapability ?? (stale ? `Last real observation exceeds ${Math.round((profile.freshnessWindowMs ?? 0) / 60000)} minutes.` : effectiveStatus === 'NO_TELEMETRY' ? `No ${profile.expectedSource} observation exists for this identity.` : secretIssue ?? heartbeat?.lastFailureReason ?? liveRun?.lastErrorCode ?? null);
-      const requiredAction = profile.requiredAction ?? (stale ? `Run the real ${profile.workload} path or restore its telemetry producer.` : effectiveStatus === 'FAIL' || effectiveStatus === 'DEGRADED' ? 'Inspect the cited evidence and restore the failed dependency or execution path.' : effectiveStatus === 'NO_TELEMETRY' ? `Exercise the real function to create ${profile.expectedSource} evidence; do not infer runtime from registry.` : null);
+      const reason = !persisted ? 'Canonical identity is absent from PremiumNetworkRegistryEntry.' : profile.missingCapability ?? (stale ? `Last real observation exceeds ${Math.round((profile.freshnessWindowMs ?? 0) / 60000)} minutes.` : effectiveStatus === 'NO_TELEMETRY' ? `No ${profile.expectedSource} observation exists for this identity.` : secretIssue ?? heartbeat?.lastFailureReason ?? liveRun?.lastErrorCode ?? null);
+      const requiredAction = !persisted ? 'Apply the approved registry provisioning migration; do not infer identity presence from telemetry.' : profile.requiredAction ?? (stale ? `Run the real ${profile.workload} path or restore its telemetry producer.` : effectiveStatus === 'FAIL' || effectiveStatus === 'DEGRADED' ? 'Inspect the cited evidence and restore the failed dependency or execution path.' : effectiveStatus === 'NO_TELEMETRY' ? `Exercise the real function to create ${profile.expectedSource} evidence; do not infer runtime from registry.` : null);
       return {
         canonicalId: item.canonicalId, kind: item.kind, module: item.module, ownerId: item.ownerId,
         supervisorId: item.supervisorId, scope: item.scope,
+        registryPresence,
         lifecycleStatus: item.lifecycleStatus,
         runtimeMode: profile.runtimeMode,
         runtimePresence,
@@ -118,7 +124,7 @@ export class AuthorityControlPlaneService {
       departments: [...new Set(nodes.map((node) => node.module))].map((module) => ({ module, nodeCount: nodes.filter((node) => node.module === module).length })),
       incidents: journals.filter((item) => item.outcome === 'REJECTED').map((item) => ({ eventId: item.eventId, eventType: item.eventType, scopeId: item.scopeId, reasonCode: item.reasonCode, occurredAt: item.occurredAt, correlationId: item.correlationId, leaseId: item.leaseId })),
       telemetryPolicy: 'OBSERVE_ONLY_NEVER_COMMAND_OR_BLOCK',
-      capabilityGaps: nodes.filter((node) => node.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED').map((node) => ({ canonicalId: node.canonicalId, reason: node.reason, requiredAction: node.requiredAction })),
+      capabilityGaps: nodes.filter((node) => node.registryPresence === 'MISSING' || node.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED').map((node) => ({ canonicalId: node.canonicalId, reason: node.reason, requiredAction: node.requiredAction })),
       opportunityIntelligence,
       recovery: recovery ? { executionId: recovery.id, status: recovery.status, startedAt: recovery.startedAt, completedAt: recovery.completedAt } : { executionId: null, status: 'NO_ACTIVITY', startedAt: null, completedAt: null },
     };
@@ -135,7 +141,6 @@ export class AuthorityControlPlaneService {
 
   async inspectOperationalCapabilities(ctx: RequestContext) {
     requireAuthorityAdmin(ctx);
-    await this.ensureFoundation(ctx);
     const now = new Date();
     const [registry, scopes, releaseEvent, heartbeat] = await Promise.all([
       this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId: ctx.companyId } }),

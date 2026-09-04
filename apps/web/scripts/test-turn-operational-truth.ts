@@ -54,6 +54,8 @@ assert.match(governanceSource, /node\.dependencyFailures/);
 assert.match(governanceSource, /node\.evidence\.source/);
 assert.match(governanceSource, /node\.requiredAction/);
 assert.match(governanceSource, /node\.authorityState\.state/);
+assert.match(governanceSource, /node\.registryPresence/);
+assert.match(governanceSource, /data-registry-presence/);
 assert.match(governanceSource, /node\.lifecycleStatus\)} \(identity only\)/);
 assert.doesNotMatch(governanceSource, /M2M AUTHENTICATED · LIVE/);
 assert.doesNotMatch(governanceSource, /orbit/i);

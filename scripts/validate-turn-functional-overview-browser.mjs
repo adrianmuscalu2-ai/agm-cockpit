@@ -4,6 +4,7 @@ import { chromium } from 'playwright';
 
 const targetUrl = process.env.AGM_TURN_FUNCTIONAL_URL || 'https://app.agmcockpit.com/turn';
 const apiUrl = process.env.AGM_TURN_FUNCTIONAL_API_URL || 'https://api.agmcockpit.com/api/v1/operations/turn/functional-overview';
+const dashboardUrl = process.env.AGM_TURN_OPERATIONAL_DASHBOARD_URL || 'https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard';
 const ownerAccessToken = process.env.AGM_TURN_OWNER_ACCESS_TOKEN?.trim();
 const interactiveOwnerLogin = process.env.AGM_TURN_INTERACTIVE_OWNER_LOGIN === '1';
 const evidenceScope = targetUrl === 'https://app.agmcockpit.com/turn' && apiUrl === 'https://api.agmcockpit.com/api/v1/operations/turn/functional-overview'
@@ -18,6 +19,7 @@ const report = {
   startedAt: new Date().toISOString(),
   targetUrl,
   apiUrl,
+  dashboardUrl,
   evidenceScope,
   browser: 'AGM controlled Playwright/Chromium',
   realSourcePolicy: 'NO_ROUTE_STUBS_NO_MOCK_PAYLOAD_NO_STATUS_FALLBACK',
@@ -71,8 +73,9 @@ try {
     if (message.type() === 'error') report.consoleErrors.push(message.text());
   });
   page.on('pageerror', (error) => report.pageErrors.push(error.message));
+  const trackedApiUrls = new Set([apiUrl, dashboardUrl]);
   page.on('request', (request) => {
-    if (request.url() === apiUrl) report.network.push({
+    if (trackedApiUrls.has(request.url())) report.network.push({
       url: request.url(),
       method: request.method(),
       authorizationPresent: Boolean(request.headers().authorization),
@@ -80,7 +83,7 @@ try {
     });
   });
   page.on('response', (response) => {
-    if (response.url() === apiUrl) report.network.push({ url: response.url(), status: response.status(), respondedAt: new Date().toISOString() });
+    if (trackedApiUrls.has(response.url())) report.network.push({ url: response.url(), status: response.status(), respondedAt: new Date().toISOString() });
   });
 
   const navigation = await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
@@ -111,6 +114,25 @@ try {
   const overview = apiPayload?.data;
   validateOverview(overview);
   report.checks.api = { httpStatus: apiResponse.status, overview };
+  const dashboardResponse = await fetch(dashboardUrl, {
+    cache: 'no-store',
+    headers: { Accept: 'application/json', Authorization: `Bearer ${effectiveOwnerAccessToken}` },
+  });
+  const dashboardPayload = await dashboardResponse.json().catch(() => ({}));
+  assert(dashboardResponse.status === 200, `Operational dashboard API HTTP ${dashboardResponse.status}`);
+  const dashboard = dashboardPayload?.data;
+  validateOperationalDashboard(dashboard);
+  report.network.push({ url: dashboardUrl, method: 'GET', authorizationPresent: true, status: dashboardResponse.status, directContractValidation: true, respondedAt: new Date().toISOString() });
+  report.checks.operationalDashboard = {
+    httpStatus: dashboardResponse.status,
+    contractVersion: dashboard.contractVersion,
+    generatedAt: dashboard.generatedAt,
+    nodeCount: dashboard.nodes.length,
+    registryMissing: dashboard.nodes.filter((node) => node.registryPresence !== 'PRESENT').map((node) => node.canonicalId),
+    capabilityGaps: dashboard.capabilityGaps,
+    authorityStatus: dashboard.controlPlane.status,
+    opportunityGate: dashboard.opportunityIntelligence.gate,
+  };
   const functionalNav = page.locator('a[href="#turn-functional-overview"]');
   await functionalNav.click();
   await page.waitForFunction(() => location.hash === '#turn-functional-overview');
@@ -137,7 +159,9 @@ try {
       staticRuntimeGreen: document.querySelectorAll('[data-functional-status="STATIC_REFERENCE"].status-operational, [data-functional-status="UNKNOWN_LEGITIMATE"].status-operational').length,
       registryRuntimeGreen: document.querySelectorAll('.organization-map-card .status-light-green, .turn-agent-register .turn-light.active, .turn-entry-panel .turn-light.active').length,
       operationalNodeCount: document.querySelectorAll('[data-canonical-agent-id]').length,
-      operationalFieldCoverage: [...document.querySelectorAll('[data-canonical-agent-id]')].filter((card) => ['Runtime', 'Current state / health', 'Last heartbeat', 'Last activity', 'Freshness', 'Current function', 'Dependencies', 'Evidence/source', 'Why', 'Required action'].every((label) => card.textContent?.includes(label))).length,
+      operationalNodeIds: [...document.querySelectorAll('[data-canonical-agent-id]')].map((card) => card.getAttribute('data-canonical-agent-id')),
+      registryMissingNodes: [...document.querySelectorAll('[data-canonical-agent-id][data-registry-presence="MISSING"]')].map((card) => card.getAttribute('data-canonical-agent-id')),
+      operationalFieldCoverage: [...document.querySelectorAll('[data-canonical-agent-id]')].filter((card) => ['Runtime', 'Current state / health', 'Last heartbeat', 'Last activity', 'Freshness', 'Current function', 'Dependencies', 'Evidence/source', 'Why', 'Required action', 'Identity registry'].every((label) => card.textContent?.includes(label))).length,
       decorativeOrbitCount: document.querySelectorAll('.agm-orbit, .agm-network-node').length,
       authorityStatus: document.querySelector('[data-control-status]')?.textContent?.trim() || '',
     };
@@ -152,6 +176,7 @@ try {
   assert(ui.staticRuntimeGreen === 0, 'Static/local zones are presented as operational green.');
   assert(ui.registryRuntimeGreen === 0, 'Registry-only content is presented as runtime green.');
   assert(ui.operationalNodeCount === 28 && ui.operationalFieldCoverage === 28, `Operational agent coverage is ${ui.operationalFieldCoverage}/${ui.operationalNodeCount}.`);
+  assert(ui.registryMissingNodes.length === 0, `Canonical registry identities missing in UI: ${ui.registryMissingNodes.join(', ')}.`);
   assert(ui.decorativeOrbitCount === 0, 'Decorative operational substitute is still rendered.');
   assert(!['', 'DATA UNAVAILABLE', 'ACCES OPERAȚIONAL NECESAR'].includes(ui.authorityStatus), `Authority status is ${ui.authorityStatus}.`);
   assert(report.network.some((entry) => entry.authorizationPresent === true), 'UI request did not carry real Owner Access authorization.');
@@ -204,6 +229,25 @@ function validateOverview(overview) {
     }
     if (zone.status === 'ATTENTION') assert(zone.missing && zone.implementation, `${zone.id} ATTENTION lacks cause/action.`);
   }
+}
+
+function validateOperationalDashboard(dashboard) {
+  assert(dashboard?.contractVersion === 'AGM-PREMIUM-NETWORK-V1', `Operational dashboard contract is ${dashboard?.contractVersion}.`);
+  assert(Array.isArray(dashboard?.nodes) && dashboard.nodes.length === 28, `Operational dashboard contains ${dashboard?.nodes?.length ?? 0}/28 nodes.`);
+  assert(new Set(dashboard.nodes.map((node) => node.canonicalId)).size === 28, 'Operational dashboard node identities are not unique.');
+  assert(Array.isArray(dashboard.capabilityGaps) && dashboard.capabilityGaps.length === 0, `Operational capability gaps: ${JSON.stringify(dashboard.capabilityGaps)}.`);
+  for (const node of dashboard.nodes) {
+    assert(node.canonicalId && node.kind && node.registryPresence && node.runtimePresence && node.currentFunction, `${node.canonicalId || 'UNKNOWN_ID'} lacks identity/runtime fields.`);
+    assert(node.status && node.health && node.freshness && node.dependencyState && node.authorityState?.state, `${node.canonicalId} lacks state/health/dependency/authority fields.`);
+    assert(node.registryPresence === 'PRESENT', `${node.canonicalId} is ${node.registryPresence} in the persistent registry.`);
+    assert(node.statusSource !== 'REGISTRY' && node.evidence?.source && node.evidence.source !== 'REGISTRY', `${node.canonicalId} derives runtime from registry.`);
+    if (['FAIL', 'DEGRADED', 'NO_TELEMETRY'].includes(node.status)) {
+      assert(node.reason && node.requiredAction, `${node.canonicalId} lacks reason/action for ${node.status}.`);
+    }
+  }
+  assert(dashboard.controlPlane?.status && dashboard.controlPlane?.statusSource, 'Authority Control Plane evaluation is missing.');
+  assert(Array.isArray(dashboard.controlPlane.conflicts) && Array.isArray(dashboard.controlPlane.activeCommandChains) && Array.isArray(dashboard.controlPlane.invalidOrStaleAuthority), 'Authority conflict/chain/staleness evaluation is incomplete.');
+  assert(dashboard.opportunityIntelligence?.gate && dashboard.opportunityIntelligence?.reason && Array.isArray(dashboard.opportunityIntelligence.sources), 'Opportunity Intelligence evaluation is incomplete.');
 }
 
 async function dismissFirstRun(page, checks) {

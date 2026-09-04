@@ -69,6 +69,7 @@ export class TurnFunctionalOverviewService {
       latestLoadSafetyUsage,
       basicFeatureCounts,
       basicFeatureEvents,
+      premiumRegistry,
     ] = await Promise.all([
       this.translation.functionalHealth(),
       this.prisma.communicationConversation.count({ where: { companyId } }),
@@ -107,7 +108,11 @@ export class TurnFunctionalOverviewService {
       this.prisma.providerUsageEvent.findFirst({ where: { companyId, adapterId: { startsWith: 'premium-load-safety.' } }, orderBy: { occurredAt: 'desc' }, select: { occurredAt: true, outcome: true } }),
       this.prisma.providerUsageEvent.groupBy({ by: ['adapterId'], where: { companyId, providerId: 'agm-basic-local', eventType: 'FUNCTION_EXECUTION' }, _count: { _all: true }, _max: { occurredAt: true } }),
       this.prisma.providerUsageEvent.findMany({ where: { companyId, providerId: 'agm-basic-local', eventType: 'FUNCTION_EXECUTION' }, orderBy: { occurredAt: 'desc' }, take: 1000, select: { adapterId: true, outcome: true, occurredAt: true, latencyMs: true, metrics: true } }),
+      this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId }, select: { canonicalId: true } }),
     ]);
+
+    const registeredPremiumIds = new Set(premiumRegistry.map((item) => item.canonicalId));
+    const missingPremiumIds = premiumNetworkSeed.map((item) => item.canonicalId).filter((id) => !registeredPremiumIds.has(id));
 
     const zones: TurnFunctionalZone[] = [
       zone('basic.translator', 'BASIC', 'Traducător', translationHealth.functional ? 'OPERATIONAL' : 'ATTENTION',
@@ -150,9 +155,9 @@ export class TurnFunctionalOverviewService {
         latestDate(latestOpportunity?.updatedAt, ...opportunityTelemetry.map((item) => item.lastRunAt), ...liveAdapters.map((item) => item.lastAttemptAt)),
         { opportunities, staleOpportunities, verdicts: opportunityVerdicts, humanDecisions: opportunityDecisions, jobLinks: opportunityLinks, agentsObserved: opportunityTelemetry.length, adaptersObserved: liveAdapters.length },
         '/premium/copilot', 'Opportunity Intelligence + LiveAdapterTelemetry', 'Decide asupra oportunităților', 'Rezolvă sursele stale/backlog-ul înaintea unei decizii.'),
-      activityZone('premium.team', 'PREMIUM', 'Echipa Premium runtime', agentRuntimeEvents, failedAgentRuntimeEvents > 0 || heartbeatAttention(heartbeats, now), latestDate(latestAgentRuntimeEvent?.occurredAt, ...heartbeats.map((item) => item.lastSeenAt)),
-        { runtimeEvents: agentRuntimeEvents, failedEvents: failedAgentRuntimeEvents, heartbeats: heartbeats.length, unhealthyHeartbeats: unhealthyHeartbeatCount(heartbeats, now) },
-        '/premium/team', 'AgentRuntimeEvent + ComponentHeartbeat', 'Inspectează echipa', 'Investighează evenimentele FAILED și heartbeat-urile stale/degradate.'),
+      activityZone('premium.team', 'PREMIUM', 'Echipa Premium runtime', agentRuntimeEvents, missingPremiumIds.length > 0 || failedAgentRuntimeEvents > 0 || heartbeatAttention(heartbeats, now), latestDate(latestAgentRuntimeEvent?.occurredAt, ...heartbeats.map((item) => item.lastSeenAt)),
+        { runtimeEvents: agentRuntimeEvents, failedEvents: failedAgentRuntimeEvents, heartbeats: heartbeats.length, unhealthyHeartbeats: unhealthyHeartbeatCount(heartbeats, now), expectedIdentities: premiumNetworkSeed.length, registeredIdentities: registeredPremiumIds.size, registryMissing: missingPremiumIds.join(', ') || 'NONE' },
+        '/premium/team', 'AgentRuntimeEvent + ComponentHeartbeat + PremiumNetworkRegistryEntry', 'Inspectează echipa', missingPremiumIds.length ? `Aplică provisioningul aprobat pentru: ${missingPremiumIds.join(', ')}.` : 'Investighează evenimentele FAILED și heartbeat-urile stale/degradate.'),
     ];
 
     const summary = {
@@ -162,7 +167,7 @@ export class TurnFunctionalOverviewService {
       attention: count(zones, 'ATTENTION'),
       noActivity: count(zones, 'NO_ACTIVITY'),
       staticReference: count(zones, 'STATIC_REFERENCE'),
-      capabilityMissing: count(zones, 'CAPABILITY_MISSING') + premiumNetworkSeed.filter((node) => operationalProfile(node).runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED').length,
+      capabilityMissing: count(zones, 'CAPABILITY_MISSING') + premiumNetworkSeed.filter((node) => operationalProfile(node).runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED').length + missingPremiumIds.length,
       legitimateUnknown: count(zones, 'UNKNOWN_LEGITIMATE'),
       unresolvedUnknown: zones.filter((item) => item.status === 'UNKNOWN_LEGITIMATE' && !item.legitimateUnknown).length,
     };
