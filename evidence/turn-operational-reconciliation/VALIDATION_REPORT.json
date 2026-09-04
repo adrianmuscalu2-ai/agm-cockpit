@@ -1,7 +1,7 @@
 {
   "contract": "turn-operational-truth-final-production.v1",
   "recordedAt": "2026-09-04T18:57:30.000Z",
-  "status": "FINAL_PRODUCTION_PASS",
+  "status": "TECHNICAL_PIPELINE_PASS_TURN_FUNCTIONAL_COMPLETENESS_FAIL",
   "sourceRevision": "b769c38c979d5218545550fa98e348ef4866de83",
   "evidenceRevision": "b639ec3fbbc9843cfc456766f69c8d3fc9a92590",
   "baseRevision": "b2a342f63696c3470ea9352ea9fe9f0c9c48a5a9",
@@ -66,6 +66,12 @@
     "m2mLifecycleSmoke": "PASS",
     "turnOperationalTruthSmoke": "PASS",
     "controlledBrowserAudit": "PASS",
-    "finalPass": true
+    "releasePipeline": "PASS",
+    "operationalTruthInfrastructure": "PASS",
+    "falseGreenPrevention": "PASS",
+    "turnFunctionalCompleteness": "FAIL",
+    "productOwnerAcceptance": "NOT_GRANTED",
+    "finalProductionPass": "RETRACTED",
+    "finalPass": false
   }
 }

@@ -2,7 +2,7 @@ export const turnCommandCenterContract = {
   id: 'APP-011',
   version: 'turn-command-center.v1',
   mode: 'read-only',
-  dataSources: ['OPS-003 runtime telemetry', 'Production Preflight', 'Incident Journal', 'Governance Register'] as const,
+  dataSources: ['TURN Functional Overview', 'OPS-003 runtime telemetry', 'Production Preflight', 'Incident Journal', 'Governance Register'] as const,
   allowedCapabilities: ['inspect', 'filter', 'recheck-health', 'navigate', 'export-audit'] as const,
   delegatedMutations: {
     administration: 'API-007',

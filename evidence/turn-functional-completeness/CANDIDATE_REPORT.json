@@ -1,0 +1,60 @@
+{
+  "contract": "turn-functional-completeness-candidate.v1",
+  "recordedAt": "2026-09-04T23:31:48.4091674+02:00",
+  "scope": "TURN Product Owner functional value only",
+  "candidateStatus": "READY_FOR_PUSH_AND_PRODUCTION_DEPLOYMENT_APPROVAL",
+  "acceptedFrozenEvidence": {
+    "releasePipeline": "PASS",
+    "operationalTruthInfrastructure": "PASS",
+    "falseGreenPrevention": "PASS",
+    "revalidated": false
+  },
+  "functionalCoverage": {
+    "basicZones": 10,
+    "premiumZones": 13,
+    "totalZones": 23,
+    "realSourcesConnected": [
+      "TranslationService.functionalHealth",
+      "CommunicationConversation",
+      "CommunicationMessage",
+      "GmailPilotTelemetry",
+      "PreDepartureSession",
+      "OperationalEventStore",
+      "CarMoverJob",
+      "CarMoverPlatformOffer",
+      "CarMoverInvoice",
+      "IncidentReport",
+      "ProviderUsageEvent",
+      "Opportunity Intelligence",
+      "LiveAdapterTelemetry",
+      "AgentRuntimeEvent",
+      "ComponentHeartbeat"
+    ],
+    "zeroActivitySemantic": "NO_ACTIVITY",
+    "staticSemantic": "STATIC_REFERENCE",
+    "legitimateUnknownSemantic": "UNKNOWN_LEGITIMATE_WITH_REASON_AND_IMPLEMENTATION",
+    "partialSourceFailureSemantic": "DATA_UNAVAILABLE_NO_INFERENCE"
+  },
+  "newCollectors": [
+    "premium-assistant provider outcome",
+    "premium-load-safety analysis provider outcome",
+    "premium-load-safety recommendation provider outcome",
+    "premium-load-safety field-test provider outcome"
+  ],
+  "verification": {
+    "apiBuild": "PASS",
+    "webBuild": "PASS",
+    "apiTargetedSuites": 4,
+    "apiTargetedTests": 10,
+    "apiTargetedVerdict": "PASS",
+    "webFunctionalContract": "PASS",
+    "eslintChangedApiSources": "PASS",
+    "gitDiffCheck": "PASS",
+    "browserValidation": "PENDING_PRODUCTION_DEPLOYMENT"
+  },
+  "verdict": {
+    "turnFunctionalCompleteness": "FAIL_UNTIL_PRODUCTION_VALIDATION",
+    "productOwnerAcceptance": "NOT_GRANTED",
+    "finalProductionPass": "RETRACTED"
+  }
+}

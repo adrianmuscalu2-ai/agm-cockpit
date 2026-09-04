@@ -59,6 +59,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       data-module-contract="${turnCommandCenterContract.version}"
       data-operation-mode="${turnCommandCenterContract.mode}"
     >
+      ${renderFunctionalOverview()}
       ${renderRealStatusBoard()}
 
       <header class="turn-hero">
@@ -76,6 +77,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
 
       <nav class="turn-module-nav" aria-label="Turn modules">
         ${[
+          ['Valoare Product Owner', 'turn-functional-overview'],
           ['Authority Control Plane', 'turn-authority-control-plane'],
           ['Premium Agent Network', 'turn-premium-network'],
           ['Agent Directory', 'turn-dashboard'],
@@ -162,6 +164,15 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       <button id="turnBackToTop" class="turn-back-to-top" type="button" hidden aria-label="Înapoi sus">↑ Înapoi sus</button>
     </section>
   `;
+}
+
+function renderFunctionalOverview() {
+  return `<section class="turn-functional-overview" id="turn-functional-overview" data-turn-functional-overview aria-labelledby="turn-functional-overview-title" aria-live="polite" aria-busy="true">
+    <header><div><span class="turn-kicker">TURN · PRODUCT OWNER · LIVE FUNCTIONAL VALUE</span><h2 id="turn-functional-overview-title">Basic și Premium: informație, sursă, acțiune, lipsă</h2><p>Proiecție protejată din surse operaționale reale. Zero activitate este distinct de UNKNOWN; registry și referințele statice nu sunt prezentate ca runtime.</p></div><strong data-functional-verdict>TURN FUNCTIONAL COMPLETENESS FAIL · PRODUCT OWNER ACCEPTANCE NOT_GRANTED · FINAL_PRODUCTION_PASS RETRACTED</strong></header>
+    <div class="turn-functional-summary" data-functional-summary><article><small>Stare</small><strong>SE ÎNCARCĂ</strong></article></div>
+    <p class="turn-functional-generated" data-functional-generated-at>Se solicită proiecția live…</p>
+    <div data-functional-zones><p>Se citesc exclusiv sursele reale autorizate…</p></div>
+  </section>`;
 }
 
 function renderRealStatusBoard() {
@@ -270,7 +281,7 @@ function renderOrganizationMapSection(language: UiLanguage) {
     grouped.set(agent.ownerDepartmentId, list);
   });
   const departmentLabel = (id: string) => id.replace(/[-]/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
-  return `<article class="turn-card organization-map-card" id="turn-organization"><header><div><span class="turn-kicker">TURN · AGENT DIRECTORY</span><strong>Rețeaua operațională AGM</strong><p>31 agenți aprobați și P9, grupați pe departamente, niveluri și responsabilități.</p></div>${renderStatusLight('agent', 'ACTIVE', 'turn-network-status')}</header><div class="organization-map"><div class="organization-root"><strong>Product Owner / AGM</strong><span>Aprobă direcția și închiderea etapelor</span></div>${[...grouped.entries()].map(([department, agents]) => `<section class="organization-department"><h3>${escapeHtml(departmentLabel(department))}</h3><div class="organization-agents">${agents.map((agent) => `<details class="organization-agent" data-agent-directory-id="${escapeHtml(agent.id)}"><summary><strong>${escapeHtml(agent.displayName ?? t(language, agent.nameKey))}</strong><span class="turn-status ${agent.status === 'monitoring' ? 'watch' : agent.status === 'planned' ? 'planned' : 'active'}">${escapeHtml(agent.status)}</span></summary><dl><div><dt>Rol</dt><dd>${escapeHtml(agent.displayRole ?? t(language, agent.roleKey))}</dd></div><div><dt>Responsabilități</dt><dd>${escapeHtml(agent.displayResponsibilities ?? t(language, agent.responsibilitiesKey))}</dd></div><div><dt>Flux</dt><dd>Primește → execută → raportează → verifică</dd></div></dl></details>`).join('')}</div></section>`).join('')}</div></article>`;
+  return `<article class="turn-card organization-map-card" id="turn-organization"><header><div><span class="turn-kicker">TURN · AGENT DIRECTORY</span><strong>Registrul organizațional AGM</strong><p>Identități, departamente și responsabilități aprobate; acest registru nu afirmă stare runtime.</p></div>${renderStatusLight('agent', undefined, 'turn-network-status')}</header><div class="organization-map"><div class="organization-root"><strong>Product Owner / AGM</strong><span>Aprobă direcția și închiderea etapelor</span></div>${[...grouped.entries()].map(([department, agents]) => `<section class="organization-department"><h3>${escapeHtml(departmentLabel(department))}</h3><div class="organization-agents">${agents.map((agent) => `<details class="organization-agent" data-agent-directory-id="${escapeHtml(agent.id)}"><summary><strong>${escapeHtml(agent.displayName ?? t(language, agent.nameKey))}</strong><span class="turn-status planned">REGISTRY ONLY</span></summary><dl><div><dt>Rol</dt><dd>${escapeHtml(agent.displayRole ?? t(language, agent.roleKey))}</dd></div><div><dt>Responsabilități</dt><dd>${escapeHtml(agent.displayResponsibilities ?? t(language, agent.responsibilitiesKey))}</dd></div><div><dt>Flux</dt><dd>Primește → execută → raportează → verifică</dd></div></dl></details>`).join('')}</div></section>`).join('')}</div></article>`;
 }
 
 function agentDisplayName(language: UiLanguage, agent: AgentGovernanceRecord) {
@@ -311,7 +322,7 @@ function renderApprovedTurnDashboard(language: UiLanguage) {
 
   return `<section class="turn-agent-dashboard" id="turn-dashboard" aria-labelledby="turn-dashboard-title" data-agent-count="${approvedAgents.length}" data-p9-count="${p9 ? 1 : 0}">
     <header class="turn-dashboard-header">
-      <div><span class="turn-kicker">TURN · COMMAND & GOVERNANCE BOARD</span><h2 id="turn-dashboard-title">Dashboardul Turnului</h2><p>Bord unic pentru comandă, intrare în tură, arhitectură, guvernanță și evidența completă a agenților AGM.</p></div>
+      <div><span class="turn-kicker">TURN · SECONDARY GOVERNANCE REFERENCE</span><h2 id="turn-dashboard-title">Registrul de guvernanță</h2><p>Referință secundară pentru arhitectură și responsabilități. Starea funcțională Product Owner provine exclusiv din proiecția live de mai sus.</p></div>
       <div class="turn-dashboard-verdict"><span class="turn-light planned" aria-hidden="true"></span><strong>${approvedAgents.length} AGENȚI + P9</strong><small>REGISTRY ONLY · fără afirmație runtime</small></div>
     </header>
 
@@ -366,7 +377,7 @@ function renderProjectCatalogCard() {
     ['Email Assistant', 'apps/web/src/main.ts + apps/web/src/mailmaster', 'baseline/agm-basic-v1', '7670640a7a8cdcd49418bfc85079c33105094d78', '/email', 'http://localhost:5173/email', 'https://app.agmcockpit.com/email'],
     ['Transfer Android → aplicație e-mail', 'apps/web/src/native-email.ts + AgmEmailPlugin.java', 'baseline/agm-basic-v1', 'validat practic', '/email', 'ACTION_SENDTO + mailto:', 'Gmail finalizează expedierea'],
   ];
-  return `<article class="turn-card project-catalog-card"><header><strong>Catalog proiect · Unde găsesc?</strong><p>Căutare verificabilă în componente, fișiere, branch-uri, commituri și URL-uri.</p></header><label class="catalog-search"><span>Caută componentă, agent, URL, branch, commit, fișier, misiune sau incident</span><input id="projectCatalogSearch" type="search" placeholder="Ex.: Turn, 7670640, /turn, AG-017" /></label><div id="projectCatalogResults" class="project-catalog-list">${entries.map(([name, file, branch, commit, route, localUrl, publicUrl]) => `<details class="catalog-entry" data-search="${[name, file, branch, commit, route, localUrl, publicUrl].join(' ').toLocaleLowerCase()}"><summary><strong>${name}</strong><span>Activ</span></summary><dl><div><dt>Fișier sursă</dt><dd><code>${file}</code></dd></div><div><dt>Branch / commit</dt><dd><code>${branch}</code><br /><code>${commit}</code></dd></div><div><dt>Rută / URL local</dt><dd><code>${route}</code> · ${localUrl}</dd></div><div><dt>URL public</dt><dd>${publicUrl}</dd></div><div><dt>Registru</dt><dd>Architecture Map · Version Registry · Turn</dd></div></dl></details>`).join('')}</div></article>`;
+  return `<article class="turn-card project-catalog-card"><header><strong>Catalog istoric proiect · Unde găsesc?</strong><p>Referințe statice pentru localizarea codului; nu reprezintă branch-ul, commitul sau starea runtime curentă.</p></header><label class="catalog-search"><span>Caută componentă, agent, URL, branch istoric, commit istoric, fișier, misiune sau incident</span><input id="projectCatalogSearch" type="search" placeholder="Ex.: Turn, /turn, AG-017" /></label><div id="projectCatalogResults" class="project-catalog-list">${entries.map(([name, file, branch, commit, route, localUrl, publicUrl]) => `<details class="catalog-entry" data-search="${[name, file, branch, commit, route, localUrl, publicUrl].join(' ').toLocaleLowerCase()}"><summary><strong>${name}</strong><span>STATIC REFERENCE</span></summary><dl><div><dt>Fișier sursă</dt><dd><code>${file}</code></dd></div><div><dt>Branch / commit istoric</dt><dd><code>${branch}</code><br /><code>${commit}</code></dd></div><div><dt>Rută / URL local istoric</dt><dd><code>${route}</code> · ${localUrl}</dd></div><div><dt>URL public de referință</dt><dd>${publicUrl}</dd></div><div><dt>Limită</dt><dd>Architecture Map / Version Registry; fără afirmație runtime.</dd></div></dl></details>`).join('')}</div></article>`;
 }
 
 function renderPlatformMapCard() {

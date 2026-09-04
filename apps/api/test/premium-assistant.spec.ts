@@ -43,6 +43,15 @@ describe('Premium assistant read-only contract', () => {
     expect(body.input[0].content).toContain('do not repeat a question already answered');
   });
 
+  it('persists real provider usage for the Product Owner projection', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({ output_text: 'Răspuns operațional.' }), { status: 200 }));
+    const prisma = { providerUsageEvent: { create: jest.fn().mockResolvedValue({}) } };
+    await new PremiumAssistantService(config, prisma as never).respond(premiumUser, request);
+    expect(prisma.providerUsageEvent.create).toHaveBeenCalledWith({ data: expect.objectContaining({
+      companyId: 'tenant-1', userId: 'user-1', adapterId: 'premium-assistant', eventType: 'PROVIDER_REQUEST', outcome: 'SUCCESS',
+    }) });
+  });
+
   it('classifies a provider question as a clarification', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({ output_text: 'Despre ce document este vorba?' }), { status: 200 }));
     await expect(new PremiumAssistantService(config).respond(premiumUser, request)).resolves.toMatchObject({ kind: 'clarification', externalEffectPerformed: false });

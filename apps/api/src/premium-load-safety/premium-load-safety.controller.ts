@@ -3,6 +3,8 @@ import {
   Body,
   Controller,
   HttpCode,
+  Logger,
+  Optional,
   Post,
   ServiceUnavailableException,
   UploadedFile,
@@ -14,8 +16,11 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PremiumCapabilityGuard } from '../auth/premium-capability.guard';
+import { CurrentUser } from '../common/current-user.decorator';
 import { responseEnvelope } from '../common/response';
+import type { RequestContext } from '../common/request-context';
 import { validateVisionConsentForPurpose, type VisionConsentEvidence } from '../common/image-security/vision-request-security';
+import { PrismaService } from '../prisma/prisma.service';
 import { PremiumLoadSafetyProvider } from './premium-load-safety.provider';
 import type { UploadedImage } from './premium-load-safety.types';
 import { parseLoadSafetyAnalysisJson } from './premium-load-safety.validation';
@@ -32,10 +37,13 @@ const maxImageBytes = 8 * 1024 * 1024;
 @Controller('premium')
 @UseGuards(JwtAuthGuard, PremiumCapabilityGuard)
 export class PremiumLoadSafetyController {
+  private readonly logger = new Logger(PremiumLoadSafetyController.name);
+
   constructor(
     private readonly provider: PremiumLoadSafetyProvider,
     private readonly recommendationProvider: SecuringRecommendationProvider,
     private readonly fieldTestProvider: FieldTestProvider,
+    @Optional() private readonly prisma?: PrismaService,
   ) {}
 
   @Post(['ladungssicherung/analyze', 'load-safety/actions/analyze'])
@@ -50,6 +58,7 @@ export class PremiumLoadSafetyController {
     @UploadedFile() image: UploadedImage | undefined,
     @Body('language') requestedLanguage?: string,
     @Body('consent') rawConsent?: string,
+    @CurrentUser() user?: RequestContext,
   ) {
     requireConsent(rawConsent, 'load-safety-analysis');
     if (!image || !acceptedImageTypes.has(image.mimetype)) {
@@ -58,6 +67,7 @@ export class PremiumLoadSafetyController {
 
     const language = normalizeLanguage(requestedLanguage);
     const result = await this.provider.analyze(image, language);
+    await this.recordUsage(user, 'analysis', result.available ? 'SUCCESS' : 'PROVIDER_UNAVAILABLE');
     if (!result.available) {
       throw new ServiceUnavailableException('AI analysis provider is unavailable.');
     }
@@ -78,6 +88,7 @@ export class PremiumLoadSafetyController {
     @Body('input') rawInput?: string,
     @Body('visualAnalysis') rawVisualAnalysis?: string,
     @Body('consent') rawConsent?: string,
+    @CurrentUser() user?: RequestContext,
   ) {
     requireConsent(rawConsent, 'load-safety-recommendation');
     if (!image || !acceptedImageTypes.has(image.mimetype)) {
@@ -96,6 +107,7 @@ export class PremiumLoadSafetyController {
 
     const language = normalizeLanguage(requestedLanguage);
     const recommendation = await this.recommendationProvider.recommend(image, language, input, visualAnalysis);
+    await this.recordUsage(user, 'recommendation', recommendation ? 'SUCCESS' : 'PROVIDER_UNAVAILABLE');
     if (!recommendation) {
       throw new ServiceUnavailableException('AI recommendation provider is unavailable.');
     }
@@ -116,6 +128,7 @@ export class PremiumLoadSafetyController {
     @Body('input') rawInput?: string,
     @Body('language') requestedLanguage?: string,
     @Body('consent') rawConsent?: string,
+    @CurrentUser() user?: RequestContext,
   ) {
     requireConsent(rawConsent, 'load-safety-field-test');
     if (!photos || photos.length < 2 || photos.some((photo) => !acceptedImageTypes.has(photo.mimetype))) {
@@ -135,12 +148,30 @@ export class PremiumLoadSafetyController {
       input,
       language,
     );
+    await this.recordUsage(user, 'field-test', report ? 'SUCCESS' : 'PROVIDER_UNAVAILABLE');
     if (!report) throw new ServiceUnavailableException('AI field test provider is unavailable.');
     return responseEnvelope({
       available: true,
       report: finalizeFieldReport(report, input, language),
       provider: 'openai',
     });
+  }
+
+  private async recordUsage(user: RequestContext | undefined, operation: string, outcome: string) {
+    if (!this.prisma || !user) return;
+    try {
+      await this.prisma.providerUsageEvent.create({ data: {
+        companyId: user.companyId,
+        userId: user.userId,
+        providerId: 'openai',
+        adapterId: `premium-load-safety.${operation}`,
+        category: 'PREMIUM_LOAD_SAFETY',
+        eventType: 'PROVIDER_REQUEST',
+        outcome,
+      } });
+    } catch (error) {
+      this.logger.error('Premium load-safety usage telemetry could not be persisted.', error instanceof Error ? error.stack : undefined);
+    }
   }
 }
 

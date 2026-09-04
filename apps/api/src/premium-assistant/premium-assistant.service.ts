@@ -1,6 +1,7 @@
-import { ForbiddenException, Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { RequestContext } from '../common/request-context';
+import { PrismaService } from '../prisma/prisma.service';
 import { PREMIUM_ASSISTANT_CONTRACT, type PremiumAssistantResponse } from './premium-assistant.contract';
 import type { PremiumAssistantRequestDto } from './dto/premium-assistant-request.dto';
 
@@ -8,37 +9,54 @@ type OpenAiPayload = { output_text?: string; output?: Array<{ content?: Array<{ 
 
 @Injectable()
 export class PremiumAssistantService {
-  constructor(private readonly config: ConfigService) {}
+  private readonly logger = new Logger(PremiumAssistantService.name);
+
+  constructor(private readonly config: ConfigService, @Optional() private readonly prisma?: PrismaService) {}
 
   async respond(user: RequestContext, request: PremiumAssistantRequestDto): Promise<PremiumAssistantResponse> {
     const serverStartedAt = Date.now();
     if (!user.roles.includes(PREMIUM_ASSISTANT_CONTRACT.requiredRole)) throw new ForbiddenException('Premium entitlement required.');
     const apiKey = this.config.get<string>('OPENAI_API_KEY');
-    if (!apiKey) throw new ServiceUnavailableException('Assistant provider unavailable.');
+    if (!apiKey) {
+      await this.recordUsage(user, 'CONFIGURATION_MISSING', serverStartedAt, 'OPENAI_API_KEY_MISSING');
+      throw new ServiceUnavailableException('Assistant provider unavailable.');
+    }
     const contextRefs = [request.tripId && `trip:${request.tripId}`, request.operationalCaseId && `case:${request.operationalCaseId}`, request.situationId && `situation:${request.situationId}`].filter((value): value is string => Boolean(value));
     const useLiveSearch = requiresLiveSearch(request.confirmedText);
     const providerStartedAt = Date.now();
-    const response = await fetch(PREMIUM_ASSISTANT_CONTRACT.endpoint, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: this.config.get<string>('OPENAI_PREMIUM_ASSISTANT_MODEL', PREMIUM_ASSISTANT_CONTRACT.defaultModel),
-        input: [
-          { role: 'system', content: systemInstruction(request.language) },
-          { role: 'user', content: JSON.stringify({ productId: request.productId, moduleId: request.moduleId, tenantBoundary: user.companyId, contextRefs, history: request.history, confirmedText: request.confirmedText }) },
-        ],
-        ...(useLiveSearch ? { tools: [{ type: 'web_search' }], tool_choice: 'auto' } : {}),
-        max_output_tokens: 220,
-        store: false,
-        temperature: 0.2,
-      }),
-      signal: AbortSignal.timeout(PREMIUM_ASSISTANT_CONTRACT.timeoutMs),
-    });
-    if (!response.ok) throw new ServiceUnavailableException('Assistant provider unavailable.');
+    let response: Response;
+    try {
+      response = await fetch(PREMIUM_ASSISTANT_CONTRACT.endpoint, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: this.config.get<string>('OPENAI_PREMIUM_ASSISTANT_MODEL', PREMIUM_ASSISTANT_CONTRACT.defaultModel),
+          input: [
+            { role: 'system', content: systemInstruction(request.language) },
+            { role: 'user', content: JSON.stringify({ productId: request.productId, moduleId: request.moduleId, tenantBoundary: user.companyId, contextRefs, history: request.history, confirmedText: request.confirmedText }) },
+          ],
+          ...(useLiveSearch ? { tools: [{ type: 'web_search' }], tool_choice: 'auto' } : {}),
+          max_output_tokens: 220,
+          store: false,
+          temperature: 0.2,
+        }),
+        signal: AbortSignal.timeout(PREMIUM_ASSISTANT_CONTRACT.timeoutMs),
+      });
+    } catch {
+      await this.recordUsage(user, 'NETWORK_ERROR', serverStartedAt, 'NETWORK_ERROR');
+      throw new ServiceUnavailableException('Assistant provider unavailable.');
+    }
+    if (!response.ok) {
+      await this.recordUsage(user, 'PROVIDER_HTTP_ERROR', serverStartedAt, `HTTP_${response.status}`);
+      throw new ServiceUnavailableException('Assistant provider unavailable.');
+    }
     const text = extractText(await response.json() as OpenAiPayload);
     const providerCompletedAt = Date.now();
-    if (!text) throw new ServiceUnavailableException('Assistant response unavailable.');
-    return {
+    if (!text) {
+      await this.recordUsage(user, 'EMPTY_RESPONSE', serverStartedAt, 'EMPTY_RESPONSE');
+      throw new ServiceUnavailableException('Assistant response unavailable.');
+    }
+    const result: PremiumAssistantResponse = {
       contractVersion: PREMIUM_ASSISTANT_CONTRACT.version,
       kind: text.endsWith('?') ? 'clarification' : 'answer',
       text,
@@ -53,6 +71,27 @@ export class PremiumAssistantService {
         serverTotalMs: providerCompletedAt - serverStartedAt,
       },
     };
+    await this.recordUsage(user, 'SUCCESS', serverStartedAt);
+    return result;
+  }
+
+  private async recordUsage(user: RequestContext, outcome: string, startedAt: number, errorCode?: string) {
+    if (!this.prisma) return;
+    try {
+      await this.prisma.providerUsageEvent.create({ data: {
+        companyId: user.companyId,
+        userId: user.userId,
+        providerId: 'openai',
+        adapterId: 'premium-assistant',
+        category: 'PREMIUM_ASSISTANT',
+        eventType: 'PROVIDER_REQUEST',
+        outcome,
+        latencyMs: Date.now() - startedAt,
+        errorCode,
+      } });
+    } catch (error) {
+      this.logger.error('Premium assistant usage telemetry could not be persisted.', error instanceof Error ? error.stack : undefined);
+    }
   }
 }
 

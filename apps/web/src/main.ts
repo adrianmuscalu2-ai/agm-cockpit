@@ -151,6 +151,7 @@ import { bindTurnBackToTop } from './turn-navigation';
 import { bindTurnOrganizationChart } from './turn-organization-chart';
 import { bindP9TurnProjection } from './p9-turn-projection';
 import { bindTurnAgentLiveState } from './turn-agent-live-state';
+import { bindTurnFunctionalOverview } from './turn-functional-overview';
 import { bindAndroidComponentHeartbeat } from './component-heartbeat';
 import { bindPremiumLinguisticAgentHeartbeats } from './premium-linguistic-agents/premium-linguistic-agents.runtime';
 import {
@@ -568,6 +569,7 @@ function render() {
     bindTurnOrganizationChart();
     void bindP9TurnProjection();
     bindTurnAgentLiveState();
+    void bindTurnFunctionalOverview();
     bindTurnBackToTop();
   }
   bindCommandPanel();

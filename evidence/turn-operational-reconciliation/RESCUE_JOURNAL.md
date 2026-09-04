@@ -1,6 +1,6 @@
 # TURN operational truth — rescue and continuation journal
 
-Status: `FINAL PRODUCTION PASS / HANDOFF TO ATLAS COMPLETE`
+Status: `TECHNICAL PIPELINE PASS / TURN FUNCTIONAL COMPLETENESS FAIL / PRODUCT OWNER ACCEPTANCE NOT GRANTED`
 
 Source revision: `b769c38c979d5218545550fa98e348ef4866de83`
 
@@ -141,7 +141,22 @@ rerun used to refresh the live observation.
 - Source revision: `b769c38c979d5218545550fa98e348ef4866de83`
 - Deployed evidence revision: `b639ec3fbbc9843cfc456766f69c8d3fc9a92590`
 - Production workflow: `33888999046`, attempts 1 and 2 PASS.
-- Final verdict: `PASS`.
+- Technical verdict: `RELEASE_PIPELINE = PASS`,
+  `M2M / OPERATIONAL TRUTH INFRASTRUCTURE = PASS`,
+  `FALSE_GREEN_PREVENTION = PASS`.
+- Product verdict: `TURN FUNCTIONAL COMPLETENESS = FAIL`,
+  `PRODUCT OWNER ACCEPTANCE = NOT GRANTED`,
+  `FINAL_PRODUCTION_PASS = RETRACTED`.
 - Residual limitation: integrated interactive Browser evidence was unavailable;
   the official controlled Playwright/Chromium runner PASS is sufficient under
   the permanent Browser validation runbook.
+
+## Product Owner verdict correction
+
+The Product Owner accepted the demonstrated technical results but explicitly
+rejected `FINAL_PRODUCTION_PASS` as a product verdict. The Browser and runtime
+evidence proves truthful infrastructure and false-green prevention; it does not
+prove that TURN provides a complete, useful, actionable operational picture.
+The next mandate is restricted to the remaining Basic/Premium functional value,
+real data sources, Product Owner actions, resolvable UNKNOWN states, and
+legitimate UNKNOWN boundaries.
