@@ -31,6 +31,7 @@
       "ComponentHeartbeat"
     ],
     "zeroActivitySemantic": "NO_ACTIVITY",
+    "persistentActivitySemantic": "OBSERVED_NOT_RUNTIME_GREEN",
     "staticSemantic": "STATIC_REFERENCE",
     "legitimateUnknownSemantic": "UNKNOWN_LEGITIMATE_WITH_REASON_AND_IMPLEMENTATION",
     "partialSourceFailureSemantic": "DATA_UNAVAILABLE_NO_INFERENCE"
@@ -50,6 +51,7 @@
     "webFunctionalContract": "PASS",
     "eslintChangedApiSources": "PASS",
     "gitDiffCheck": "PASS",
+    "browserValidator": "READY_REQUIRES_REAL_OWNER_ACCESS_TOKEN_NO_STUBS",
     "browserValidation": "PENDING_PRODUCTION_DEPLOYMENT"
   },
   "verdict": {

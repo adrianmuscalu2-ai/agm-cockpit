@@ -6,6 +6,7 @@ export const TURN_FUNCTIONAL_OVERVIEW_CONTRACT = {
 
 export type TurnFunctionalZoneStatus =
   | 'OPERATIONAL'
+  | 'OBSERVED'
   | 'ATTENTION'
   | 'NO_ACTIVITY'
   | 'STATIC_REFERENCE'
@@ -42,6 +43,7 @@ export type TurnFunctionalOverview = {
   summary: {
     totalZones: number;
     operational: number;
+    observed: number;
     attention: number;
     noActivity: number;
     staticReference: number;

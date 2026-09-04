@@ -45,6 +45,7 @@ describe('TurnFunctionalOverviewService', () => {
     const byId = new Map(overview.zones.map((zone) => [zone.id, zone]));
 
     expect(byId.get('basic.translator')).toMatchObject({ status: 'OPERATIONAL', source: { kind: 'RUNTIME' } });
+    expect(byId.get('basic.email')).toMatchObject({ status: 'OBSERVED', source: { kind: 'EVENT_STORE' } });
     expect(byId.get('premium.voice')).toMatchObject({ status: 'NO_ACTIVITY', legitimateUnknown: false });
     expect(byId.get('basic.ocr-workspace')).toMatchObject({ status: 'UNKNOWN_LEGITIMATE', legitimateUnknown: true, source: { kind: 'LOCAL_DEVICE' } });
     expect(byId.get('basic.load-safety-knowledge')).toMatchObject({ status: 'STATIC_REFERENCE', evidence: { runtimeClaim: false } });

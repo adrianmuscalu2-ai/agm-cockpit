@@ -137,6 +137,7 @@ export class TurnFunctionalOverviewService {
     const summary = {
       totalZones: zones.length,
       operational: count(zones, 'OPERATIONAL'),
+      observed: count(zones, 'OBSERVED'),
       attention: count(zones, 'ATTENTION'),
       noActivity: count(zones, 'NO_ACTIVITY'),
       staticReference: count(zones, 'STATIC_REFERENCE'),
@@ -168,7 +169,7 @@ function zone(id: string, tier: TurnFunctionalZone['tier'], title: string, statu
 }
 
 function activityZone(id: string, tier: TurnFunctionalZone['tier'], title: string, activity: number, attention: boolean, observedAt: Date | null, evidence: TurnFunctionalZone['evidence'], href: string, source: string, action: string, implementation: string): TurnFunctionalZone {
-  const status: TurnFunctionalZoneStatus = attention ? 'ATTENTION' : activity > 0 ? 'OPERATIONAL' : 'NO_ACTIVITY';
+  const status: TurnFunctionalZoneStatus = attention ? 'ATTENTION' : activity > 0 ? 'OBSERVED' : 'NO_ACTIVITY';
   return { ...zone(id, tier, title, status, activity > 0 ? `${activity} înregistrări reale sunt disponibile Product Owner-ului.` : 'Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.', 'EVENT_STORE', source, observedAt, evidence, href, activity > 0 ? (attention ? implementation : null) : 'Nu există încă activitate înregistrată.', activity > 0 && !attention ? null : implementation), action: { label: action, href } };
 }
 

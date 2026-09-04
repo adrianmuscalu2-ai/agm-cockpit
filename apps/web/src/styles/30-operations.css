@@ -204,6 +204,7 @@
 .turn-functional-zone dd { margin: .12rem 0 0; color: #b8d4e8; font-size: .75rem; overflow-wrap: anywhere; }
 .turn-functional-evidence { display: flex; flex-wrap: wrap; gap: .25rem .65rem; }
 .turn-functional-zone.status-operational { border-color: #70ffc1; }
+.turn-functional-zone.status-observed { border-color: #53b9ff; }
 .turn-functional-zone.status-attention { border-color: #ff8290; }
 .turn-functional-zone.status-no-activity { border-color: #53b9ff; }
 .turn-functional-zone.status-static-reference { border-color: #c9adff; }

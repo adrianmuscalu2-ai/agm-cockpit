@@ -1,4 +1,4 @@
-export type TurnFunctionalZoneStatus = 'OPERATIONAL' | 'ATTENTION' | 'NO_ACTIVITY' | 'STATIC_REFERENCE' | 'UNKNOWN_LEGITIMATE';
+export type TurnFunctionalZoneStatus = 'OPERATIONAL' | 'OBSERVED' | 'ATTENTION' | 'NO_ACTIVITY' | 'STATIC_REFERENCE' | 'UNKNOWN_LEGITIMATE';
 
 export type TurnFunctionalZone = {
   id: string;
@@ -26,6 +26,7 @@ export type TurnFunctionalOverview = {
   summary: {
     totalZones: number;
     operational: number;
+    observed: number;
     attention: number;
     noActivity: number;
     staticReference: number;
@@ -86,6 +87,7 @@ function renderOverview(root: HTMLElement, overview: TurnFunctionalOverview) {
   if (summary) summary.innerHTML = `
     <article><small>Zone reale</small><strong>${overview.summary.totalZones}</strong></article>
     <article><small>Operaționale</small><strong>${overview.summary.operational}</strong></article>
+    <article><small>Activitate observată</small><strong>${overview.summary.observed}</strong></article>
     <article><small>Necesită acțiune</small><strong>${overview.summary.attention}</strong></article>
     <article><small>Fără activitate</small><strong>${overview.summary.noActivity}</strong></article>
     <article><small>UNKNOWN legitim</small><strong>${overview.summary.legitimateUnknown}</strong></article>

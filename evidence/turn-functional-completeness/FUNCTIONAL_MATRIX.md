@@ -39,10 +39,12 @@ Această matrice definește proiecția `turn-functional-overview.v1`. Valorile r
 
 ## Reguli de verdict
 
-- `OPERATIONAL` cere observație runtime sau activitate persistentă reală fără semnal curent de atenție.
+- `OPERATIONAL` cere un probe funcțional runtime real și curent.
+- `OBSERVED` înseamnă că sursa persistentă conține activitate reală; nu este prezentat ca verde și nu pretinde sănătate runtime.
 - `ATTENTION` cere o cauză și o acțiune concrete.
 - `NO_ACTIVITY` înseamnă că sursa reală a răspuns cu zero rânduri; nu este succes operațional și nu este `UNKNOWN`.
 - `STATIC_REFERENCE` confirmă numai existența unui contract/conținut, niciodată runtime.
 - `UNKNOWN_LEGITIMATE` este permis numai pentru date locale/efemere fără colectare autorizată și include motivul și implementarea necesară.
 - Endpointul nu livrează rezultate parțiale: dacă o sursă obligatorie nu poate fi citită, UI afișează `DATA UNAVAILABLE` și nu deduce stări.
 - `FINAL PRODUCT PASS` poate fi acordat numai explicit de Product Owner după deployment și Browser Validation ale acestei funcționalități.
+- Browser Validation se execută prin `pnpm audit:turn-functional-overview` numai după `pnpm rescue:browser-preflight`; validatorul cere `AGM_TURN_OWNER_ACCESS_TOKEN` real și nu definește route stubs, payload-uri mock sau fallback de status.
