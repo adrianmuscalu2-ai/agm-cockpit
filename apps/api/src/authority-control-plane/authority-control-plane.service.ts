@@ -46,6 +46,8 @@ export class AuthorityControlPlaneService {
     const lastRunByAgent = new Map<string, (typeof runtimeEvents)[number]>();
     for (const event of runtimeEvents) if (!lastRunByAgent.has(event.agentId)) lastRunByAgent.set(event.agentId, event);
     const leaseByAgent = new Map(leases.map((lease) => [lease.agentId, lease]));
+    const leaseAgentById = new Map(allLeases.map((lease) => [lease.id, lease.agentId]));
+    const rejectedIncidents = journals.filter((item) => item.outcome === 'REJECTED');
     const failoverByScope = new Map(failover.map((item) => [item.scopeId, item]));
     const registryById = new Map(registry.map((item) => [item.canonicalId, item]));
     const nodes = premiumNetworkSeed.map((seed) => {
@@ -61,6 +63,9 @@ export class AuthorityControlPlaneService {
       const failoverState = failoverByScope.get(item.scope);
       const domainRun = domainActivity.get(item.canonicalId);
       const secretRun = item.canonicalId === 'agm.guardian.secrets' ? secretSnapshot : null;
+      const correlatedIncidents = rejectedIncidents
+        .filter((incident) => incident.scopeId === item.scope || (incident.leaseId ? leaseAgentById.get(incident.leaseId) === item.canonicalId : false))
+        .map((incident) => ({ eventId: incident.eventId, eventType: incident.eventType, scopeId: incident.scopeId, reasonCode: incident.reasonCode, occurredAt: incident.occurredAt, correlationId: incident.correlationId, leaseId: incident.leaseId }));
       const canonicalState = resolveCanonicalNodeState({
         registryLifecycleStatus: item.lifecycleStatus,
         ...(profile.expectedSource === 'LIVE_ADAPTER' && liveRun ? { liveAdapter: { status: adapterHealth(liveRun.status), observedAt: liveRun.lastAttemptAt } } : {}),
@@ -76,8 +81,15 @@ export class AuthorityControlPlaneService {
       const sourceStatus = profile.runtimeMode === 'HUMAN' ? 'STANDBY' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'FAIL' : stale && canonicalState.status === 'PASS' ? 'DEGRADED' : canonicalState.status;
       const effectiveStatus = persisted ? sourceStatus : 'FAIL';
       const secretIssue = secretRun?.secrets.filter((secret) => secret.status !== 'CONFIGURED').map((secret) => `${secret.id}:${secret.status}`).join(', ') || null;
-      const reason = !persisted ? 'Canonical identity is absent from PremiumNetworkRegistryEntry.' : profile.missingCapability ?? (stale ? `Last real observation exceeds ${Math.round((profile.freshnessWindowMs ?? 0) / 60000)} minutes.` : effectiveStatus === 'NO_TELEMETRY' ? `No ${profile.expectedSource} observation exists for this identity.` : secretIssue ?? heartbeat?.lastFailureReason ?? liveRun?.lastErrorCode ?? null);
+      const sourceFailureReason = secretIssue
+        ?? (heartbeat && !['PASS', 'ONLINE', 'HEALTHY'].includes(heartbeat.reportedStatus) ? `ComponentHeartbeat status=${heartbeat.reportedStatus}${heartbeat.lastFailureReason ? `; ${heartbeat.lastFailureReason}` : ''}` : null)
+        ?? (liveRun && liveRun.status !== 'HEALTHY' ? `LiveAdapterTelemetry status=${liveRun.status}${liveRun.lastErrorCode ? `; error=${liveRun.lastErrorCode}` : ''}; rateLimit=${liveRun.rateLimitState}` : null)
+        ?? (opportunityRun && (!['PASS', 'HEALTHY'].includes(opportunityRun.health) || !['PASS', 'HEALTHY'].includes(opportunityRun.dependencyHealth) || opportunityRun.freshnessStatus === 'STALE' || opportunityRun.backlog > 0) ? `OpportunityAgentTelemetry health=${opportunityRun.health}; dependency=${opportunityRun.dependencyHealth}; freshness=${opportunityRun.freshnessStatus}; backlog=${opportunityRun.backlog}` : null)
+        ?? (lastRun && !['PASS', 'ONLINE', 'HEALTHY', 'COMPLETED'].includes(lastRun.lifecycle) ? `AgentRuntimeEvent lifecycle=${lastRun.lifecycle}; detail=${lastRun.detail}` : null)
+        ?? (domainRun && domainRun.status !== 'PASS' ? `Domain event: ${domainRun.detail}` : null);
+      const reason = !persisted ? 'Canonical identity is absent from PremiumNetworkRegistryEntry.' : profile.missingCapability ?? (stale ? `Last real observation exceeds ${Math.round((profile.freshnessWindowMs ?? 0) / 60000)} minutes.` : effectiveStatus === 'NO_TELEMETRY' ? `No ${profile.expectedSource} observation exists for this identity.` : sourceFailureReason);
       const requiredAction = !persisted ? 'Apply the approved registry provisioning migration; do not infer identity presence from telemetry.' : profile.requiredAction ?? (stale ? `Run the real ${profile.workload} path or restore its telemetry producer.` : effectiveStatus === 'FAIL' || effectiveStatus === 'DEGRADED' ? 'Inspect the cited evidence and restore the failed dependency or execution path.' : effectiveStatus === 'NO_TELEMETRY' ? `Exercise the real function to create ${profile.expectedSource} evidence; do not infer runtime from registry.` : null);
+      const nodeDependencyFailures = dependencyFailures(liveRun, opportunityRun, heartbeat, secretRun?.secrets.filter((secret) => secret.status !== 'CONFIGURED').map((secret) => `${secret.id}:${secret.status}`));
       return {
         canonicalId: item.canonicalId, kind: item.kind, module: item.module, ownerId: item.ownerId,
         supervisorId: item.supervisorId, scope: item.scope,
@@ -99,7 +111,8 @@ export class AuthorityControlPlaneService {
         evidence: { source: profile.expectedSource, observedAt, recordReference: secretRun?.contract ?? evidenceReference(item.canonicalId, liveRun?.id, opportunityRun?.id, heartbeat?.id, lastRun?.eventId, domainRun?.recordId) },
         telemetry: secretRun ? { reportedStatus: secretRun.overallStatus, lastSeenAt: secretRun.checkedAt, lastSuccessAt: secretRun.overallStatus === 'CONFIGURED' ? secretRun.checkedAt : null, lastFailureAt: secretRun.overallStatus === 'ATTENTION' ? secretRun.checkedAt : null, detail: { contract: secretRun.contract, checkedSecrets: secretRun.secrets.length, valuesExposed: false } } : liveRun ? { reportedStatus: liveRun.status, lastSeenAt: liveRun.lastAttemptAt, lastSuccessAt: liveRun.lastSuccessAt, lastFailureAt: liveRun.lastErrorCode ? liveRun.lastAttemptAt : null, detail: { latencyMs: liveRun.latencyMs, errorRateBps: liveRun.errorRateBps, rateLimitState: liveRun.rateLimitState, fallbackActivation: liveRun.fallbackActivation, cacheAgeSeconds: liveRun.cacheAgeSeconds, providerId: liveRun.providerId, contractVersion: liveRun.contractVersion } } : opportunityRun ? { reportedStatus: opportunityRun.health, lastSeenAt: opportunityRun.lastRunAt, lastSuccessAt: opportunityRun.health === 'PASS' ? opportunityRun.lastRunAt : null, lastFailureAt: opportunityRun.health === 'FAIL' ? opportunityRun.lastRunAt : null, detail: { durationMs: opportunityRun.durationMs, freshnessStatus: opportunityRun.freshnessStatus, backlog: opportunityRun.backlog, dependencyHealth: opportunityRun.dependencyHealth, confidence: opportunityRun.confidence, outputReference: opportunityRun.outputReference, providerId: opportunityRun.providerId, contractVersion: opportunityRun.contractVersion } } : heartbeat ? { reportedStatus: heartbeat.reportedStatus, lastSeenAt: heartbeat.lastSeenAt, lastSuccessAt: heartbeat.lastSuccessAt, lastFailureAt: heartbeat.lastFailureAt, detail: heartbeat.lastDetail } : null,
         dependencyState: secretRun ? secretRun.overallStatus : liveRun ? adapterHealth(liveRun.status) : opportunityRun ? opportunityRun.dependencyHealth : heartbeat?.lastFailureReason ? 'DEGRADED' : domainRun?.dependencyState ?? (profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : 'UNKNOWN'),
-        dependencyFailures: dependencyFailures(liveRun, opportunityRun, heartbeat, secretRun?.secrets.filter((secret) => secret.status !== 'CONFIGURED').map((secret) => `${secret.id}:${secret.status}`)),
+        dependencyFailures: nodeDependencyFailures,
+        incidents: correlatedIncidents,
         authorityState: lease ? { state: lease.state, epoch: lease.epoch, fencingToken: lease.fencingToken, providerId: lease.providerId, expiresAt: lease.expiresAt } : { state: item.writePermissions ? 'STANDBY' : 'ADVISORY' },
         failoverState: failoverState?.state ?? 'STANDBY',
         lastRun: lastRun ? { lifecycle: lastRun.lifecycle, occurredAt: lastRun.occurredAt, detail: lastRun.detail } : liveRun ? { lifecycle: liveRun.status, occurredAt: liveRun.lastAttemptAt, detail: { latencyMs: liveRun.latencyMs, providerId: liveRun.providerId } } : opportunityRun ? { lifecycle: 'COMPLETED', occurredAt: opportunityRun.lastRunAt, detail: { durationMs: opportunityRun.durationMs, outputReference: opportunityRun.outputReference } } : domainRun ? { lifecycle: domainRun.status, occurredAt: domainRun.observedAt, detail: domainRun.detail } : null,
@@ -122,7 +135,7 @@ export class AuthorityControlPlaneService {
       controlPlane: { canonicalId: AUTHORITY_CONTROL_PLANE_ID, status: controlPlaneStatus, statusSource: controlPlaneNode?.statusSource ?? 'NO_TELEMETRY', statusObservedAt: controlPlaneNode?.statusObservedAt ?? null, invariant: 'ONE SCOPE → ONE ACTIVE EXECUTIVE AUTHORITY', activeExecutiveAuthorities: leases.filter((lease) => lease.mode === 'EXECUTIVE').length, executiveAuthorityAgents: leases.filter((lease) => lease.mode === 'EXECUTIVE').map((lease) => lease.agentId), conflicts, activeCommandChains, delegatedAuthority: activeCommandChains.filter((chain) => chain.agentId !== 'agm.human.product-owner'), invalidOrStaleAuthority },
       nodes,
       departments: [...new Set(nodes.map((node) => node.module))].map((module) => ({ module, nodeCount: nodes.filter((node) => node.module === module).length })),
-      incidents: journals.filter((item) => item.outcome === 'REJECTED').map((item) => ({ eventId: item.eventId, eventType: item.eventType, scopeId: item.scopeId, reasonCode: item.reasonCode, occurredAt: item.occurredAt, correlationId: item.correlationId, leaseId: item.leaseId })),
+      incidents: rejectedIncidents.map((item) => ({ eventId: item.eventId, eventType: item.eventType, scopeId: item.scopeId, reasonCode: item.reasonCode, occurredAt: item.occurredAt, correlationId: item.correlationId, leaseId: item.leaseId })),
       telemetryPolicy: 'OBSERVE_ONLY_NEVER_COMMAND_OR_BLOCK',
       capabilityGaps: nodes.filter((node) => node.registryPresence === 'MISSING' || node.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED').map((node) => ({ canonicalId: node.canonicalId, reason: node.reason, requiredAction: node.requiredAction })),
       opportunityIntelligence,

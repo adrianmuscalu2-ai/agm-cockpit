@@ -139,6 +139,8 @@ try {
 
   const ui = await page.evaluate(() => {
     const root = document.querySelector('[data-turn-functional-overview]');
+    const premiumPanel = document.querySelector('[data-premium-operational-panel]');
+    const secondaryRegistry = document.querySelector('[data-secondary-registry]');
     const cards = [...document.querySelectorAll('[data-functional-zone]')].map((card) => ({
       id: card.getAttribute('data-functional-zone'),
       status: card.getAttribute('data-functional-status'),
@@ -158,12 +160,26 @@ try {
       unactionable: cards.filter((card) => !card.actionHref || !card.text.includes('Sursa reală') || !card.text.includes('Ce lipsește')),
       staticRuntimeGreen: document.querySelectorAll('[data-functional-status="STATIC_REFERENCE"].status-operational, [data-functional-status="UNKNOWN_LEGITIMATE"].status-operational').length,
       registryRuntimeGreen: document.querySelectorAll('.organization-map-card .status-light-green, .turn-agent-register .turn-light.active, .turn-entry-panel .turn-light.active').length,
+      premiumPanelPresent: Boolean(premiumPanel),
+      primaryBeforeRegistry: Boolean(premiumPanel && secondaryRegistry && (premiumPanel.compareDocumentPosition(secondaryRegistry) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      secondaryRegistryCollapsed: secondaryRegistry instanceof HTMLDetailsElement && !secondaryRegistry.open,
+      visibleSecondaryRegistryNodes: secondaryRegistry ? [...secondaryRegistry.querySelectorAll('.network-agent')].filter((node) => node.getClientRects().length > 0).length : -1,
+      staticAgentPanelCount: document.querySelectorAll('#turn-agent-panel iframe, iframe[src="/turn-agent-panel/index.html"]').length,
       operationalNodeCount: document.querySelectorAll('[data-canonical-agent-id]').length,
       operationalNodeIds: [...document.querySelectorAll('[data-canonical-agent-id]')].map((card) => card.getAttribute('data-canonical-agent-id')),
       registryMissingNodes: [...document.querySelectorAll('[data-canonical-agent-id][data-registry-presence="MISSING"]')].map((card) => card.getAttribute('data-canonical-agent-id')),
-      operationalFieldCoverage: [...document.querySelectorAll('[data-canonical-agent-id]')].filter((card) => ['Runtime', 'Current state / health', 'Last heartbeat', 'Last activity', 'Freshness', 'Current function', 'Dependencies', 'Evidence/source', 'Why', 'Required action', 'Identity registry'].every((label) => card.textContent?.includes(label))).length,
+      operationalFieldCoverage: [...document.querySelectorAll('[data-canonical-agent-id]')].filter((card) => ['Runtime', 'Current state / health', 'Last heartbeat', 'Last activity', 'Freshness', 'Current function', 'Dependencies', 'Incidents/errors', 'Evidence/source', 'Why', 'Required action', 'Identity registry'].every((label) => card.textContent?.includes(label))).length,
       decorativeOrbitCount: document.querySelectorAll('.agm-orbit, .agm-network-node').length,
       authorityStatus: document.querySelector('[data-control-status]')?.textContent?.trim() || '',
+      operationalSummary: {
+        total: document.querySelector('[data-node-count]')?.textContent?.trim() || '',
+        running: document.querySelector('[data-runtime-running]')?.textContent?.trim() || '',
+        notRunning: document.querySelector('[data-runtime-not-running]')?.textContent?.trim() || '',
+        healthy: document.querySelector('[data-health-healthy]')?.textContent?.trim() || '',
+        degraded: document.querySelector('[data-health-degraded]')?.textContent?.trim() || '',
+        failed: document.querySelector('[data-health-failed]')?.textContent?.trim() || '',
+        unknown: document.querySelector('[data-health-unknown]')?.textContent?.trim() || '',
+      },
     };
   });
   report.checks.ui = ui;
@@ -175,8 +191,25 @@ try {
   assert(ui.unactionable.length === 0, `Zones without source/missing/action: ${JSON.stringify(ui.unactionable)}`);
   assert(ui.staticRuntimeGreen === 0, 'Static/local zones are presented as operational green.');
   assert(ui.registryRuntimeGreen === 0, 'Registry-only content is presented as runtime green.');
+  assert(ui.premiumPanelPresent, 'Premium operational agent panel is missing.');
+  assert(ui.primaryBeforeRegistry, 'Premium operational panel is not positioned before the registry inventory.');
+  assert(ui.secondaryRegistryCollapsed, 'Secondary registry inventory is not collapsed by default.');
+  assert(ui.visibleSecondaryRegistryNodes === 0, `Secondary registry dominates the visible surface with ${ui.visibleSecondaryRegistryNodes} visible nodes.`);
+  assert(ui.staticAgentPanelCount === 0, 'Static/orbital agent panel is still rendered.');
   assert(ui.operationalNodeCount === 28 && ui.operationalFieldCoverage === 28, `Operational agent coverage is ${ui.operationalFieldCoverage}/${ui.operationalNodeCount}.`);
   assert(ui.registryMissingNodes.length === 0, `Canonical registry identities missing in UI: ${ui.registryMissingNodes.join(', ')}.`);
+  const expectedSummary = {
+    total: dashboard.nodes.length,
+    running: dashboard.nodes.filter((node) => node.runtimePresence === 'OBSERVED').length,
+    notRunning: dashboard.nodes.filter((node) => ['ABSENT', 'NOT_OBSERVED'].includes(node.runtimePresence)).length,
+    healthy: dashboard.nodes.filter((node) => node.health === 'HEALTHY').length,
+    degraded: dashboard.nodes.filter((node) => node.health === 'DEGRADED').length,
+    failed: dashboard.nodes.filter((node) => node.health === 'FAILED').length,
+    unknown: dashboard.nodes.filter((node) => node.health === 'UNKNOWN').length,
+  };
+  for (const [key, expected] of Object.entries(expectedSummary)) {
+    assert(ui.operationalSummary[key] === String(expected), `Operational summary ${key} is ${ui.operationalSummary[key]}, expected ${expected}.`);
+  }
   assert(ui.decorativeOrbitCount === 0, 'Decorative operational substitute is still rendered.');
   assert(!['', 'DATA UNAVAILABLE', 'ACCES OPERAȚIONAL NECESAR'].includes(ui.authorityStatus), `Authority status is ${ui.authorityStatus}.`);
   assert(report.network.some((entry) => entry.authorizationPresent === true), 'UI request did not carry real Owner Access authorization.');
@@ -184,6 +217,7 @@ try {
   assert(report.pageErrors.length === 0, `Page errors: ${report.pageErrors.join(' | ')}`);
 
   await page.locator('[data-turn-functional-overview]').screenshot({ path: resolve(evidenceRoot, 'turn-functional-overview.png') });
+  await page.locator('[data-premium-operational-panel]').screenshot({ path: resolve(evidenceRoot, 'turn-premium-operational-panel.png') });
   await page.screenshot({ path: resolve(evidenceRoot, 'turn-functional-overview-full-page.png'), fullPage: true });
   report.browserFields.targetPageStatus = 'PASS';
   report.status = 'PASS';
@@ -239,6 +273,7 @@ function validateOperationalDashboard(dashboard) {
   for (const node of dashboard.nodes) {
     assert(node.canonicalId && node.kind && node.registryPresence && node.runtimePresence && node.currentFunction, `${node.canonicalId || 'UNKNOWN_ID'} lacks identity/runtime fields.`);
     assert(node.status && node.health && node.freshness && node.dependencyState && node.authorityState?.state, `${node.canonicalId} lacks state/health/dependency/authority fields.`);
+    assert(Array.isArray(node.incidents), `${node.canonicalId} lacks correlated incident telemetry.`);
     assert(node.registryPresence === 'PRESENT', `${node.canonicalId} is ${node.registryPresence} in the persistent registry.`);
     assert(node.statusSource !== 'REGISTRY' && node.evidence?.source && node.evidence.source !== 'REGISTRY', `${node.canonicalId} derives runtime from registry.`);
     if (['FAIL', 'DEGRADED', 'NO_TELEMETRY'].includes(node.status)) {

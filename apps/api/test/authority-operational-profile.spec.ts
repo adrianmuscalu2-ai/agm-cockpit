@@ -4,9 +4,11 @@ import { premiumNetworkSeed } from '../src/authority-control-plane/premium-netwo
 describe('Premium operational telemetry coverage', () => {
   it('classifies every canonical identity without registry-derived runtime', () => {
     const profiles = premiumNetworkSeed.map((node) => ({ node, profile: operationalProfile(node) }));
-    expect(profiles).toHaveLength(premiumNetworkSeed.length);
+    expect(premiumNetworkSeed).toHaveLength(28);
+    expect(profiles).toHaveLength(28);
     expect(profiles.every(({ profile }) => profile.expectedSource !== ('REGISTRY' as never))).toBe(true);
-    expect(profiles.every(({ profile }) => profile.runtimeMode !== 'CAPABILITY_NOT_IMPLEMENTED' || Boolean(profile.missingCapability && profile.requiredAction))).toBe(true);
+    expect(profiles.every(({ profile }) => profile.expectedSource !== ('NONE' as never))).toBe(true);
+    expect(profiles.every(({ profile }) => profile.runtimeMode !== 'CAPABILITY_NOT_IMPLEMENTED')).toBe(true);
   });
 
   it('binds implemented execution paths to their real stores', () => {

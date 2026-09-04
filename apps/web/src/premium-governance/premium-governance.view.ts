@@ -41,17 +41,23 @@ export function renderPremiumUserDashboard(translate: Translate, escapeHtml: Esc
 
 export function renderTurnAuthorityControlPlane() {
   return `
-    <section class="turn-authority-control-plane" id="turn-authority-control-plane" aria-labelledby="turn-authority-control-plane-title">
+    <section class="turn-authority-control-plane turn-premium-operational-panel" id="turn-authority-control-plane" data-premium-operational-panel aria-labelledby="turn-authority-control-plane-title">
       <header class="premium-governance-heading">
-        <span>TURN · ADMINISTRATIVE OPERATIONS</span>
-        <h2 id="turn-authority-control-plane-title">AGM Authority Control Plane</h2>
-        <p>Panou operațional din heartbeat, lifecycle, event stores, authority leases și dependency telemetry. Registry-ul furnizează numai identitatea.</p>
+        <span>TURN · PREMIUM AGENT OPERATIONAL PANEL</span>
+        <h2 id="turn-authority-control-plane-title">Premium: agenți și runtime real</h2>
+        <p>Suprafața principală de control operațional: heartbeat, activitate, health, freshness, workload, dependențe, incidente, authority și evidence. Registry-ul este numai inventar secundar.</p>
       </header>
       <section class="agm-network-hero" data-authority-dashboard aria-live="polite" aria-busy="true">
         <header class="agm-operational-header"><div><small>Authority evaluator</small><strong data-control-status>SE ÎNCARCĂ</strong></div><p data-network-message>Se citesc sursele reale autorizate…</p><button type="button" data-run-operational-inspections>Rulează inspectorii reali</button></header>
-        <footer class="agm-network-summary">
+        <footer class="agm-network-summary" data-operational-summary>
+          <div><small>Total agents</small><strong data-node-count>—</strong></div>
+          <div><small>Runtime observed</small><strong data-runtime-running>—</strong></div>
+          <div><small>Runtime absent / unseen</small><strong data-runtime-not-running>—</strong></div>
+          <div><small>Healthy</small><strong data-health-healthy>—</strong></div>
+          <div><small>Degraded</small><strong data-health-degraded>—</strong></div>
+          <div><small>Failed</small><strong data-health-failed>—</strong></div>
+          <div><small>Unknown / no telemetry</small><strong data-health-unknown>—</strong></div>
           <div><small>Executive authority</small><strong data-active-authorities>—</strong></div>
-          <div><small>Operational identities</small><strong data-node-count>—</strong></div>
           <div><small>Authority conflicts</small><strong data-conflict-count>—</strong></div>
           <div><small>Opportunity Intelligence</small><strong data-opportunity-gate>NEEVALUAT</strong></div>
         </footer>
@@ -67,7 +73,7 @@ export function renderTurnAuthorityControlPlane() {
         <section class="premium-network-detail" data-agent-network-detail aria-live="polite" aria-busy="true">
           <div class="premium-network-toolbar"><span data-network-contract>Contract: —</span><span>Verde = evidență reală curentă · Portocaliu = degradat/stale · Roșu = failed/absent · Gri = neobservat</span></div>
           <div class="premium-network-departments" data-network-departments></div>
-          <p class="agm-network-message" data-network-message>Se încarcă registrul canonic…</p>
+          <p class="agm-network-message" data-network-message>Se încarcă exclusiv telemetria operațională autorizată…</p>
         </section>
       </section>
     </section>`;

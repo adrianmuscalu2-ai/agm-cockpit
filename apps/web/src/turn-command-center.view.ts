@@ -13,9 +13,6 @@ import { turnCommandCenterContract } from './turn-command-center.contract';
 import { currentProductionPreflightSnapshot, renderProductionPreflight } from './production-preflight';
 import { activateIncidentRoute, routeIncident } from './incident-routing.registry';
 import { renderStatusLight } from './turn-status-lights';
-import { buildPanelAgentModel } from './turn-agent-panel.integration';
-import { currentOperationSnapshots } from './operations-health';
-import { renderTurnAgentLiveState } from './turn-agent-live-state';
 import { renderTurnAuthorityControlPlane } from './premium-governance/premium-governance.view';
 import {
   type TurnCommandItem,
@@ -61,6 +58,10 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
     >
       ${renderFunctionalOverview()}
 
+      ${renderTurnAuthorityControlPlane()}
+
+      ${renderP9TurnProjection()}
+
       <header class="turn-hero">
         <div>
           <span class="turn-kicker">${escapeHtml(t(language, 'turn.code'))}</span>
@@ -96,9 +97,10 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
           .join('')}
       </nav>
 
-      ${renderTurnAuthorityControlPlane()}
-
-      ${renderApprovedTurnDashboard(language)}
+      <details class="turn-secondary-registry" data-secondary-registry>
+        <summary><strong>Inventar secundar · identități și responsabilități</strong><span>REGISTRY ONLY · nu reprezintă runtime</span></summary>
+        ${renderApprovedTurnDashboard(language)}
+      </details>
 
       <section class="turn-metrics" aria-label="${escapeHtml(t(language, 'turn.metrics'))}">
         ${renderTurnMetric(language, 'turn.metric.departments', String(activeDepartments), 'turn.metric.departmentsDesc')}
@@ -116,7 +118,6 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
 
       ${renderExecutionReadinessGate(incidents)}
       ${renderTurnRealityContract()}
-      ${renderApprovedAgentPanel()}
       ${renderOperationalProtocol()}
       ${renderActiveOperationsIncident(incidents)}
       ${renderProductionPreflight()}
@@ -174,19 +175,6 @@ function renderFunctionalOverview() {
   </section>`;
 }
 
-function renderRealStatusBoard() {
-  const agents = buildPanelAgentModel();
-  const snapshots = currentOperationSnapshots();
-  const componentRows = monitoringHealthSources.map((source) => {
-    const snapshot = snapshots.get(source.id);
-    const status = snapshot?.status ?? (source.kind === 'runtime' ? 'NO LIVE OBSERVATION' : 'WAITING FOR LIVE PROBE');
-    const state = snapshot ? (snapshot.status === 'ONLINE' || snapshot.status === 'READY' ? 'operational' : snapshot.status === 'DEGRADED' ? 'degraded' : snapshot.status === 'NOT IMPLEMENTED' || snapshot.status === 'NOT VERIFIED' ? 'planned' : snapshot.status === 'OFFLINE' ? 'failed' : 'no-telemetry') : 'planned';
-    return `<li class="turn-status-row ${state}" data-live-component-id="${escapeHtml(source.id)}"><span>${escapeHtml(source.label)}</span><strong data-component-live-status>${escapeHtml(status)}</strong><small data-component-live-evidence>${escapeHtml(source.source)} · ${snapshot ? escapeHtml(snapshot.checkedAt.toISOString()) : 'NO LIVE OBSERVATION'}</small></li>`;
-  }).join('');
-  const agentRows = agents.map((agent) => `<li class="turn-status-row ${agent.generalStatus === 'ACTIVE' ? 'operational' : ['PLANNED', 'REGISTRY ONLY', 'WAITING FOR LIVE PROBE'].includes(agent.generalStatus) ? 'planned' : agent.generalStatus === 'FAILED' ? 'failed' : agent.generalStatus === 'DEGRADED' ? 'degraded' : 'unknown'}" data-live-agent-id="${escapeHtml(agent.turnAgentId ?? agent.panelAgentId)}"><span>${escapeHtml(agent.registryName !== 'UNMAPPED' ? agent.registryName : agent.displayName)}</span><strong data-agent-live-status>${escapeHtml(agent.generalStatus)}</strong><small data-agent-live-evidence>${escapeHtml(agent.telemetrySource ?? 'NO LIVE SOURCE')} · ${escapeHtml(agent.lastSeen)}</small></li>`).join('');
-  return `<section class="turn-real-status-board" id="turn-real-status" aria-labelledby="turn-real-status-title"><header><div><span class="turn-kicker">TURN · REAL STATUS BOARD</span><h2 id="turn-real-status-title">Stare reală la intrare</h2><p>Proiecție tabulară; lipsa dovezii rămâne explicită.</p></div><span class="protocol-status">READ-ONLY · CURRENT SOURCES</span></header><div class="turn-status-criteria"><strong>Criteriu principal: STAREA AGENTULUI</strong><span>Registrul stabilește identitatea, nu starea runtime. ACTIVE, DEGRADED, FAILED sau UNKNOWN apar numai după un probe curent și includ sursa și timestampul.</span><span>Identitățile fără collector sunt referințe non-runtime; cele care așteaptă primul probe sunt WAITING FOR LIVE PROBE.</span><span>Verde ACTIVE · portocaliu DEGRADED · roșu FAILED · gri UNKNOWN cu evidence stale.</span></div>${renderTurnAgentLiveState()}<div class="turn-status-board-grid"><article><h3>Agenți (${agents.length})</h3><ul>${agentRows}</ul></article><article><h3>Aplicație și componente</h3><ul>${componentRows}</ul></article></div></section>`;
-}
-
 function renderOperationalProtocol() {
   return `<section class="turn-operational-protocol" id="turn-protocol" aria-labelledby="turn-protocol-title">
     <header><div><span class="turn-kicker">AGM · OPERATIONAL BASELINE</span><h2 id="turn-protocol-title">PROTOCOL OPERAȚIONAL AGM</h2><p>OWNER APPROVED / OPERATIONAL BASELINE · Versiunea 1.0 · 21 august 2026</p></div><span class="protocol-status">MANDATORY · READ FIRST</span></header>
@@ -206,10 +194,6 @@ function renderTurnRealityContract() {
     <p>Indicatorii HTTP sunt verificați automat la 30s și devin STALE după 90s. Sursele fără collector runtime rămân explicit configurate/static și nu pot produce PASS live.</p>
     <dl><div><dt>Health / runtime</dt><dd>API live/ready și dependențe: telemetrie HTTP actuală</dd></div><div><dt>Agents / missions</dt><dd>registru de guvernanță; nu reprezintă disponibilitate runtime</dd></div><div><dt>Production</dt><dd>numai din Production Preflight cu timestamp și contract valid</dd></div><div><dt>Evidence</dt><dd>fără timestamp sau sursă actuală: UNKNOWN / NOT REPORTED</dd></div></dl>
   </section>`;
-}
-
-function renderApprovedAgentPanel() {
-  return `<section class="turn-approved-agent-panel" id="turn-agent-panel" aria-labelledby="turn-agent-panel-title"><header><div><span class="turn-kicker">TURN · APPROVED VISUAL SOURCE</span><h2 id="turn-agent-panel-title">AGM TURN AGENT CONTROL PANEL</h2><p>Panoul orbital aprobat este păstrat; identitatea și starea sunt alimentate de modelul Turn normalizat.</p></div><span class="protocol-status">VISUAL SOURCE · INTEGRATED</span></header><iframe title="AGM Turn Agent Control Panel" src="/turn-agent-panel/index.html"></iframe></section>`;
 }
 
 export function renderActiveOperationsIncident(incidents: OperationalIncident[]) {
@@ -347,7 +331,7 @@ function renderApprovedTurnDashboard(language: UiLanguage) {
       </div>
       <div class="turn-network-grid">${departments.map((department) => {
         const agents = agentGovernanceRegistry.filter((agent) => agent.ownerDepartmentId === department);
-        return `<article class="turn-network-department ${department === 'ai-agents' ? 'ai-network' : ''}"><header><strong>${escapeHtml(departmentDisplayName(department))}</strong><span>${agents.length}</span></header><div>${agents.map((agent) => `<span class="network-agent ${agent.id === 'p9-copilot-control-plane' ? 'p9-network-node' : ''}"><i class="turn-light planned"></i><b>${escapeHtml(agent.code)}</b><small>${escapeHtml(agentDisplayName(language, agent))} · REGISTRY ONLY</small></span>`).join('')}</div>${department === 'ai-agents' && p9 ? `<aside class="p9-network-position"><strong>P9 · CONTROL-PLANE INTERN</strong><span>Poziție: Rețeaua AI → orchestrare Copilot → execuție read-only</span><small>Kill Switch · rollback · evidence operațional</small>${renderP9TurnProjection()}</aside>` : ''}</article>`;
+        return `<article class="turn-network-department ${department === 'ai-agents' ? 'ai-network' : ''}"><header><strong>${escapeHtml(departmentDisplayName(department))}</strong><span>${agents.length}</span></header><div>${agents.map((agent) => `<span class="network-agent ${agent.id === 'p9-copilot-control-plane' ? 'p9-network-node' : ''}"><i class="turn-light planned"></i><b>${escapeHtml(agent.code)}</b><small>${escapeHtml(agentDisplayName(language, agent))} · REGISTRY ONLY</small></span>`).join('')}</div>${department === 'ai-agents' && p9 ? `<aside class="p9-network-position"><strong>P9 · CONTROL-PLANE INTERN</strong><span>Poziție: Rețeaua AI → orchestrare Copilot → execuție read-only</span><small>Proiecția operațională P9 este afișată în suprafața principală de mai sus.</small></aside>` : ''}</article>`;
       }).join('')}</div>
     </section>
 

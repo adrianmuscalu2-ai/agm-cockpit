@@ -8,6 +8,7 @@ type NetworkNode = {
   status: NodeStatus; statusLabel: string; statusSource: string; statusObservedAt: string | null;
   health: string; freshness: string; lastHeartbeat: string | null; lastActivity: string | null;
   reason: string | null; requiredAction: string | null; dependencyState: string; dependencyFailures: string[];
+  incidents: Array<{ eventId: string; eventType: string; scopeId: string | null; reasonCode: string | null; occurredAt: string; correlationId: string; leaseId: string | null }>;
   evidence: { source: string; observedAt: string | null; recordReference: string | null };
   authorityState: { state: string; epoch?: number; fencingToken?: number; providerId?: string; expiresAt?: string };
   failoverState: string;
@@ -67,6 +68,7 @@ async function runInspections(turnAdminAccessToken: string) {
 }
 
 function renderRestricted(root: HTMLElement) {
+  clearOperationalSummary(root, 'RESTRICTED');
   setText(root, '[data-control-status]', 'ACCES OPERAȚIONAL NECESAR');
   setText(root, '[data-network-contract]', 'Contract: acces administrativ necesar');
   setText(root, '[data-network-message]', 'Autentifică Owner Access pentru date reale. Registry-ul nu este folosit ca fallback.');
@@ -76,6 +78,7 @@ function renderRestricted(root: HTMLElement) {
 }
 
 function renderUnavailable(root: HTMLElement, error: unknown) {
+  clearOperationalSummary(root, 'UNAVAILABLE');
   setText(root, '[data-control-status]', 'DATA UNAVAILABLE');
   setText(root, '[data-network-message]', error instanceof Error ? error.message : 'ACP_OPERATIONAL_DATA_UNAVAILABLE');
   const host = root.querySelector<HTMLElement>('[data-network-departments]');
@@ -84,10 +87,22 @@ function renderUnavailable(root: HTMLElement, error: unknown) {
 }
 
 function renderHero(root: HTMLElement, data: Dashboard) {
+  const runtimeObserved = data.nodes.filter((node) => node.runtimePresence === 'OBSERVED').length;
+  const runtimeAbsentOrUnseen = data.nodes.filter((node) => ['ABSENT', 'NOT_OBSERVED'].includes(node.runtimePresence)).length;
+  const healthy = data.nodes.filter((node) => node.health === 'HEALTHY').length;
+  const degraded = data.nodes.filter((node) => node.health === 'DEGRADED').length;
+  const failed = data.nodes.filter((node) => node.health === 'FAILED').length;
+  const unknown = data.nodes.filter((node) => node.health === 'UNKNOWN').length;
   root.dataset.operationalTruth = statusClass(data.controlPlane.status);
   setText(root, '[data-control-status]', data.controlPlane.status);
   setText(root, '[data-active-authorities]', String(data.controlPlane.activeExecutiveAuthorities));
   setText(root, '[data-node-count]', String(data.nodes.length));
+  setText(root, '[data-runtime-running]', String(runtimeObserved));
+  setText(root, '[data-runtime-not-running]', String(runtimeAbsentOrUnseen));
+  setText(root, '[data-health-healthy]', String(healthy));
+  setText(root, '[data-health-degraded]', String(degraded));
+  setText(root, '[data-health-failed]', String(failed));
+  setText(root, '[data-health-unknown]', String(unknown));
   setText(root, '[data-conflict-count]', String(data.controlPlane.conflicts.length));
   setText(root, '[data-opportunity-gate]', data.opportunityIntelligence.gate);
   setText(root, '[data-network-message]', `Sursă ${data.controlPlane.statusSource} · observație ${formatOptionalDate(data.controlPlane.statusObservedAt)} · evaluat ${formatDate(data.generatedAt)}`);
@@ -114,6 +129,12 @@ function renderDetail(root: HTMLElement, data: Dashboard) {
 
 function renderAgent(node: NetworkNode) {
   const failures = node.dependencyFailures.length ? node.dependencyFailures.join(', ') : 'NONE OBSERVED';
+  const operationalIssues = [
+    ...node.incidents.map((incident) => `${incident.reasonCode ?? incident.eventType} @ ${formatDate(incident.occurredAt)}`),
+    ...node.dependencyFailures,
+  ];
+  if (!operationalIssues.length && ['FAIL', 'DEGRADED'].includes(node.status) && node.reason) operationalIssues.push(node.reason);
+  const incidents = operationalIssues.length ? [...new Set(operationalIssues)].join('; ') : 'NONE OBSERVED';
   return `<article class="premium-network-agent status-${statusClass(node.status)}" data-canonical-agent-id="${escapeHtml(node.canonicalId)}" data-canonical-status="${escapeHtml(node.status)}" data-registry-presence="${escapeHtml(node.registryPresence)}"><header><span class="network-status-dot" aria-hidden="true"></span><div><strong>${escapeHtml(node.canonicalId)}</strong><small>${escapeHtml(node.kind)} · ${escapeHtml(node.statusLabel)}</small></div></header><dl>
     <div><dt>Runtime</dt><dd>${escapeHtml(node.runtimePresence)} · ${escapeHtml(node.runtimeMode)}</dd></div>
     <div><dt>Current state / health</dt><dd>${escapeHtml(node.status)} · ${escapeHtml(node.health)}</dd></div>
@@ -121,6 +142,7 @@ function renderAgent(node: NetworkNode) {
     <div><dt>Last activity</dt><dd>${formatOptionalDate(node.lastActivity)}</dd></div>
     <div><dt>Freshness</dt><dd>${escapeHtml(node.freshness)}</dd></div>
     <div><dt>Current function</dt><dd>${escapeHtml(node.currentFunction)}</dd></div>
+    <div><dt>Incidents/errors</dt><dd>${escapeHtml(incidents)}</dd></div>
     <div><dt>Dependencies</dt><dd>${escapeHtml(node.dependencyState)} · ${escapeHtml(failures)}</dd></div>
     <div><dt>Evidence/source</dt><dd>${escapeHtml(node.evidence.source)} · ${formatOptionalDate(node.evidence.observedAt)}${node.evidence.recordReference ? `<br><small>${escapeHtml(node.evidence.recordReference)}</small>` : ''}</dd></div>
     <div><dt>Why</dt><dd>${escapeHtml(node.reason ?? 'No defect or unknown reason in the current evidence.')}</dd></div>
@@ -131,6 +153,11 @@ function renderAgent(node: NetworkNode) {
 }
 
 function setText(root: HTMLElement, selector: string, value: string) { const element = root.querySelector<HTMLElement>(selector); if (element) element.textContent = value; }
+function clearOperationalSummary(root: HTMLElement, value: string) {
+  for (const selector of ['[data-node-count]', '[data-runtime-running]', '[data-runtime-not-running]', '[data-health-healthy]', '[data-health-degraded]', '[data-health-failed]', '[data-health-unknown]', '[data-active-authorities]', '[data-conflict-count]', '[data-opportunity-gate]']) {
+    setText(root, selector, value);
+  }
+}
 function statusClass(status: string) { return status.toLowerCase().replace(/_/g, '-'); }
 function formatDate(value: string) { const date = new Date(value); return Number.isNaN(date.getTime()) ? value : date.toLocaleString(); }
 function formatOptionalDate(value: string | null) { return value ? formatDate(value) : 'NO REAL OBSERVATION'; }
