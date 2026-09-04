@@ -6,7 +6,7 @@ export type PanelRuntimeStatus = 'ACTIVE' | 'DEGRADED' | 'CRITICAL' | 'FAILED' |
 export type PanelMappingStatus = 'MAPPED' | 'UNMAPPED' | 'NO RUNTIME SOURCE' | 'NO TELEMETRY';
 
 type PanelSource = { panelAgentId: string; displayName: string; displayLevel: number; department: string; responsibility: string; escalation: string; telemetrySource?: string; turnAgentId?: string; sourceId?: string };
-export type NormalizedPanelAgent = PanelSource & { runtimeStatus: PanelRuntimeStatus; generalStatus: 'ACTIVE' | 'ATTENTION' | 'PLANNED' | 'DEGRADED' | 'FAILED'; proceduralStatus: 'ACTIVE' | 'MONITORED' | 'ATTENTION' | 'PLANNED' | 'UNKNOWN' | 'DEGRADED' | 'FAILED'; visualState: 'active' | 'degraded' | 'critical' | 'astral' | 'planned'; health: string; freshness: string; lastSeen: string; telemetry: string; mappingStatus: PanelMappingStatus; color: string; registryEntry?: AgentGovernanceRecord; turnRegistryEntry?: TurnOrganizationAgent; registryName: string; registryRole: string; registrySource: string };
+export type NormalizedPanelAgent = PanelSource & { runtimeStatus: PanelRuntimeStatus; generalStatus: 'ACTIVE' | 'ATTENTION' | 'PLANNED' | 'WAITING FOR LIVE PROBE' | 'REGISTRY ONLY' | 'UNKNOWN' | 'DEGRADED' | 'FAILED'; proceduralStatus: 'ACTIVE' | 'MONITORED' | 'ATTENTION' | 'PLANNED' | 'UNKNOWN' | 'DEGRADED' | 'FAILED'; visualState: 'active' | 'degraded' | 'critical' | 'astral' | 'planned' | 'unknown'; health: string; freshness: string; lastSeen: string; telemetry: string; mappingStatus: PanelMappingStatus; color: string; registryEntry?: AgentGovernanceRecord; turnRegistryEntry?: TurnOrganizationAgent; registryName: string; registryRole: string; registrySource: string };
 
 const colors = { active: '#19ff88', degraded: '#ff9d38', critical: '#ff4040', planned: '#3f9bff', unknown: '#b8c4d6' };
 
@@ -44,13 +44,13 @@ function normalizeStatus(snapshot: OperationSnapshot | undefined): { runtimeStat
   return { runtimeStatus: 'ACTIVE', visualState: 'active', color: colors.active, health: snapshot.status, freshness: snapshot.freshness, lastSeen: snapshot.checkedAt.toISOString(), telemetry: snapshot.outcome ?? 'HTTP_STATUS' };
 }
 
-function normalizeMonitoringAggregate(snapshots: Map<string, OperationSnapshot>) {
-  const sourceIds = ['server-primary', 'server-backup', 'api', 'browser', 'android', 'ai', 'databases', 'cloudflare-public', 'ui-live', 'telemetry', 'security'];
-  const details = sourceIds.map((id) => normalizeStatus(snapshots.get(id)));
-  const lastSeen = [...snapshots.values()].sort((left, right) => right.checkedAt.getTime() - left.checkedAt.getTime())[0]?.checkedAt.toISOString() ?? 'UNKNOWN';
-  if (details.some((item) => item.runtimeStatus === 'FAILED')) return { runtimeStatus: 'FAILED' as const, visualState: 'critical' as const, color: colors.critical, health: 'MONITORING FAILURE', freshness: 'LIVE', lastSeen, telemetry: 'MONITORING AGGREGATE' };
-  if (details.some((item) => item.runtimeStatus === 'DEGRADED' || item.runtimeStatus === 'STALE' || item.runtimeStatus === 'NO TELEMETRY')) return { runtimeStatus: 'DEGRADED' as const, visualState: 'degraded' as const, color: colors.degraded, health: 'MONITORING INCOMPLETE', freshness: 'MIXED', lastSeen, telemetry: 'MONITORING AGGREGATE' };
-  return { runtimeStatus: 'ACTIVE' as const, visualState: 'active' as const, color: colors.active, health: 'MONITORING HEALTHY', freshness: 'LIVE', lastSeen, telemetry: 'MONITORING AGGREGATE' };
+export function generalStatusFor(runtimeStatus: PanelRuntimeStatus, mapped: boolean): NormalizedPanelAgent['generalStatus'] {
+  if (!mapped) return 'REGISTRY ONLY';
+  if (runtimeStatus === 'ACTIVE') return 'ACTIVE';
+  if (runtimeStatus === 'FAILED' || runtimeStatus === 'CRITICAL') return 'FAILED';
+  if (runtimeStatus === 'DEGRADED') return 'DEGRADED';
+  if (runtimeStatus === 'STALE' || runtimeStatus === 'UNKNOWN') return 'UNKNOWN';
+  return 'WAITING FOR LIVE PROBE';
 }
 
 export function buildPanelAgentModel() {
@@ -58,25 +58,35 @@ export function buildPanelAgentModel() {
   return panelAgentSources.map((panel) => {
     const turnRegistryEntry = panel.turnAgentId ? turnOrganizationAgents.find((entry) => entry.id === panel.turnAgentId) : undefined;
     const registryEntry = panel.turnAgentId ? agentGovernanceRegistry.find((entry) => entry.id === panel.turnAgentId) : undefined;
-    const details = panel.panelAgentId === 'chief-monitoring-inspector'
-      ? normalizeMonitoringAggregate(snapshots)
-      : normalizeStatus(panel.sourceId ? snapshots.get(panel.sourceId) : undefined);
+    const details = normalizeStatus(panel.sourceId ? snapshots.get(panel.sourceId) : undefined);
     const identity = turnRegistryEntry ?? registryEntry;
     const mappingStatus: PanelMappingStatus = identity ? 'MAPPED' : 'UNMAPPED';
     const registryStatus = registryEntry?.status ?? (turnRegistryEntry ? 'active' : 'planned');
-    const generalStatus: NormalizedPanelAgent['generalStatus'] = details.runtimeStatus === 'FAILED' ? 'FAILED' : details.runtimeStatus === 'DEGRADED' ? 'DEGRADED' : identity ? 'ACTIVE' : 'PLANNED';
+    const generalStatus = panel.sourceId ? generalStatusFor(details.runtimeStatus, Boolean(identity)) : 'REGISTRY ONLY';
     const proceduralStatus = !identity ? 'PLANNED' : !turnRegistryEntry?.procedure ? 'UNKNOWN' : registryStatus === 'monitoring' ? 'MONITORED' : registryStatus === 'active' ? 'ACTIVE' : 'PLANNED';
-    const generalVisual = generalStatus === 'FAILED' ? 'critical' : generalStatus === 'DEGRADED' ? 'degraded' : generalStatus === 'ACTIVE' ? 'active' : 'planned';
-    const generalColor = generalStatus === 'FAILED' ? colors.critical : generalStatus === 'DEGRADED' ? colors.degraded : generalStatus === 'ACTIVE' ? colors.active : colors.planned;
+    const generalVisual = generalStatus === 'FAILED' ? 'critical' : generalStatus === 'DEGRADED' ? 'degraded' : generalStatus === 'ACTIVE' ? 'active' : generalStatus === 'PLANNED' ? 'planned' : 'unknown';
+    const generalColor = generalStatus === 'FAILED' ? colors.critical : generalStatus === 'DEGRADED' ? colors.degraded : generalStatus === 'ACTIVE' ? colors.active : generalStatus === 'PLANNED' ? colors.planned : colors.unknown;
     return { ...panel, turnAgentId: identity?.id, ...details, generalStatus, proceduralStatus, visualState: generalVisual, color: generalColor, mappingStatus, registryEntry, turnRegistryEntry, registryName: turnRegistryEntry?.name ?? registryEntry?.displayName ?? 'UNMAPPED', registryRole: turnRegistryEntry?.responsibility ?? registryEntry?.displayRole ?? 'UNMAPPED', registrySource: turnRegistryEntry ? 'turn-organization-chart' : registryEntry ? 'agent-governance.registry' : 'UNMAPPED' };
   });
 }
 
 export function publishPanelAgentModel() {
   const frame = document.querySelector<HTMLIFrameElement>('#turn-agent-panel iframe');
-  if (!frame) return;
-  const post = () => frame.contentWindow?.postMessage({ type: 'AGM_TURN_AGENT_MODEL', agents: buildPanelAgentModel(), generatedAt: new Date().toISOString() }, window.location.origin);
-  if (frame.dataset.modelBridgeBound !== 'true') {
+  const post = () => {
+    const agents = buildPanelAgentModel();
+    frame?.contentWindow?.postMessage({ type: 'AGM_TURN_AGENT_MODEL', agents, generatedAt: new Date().toISOString() }, window.location.origin);
+    agents.forEach((agent) => {
+      document.querySelectorAll<HTMLElement>(`[data-live-agent-id="${CSS.escape(agent.turnAgentId ?? agent.panelAgentId)}"]`).forEach((row) => {
+        row.classList.remove('operational', 'degraded', 'failed', 'planned', 'unknown');
+        row.classList.add(agent.generalStatus === 'ACTIVE' ? 'operational' : agent.generalStatus === 'FAILED' ? 'failed' : agent.generalStatus === 'DEGRADED' ? 'degraded' : ['PLANNED', 'REGISTRY ONLY', 'WAITING FOR LIVE PROBE'].includes(agent.generalStatus) ? 'planned' : 'unknown');
+        const status = row.querySelector<HTMLElement>('[data-agent-live-status]');
+        if (status) status.textContent = agent.generalStatus;
+        const evidence = row.querySelector<HTMLElement>('[data-agent-live-evidence]');
+        if (evidence) evidence.textContent = `${agent.telemetrySource ?? 'NO LIVE SOURCE'} · ${agent.lastSeen}`;
+      });
+    });
+  };
+  if (frame && frame.dataset.modelBridgeBound !== 'true') {
     frame.dataset.modelBridgeBound = 'true';
     frame.addEventListener('load', post, { once: true });
   }

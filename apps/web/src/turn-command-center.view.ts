@@ -169,12 +169,12 @@ function renderRealStatusBoard() {
   const snapshots = currentOperationSnapshots();
   const componentRows = monitoringHealthSources.map((source) => {
     const snapshot = snapshots.get(source.id);
-    const status = snapshot?.status ?? 'UNKNOWN / NO TELEMETRY';
-    const state = snapshot ? (snapshot.status === 'ONLINE' || snapshot.status === 'READY' ? 'operational' : snapshot.status === 'DEGRADED' ? 'degraded' : snapshot.status === 'NOT IMPLEMENTED' || snapshot.status === 'NOT VERIFIED' ? 'planned' : snapshot.status === 'OFFLINE' ? 'failed' : 'no-telemetry') : 'no-telemetry';
-    return `<li class="turn-status-row ${state}" data-live-component-id="${escapeHtml(source.id)}"><span>${escapeHtml(source.label)}</span><strong data-component-live-status>${escapeHtml(status)}</strong></li>`;
+    const status = snapshot?.status ?? (source.kind === 'runtime' ? 'NO LIVE OBSERVATION' : 'WAITING FOR LIVE PROBE');
+    const state = snapshot ? (snapshot.status === 'ONLINE' || snapshot.status === 'READY' ? 'operational' : snapshot.status === 'DEGRADED' ? 'degraded' : snapshot.status === 'NOT IMPLEMENTED' || snapshot.status === 'NOT VERIFIED' ? 'planned' : snapshot.status === 'OFFLINE' ? 'failed' : 'no-telemetry') : 'planned';
+    return `<li class="turn-status-row ${state}" data-live-component-id="${escapeHtml(source.id)}"><span>${escapeHtml(source.label)}</span><strong data-component-live-status>${escapeHtml(status)}</strong><small data-component-live-evidence>${escapeHtml(source.source)} · ${snapshot ? escapeHtml(snapshot.checkedAt.toISOString()) : 'NO LIVE OBSERVATION'}</small></li>`;
   }).join('');
-  const agentRows = agents.map((agent) => `<li class="turn-status-row ${agent.generalStatus === 'ACTIVE' ? 'operational' : agent.generalStatus === 'PLANNED' ? 'planned' : agent.generalStatus === 'FAILED' ? 'failed' : 'degraded'}" data-live-agent-id="${escapeHtml(agent.turnAgentId ?? agent.panelAgentId)}"><span>${escapeHtml(agent.registryName !== 'UNMAPPED' ? agent.registryName : agent.displayName)}</span><strong data-agent-live-status>${escapeHtml(agent.generalStatus)}</strong></li>`).join('');
-  return `<section class="turn-real-status-board" id="turn-real-status" aria-labelledby="turn-real-status-title"><header><div><span class="turn-kicker">TURN · REAL STATUS BOARD</span><h2 id="turn-real-status-title">Stare reală la intrare</h2><p>Model comun cu panoul orbital și mini-map-ul; lipsa dovezii rămâne explicită.</p></div><span class="protocol-status">READ-ONLY · CURRENT SOURCES</span></header><div class="turn-status-criteria"><strong>Criteriu principal: STAREA AGENTULUI</strong><span>General = registry/status operațional al agentului; o eroare runtime confirmată poate degrada verdictul.</span><span>Telemetria, targetul, procedura, incidentul și freshness sunt criterii separate în mini-map-uri și detalii.</span><span>Verde ACTIVE · galben ATTENTION · portocaliu DEGRADED · roșu FAILED · albastru PLANNED/NOT VERIFIED · gri UNKNOWN.</span></div>${renderTurnAgentLiveState()}<div class="turn-status-board-grid"><article><h3>Agenți (${agents.length})</h3><ul>${agentRows}</ul></article><article><h3>Aplicație și componente</h3><ul>${componentRows}</ul></article></div></section>`;
+  const agentRows = agents.map((agent) => `<li class="turn-status-row ${agent.generalStatus === 'ACTIVE' ? 'operational' : ['PLANNED', 'REGISTRY ONLY', 'WAITING FOR LIVE PROBE'].includes(agent.generalStatus) ? 'planned' : agent.generalStatus === 'FAILED' ? 'failed' : agent.generalStatus === 'DEGRADED' ? 'degraded' : 'unknown'}" data-live-agent-id="${escapeHtml(agent.turnAgentId ?? agent.panelAgentId)}"><span>${escapeHtml(agent.registryName !== 'UNMAPPED' ? agent.registryName : agent.displayName)}</span><strong data-agent-live-status>${escapeHtml(agent.generalStatus)}</strong><small data-agent-live-evidence>${escapeHtml(agent.telemetrySource ?? 'NO LIVE SOURCE')} · ${escapeHtml(agent.lastSeen)}</small></li>`).join('');
+  return `<section class="turn-real-status-board" id="turn-real-status" aria-labelledby="turn-real-status-title"><header><div><span class="turn-kicker">TURN · REAL STATUS BOARD</span><h2 id="turn-real-status-title">Stare reală la intrare</h2><p>Model comun cu panoul orbital și mini-map-ul; lipsa dovezii rămâne explicită.</p></div><span class="protocol-status">READ-ONLY · CURRENT SOURCES</span></header><div class="turn-status-criteria"><strong>Criteriu principal: STAREA AGENTULUI</strong><span>Registrul stabilește identitatea, nu starea runtime. ACTIVE, DEGRADED, FAILED sau UNKNOWN apar numai după un probe curent și includ sursa și timestampul.</span><span>Agenții fără collector sunt marcați REGISTRY ONLY; cei care așteaptă primul probe sunt WAITING FOR LIVE PROBE.</span><span>Verde ACTIVE · portocaliu DEGRADED · roșu FAILED · albastru REGISTRY/WAITING · gri UNKNOWN cu evidence stale.</span></div>${renderTurnAgentLiveState()}<div class="turn-status-board-grid"><article><h3>Agenți (${agents.length})</h3><ul>${agentRows}</ul></article><article><h3>Aplicație și componente</h3><ul>${componentRows}</ul></article></div></section>`;
 }
 
 function renderOperationalProtocol() {
@@ -264,7 +264,7 @@ function severityRank(severity: OperationalIncident['severity']) {
 
 function renderOrganizationMapSection(language: UiLanguage) {
   const grouped = new Map<string, AgentGovernanceRecord[]>();
-  agentGovernanceRegistry.forEach((agent) => {
+  agentGovernanceRegistry.map((agent) => ({ ...agent, status: 'planned' as const })).forEach((agent) => {
     const list = grouped.get(agent.ownerDepartmentId) ?? [];
     list.push(agent);
     grouped.set(agent.ownerDepartmentId, list);
@@ -312,12 +312,12 @@ function renderApprovedTurnDashboard(language: UiLanguage) {
   return `<section class="turn-agent-dashboard" id="turn-dashboard" aria-labelledby="turn-dashboard-title" data-agent-count="${approvedAgents.length}" data-p9-count="${p9 ? 1 : 0}">
     <header class="turn-dashboard-header">
       <div><span class="turn-kicker">TURN · COMMAND & GOVERNANCE BOARD</span><h2 id="turn-dashboard-title">Dashboardul Turnului</h2><p>Bord unic pentru comandă, intrare în tură, arhitectură, guvernanță și evidența completă a agenților AGM.</p></div>
-      <div class="turn-dashboard-verdict"><span class="turn-light active" aria-hidden="true"></span><strong>${approvedAgents.length} AGENȚI + P9</strong><small>Registru canonic · vedere read-only</small></div>
+      <div class="turn-dashboard-verdict"><span class="turn-light planned" aria-hidden="true"></span><strong>${approvedAgents.length} AGENȚI + P9</strong><small>REGISTRY ONLY · fără afirmație runtime</small></div>
     </header>
 
     <section class="turn-entry-panel" aria-labelledby="turn-entry-title">
-      <header><div><span class="turn-kicker">PANOU DE INTRARE</span><h3 id="turn-entry-title">Starea tuturor agenților</h3></div><dl><div><dt>Activi</dt><dd>${statusCounts.active ?? 0}</dd></div><div><dt>Monitorizare</dt><dd>${statusCounts.monitoring ?? 0}</dd></div><div><dt>Planificați</dt><dd>${statusCounts.planned ?? 0}</dd></div></dl></header>
-      <div class="turn-agent-light-grid">${agentGovernanceRegistry.map((agent) => `<div class="turn-agent-light" data-entry-agent-id="${escapeHtml(agent.id)}" title="${escapeHtml(agentDisplayRole(language, agent))}"><span class="turn-light ${escapeHtml(agent.status)}" aria-hidden="true"></span><span><strong>${escapeHtml(agent.code)}</strong><small>${escapeHtml(agentDisplayName(language, agent))}</small></span><b>${escapeHtml(agent.status)}</b></div>`).join('')}</div>
+      <header><div><span class="turn-kicker">PANOU DE INTRARE · REGISTRY METADATA</span><h3 id="turn-entry-title">Clasificarea din registru — nu stare runtime</h3></div><dl><div><dt>Înregistrați ca active</dt><dd>${statusCounts.active ?? 0}</dd></div><div><dt>Înregistrați pentru monitorizare</dt><dd>${statusCounts.monitoring ?? 0}</dd></div><div><dt>Planificați</dt><dd>${statusCounts.planned ?? 0}</dd></div></dl></header>
+      <div class="turn-agent-light-grid">${agentGovernanceRegistry.map((agent) => `<div class="turn-agent-light" data-entry-agent-id="${escapeHtml(agent.id)}" title="${escapeHtml(agentDisplayRole(language, agent))}"><span class="turn-light planned" aria-hidden="true"></span><span><strong>${escapeHtml(agent.code)}</strong><small>${escapeHtml(agentDisplayName(language, agent))}</small></span><b>REGISTRY ONLY</b></div>`).join('')}</div>
     </section>
 
     <section class="turn-wide-board" aria-labelledby="turn-architecture-title">
@@ -337,7 +337,7 @@ function renderApprovedTurnDashboard(language: UiLanguage) {
       </div>
       <div class="turn-network-grid">${departments.map((department) => {
         const agents = agentGovernanceRegistry.filter((agent) => agent.ownerDepartmentId === department);
-        return `<article class="turn-network-department ${department === 'ai-agents' ? 'ai-network' : ''}"><header><strong>${escapeHtml(departmentDisplayName(department))}</strong><span>${agents.length}</span></header><div>${agents.map((agent) => `<span class="network-agent ${agent.id === 'p9-copilot-control-plane' ? 'p9-network-node' : ''}"><i class="turn-light ${escapeHtml(agent.status)}"></i><b>${escapeHtml(agent.code)}</b><small>${escapeHtml(agentDisplayName(language, agent))}</small></span>`).join('')}</div>${department === 'ai-agents' && p9 ? `<aside class="p9-network-position"><strong>P9 · CONTROL-PLANE INTERN</strong><span>Poziție: Rețeaua AI → orchestrare Copilot → execuție read-only</span><small>Kill Switch · rollback · evidence operațional</small>${renderP9TurnProjection()}</aside>` : ''}</article>`;
+        return `<article class="turn-network-department ${department === 'ai-agents' ? 'ai-network' : ''}"><header><strong>${escapeHtml(departmentDisplayName(department))}</strong><span>${agents.length}</span></header><div>${agents.map((agent) => `<span class="network-agent ${agent.id === 'p9-copilot-control-plane' ? 'p9-network-node' : ''}"><i class="turn-light planned"></i><b>${escapeHtml(agent.code)}</b><small>${escapeHtml(agentDisplayName(language, agent))} · REGISTRY ONLY</small></span>`).join('')}</div>${department === 'ai-agents' && p9 ? `<aside class="p9-network-position"><strong>P9 · CONTROL-PLANE INTERN</strong><span>Poziție: Rețeaua AI → orchestrare Copilot → execuție read-only</span><small>Kill Switch · rollback · evidence operațional</small>${renderP9TurnProjection()}</aside>` : ''}</article>`;
       }).join('')}</div>
     </section>
 
@@ -349,7 +349,7 @@ function renderApprovedTurnDashboard(language: UiLanguage) {
 
     <section class="turn-agent-register" aria-labelledby="turn-agent-register-title">
       <header><div><span class="turn-kicker">REGISTRU CANONIC COMPLET</span><h3 id="turn-agent-register-title">Tabelul celor ${approvedAgents.length} de agenți</h3></div><strong>${agentGovernanceRegistry.length} poziții</strong></header>
-      <div class="turn-agent-table-wrap"><table><thead><tr><th>#</th><th>Semnal</th><th>Cod</th><th>Agent</th><th>Rol</th><th>Departament</th><th>Stare</th></tr></thead><tbody>${approvedAgents.map((agent, index) => `<tr data-agent-row-id="${escapeHtml(agent.id)}"><td>${index + 1}</td><td><span class="turn-light ${escapeHtml(agent.status)}" aria-label="${escapeHtml(agent.status)}"></span></td><td><code>${escapeHtml(agent.code)}</code></td><td><strong>${escapeHtml(agentDisplayName(language, agent))}</strong></td><td>${escapeHtml(agentDisplayRole(language, agent))}</td><td>${escapeHtml(departmentDisplayName(agent.ownerDepartmentId))}</td><td><span class="turn-status ${agent.status === 'monitoring' ? 'watch' : agent.status === 'planned' ? 'planned' : 'active'}">${escapeHtml(agent.status)}</span></td></tr>`).join('')}</tbody></table></div>
+      <div class="turn-agent-table-wrap"><table><thead><tr><th>#</th><th>Semnal</th><th>Cod</th><th>Agent</th><th>Rol</th><th>Departament</th><th>Stare</th></tr></thead><tbody>${approvedAgents.map((agent, index) => `<tr data-agent-row-id="${escapeHtml(agent.id)}"><td>${index + 1}</td><td><span class="turn-light planned" aria-label="registry only"></span></td><td><code>${escapeHtml(agent.code)}</code></td><td><strong>${escapeHtml(agentDisplayName(language, agent))}</strong></td><td>${escapeHtml(agentDisplayRole(language, agent))}</td><td>${escapeHtml(departmentDisplayName(agent.ownerDepartmentId))}</td><td><span class="turn-status planned">REGISTRY ONLY</span></td></tr>`).join('')}</tbody></table></div>
     </section>
 
     <div class="turn-dashboard-detail">${renderTurnOrganizationChart()}</div>
@@ -533,7 +533,7 @@ function renderAgentGovernanceItem(language: UiLanguage, agent: AgentGovernanceR
   return `
     <details class="agent-registry-row">
       <summary>
-        <span class="turn-status ${agent.status === 'monitoring' ? 'watch' : agent.status === 'planned' ? 'planned' : 'active'}">${escapeHtml(t(language, `agentRegistry.status.${agent.status}`))}</span>
+        <span class="turn-status planned">REGISTRY ONLY · ${escapeHtml(t(language, `agentRegistry.status.${agent.status}`))}</span>
         <strong>${escapeHtml(name)}</strong>
         <code>${escapeHtml(agent.code)}</code>
       </summary>
@@ -591,7 +591,7 @@ function renderTurnItem(language: UiLanguage, item: TurnCommandItem) {
   return `
     <details class="turn-row">
       <summary>
-        <span class="turn-status ${item.status}">${escapeHtml(turnStatusLabel(language, item.status))}</span>
+        <span class="turn-status planned">REGISTRY ONLY · ${escapeHtml(turnStatusLabel(language, item.status))}</span>
         <strong>${escapeHtml(t(language, item.titleKey))}</strong>
         ${inspectorReport ? renderInspectorBadge(language, inspectorReport) : ''}
       </summary>

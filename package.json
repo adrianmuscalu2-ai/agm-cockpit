@@ -25,6 +25,7 @@
     "db:studio": "prisma studio",
     "audit:ui-live": "node scripts/ui-live-audit.mjs",
     "audit:wave1-browser": "node scripts/validate-wave1-browser.mjs",
+    "audit:turn-operational-truth": "node scripts/validate-turn-operational-truth-browser.mjs",
     "audit:canonical-route": "node scripts/test-production-public-route.mjs",
     "audit:slice-a-desktop": "node scripts/validate-slice-a-desktop.mjs",
     "audit:slice-b-desktop": "node scripts/validate-slice-b-desktop.mjs",

@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { createHash, randomUUID } from 'node:crypto';
 import type { RequestContext } from '../common/request-context';
@@ -7,52 +7,16 @@ import { detectAuthorityConflict, evaluateWriteBoundary, isCommandAllowed, isRun
 import { authorityScopeSeed, PREMIUM_NETWORK_CONTRACT_VERSION, premiumNetworkSeed } from './premium-network.seed';
 import type { CreateDecisionDto, CreateMandateDto, ExecuteRecoveryDto, HandoffLeaseDto, IssueLeaseDto, ResourceSelectorDto, ValidateWriteDto } from './dto';
 import { resolveCanonicalNodeState } from './canonical-node-state';
+import { TURN_OPERATIONAL_TRUTH_CONTRACT } from '../turn-operational-truth/turn-operational-truth.contract';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
 const AUTHORITY_ADMIN_ROLES = new Set(['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN']);
-const AUTHORITY_CONTROL_PLANE_ID = 'agm.authority.control-plane';
-const AUTHORITY_CONTROL_PLANE_HEARTBEAT_INTERVAL_MS = 60_000;
+const AUTHORITY_CONTROL_PLANE_ID = TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId;
 const json = (value: unknown) => value as Prisma.InputJsonValue;
 
 @Injectable()
-export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnApplicationShutdown {
-  private heartbeatTimer?: NodeJS.Timeout;
-
+export class AuthorityControlPlaneService {
   constructor(private readonly prisma: PrismaService) {}
-
-  onApplicationBootstrap() {
-    void this.publishRuntimeHeartbeats().catch(() => undefined);
-    this.heartbeatTimer = setInterval(() => void this.publishRuntimeHeartbeats().catch(() => undefined), AUTHORITY_CONTROL_PLANE_HEARTBEAT_INTERVAL_MS);
-    this.heartbeatTimer.unref();
-  }
-
-  onApplicationShutdown() {
-    if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
-  }
-
-  private async publishRuntimeHeartbeats() {
-    const companies = await this.prisma.company.findMany({ where: { isActive: true }, select: { id: true } });
-    const observedAt = new Date();
-    await Promise.all(companies.map(({ id: companyId }) => this.prisma.componentHeartbeat.upsert({
-      where: { companyId_componentId: { companyId, componentId: AUTHORITY_CONTROL_PLANE_ID } },
-      create: {
-        companyId,
-        componentId: AUTHORITY_CONTROL_PLANE_ID,
-        reportedStatus: 'ONLINE',
-        lastSeenAt: observedAt,
-        lastSuccessAt: observedAt,
-        lastDetail: 'AUTHORITY_CONTROL_PLANE_HEARTBEAT · runtime service active',
-      },
-      update: {
-        reportedStatus: 'ONLINE',
-        lastSeenAt: observedAt,
-        lastSuccessAt: observedAt,
-        lastFailureAt: null,
-        lastFailureReason: null,
-        lastDetail: 'AUTHORITY_CONTROL_PLANE_HEARTBEAT · runtime service active',
-      },
-    })));
-  }
 
   async dashboard(ctx: RequestContext) {
     await this.ensureFoundation(ctx);
@@ -85,7 +49,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         registryLifecycleStatus: item.lifecycleStatus,
         ...(liveRun ? { liveAdapter: { status: adapterHealth(liveRun.status), observedAt: liveRun.lastAttemptAt } } : {}),
         ...(opportunityRun ? { opportunityTelemetry: { status: opportunityRun.health, freshnessStatus: opportunityRun.freshnessStatus, observedAt: opportunityRun.lastRunAt } } : {}),
-        ...(heartbeat ? { heartbeat: { status: heartbeat.reportedStatus, observedAt: heartbeat.lastSeenAt } } : {}),
+        ...(heartbeat ? { heartbeat: { status: heartbeat.reportedStatus, observedAt: heartbeat.lastSeenAt, staleAfterMs: item.canonicalId === AUTHORITY_CONTROL_PLANE_ID ? TURN_OPERATIONAL_TRUTH_CONTRACT.freshnessWindowMs : undefined } } : {}),
         ...(lastRun ? { runtimeEvent: { status: lastRun.lifecycle, observedAt: lastRun.occurredAt } } : {}),
         ...(lease ? { authorityState: { status: lease.state, observedAt: lease.issuedAt } } : {}),
       });
@@ -98,7 +62,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         statusSource: canonicalState.source,
         statusObservedAt: canonicalState.observedAt,
         telemetry: liveRun ? { reportedStatus: liveRun.status, lastSeenAt: liveRun.lastAttemptAt, lastSuccessAt: liveRun.lastSuccessAt, lastFailureAt: liveRun.lastErrorCode ? liveRun.lastAttemptAt : null, detail: { latencyMs: liveRun.latencyMs, errorRateBps: liveRun.errorRateBps, rateLimitState: liveRun.rateLimitState, fallbackActivation: liveRun.fallbackActivation, cacheAgeSeconds: liveRun.cacheAgeSeconds, providerId: liveRun.providerId, contractVersion: liveRun.contractVersion } } : opportunityRun ? { reportedStatus: opportunityRun.health, lastSeenAt: opportunityRun.lastRunAt, lastSuccessAt: opportunityRun.health === 'PASS' ? opportunityRun.lastRunAt : null, lastFailureAt: opportunityRun.health === 'FAIL' ? opportunityRun.lastRunAt : null, detail: { durationMs: opportunityRun.durationMs, freshnessStatus: opportunityRun.freshnessStatus, backlog: opportunityRun.backlog, dependencyHealth: opportunityRun.dependencyHealth, confidence: opportunityRun.confidence, outputReference: opportunityRun.outputReference, providerId: opportunityRun.providerId, contractVersion: opportunityRun.contractVersion } } : heartbeat ? { reportedStatus: heartbeat.reportedStatus, lastSeenAt: heartbeat.lastSeenAt, lastSuccessAt: heartbeat.lastSuccessAt, lastFailureAt: heartbeat.lastFailureAt, detail: heartbeat.lastDetail } : null,
-        dependencyState: liveRun ? adapterHealth(liveRun.status) : opportunityRun ? opportunityRun.dependencyHealth : heartbeat?.lastFailureReason ? 'DEGRADED' : heartbeat ? 'PASS' : 'NO_TELEMETRY',
+        dependencyState: liveRun ? adapterHealth(liveRun.status) : opportunityRun ? opportunityRun.dependencyHealth : heartbeat?.lastFailureReason ? 'DEGRADED' : heartbeat ? canonicalState.status : 'NO_TELEMETRY',
         authorityState: lease ? { state: lease.state, epoch: lease.epoch, fencingToken: lease.fencingToken, providerId: lease.providerId, expiresAt: lease.expiresAt } : { state: item.writePermissions ? 'STANDBY' : 'ADVISORY' },
         failoverState: failoverState?.state ?? 'STANDBY',
         lastRun: lastRun ? { lifecycle: lastRun.lifecycle, occurredAt: lastRun.occurredAt, detail: lastRun.detail } : liveRun ? { lifecycle: liveRun.status, occurredAt: liveRun.lastAttemptAt, detail: { latencyMs: liveRun.latencyMs, providerId: liveRun.providerId } } : opportunityRun ? { lifecycle: 'COMPLETED', occurredAt: opportunityRun.lastRunAt, detail: { durationMs: opportunityRun.durationMs, outputReference: opportunityRun.outputReference } } : null,

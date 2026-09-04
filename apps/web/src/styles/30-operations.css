@@ -211,12 +211,13 @@
 .turn-status-board-grid article { border: 1px solid rgba(127, 181, 255, .22); border-radius: 10px; padding: .75rem; }
 .turn-status-board-grid h3 { margin: 0 0 .5rem; }
 .turn-status-board-grid ul { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow: auto; }
-.turn-status-row { display: flex; justify-content: space-between; gap: .75rem; padding: .35rem .45rem; border-bottom: 1px solid rgba(127, 181, 255, .12); font-size: .82rem; }
+.turn-status-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .35rem .75rem; padding: .35rem .45rem; border-bottom: 1px solid rgba(127, 181, 255, .12); font-size: .82rem; }
 .turn-status-row strong { white-space: nowrap; }
+.turn-status-row small { flex-basis: 100%; color: #91a6bd; overflow-wrap: anywhere; }
 .turn-status-row.operational strong { color: #00ff7f; }
 .turn-status-row.degraded strong { color: #ff9d38; }
 .turn-status-row.failed strong { color: #ff4545; }
-.turn-status-row.no-telemetry strong, .turn-status-row.unmapped strong { color: #aab4c8; }
+.turn-status-row.no-telemetry strong, .turn-status-row.unmapped strong, .turn-status-row.unknown strong { color: #aab4c8; }
 .turn-status-row.planned strong { color: #3f9bff; }
 @media (max-width: 700px) { .turn-real-status-board > header { flex-direction: column; } .turn-status-board-grid { grid-template-columns: 1fr; } }
 .turn-approved-agent-panel > header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }

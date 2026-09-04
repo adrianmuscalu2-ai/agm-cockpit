@@ -28,8 +28,12 @@ export function incidentStatusLight(status?: IncidentStatus): StatusLight {
 }
 
 export function renderStatusLight(kind: 'agent' | 'target' | 'incident', status: string | undefined, extraClass = '') {
+  const registryOrUnpolled = kind === 'agent'
+    && ['operation-agent-status', 'turn-network-status'].includes(extraClass)
+    && ['ACTIVE', 'DEGRADED'].includes(status ?? '');
+  const effectiveStatus = registryOrUnpolled ? 'UNKNOWN' : status;
   const value = kind === 'agent'
-    ? agentStatusLight(status ?? 'UNKNOWN')
+    ? agentStatusLight(effectiveStatus ?? 'UNKNOWN')
     : kind === 'target'
       ? targetStatusLight(status ?? 'UNKNOWN')
       : incidentStatusLight(status as IncidentStatus | undefined);

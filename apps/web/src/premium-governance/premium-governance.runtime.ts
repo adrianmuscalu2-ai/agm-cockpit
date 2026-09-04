@@ -1,4 +1,5 @@
 import { authenticatedApiFetch } from '../authenticated-api';
+import { fetchTurnOperationalTruth, operationalTruthIsPass, type TurnOperationalTruth } from '../turn-operational-truth';
 
 type NodeStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
 type NetworkNode = {
@@ -18,20 +19,15 @@ export function bindPremiumGovernanceRuntime(turnAdminAccessToken?: string) {
   const dashboard = document.querySelector<HTMLElement>('[data-authority-dashboard]');
   const detail = document.querySelector<HTMLElement>('[data-agent-network-detail]');
   if (!dashboard && !detail) return;
-  void load(turnAdminAccessToken).then((data) => {
-    if (dashboard) renderHero(dashboard, data);
-    if (detail) renderDetail(detail, data);
-  }).catch((error) => {
-    const root = dashboard ?? detail;
-    if (!root) return;
-    root.setAttribute('aria-busy', 'false');
-    const message = root.querySelector<HTMLElement>('[data-network-message]');
-    if (message) message.textContent = error instanceof Error ? error.message : 'Starea AGM nu este disponibilă.';
-  });
+  if (dashboard) void fetchTurnOperationalTruth().then((truth) => renderOperationalHero(dashboard, truth)).catch((error) => renderOperationalUnavailable(dashboard, error));
+  if (detail) {
+    if (!turnAdminAccessToken) renderRestrictedDetail(detail);
+    else void load(turnAdminAccessToken).then((data) => renderDetail(detail, data)).catch((error) => renderDetailUnavailable(detail, error));
+  }
 }
 
 async function load(turnAdminAccessToken?: string) {
-  if (!turnAdminAccessToken) throw new Error('Authority Control Plane este disponibil numai după deblocarea administrativă Turn.');
+  if (!turnAdminAccessToken) throw new Error('TURN_ADMIN_SESSION_REQUIRED');
   const response = await authenticatedApiFetch('/authority-control-plane/dashboard', {
     cache: 'no-store',
     headers: { 'X-AGM-Turn-Authorization': `Bearer ${turnAdminAccessToken}` },
@@ -39,6 +35,54 @@ async function load(turnAdminAccessToken?: string) {
   const envelope = await response.json().catch(() => ({})) as Envelope;
   if (!response.ok || !envelope.data) throw new Error('Nu s-a putut încărca starea reală AGM. Aplicația rămâne funcțională; doar telemetria este indisponibilă.');
   return envelope.data;
+}
+
+function renderOperationalHero(root: HTMLElement, truth: TurnOperationalTruth) {
+  const pass = operationalTruthIsPass(truth);
+  const status = pass ? 'PASS' : truth.overallStatus;
+  const label = pass ? 'M2M AUTHENTICATED · LIVE' : `${truth.authStatus} · ${truth.telemetryStatus}`;
+  root.dataset.operationalTruth = status.toLowerCase().replace('_', '-');
+  root.dataset.falseGreen = String(truth.falseGreen);
+  root.dataset.unexplainedDegraded = String(truth.unexplainedDegraded);
+  setText(root, '[data-control-status]', label);
+  const controlPlane = root.querySelector('.agm-control-plane-node');
+  controlPlane?.classList.remove('status-pass', 'status-degraded', 'status-fail', 'status-no-telemetry', 'status-standby');
+  controlPlane?.classList.add(`status-${statusClass(status)}`);
+  const nodeHost = root.querySelector<HTMLElement>('[data-network-nodes]');
+  if (nodeHost) nodeHost.innerHTML = '';
+  setText(root, '[data-active-authorities]', 'NOT EXPOSED');
+  setText(root, '[data-node-count]', String(truth.chain.authenticatedAcpRead.registryNodeCount ?? '—'));
+  setText(root, '[data-conflict-count]', 'NOT EVALUATED');
+  setText(root, '[data-opportunity-gate]', 'NOT EVALUATED');
+  const message = root.querySelector<HTMLElement>('[data-network-message]');
+  if (message) message.textContent = `${truth.reason} · ${truth.authorityControlPlane.statusSource} · ${truth.observedAt ? formatDate(truth.observedAt) : 'fără observație autentificată'} · FALSE GREEN ${truth.falseGreen}`;
+  root.setAttribute('aria-busy', 'false');
+}
+
+function renderOperationalUnavailable(root: HTMLElement, error: unknown) {
+  root.dataset.operationalTruth = 'unavailable';
+  setText(root, '[data-control-status]', 'UNAVAILABLE');
+  const controlPlane = root.querySelector('.agm-control-plane-node');
+  controlPlane?.classList.remove('status-pass', 'status-degraded', 'status-fail', 'status-no-telemetry', 'status-standby');
+  controlPlane?.classList.add('status-fail');
+  const message = root.querySelector<HTMLElement>('[data-network-message]');
+  if (message) message.textContent = error instanceof Error ? error.message : 'TURN_OPERATIONAL_TRUTH_UNAVAILABLE';
+  root.setAttribute('aria-busy', 'false');
+}
+
+function renderRestrictedDetail(root: HTMLElement) {
+  const host = root.querySelector<HTMLElement>('[data-network-departments]');
+  if (host) host.innerHTML = '';
+  setText(root, '[data-network-contract]', 'Contract: operational truth is public; registry drill-down is restricted');
+  const message = root.querySelector<HTMLElement>('[data-network-message]');
+  if (message) message.textContent = 'Detaliile registrului necesită o sesiune administrativă Turn. Verdictul ACP de mai sus provine exclusiv din dovada M2M live, nu din registru.';
+  root.setAttribute('aria-busy', 'false');
+}
+
+function renderDetailUnavailable(root: HTMLElement, error: unknown) {
+  const message = root.querySelector<HTMLElement>('[data-network-message]');
+  if (message) message.textContent = error instanceof Error ? error.message : 'ACP_REGISTRY_DETAIL_UNAVAILABLE';
+  root.setAttribute('aria-busy', 'false');
 }
 
 function renderHero(root: HTMLElement, data: Dashboard) {

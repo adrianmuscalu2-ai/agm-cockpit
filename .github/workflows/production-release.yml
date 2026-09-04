@@ -43,6 +43,7 @@ jobs:
       - run: pnpm --filter @agm/api test -- --runInBand
       - run: pnpm --filter @agm/api build
       - run: pnpm --filter @agm/web build
+      - run: pnpm --filter @agm/web test:turn-operational-truth
       - run: pnpm audit:canonical-route
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm rescue:browser-preflight
@@ -298,6 +299,37 @@ jobs:
           curl --fail --silent --show-error \
             -H "Authorization: Bearer $next_access_token" \
             "https://api.agmcockpit.com/api/v1/m2m/authority-control-plane/companies/$company_id/network-registry" | jq -e '.data | type == "array"' >/dev/null
+
+          identity_ref="sha256:$(printf '%s' "$client_id" | sha256sum | cut -d' ' -f1)"
+          credential_ref="sha256:$(printf '%s' "$next_credential_id" | sha256sum | cut -d' ' -f1)"
+          operational_truth=$(curl --fail --silent --show-error \
+            https://api.agmcockpit.com/api/v1/operations/turn/operational-truth)
+          jq -e --arg identity "$identity_ref" --arg credential "$credential_ref" '
+            .data
+            | .contractVersion == "turn-operational-truth.v1"
+              and .overallStatus == "PASS"
+              and .authStatus == "M2M AUTHENTICATED"
+              and .telemetryStatus == "LIVE TELEMETRY"
+              and .falseGreen == 0
+              and .unexplainedDegraded == 0
+              and .chain.machineIdentity.status == "VERIFIED"
+              and .chain.machineIdentity.ref == $identity
+              and .chain.credential.status == "VERIFIED"
+              and .chain.credential.ref == $credential
+              and .chain.token.status == "VERIFIED"
+              and .chain.token.scope == "acp:read"
+              and .chain.authenticatedAcpRead.status == "PASS"
+              and .chain.authenticatedAcpRead.responseDigest == .latestEvent.evidenceHash
+              and .chain.authenticatedAcpRead.requestId == .latestEvent.dossierId
+              and .chain.telemetry.status == "PASS"
+              and .chain.eventStore.status == "PERSISTED"
+              and .chain.eventStore.eventId == .latestEvent.eventId
+              and .chain.api.status == "PASS"
+              and .chain.turn.status == "EVIDENCE AVAILABLE"
+              and .chain.ui.status == "READY FOR LIVE RENDER"
+          ' <<<"$operational_truth" >/dev/null
+          jq -c '{contractVersion:.data.contractVersion,overallStatus:.data.overallStatus,reason:.data.reason,observedAt:.data.observedAt,ageSeconds:.data.ageSeconds,authStatus:.data.authStatus,telemetryStatus:.data.telemetryStatus,falseGreen:.data.falseGreen,unexplainedDegraded:.data.unexplainedDegraded,eventStore:.data.chain.eventStore.status,turn:.data.chain.turn.status}' <<<"$operational_truth"
+          echo 'TURN_OPERATIONAL_TRUTH=PASS'
 
           revoke_body=$(jq -nc '{reason:"Production release credential lifecycle validation."}')
           curl --fail --silent --show-error \

@@ -8,7 +8,7 @@ export type CanonicalNodeState = {
   observedAt: Date | null;
 };
 
-type TimedStatus = { status: string; observedAt: Date };
+type TimedStatus = { status: string; observedAt: Date; staleAfterMs?: number };
 
 export function resolveCanonicalNodeState(input: {
   registryLifecycleStatus: string;
@@ -28,7 +28,7 @@ export function resolveCanonicalNodeState(input: {
     return mapped(input.opportunityTelemetry.status, 'OPPORTUNITY_TELEMETRY', input.opportunityTelemetry.observedAt);
   }
   if (input.heartbeat) {
-    if (now.getTime() - input.heartbeat.observedAt.getTime() > 90_000) {
+    if (now.getTime() - input.heartbeat.observedAt.getTime() > (input.heartbeat.staleAfterMs ?? 90_000)) {
       return { status: 'FAIL', label: 'OFFLINE', source: 'COMPONENT_HEARTBEAT', observedAt: input.heartbeat.observedAt };
     }
     return mapped(input.heartbeat.status, 'COMPONENT_HEARTBEAT', input.heartbeat.observedAt);

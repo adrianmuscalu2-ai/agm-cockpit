@@ -34,6 +34,7 @@ import { PilotOperationsModule } from './pilot-operations/pilot-operations.modul
 import { CanonicalAuthorityModule } from './canonical-authority/canonical-authority.module';
 import { SourceFreshnessModule } from './source-freshness/source-freshness.module';
 import { MachineAuthModule } from './machine-auth/machine-auth.module';
+import { TurnOperationalTruthModule } from './turn-operational-truth/turn-operational-truth.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { MachineAuthModule } from './machine-auth/machine-auth.module';
     CanonicalAuthorityModule,
     SourceFreshnessModule,
     MachineAuthModule,
+    TurnOperationalTruthModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

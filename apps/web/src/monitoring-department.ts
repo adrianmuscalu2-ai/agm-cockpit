@@ -144,7 +144,7 @@ export function renderMonitoringDepartment(incidents: OperationalIncident[]) {
       const source = monitoringHealthSources.find((item) => item.id === agent.sourceId);
       const incident = incidentFor(agent, active);
       const isIncidentAgent = agent.id === 'monitor-incidents';
-      const initialAgentStatus = source?.kind === 'http' || source?.kind === 'aggregate' || isIncidentAgent ? 'ACTIVE' : 'DEGRADED';
+      const initialAgentStatus = 'UNKNOWN';
       const initialTargetStatus = isIncidentAgent ? 'HEALTHY' : 'UNKNOWN';
       const initialStatus = isIncidentAgent
         ? active.length ? `${active.length} ACTIVE` : 'NO ACTIVE INCIDENTS'

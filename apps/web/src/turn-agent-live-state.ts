@@ -1,3 +1,5 @@
+import { fetchTurnOperationalTruth, operationalTruthIsPass, type OperationalTruthStep, type TurnOperationalTruth } from './turn-operational-truth';
+
 export type TurnAgentLifecycle = 'STARTED' | 'WORKING' | 'COMPLETED' | 'FAILED' | 'BLOCKED';
 export type TurnAgentRuntimeEvent = {
   eventId: string;
@@ -14,21 +16,13 @@ export type TurnAgentRuntimeEvent = {
   detail: string;
 };
 
-const tokenKey = 'agm.auth.accessToken';
 let pollTimer: number | undefined;
 export const turnAgentLivePollIntervalMs = 5_000;
-let cursor: string | undefined;
 const seen = new Set<string>();
 const history: TurnAgentRuntimeEvent[] = [];
 const pendingVisualEvents: TurnAgentRuntimeEvent[] = [];
 let visualTimer: number | undefined;
 let currentRuntimeEvent: TurnAgentRuntimeEvent | undefined;
-let tokenRestore: Promise<string | undefined> | undefined;
-
-function apiBaseUrl() {
-  const configured = import.meta.env.VITE_AGM_API_BASE_URL?.trim().replace(/\/$/, '');
-  return configured || (import.meta.env.DEV ? 'http://127.0.0.1:3000/api/v1' : '/api/v1');
-}
 
 function tone(lifecycle: TurnAgentLifecycle) {
   if (lifecycle === 'COMPLETED') return 'operational';
@@ -43,42 +37,10 @@ function escapeHtml(value: string) {
 
 export function renderTurnAgentLiveState() {
   return `<section class="turn-agent-live-state" data-turn-agent-live="loading" aria-live="polite" aria-atomic="false">
-    <header><div><span class="turn-kicker">P3 → EVENTSTORE/API → TURN</span><h3>Execuție reală agenți</h3></div><div class="turn-live-actions"><strong data-live-connection>CONNECTING</strong><button type="button" data-live-run-inspector>Rulează verificarea reală</button></div></header>
-    <p data-live-current>Nicio execuție runtime încărcată.</p>
+    <header><div><span class="turn-kicker">MACHINE IDENTITY → CREDENTIAL → TOKEN → ACP → TELEMETRY → EVENTSTORE/API → TURN → UI</span><h3>Adevăr operațional autentificat</h3></div><div class="turn-live-actions"><strong data-live-connection>CONNECTING</strong><button type="button" data-live-refresh>Reîncarcă starea</button></div></header>
+    <p data-live-current>Nicio dovadă M2M încărcată.</p>
     <ol data-live-events></ol>
   </section>`;
-}
-
-async function accessToken(fetcher: typeof fetch) {
-  const current = sessionStorage.getItem(tokenKey);
-  if (current) return current;
-  if (!tokenRestore) {
-    tokenRestore = fetcher(`${apiBaseUrl()}/auth/refresh`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { Accept: 'application/json' },
-    }).then(async (response) => {
-      if (!response.ok) return undefined;
-      const payload = await response.json() as { data?: { accessToken?: string } };
-      const restored = payload.data?.accessToken?.trim();
-      if (restored) sessionStorage.setItem(tokenKey, restored);
-      return restored;
-    }).catch(() => undefined).finally(() => { tokenRestore = undefined; });
-  }
-  return tokenRestore;
-}
-
-async function runInspectorAcceptance(fetcher: typeof fetch) {
-  const token = await accessToken(fetcher);
-  if (!token) throw new Error('AGENT_RUNTIME_EXECUTION_AUTH_REQUIRED');
-  for (const expectedOutcome of ['COMPLETED', 'FAILED'] as const) {
-    const response = await fetcher(`${apiBaseUrl()}/agent-runtime-events/execute-inspector`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ expectedOutcome }),
-    });
-    if (!response.ok) throw new Error(`AGENT_RUNTIME_EXECUTION_HTTP_${response.status}`);
-  }
 }
 
 function renderHistory() {
@@ -129,23 +91,9 @@ export function applyTurnAgentRuntimeEvents(events: readonly TurnAgentRuntimeEve
 async function poll(fetcher: typeof fetch) {
   const root = document.querySelector<HTMLElement>('[data-turn-agent-live]');
   if (!root) return;
-  const token = await accessToken(fetcher);
-  if (!token) {
-    root.dataset.turnAgentLive = 'auth-required';
-    const connection = root.querySelector<HTMLElement>('[data-live-connection]');
-    if (connection) connection.textContent = 'AUTH REQUIRED';
-    return;
-  }
-  const query = new URLSearchParams({ limit: '200' });
-  if (cursor) query.set('after', cursor);
-  const response = await fetcher(`${apiBaseUrl()}/agent-runtime-events?${query}`, { cache: 'no-store', headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } });
-  if (!response.ok) {
-    if (response.status === 401) sessionStorage.removeItem(tokenKey);
-    throw new Error(`AGENT_RUNTIME_EVENTS_HTTP_${response.status}`);
-  }
-  const payload = await response.json() as { data?: { events?: TurnAgentRuntimeEvent[]; cursor?: string | null } };
-  applyTurnAgentRuntimeEvents(payload.data?.events ?? []);
-  cursor = payload.data?.cursor ?? cursor;
+  const truth = await fetchTurnOperationalTruth(fetcher);
+  if (truth.latestEvent) applyTurnAgentRuntimeEvents([truth.latestEvent as TurnAgentRuntimeEvent]);
+  renderOperationalTruth(root, truth);
 }
 
 export function bindTurnAgentLiveState(fetcher: typeof fetch = fetch) {
@@ -159,13 +107,41 @@ export function bindTurnAgentLiveState(fetcher: typeof fetch = fetch) {
   });
   run();
   pollTimer = window.setInterval(run, turnAgentLivePollIntervalMs);
-  const trigger = document.querySelector<HTMLButtonElement>('[data-live-run-inspector]');
+  const trigger = document.querySelector<HTMLButtonElement>('[data-live-refresh]');
   trigger?.addEventListener('click', () => {
     trigger.disabled = true;
     const connection = document.querySelector<HTMLElement>('[data-live-connection]');
-    if (connection) connection.textContent = 'EXECUTING REAL AGENT';
-    void runInspectorAcceptance(fetcher).then(() => run()).catch(() => {
-      if (connection) connection.textContent = 'EXECUTION FAILED';
+    if (connection) connection.textContent = 'REFRESHING';
+    void poll(fetcher).catch(() => {
+      if (connection) connection.textContent = 'REFRESH FAILED';
     }).finally(() => { trigger.disabled = false; });
   }, { once: true });
+}
+
+function renderOperationalTruth(root: HTMLElement, truth: TurnOperationalTruth) {
+  const pass = operationalTruthIsPass(truth);
+  root.dataset.turnAgentLive = pass ? 'pass' : truth.overallStatus.toLowerCase().replace('_', '-');
+  root.dataset.falseGreen = String(truth.falseGreen);
+  root.dataset.unexplainedDegraded = String(truth.unexplainedDegraded);
+  const connection = root.querySelector<HTMLElement>('[data-live-connection]');
+  if (connection) connection.textContent = `${truth.authStatus} · ${truth.telemetryStatus}`;
+  const current = root.querySelector<HTMLElement>('[data-live-current]');
+  if (current) current.textContent = `${truth.reason} · ${truth.observedAt ? new Date(truth.observedAt).toLocaleString() : 'fără observație autenticată'}`;
+  const steps: Array<[string, OperationalTruthStep]> = [
+    ['MACHINE IDENTITY', truth.chain.machineIdentity],
+    ['CREDENTIAL', truth.chain.credential],
+    ['TOKEN', truth.chain.token],
+    ['AUTHENTICATED ACP READ', truth.chain.authenticatedAcpRead],
+    ['TELEMETRY', truth.chain.telemetry],
+    ['EVENTSTORE', truth.chain.eventStore],
+    ['API', truth.chain.api],
+    ['TURN', truth.chain.turn],
+    ['UI', { ...truth.chain.ui, status: pass ? 'PASS' : truth.chain.ui.status, ref: `${truth.contractVersion}@${truth.generatedAt}` }],
+  ];
+  const list = root.querySelector<HTMLElement>('[data-live-events]');
+  if (list) list.innerHTML = steps.map(([label, step]) => {
+    const evidence = step.ref ?? step.eventId ?? step.requestId ?? step.responseDigest ?? step.observedAt ?? step.recordedAt ?? step.scope ?? step.contract ?? step.route ?? 'NO LIVE EVIDENCE';
+    const tone = ['PASS', 'VERIFIED', 'PERSISTED', 'EVIDENCE AVAILABLE', 'READY FOR LIVE RENDER'].includes(step.status) ? 'operational' : truth.overallStatus === 'DEGRADED' ? 'degraded' : 'failed';
+    return `<li class="${tone}" data-operational-step="${escapeHtml(label.toLowerCase().replace(/\s+/g, '-'))}"><strong>${escapeHtml(step.status)}</strong><span>${escapeHtml(label)}</span><small>${escapeHtml(step.source ?? truth.reason)}</small><code>${escapeHtml(evidence)}</code></li>`;
+  }).join('');
 }

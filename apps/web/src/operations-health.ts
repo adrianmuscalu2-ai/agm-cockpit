@@ -54,7 +54,7 @@ export type OperationSnapshot = {
 };
 
 export type OperationFreshness = 'LIVE' | 'STALE' | 'UNKNOWN' | 'OFFLINE';
-export type AgentAvailability = 'ACTIVE' | 'DEGRADED' | 'UNAVAILABLE';
+export type AgentAvailability = 'ACTIVE' | 'DEGRADED' | 'UNAVAILABLE' | 'UNKNOWN';
 export type TargetAvailability = 'HEALTHY' | 'DEGRADED' | 'OFFLINE' | 'UNKNOWN' | 'NOT APPLICABLE';
 
 export const operationFreshnessLimitMs = 90_000;
@@ -67,9 +67,14 @@ export function operationFreshness(snapshot: OperationSnapshot, now = new Date()
   return 'LIVE';
 }
 
-export function agentAvailability(source: OperationService): AgentAvailability {
-  if (source.kind === 'http' || source.kind === 'aggregate' || source.kind === 'runtime') return 'ACTIVE';
-  return source.staticStatus === 'NOT IMPLEMENTED' ? 'DEGRADED' : 'ACTIVE';
+export function agentAvailability(source: OperationService, snapshot?: OperationSnapshot, now = new Date()): AgentAvailability {
+  if (!snapshot) return 'UNKNOWN';
+  const freshness = operationFreshness(snapshot, now);
+  if (freshness === 'UNKNOWN' || freshness === 'STALE') return 'UNKNOWN';
+  if (snapshot.status === 'OFFLINE') return 'UNAVAILABLE';
+  if (snapshot.status === 'DEGRADED') return 'DEGRADED';
+  if (snapshot.status === 'ONLINE' || snapshot.status === 'READY') return source.kind === 'static' ? 'UNKNOWN' : 'ACTIVE';
+  return 'UNKNOWN';
 }
 
 export function targetAvailability(snapshot: OperationSnapshot, now = new Date()): TargetAvailability {
@@ -349,6 +354,8 @@ function renderSnapshot(source: OperationService, snapshot: OperationSnapshot) {
         ? 'STALE'
         : source.displayStatus ?? snapshot.status;
     }
+    const evidence = row.querySelector<HTMLElement>('[data-component-live-evidence]');
+    if (evidence) evidence.textContent = `${source.source} · ${snapshot.checkedAt.toISOString()} · ${snapshot.outcome ?? snapshot.status}`;
   });
 
   const cards = document.querySelectorAll<HTMLElement>(
@@ -392,7 +399,7 @@ function renderSnapshot(source: OperationService, snapshot: OperationSnapshot) {
     if (lastFailure) lastFailure.textContent = snapshot.lastFailureAt
       ? `${snapshot.lastFailureAt.toLocaleString()}${snapshot.lastFailureReason ? ` · ${snapshot.lastFailureReason}` : ''}`
       : 'Niciun eșec înregistrat';
-    updateStatusLight(agent, 'agent', agentAvailability(source));
+    updateStatusLight(agent, 'agent', agentAvailability(source, snapshot));
     updateStatusLight(target, 'target', targetAvailability(snapshot));
   });
 }
@@ -404,7 +411,7 @@ async function checkSource(source: OperationService) {
     const inputs = (source.dependencies ?? []).map((id) => snapshots.get(id));
     const complete = inputs.length > 0 && inputs.every(Boolean);
     const fresh = complete && inputs.every((snapshot) => snapshot && operationFreshness(snapshot, checkedAt) !== 'STALE');
-    updateSnapshot(source, fresh ? source.healthyStatus ?? 'READY' : 'DEGRADED', checkedAt, 0);
+    updateSnapshot(source, fresh ? source.healthyStatus ?? 'READY' : 'UNKNOWN', checkedAt, 0);
     return;
   }
   if (source.kind === 'static') {

@@ -13,8 +13,8 @@ const checkedAt = new Date('2026-08-07T16:00:00.000Z');
 const healthy: OperationSnapshot = { status: 'ONLINE', checkedAt, changedAt: checkedAt, latencyMs: 42, freshness: 'LIVE' };
 const stale: OperationSnapshot = { ...healthy, freshness: 'LIVE' };
 
-assert.equal(agentAvailability(source), 'ACTIVE');
-assert.equal(agentAvailability(telemetrySource), 'DEGRADED');
+assert.equal(agentAvailability(source), 'UNKNOWN');
+assert.equal(agentAvailability(telemetrySource), 'UNKNOWN');
 assert.equal(targetAvailability({ status: 'NOT IMPLEMENTED', checkedAt, changedAt: checkedAt, freshness: 'UNKNOWN' }), 'UNKNOWN');
 
 const configuredSources = healthConfig.operationsServices as OperationService[];
@@ -23,11 +23,13 @@ const configuredAndroid = configuredSources.find((item) => item.id === 'android'
 const configuredBackup = configuredSources.find((item) => item.id === 'server-backup')!;
 assert.equal(configuredTelemetry.kind, 'aggregate');
 assert.deepEqual(configuredTelemetry.dependencies, ['server-primary', 'api', 'browser', 'android', 'security']);
-assert.equal(agentAvailability(configuredTelemetry), 'ACTIVE');
+assert.equal(agentAvailability(configuredTelemetry), 'UNKNOWN');
 assert.equal(configuredAndroid.kind, 'http');
 assert.equal(configuredAndroid.evaluator, 'component');
 assert.equal(configuredAndroid.requiresAuth, true);
-assert.equal(agentAvailability(configuredAndroid), 'ACTIVE');
+assert.equal(agentAvailability(configuredAndroid), 'UNKNOWN');
+const configuredAndroidLiveAt = new Date();
+assert.equal(agentAvailability(configuredAndroid, { ...healthy, checkedAt: configuredAndroidLiveAt, changedAt: configuredAndroidLiveAt }), 'ACTIVE');
 assert.equal(configuredBackup.staticStatus, 'NOT VERIFIED');
 assert.match(configuredBackup.displayStatus ?? '', /PLANNED/);
 assert.match(configuredBackup.displayStatus ?? '', /LIVE HEARTBEAT NOT CONNECTED/);
