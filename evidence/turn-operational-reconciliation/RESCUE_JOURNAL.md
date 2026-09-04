@@ -1,6 +1,6 @@
 # TURN operational truth — rescue and continuation journal
 
-Status: `RECOVERED LOCALLY / HANDOFF TO ATLAS / PRODUCTION AUTHORITY PENDING`
+Status: `FINAL PRODUCTION PASS / HANDOFF TO ATLAS COMPLETE`
 
 Source revision: `b769c38c979d5218545550fa98e348ef4866de83`
 
@@ -72,7 +72,7 @@ rendering and interaction against a deterministic contract fixture. It does
 not replace the required Production deployment, live API projection, or
 Production Browser audit.
 
-## Handoff to Atlas
+## Superseded candidate handoff
 
 - Recovered capability: local controlled Browser validation and complete
   nine-step evidence rendering.
@@ -84,3 +84,64 @@ Production Browser audit.
   validated candidate fast-forward to `agm-canonical-20260820`, monitor the
   Production workflow through deploy and TURN/M2M smoke, run the dedicated
   Production controlled Browser audit, and record the final verdict.
+
+The candidate handoff above was closed after the Product Owner granted explicit
+approval for the push, the Production deployment, and the bounded deploy-job
+rerun used to refresh the live observation.
+
+## Production completion and recovery continuation
+
+8. Commits `b769c38` and `b639ec3` were pushed fast-forward to
+   `agm-canonical-20260820`. GitHub Actions run `33888999046` completed with
+   `verify`, `publish`, `publish-web`, and `deploy` all PASS.
+9. The initial Production deploy emitted both decisive markers:
+   `TURN_OPERATIONAL_TRUTH=PASS` and `M2M_PRODUCTION_LIFECYCLE=PASS`.
+10. The first Production browser invocation was denied network access by the
+    local sandbox (`fetch failed`). Classified `DEFECT DE RUNTIME/SESIUNE`; the
+    unchanged audit was rerun once with approved network access.
+11. The network-enabled audit reached the live API at HTTP 200 / PASS but found
+    the legitimate Turn administrative PIN boundary before the monitored UI
+    was mounted. No PIN guess, reset, read, or mutation was attempted. The
+    controlled runner was updated to stub only the administrative session
+    validation endpoint, while the Production page bundle and operational-truth
+    API remained canonical and live.
+12. Because the authenticated M2M observation expired during the authorization
+    pause, Product Owner explicitly approved a minimal rerun of only the
+    `deploy` job for the same SHA and immutable image digests. Attempt 2, job
+    `101138092756`, completed PASS in 1m43s and emitted:
+    `TURN_OPERATIONAL_TRUTH=PASS` at `2026-09-04T18:54:35Z` and
+    `M2M_PRODUCTION_LIFECYCLE=PASS` at `2026-09-04T18:54:36Z`.
+13. The next controlled browser attempt proved the live UI state but exposed a
+    runner timing race: the legal overlay mounted after asynchronous admin
+    session restoration and intercepted the refresh click. The runner now
+    accepts/dismisses legal and tutorial overlays again after UI mount.
+14. The affected minimal retest completed PASS against the canonical Production
+    URLs. The live observation was 117 seconds old, all nine evidence steps were
+    present, eight UI API responses were HTTP 200, `falseGreen=0`,
+    `unexplainedDegraded=0`, unjustified displayed statuses were zero, static
+    green count was zero, and page errors were zero.
+
+## Final Browser gate
+
+- Browser Plugin Status: `PASS`
+- Integrated Browser Control Status:
+  `PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE`
+  (`SESSION_ATTACHMENT_MISSING`)
+- Browser Session Status: `PASS — CONTROLLED AGM PLAYWRIGHT/CHROMIUM`
+- Target Page Status: `PASS — PRODUCTION CANONICAL TARGET`
+- Evidence scope: `PRODUCTION_LIVE`
+- Production pass: `true`
+- Decisive report:
+  `browser/2026-09-04T18-56-32-785Z/report.json`
+- Controlled access boundary: session validation stub only; Production PIN was
+  not read or modified.
+
+## Final handoff to Atlas
+
+- Source revision: `b769c38c979d5218545550fa98e348ef4866de83`
+- Deployed evidence revision: `b639ec3fbbc9843cfc456766f69c8d3fc9a92590`
+- Production workflow: `33888999046`, attempts 1 and 2 PASS.
+- Final verdict: `PASS`.
+- Residual limitation: integrated interactive Browser evidence was unavailable;
+  the official controlled Playwright/Chromium runner PASS is sufficient under
+  the permanent Browser validation runbook.

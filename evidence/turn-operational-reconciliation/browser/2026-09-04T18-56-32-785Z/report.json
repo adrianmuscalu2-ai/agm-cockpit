@@ -1,0 +1,419 @@
+{
+  "contract": "turn-operational-truth-browser.v1",
+  "startedAt": "2026-09-04T18:56:32.788Z",
+  "targetUrl": "https://app.agmcockpit.com/turn",
+  "apiUrl": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+  "browser": "AGM controlled Playwright/Chromium",
+  "evidenceScope": "PRODUCTION_LIVE",
+  "productionPass": true,
+  "status": "PASS",
+  "checks": {
+    "apiHttp": 200,
+    "apiTruth": {
+      "contractVersion": "turn-operational-truth.v1",
+      "generatedAt": "2026-09-04T18:56:32.115Z",
+      "overallStatus": "PASS",
+      "reason": "AUTHENTICATED_M2M_ACP_READ_LIVE",
+      "falseGreen": 0,
+      "unexplainedDegraded": 0,
+      "observedAt": "2026-09-04T18:54:34.719Z",
+      "ageSeconds": 117,
+      "freshness": "LIVE",
+      "authStatus": "M2M AUTHENTICATED",
+      "telemetryStatus": "LIVE TELEMETRY",
+      "authorityControlPlane": {
+        "canonicalId": "agm.authority.control-plane",
+        "status": "PASS",
+        "statusSource": "M2M_AUTHENTICATED_ACP_READ",
+        "observedAt": "2026-09-04T18:54:34.719Z"
+      },
+      "chain": {
+        "machineIdentity": {
+          "status": "VERIFIED",
+          "ref": "sha256:1bfd206a0e98790a4bcfebbb53e8612847f9d93eb43fd5f3c4d7217e0282fb69",
+          "source": "VALIDATED_MACHINE_JWT_CONTEXT"
+        },
+        "credential": {
+          "status": "VERIFIED",
+          "ref": "sha256:e15f0ba732904461d8796069bc9f05465c4d079dffd2b3ca0d0bf13c66c01b22",
+          "source": "ACTIVE_CREDENTIAL_AT_AUTHENTICATION"
+        },
+        "token": {
+          "status": "VERIFIED",
+          "scope": "acp:read",
+          "contract": "m2m-client-credentials.v1",
+          "source": "MACHINE_JWT_GUARD"
+        },
+        "authenticatedAcpRead": {
+          "status": "PASS",
+          "route": "/api/v1/m2m/authority-control-plane/companies/{sha256:7ac1b8d7010bb6cd3a3e84e7f90136b880bbc899e428ece49333372911ab9052}/network-registry",
+          "requestId": "df403819-6e04-4055-9cd6-d028411c1cff",
+          "responseDigest": "a2d6a921ad09402ff9884b4a951d6335f490c015f970d89615f8205eaca6978f",
+          "registryNodeCount": 25
+        },
+        "telemetry": {
+          "status": "PASS",
+          "source": "CORRELATED_COMPONENT_HEARTBEAT",
+          "observedAt": "2026-09-04T18:54:34.719Z"
+        },
+        "eventStore": {
+          "status": "PERSISTED",
+          "eventId": "dbe97ce9-66ef-4b5c-9e23-0deabf0f3808",
+          "recordedAt": "2026-09-04T18:54:34.722Z"
+        },
+        "api": {
+          "status": "PASS",
+          "source": "TURN_OPERATIONAL_TRUTH_PROJECTION",
+          "responseDigest": "a2d6a921ad09402ff9884b4a951d6335f490c015f970d89615f8205eaca6978f"
+        },
+        "turn": {
+          "status": "EVIDENCE AVAILABLE",
+          "source": "LIVE API ONLY",
+          "eventId": "dbe97ce9-66ef-4b5c-9e23-0deabf0f3808"
+        },
+        "ui": {
+          "status": "READY FOR LIVE RENDER",
+          "source": "NO FALLBACK"
+        }
+      },
+      "latestEvent": {
+        "eventId": "dbe97ce9-66ef-4b5c-9e23-0deabf0f3808",
+        "mandateId": "m2m-acp-read:75e3adea-9421-4401-b416-f671a3ed89cf",
+        "agentId": "agm.authority.control-plane",
+        "dossierId": "df403819-6e04-4055-9cd6-d028411c1cff",
+        "lifecycle": "COMPLETED",
+        "sequence": 1,
+        "occurredAt": "2026-09-04T18:54:34.719Z",
+        "recordedAt": "2026-09-04T18:54:34.722Z",
+        "evidenceRef": "urn:agm:m2m-authenticated-acp-read:df403819-6e04-4055-9cd6-d028411c1cff",
+        "evidenceHash": "a2d6a921ad09402ff9884b4a951d6335f490c015f970d89615f8205eaca6978f",
+        "detail": "Authenticated M2M ACP read persisted; 25 registry nodes observed."
+      }
+    },
+    "turnAdminAccess": "CONTROLLED_SESSION_VALIDATION_STUB; PRODUCTION PIN NOT READ OR MODIFIED",
+    "legalAcceptance": "ACCEPTED_AFTER_ADMIN_SESSION_RESTORE",
+    "firstRunTutorial": "DISMISSED_AFTER_ADMIN_SESSION_RESTORE",
+    "ui": {
+      "liveState": "pass",
+      "liveFalseGreen": "0",
+      "liveUnexplainedDegraded": "0",
+      "heroState": "pass",
+      "heroFalseGreen": "0",
+      "heroUnexplainedDegraded": "0",
+      "connection": "M2M AUTHENTICATED · LIVE TELEMETRY",
+      "controlStatus": "M2M AUTHENTICATED · LIVE",
+      "message": "AUTHENTICATED_M2M_ACP_READ_LIVE · M2M_AUTHENTICATED_ACP_READ · 04.09.2026, 20:54:34 · FALSE GREEN 0",
+      "steps": [
+        {
+          "step": "machine-identity",
+          "status": "VERIFIED",
+          "source": "VALIDATED_MACHINE_JWT_CONTEXT",
+          "evidence": "sha256:1bfd206a0e98790a4bcfebbb53e8612847f9d93eb43fd5f3c4d7217e0282fb69"
+        },
+        {
+          "step": "credential",
+          "status": "VERIFIED",
+          "source": "ACTIVE_CREDENTIAL_AT_AUTHENTICATION",
+          "evidence": "sha256:e15f0ba732904461d8796069bc9f05465c4d079dffd2b3ca0d0bf13c66c01b22"
+        },
+        {
+          "step": "token",
+          "status": "VERIFIED",
+          "source": "MACHINE_JWT_GUARD",
+          "evidence": "acp:read"
+        },
+        {
+          "step": "authenticated-acp-read",
+          "status": "PASS",
+          "source": "AUTHENTICATED_M2M_ACP_READ_LIVE",
+          "evidence": "df403819-6e04-4055-9cd6-d028411c1cff"
+        },
+        {
+          "step": "telemetry",
+          "status": "PASS",
+          "source": "CORRELATED_COMPONENT_HEARTBEAT",
+          "evidence": "2026-09-04T18:54:34.719Z"
+        },
+        {
+          "step": "eventstore",
+          "status": "PERSISTED",
+          "source": "AUTHENTICATED_M2M_ACP_READ_LIVE",
+          "evidence": "dbe97ce9-66ef-4b5c-9e23-0deabf0f3808"
+        },
+        {
+          "step": "api",
+          "status": "PASS",
+          "source": "TURN_OPERATIONAL_TRUTH_PROJECTION",
+          "evidence": "a2d6a921ad09402ff9884b4a951d6335f490c015f970d89615f8205eaca6978f"
+        },
+        {
+          "step": "turn",
+          "status": "EVIDENCE AVAILABLE",
+          "source": "LIVE API ONLY",
+          "evidence": "dbe97ce9-66ef-4b5c-9e23-0deabf0f3808"
+        },
+        {
+          "step": "ui",
+          "status": "PASS",
+          "source": "NO FALLBACK",
+          "evidence": "turn-operational-truth.v1@2026-09-04T18:56:37.602Z"
+        }
+      ],
+      "displayedStatuses": [
+        {
+          "id": "adrian-turn-commander",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "mentor",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "secret-credentials-guardian",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "atlas-operations",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "chief-monitoring-inspector",
+          "status": "REGISTRY ONLY",
+          "evidence": "Agregat MON-001–MON-012 · UNKNOWN"
+        },
+        {
+          "id": "monitor-api",
+          "status": "ACTIVE",
+          "evidence": "API · health/ready · 2026-09-04T18:56:37.662Z"
+        },
+        {
+          "id": "monitor-browser",
+          "status": "ACTIVE",
+          "evidence": "Origin curent · HTTP probe · 2026-09-04T18:56:37.663Z"
+        },
+        {
+          "id": "monitor-android",
+          "status": "WAITING FOR LIVE PROBE",
+          "evidence": "Component heartbeat v1 · persistent și tenant-bound · 2026-09-04T18:56:37.663Z"
+        },
+        {
+          "id": "monitor-incidents",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "architecture-inspector",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "frontend-experience",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "backend-infrastructure",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "premium-linguist-it",
+          "status": "ACTIVE",
+          "evidence": "Component heartbeat v1 · audit runtime 1.699 resurse · 2026-09-04T18:56:34.470Z"
+        },
+        {
+          "id": "premium-linguist-es",
+          "status": "ACTIVE",
+          "evidence": "Component heartbeat v1 · audit runtime 1.699 resurse · 2026-09-04T18:56:34.479Z"
+        },
+        {
+          "id": "premium-linguist-sv",
+          "status": "ACTIVE",
+          "evidence": "Component heartbeat v1 · audit runtime 1.699 resurse · 2026-09-04T18:56:34.485Z"
+        },
+        {
+          "id": "release-operations",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "website-content-visual-guardian",
+          "status": "ACTIVE",
+          "evidence": "Website health manifest · content/visual gates · 2026-09-04T18:56:37.666Z"
+        },
+        {
+          "id": "website-runtime-release-guardian",
+          "status": "ACTIVE",
+          "evidence": "Cloudflare Pages · public HTTP probe · 2026-09-04T18:56:37.667Z"
+        },
+        {
+          "id": "documentation",
+          "status": "REGISTRY ONLY",
+          "evidence": "NO LIVE SOURCE · UNKNOWN"
+        },
+        {
+          "id": "server-primary",
+          "status": "ONLINE",
+          "evidence": "API public · health/live · 2026-09-04T18:56:37.659Z · HTTP_STATUS"
+        },
+        {
+          "id": "server-backup",
+          "status": "PLANNED · LOCAL BACKUP DEFINED · LIVE HEARTBEAT NOT CONNECTED",
+          "evidence": "Arhitectură PostgreSQL backup local definită · release/timer și restore gate neverificate în runtime-ul curent · off-site target neconfigurat · 2026-09-04T18:56:37.660Z · NOT_AVAILABLE"
+        },
+        {
+          "id": "api",
+          "status": "READY",
+          "evidence": "API public · health/ready · 2026-09-04T18:56:37.662Z · HTTP_STATUS"
+        },
+        {
+          "id": "browser",
+          "status": "ONLINE",
+          "evidence": "Origin AGM curent · aceeași rută ca UI LIVE · 2026-09-04T18:56:37.663Z · HTTP_STATUS"
+        },
+        {
+          "id": "android",
+          "status": "NOT VERIFIED",
+          "evidence": "Component heartbeat v1 · Android foreground · persistent, tenant-bound · stale după 90s · 2026-09-04T18:56:37.663Z · HTTP_STATUS"
+        },
+        {
+          "id": "premium-linguist-it",
+          "status": "ONLINE",
+          "evidence": "Component heartbeat v1 · audit runtime APP / Premium / Car Mover · 2026-09-04T18:56:34.470Z · RUNTIME_VALIDATION"
+        },
+        {
+          "id": "premium-linguist-es",
+          "status": "ONLINE",
+          "evidence": "Component heartbeat v1 · audit runtime APP / Premium / Car Mover · 2026-09-04T18:56:34.479Z · RUNTIME_VALIDATION"
+        },
+        {
+          "id": "premium-linguist-sv",
+          "status": "ONLINE",
+          "evidence": "Component heartbeat v1 · audit runtime APP / Premium / Car Mover · 2026-09-04T18:56:34.485Z · RUNTIME_VALIDATION"
+        },
+        {
+          "id": "ai",
+          "status": "READY",
+          "evidence": "API ready · dependencies.translationProvider · 2026-09-04T18:56:37.663Z · HTTP_STATUS"
+        },
+        {
+          "id": "databases",
+          "status": "READY",
+          "evidence": "API ready · dependencies.database · 2026-09-04T18:56:37.664Z · HTTP_STATUS"
+        },
+        {
+          "id": "cloudflare-public",
+          "status": "ONLINE",
+          "evidence": "MON-008 extern · https://app.agmcockpit.com/turn · 2026-09-04T18:56:37.665Z · HTTP_STATUS"
+        },
+        {
+          "id": "website-content-health",
+          "status": "READY",
+          "evidence": "Website health manifest · visual/content/i18n gates · 2026-09-04T18:56:37.666Z · HTTP_STATUS"
+        },
+        {
+          "id": "website-runtime",
+          "status": "ONLINE",
+          "evidence": "Cloudflare Pages · public website root · 2026-09-04T18:56:37.667Z · HTTP_STATUS"
+        },
+        {
+          "id": "ui-live",
+          "status": "UI LIVE PASS",
+          "evidence": "Runner UI LIVE · ultimul audit integral PASS · 2026-09-04T18:56:37.668Z · NOT_AVAILABLE"
+        },
+        {
+          "id": "telemetry",
+          "status": "READY",
+          "evidence": "Strat minim operațional · health + heartbeat + freshness; fără analytics · 2026-09-04T18:56:38.487Z · NOT_AVAILABLE"
+        },
+        {
+          "id": "security",
+          "status": "NOT VERIFIED",
+          "evidence": "Secret Guardian telemetry v1 · metadate sigure · sesiune autorizată · 2026-09-04T18:56:37.670Z · HTTP_STATUS"
+        }
+      ],
+      "unjustifiedStatuses": [],
+      "staticGreenCount": 0
+    }
+  },
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()"
+  ],
+  "pageErrors": [],
+  "network": [
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:56:35.815Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:56:35.819Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:56:37.159Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:56:37.161Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:56:38.166Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:56:38.293Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:56:38.475Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:56:43.242Z"
+    }
+  ],
+  "completedAt": "2026-09-04T18:56:47.897Z"
+}

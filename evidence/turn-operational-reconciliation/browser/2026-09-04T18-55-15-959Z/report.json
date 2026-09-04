@@ -1,0 +1,160 @@
+{
+  "contract": "turn-operational-truth-browser.v1",
+  "startedAt": "2026-09-04T18:55:15.962Z",
+  "targetUrl": "https://app.agmcockpit.com/turn",
+  "apiUrl": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+  "browser": "AGM controlled Playwright/Chromium",
+  "evidenceScope": "PRODUCTION_LIVE",
+  "productionPass": false,
+  "status": "FAIL",
+  "checks": {
+    "apiHttp": 200,
+    "apiTruth": {
+      "contractVersion": "turn-operational-truth.v1",
+      "generatedAt": "2026-09-04T18:55:15.389Z",
+      "overallStatus": "PASS",
+      "reason": "AUTHENTICATED_M2M_ACP_READ_LIVE",
+      "falseGreen": 0,
+      "unexplainedDegraded": 0,
+      "observedAt": "2026-09-04T18:54:34.719Z",
+      "ageSeconds": 40,
+      "freshness": "LIVE",
+      "authStatus": "M2M AUTHENTICATED",
+      "telemetryStatus": "LIVE TELEMETRY",
+      "authorityControlPlane": {
+        "canonicalId": "agm.authority.control-plane",
+        "status": "PASS",
+        "statusSource": "M2M_AUTHENTICATED_ACP_READ",
+        "observedAt": "2026-09-04T18:54:34.719Z"
+      },
+      "chain": {
+        "machineIdentity": {
+          "status": "VERIFIED",
+          "ref": "sha256:1bfd206a0e98790a4bcfebbb53e8612847f9d93eb43fd5f3c4d7217e0282fb69",
+          "source": "VALIDATED_MACHINE_JWT_CONTEXT"
+        },
+        "credential": {
+          "status": "VERIFIED",
+          "ref": "sha256:e15f0ba732904461d8796069bc9f05465c4d079dffd2b3ca0d0bf13c66c01b22",
+          "source": "ACTIVE_CREDENTIAL_AT_AUTHENTICATION"
+        },
+        "token": {
+          "status": "VERIFIED",
+          "scope": "acp:read",
+          "contract": "m2m-client-credentials.v1",
+          "source": "MACHINE_JWT_GUARD"
+        },
+        "authenticatedAcpRead": {
+          "status": "PASS",
+          "route": "/api/v1/m2m/authority-control-plane/companies/{sha256:7ac1b8d7010bb6cd3a3e84e7f90136b880bbc899e428ece49333372911ab9052}/network-registry",
+          "requestId": "df403819-6e04-4055-9cd6-d028411c1cff",
+          "responseDigest": "a2d6a921ad09402ff9884b4a951d6335f490c015f970d89615f8205eaca6978f",
+          "registryNodeCount": 25
+        },
+        "telemetry": {
+          "status": "PASS",
+          "source": "CORRELATED_COMPONENT_HEARTBEAT",
+          "observedAt": "2026-09-04T18:54:34.719Z"
+        },
+        "eventStore": {
+          "status": "PERSISTED",
+          "eventId": "dbe97ce9-66ef-4b5c-9e23-0deabf0f3808",
+          "recordedAt": "2026-09-04T18:54:34.722Z"
+        },
+        "api": {
+          "status": "PASS",
+          "source": "TURN_OPERATIONAL_TRUTH_PROJECTION",
+          "responseDigest": "a2d6a921ad09402ff9884b4a951d6335f490c015f970d89615f8205eaca6978f"
+        },
+        "turn": {
+          "status": "EVIDENCE AVAILABLE",
+          "source": "LIVE API ONLY",
+          "eventId": "dbe97ce9-66ef-4b5c-9e23-0deabf0f3808"
+        },
+        "ui": {
+          "status": "READY FOR LIVE RENDER",
+          "source": "NO FALLBACK"
+        }
+      },
+      "latestEvent": {
+        "eventId": "dbe97ce9-66ef-4b5c-9e23-0deabf0f3808",
+        "mandateId": "m2m-acp-read:75e3adea-9421-4401-b416-f671a3ed89cf",
+        "agentId": "agm.authority.control-plane",
+        "dossierId": "df403819-6e04-4055-9cd6-d028411c1cff",
+        "lifecycle": "COMPLETED",
+        "sequence": 1,
+        "occurredAt": "2026-09-04T18:54:34.719Z",
+        "recordedAt": "2026-09-04T18:54:34.722Z",
+        "evidenceRef": "urn:agm:m2m-authenticated-acp-read:df403819-6e04-4055-9cd6-d028411c1cff",
+        "evidenceHash": "a2d6a921ad09402ff9884b4a951d6335f490c015f970d89615f8205eaca6978f",
+        "detail": "Authenticated M2M ACP read persisted; 25 registry nodes observed."
+      }
+    },
+    "turnAdminAccess": "CONTROLLED_SESSION_VALIDATION_STUB; PRODUCTION PIN NOT READ OR MODIFIED",
+    "legalAcceptance": "ALREADY_ACCEPTED",
+    "firstRunTutorial": "ALREADY_COMPLETED"
+  },
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()"
+  ],
+  "pageErrors": [],
+  "network": [
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:55:20.195Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:55:20.195Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:55:24.253Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:55:29.247Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:55:34.249Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:55:39.244Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:55:44.254Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth",
+      "status": 200,
+      "at": "2026-09-04T18:55:49.269Z"
+    }
+  ],
+  "failure": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-live-refresh]')\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" data-live-refresh=\"\">Reîncarcă starea</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"legal-acceptance-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <div class=\"legal-acceptance-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    53 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <div class=\"legal-acceptance-overlay\">…</div> intercepts pointer events\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at C:\\Users\\adria\\Documents\\AGM\\.tmp\\release-m2m-20260903\\scripts\\validate-turn-operational-truth-browser.mjs:96:45",
+  "completedAt": "2026-09-04T18:55:50.714Z"
+}

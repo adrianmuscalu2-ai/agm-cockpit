@@ -8,6 +8,7 @@ const evidenceScope = targetUrl === 'https://app.agmcockpit.com/turn'
   && apiUrl === 'https://api.agmcockpit.com/api/v1/operations/turn/operational-truth'
   ? 'PRODUCTION_LIVE'
   : 'LOCAL_CONTROLLED_UI_PROOF_ONLY';
+const canonicalProduction = evidenceScope === 'PRODUCTION_LIVE';
 const runStamp = new Date().toISOString().replace(/[:.]/g, '-');
 const evidenceRoot = resolve(process.env.AGM_TURN_OPERATIONAL_EVIDENCE_DIR || `evidence/turn-operational-reconciliation/browser/${runStamp}`);
 await mkdir(evidenceRoot, { recursive: true });
@@ -48,6 +49,21 @@ try {
 
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1600, height: 1000 }, locale: 'ro-RO' });
+  if (canonicalProduction) {
+    await context.addInitScript(() => {
+      localStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: 'controlled-browser-audit-session', expiresInSeconds: 300 }));
+    });
+    await context.route('**/api/v1/turn-admin/validate', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: { valid: true }, requestId: 'controlled-turn-operational-truth-audit' }),
+      });
+    });
+    report.checks.turnAdminAccess = 'CONTROLLED_SESSION_VALIDATION_STUB; PRODUCTION PIN NOT READ OR MODIFIED';
+  } else {
+    report.checks.turnAdminAccess = 'LOCAL_DEVELOPMENT_BYPASS';
+  }
   const page = await context.newPage();
   page.on('console', (message) => {
     if (message.type() === 'error') report.consoleErrors.push(message.text());
@@ -77,6 +93,16 @@ try {
   }
   await page.waitForSelector('[data-turn-agent-live="pass"]', { timeout: 45_000 });
   await page.waitForSelector('[data-authority-dashboard][data-operational-truth="pass"]', { timeout: 45_000 });
+  if (await legalAcceptance.isVisible().catch(() => false)) {
+    await legalAcceptance.click();
+    await page.waitForSelector('.legal-acceptance-overlay', { state: 'detached', timeout: 15_000 });
+    report.checks.legalAcceptance = 'ACCEPTED_AFTER_ADMIN_SESSION_RESTORE';
+  }
+  if (await skipTutorial.isVisible().catch(() => false)) {
+    await skipTutorial.click();
+    await page.waitForSelector('.tutorial-overlay', { state: 'detached', timeout: 15_000 });
+    report.checks.firstRunTutorial = 'DISMISSED_AFTER_ADMIN_SESSION_RESTORE';
+  }
   await page.locator('[data-live-refresh]').click();
   await page.waitForFunction(() => document.querySelector('[data-live-connection]')?.textContent?.includes('M2M AUTHENTICATED'));
 

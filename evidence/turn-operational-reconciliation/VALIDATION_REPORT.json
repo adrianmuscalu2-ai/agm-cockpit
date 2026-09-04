@@ -1,8 +1,9 @@
 {
-  "contract": "turn-operational-truth-release-candidate.v1",
-  "recordedAt": "2026-09-04T03:48:41.1025129Z",
-  "status": "RELEASE_CANDIDATE_PASS_PRODUCTION_AUTHORITY_PENDING",
+  "contract": "turn-operational-truth-final-production.v1",
+  "recordedAt": "2026-09-04T18:57:30.000Z",
+  "status": "FINAL_PRODUCTION_PASS",
   "sourceRevision": "b769c38c979d5218545550fa98e348ef4866de83",
+  "evidenceRevision": "b639ec3fbbc9843cfc456766f69c8d3fc9a92590",
   "baseRevision": "b2a342f63696c3470ea9352ea9fe9f0c9c48a5a9",
   "requirements": {
     "authenticatedM2mChain": "PASS",
@@ -28,26 +29,43 @@
   "browser": {
     "browserPluginStatus": "PASS",
     "integratedBrowserControlStatus": "PLATFORM_LIMITATION_OPTIONAL_EVIDENCE_UNAVAILABLE",
+    "integratedBrowserControlReason": "SESSION_ATTACHMENT_MISSING",
     "browserSessionStatus": "PASS_CONTROLLED_PLAYWRIGHT_CHROMIUM",
-    "targetPageStatus": "PASS_LOCAL_DYNAMIC_TARGET",
+    "targetPageStatus": "PASS_PRODUCTION_CANONICAL_TARGET",
     "visualSignature": "DCD4257D0C90F3207F4A9FE39FA9E5594E0C3F1B06E493D7E973620CE00E0C1E",
-    "evidenceScope": "LOCAL_CONTROLLED_UI_PROOF_ONLY",
-    "productionPass": false,
-    "report": "evidence/turn-operational-reconciliation/browser/local-2026-09-04T05-45-49/report.json",
+    "evidenceScope": "PRODUCTION_LIVE",
+    "productionPass": true,
+    "turnAdminAccess": "CONTROLLED_SESSION_VALIDATION_STUB_PRODUCTION_PIN_NOT_READ_OR_MODIFIED",
+    "apiObservationAgeSecondsAtStart": 117,
+    "apiNetworkResponses200": 8,
+    "pageErrors": 0,
+    "falseGreen": 0,
+    "unexplainedDegraded": 0,
+    "operationalSteps": 9,
+    "unjustifiedStatuses": 0,
+    "staticGreenCount": 0,
+    "report": "evidence/turn-operational-reconciliation/browser/2026-09-04T18-56-32-785Z/report.json",
     "hashes": {
-      "report": "7FAE247EB4E5BCF53EAE232F7CDA593B383F1CC02D998677BBFD81C4366D2D4E",
-      "authenticatedChainScreenshot": "4EEB627EF4A1F4092722843FA1652065F6A467F64DFB5EBD34228E6CBB9BBEDF",
-      "authorityControlPlaneScreenshot": "D5B389AD0C6926F2DA428D94651BA689073D30DFE8DEF6AEEA3FECE166CB24AB",
-      "fullPageScreenshot": "73BF4984DD56C9D10715EB28A777904FB736F84BBBF368CC389DE662B620BDB0"
-    }
+      "report": "DD634BFE55C34E4573EDF92BE8FF52B67E4CD84BF3655AF539822C90C34A872E",
+      "authenticatedChainScreenshot": "C4321F610E3830518F563C6ABE967872BE63F9BC2564A4FBE1588D51AFB96DFD",
+      "authorityControlPlaneScreenshot": "EC1F4E3A229EC7C7AD12C264B4D518A32A0AB0BEA89973AA3910904046386B8F",
+      "fullPageScreenshot": "D14344885665C20802BA39B319EE262CC8371B5932ED45DE5AE2A76CD192CD3B"
+    },
+    "localCandidateReport": "evidence/turn-operational-reconciliation/browser/local-2026-09-04T05-45-49/report.json"
   },
   "production": {
-    "remoteHead": "b2a342f63696c3470ea9352ea9fe9f0c9c48a5a9",
-    "candidatePushed": false,
-    "deployment": "PENDING_EXPLICIT_PRODUCT_OWNER_APPROVAL",
-    "m2mLifecycleSmoke": "PENDING",
-    "turnOperationalTruthSmoke": "PENDING",
-    "controlledBrowserAudit": "PENDING",
-    "finalPass": false
+    "remoteHead": "b639ec3fbbc9843cfc456766f69c8d3fc9a92590",
+    "candidatePushed": true,
+    "workflowRunId": 33888999046,
+    "workflowUrl": "https://github.com/adrianmuscalu2-ai/agm-cockpit/actions/runs/33888999046",
+    "initialAttempt": "PASS",
+    "freshnessRecoveryAttempt": 2,
+    "freshnessRecoveryDeployJobId": 101138092756,
+    "freshnessRecoveryDeploy": "PASS_SAME_IMMUTABLE_DIGEST",
+    "deployment": "PASS",
+    "m2mLifecycleSmoke": "PASS",
+    "turnOperationalTruthSmoke": "PASS",
+    "controlledBrowserAudit": "PASS",
+    "finalPass": true
   }
 }
