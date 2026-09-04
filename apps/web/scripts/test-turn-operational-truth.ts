@@ -45,9 +45,18 @@ assert.match(liveStateSource, /data-operational-step/);
 assert.match(liveStateSource, /truth\.falseGreen/);
 
 const governanceSource = await readFile(new URL('../src/premium-governance/premium-governance.runtime.ts', import.meta.url), 'utf8');
-assert.match(governanceSource, /M2M AUTHENTICATED · LIVE/);
-assert.match(governanceSource, /fetchTurnOperationalTruth\(\)/);
-assert.match(governanceSource, /fără afirmație runtime|dovada M2M live/);
+assert.match(governanceSource, /\/operations\/turn\/operational-dashboard/);
+assert.match(governanceSource, /Authorization: `Bearer \$\{turnAdminAccessToken\}`/);
+assert.match(governanceSource, /Registry-ul nu este folosit ca fallback/);
+assert.match(governanceSource, /node\.lastHeartbeat/);
+assert.match(governanceSource, /node\.lastActivity/);
+assert.match(governanceSource, /node\.dependencyFailures/);
+assert.match(governanceSource, /node\.evidence\.source/);
+assert.match(governanceSource, /node\.requiredAction/);
+assert.match(governanceSource, /node\.authorityState\.state/);
+assert.match(governanceSource, /node\.lifecycleStatus\)} \(identity only\)/);
+assert.doesNotMatch(governanceSource, /M2M AUTHENTICATED · LIVE/);
+assert.doesNotMatch(governanceSource, /orbit/i);
 
 const commandCenterSource = await readFile(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
 assert.match(commandCenterSource, /REGISTRY ONLY · fără afirmație runtime/);
