@@ -1,151 +1,137 @@
-import { authenticatedApiFetch } from '../authenticated-api';
-import { fetchTurnOperationalTruth, operationalTruthIsPass, type TurnOperationalTruth } from '../turn-operational-truth';
+import { resolveApiUrl } from '../authenticated-api';
 
 type NodeStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
+type AuthorityChain = { leaseId: string; scopeId: string; agentId: string; providerId: string; mode: string; mandateKey: string | null; decisionKey: string | null; actionType: string | null; epoch: number; fencingToken: number; issuedAt: string; expiresAt: string };
 type NetworkNode = {
   canonicalId: string; kind: string; module: string; ownerId: string; supervisorId: string | null; scope: string;
-  lifecycleStatus: string; status: NodeStatus; statusLabel: string; statusSource: string; statusObservedAt: string | null;
-  dependencyState: string; authorityState: { state: string; epoch?: number; fencingToken?: number; providerId?: string; expiresAt?: string };
-  failoverState: string; telemetry: { lastSeenAt?: string; detail?: string } | null; lastRun: { lifecycle: string; occurredAt: string; detail: string } | null;
+  lifecycleStatus: string; runtimeMode: string; runtimePresence: string; currentFunction: string;
+  status: NodeStatus; statusLabel: string; statusSource: string; statusObservedAt: string | null;
+  health: string; freshness: string; lastHeartbeat: string | null; lastActivity: string | null;
+  reason: string | null; requiredAction: string | null; dependencyState: string; dependencyFailures: string[];
+  evidence: { source: string; observedAt: string | null; recordReference: string | null };
+  authorityState: { state: string; epoch?: number; fencingToken?: number; providerId?: string; expiresAt?: string };
+  failoverState: string;
 };
 type Dashboard = {
-  contractVersion: string; controlPlane: { status: NodeStatus; activeExecutiveAuthorities: number; conflicts: unknown[] };
+  contractVersion: string; generatedAt: string;
+  controlPlane: { status: NodeStatus; statusSource: string; statusObservedAt: string | null; activeExecutiveAuthorities: number; executiveAuthorityAgents: string[]; conflicts: Array<{ leftLeaseId: string; rightLeaseId: string }>; activeCommandChains: AuthorityChain[]; delegatedAuthority: AuthorityChain[]; invalidOrStaleAuthority: Array<{ leaseId: string; agentId: string; scopeId: string; reason: string; expiredAt: string }> };
   nodes: NetworkNode[]; departments: Array<{ module: string; nodeCount: number }>;
-  opportunityIntelligence: { gate: string; reason: string };
+  opportunityIntelligence: { gate: string; reason: string; requiredAction: string | null; evaluatedAt: string; missing: string[]; stale: string[]; unhealthy: string[]; sources: Array<{ agentId: string; observedAt: string; outputReference: string | null }> };
+  incidents: Array<{ eventId: string; eventType: string; scopeId: string | null; reasonCode: string | null; occurredAt: string; correlationId: string; leaseId: string | null }>;
+  capabilityGaps: Array<{ canonicalId: string; reason: string; requiredAction: string }>;
 };
 type Envelope = { data?: Dashboard; message?: string | string[] };
 
 export function bindPremiumGovernanceRuntime(turnAdminAccessToken?: string) {
-  const dashboard = document.querySelector<HTMLElement>('[data-authority-dashboard]');
+  const hero = document.querySelector<HTMLElement>('[data-authority-dashboard]');
   const detail = document.querySelector<HTMLElement>('[data-agent-network-detail]');
-  if (!dashboard && !detail) return;
-  if (dashboard) void fetchTurnOperationalTruth().then((truth) => renderOperationalHero(dashboard, truth)).catch((error) => renderOperationalUnavailable(dashboard, error));
-  if (detail) {
-    if (!turnAdminAccessToken) renderRestrictedDetail(detail);
-    else void load(turnAdminAccessToken).then((data) => renderDetail(detail, data)).catch((error) => renderDetailUnavailable(detail, error));
+  if (!hero && !detail) return;
+  if (!turnAdminAccessToken) {
+    if (hero) renderRestricted(hero);
+    if (detail) renderRestricted(detail);
+    return;
   }
+  const inspectionButton = hero?.querySelector<HTMLButtonElement>('[data-run-operational-inspections]');
+  inspectionButton?.addEventListener('click', () => {
+    inspectionButton.disabled = true;
+    inspectionButton.textContent = 'Inspectorii rulează…';
+    void runInspections(turnAdminAccessToken).then(() => load(turnAdminAccessToken)).then((data) => {
+      if (hero) renderHero(hero, data);
+      if (detail) renderDetail(detail, data);
+    }).catch((error) => {
+      if (hero) renderUnavailable(hero, error);
+    }).finally(() => {
+      inspectionButton.disabled = false;
+      inspectionButton.textContent = 'Rulează inspectorii reali';
+    });
+  });
+  void load(turnAdminAccessToken).then((data) => {
+    if (hero) renderHero(hero, data);
+    if (detail) renderDetail(detail, data);
+  }).catch((error) => {
+    if (hero) renderUnavailable(hero, error);
+    if (detail) renderUnavailable(detail, error);
+  });
 }
 
-async function load(turnAdminAccessToken?: string) {
-  if (!turnAdminAccessToken) throw new Error('TURN_ADMIN_SESSION_REQUIRED');
-  const response = await authenticatedApiFetch('/authority-control-plane/dashboard', {
-    cache: 'no-store',
-    headers: { 'X-AGM-Turn-Authorization': `Bearer ${turnAdminAccessToken}` },
-  });
+async function load(turnAdminAccessToken: string) {
+  const response = await fetch(resolveApiUrl('/operations/turn/operational-dashboard'), { cache: 'no-store', credentials: 'include', headers: { Authorization: `Bearer ${turnAdminAccessToken}` } });
   const envelope = await response.json().catch(() => ({})) as Envelope;
-  if (!response.ok || !envelope.data) throw new Error('Nu s-a putut încărca starea reală AGM. Aplicația rămâne funcțională; doar telemetria este indisponibilă.');
+  if (!response.ok || !envelope.data) throw new Error('Datele operaționale ACP nu sunt disponibile; nu se afișează fallback.');
   return envelope.data;
 }
 
-function renderOperationalHero(root: HTMLElement, truth: TurnOperationalTruth) {
-  const pass = operationalTruthIsPass(truth);
-  const status = pass ? 'PASS' : truth.overallStatus;
-  const label = pass ? 'M2M AUTHENTICATED · LIVE' : `${truth.authStatus} · ${truth.telemetryStatus}`;
-  root.dataset.operationalTruth = status.toLowerCase().replace('_', '-');
-  root.dataset.falseGreen = String(truth.falseGreen);
-  root.dataset.unexplainedDegraded = String(truth.unexplainedDegraded);
-  setText(root, '[data-control-status]', label);
-  const controlPlane = root.querySelector('.agm-control-plane-node');
-  controlPlane?.classList.remove('status-pass', 'status-degraded', 'status-fail', 'status-no-telemetry', 'status-standby');
-  controlPlane?.classList.add(`status-${statusClass(status)}`);
-  const nodeHost = root.querySelector<HTMLElement>('[data-network-nodes]');
-  if (nodeHost) nodeHost.innerHTML = '';
-  setText(root, '[data-active-authorities]', 'NOT EXPOSED');
-  setText(root, '[data-node-count]', String(truth.chain.authenticatedAcpRead.registryNodeCount ?? '—'));
-  setText(root, '[data-conflict-count]', 'NOT EVALUATED');
-  setText(root, '[data-opportunity-gate]', 'NOT EVALUATED');
-  const message = root.querySelector<HTMLElement>('[data-network-message]');
-  if (message) message.textContent = `${truth.reason} · ${truth.authorityControlPlane.statusSource} · ${truth.observedAt ? formatDate(truth.observedAt) : 'fără observație autentificată'} · FALSE GREEN ${truth.falseGreen}`;
-  root.setAttribute('aria-busy', 'false');
+async function runInspections(turnAdminAccessToken: string) {
+  const response = await fetch(resolveApiUrl('/operations/turn/operational-inspections'), { method: 'POST', credentials: 'include', headers: { Authorization: `Bearer ${turnAdminAccessToken}` } });
+  if (!response.ok) throw new Error(`Inspectorii operaționali au eșuat: HTTP ${response.status}.`);
 }
 
-function renderOperationalUnavailable(root: HTMLElement, error: unknown) {
-  root.dataset.operationalTruth = 'unavailable';
-  setText(root, '[data-control-status]', 'UNAVAILABLE');
-  const controlPlane = root.querySelector('.agm-control-plane-node');
-  controlPlane?.classList.remove('status-pass', 'status-degraded', 'status-fail', 'status-no-telemetry', 'status-standby');
-  controlPlane?.classList.add('status-fail');
-  const message = root.querySelector<HTMLElement>('[data-network-message]');
-  if (message) message.textContent = error instanceof Error ? error.message : 'TURN_OPERATIONAL_TRUTH_UNAVAILABLE';
-  root.setAttribute('aria-busy', 'false');
-}
-
-function renderRestrictedDetail(root: HTMLElement) {
+function renderRestricted(root: HTMLElement) {
+  setText(root, '[data-control-status]', 'ACCES OPERAȚIONAL NECESAR');
+  setText(root, '[data-network-contract]', 'Contract: acces administrativ necesar');
+  setText(root, '[data-network-message]', 'Autentifică Owner Access pentru date reale. Registry-ul nu este folosit ca fallback.');
   const host = root.querySelector<HTMLElement>('[data-network-departments]');
   if (host) host.innerHTML = '';
-  setText(root, '[data-network-contract]', 'Contract: operational truth is public; registry drill-down is restricted');
-  const message = root.querySelector<HTMLElement>('[data-network-message]');
-  if (message) message.textContent = 'Detaliile registrului necesită o sesiune administrativă Turn. Verdictul ACP de mai sus provine exclusiv din dovada M2M live, nu din registru.';
   root.setAttribute('aria-busy', 'false');
 }
 
-function renderDetailUnavailable(root: HTMLElement, error: unknown) {
-  const message = root.querySelector<HTMLElement>('[data-network-message]');
-  if (message) message.textContent = error instanceof Error ? error.message : 'ACP_REGISTRY_DETAIL_UNAVAILABLE';
+function renderUnavailable(root: HTMLElement, error: unknown) {
+  setText(root, '[data-control-status]', 'DATA UNAVAILABLE');
+  setText(root, '[data-network-message]', error instanceof Error ? error.message : 'ACP_OPERATIONAL_DATA_UNAVAILABLE');
+  const host = root.querySelector<HTMLElement>('[data-network-departments]');
+  if (host) host.innerHTML = '';
   root.setAttribute('aria-busy', 'false');
 }
 
 function renderHero(root: HTMLElement, data: Dashboard) {
-  const nodeHost = root.querySelector<HTMLElement>('[data-network-nodes]');
-  const nodes = data.nodes.filter((node) => node.canonicalId !== 'agm.authority.control-plane');
-  if (nodeHost) nodeHost.innerHTML = nodes.map((node, index) => {
-    const governance = ['governance', 'security', 'architecture', 'release', 'operations', 'recovery'].includes(node.module);
-    const ring = governance ? 31 : 47;
-    const peers = nodes.filter((candidate) => (['governance', 'security', 'architecture', 'release', 'operations', 'recovery'].includes(candidate.module)) === governance);
-    const peerIndex = peers.findIndex((candidate) => candidate.canonicalId === node.canonicalId);
-    const angle = (peerIndex / Math.max(peers.length, 1)) * Math.PI * 2 - Math.PI / 2;
-    const x = 50 + Math.cos(angle) * ring;
-    const y = 50 + Math.sin(angle) * ring;
-    return `<article class="agm-network-node status-${statusClass(node.status)}" style="--node-x:${x.toFixed(2)}%;--node-y:${y.toFixed(2)}%;--node-order:${index}" title="${escapeHtml(node.canonicalId)}"><span aria-hidden="true">${node.kind === 'HUMAN_AUTHORITY' ? '◆' : '●'}</span><strong>${escapeHtml(shortName(node.canonicalId))}</strong><small>${escapeHtml(node.status.replace('_', ' '))}</small></article>`;
-  }).join('');
-  nodeHost?.querySelectorAll<HTMLElement>('.agm-network-node').forEach((element, index) => {
-    const node = nodes[index];
-    if (!node?.statusLabel || !node.statusSource) return;
-    element.title = `${node.canonicalId} · ${node.statusSource}`;
-    const label = element.querySelector<HTMLElement>('small');
-    if (label) label.textContent = node.statusLabel;
-  });
+  root.dataset.operationalTruth = statusClass(data.controlPlane.status);
   setText(root, '[data-control-status]', data.controlPlane.status);
-  const controlPlane = root.querySelector('.agm-control-plane-node');
-  controlPlane?.classList.remove('status-pass', 'status-degraded', 'status-fail', 'status-no-telemetry', 'status-standby');
-  controlPlane?.classList.add(`status-${statusClass(data.controlPlane.status)}`);
   setText(root, '[data-active-authorities]', String(data.controlPlane.activeExecutiveAuthorities));
   setText(root, '[data-node-count]', String(data.nodes.length));
   setText(root, '[data-conflict-count]', String(data.controlPlane.conflicts.length));
   setText(root, '[data-opportunity-gate]', data.opportunityIntelligence.gate);
-  const message = root.querySelector<HTMLElement>('[data-network-message]');
-  if (message) message.textContent = `Sursă: registru persistent AGM · ${data.contractVersion}`;
+  setText(root, '[data-network-message]', `Sursă ${data.controlPlane.statusSource} · observație ${formatOptionalDate(data.controlPlane.statusObservedAt)} · evaluat ${formatDate(data.generatedAt)}`);
+  const host = root.querySelector<HTMLElement>('[data-authority-detail]');
+  if (host) host.innerHTML = `
+    <section><h3>Executive Authority și command chain</h3>${data.controlPlane.activeCommandChains.length ? `<div class="agm-table-scroll"><table><thead><tr><th>Agent</th><th>Scope / acțiune</th><th>Mandat / decizie</th><th>Provider</th><th>Epoch / fence</th><th>Expiră</th></tr></thead><tbody>${data.controlPlane.activeCommandChains.map(renderChain).join('')}</tbody></table></div>` : '<p>Nicio autoritate executivă activă. Aceasta este o stare reală, nu UNKNOWN.</p>'}</section>
+    <section><h3>Authority defects</h3><p>${data.controlPlane.conflicts.length ? `${data.controlPlane.conflicts.length} conflicte active — acțiune obligatorie.` : '0 conflicte active evaluate.'} ${data.controlPlane.invalidOrStaleAuthority.length ? `${data.controlPlane.invalidOrStaleAuthority.length} lease-uri cu stare activă dar TTL expirat.` : '0 lease-uri active expirate.'}</p></section>
+    <section><h3>Opportunity Intelligence</h3><p><strong>${escapeHtml(data.opportunityIntelligence.gate)}</strong> · ${escapeHtml(data.opportunityIntelligence.reason)}</p><p>${escapeHtml(data.opportunityIntelligence.requiredAction ?? 'Nicio acțiune necesară din evaluarea curentă.')}</p><small>Sursă: OpportunityAgentTelemetry (${data.opportunityIntelligence.sources.length}) · evaluat ${formatDate(data.opportunityIntelligence.evaluatedAt)}</small></section>
+    <section><h3>Capability gaps</h3><p>${data.capabilityGaps.length ? `${data.capabilityGaps.length} identități înregistrate nu au implementare executabilă; sunt marcate FAILED mai jos.` : 'Nicio capabilitate executabilă lipsă.'}</p></section>`;
   root.setAttribute('aria-busy', 'false');
+}
+
+function renderChain(chain: AuthorityChain) {
+  return `<tr><td>${escapeHtml(chain.agentId)}</td><td>${escapeHtml(chain.scopeId)}<br><small>${escapeHtml(chain.actionType ?? 'fără decizie asociată')}</small></td><td>${escapeHtml(chain.mandateKey ?? chain.leaseId)}<br><small>${escapeHtml(chain.decisionKey ?? '—')}</small></td><td>${escapeHtml(chain.providerId)}</td><td>${chain.epoch} / ${chain.fencingToken}</td><td>${formatDate(chain.expiresAt)}</td></tr>`;
 }
 
 function renderDetail(root: HTMLElement, data: Dashboard) {
-  setText(root, '[data-network-contract]', `Contract: ${data.contractVersion}`);
+  setText(root, '[data-network-contract]', `Contract: ${data.contractVersion} · generated ${formatDate(data.generatedAt)}`);
   const host = root.querySelector<HTMLElement>('[data-network-departments]');
-  if (host) host.innerHTML = data.departments.map((department) => {
-    const nodes = data.nodes.filter((node) => node.module === department.module);
-    return `<section class="premium-network-department"><header><h2>${escapeHtml(department.module)}</h2><span>${nodes.length}</span></header><div class="premium-network-agent-grid">${nodes.map(renderAgent).join('')}</div></section>`;
-  }).join('');
-  const message = root.querySelector<HTMLElement>('[data-network-message]');
-  if (message) message.textContent = 'Telemetria este observabilă și consultativă; nu acordă authority și nu blochează aplicația.';
+  if (host) host.innerHTML = data.departments.map((department) => `<section class="premium-network-department"><header><h2>${escapeHtml(department.module)}</h2><span>${department.nodeCount}</span></header><div class="premium-network-agent-grid">${data.nodes.filter((node) => node.module === department.module).map(renderAgent).join('')}</div></section>`).join('');
+  setText(root, '[data-network-message]', 'Fiecare stare provine din sursa indicată. Lifecycle-ul registry este afișat separat și nu influențează health/runtime.');
   root.setAttribute('aria-busy', 'false');
 }
 
-function renderAgentLegacy(node: NetworkNode) {
-  const lastRun = node.lastRun ? `${node.lastRun.lifecycle} · ${formatDate(node.lastRun.occurredAt)}` : 'NO TELEMETRY';
-  const lastSeen = node.telemetry?.lastSeenAt ? formatDate(node.telemetry.lastSeenAt) : 'NO TELEMETRY';
-  return `<article class="premium-network-agent status-${statusClass(node.status)}"><header><span class="network-status-dot" aria-hidden="true"></span><div><strong>${escapeHtml(node.canonicalId)}</strong><small>${escapeHtml(node.kind)}</small></div></header><dl><div><dt>Owner</dt><dd>${escapeHtml(node.ownerId)}</dd></div><div><dt>Supervisor</dt><dd>${escapeHtml(node.supervisorId ?? 'Human authority')}</dd></div><div><dt>Scope</dt><dd>${escapeHtml(node.scope)}</dd></div><div><dt>Status</dt><dd>${escapeHtml(node.status.replace('_', ' '))}</dd></div><div><dt>Dependency</dt><dd>${escapeHtml(node.dependencyState)}</dd></div><div><dt>Authority</dt><dd>${escapeHtml(node.authorityState.state)}${node.authorityState.epoch ? ` · epoch ${node.authorityState.epoch}` : ''}</dd></div><div><dt>Failover</dt><dd>${escapeHtml(node.failoverState)}</dd></div><div><dt>Last telemetry</dt><dd>${escapeHtml(lastSeen)}</dd></div><div><dt>Last run</dt><dd>${escapeHtml(lastRun)}</dd></div></dl></article>`;
-}
-
 function renderAgent(node: NetworkNode) {
-  if (!node.statusLabel || !node.statusSource) return renderAgentLegacy(node);
-  const lastRun = node.lastRun ? `${node.lastRun.lifecycle} · ${formatDate(node.lastRun.occurredAt)}` : 'NO TELEMETRY';
-  const lastSeen = node.telemetry?.lastSeenAt ? formatDate(node.telemetry.lastSeenAt) : 'NO TELEMETRY';
-  const observedAt = node.statusObservedAt ? formatDate(node.statusObservedAt) : 'REGISTRY CURRENT';
-  return `<article class="premium-network-agent status-${statusClass(node.status)}" data-canonical-agent-id="${escapeHtml(node.canonicalId)}" data-canonical-status="${escapeHtml(node.status)}"><header><span class="network-status-dot" aria-hidden="true"></span><div><strong>${escapeHtml(node.canonicalId)}</strong><small>${escapeHtml(node.kind)}</small></div></header><dl><div><dt>Owner</dt><dd>${escapeHtml(node.ownerId)}</dd></div><div><dt>Supervisor</dt><dd>${escapeHtml(node.supervisorId ?? 'Human authority')}</dd></div><div><dt>Scope</dt><dd>${escapeHtml(node.scope)}</dd></div><div><dt>Status canonic</dt><dd>${escapeHtml(node.statusLabel)} · ${escapeHtml(node.status)}</dd></div><div><dt>Sursă stare</dt><dd>${escapeHtml(node.statusSource)} · ${escapeHtml(observedAt)}</dd></div><div><dt>Registry lifecycle</dt><dd>${escapeHtml(node.lifecycleStatus)}</dd></div><div><dt>Dependency</dt><dd>${escapeHtml(node.dependencyState)}</dd></div><div><dt>Authority</dt><dd>${escapeHtml(node.authorityState.state)}${node.authorityState.epoch ? ` · epoch ${node.authorityState.epoch}` : ''}</dd></div><div><dt>Failover</dt><dd>${escapeHtml(node.failoverState)}</dd></div><div><dt>Last telemetry</dt><dd>${escapeHtml(lastSeen)}</dd></div><div><dt>Last run</dt><dd>${escapeHtml(lastRun)}</dd></div></dl></article>`;
+  const failures = node.dependencyFailures.length ? node.dependencyFailures.join(', ') : 'NONE OBSERVED';
+  return `<article class="premium-network-agent status-${statusClass(node.status)}" data-canonical-agent-id="${escapeHtml(node.canonicalId)}" data-canonical-status="${escapeHtml(node.status)}"><header><span class="network-status-dot" aria-hidden="true"></span><div><strong>${escapeHtml(node.canonicalId)}</strong><small>${escapeHtml(node.kind)} · ${escapeHtml(node.statusLabel)}</small></div></header><dl>
+    <div><dt>Runtime</dt><dd>${escapeHtml(node.runtimePresence)} · ${escapeHtml(node.runtimeMode)}</dd></div>
+    <div><dt>Current state / health</dt><dd>${escapeHtml(node.status)} · ${escapeHtml(node.health)}</dd></div>
+    <div><dt>Last heartbeat</dt><dd>${formatOptionalDate(node.lastHeartbeat)}</dd></div>
+    <div><dt>Last activity</dt><dd>${formatOptionalDate(node.lastActivity)}</dd></div>
+    <div><dt>Freshness</dt><dd>${escapeHtml(node.freshness)}</dd></div>
+    <div><dt>Current function</dt><dd>${escapeHtml(node.currentFunction)}</dd></div>
+    <div><dt>Dependencies</dt><dd>${escapeHtml(node.dependencyState)} · ${escapeHtml(failures)}</dd></div>
+    <div><dt>Evidence/source</dt><dd>${escapeHtml(node.evidence.source)} · ${formatOptionalDate(node.evidence.observedAt)}${node.evidence.recordReference ? `<br><small>${escapeHtml(node.evidence.recordReference)}</small>` : ''}</dd></div>
+    <div><dt>Why</dt><dd>${escapeHtml(node.reason ?? 'No defect or unknown reason in the current evidence.')}</dd></div>
+    <div><dt>Required action</dt><dd>${escapeHtml(node.requiredAction ?? 'NONE')}</dd></div>
+    <div><dt>Authority</dt><dd>${escapeHtml(node.authorityState.state)} · ${escapeHtml(node.scope)}</dd></div>
+    <div><dt>Identity registry</dt><dd>${escapeHtml(node.lifecycleStatus)} (identity only)</dd></div>
+  </dl></article>`;
 }
 
 function setText(root: HTMLElement, selector: string, value: string) { const element = root.querySelector<HTMLElement>(selector); if (element) element.textContent = value; }
 function statusClass(status: string) { return status.toLowerCase().replace(/_/g, '-'); }
-function shortName(id: string) { const parts = id.split('.'); return parts.slice(-2).join(' '); }
 function formatDate(value: string) { const date = new Date(value); return Number.isNaN(date.getTime()) ? value : date.toLocaleString(); }
+function formatOptionalDate(value: string | null) { return value ? formatDate(value) : 'NO REAL OBSERVATION'; }
 function escapeHtml(value: string) { return value.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character] ?? character); }

@@ -23,11 +23,16 @@ export class OpportunityIntelligenceService {
 
   async intake(dto: IntakeOpportunityDto, ctx: RequestContext) {
     this.authorize(ctx);
+    const started = Date.now();
     const raw = this.raw(dto);
     const normalized = normalizeOpportunity(raw);
     const existingRequest = await this.prisma.opportunityIntakeRecord.findUnique({ where: { companyId_idempotencyKey: { companyId: ctx.companyId, idempotencyKey: dto.idempotencyKey } } });
     if (existingRequest) {
       if (existingRequest.inputHash !== normalized.inputHash) throw new ConflictException('OPPORTUNITY_IDEMPOTENCY_REUSE_MISMATCH');
+      await Promise.all([
+        this.telemetry(ctx.companyId, 'premium.car-mover.intake-dedup', dto.provider, Date.now() - started, existingRequest.id, 100),
+        this.telemetry(ctx.companyId, 'premium.car-mover.opportunity-normalizer', 'deterministic-normalizer', Date.now() - started, existingRequest.normalizedOpportunityId ?? undefined, 100),
+      ]);
       return { intakeId: existingRequest.id, normalizedOpportunityId: existingRequest.normalizedOpportunityId, deduplicated: true, correlatedAcrossChannels: false, freshnessStatus: existingRequest.freshnessStatus };
     }
     const correlated = await this.prisma.normalizedOpportunity.findFirst({ where: { companyId: ctx.companyId, canonicalKey: normalized.correlationKey, status: { in: ['AVAILABLE','REVIEWED'] } }, orderBy: { version: 'desc' } });
@@ -58,6 +63,10 @@ export class OpportunityIntelligenceService {
       return { intakeId: intake.id, normalizedOpportunityId: opportunity.id, deduplicated: Boolean(correlated), correlatedAcrossChannels: Boolean(correlated && dto.channel !== firstReferenceChannel(correlated.sourceReferences)), freshnessStatus: normalized.freshnessStatus };
     });
     await this.audit.create({ actionCode: 'OPPORTUNITY_INTAKE_RECORDED', entityType: 'OpportunityIntakeRecord', entityId: result.intakeId, metadata: { normalizedOpportunityId: result.normalizedOpportunityId, deduplicated: result.deduplicated, freshnessStatus: result.freshnessStatus }, productId: 'agm-car-mover', moduleId: 'opportunity-intelligence' }, ctx);
+    await Promise.all([
+      this.telemetry(ctx.companyId, 'premium.car-mover.intake-dedup', dto.provider, Date.now() - started, result.intakeId, 100),
+      this.telemetry(ctx.companyId, 'premium.car-mover.opportunity-normalizer', 'deterministic-normalizer', Date.now() - started, result.normalizedOpportunityId, 100),
+    ]);
     return result;
   }
 

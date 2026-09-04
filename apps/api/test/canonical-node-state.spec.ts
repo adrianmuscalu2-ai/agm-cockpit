@@ -11,10 +11,14 @@ describe('canonical Premium node state', () => {
     })).toEqual({ status: 'PASS', label: 'WORKING', source: 'RUNTIME_EVENT', observedAt: new Date('2026-08-25T09:59:59.000Z') });
   });
 
-  it('keeps a registered node explicitly standby instead of fabricating telemetry or gray unknown', () => {
+  it('never derives operational state from registry lifecycle', () => {
     expect(resolveCanonicalNodeState({ registryLifecycleStatus: 'REGISTERED', now })).toEqual({
-      status: 'STANDBY', label: 'REGISTERED', source: 'REGISTRY', observedAt: null,
+      status: 'NO_TELEMETRY', label: 'IDENTITY ONLY · REGISTERED', source: 'REGISTRY', observedAt: null,
     });
+  });
+
+  it('never maps registry ACTIVE to PASS', () => {
+    expect(resolveCanonicalNodeState({ registryLifecycleStatus: 'ACTIVE', now })).toMatchObject({ status: 'NO_TELEMETRY', source: 'REGISTRY' });
   });
 
   it('maps failures and stale heartbeats from their canonical runtime source', () => {

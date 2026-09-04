@@ -3,6 +3,10 @@ import { COMPONENT_TELEMETRY_CONTRACT } from '../component-telemetry/component-t
 import { GITHUB_ACTIONS_PROVISIONING_CONTRACT } from '../machine-auth/github-actions-oidc.contract';
 import { PrismaService } from '../prisma/prisma.service';
 import { TranslationService } from '../translation/translation.service';
+import type { RequestContext } from '../common/request-context';
+import type { RecordTurnFeatureTelemetryDto } from './turn-feature-telemetry.dto';
+import { premiumNetworkSeed } from '../authority-control-plane/premium-network.seed';
+import { operationalProfile } from '../authority-control-plane/operational-profile';
 import {
   TURN_FUNCTIONAL_OVERVIEW_CONTRACT,
   type TurnFunctionalOverview,
@@ -15,6 +19,15 @@ type SourceKind = TurnFunctionalZone['source']['kind'];
 @Injectable()
 export class TurnFunctionalOverviewService {
   constructor(private readonly prisma: PrismaService, private readonly translation: TranslationService) {}
+
+  async recordBasicFeature(input: RecordTurnFeatureTelemetryDto, ctx: RequestContext) {
+    const event = await this.prisma.providerUsageEvent.create({ data: {
+      companyId: ctx.companyId, userId: ctx.userId, providerId: 'agm-basic-local', adapterId: input.featureId,
+      category: 'BASIC_FEATURE', eventType: 'FUNCTION_EXECUTION', outcome: input.outcome, latencyMs: input.durationMs,
+      metrics: { resultStatus: input.resultStatus ?? null, confidence: input.confidence ?? null, contentCaptured: false },
+    } });
+    return { eventId: event.id, featureId: input.featureId, outcome: input.outcome, occurredAt: event.occurredAt, contentCaptured: false };
+  }
 
   async snapshot(now = new Date()): Promise<TurnFunctionalOverview> {
     const companyId = GITHUB_ACTIONS_PROVISIONING_CONTRACT.companyId;
@@ -54,6 +67,8 @@ export class TurnFunctionalOverviewService {
       latestAssistantUsage,
       loadSafetyUsage,
       latestLoadSafetyUsage,
+      basicFeatureCounts,
+      basicFeatureEvents,
     ] = await Promise.all([
       this.translation.functionalHealth(),
       this.prisma.communicationConversation.count({ where: { companyId } }),
@@ -90,6 +105,8 @@ export class TurnFunctionalOverviewService {
       this.prisma.providerUsageEvent.findFirst({ where: { companyId, adapterId: 'premium-assistant' }, orderBy: { occurredAt: 'desc' }, select: { occurredAt: true, outcome: true } }),
       this.prisma.providerUsageEvent.count({ where: { companyId, adapterId: { startsWith: 'premium-load-safety.' } } }),
       this.prisma.providerUsageEvent.findFirst({ where: { companyId, adapterId: { startsWith: 'premium-load-safety.' } }, orderBy: { occurredAt: 'desc' }, select: { occurredAt: true, outcome: true } }),
+      this.prisma.providerUsageEvent.groupBy({ by: ['adapterId'], where: { companyId, providerId: 'agm-basic-local', eventType: 'FUNCTION_EXECUTION' }, _count: { _all: true }, _max: { occurredAt: true } }),
+      this.prisma.providerUsageEvent.findMany({ where: { companyId, providerId: 'agm-basic-local', eventType: 'FUNCTION_EXECUTION' }, orderBy: { occurredAt: 'desc' }, take: 1000, select: { adapterId: true, outcome: true, occurredAt: true, latencyMs: true, metrics: true } }),
     ]);
 
     const zones: TurnFunctionalZone[] = [
@@ -100,13 +117,13 @@ export class TurnFunctionalOverviewService {
       activityZone('basic.email', 'BASIC', 'Email', conversations, failedMessages > 0 || (gmail?.backlog ?? 0) > 0, latestDate(latestConversation?.lastMessageAt, latestMessage?.statusUpdatedAt, gmail?.updatedAt),
         { conversations, openConversations, failedMessages, gmailState: gmail?.state ?? 'NO_TELEMETRY', gmailBacklog: gmail?.backlog ?? 0 },
         '/email', 'CommunicationConversation/Message + GmailPilotTelemetry', 'Deschide Email', 'Pornește sincronizarea sau rezolvă mesajele/backlog-ul indicat.'),
-      localZone('basic.transport-document', 'Transport document', 'Rezultatele OCR și analiza documentului există numai în sesiunea dispozitivului.', '/', 'Deschide Basic și scanează documentul.'),
-      localZone('basic.tachograph', 'Analiză tahograf', 'Fotografia și rezultatul sunt procesate local și nu sunt colectate global.', '/knowledge/tahograf', 'Deschide analiza tahograf.'),
-      localZone('basic.dashboard-text', 'Text bord', 'Textul OCR și analiza bordului sunt efemere pe dispozitiv.', '/', 'Deschide analiza textului de bord.'),
-      localZone('basic.dashboard-warning', 'Martori bord', 'Analiza vizuală/consultarea locală nu are jurnal operațional server-side.', '/knowledge/martori-bord', 'Deschide ghidul martorilor de bord.'),
-      localZone('basic.legislation', 'Legislație', 'Analiza locală folosește reguli/knowledge versionate, fără collector de utilizare.', '/knowledge/legislatie', 'Deschide analiza legislației.'),
-      localZone('basic.cargo-safety', 'Siguranța mărfii', 'Analiza Basic rulează local; nu există telemetrie globală a rezultatelor.', '/knowledge/ancorarea-marfii', 'Deschide analiza siguranței mărfii.'),
-      localZone('basic.ocr-workspace', 'OCR și istoric local', 'Imaginile, textul extras și istoricul OCR sunt păstrate numai în sesiunea dispozitivului.', '/', 'Deschide camera/OCR din Basic.'),
+      basicFeatureZone('basic.transport-document', 'Transport document', '/', 'Deschide Basic și scanează documentul.', basicFeatureCounts, basicFeatureEvents),
+      basicFeatureZone('basic.tachograph', 'Analiză tahograf', '/knowledge/tahograf', 'Deschide analiza tahograf.', basicFeatureCounts, basicFeatureEvents),
+      basicFeatureZone('basic.dashboard-text', 'Text bord', '/', 'Deschide analiza textului de bord.', basicFeatureCounts, basicFeatureEvents),
+      basicFeatureZone('basic.dashboard-warning', 'Martori bord', '/knowledge/martori-bord', 'Deschide analiza martorilor de bord.', basicFeatureCounts, basicFeatureEvents),
+      basicFeatureZone('basic.legislation', 'Legislație', '/knowledge/legislatie', 'Deschide analiza legislației.', basicFeatureCounts, basicFeatureEvents),
+      basicFeatureZone('basic.cargo-safety', 'Siguranța mărfii', '/knowledge/ancorarea-marfii', 'Deschide analiza siguranței mărfii.', basicFeatureCounts, basicFeatureEvents),
+      basicFeatureZone('basic.ocr-workspace', 'OCR și istoric local', '/', 'Deschide camera/OCR din Basic.', basicFeatureCounts, basicFeatureEvents),
       staticZone('basic.load-safety-knowledge', 'BASIC', 'Ghid încărcare și ancorare', 'Pachetele knowledge publicate sunt referințe statice, nu dovadă runtime.', '/legal'),
 
       activityZone('premium.before-departure', 'PREMIUM', 'Înainte de plecare', preDepartureSessions, incompletePreDeparture > 0, latestPreDeparture?.updatedAt ?? null,
@@ -145,6 +162,7 @@ export class TurnFunctionalOverviewService {
       attention: count(zones, 'ATTENTION'),
       noActivity: count(zones, 'NO_ACTIVITY'),
       staticReference: count(zones, 'STATIC_REFERENCE'),
+      capabilityMissing: count(zones, 'CAPABILITY_MISSING') + premiumNetworkSeed.filter((node) => operationalProfile(node).runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED').length,
       legitimateUnknown: count(zones, 'UNKNOWN_LEGITIMATE'),
       unresolvedUnknown: zones.filter((item) => item.status === 'UNKNOWN_LEGITIMATE' && !item.legitimateUnknown).length,
     };
@@ -158,7 +176,7 @@ export class TurnFunctionalOverviewService {
         releasePipeline: 'PASS',
         operationalTruthInfrastructure: 'PASS',
         falseGreenPrevention: 'PASS',
-        turnFunctionalCompleteness: summary.unresolvedUnknown === 0 ? 'READY_FOR_PRODUCT_OWNER_REVIEW' : 'FAIL',
+        turnFunctionalCompleteness: summary.unresolvedUnknown === 0 && summary.capabilityMissing === 0 ? 'READY_FOR_PRODUCT_OWNER_REVIEW' : 'FAIL',
         productOwnerAcceptance: 'NOT_GRANTED',
         finalProductionPass: 'RETRACTED',
       },
@@ -182,8 +200,21 @@ function providerUsageZone(id: string, title: string, activity: number, latest: 
   return activityZone(id, 'PREMIUM', title, activity, attention, latest?.occurredAt ?? null, { requests: activity, latestOutcome: latest?.outcome ?? 'NO_ACTIVITY' }, href, `ProviderUsageEvent.adapterId=${source}`, 'Deschide funcția', 'Rulează funcția și investighează ultimul rezultat non-SUCCESS.');
 }
 
-function localZone(id: string, title: string, information: string, href: string, action: string): TurnFunctionalZone {
-  return { id, tier: 'BASIC', title, status: 'UNKNOWN_LEGITIMATE', information, source: { kind: 'LOCAL_DEVICE', label: 'Sesiune locală/efemeră; fără export global', observedAt: null }, evidence: { globalCollector: false }, action: { label: action, href }, missing: 'Product Owner nu poate vedea utilizarea sau rezultatele între dispozitive.', implementation: 'Necesită consimțământ, contract de retenție și un collector server-side; nu poate fi dedus din registru.', legitimateUnknown: true, unknownReason: 'Nu există o sursă globală autorizată; datele sunt intenționat locale/efemere.' };
+function basicFeatureZone(
+  id: string,
+  title: string,
+  href: string,
+  action: string,
+  counts: Array<{ adapterId: string; _count: { _all: number }; _max: { occurredAt: Date | null } }>,
+  events: Array<{ adapterId: string; outcome: string; occurredAt: Date; latencyMs: number | null; metrics: unknown }>,
+): TurnFunctionalZone {
+  const count = counts.find((item) => item.adapterId === id)?._count._all ?? 0;
+  const latest = events.find((item) => item.adapterId === id);
+  const attention = Boolean(latest && latest.outcome !== 'SUCCESS');
+  return activityZone(id, 'BASIC', title, count, attention, latest?.occurredAt ?? null,
+    { executions: count, latestOutcome: latest?.outcome ?? 'NO_ACTIVITY', latestLatencyMs: latest?.latencyMs ?? null, contentCaptured: false },
+    href, `ProviderUsageEvent · ${id} · metadata-only`, action,
+    attention ? 'Revizuiește rezultatul real UNCERTAIN/FAILED; conținutul OCR nu este colectat.' : 'Collectorul metadata-only este implementat; autentificarea este necesară pentru tenant binding.');
 }
 
 function staticZone(id: string, tier: TurnFunctionalZone['tier'], title: string, information: string, href: string): TurnFunctionalZone {

@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { AuthorityControlPlaneController } from './authority-control-plane.controller';
 import { AuthorityControlPlaneService } from './authority-control-plane.service';
 import { TurnAdminModule } from '../turn-admin/turn-admin.module';
+import { SecretTelemetryModule } from '../secret-telemetry/secret-telemetry.module';
 
 @Module({
-  imports: [TurnAdminModule],
+  imports: [TurnAdminModule, SecretTelemetryModule],
   controllers: [AuthorityControlPlaneController],
   providers: [AuthorityControlPlaneService],
   exports: [AuthorityControlPlaneService],

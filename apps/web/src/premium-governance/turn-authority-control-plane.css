@@ -16,3 +16,31 @@
   font-size: clamp(1.8rem, 4vw, 3.4rem);
   text-transform: uppercase;
 }
+
+.agm-operational-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(88, 232, 255, 0.3);
+}
+
+.agm-operational-header small,
+.agm-operational-header strong { display: block; }
+.agm-operational-header strong { color: var(--agm-cyan); font-size: 1.3rem; }
+.agm-operational-header .agm-network-message { padding: 0; text-align: right; }
+.agm-authority-detail { display: grid; gap: .75rem; padding: 1rem; }
+.agm-authority-detail > section { padding: 1rem; border: 1px solid rgba(88, 232, 255, .2); background: rgba(2, 15, 26, .7); }
+.agm-authority-detail h3 { margin: 0 0 .55rem; }
+.agm-authority-detail p { margin: .35rem 0; color: #b9dce5; }
+.agm-table-scroll { overflow-x: auto; }
+.agm-authority-detail table { width: 100%; min-width: 760px; border-collapse: collapse; }
+.agm-authority-detail th,
+.agm-authority-detail td { padding: .55rem; border-bottom: 1px solid rgba(88, 232, 255, .15); text-align: left; vertical-align: top; }
+.agm-authority-detail th { color: #81b7c6; font-size: .75rem; text-transform: uppercase; }
+
+@media (max-width: 760px) {
+  .agm-operational-header { display: block; }
+  .agm-operational-header .agm-network-message { margin-top: .7rem; text-align: left; }
+}

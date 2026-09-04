@@ -1,5 +1,5 @@
 export type CanonicalVisualStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
-export type CanonicalStateSource = 'LIVE_ADAPTER' | 'OPPORTUNITY_TELEMETRY' | 'COMPONENT_HEARTBEAT' | 'RUNTIME_EVENT' | 'AUTHORITY_LEASE' | 'REGISTRY';
+export type CanonicalStateSource = 'LIVE_ADAPTER' | 'OPPORTUNITY_TELEMETRY' | 'COMPONENT_HEARTBEAT' | 'SECRET_TELEMETRY' | 'RUNTIME_EVENT' | 'DOMAIN_EVENT_STORE' | 'AUTHORITY_LEASE' | 'REGISTRY';
 
 export type CanonicalNodeState = {
   status: CanonicalVisualStatus;
@@ -15,7 +15,9 @@ export function resolveCanonicalNodeState(input: {
   liveAdapter?: TimedStatus;
   opportunityTelemetry?: TimedStatus & { freshnessStatus?: string };
   heartbeat?: TimedStatus;
+  secretTelemetry?: TimedStatus;
   runtimeEvent?: TimedStatus;
+  domainEvent?: TimedStatus;
   authorityState?: TimedStatus;
   now?: Date;
 }): CanonicalNodeState {
@@ -33,14 +35,17 @@ export function resolveCanonicalNodeState(input: {
     }
     return mapped(input.heartbeat.status, 'COMPONENT_HEARTBEAT', input.heartbeat.observedAt);
   }
+  if (input.secretTelemetry) return mapped(input.secretTelemetry.status, 'SECRET_TELEMETRY', input.secretTelemetry.observedAt);
   if (input.runtimeEvent) return mapped(input.runtimeEvent.status, 'RUNTIME_EVENT', input.runtimeEvent.observedAt);
+  if (input.domainEvent) return mapped(input.domainEvent.status, 'DOMAIN_EVENT_STORE', input.domainEvent.observedAt);
   if (input.authorityState) return mapped(input.authorityState.status, 'AUTHORITY_LEASE', input.authorityState.observedAt);
-  return mapped(input.registryLifecycleStatus, 'REGISTRY', null);
+  const registryLabel = input.registryLifecycleStatus.trim().toUpperCase().replace(/_/g, ' ');
+  return { status: 'NO_TELEMETRY', label: `IDENTITY ONLY · ${registryLabel || 'REGISTERED'}`, source: 'REGISTRY', observedAt: null };
 }
 
 function mapped(value: string, source: CanonicalStateSource, observedAt: Date | null): CanonicalNodeState {
   const label = value.trim().toUpperCase().replace(/_/g, ' ');
-  if (['PASS', 'ONLINE', 'READY', 'HEALTHY', 'OK', 'ACTIVE', 'STARTED', 'WORKING', 'COMPLETED', 'AUTHORIZED'].includes(label)) {
+  if (['PASS', 'ONLINE', 'READY', 'HEALTHY', 'OK', 'STARTED', 'WORKING', 'COMPLETED', 'AUTHORIZED'].includes(label)) {
     return { status: 'PASS', label, source, observedAt };
   }
   if (['DEGRADED', 'STALE', 'WARNING', 'BLOCKED', 'DRAINING', 'RATE LIMITED'].includes(label)) {
@@ -49,7 +54,7 @@ function mapped(value: string, source: CanonicalStateSource, observedAt: Date | 
   if (['FAIL', 'FAILED', 'ERROR', 'OFFLINE', 'UNAVAILABLE', 'DISABLED', 'SUSPENDED'].includes(label)) {
     return { status: 'FAIL', label, source, observedAt };
   }
-  if (['REGISTERED', 'STANDBY', 'ADVISORY', 'APPROVED', 'RETIRED'].includes(label)) {
+  if (['STANDBY', 'ADVISORY'].includes(label)) {
     return { status: 'STANDBY', label, source, observedAt };
   }
   return { status: 'NO_TELEMETRY', label: label || 'NO TELEMETRY', source, observedAt };

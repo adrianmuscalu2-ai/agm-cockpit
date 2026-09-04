@@ -45,33 +45,27 @@ export function renderTurnAuthorityControlPlane() {
       <header class="premium-governance-heading">
         <span>TURN · ADMINISTRATIVE OPERATIONS</span>
         <h2 id="turn-authority-control-plane-title">AGM Authority Control Plane</h2>
-        <p>Panou operațional administrativ. Rețeaua, authority și telemetria sunt observabile numai în Turn; telemetria nu comandă și nu blochează aplicația.</p>
+        <p>Panou operațional din heartbeat, lifecycle, event stores, authority leases și dependency telemetry. Registry-ul furnizează numai identitatea.</p>
       </header>
       <section class="agm-network-hero" data-authority-dashboard aria-live="polite" aria-busy="true">
-        <div class="agm-network-stage" data-network-stage>
-          <div class="agm-orbit agm-orbit-outer" aria-hidden="true"></div>
-          <div class="agm-orbit agm-orbit-middle" aria-hidden="true"></div>
-          <div class="agm-orbit agm-orbit-inner" aria-hidden="true"></div>
-          <article class="agm-control-plane-node status-no-telemetry"><small>AGM</small><strong>Authority<br>Control Plane</strong><span data-control-status>NO TELEMETRY</span></article>
-          <div data-network-nodes></div>
-        </div>
+        <header class="agm-operational-header"><div><small>Authority evaluator</small><strong data-control-status>SE ÎNCARCĂ</strong></div><p data-network-message>Se citesc sursele reale autorizate…</p><button type="button" data-run-operational-inspections>Rulează inspectorii reali</button></header>
         <footer class="agm-network-summary">
           <div><small>Executive authority</small><strong data-active-authorities>—</strong></div>
-          <div><small>Registered nodes</small><strong data-node-count>—</strong></div>
+          <div><small>Operational identities</small><strong data-node-count>—</strong></div>
           <div><small>Authority conflicts</small><strong data-conflict-count>—</strong></div>
-          <div><small>Opportunity Intelligence</small><strong data-opportunity-gate>NO-GO</strong></div>
+          <div><small>Opportunity Intelligence</small><strong data-opportunity-gate>NEEVALUAT</strong></div>
         </footer>
-        <p class="agm-network-message" data-network-message>Se încarcă starea AGM persistentă…</p>
+        <div class="agm-authority-detail" data-authority-detail></div>
       </section>
 
       <section id="turn-premium-network" aria-labelledby="turn-premium-network-title">
         <header class="premium-governance-heading">
-          <span>TURN · PREMIUM REGISTRY</span>
-          <h2 id="turn-premium-network-title">Premium Agent Network</h2>
-          <p>Departamente, supervisori, dependency state, authority și ultima activitate din registrele AGM.</p>
+          <span>TURN · PREMIUM OPERATIONAL NODES</span>
+          <h2 id="turn-premium-network-title">Premium: runtime și capabilități reale</h2>
+          <p>Pentru fiecare identitate: prezență runtime, sănătate, activitate, freshness, sursă, dependențe, motiv și acțiune. Lipsa implementării rămâne vizibilă.</p>
         </header>
         <section class="premium-network-detail" data-agent-network-detail aria-live="polite" aria-busy="true">
-          <div class="premium-network-toolbar"><span data-network-contract>Contract: —</span><span>Legendă: <i class="legend-pass"></i> PASS / ACTIVE · <i class="legend-degraded"></i> DEGRADED / STALE · <i class="legend-fail"></i> FAIL / ACTION REQUIRED · <i class="legend-none"></i> NO TELEMETRY · <i class="legend-standby"></i> STANDBY / ADVISORY</span></div>
+          <div class="premium-network-toolbar"><span data-network-contract>Contract: —</span><span>Verde = evidență reală curentă · Portocaliu = degradat/stale · Roșu = failed/absent · Gri = neobservat</span></div>
           <div class="premium-network-departments" data-network-departments></div>
           <p class="agm-network-message" data-network-message>Se încarcă registrul canonic…</p>
         </section>

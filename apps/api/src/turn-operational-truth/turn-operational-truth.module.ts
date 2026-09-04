@@ -6,9 +6,10 @@ import { TurnFunctionalOverviewService } from './turn-functional-overview.servic
 import { TurnOperationalTruthController } from './turn-operational-truth.controller';
 import { TurnOperationalTruthInterceptor } from './turn-operational-truth.interceptor';
 import { TurnOperationalTruthService } from './turn-operational-truth.service';
+import { AuthorityControlPlaneModule } from '../authority-control-plane/authority-control-plane.module';
 
 @Module({
-  imports: [TurnAdminModule, TranslationModule],
+  imports: [TurnAdminModule, TranslationModule, AuthorityControlPlaneModule],
   controllers: [TurnOperationalTruthController],
   providers: [
     TurnFunctionalOverviewService,

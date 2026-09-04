@@ -32,6 +32,9 @@ function fixture() {
     providerUsageEvent: {
       count: jest.fn().mockResolvedValueOnce(0).mockResolvedValueOnce(0),
       findFirst: jest.fn().mockResolvedValue(null),
+      groupBy: jest.fn().mockResolvedValue([]),
+      findMany: jest.fn().mockResolvedValue([]),
+      create: jest.fn(),
     },
   };
   const translation = { functionalHealth: jest.fn().mockResolvedValue({ status: 'available', provider: 'openai', functional: true }) };
@@ -47,7 +50,8 @@ describe('TurnFunctionalOverviewService', () => {
     expect(byId.get('basic.translator')).toMatchObject({ status: 'OPERATIONAL', source: { kind: 'RUNTIME' } });
     expect(byId.get('basic.email')).toMatchObject({ status: 'OBSERVED', source: { kind: 'EVENT_STORE' } });
     expect(byId.get('premium.voice')).toMatchObject({ status: 'NO_ACTIVITY', legitimateUnknown: false });
-    expect(byId.get('basic.ocr-workspace')).toMatchObject({ status: 'UNKNOWN_LEGITIMATE', legitimateUnknown: true, source: { kind: 'LOCAL_DEVICE' } });
+    expect(byId.get('basic.ocr-workspace')).toMatchObject({ status: 'NO_ACTIVITY', legitimateUnknown: false, source: { kind: 'EVENT_STORE' }, evidence: { contentCaptured: false } });
+    expect(overview.summary.capabilityMissing).toBe(0);
     expect(byId.get('basic.load-safety-knowledge')).toMatchObject({ status: 'STATIC_REFERENCE', evidence: { runtimeClaim: false } });
     expect(overview.zones.filter((zone) => zone.tier === 'BASIC')).toHaveLength(10);
     expect(overview.zones.filter((zone) => zone.tier === 'PREMIUM')).toHaveLength(13);
@@ -71,5 +75,13 @@ describe('TurnFunctionalOverviewService', () => {
       evidence: { failedMessages: 2, gmailBacklog: 4 },
       action: { href: '/email' },
     });
+  });
+
+  it('records Basic execution metadata without OCR content', async () => {
+    const { service, prisma } = fixture();
+    prisma.providerUsageEvent.create.mockResolvedValue({ id: 'event-1', occurredAt: new Date('2026-09-04T12:00:00.000Z') });
+    await service.recordBasicFeature({ featureId: 'basic.tachograph', outcome: 'UNCERTAIN', durationMs: 12, confidence: 41, resultStatus: 'uncertain' }, { companyId: 'company-1', userId: 'user-1', roles: [], requestId: 'request-1', correlationId: 'correlation-1' });
+    expect(prisma.providerUsageEvent.create).toHaveBeenCalledWith({ data: expect.objectContaining({ adapterId: 'basic.tachograph', outcome: 'UNCERTAIN', metrics: { resultStatus: 'uncertain', confidence: 41, contentCaptured: false } }) });
+    expect(JSON.stringify(prisma.providerUsageEvent.create.mock.calls[0])).not.toMatch(/ocrText|image|bodyText|raw/i);
   });
 });

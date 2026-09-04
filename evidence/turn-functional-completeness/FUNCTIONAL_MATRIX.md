@@ -2,7 +2,7 @@
 
 Status curent al verdictului: `TURN FUNCTIONAL COMPLETENESS = FAIL`, `PRODUCT OWNER ACCEPTANCE = NOT GRANTED`, `FINAL_PRODUCTION_PASS = RETRACTED`.
 
-Această matrice definește proiecția `turn-functional-overview.v1`. Valorile runtime sunt citite numai din sursele indicate, pentru tenantul Production canonic, după Owner Access. Absența rândurilor într-o sursă disponibilă înseamnă `NO_ACTIVITY`, nu `UNKNOWN`. Un registru sau un contract static nu poate produce stare runtime.
+Această matrice definește proiecția `turn-functional-overview.v2`. Valorile runtime sunt citite numai din sursele indicate, pentru tenantul Production canonic, după Owner Access. Absența rândurilor într-o sursă disponibilă înseamnă `NO_ACTIVITY`, nu `UNKNOWN`. Un registru sau un contract static nu poate produce stare runtime.
 
 ## Basic
 
@@ -10,13 +10,13 @@ Această matrice definește proiecția `turn-functional-overview.v1`. Valorile r
 |---|---|---|---|---|---|
 | Traducător | Rezultatul unui probe funcțional real și providerul | `TranslationService.functionalHealth` / OpenAI | Deschide `/translator`; repară providerul dacă probe-ul eșuează | Telemetria de utilizare per tenant nu există deoarece endpointul Basic nu are context de tenant | Nu; disponibilitatea este observabilă live |
 | Email | conversații totale/deschise, mesaje eșuate, stare și backlog Gmail | `CommunicationConversation`, `CommunicationMessage`, `GmailPilotTelemetry` | Deschide `/email`; sincronizează/retrimite | Prima sincronizare produce `NO_ACTIVITY`, nu verde | Nu |
-| Document transport | Utilizare/rezultat local | sesiunea efemeră a dispozitivului | Deschide Basic și scanează | Collector server-side necesită consimțământ și contract de retenție | Da — date intenționat locale |
-| Tahograf | Utilizare/rezultat local | sesiunea efemeră a dispozitivului | Deschide `/knowledge/tahograf` | Același collector cu retenție explicită | Da |
-| Text bord | Utilizare/rezultat local | sesiunea efemeră a dispozitivului | Deschide analiza din Basic | Același collector cu retenție explicită | Da |
-| Martori bord | Utilizare/rezultat local | sesiunea efemeră / knowledge local | Deschide `/knowledge/martori-bord` | Același collector cu retenție explicită | Da |
-| Legislație | Utilizare/rezultat local | motorul de reguli și knowledge local | Deschide `/knowledge/legislatie` | Collector server-side versionat | Da |
-| Siguranța mărfii Basic | Utilizare/rezultat local | motorul Basic local | Deschide `/knowledge/ancorarea-marfii` | Collector server-side versionat | Da |
-| OCR și istoric local | imagini/text/istoric din sesiunea curentă | repository efemer al dispozitivului | Deschide Camera/OCR | Export global interzis fără consimțământ/retenție | Da |
+| Document transport | Execuții și rezultate metadata-only | `ProviderUsageEvent` | Deschide Basic și scanează | Conținutul OCR nu este colectat | Nu; zero = `NO_ACTIVITY` |
+| Tahograf | Execuții și rezultate metadata-only | `ProviderUsageEvent` | Deschide `/knowledge/tahograf` | Conținutul OCR nu este colectat | Nu |
+| Text bord | Execuții și rezultate metadata-only | `ProviderUsageEvent` | Deschide analiza din Basic | Conținutul OCR nu este colectat | Nu |
+| Martori bord | Execuții și rezultat provider | `ProviderUsageEvent` | Deschide `/knowledge/martori-bord` | Imaginea nu este stocată în telemetrie | Nu |
+| Legislație | Execuții și rezultate metadata-only | `ProviderUsageEvent` | Deschide `/knowledge/legislatie` | Conținutul OCR nu este colectat | Nu |
+| Siguranța mărfii Basic | Execuții și rezultate metadata-only | `ProviderUsageEvent` | Deschide `/knowledge/ancorarea-marfii` | Conținutul OCR nu este colectat | Nu |
+| OCR și istoric local | Execuții, rezultat, durată și confidence | `ProviderUsageEvent` | Deschide Camera/OCR | Imaginea și textul rămân locale | Nu |
 | Ghid încărcare/ancorare | Existența referinței publicate | contractul knowledge versionat | Deschide `/legal` | Nu este și nu va fi prezentat ca runtime | Nu se aplică; `STATIC_REFERENCE` |
 
 ## Premium
@@ -44,7 +44,7 @@ Această matrice definește proiecția `turn-functional-overview.v1`. Valorile r
 - `ATTENTION` cere o cauză și o acțiune concrete.
 - `NO_ACTIVITY` înseamnă că sursa reală a răspuns cu zero rânduri; nu este succes operațional și nu este `UNKNOWN`.
 - `STATIC_REFERENCE` confirmă numai existența unui contract/conținut, niciodată runtime.
-- `UNKNOWN_LEGITIMATE` este permis numai pentru date locale/efemere fără colectare autorizată și include motivul și implementarea necesară.
+- `UNKNOWN_LEGITIMATE` rămâne permis contractual, dar acoperirea Basic v2 are collector metadata-only și nu îl folosește pentru aceste șapte funcții.
 - Endpointul nu livrează rezultate parțiale: dacă o sursă obligatorie nu poate fi citită, UI afișează `DATA UNAVAILABLE` și nu deduce stări.
 - `FINAL PRODUCT PASS` poate fi acordat numai explicit de Product Owner după deployment și Browser Validation ale acestei funcționalități.
 - Browser Validation se execută prin `pnpm audit:turn-functional-overview` numai după `pnpm rescue:browser-preflight`; validatorul cere `AGM_TURN_OWNER_ACCESS_TOKEN` real și nu definește route stubs, payload-uri mock sau fallback de status.

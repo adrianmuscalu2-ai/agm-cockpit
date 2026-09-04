@@ -1,4 +1,4 @@
-export type TurnFunctionalZoneStatus = 'OPERATIONAL' | 'OBSERVED' | 'ATTENTION' | 'NO_ACTIVITY' | 'STATIC_REFERENCE' | 'UNKNOWN_LEGITIMATE';
+export type TurnFunctionalZoneStatus = 'OPERATIONAL' | 'OBSERVED' | 'ATTENTION' | 'NO_ACTIVITY' | 'STATIC_REFERENCE' | 'CAPABILITY_MISSING' | 'UNKNOWN_LEGITIMATE';
 
 export type TurnFunctionalZone = {
   id: string;
@@ -30,6 +30,7 @@ export type TurnFunctionalOverview = {
     attention: number;
     noActivity: number;
     staticReference: number;
+    capabilityMissing: number;
     legitimateUnknown: number;
     unresolvedUnknown: number;
   };
@@ -90,6 +91,7 @@ function renderOverview(root: HTMLElement, overview: TurnFunctionalOverview) {
     <article><small>Activitate observată</small><strong>${overview.summary.observed}</strong></article>
     <article><small>Necesită acțiune</small><strong>${overview.summary.attention}</strong></article>
     <article><small>Fără activitate</small><strong>${overview.summary.noActivity}</strong></article>
+    <article><small>Capabilități lipsă</small><strong>${overview.summary.capabilityMissing}</strong></article>
     <article><small>UNKNOWN legitim</small><strong>${overview.summary.legitimateUnknown}</strong></article>
     <article><small>UNKNOWN nerezolvat</small><strong>${overview.summary.unresolvedUnknown}</strong></article>`;
   if (zones) zones.innerHTML = (['BASIC', 'PREMIUM'] as const).map((tier) => `

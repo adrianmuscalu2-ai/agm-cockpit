@@ -91,6 +91,7 @@ try {
   }
   await page.waitForSelector('[data-turn-functional-overview][data-functional-verdict="READY_FOR_PRODUCT_OWNER_REVIEW"]', { timeout: interactiveOwnerLogin ? 300_000 : 60_000 });
   await page.waitForSelector('[data-functional-zone]', { timeout: 30_000 });
+  await page.waitForSelector('[data-agent-network-detail][aria-busy="false"]', { timeout: 30_000 });
   await dismissFirstRun(page, report.checks);
   const effectiveOwnerAccessToken = ownerAccessToken || await page.evaluate(() => {
     try {
@@ -135,10 +136,14 @@ try {
       unactionable: cards.filter((card) => !card.actionHref || !card.text.includes('Sursa reală') || !card.text.includes('Ce lipsește')),
       staticRuntimeGreen: document.querySelectorAll('[data-functional-status="STATIC_REFERENCE"].status-operational, [data-functional-status="UNKNOWN_LEGITIMATE"].status-operational').length,
       registryRuntimeGreen: document.querySelectorAll('.organization-map-card .status-light-green, .turn-agent-register .turn-light.active, .turn-entry-panel .turn-light.active').length,
+      operationalNodeCount: document.querySelectorAll('[data-canonical-agent-id]').length,
+      operationalFieldCoverage: [...document.querySelectorAll('[data-canonical-agent-id]')].filter((card) => ['Runtime', 'Current state / health', 'Last heartbeat', 'Last activity', 'Freshness', 'Current function', 'Dependencies', 'Evidence/source', 'Why', 'Required action'].every((label) => card.textContent?.includes(label))).length,
+      decorativeOrbitCount: document.querySelectorAll('.agm-orbit, .agm-network-node').length,
+      authorityStatus: document.querySelector('[data-control-status]')?.textContent?.trim() || '',
     };
   });
   report.checks.ui = ui;
-  assert(ui.contract === 'turn-functional-overview.v1', `Unexpected UI contract ${ui.contract}`);
+  assert(ui.contract === 'turn-functional-overview.v2', `Unexpected UI contract ${ui.contract}`);
   assert(ui.verdict === 'READY_FOR_PRODUCT_OWNER_REVIEW', `Unexpected UI verdict ${ui.verdict}`);
   assert(ui.cardCount === 23 && ui.basicCount === 10 && ui.premiumCount === 13, `Unexpected zone coverage ${ui.basicCount}/${ui.premiumCount}/${ui.cardCount}`);
   assert(!ui.unavailable, 'TURN rendered DATA UNAVAILABLE.');
@@ -146,6 +151,9 @@ try {
   assert(ui.unactionable.length === 0, `Zones without source/missing/action: ${JSON.stringify(ui.unactionable)}`);
   assert(ui.staticRuntimeGreen === 0, 'Static/local zones are presented as operational green.');
   assert(ui.registryRuntimeGreen === 0, 'Registry-only content is presented as runtime green.');
+  assert(ui.operationalNodeCount === 28 && ui.operationalFieldCoverage === 28, `Operational agent coverage is ${ui.operationalFieldCoverage}/${ui.operationalNodeCount}.`);
+  assert(ui.decorativeOrbitCount === 0, 'Decorative operational substitute is still rendered.');
+  assert(!['', 'DATA UNAVAILABLE', 'ACCES OPERAȚIONAL NECESAR'].includes(ui.authorityStatus), `Authority status is ${ui.authorityStatus}.`);
   assert(report.network.some((entry) => entry.authorizationPresent === true), 'UI request did not carry real Owner Access authorization.');
   assert(report.network.some((entry) => entry.status === 200), 'UI did not receive functional overview HTTP 200.');
   assert(report.pageErrors.length === 0, `Page errors: ${report.pageErrors.join(' | ')}`);
@@ -168,12 +176,13 @@ try {
 if (report.status !== 'PASS') process.exitCode = 1;
 
 function validateOverview(overview) {
-  assert(overview?.contractVersion === 'turn-functional-overview.v1', 'Functional overview contract missing.');
+  assert(overview?.contractVersion === 'turn-functional-overview.v2', 'Functional overview contract missing.');
   assert(overview?.verdict?.turnFunctionalCompleteness === 'READY_FOR_PRODUCT_OWNER_REVIEW', `Functional completeness is ${overview?.verdict?.turnFunctionalCompleteness}`);
   assert(overview?.verdict?.productOwnerAcceptance === 'NOT_GRANTED', 'Product Owner acceptance was inferred.');
   assert(overview?.verdict?.finalProductionPass === 'RETRACTED', 'FINAL Production PASS was inferred.');
   assert(overview?.summary?.totalZones === 23, `Expected 23 zones, got ${overview?.summary?.totalZones}`);
   assert(overview?.summary?.unresolvedUnknown === 0, `Unresolved UNKNOWN is ${overview?.summary?.unresolvedUnknown}`);
+  assert(overview?.summary?.capabilityMissing === 0, `Missing capabilities: ${overview?.summary?.capabilityMissing}`);
   assert(Array.isArray(overview?.zones) && overview.zones.length === 23, 'Zone payload is incomplete.');
   assert(new Set(overview.zones.map((zone) => zone.id)).size === 23, 'Zone ids are not unique.');
   assert(overview.zones.filter((zone) => zone.tier === 'BASIC').length === 10, 'Basic zone coverage is incomplete.');

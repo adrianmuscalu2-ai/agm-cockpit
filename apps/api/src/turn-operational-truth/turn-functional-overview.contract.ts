@@ -1,5 +1,5 @@
 export const TURN_FUNCTIONAL_OVERVIEW_CONTRACT = {
-  version: 'turn-functional-overview.v1',
+  version: 'turn-functional-overview.v2',
   scope: 'PRODUCT_OWNER',
   dataPolicy: 'LIVE_OR_EXPLICITLY_LIMITED',
 } as const;
@@ -10,6 +10,7 @@ export type TurnFunctionalZoneStatus =
   | 'ATTENTION'
   | 'NO_ACTIVITY'
   | 'STATIC_REFERENCE'
+  | 'CAPABILITY_MISSING'
   | 'UNKNOWN_LEGITIMATE';
 
 export type TurnFunctionalZone = {
@@ -47,6 +48,7 @@ export type TurnFunctionalOverview = {
     attention: number;
     noActivity: number;
     staticReference: number;
+    capabilityMissing: number;
     legitimateUnknown: number;
     unresolvedUnknown: number;
   };

@@ -28,6 +28,12 @@ export class AuthorityControlPlaneController {
     return responseEnvelope(await this.service.registry(ctx), ctx.requestId);
   }
 
+  @Post('inspections/run')
+  async inspect(@CurrentUser() user: RequestContext, @Headers('x-request-id') requestId?: string) {
+    const ctx = context(user, requestId);
+    return responseEnvelope(await this.service.inspectOperationalCapabilities(ctx), ctx.requestId);
+  }
+
   @Post('mandates')
   async mandate(@Body() dto: CreateMandateDto, @CurrentUser() user: RequestContext, @Headers('x-request-id') requestId?: string) {
     const ctx = context(user, requestId);

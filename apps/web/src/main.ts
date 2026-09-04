@@ -100,6 +100,7 @@ import {
   type CargoSafetyAnalysisResult,
 } from './basic-photo-analysis/cargo-safety.analysis';
 import { availableTextCorrectorAgentIds, correctText } from './text-corrector/text-corrector.service';
+import { featureOutcome, reportBasicFeature } from './basic-feature-telemetry';
 import {
   type TextCorrectorMode,
   type TextCorrectorResult,
@@ -3622,7 +3623,9 @@ function bindOcrPage() {
   });
   document.querySelector<HTMLButtonElement>('#analyzeTransportDocument')?.addEventListener('click', () => {
     if (!transportDocumentTextConfirmed || !state.ocrExtractedText.trim()) return;
+    const started = performance.now();
     transportDocumentAnalysis = analyzeTransportDocument(state.ocrExtractedText, state.ocrConfidence);
+    reportBasicFeature({ featureId: 'basic.transport-document', outcome: featureOutcome(transportDocumentAnalysis.status), durationMs: Math.round(performance.now() - started), confidence: transportDocumentAnalysis.confidence, resultStatus: transportDocumentAnalysis.status });
     state.status = transportDocumentAnalysis.summary;
     render();
   });
@@ -3635,7 +3638,9 @@ function bindOcrPage() {
   });
   document.querySelector<HTMLButtonElement>('#analyzeTachograph')?.addEventListener('click', () => {
     if (!tachographTextConfirmed || !state.ocrExtractedText.trim()) return;
+    const started = performance.now();
     tachographAnalysis = analyzeTachographText(state.ocrExtractedText, state.ocrConfidence);
+    reportBasicFeature({ featureId: 'basic.tachograph', outcome: featureOutcome(tachographAnalysis.status), durationMs: Math.round(performance.now() - started), confidence: tachographAnalysis.confidence, resultStatus: tachographAnalysis.status });
     state.status = tachographAnalysis.summary;
     render();
   });
@@ -3648,7 +3653,9 @@ function bindOcrPage() {
   });
   document.querySelector<HTMLButtonElement>('#analyzeDashboardText')?.addEventListener('click', () => {
     if (!dashboardTextConfirmed || !state.ocrExtractedText.trim()) return;
+    const started = performance.now();
     dashboardTextAnalysis = analyzeDashboardText(state.ocrExtractedText, state.ocrConfidence);
+    reportBasicFeature({ featureId: 'basic.dashboard-text', outcome: featureOutcome(dashboardTextAnalysis.status), durationMs: Math.round(performance.now() - started), confidence: dashboardTextAnalysis.confidence, resultStatus: dashboardTextAnalysis.status });
     state.status = dashboardTextAnalysis.summary;
     render();
   });
@@ -3661,7 +3668,9 @@ function bindOcrPage() {
   });
   document.querySelector<HTMLButtonElement>('#analyzeLegislation')?.addEventListener('click', () => {
     if (!legislationTextConfirmed || !state.ocrExtractedText.trim()) return;
+    const started = performance.now();
     legislationAnalysis = analyzeLegislationText(state.ocrExtractedText, state.ocrConfidence);
+    reportBasicFeature({ featureId: 'basic.legislation', outcome: featureOutcome(legislationAnalysis.status), durationMs: Math.round(performance.now() - started), confidence: legislationAnalysis.confidence, resultStatus: legislationAnalysis.status });
     state.status = legislationAnalysis.summary;
     render();
   });
@@ -3674,7 +3683,9 @@ function bindOcrPage() {
   });
   document.querySelector<HTMLButtonElement>('#analyzeCargoSafety')?.addEventListener('click', () => {
     if (!cargoSafetyTextConfirmed || !state.ocrExtractedText.trim()) return;
+    const started = performance.now();
     cargoSafetyAnalysis = analyzeCargoSafetyText(state.ocrExtractedText, state.ocrConfidence);
+    reportBasicFeature({ featureId: 'basic.cargo-safety', outcome: featureOutcome(cargoSafetyAnalysis.status), durationMs: Math.round(performance.now() - started), confidence: cargoSafetyAnalysis.confidence, resultStatus: cargoSafetyAnalysis.status });
     state.status = cargoSafetyAnalysis.summary;
     render();
   });
@@ -4106,6 +4117,7 @@ function openOcrImagePicker() {
 
 async function processOcrImage(file: File) {
   if (basicPhotoAnalysisMode === 'dashboard-warning') { await processDashboardWarningImage(file); return; }
+  const started = performance.now();
   transportDocumentTextConfirmed = false;
   transportDocumentAnalysis = null;
   tachographTextConfirmed = false;
@@ -4117,10 +4129,12 @@ async function processOcrImage(file: File) {
   cargoSafetyTextConfirmed = false;
   cargoSafetyAnalysis = null;
   await ocrController.process(file);
+  reportBasicFeature({ featureId: 'basic.ocr-workspace', outcome: state.ocrExtractedText.trim() ? 'SUCCESS' : 'NO_TEXT', durationMs: Math.round(performance.now() - started), confidence: Math.round(state.ocrConfidence), resultStatus: state.ocrExtractedText.trim() ? 'text-detected' : 'no-text' });
 }
 
 async function processDashboardWarningImage(file: File) {
   if (!dashboardWarningVisionEnabled(import.meta.env.VITE_DASHBOARD_WARNING_VISION_ENABLED)) { window.location.assign('/knowledge/martori-bord'); return; }
+  const started = performance.now();
   dashboardWarningProcessing = true; dashboardWarningConfirmed = false; dashboardWarningVisionResult = null;
   state.ocrImageDataUrl = await readFileAsDataUrl(file); render();
   const form = new FormData();
@@ -4139,7 +4153,11 @@ async function processDashboardWarningImage(file: File) {
     dashboardWarningVisionResult = payload.data ?? null;
   } catch {
     dashboardWarningVisionResult = { status: 'uncertain', observations: [], confidence: 0, limitations: [t(uiLanguage(), 'warning.unavailable')], provenance: { observation: 'vision', identification: 'none', explanation: 'none', severity: 'none' } };
-  } finally { dashboardWarningProcessing = false; render(); }
+  } finally {
+    dashboardWarningProcessing = false;
+    reportBasicFeature({ featureId: 'basic.dashboard-warning', outcome: dashboardWarningVisionResult ? featureOutcome(dashboardWarningVisionResult.status) : 'FAILED', durationMs: Math.round(performance.now() - started), confidence: dashboardWarningVisionResult?.confidence, resultStatus: dashboardWarningVisionResult?.status ?? 'failed' });
+    render();
+  }
 }
 
 async function compressImageForHistory(file: File) {

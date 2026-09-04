@@ -1,0 +1,41 @@
+{
+  "contract": "turn-real-operational-completion-candidate.v1",
+  "recordedAt": "2026-09-05",
+  "status": "LOCAL_CANDIDATE_AWAITING_PUSH_AND_PRODUCTION_DEPLOYMENT_APPROVAL",
+  "basic": {
+    "zones": 10,
+    "metadataOnlyCollectorsAdded": 7,
+    "contentCaptured": false,
+    "unknownFromMissingCollector": 0
+  },
+  "premium": {
+    "canonicalOperationalNodes": 28,
+    "registryDerivedRuntimeAllowed": false,
+    "telemetryBindingsMissing": 0,
+    "authorityEvaluator": "CURRENT_LEASES_CHAINS_CONFLICTS_STALE_AUTHORITY_INCIDENTS",
+    "opportunityEvaluator": "CURRENT_TELEMETRY_DEPENDENCIES_BACKLOG_CONFLICTS"
+  },
+  "instrumentation": [
+    "Basic function execution metadata with server timestamp and JWT tenant/user binding",
+    "Opportunity intake deduplication and normalization telemetry",
+    "Secret Guardian redacted runtime evaluation",
+    "Architecture and release executable persisted inspections",
+    "Orchestrator lifecycle on real authority dispatch",
+    "Domain event-store projections for Car Mover services"
+  ],
+  "uiPolicy": "NO_ORBITS_NO_GENERIC_OPERATIONAL_VISUALS_NO_REGISTRY_FALLBACK",
+  "verification": {
+    "targetedSuites": 6,
+    "targetedTests": 21,
+    "apiBuild": "PASS",
+    "webBuild": "PASS",
+    "apiLint": "PASS",
+    "webAntiPlaceholderContract": "PASS",
+    "productionDeployment": "PENDING_EXPLICIT_APPROVAL",
+    "productionBrowserValidation": "PENDING_DEPLOYMENT"
+  },
+  "verdict": {
+    "productOwnerAcceptance": "NOT_GRANTED",
+    "finalProductPass": "NOT_GRANTED"
+  }
+}
