@@ -35,6 +35,7 @@ import { CanonicalAuthorityModule } from './canonical-authority/canonical-author
 import { SourceFreshnessModule } from './source-freshness/source-freshness.module';
 import { MachineAuthModule } from './machine-auth/machine-auth.module';
 import { TurnOperationalTruthModule } from './turn-operational-truth/turn-operational-truth.module';
+import { DashboardWarningAnalysisModule } from './dashboard-warning-analysis/dashboard-warning-analysis.module';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { TurnOperationalTruthModule } from './turn-operational-truth/turn-operat
     SourceFreshnessModule,
     MachineAuthModule,
     TurnOperationalTruthModule,
+    DashboardWarningAnalysisModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

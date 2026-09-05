@@ -303,10 +303,11 @@ const mailState = createMailState({
 let mailAttachments: MailAttachment[] = [];
 let pendingMailAction: 'email' | 'whatsapp' = 'email';
 let basicPhotoAnalysisMode: 'transport-document' | 'tachograph' | 'dashboard-text' | 'dashboard-warning' | 'legislation' | 'cargo-safety' | null = null;
-type DashboardWarningVisionResult = { status: 'identified' | 'uncertain'; observations: string[]; candidateId?: string; candidateLabel?: string; confidence: number; severity?: 'critical' | 'warning' | 'information'; explanation?: string; recommendedAction?: string; knowledgeReference?: { route: string }; limitations: string[]; provenance: { observation: string; identification: string; explanation: string; severity: string } };
+type DashboardWarningVisionResult = { status: 'identified' | 'uncertain'; observations: string[]; visibleText: string[]; candidateId?: string; candidateLabel?: string; confidence: number; severity?: 'critical' | 'warning' | 'information'; explanation?: string; recommendedAction?: string; knowledgeReference?: { route: string }; limitations: string[]; provenance: { observation: string; identification: string; explanation: string; severity: string } };
 let dashboardWarningVisionResult: DashboardWarningVisionResult | null = null;
 let dashboardWarningConfirmed = false;
 let dashboardWarningProcessing = false;
+let dashboardWarningConsentGranted = false;
 let transportDocumentTextConfirmed = false;
 let transportDocumentAnalysis: TransportDocumentAnalysisResult | null = null;
 let tachographTextConfirmed = false;
@@ -1498,14 +1499,15 @@ function renderDashboardWarningAnalysisPage() {
   const language = uiLanguage();
   const result = dashboardWarningVisionResult;
   const identified = result?.status === 'identified';
-  const severity = t(language, result?.severity === 'critical' ? 'advanced.status.uncertain' : result?.severity === 'warning' ? 'advanced.heading.warning' : 'advanced.status.identified');
+  const severity = result?.severity?.toUpperCase() ?? 'UNKNOWN';
   return `<section class="translator-hud ocr-page ocr-theme-dashboard dashboard-warning-analysis" aria-labelledby="dashboard-warning-title" ${dashboardWarningProcessing ? 'aria-busy="true"' : ''}>
     <header class="translator-hud-title"><div><strong id="dashboard-warning-title">${escapeHtml(t(language, 'warning.title'))}</strong></div><p>${escapeHtml(t(language, 'warning.description'))}</p></header>
     <ol class="basic-analysis-steps"><li class="${state.ocrImageDataUrl ? 'complete' : 'active'}"><span>1</span>${escapeHtml(t(language, 'advanced.step.photo'))}</li><li class="${result ? 'complete' : state.ocrImageDataUrl ? 'active' : ''}"><span>2</span>${escapeHtml(t(language, 'advanced.step.vision'))}</li><li class="${dashboardWarningConfirmed ? 'complete' : identified ? 'active' : ''}"><span>3</span>${escapeHtml(t(language, 'advanced.step.confirm'))}</li><li class="${dashboardWarningConfirmed ? 'active' : ''}"><span>4</span>${escapeHtml(t(language, 'advanced.step.response'))}</li></ol>
-    <section class="cockpit-input"><h2>${escapeHtml(t(language, 'warning.capture'))}</h2><div class="quick-actions actions"><button id="ocrTakePhoto" type="button" ${dashboardWarningProcessing ? 'disabled' : ''}>${escapeHtml(t(language, 'warning.takePhoto'))}</button><button id="ocrChooseImage" type="button" ${dashboardWarningProcessing ? 'disabled' : ''}>${escapeHtml(t(language, 'warning.chooseImage'))}</button></div><input id="ocrCameraInput" class="visually-hidden" type="file" accept="image/*" capture="environment" /><input id="ocrFileInput" class="visually-hidden" type="file" accept="image/*" /><small>${escapeHtml(t(language, 'warning.privacy'))}</small></section>
+    <section class="cockpit-input"><h2>${escapeHtml(t(language, 'warning.capture'))}</h2><label class="message-field"><span><input id="dashboardWarningConsent" type="checkbox" ${dashboardWarningConsentGranted ? 'checked' : ''} /> ${escapeHtml(t(language, 'warning.privacy'))}</span></label><div class="quick-actions actions"><button id="ocrTakePhoto" type="button" ${dashboardWarningProcessing || !dashboardWarningConsentGranted ? 'disabled' : ''}>${escapeHtml(t(language, 'warning.takePhoto'))}</button><button id="ocrChooseImage" type="button" ${dashboardWarningProcessing || !dashboardWarningConsentGranted ? 'disabled' : ''}>${escapeHtml(t(language, 'warning.chooseImage'))}</button></div><input id="ocrCameraInput" class="visually-hidden" type="file" accept="image/*" capture="environment" /><input id="ocrFileInput" class="visually-hidden" type="file" accept="image/*" /></section>
     ${state.ocrImageDataUrl ? `<section class="ocr-preview-panel"><img src="${escapeHtml(state.ocrImageDataUrl)}" alt="${escapeHtml(t(language, 'warning.capture'))}" /><div><strong>${escapeHtml(t(language, dashboardWarningProcessing ? 'warning.processing' : 'warning.prepared'))}</strong></div></section>` : ''}
     ${result ? `<section class="transport-document-analysis dashboard-warning-result"><span class="basic-stage ${identified ? 'basic-stage-valid' : ''}">${escapeHtml(identified ? t(language, 'warning.candidate', { confidence: Math.round(result.confidence * 100) }) : t(language, 'warning.insufficient'))}</span><h2>${escapeHtml(identified ? result.candidateLabel ?? t(language, 'warning.visualCandidate') : t(language, 'warning.unsafeIdentification'))}</h2>
       ${result.observations.length ? `<h3>${escapeHtml(t(language, 'advanced.heading.identified'))}</h3><ul>${result.observations.map((x) => `<li>${escapeHtml(x)}</li>`).join('')}</ul>` : ''}
+      ${result.visibleText.length ? `<h3>${escapeHtml(t(language, 'advanced.text.extracted'))}</h3><ul>${result.visibleText.map((x) => `<li>${escapeHtml(x)}</li>`).join('')}</ul>` : ''}
       ${identified && !dashboardWarningConfirmed ? `<p>${escapeHtml(t(language, 'warning.compare'))}</p><div class="quick-actions actions"><button id="confirmDashboardWarning" class="primary" type="button">${escapeHtml(t(language, 'warning.confirm'))}</button><button id="retryDashboardWarning" type="button">${escapeHtml(t(language, 'warning.retry'))}</button></div>` : ''}
       ${identified && dashboardWarningConfirmed ? `<p class="basic-confirmation-status confirmed">${escapeHtml(t(language, 'warning.userConfirmed'))}</p><h3>${escapeHtml(t(language, 'warning.severity'))}</h3><strong>${escapeHtml(severity)}</strong><h3>${escapeHtml(t(language, 'advanced.heading.meaning'))}</h3><p>${escapeHtml(result.explanation ?? '')}</p><h3>${escapeHtml(t(language, 'advanced.heading.actions'))}</h3><p>${escapeHtml(result.recommendedAction ?? '')}</p><a class="basic-open" href="${escapeHtml(result.knowledgeReference?.route ?? '/knowledge/martori-bord')}">${escapeHtml(t(language, 'warning.openKnowledge'))}</a>` : ''}
       <h3>${escapeHtml(t(language, 'advanced.heading.limitations'))}</h3><ul>${result.limitations.map((x) => `<li>${escapeHtml(x)}</li>`).join('')}</ul><small>${escapeHtml(t(language, 'warning.provenance', result.provenance))}</small></section>` : ''}
@@ -2625,7 +2627,7 @@ function activateBasicAction(action: string | undefined) {
   if (action === 'dashboard-warning-analysis') {
     if (!dashboardWarningVisionEnabled(import.meta.env.VITE_DASHBOARD_WARNING_VISION_ENABLED)) { window.location.assign('/knowledge/martori-bord'); return; }
     basicPhotoAnalysisMode = 'dashboard-warning';
-    dashboardWarningVisionResult = null; dashboardWarningConfirmed = false; dashboardWarningProcessing = false;
+    dashboardWarningVisionResult = null; dashboardWarningConfirmed = false; dashboardWarningProcessing = false; dashboardWarningConsentGranted = false;
     state.ocrImageDataUrl = ''; state.ocrExtractedText = ''; state.ocrConfidence = 0;
     navigateToModule('ocr'); return;
   }
@@ -3591,6 +3593,10 @@ function bindOcrPage() {
 
   document.querySelector<HTMLButtonElement>('#ocrTakePhoto')?.addEventListener('click', () => openPicker('#ocrCameraInput'));
   document.querySelector<HTMLButtonElement>('#ocrChooseImage')?.addEventListener('click', () => openPicker('#ocrFileInput'));
+  document.querySelector<HTMLInputElement>('#dashboardWarningConsent')?.addEventListener('change', (event) => {
+    dashboardWarningConsentGranted = (event.currentTarget as HTMLInputElement).checked;
+    render();
+  });
   processInput(document.querySelector<HTMLInputElement>('#ocrCameraInput'));
   processInput(document.querySelector<HTMLInputElement>('#ocrFileInput'));
   document.querySelector<HTMLButtonElement>('#confirmDashboardWarning')?.addEventListener('click', () => { dashboardWarningConfirmed = true; render(); });
@@ -4148,25 +4154,23 @@ async function processOcrImage(file: File) {
 
 async function processDashboardWarningImage(file: File) {
   if (!dashboardWarningVisionEnabled(import.meta.env.VITE_DASHBOARD_WARNING_VISION_ENABLED)) { window.location.assign('/knowledge/martori-bord'); return; }
+  if (!dashboardWarningConsentGranted || !ensureLegalAcceptanceForCamera()) return;
   const started = performance.now();
   dashboardWarningProcessing = true; dashboardWarningConfirmed = false; dashboardWarningVisionResult = null;
   state.ocrImageDataUrl = await readFileAsDataUrl(file); render();
   const form = new FormData();
   form.append('image', file);
-  form.append('request', JSON.stringify({ consent: { confirmed: true, purpose: 'dashboard-warning-analysis', policyVersion: 'dashboard-warning-privacy-v0.1', providerPolicyVersion: 'provider-review-required-v0.1', consentedAt: new Date().toISOString() } }));
+  form.append('request', JSON.stringify({ consent: { confirmed: dashboardWarningConsentGranted, purpose: 'dashboard-warning-analysis', policyVersion: 'dashboard-warning-privacy-v0.1', providerPolicyVersion: 'provider-review-required-v0.1', consentedAt: new Date().toISOString() } }));
   try {
-    const base = import.meta.env.DEV ? 'http://127.0.0.1:3000/api/v1' : '/api/v1';
-    const token = sessionStorage.getItem(USER_ACCESS_TOKEN_KEY);
-    const response = await fetch(`${base}/dashboard-warning-analysis`, {
+    const response = await authenticatedApiFetch('/dashboard-warning-analysis', {
       method: 'POST',
       body: form,
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json() as { data?: DashboardWarningVisionResult };
     dashboardWarningVisionResult = payload.data ?? null;
   } catch {
-    dashboardWarningVisionResult = { status: 'uncertain', observations: [], confidence: 0, limitations: [t(uiLanguage(), 'warning.unavailable')], provenance: { observation: 'vision', identification: 'none', explanation: 'none', severity: 'none' } };
+    dashboardWarningVisionResult = { status: 'uncertain', observations: [], visibleText: [], confidence: 0, limitations: [t(uiLanguage(), 'warning.unavailable')], provenance: { observation: 'vision', identification: 'none', explanation: 'none', severity: 'none' } };
   } finally {
     dashboardWarningProcessing = false;
     reportBasicFeature({ featureId: 'basic.dashboard-warning', outcome: dashboardWarningVisionResult ? featureOutcome(dashboardWarningVisionResult.status) : 'FAILED', durationMs: Math.round(performance.now() - started), confidence: dashboardWarningVisionResult?.confidence, resultStatus: dashboardWarningVisionResult?.status ?? 'failed' });

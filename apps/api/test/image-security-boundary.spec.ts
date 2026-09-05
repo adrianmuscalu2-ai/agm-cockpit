@@ -15,9 +15,10 @@ describe('image security isolation boundary', () => {
     expect(combined).not.toMatch(/console\.|Logger\b|Sentry|APM|trace\(/);
   });
 
-  it('is not registered in the current API runtime while implementation NO-GO is active', () => {
+  it('registers only the isolated Dashboard Warning module in the API runtime', () => {
     const appModule = readFileSync(resolve(__dirname, '../src/app.module.ts'), 'utf8');
     expect(appModule).not.toContain('image-security');
-    expect(appModule).not.toContain('DashboardWarning');
+    expect(appModule).toContain('DashboardWarningAnalysisModule');
+    expect(appModule).not.toContain('DashboardWarningAnalysisController');
   });
 });

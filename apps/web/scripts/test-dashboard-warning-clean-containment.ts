@@ -17,9 +17,12 @@ for (const language of basicLanguageCodes) {
 
 const main = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
 const productionEnvironment = readFileSync(new URL('../.env.production', import.meta.url), 'utf8');
-assert.match(productionEnvironment, /^VITE_DASHBOARD_WARNING_VISION_ENABLED=false$/m);
+assert.match(productionEnvironment, /^VITE_DASHBOARD_WARNING_VISION_ENABLED=true$/m);
 assert.match(main, /renderDashboardWarningKnowledgeCard/);
 assert.match(main, /\/knowledge\/martori-bord/);
 assert.match(main, /dashboardWarningVisionEnabled\(import\.meta\.env\.VITE_DASHBOARD_WARNING_VISION_ENABLED\)/);
 assert.match(main, /if \(!dashboardWarningVisionEnabled[\s\S]*window\.location\.assign\('\/knowledge\/martori-bord'\)/);
-console.log('Dashboard Warning clean containment: PASS');
+assert.match(main, /authenticatedApiFetch\('\/dashboard-warning-analysis'/);
+assert.match(main, /id="dashboardWarningConsent"/);
+assert.match(main, /visibleText/);
+console.log('Dashboard Warning Camera/OCR activation: PASS');

@@ -3,6 +3,7 @@ export type DashboardWarningSeverity = 'critical' | 'warning' | 'information';
 export type DashboardWarningAnalysis = {
   status: 'identified' | 'uncertain';
   observations: string[];
+  visibleText: string[];
   candidateId?: string;
   candidateLabel?: string;
   confidence: number;
@@ -21,6 +22,7 @@ export type DashboardWarningAnalysis = {
 
 export type VisionCandidate = {
   observations: string[];
+  visibleText: string[];
   candidateId: string | null;
   confidence: number;
   limitations: string[];
