@@ -15,7 +15,7 @@ const evidenceRoot = resolve(process.env.AGM_TURN_FUNCTIONAL_EVIDENCE_DIR || `ev
 await mkdir(evidenceRoot, { recursive: true });
 
 const report = {
-  contract: 'turn-functional-overview-browser.v1',
+  contract: 'turn-functional-overview-browser.v2',
   startedAt: new Date().toISOString(),
   targetUrl,
   apiUrl,
@@ -23,6 +23,7 @@ const report = {
   evidenceScope,
   browser: 'AGM controlled Playwright/Chromium',
   realSourcePolicy: 'NO_ROUTE_STUBS_NO_MOCK_PAYLOAD_NO_STATUS_FALLBACK',
+  operationalFlow: 'RUNTIME_EVIDENCE_TO_EVALUATOR_TO_INCIDENT_EVENTSTORE_TO_API_TO_TURN',
   ownerAccess: ownerAccessToken ? 'REAL_BEARER_TOKEN_PROVIDED_REDACTED' : interactiveOwnerLogin ? 'INTERACTIVE_OWNER_LOGIN_PENDING' : 'MISSING',
   status: 'FAIL',
   productOwnerAcceptance: 'NOT_GRANTED',
@@ -92,9 +93,10 @@ try {
   if (interactiveOwnerLogin) {
     process.stdout.write('OWNER_ACTION_REQUIRED: Introdu PIN-ul direct în fereastra Chromium controlată și apasă Deblochează. PIN-ul nu este citit sau jurnalizat de validator.\n');
   }
-  await page.waitForSelector('[data-turn-functional-overview][data-functional-verdict="READY_FOR_PRODUCT_OWNER_REVIEW"]', { timeout: interactiveOwnerLogin ? 300_000 : 60_000 });
-  await page.waitForSelector('[data-functional-zone]', { timeout: 30_000 });
-  await page.waitForSelector('[data-agent-network-detail][aria-busy="false"]', { timeout: 30_000 });
+  await page.waitForSelector('[data-turn-functional-overview][data-functional-verdict="FAIL"]', { timeout: interactiveOwnerLogin ? 300_000 : 60_000 });
+  await page.waitForSelector('[data-functional-zone]', { state: 'attached', timeout: 30_000 });
+  await page.waitForSelector('[data-agent-network-detail][aria-busy="false"]', { state: 'attached', timeout: 30_000 });
+  await page.waitForSelector('[data-basic-spatial-node]', { timeout: 30_000 });
   await dismissFirstRun(page, report.checks);
   const effectiveOwnerAccessToken = ownerAccessToken || await page.evaluate(() => {
     try {
@@ -132,15 +134,20 @@ try {
     capabilityGaps: dashboard.capabilityGaps,
     authorityStatus: dashboard.controlPlane.status,
     opportunityGate: dashboard.opportunityIntelligence.gate,
+    incidentPipeline: dashboard.incidentPipeline,
   };
-  const functionalNav = page.locator('a[href="#turn-functional-overview"]');
-  await functionalNav.click();
-  await page.waitForFunction(() => location.hash === '#turn-functional-overview');
-  await page.waitForFunction(() => {
-    const panel = document.querySelector('[data-agent-network-detail]');
-    return panel?.getAttribute('aria-busy') === 'false'
-      && document.querySelectorAll('[data-canonical-agent-id]').length === 28;
-  }, { timeout: 30_000 });
+  assert(await page.locator('[data-turn-page="basic"]:visible').count() === 1, 'BASIC is not the primary visible TURN page.');
+  assert(await page.locator('[data-basic-spatial-node]:visible').count() === 10, 'BASIC spatial model does not contain 10 real zones.');
+  await page.screenshot({ path: resolve(evidenceRoot, 'turn-basic-spatial.png'), fullPage: true });
+  await page.locator('[data-turn-page-target="premium"]').click();
+  await page.waitForSelector('[data-turn-page="premium"]:not([hidden]) [data-premium-spatial-node]', { timeout: 30_000 });
+  assert(await page.locator('[data-premium-spatial-node]:visible').count() === 28, 'PREMIUM spatial model does not contain 28 real agents.');
+  await page.screenshot({ path: resolve(evidenceRoot, 'turn-premium-spatial.png'), fullPage: true });
+  await page.locator('[data-turn-page-target="incidents"]').click();
+  await page.waitForSelector('[data-turn-page="incidents"]:not([hidden]) [data-incident-pipeline-status]', { timeout: 30_000 });
+  await page.screenshot({ path: resolve(evidenceRoot, 'turn-operational-incidents.png'), fullPage: true });
+  await page.locator('[data-turn-page-target="investigate"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('[data-canonical-agent-id]').length === 28, { timeout: 30_000 });
 
   const ui = await page.evaluate(() => {
     const root = document.querySelector('[data-turn-functional-overview]');
@@ -174,6 +181,12 @@ try {
       operationalNodeIds: [...document.querySelectorAll('[data-canonical-agent-id]')].map((card) => card.getAttribute('data-canonical-agent-id')),
       registryMissingNodes: [...document.querySelectorAll('[data-canonical-agent-id][data-registry-presence="MISSING"]')].map((card) => card.getAttribute('data-canonical-agent-id')),
       operationalFieldCoverage: [...document.querySelectorAll('[data-canonical-agent-id]')].filter((card) => ['Runtime', 'Current state / health', 'Last heartbeat / probe', 'Last activity', 'Runtime freshness', 'Activity freshness', 'Current function', 'Current operation / workload', 'Dependencies', 'Incidents/errors', 'Evidence/source', 'Runtime evidence', 'Activity evidence', 'Why', 'Required action', 'Identity registry'].every((label) => card.textContent?.includes(label))).length,
+      basicSpatialNodeCount: document.querySelectorAll('[data-basic-spatial-node]').length,
+      premiumSpatialNodeCount: document.querySelectorAll('[data-premium-spatial-node]').length,
+      premiumSpatialSourceCoverage: [...document.querySelectorAll('[data-premium-spatial-node]')].filter((node) => node.getAttribute('data-status-source') && node.getAttribute('data-runtime-presence')).length,
+      incidentDecisionCount: document.querySelectorAll('[data-incident-decision]').length,
+      incidentQualificationCoverage: [...document.querySelectorAll('[data-incident-decision]')].filter((node) => !['', 'DATA_UNAVAILABLE'].includes(node.getAttribute('data-incident-qualified') || '')).length,
+      pageCount: new Set([...document.querySelectorAll('[data-turn-page]')].map((section) => section.getAttribute('data-turn-page'))).size,
       decorativeOrbitCount: document.querySelectorAll('.agm-orbit, .agm-network-node').length,
       authorityStatus: document.querySelector('[data-control-status]')?.textContent?.trim() || '',
       operationalSummary: {
@@ -190,7 +203,7 @@ try {
   });
   report.checks.ui = ui;
   assert(ui.contract === 'turn-functional-overview.v2', `Unexpected UI contract ${ui.contract}`);
-  assert(ui.verdict === 'READY_FOR_PRODUCT_OWNER_REVIEW', `Unexpected UI verdict ${ui.verdict}`);
+  assert(ui.verdict === 'FAIL', `TURN product verdict must remain FAIL until explicit Product Owner acceptance; got ${ui.verdict}`);
   assert(ui.cardCount === 23 && ui.basicCount === 10 && ui.premiumCount === 13, `Unexpected zone coverage ${ui.basicCount}/${ui.premiumCount}/${ui.cardCount}`);
   assert(!ui.unavailable, 'TURN rendered DATA UNAVAILABLE.');
   assert(ui.invalidUnknown.length === 0, `Unjustified UNKNOWN states: ${JSON.stringify(ui.invalidUnknown)}`);
@@ -203,6 +216,10 @@ try {
   assert(ui.visibleSecondaryRegistryNodes === 0, `Secondary registry dominates the visible surface with ${ui.visibleSecondaryRegistryNodes} visible nodes.`);
   assert(ui.staticAgentPanelCount === 0, 'Static/orbital agent panel is still rendered.');
   assert(ui.operationalNodeCount === 28 && ui.operationalFieldCoverage === 28, `Operational agent coverage is ${ui.operationalFieldCoverage}/${ui.operationalNodeCount}.`);
+  assert(ui.basicSpatialNodeCount === 10, `BASIC spatial coverage is ${ui.basicSpatialNodeCount}/10.`);
+  assert(ui.premiumSpatialNodeCount === 28 && ui.premiumSpatialSourceCoverage === 28, `PREMIUM spatial source coverage is ${ui.premiumSpatialSourceCoverage}/${ui.premiumSpatialNodeCount}.`);
+  assert(ui.incidentDecisionCount === dashboard.incidentPipeline.nonHealthy && ui.incidentQualificationCoverage === ui.incidentDecisionCount, `Incident qualification coverage is ${ui.incidentQualificationCoverage}/${ui.incidentDecisionCount}.`);
+  assert(ui.pageCount === 4, `TURN exposes ${ui.pageCount}/4 canonical pages.`);
   assert(ui.registryMissingNodes.length === 0, `Canonical registry identities missing in UI: ${ui.registryMissingNodes.join(', ')}.`);
   const expectedSummary = {
     total: dashboard.nodes.length,
@@ -223,8 +240,8 @@ try {
   assert(report.network.some((entry) => entry.status === 200), 'UI did not receive functional overview HTTP 200.');
   assert(report.pageErrors.length === 0, `Page errors: ${report.pageErrors.join(' | ')}`);
 
-  await page.locator('[data-turn-functional-overview]').screenshot({ path: resolve(evidenceRoot, 'turn-functional-overview.png') });
-  await page.locator('[data-premium-operational-panel]').screenshot({ path: resolve(evidenceRoot, 'turn-premium-operational-panel.png') });
+  await page.locator('[data-turn-functional-overview]').screenshot({ path: resolve(evidenceRoot, 'turn-functional-drilldown.png') });
+  await page.locator('[data-premium-operational-panel]').screenshot({ path: resolve(evidenceRoot, 'turn-premium-operational-drilldown.png') });
   await page.screenshot({ path: resolve(evidenceRoot, 'turn-functional-overview-full-page.png'), fullPage: true });
   report.browserFields.targetPageStatus = 'PASS';
   report.status = 'PASS';
@@ -243,7 +260,7 @@ if (report.status !== 'PASS') process.exitCode = 1;
 
 function validateOverview(overview) {
   assert(overview?.contractVersion === 'turn-functional-overview.v2', 'Functional overview contract missing.');
-  assert(overview?.verdict?.turnFunctionalCompleteness === 'READY_FOR_PRODUCT_OWNER_REVIEW', `Functional completeness is ${overview?.verdict?.turnFunctionalCompleteness}`);
+  assert(overview?.verdict?.turnFunctionalCompleteness === 'FAIL', `TURN product verdict must remain FAIL until explicit Product Owner acceptance; got ${overview?.verdict?.turnFunctionalCompleteness}`);
   assert(overview?.verdict?.productOwnerAcceptance === 'NOT_GRANTED', 'Product Owner acceptance was inferred.');
   assert(overview?.verdict?.finalProductionPass === 'RETRACTED', 'FINAL Production PASS was inferred.');
   assert(overview?.summary?.totalZones === 23, `Expected 23 zones, got ${overview?.summary?.totalZones}`);
@@ -277,11 +294,15 @@ function validateOperationalDashboard(dashboard) {
   assert(Array.isArray(dashboard?.nodes) && dashboard.nodes.length === 28, `Operational dashboard contains ${dashboard?.nodes?.length ?? 0}/28 nodes.`);
   assert(new Set(dashboard.nodes.map((node) => node.canonicalId)).size === 28, 'Operational dashboard node identities are not unique.');
   assert(Array.isArray(dashboard.capabilityGaps) && dashboard.capabilityGaps.length === 0, `Operational capability gaps: ${JSON.stringify(dashboard.capabilityGaps)}.`);
+  assert(dashboard.incidentPipeline?.contractVersion === 'turn-operational-incident-pipeline.v1', 'Operational incident pipeline contract is missing.');
+  assert(dashboard.incidentPipeline?.eventStore === 'AuthorityAuditJournal', `Unexpected incident EventStore ${dashboard.incidentPipeline?.eventStore}.`);
+  assert(Number.isInteger(dashboard.incidentPipeline?.nonHealthy) && Number.isInteger(dashboard.incidentPipeline?.qualified) && Number.isInteger(dashboard.incidentPipeline?.notRequired), 'Operational incident pipeline counts are missing.');
   for (const node of dashboard.nodes) {
     assert(node.canonicalId && node.kind && node.registryPresence && node.runtimePresence && node.currentFunction && node.currentOperation && node.workloadState, `${node.canonicalId || 'UNKNOWN_ID'} lacks identity/runtime fields.`);
     assert(node.status && node.health && node.freshness && node.dependencyState && node.authorityState?.state, `${node.canonicalId} lacks state/health/dependency/authority fields.`);
     assert(Array.isArray(node.incidents), `${node.canonicalId} lacks correlated incident telemetry.`);
     assert(node.runtimeEvidence?.source && node.activityEvidence?.source && node.activityFreshness, `${node.canonicalId} lacks separated runtime/activity evidence.`);
+    assert(node.incidentQualification?.decision && node.incidentQualification?.reasonCode && node.incidentQualification?.rootCauseClassification && node.incidentQualification?.rationale, `${node.canonicalId} lacks incident qualification/root-cause classification.`);
     assert(node.registryPresence === 'PRESENT', `${node.canonicalId} is ${node.registryPresence} in the persistent registry.`);
     assert(node.statusSource !== 'REGISTRY' && node.evidence?.source && node.evidence.source !== 'REGISTRY', `${node.canonicalId} derives runtime from registry.`);
     assert(node.runtimeEvidence.source !== 'REGISTRY' && node.activityEvidence.source !== 'REGISTRY', `${node.canonicalId} contains registry-derived evidence.`);
@@ -302,6 +323,8 @@ function validateOperationalDashboard(dashboard) {
     }
     if (['FAIL', 'DEGRADED', 'NO_TELEMETRY'].includes(node.status)) {
       assert(node.reason && node.requiredAction, `${node.canonicalId} lacks reason/action for ${node.status}.`);
+      assert(['QUALIFIED', 'NOT_REQUIRED'].includes(node.incidentQualification.decision), `${node.canonicalId} has no explicit incident decision.`);
+      if (node.incidentQualification.decision === 'QUALIFIED') assert(node.incidentQualification.openIncidentEventId, `${node.canonicalId} qualified without a persistent open EventStore event.`);
     }
   }
   assert(dashboard.controlPlane?.status && dashboard.controlPlane?.statusSource, 'Authority Control Plane evaluation is missing.');

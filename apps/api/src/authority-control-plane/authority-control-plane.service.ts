@@ -11,6 +11,7 @@ import { resolveCanonicalNodeState } from './canonical-node-state';
 import { TURN_OPERATIONAL_TRUTH_CONTRACT } from '../turn-operational-truth/turn-operational-truth.contract';
 import { operationalProfile } from './operational-profile';
 import { SecretTelemetryService } from '../secret-telemetry/secret-telemetry.service';
+import { OPERATIONAL_INCIDENT_CONTRACT, operationalIncidentTransition, qualifyOperationalIncident, type OperationalIncidentQualification } from './operational-incident-evaluator';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
 const AUTHORITY_ADMIN_ROLES = new Set(['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN']);
@@ -20,6 +21,7 @@ const COMPONENT_RUNTIME_PROBE_INTERVAL_MS = 60_000;
 const json = (value: unknown) => value as Prisma.InputJsonValue;
 type DomainActivity = { status: string; observedAt: Date; recordId: string; detail: string; dependencyState: string };
 type RuntimeCapabilityRequirement = { provider: string; methods: string[]; adapterCategory?: string };
+type OperationalJournalEvent = Prisma.AuthorityAuditJournalGetPayload<Record<string, never>>;
 
 const RUNTIME_CAPABILITY_PROBE_VERSION = 'turn-runtime-capability-probe.v1';
 export const RUNTIME_CAPABILITY_REQUIREMENTS: Readonly<Record<string, RuntimeCapabilityRequirement>> = {
@@ -78,7 +80,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
   async dashboard(ctx: RequestContext) {
     const now = new Date();
     const secretSnapshot = this.secretTelemetry.snapshot();
-    const [registry, heartbeats, runtimeEvents, opportunityTelemetry, liveAdapterTelemetry, allLeases, failover, journals, mandates, decisions, recovery, domainActivity, opportunityCount] = await Promise.all([
+    const [registry, heartbeats, runtimeEvents, opportunityTelemetry, liveAdapterTelemetry, allLeases, failover, operationalIncidentJournals, mandates, decisions, recovery, domainActivity, opportunityCount] = await Promise.all([
       this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId: ctx.companyId }, orderBy: [{ module: 'asc' }, { canonicalId: 'asc' }] }),
       this.prisma.componentHeartbeat.findMany({ where: { companyId: ctx.companyId } }),
       this.prisma.agentRuntimeEvent.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: 1000 }),
@@ -86,7 +88,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       this.prisma.liveAdapterTelemetry.findMany({ where: { companyId: ctx.companyId }, orderBy: { lastAttemptAt: 'desc' } }),
       this.prisma.authorityLease.findMany({ where: { companyId: ctx.companyId }, orderBy: { issuedAt: 'desc' }, take: 1000 }),
       this.prisma.authorityFailoverState.findMany({ where: { companyId: ctx.companyId } }),
-      this.prisma.authorityAuditJournal.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: 500 }),
+      this.prisma.authorityAuditJournal.findMany({ where: { companyId: ctx.companyId, eventType: { in: ['OPERATIONAL_INCIDENT_OPENED', 'OPERATIONAL_INCIDENT_RESOLVED'] } }, orderBy: { occurredAt: 'desc' }, take: 2000 }),
       this.prisma.authorityMandate.findMany({ where: { companyId: ctx.companyId }, orderBy: { issuedAt: 'desc' }, take: 1000 }),
       this.prisma.authorityDecision.findMany({ where: { companyId: ctx.companyId }, orderBy: { decidedAt: 'desc' }, take: 1000 }),
       this.prisma.recoveryExecution.findFirst({ where: { companyId: ctx.companyId }, orderBy: { startedAt: 'desc' } }),
@@ -101,8 +103,6 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     const lastRunByAgent = new Map<string, (typeof runtimeEvents)[number]>();
     for (const event of runtimeEvents) if (!lastRunByAgent.has(event.agentId)) lastRunByAgent.set(event.agentId, event);
     const leaseByAgent = new Map(leases.map((lease) => [lease.agentId, lease]));
-    const leaseAgentById = new Map(allLeases.map((lease) => [lease.id, lease.agentId]));
-    const rejectedIncidents = journals.filter((item) => item.outcome === 'REJECTED');
     const failoverByScope = new Map(failover.map((item) => [item.scopeId, item]));
     const registryById = new Map(registry.map((item) => [item.canonicalId, item]));
     const nodes = premiumNetworkSeed.map((seed) => {
@@ -119,9 +119,6 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       const domainRun = domainActivity.get(item.canonicalId);
       const secretRun = item.canonicalId === 'agm.guardian.secrets' ? secretSnapshot : null;
       const runtimeEventActive = Boolean(lastRun && ['STARTED', 'WORKING'].includes(lastRun.lifecycle));
-      const correlatedIncidents = rejectedIncidents
-        .filter((incident) => incident.scopeId === item.scope || (incident.leaseId ? leaseAgentById.get(incident.leaseId) === item.canonicalId : false))
-        .map((incident) => ({ eventId: incident.eventId, eventType: incident.eventType, scopeId: incident.scopeId, reasonCode: incident.reasonCode, occurredAt: incident.occurredAt, correlationId: incident.correlationId, leaseId: incident.leaseId }));
       const canonicalState = resolveCanonicalNodeState({
         registryLifecycleStatus: item.lifecycleStatus,
         ...(profile.expectedSource === 'LIVE_ADAPTER' && liveRun ? { liveAdapter: { status: adapterHealth(liveRun.status), observedAt: liveRun.lastAttemptAt } } : {}),
@@ -200,14 +197,43 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         telemetry: secretRun ? { reportedStatus: secretRun.overallStatus, lastSeenAt: secretRun.checkedAt, lastSuccessAt: secretRun.overallStatus === 'CONFIGURED' ? secretRun.checkedAt : null, lastFailureAt: secretRun.overallStatus === 'ATTENTION' ? secretRun.checkedAt : null, detail: { contract: secretRun.contract, checkedSecrets: secretRun.secrets.length, valuesExposed: false } } : liveRun ? { reportedStatus: liveRun.status, lastSeenAt: liveRun.lastAttemptAt, lastSuccessAt: liveRun.lastSuccessAt, lastFailureAt: liveRun.lastErrorCode ? liveRun.lastAttemptAt : null, detail: { latencyMs: liveRun.latencyMs, errorRateBps: liveRun.errorRateBps, rateLimitState: liveRun.rateLimitState, fallbackActivation: liveRun.fallbackActivation, cacheAgeSeconds: liveRun.cacheAgeSeconds, providerId: liveRun.providerId, contractVersion: liveRun.contractVersion } } : opportunityRun ? { reportedStatus: opportunityRun.health, lastSeenAt: opportunityRun.lastRunAt, lastSuccessAt: opportunityRun.health === 'PASS' ? opportunityRun.lastRunAt : null, lastFailureAt: opportunityRun.health === 'FAIL' ? opportunityRun.lastRunAt : null, detail: { durationMs: opportunityRun.durationMs, freshnessStatus: opportunityRun.freshnessStatus, backlog: opportunityRun.backlog, dependencyHealth: opportunityRun.dependencyHealth, confidence: opportunityRun.confidence, outputReference: opportunityRun.outputReference, providerId: opportunityRun.providerId, contractVersion: opportunityRun.contractVersion } } : heartbeat ? { reportedStatus: heartbeat.reportedStatus, lastSeenAt: heartbeat.lastSeenAt, lastSuccessAt: heartbeat.lastSuccessAt, lastFailureAt: heartbeat.lastFailureAt, detail: heartbeat.lastDetail } : null,
         dependencyState: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : secretRun ? secretRun.overallStatus : heartbeat?.lastFailureReason ? 'DEGRADED' : liveRun ? adapterHealth(liveRun.status) : opportunityRun ? opportunityRun.dependencyHealth : domainRun?.dependencyState ?? (runtimeObservedAt ? 'PASS' : 'UNKNOWN'),
         dependencyFailures: nodeDependencyFailures,
-        incidents: correlatedIncidents,
+        incidents: [],
         authorityState: lease ? { state: lease.state, epoch: lease.epoch, fencingToken: lease.fencingToken, providerId: lease.providerId, expiresAt: lease.expiresAt } : { state: item.writePermissions ? 'STANDBY' : 'ADVISORY' },
         failoverState: failoverState?.state ?? 'STANDBY',
         lastRun: lastRun ? { lifecycle: lastRun.lifecycle, occurredAt: lastRun.occurredAt, detail: lastRun.detail } : liveRun ? { lifecycle: liveRun.status, occurredAt: liveRun.lastAttemptAt, detail: { latencyMs: liveRun.latencyMs, providerId: liveRun.providerId } } : opportunityRun ? { lifecycle: 'COMPLETED', occurredAt: opportunityRun.lastRunAt, detail: { durationMs: opportunityRun.durationMs, outputReference: opportunityRun.outputReference } } : domainRun ? { lifecycle: domainRun.status, occurredAt: domainRun.observedAt, detail: domainRun.detail } : null,
       };
     });
     const conflicts = findLeaseConflicts(leases);
-    const controlPlaneNode = nodes.find((node) => node.canonicalId === AUTHORITY_CONTROL_PLANE_ID);
+    const invalidOrStaleAuthority = allLeases.filter((lease) => ACTIVE_LEASE_STATES.includes(lease.state) && lease.expiresAt <= now).map((lease) => ({ leaseId: lease.id, agentId: lease.agentId, scopeId: lease.scopeId, reason: 'ACTIVE_STATE_WITH_EXPIRED_TTL', expiredAt: lease.expiresAt }));
+    const incidentCandidateNodes = nodes.map((node) => node.canonicalId === AUTHORITY_CONTROL_PLANE_ID && (conflicts.length || invalidOrStaleAuthority.length) ? {
+      ...node,
+      status: 'FAIL',
+      statusLabel: 'AUTHORITY INVARIANT FAILURE',
+      statusSource: 'AUTHORITY_LEASE_EVENT_STORE_EVALUATOR',
+      statusObservedAt: now,
+      health: 'FAILED',
+      reason: `${conflicts.length} overlapping executive authority conflict(s); ${invalidOrStaleAuthority.length} active-state expired lease(s).`,
+      requiredAction: 'Revoke conflicting or expired authority and re-evaluate the command chain.',
+      dependencyState: 'FAIL',
+      dependencyFailures: [...node.dependencyFailures, ...(conflicts.length ? [`AUTHORITY_CONFLICT_${conflicts.length}`] : []), ...(invalidOrStaleAuthority.length ? [`STALE_AUTHORITY_${invalidOrStaleAuthority.length}`] : [])],
+      evidence: { source: 'AUTHORITY_LEASE_EVENT_STORE_EVALUATOR', observedAt: now, recordReference: `AuthorityLease:${[...new Set([...conflicts.flatMap((conflict) => [conflict.leftLeaseId, conflict.rightLeaseId]), ...invalidOrStaleAuthority.map((lease) => lease.leaseId)])].join(',')}` },
+    } : node);
+    const qualifications = incidentCandidateNodes.map((node) => ({
+      canonicalId: node.canonicalId,
+      scopeId: node.scope,
+      qualification: qualifyOperationalIncident({ canonicalId: node.canonicalId, status: node.status, runtimeMode: node.runtimeMode, runtimePresence: node.runtimePresence, workloadState: node.workloadState, dependencyState: node.dependencyState, dependencyFailures: node.dependencyFailures, reason: node.reason, evidenceReference: node.evidence.recordReference, evaluatedAt: now }),
+    }));
+    const incidentReconciliation = await this.reconcileOperationalIncidents(ctx, qualifications, operationalIncidentJournals);
+    const operationalNodes = incidentCandidateNodes.map((node) => {
+      const qualification = qualifications.find((item) => item.canonicalId === node.canonicalId)!.qualification;
+      const openIncidentEventId = incidentReconciliation.openByCanonicalId.get(node.canonicalId) ?? null;
+      return {
+        ...node,
+        incidents: incidentReconciliation.events.filter((event) => event.eventId === openIncidentEventId).map(toIncidentProjection),
+        incidentQualification: { ...qualification, openIncidentEventId },
+      };
+    });
+    const controlPlaneNode = operationalNodes.find((node) => node.canonicalId === AUTHORITY_CONTROL_PLANE_ID);
     const controlPlaneStatus = conflicts.length ? 'FAIL' : controlPlaneNode?.status ?? 'NO_TELEMETRY';
     const mandateById = new Map(mandates.map((mandate) => [mandate.id, mandate]));
     const decisionById = new Map(decisions.map((decision) => [decision.id, decision]));
@@ -216,16 +242,26 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       const decision = lease.decisionId ? decisionById.get(lease.decisionId) : undefined;
       return { leaseId: lease.id, scopeId: lease.scopeId, agentId: lease.agentId, providerId: lease.providerId, mode: lease.mode, mandateId: lease.mandateId, mandateKey: mandate?.mandateKey ?? null, decisionId: lease.decisionId, decisionKey: decision?.decisionKey ?? null, actionType: decision?.actionType ?? null, epoch: lease.epoch, fencingToken: lease.fencingToken, issuedAt: lease.issuedAt, expiresAt: lease.expiresAt };
     });
-    const invalidOrStaleAuthority = allLeases.filter((lease) => ACTIVE_LEASE_STATES.includes(lease.state) && lease.expiresAt <= now).map((lease) => ({ leaseId: lease.id, agentId: lease.agentId, scopeId: lease.scopeId, reason: 'ACTIVE_STATE_WITH_EXPIRED_TTL', expiredAt: lease.expiresAt }));
     const opportunityIntelligence = evaluateOpportunityIntelligence(opportunityCount, opportunityTelemetry, conflicts.length, now);
     return {
       generatedAt: new Date().toISOString(), contractVersion: PREMIUM_NETWORK_CONTRACT_VERSION,
       controlPlane: { canonicalId: AUTHORITY_CONTROL_PLANE_ID, status: controlPlaneStatus, statusSource: controlPlaneNode?.statusSource ?? 'NO_TELEMETRY', statusObservedAt: controlPlaneNode?.statusObservedAt ?? null, invariant: 'ONE SCOPE → ONE ACTIVE EXECUTIVE AUTHORITY', activeExecutiveAuthorities: leases.filter((lease) => lease.mode === 'EXECUTIVE').length, executiveAuthorityAgents: leases.filter((lease) => lease.mode === 'EXECUTIVE').map((lease) => lease.agentId), conflicts, activeCommandChains, delegatedAuthority: activeCommandChains.filter((chain) => chain.agentId !== 'agm.human.product-owner'), invalidOrStaleAuthority },
-      nodes,
-      departments: [...new Set(nodes.map((node) => node.module))].map((module) => ({ module, nodeCount: nodes.filter((node) => node.module === module).length })),
-      incidents: rejectedIncidents.map((item) => ({ eventId: item.eventId, eventType: item.eventType, scopeId: item.scopeId, reasonCode: item.reasonCode, occurredAt: item.occurredAt, correlationId: item.correlationId, leaseId: item.leaseId })),
+      nodes: operationalNodes,
+      departments: [...new Set(operationalNodes.map((node) => node.module))].map((module) => ({ module, nodeCount: operationalNodes.filter((node) => node.module === module).length })),
+      incidents: incidentReconciliation.events.map(toIncidentProjection),
+      incidentPipeline: {
+        contractVersion: OPERATIONAL_INCIDENT_CONTRACT,
+        eventStore: 'AuthorityAuditJournal',
+        evaluatedAt: now,
+        nonHealthy: qualifications.filter((item) => !['PASS', 'STANDBY'].includes(incidentCandidateNodes.find((node) => node.canonicalId === item.canonicalId)!.status)).length,
+        qualified: qualifications.filter((item) => item.qualification.decision === 'QUALIFIED').length,
+        notRequired: qualifications.filter((item) => item.qualification.decision === 'NOT_REQUIRED' && !['PASS', 'STANDBY'].includes(incidentCandidateNodes.find((node) => node.canonicalId === item.canonicalId)!.status)).length,
+        open: incidentReconciliation.openByCanonicalId.size,
+        opened: incidentReconciliation.opened,
+        resolved: incidentReconciliation.resolved,
+      },
       telemetryPolicy: 'OBSERVE_ONLY_NEVER_COMMAND_OR_BLOCK',
-      capabilityGaps: nodes.filter((node) => node.registryPresence === 'MISSING' || node.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED').map((node) => ({ canonicalId: node.canonicalId, reason: node.reason, requiredAction: node.requiredAction })),
+      capabilityGaps: operationalNodes.filter((node) => node.registryPresence === 'MISSING' || node.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED').map((node) => ({ canonicalId: node.canonicalId, reason: node.reason, requiredAction: node.requiredAction })),
       opportunityIntelligence,
       recovery: recovery ? { executionId: recovery.id, status: recovery.status, startedAt: recovery.startedAt, completedAt: recovery.completedAt } : { executionId: null, status: 'NO_ACTIVITY', startedAt: null, completedAt: null },
     };
@@ -499,6 +535,68 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     })));
   }
 
+  private async reconcileOperationalIncidents(
+    ctx: RequestContext,
+    evaluations: Array<{ canonicalId: string; scopeId: string; qualification: OperationalIncidentQualification }>,
+    journals: OperationalJournalEvent[],
+  ) {
+    const events = journals.filter((event) => ['OPERATIONAL_INCIDENT_OPENED', 'OPERATIONAL_INCIDENT_RESOLVED'].includes(event.eventType));
+    const latestByCanonicalId = new Map<string, OperationalJournalEvent>();
+    for (const event of events) {
+      const canonicalId = jsonRecord(event.safeMetadata).canonicalId;
+      if (typeof canonicalId === 'string' && !latestByCanonicalId.has(canonicalId)) latestByCanonicalId.set(canonicalId, event);
+    }
+    let opened = 0;
+    let resolved = 0;
+    for (const evaluation of evaluations) {
+      const latest = latestByCanonicalId.get(evaluation.canonicalId);
+      const eventType = operationalIncidentTransition(evaluation.qualification, latest?.eventType ?? null);
+      if (!eventType) continue;
+      const shouldOpen = eventType === 'OPERATIONAL_INCIDENT_OPENED';
+      const safeMetadata = {
+        contractVersion: OPERATIONAL_INCIDENT_CONTRACT,
+        canonicalId: evaluation.canonicalId,
+        decision: evaluation.qualification.decision,
+        severity: evaluation.qualification.severity,
+        rootCauseClassification: evaluation.qualification.rootCauseClassification,
+        rationale: evaluation.qualification.rationale,
+        evidenceReference: evaluation.qualification.evidenceReference,
+        previousEventId: latest?.eventId ?? null,
+      };
+      const eventId = deterministicUuid(`${ctx.companyId}:${evaluation.canonicalId}:${eventType}:${latest?.eventId ?? 'INITIAL'}`);
+      let created: OperationalJournalEvent;
+      let createdNow = false;
+      try {
+        created = await this.prisma.authorityAuditJournal.create({ data: {
+          companyId: ctx.companyId,
+          eventId,
+          eventType,
+          scopeId: evaluation.scopeId,
+          actorType: 'SYSTEM',
+          actorId: 'turn.operational-incident-evaluator',
+          outcome: shouldOpen ? 'OPEN' : 'RESOLVED',
+          reasonCode: evaluation.qualification.reasonCode,
+          payloadHash: hash(safeMetadata),
+          safeMetadata: json(safeMetadata),
+          correlationId: ctx.correlationId,
+        } });
+        createdNow = true;
+      } catch (error) {
+        if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2002') throw error;
+        const concurrent = await this.prisma.authorityAuditJournal.findUnique({ where: { companyId_eventId: { companyId: ctx.companyId, eventId } } });
+        if (!concurrent) throw error;
+        created = concurrent;
+      }
+      events.unshift(created);
+      latestByCanonicalId.set(evaluation.canonicalId, created);
+      if (createdNow && shouldOpen) opened += 1;
+      if (createdNow && !shouldOpen) resolved += 1;
+    }
+    const openByCanonicalId = new Map<string, string>();
+    for (const [canonicalId, event] of latestByCanonicalId) if (event.eventType === 'OPERATIONAL_INCIDENT_OPENED') openByCanonicalId.set(canonicalId, event.eventId);
+    return { events, openByCanonicalId, opened, resolved };
+  }
+
   private async ensureFoundation(ctx: RequestContext) {
     await this.prisma.$transaction(async (tx) => {
       for (const item of premiumNetworkSeed) {
@@ -627,6 +725,22 @@ function safeObject(value: string | null | undefined): Record<string, unknown> {
   }
 }
 
+function jsonRecord(value: Prisma.JsonValue): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function toIncidentProjection(item: OperationalJournalEvent) {
+  return { eventId: item.eventId, eventType: item.eventType, scopeId: item.scopeId, reasonCode: item.reasonCode, occurredAt: item.occurredAt, correlationId: item.correlationId, leaseId: item.leaseId };
+}
+
 function hash(value: unknown) {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+function deterministicUuid(value: string) {
+  const hex = createHash('sha256').update(value).digest('hex').slice(0, 32).split('');
+  hex[12] = '4';
+  hex[16] = ['8', '9', 'a', 'b'][Number.parseInt(hex[16], 16) % 4];
+  const stable = hex.join('');
+  return `${stable.slice(0, 8)}-${stable.slice(8, 12)}-${stable.slice(12, 16)}-${stable.slice(16, 20)}-${stable.slice(20)}`;
 }

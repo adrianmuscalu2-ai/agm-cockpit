@@ -77,3 +77,18 @@ Local remediation prepared:
 - operational-truth contract test updated to enforce these properties.
 
 Local verification: functional-overview contract `PASS`; operational-truth UI contract `PASS`; Web production build `PASS`. A new Production revision is required before the minimal Browser retest can evaluate this remediation.
+
+## 2026-09-05 Production closure evidence for `a8c7a5e`
+
+- Product Owner explicitly approved push, Production deployment, and the secure masked-PIN audit route for `a8c7a5e`.
+- GitHub Actions run `33946267911`: `verify`, `publish`, `publish-web`, and `deploy` completed successfully.
+- Production deployment `6277390346` targeted exact SHA `a8c7a5ed4726a47b04307e681791097cd93ec920`.
+- Browser preflight: Browser Plugin `PASS`; Integrated Browser Control `PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE`; controlled Browser Session `PASS`.
+- Controlled Production evidence: `browser/2026-09-05T05-15-32-348Z/`.
+- Protected functional-overview API: HTTP 200; protected operational-dashboard API: HTTP 200; real bearer token redacted and cleared after the child process exited.
+- Target Page: `PASS`; Premium board present; 28/28 operational cards contain the required operational fields; registry is secondary, closed, and has 0 visible nodes; no static/orbital substitute; 23 functional zones; 0 unresolved UNKNOWN; 0 capability gaps; 0 missing registry identities.
+- Current real system state shown by TURN: 27 runtime observations, 20 healthy, 6 degraded, 1 failed, 18 standby, 0 unknown; Authority Control Plane `FAIL`; Opportunity Intelligence `NO_ACTIVITY`.
+- Browser page errors: 0. The admin-only controlled session also observed 36 HTTP 401 and 6 HTTP 429 responses from auxiliary user-authenticated probes; these were not used as evidence for the protected dashboard and do not convert the displayed degraded/failed system state to green.
+- Product Owner acceptance remains `NOT_GRANTED`; `FINAL_PRODUCT_PASS` remains false and cannot be inferred from this technical Browser PASS.
+
+`RESCUE RECOVERED AUTHENTICATION -> CONTROLLED PRODUCTION AUDIT PASS -> EVIDENCE PRESERVED -> HANDOFF TO PRODUCT OWNER`

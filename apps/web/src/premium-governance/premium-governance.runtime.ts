@@ -14,7 +14,9 @@ type NetworkNode = {
   activityEvidence: { source: string; observedAt: string | null; recordReference: string | null };
   authorityState: { state: string; epoch?: number; fencingToken?: number; providerId?: string; expiresAt?: string };
   failoverState: string;
+  incidentQualification?: IncidentQualification;
 };
+type IncidentQualification = { decision: 'QUALIFIED' | 'NOT_REQUIRED'; severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'NONE'; reasonCode: string; rootCauseClassification: string; rationale: string; evaluatedAt: string; evidenceReference: string | null; openIncidentEventId: string | null };
 type Dashboard = {
   contractVersion: string; generatedAt: string;
   controlPlane: { status: NodeStatus; statusSource: string; statusObservedAt: string | null; activeExecutiveAuthorities: number; executiveAuthorityAgents: string[]; conflicts: Array<{ leftLeaseId: string; rightLeaseId: string }>; activeCommandChains: AuthorityChain[]; delegatedAuthority: AuthorityChain[]; invalidOrStaleAuthority: Array<{ leaseId: string; agentId: string; scopeId: string; reason: string; expiredAt: string }> };
@@ -22,6 +24,7 @@ type Dashboard = {
   opportunityIntelligence: { gate: string; reason: string; requiredAction: string | null; evaluatedAt: string; missing: string[]; stale: string[]; unhealthy: string[]; sources: Array<{ agentId: string; observedAt: string; outputReference: string | null }> };
   incidents: Array<{ eventId: string; eventType: string; scopeId: string | null; reasonCode: string | null; occurredAt: string; correlationId: string; leaseId: string | null }>;
   capabilityGaps: Array<{ canonicalId: string; reason: string; requiredAction: string }>;
+  incidentPipeline?: { contractVersion: string; eventStore: string; evaluatedAt: string; nonHealthy: number; qualified: number; notRequired: number; open: number; opened: number; resolved: number };
 };
 type Envelope = { data?: Dashboard; message?: string | string[] };
 
@@ -32,6 +35,7 @@ export function bindPremiumGovernanceRuntime(turnAdminAccessToken?: string) {
   if (!turnAdminAccessToken) {
     if (hero) renderRestricted(hero);
     if (detail) renderRestricted(detail);
+    renderIncidentUnavailable('ACCES OPERAȚIONAL NECESAR · Registry-ul nu este folosit ca fallback.');
     return;
   }
   const inspectionButton = hero?.querySelector<HTMLButtonElement>('[data-run-operational-inspections]');
@@ -41,6 +45,7 @@ export function bindPremiumGovernanceRuntime(turnAdminAccessToken?: string) {
     void runInspections(turnAdminAccessToken).then(() => load(turnAdminAccessToken)).then((data) => {
       if (hero) renderHero(hero, data);
       if (detail) renderDetail(detail, data);
+      renderIncidentPipeline(data);
     }).catch((error) => {
       if (hero) renderUnavailable(hero, error);
     }).finally(() => {
@@ -51,9 +56,11 @@ export function bindPremiumGovernanceRuntime(turnAdminAccessToken?: string) {
   void load(turnAdminAccessToken).then((data) => {
     if (hero) renderHero(hero, data);
     if (detail) renderDetail(detail, data);
+    renderIncidentPipeline(data);
   }).catch((error) => {
     if (hero) renderUnavailable(hero, error);
     if (detail) renderUnavailable(detail, error);
+    renderIncidentUnavailable(error instanceof Error ? error.message : 'ACP_OPERATIONAL_DATA_UNAVAILABLE');
   });
 }
 
@@ -110,13 +117,106 @@ function renderHero(root: HTMLElement, data: Dashboard) {
   setText(root, '[data-conflict-count]', String(data.controlPlane.conflicts.length));
   setText(root, '[data-opportunity-gate]', data.opportunityIntelligence.gate);
   setText(root, '[data-network-message]', `Sursă ${data.controlPlane.statusSource} · observație ${formatOptionalDate(data.controlPlane.statusObservedAt)} · evaluat ${formatDate(data.generatedAt)}`);
-  const host = root.querySelector<HTMLElement>('[data-authority-detail]');
+  const host = document.querySelector<HTMLElement>('[data-authority-detail]');
   if (host) host.innerHTML = `
     <section><h3>Executive Authority și command chain</h3>${data.controlPlane.activeCommandChains.length ? `<div class="agm-table-scroll"><table><thead><tr><th>Agent</th><th>Scope / acțiune</th><th>Mandat / decizie</th><th>Provider</th><th>Epoch / fence</th><th>Expiră</th></tr></thead><tbody>${data.controlPlane.activeCommandChains.map(renderChain).join('')}</tbody></table></div>` : '<p>Nicio autoritate executivă activă. Aceasta este o stare reală, nu UNKNOWN.</p>'}</section>
     <section><h3>Authority defects</h3><p>${data.controlPlane.conflicts.length ? `${data.controlPlane.conflicts.length} conflicte active — acțiune obligatorie.` : '0 conflicte active evaluate.'} ${data.controlPlane.invalidOrStaleAuthority.length ? `${data.controlPlane.invalidOrStaleAuthority.length} lease-uri cu stare activă dar TTL expirat.` : '0 lease-uri active expirate.'}</p></section>
     <section><h3>Opportunity Intelligence</h3><p><strong>${escapeHtml(data.opportunityIntelligence.gate)}</strong> · ${escapeHtml(data.opportunityIntelligence.reason)}</p><p>${escapeHtml(data.opportunityIntelligence.requiredAction ?? 'Nicio acțiune necesară din evaluarea curentă.')}</p><small>Sursă: OpportunityAgentTelemetry (${data.opportunityIntelligence.sources.length}) · evaluat ${formatDate(data.opportunityIntelligence.evaluatedAt)}</small></section>
     <section><h3>Capability gaps</h3><p>${data.capabilityGaps.length ? `${data.capabilityGaps.length} identități înregistrate nu au implementare executabilă; sunt marcate FAILED mai jos.` : 'Nicio capabilitate executabilă lipsă.'}</p></section>`;
+  renderPremiumSpatialModel(root, data);
   root.setAttribute('aria-busy', 'false');
+}
+
+function renderPremiumSpatialModel(root: HTMLElement, data: Dashboard) {
+  const stage = root.querySelector<HTMLElement>('[data-premium-spatial-stage]');
+  const selection = root.querySelector<HTMLElement>('[data-premium-spatial-selection]');
+  if (!stage) return;
+  const positions = networkPositions(data.nodes);
+  const byId = new Map(data.nodes.map((node) => [node.canonicalId, node]));
+  const links = data.nodes.flatMap((node) => {
+    const from = positions.get(node.canonicalId);
+    const targetId = node.supervisorId && byId.has(node.supervisorId) ? node.supervisorId : 'agm.authority.control-plane';
+    const to = positions.get(targetId);
+    return from && to && node.canonicalId !== targetId ? [`<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" data-premium-spatial-link="${escapeHtml(node.canonicalId)}" />`] : [];
+  }).join('');
+  stage.innerHTML = `<svg class="turn-spatial-links" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="18"></circle><circle cx="50" cy="50" r="31"></circle><circle cx="50" cy="50" r="43"></circle>${links}</svg>${data.nodes.map((node) => {
+    const position = positions.get(node.canonicalId)!;
+    return `<button type="button" class="turn-spatial-node premium status-${statusClass(node.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%" data-premium-spatial-node="${escapeHtml(node.canonicalId)}" data-canonical-status="${escapeHtml(node.status)}" data-runtime-presence="${escapeHtml(node.runtimePresence)}" data-status-source="${escapeHtml(node.statusSource)}"><span aria-hidden="true"></span><strong>${escapeHtml(shortNodeName(node.canonicalId))}</strong><small>${escapeHtml(node.status)}</small></button>`;
+  }).join('')}`;
+  stage.setAttribute('aria-busy', 'false');
+  const select = (node: NetworkNode) => {
+    stage.querySelectorAll<HTMLElement>('[data-premium-spatial-node]').forEach((element) => element.classList.toggle('selected', element.dataset.premiumSpatialNode === node.canonicalId));
+    if (selection) selection.innerHTML = renderSpatialAgentSelection(node);
+  };
+  stage.querySelectorAll<HTMLButtonElement>('[data-premium-spatial-node]').forEach((button) => button.addEventListener('click', () => {
+    const node = byId.get(button.dataset.premiumSpatialNode ?? '');
+    if (node) select(node);
+  }));
+  const initial = byId.get('agm.authority.control-plane') ?? data.nodes[0];
+  if (initial) select(initial);
+}
+
+function networkPositions(nodes: NetworkNode[]) {
+  const positions = new Map<string, { x: number; y: number }>();
+  const center = nodes.find((node) => node.canonicalId === 'agm.authority.control-plane');
+  if (center) positions.set(center.canonicalId, { x: 50, y: 50 });
+  const remaining = nodes.filter((node) => node !== center);
+  remaining.forEach((node, index) => {
+    const ringIndex = index % 3;
+    const positionInRing = Math.floor(index / 3);
+    const ringCount = Math.ceil(remaining.length / 3);
+    const radii = [{ x: 18, y: 20 }, { x: 31, y: 31 }, { x: 43, y: 42 }][ringIndex];
+    const angle = -Math.PI / 2 + (Math.PI * 2 * positionInRing) / Math.max(ringCount, 1) + ringIndex * Math.PI / Math.max(ringCount * 3, 1);
+    positions.set(node.canonicalId, { x: 50 + Math.cos(angle) * radii.x, y: 50 + Math.sin(angle) * radii.y });
+  });
+  return positions;
+}
+
+function renderSpatialAgentSelection(node: NetworkNode) {
+  const qualification = node.incidentQualification;
+  return `<header><div><small>${escapeHtml(node.kind)} · ${escapeHtml(node.module)}</small><h3>${escapeHtml(node.canonicalId)}</h3></div><strong class="status-${statusClass(node.status)}">${escapeHtml(node.status)} · ${escapeHtml(node.health)}</strong></header>
+    <p>${escapeHtml(node.currentFunction)}</p><dl>
+      <div><dt>Runtime / workload</dt><dd>${escapeHtml(node.runtimePresence)} · ${escapeHtml(node.runtimeMode)} · ${escapeHtml(node.workloadState)}<br><small>${escapeHtml(node.currentOperation)}</small></dd></div>
+      <div><dt>Heartbeat / activitate</dt><dd>${formatOptionalDate(node.lastHeartbeat)} / ${formatOptionalDate(node.lastActivity)}</dd></div>
+      <div><dt>Freshness / dependențe</dt><dd>${escapeHtml(node.freshness)} / ${escapeHtml(node.dependencyState)}${node.dependencyFailures.length ? `<br><small>${escapeHtml(node.dependencyFailures.join(', '))}</small>` : ''}</dd></div>
+      <div><dt>Sursă / dovadă</dt><dd>${escapeHtml(node.evidence.source)} · ${formatOptionalDate(node.evidence.observedAt)}${node.evidence.recordReference ? `<br><small>${escapeHtml(node.evidence.recordReference)}</small>` : ''}</dd></div>
+      <div><dt>De ce</dt><dd>${escapeHtml(node.reason ?? 'Niciun defect raportat de evaluator.')}</dd></div>
+      <div><dt>Incident / clasificare</dt><dd>${qualification ? `${escapeHtml(qualification.decision)} · ${escapeHtml(qualification.rootCauseClassification)} · ${escapeHtml(qualification.reasonCode)}<br><small>${escapeHtml(qualification.rationale)}</small>` : 'EVALUATOR DATA UNAVAILABLE'}</dd></div>
+      <div><dt>Acțiune</dt><dd>${escapeHtml(node.requiredAction ?? 'NONE')}</dd></div>
+    </dl>`;
+}
+
+function renderIncidentPipeline(data: Dashboard) {
+  const pipeline = data.incidentPipeline;
+  const status = document.querySelector<HTMLElement>('[data-incident-pipeline-status]');
+  const summary = document.querySelector<HTMLElement>('[data-operational-incident-summary]');
+  const decisions = document.querySelector<HTMLElement>('[data-operational-incident-decisions]');
+  if (!status || !summary || !decisions) return;
+  if (!pipeline) {
+    status.textContent = 'DATA UNAVAILABLE';
+    summary.innerHTML = '<p>API-ul nu a furnizat contractul de calificare a incidentelor.</p>';
+    decisions.innerHTML = '';
+    return;
+  }
+  status.textContent = `${pipeline.open} OPEN · ${pipeline.eventStore}`;
+  summary.innerHTML = `<div class="turn-spatial-summary"><article><small>Non-healthy</small><strong>${pipeline.nonHealthy}</strong></article><article><small>Qualified</small><strong>${pipeline.qualified}</strong></article><article><small>Not required</small><strong>${pipeline.notRequired}</strong></article><article><small>Open</small><strong>${pipeline.open}</strong></article><article><small>Opened / resolved acum</small><strong>${pipeline.opened} / ${pipeline.resolved}</strong></article></div><p>Evaluator ${escapeHtml(pipeline.contractVersion)} · EventStore ${escapeHtml(pipeline.eventStore)} · ${formatDate(pipeline.evaluatedAt)}</p>`;
+  decisions.innerHTML = `<div class="turn-incident-decision-grid">${data.nodes.filter((node) => !['PASS', 'STANDBY'].includes(node.status)).map((node) => {
+    const qualification = node.incidentQualification;
+    return `<article data-incident-decision="${escapeHtml(node.canonicalId)}" data-incident-qualified="${escapeHtml(qualification?.decision ?? 'DATA_UNAVAILABLE')}"><header><strong>${escapeHtml(node.canonicalId)}</strong><span>${escapeHtml(node.status)}</span></header><p>${escapeHtml(qualification?.decision ?? 'DATA UNAVAILABLE')} · ${escapeHtml(qualification?.rootCauseClassification ?? 'NO_CLASSIFICATION')} · ${escapeHtml(qualification?.reasonCode ?? 'NO_EVALUATION')}</p><small>${escapeHtml(qualification?.rationale ?? 'API-ul nu a furnizat decizia.')}</small><dl><div><dt>Dovadă</dt><dd>${escapeHtml(qualification?.evidenceReference ?? node.evidence.recordReference ?? 'NO REAL OBSERVATION')}</dd></div><div><dt>Incident EventStore</dt><dd>${escapeHtml(qualification?.openIncidentEventId ?? 'NONE')}</dd></div></dl></article>`;
+  }).join('')}</div>`;
+}
+
+function renderIncidentUnavailable(reason: string) {
+  const status = document.querySelector<HTMLElement>('[data-incident-pipeline-status]');
+  const summary = document.querySelector<HTMLElement>('[data-operational-incident-summary]');
+  const decisions = document.querySelector<HTMLElement>('[data-operational-incident-decisions]');
+  if (status) status.textContent = 'DATA UNAVAILABLE';
+  if (summary) summary.innerHTML = `<p>${escapeHtml(reason)} Nicio decizie de incident nu este dedusă.</p>`;
+  if (decisions) decisions.innerHTML = '';
+}
+
+function shortNodeName(id: string) {
+  return id.replace(/^premium\./, '').replace(/^agm\./, '').split('.').slice(-2).join('·');
 }
 
 function renderChain(chain: AuthorityChain) {

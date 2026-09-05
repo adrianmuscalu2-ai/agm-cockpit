@@ -55,14 +55,43 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       aria-label="${escapeHtml(t(language, 'turn.ariaLabel'))}"
       data-module-contract="${turnCommandCenterContract.version}"
       data-operation-mode="${turnCommandCenterContract.mode}"
+      data-active-turn-page="basic"
     >
+      <header class="turn-command-header">
+        <div>
+          <span class="turn-kicker">TURN · REAL OPERATIONAL COMMAND</span>
+          <h1>${escapeHtml(t(language, 'turn.title'))}</h1>
+          <p>SEE → UNDERSTAND → DRILL DOWN → ACT. Suprafețele spațiale folosesc aceleași surse canonice ca detaliile operaționale.</p>
+        </div>
+        <strong>PRODUCT OWNER ACCEPTANCE · NOT GRANTED</strong>
+      </header>
+
+      <nav class="turn-page-navigation" data-turn-page-navigation aria-label="Pagini TURN">
+        <button type="button" data-turn-page-target="basic" aria-selected="true">1 · BASIC</button>
+        <button type="button" data-turn-page-target="premium" aria-selected="false">2 · PREMIUM</button>
+        <button type="button" data-turn-page-target="incidents" aria-selected="false">3 · INCIDENTE</button>
+        <button type="button" data-turn-page-target="investigate" aria-selected="false">4 · DRILL-DOWN</button>
+      </nav>
+
       ${renderFunctionalOverview()}
 
       ${renderTurnAuthorityControlPlane()}
 
-      ${renderP9TurnProjection()}
+      <section class="turn-incident-page" data-turn-page="incidents" hidden aria-labelledby="turn-incident-page-title">
+        <header><div><span class="turn-kicker">TURN · INCIDENT PIPELINE</span><h2 id="turn-incident-page-title">Failure → qualification → EventStore → API → TURN</h2><p>Nicio stare non-healthy nu este echivalată automat cu un incident. Fiecare decizie arată regula, sursa și dovada persistentă.</p></div><strong data-incident-pipeline-status>SE ÎNCARCĂ</strong></header>
+        <div data-operational-incident-summary></div>
+        <div data-operational-incident-decisions></div>
+        <details class="turn-secondary-registry turn-subsystem-incident-journal">
+          <summary><strong>Jurnal separat · incidente aplicație / transport</strong><span>NU ESTE folosit pentru agent health</span></summary>
+          ${renderActiveOperationsIncident(incidents)}
+          ${renderIncidentJournal(language, incidents, incidentFilters)}
+        </details>
+      </section>
 
-      <header class="turn-hero">
+      <section class="turn-investigation-page" data-turn-page="investigate" hidden aria-label="TURN drill-down și registre">
+        ${renderP9TurnProjection()}
+
+        <header class="turn-hero">
         <div>
           <span class="turn-kicker">${escapeHtml(t(language, 'turn.code'))}</span>
           <h1>${escapeHtml(t(language, 'turn.title'))}</h1>
@@ -119,7 +148,6 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       ${renderExecutionReadinessGate(incidents)}
       ${renderTurnRealityContract()}
       ${renderOperationalProtocol()}
-      ${renderActiveOperationsIncident(incidents)}
       ${renderProductionPreflight()}
       ${renderOperationsCenter(incidents)}
       ${renderMonitoringDepartment(incidents)}
@@ -160,19 +188,27 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
         </article>
       </section>
       ${renderMaintenanceDepartment(language)}
-      ${renderIncidentJournal(language, incidents, incidentFilters)}
+      </section>
       <button id="turnBackToTop" class="turn-back-to-top" type="button" hidden aria-label="Înapoi sus">↑ Înapoi sus</button>
     </section>
   `;
 }
 
 function renderFunctionalOverview() {
-  return `<section class="turn-functional-overview" id="turn-functional-overview" data-turn-functional-overview aria-labelledby="turn-functional-overview-title" aria-live="polite" aria-busy="true">
-    <header><div><span class="turn-kicker">TURN · PRODUCT OWNER · LIVE FUNCTIONAL VALUE</span><h2 id="turn-functional-overview-title">Basic și Premium: informație, sursă, acțiune, lipsă</h2><p>Proiecție protejată din surse operaționale reale. Zero activitate este distinct de UNKNOWN; registry și referințele statice nu sunt prezentate ca runtime.</p></div><strong data-functional-verdict>TURN FUNCTIONAL COMPLETENESS FAIL · PRODUCT OWNER ACCEPTANCE NOT_GRANTED · FINAL_PRODUCTION_PASS RETRACTED</strong></header>
-    <div class="turn-functional-summary" data-functional-summary><article><small>Stare</small><strong>SE ÎNCARCĂ</strong></article></div>
-    <p class="turn-functional-generated" data-functional-generated-at>Se solicită proiecția live…</p>
-    <div data-functional-zones><p>Se citesc exclusiv sursele reale autorizate…</p></div>
-  </section>`;
+  return `<div id="turn-functional-overview" data-turn-functional-overview aria-live="polite" aria-busy="true">
+    <section class="turn-spatial-page turn-basic-spatial-page" data-turn-page="basic" aria-labelledby="turn-functional-overview-title">
+      <header><div><span class="turn-kicker">PAGINA 1 · BASIC · LIVE FUNCTIONAL VALUE</span><h2 id="turn-functional-overview-title">BASIC operational space</h2><p>Fiecare zonă este proiectată din EventStore/API și evaluatorul funcțional. Click pe un nod pentru sursă, lipsă și acțiune.</p></div><strong data-functional-verdict>SE ÎNCARCĂ</strong></header>
+      <div class="turn-spatial-summary" data-basic-spatial-summary><span>Se citesc sursele reale autorizate…</span></div>
+      <div class="turn-spatial-stage turn-basic-stage" data-basic-spatial-stage aria-busy="true"></div>
+      <aside class="turn-spatial-selection" data-basic-spatial-selection><p>Selectează o zonă BASIC.</p></aside>
+      <p class="turn-functional-generated" data-functional-generated-at>Se solicită proiecția live…</p>
+    </section>
+    <section class="turn-functional-overview turn-functional-drilldown" data-turn-page="investigate" hidden aria-labelledby="turn-functional-drilldown-title">
+      <header><div><span class="turn-kicker">DRILL-DOWN · BASIC + PREMIUM</span><h2 id="turn-functional-drilldown-title">Informație, sursă, acțiune și limită</h2><p>Tabelele și cardurile detaliate sunt instrumente de investigație, nu suprafața principală TURN.</p></div><strong data-functional-drilldown-verdict>PRODUCT OWNER ACCEPTANCE NOT_GRANTED</strong></header>
+      <div class="turn-functional-summary" data-functional-summary><article><small>Stare</small><strong>SE ÎNCARCĂ</strong></article></div>
+      <div data-functional-zones><p>Se citesc exclusiv sursele reale autorizate…</p></div>
+    </section>
+  </div>`;
 }
 
 function renderOperationalProtocol() {

@@ -41,11 +41,12 @@ export function renderPremiumUserDashboard(translate: Translate, escapeHtml: Esc
 
 export function renderTurnAuthorityControlPlane() {
   return `
-    <section class="turn-authority-control-plane turn-premium-operational-panel" id="turn-authority-control-plane" data-premium-operational-panel aria-labelledby="turn-authority-control-plane-title">
+    <div class="turn-authority-control-plane turn-premium-operational-panel" id="turn-authority-control-plane" data-premium-operational-panel>
+    <section class="turn-spatial-page turn-premium-spatial-page" data-turn-page="premium" hidden aria-labelledby="turn-authority-control-plane-title">
       <header class="premium-governance-heading">
-        <span>TURN · PREMIUM AGENT OPERATIONAL PANEL</span>
-        <h2 id="turn-authority-control-plane-title">Premium: agenți și runtime real</h2>
-        <p>Suprafața principală de control operațional: heartbeat, activitate, health, freshness, workload, dependențe, incidente, authority și evidence. Registry-ul este numai inventar secundar.</p>
+        <span>PAGINA 2 · TURN PREMIUM · REAL AGENT NETWORK</span>
+        <h2 id="turn-authority-control-plane-title">Premium operational space</h2>
+        <p>Poziția și culoarea fiecărui nod sunt o proiecție interactivă a telemetriei canonice. Click pe agent pentru runtime, cauză, dovadă și acțiune.</p>
       </header>
       <section class="agm-network-hero" data-authority-dashboard aria-live="polite" aria-busy="true">
         <header class="agm-operational-header"><div><small>Authority evaluator</small><strong data-control-status>SE ÎNCARCĂ</strong></div><p data-network-message>Se citesc sursele reale autorizate…</p><button type="button" data-run-operational-inspections>Rulează inspectorii reali</button></header>
@@ -62,20 +63,24 @@ export function renderTurnAuthorityControlPlane() {
           <div><small>Authority conflicts</small><strong data-conflict-count>—</strong></div>
           <div><small>Opportunity Intelligence</small><strong data-opportunity-gate>NEEVALUAT</strong></div>
         </footer>
-        <div class="agm-authority-detail" data-authority-detail></div>
+        <div class="turn-spatial-stage turn-premium-stage" data-premium-spatial-stage aria-busy="true"></div>
+        <aside class="turn-spatial-selection" data-premium-spatial-selection><p>Selectează un agent Premium.</p></aside>
+        <nav class="turn-spatial-actions"><button type="button" data-open-turn-page="incidents">Vezi calificarea incidentelor</button><button type="button" data-open-turn-page="investigate">Deschide drill-down complet</button></nav>
       </section>
+    </section>
 
-      <section id="turn-premium-network" aria-labelledby="turn-premium-network-title">
+      <section class="turn-premium-drilldown" data-turn-page="investigate" hidden id="turn-premium-network" aria-labelledby="turn-premium-network-title">
         <header class="premium-governance-heading">
-          <span>TURN · PREMIUM OPERATIONAL NODES</span>
-          <h2 id="turn-premium-network-title">Premium: runtime și capabilități reale</h2>
-          <p>Pentru fiecare identitate: prezență runtime, sănătate, activitate, freshness, sursă, dependențe, motiv și acțiune. Lipsa implementării rămâne vizibilă.</p>
+          <span>DRILL-DOWN · AUTHORITY + 28 OPERATIONAL NODES</span>
+          <h2 id="turn-premium-network-title">Premium evidence and runtime detail</h2>
+          <p>Detaliul complet rămâne disponibil pentru investigație; nu ocupă suprafața principală de comandă.</p>
         </header>
+        <section class="agm-authority-detail" data-authority-detail></section>
         <section class="premium-network-detail" data-agent-network-detail aria-live="polite" aria-busy="true">
           <div class="premium-network-toolbar"><span data-network-contract>Contract: —</span><span>Verde = evidență reală curentă · Portocaliu = degradat/stale · Roșu = failed/absent · Gri = neobservat</span></div>
           <div class="premium-network-departments" data-network-departments></div>
           <p class="agm-network-message" data-network-message>Se încarcă exclusiv telemetria operațională autorizată…</p>
         </section>
       </section>
-    </section>`;
+    </div>`;
 }

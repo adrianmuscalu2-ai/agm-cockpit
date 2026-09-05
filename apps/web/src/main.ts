@@ -131,6 +131,7 @@ import { bindCommunicationRuntime } from './premium-communications/communication
 import { bindPremiumAssistantRuntime } from './premium-voice-shell/premium-assistant.runtime';
 import { bindCarMoverRuntime } from './car-mover/car-mover.runtime';
 import { bindPremiumGovernanceRuntime } from './premium-governance/premium-governance.runtime';
+import { bindTurnCommandNavigation } from './turn-command-navigation';
 import './premium-governance/premium-governance.css';
 import './premium-governance/premium-glass-overrides.css';
 import './premium-governance/turn-authority-control-plane.css';
@@ -2306,8 +2307,10 @@ function bindShared() {
     bindPremiumAssistantRuntime();
     bindCarMoverRuntime();
   if (state.adminAccessVerified && state.adminSession?.accessToken) {
+    bindTurnCommandNavigation();
     bindPremiumGovernanceRuntime(state.adminSession.accessToken);
   } else {
+    bindTurnCommandNavigation();
     bindPremiumGovernanceRuntime();
   }
   bindCopilotRuntime();

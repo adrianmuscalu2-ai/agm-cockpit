@@ -181,7 +181,7 @@ export class TurnFunctionalOverviewService {
         releasePipeline: 'PASS',
         operationalTruthInfrastructure: 'PASS',
         falseGreenPrevention: 'PASS',
-        turnFunctionalCompleteness: summary.unresolvedUnknown === 0 && summary.capabilityMissing === 0 ? 'READY_FOR_PRODUCT_OWNER_REVIEW' : 'FAIL',
+        turnFunctionalCompleteness: 'FAIL',
         productOwnerAcceptance: 'NOT_GRANTED',
         finalProductionPass: 'RETRACTED',
       },

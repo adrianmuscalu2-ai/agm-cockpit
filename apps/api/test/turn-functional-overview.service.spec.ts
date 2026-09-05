@@ -60,7 +60,7 @@ describe('TurnFunctionalOverviewService', () => {
     expect(overview.summary.totalZones).toBe(23);
     expect(overview.summary.unresolvedUnknown).toBe(0);
     expect(overview.verdict).toMatchObject({
-      turnFunctionalCompleteness: 'READY_FOR_PRODUCT_OWNER_REVIEW',
+      turnFunctionalCompleteness: 'FAIL',
       productOwnerAcceptance: 'NOT_GRANTED',
       finalProductionPass: 'RETRACTED',
     });

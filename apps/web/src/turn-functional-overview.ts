@@ -85,6 +85,8 @@ function renderOverview(root: HTMLElement, overview: TurnFunctionalOverview) {
   root.setAttribute('aria-busy', 'false');
   const summary = root.querySelector<HTMLElement>('[data-functional-summary]');
   const zones = root.querySelector<HTMLElement>('[data-functional-zones]');
+  const basicZones = overview.zones.filter((zone) => zone.tier === 'BASIC');
+  renderBasicSpatialModel(root, basicZones, overview);
   if (summary) summary.innerHTML = `
     <article><small>Zone reale</small><strong>${overview.summary.totalZones}</strong></article>
     <article><small>Operaționale</small><strong>${overview.summary.operational}</strong></article>
@@ -100,9 +102,64 @@ function renderOverview(root: HTMLElement, overview: TurnFunctionalOverview) {
       <div class="turn-functional-grid">${overview.zones.filter((zone) => zone.tier === tier).map(renderZone).join('')}</div>
     </section>`).join('');
   const verdict = root.querySelector<HTMLElement>('[data-functional-verdict]');
-  if (verdict) verdict.textContent = `${overview.verdict.turnFunctionalCompleteness} · PRODUCT OWNER ACCEPTANCE ${overview.verdict.productOwnerAcceptance} · FINAL_PRODUCTION_PASS ${overview.verdict.finalProductionPass}`;
+  if (verdict) verdict.textContent = `${basicOperationalVerdict(basicZones)} · PRODUCT OWNER ACCEPTANCE ${overview.verdict.productOwnerAcceptance}`;
   const timestamp = root.querySelector<HTMLElement>('[data-functional-generated-at]');
   if (timestamp) timestamp.textContent = `Proiecție generată: ${new Date(overview.generatedAt).toLocaleString('ro-RO')}`;
+}
+
+function renderBasicSpatialModel(root: HTMLElement, basicZones: TurnFunctionalZone[], overview: TurnFunctionalOverview) {
+  const stage = root.querySelector<HTMLElement>('[data-basic-spatial-stage]');
+  const summary = root.querySelector<HTMLElement>('[data-basic-spatial-summary]');
+  const selection = root.querySelector<HTMLElement>('[data-basic-spatial-selection]');
+  const positions = spatialPositions(basicZones.length);
+  const attention = basicZones.filter((zone) => ['ATTENTION', 'CAPABILITY_MISSING'].includes(zone.status)).length;
+  const unknown = basicZones.filter((zone) => zone.status === 'UNKNOWN_LEGITIMATE').length;
+  const observed = basicZones.filter((zone) => ['OPERATIONAL', 'OBSERVED', 'NO_ACTIVITY'].includes(zone.status)).length;
+  if (summary) summary.innerHTML = `
+    <article><small>Zone BASIC</small><strong>${basicZones.length}</strong></article>
+    <article><small>Real observate</small><strong>${observed}</strong></article>
+    <article><small>Acțiune necesară</small><strong>${attention}</strong></article>
+    <article><small>UNKNOWN legitim</small><strong>${unknown}</strong></article>
+    <article><small>Sursă</small><strong>${escapeHtml(overview.contractVersion)}</strong></article>`;
+  if (!stage) return;
+  const links = positions.map((position, index) => `<line x1="50" y1="50" x2="${position.x}" y2="${position.y}" data-basic-spatial-link="${escapeHtml(basicZones[index]?.id ?? '')}" />`).join('');
+  stage.innerHTML = `
+    <svg class="turn-spatial-links" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="27"></circle>${links}</svg>
+    <div class="turn-spatial-core"><small>TURN BASIC</small><strong>${basicOperationalVerdict(basicZones)}</strong><span>${observed}/${basicZones.length} observate</span></div>
+    ${basicZones.map((zone, index) => `<button type="button" class="turn-spatial-node status-${statusClass(zone.status)}" style="--node-x:${positions[index].x}%;--node-y:${positions[index].y}%" data-basic-spatial-node="${escapeHtml(zone.id)}" data-functional-status="${escapeHtml(zone.status)}" data-functional-source="${escapeHtml(zone.source.kind)}"><span aria-hidden="true"></span><strong>${escapeHtml(zone.title)}</strong><small>${escapeHtml(zone.status)}</small></button>`).join('')}`;
+  stage.setAttribute('aria-busy', 'false');
+  const select = (zone: TurnFunctionalZone) => {
+    stage.querySelectorAll<HTMLElement>('[data-basic-spatial-node]').forEach((node) => node.classList.toggle('selected', node.dataset.basicSpatialNode === zone.id));
+    if (selection) selection.innerHTML = renderSpatialZoneSelection(zone);
+  };
+  stage.querySelectorAll<HTMLButtonElement>('[data-basic-spatial-node]').forEach((button) => button.addEventListener('click', () => {
+    const zone = basicZones.find((candidate) => candidate.id === button.dataset.basicSpatialNode);
+    if (zone) select(zone);
+  }));
+  if (basicZones[0]) select(basicZones[0]);
+}
+
+function renderSpatialZoneSelection(zone: TurnFunctionalZone) {
+  return `<header><div><small>${escapeHtml(zone.id)}</small><h3>${escapeHtml(zone.title)}</h3></div><strong class="status-${statusClass(zone.status)}">${escapeHtml(zone.status)}</strong></header>
+    <p>${escapeHtml(zone.information)}</p>
+    <dl>
+      <div><dt>Sursă reală</dt><dd>${escapeHtml(zone.source.kind)} · ${escapeHtml(zone.source.label)} · ${zone.source.observedAt ? escapeHtml(new Date(zone.source.observedAt).toLocaleString('ro-RO')) : 'NO REAL OBSERVATION'}</dd></div>
+      <div><dt>De ce / ce lipsește</dt><dd>${escapeHtml(zone.missing ?? zone.unknownReason ?? 'Nimic raportat de evaluator.')}</dd></div>
+      <div><dt>Acțiune</dt><dd>${escapeHtml(zone.implementation ?? zone.action.label)}</dd></div>
+    </dl><a class="operation-action" href="${escapeHtml(zone.action.href)}" data-open-turn-page="investigate">${escapeHtml(zone.action.label)}</a>`;
+}
+
+function spatialPositions(count: number) {
+  return Array.from({ length: count }, (_, index) => {
+    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / Math.max(count, 1);
+    return { x: 50 + Math.cos(angle) * 41, y: 50 + Math.sin(angle) * 37 };
+  });
+}
+
+function basicOperationalVerdict(zones: TurnFunctionalZone[]) {
+  if (zones.some((zone) => ['ATTENTION', 'CAPABILITY_MISSING'].includes(zone.status))) return 'ATTENTION';
+  if (zones.some((zone) => zone.status === 'UNKNOWN_LEGITIMATE')) return 'UNKNOWN LEGITIMATE';
+  return 'OPERATIONAL';
 }
 
 function renderZone(zone: TurnFunctionalZone) {
@@ -125,6 +182,14 @@ function renderUnavailable(root: HTMLElement, reason: string) {
   root.setAttribute('aria-busy', 'false');
   const zones = root.querySelector<HTMLElement>('[data-functional-zones]');
   if (zones) zones.innerHTML = `<p class="turn-functional-unavailable"><strong>DATA UNAVAILABLE</strong> · ${escapeHtml(reason)} Nicio stare funcțională nu este dedusă.</p>`;
+  const stage = root.querySelector<HTMLElement>('[data-basic-spatial-stage]');
+  if (stage) stage.innerHTML = `<p class="turn-functional-unavailable"><strong>DATA UNAVAILABLE</strong> · ${escapeHtml(reason)} Niciun nod nu este derivat din registry.</p>`;
+  const verdict = root.querySelector<HTMLElement>('[data-functional-verdict]');
+  if (verdict) verdict.textContent = 'DATA UNAVAILABLE';
+}
+
+function statusClass(status: string) {
+  return status.toLowerCase().replaceAll('_', '-');
 }
 
 function escapeHtml(value: string) {

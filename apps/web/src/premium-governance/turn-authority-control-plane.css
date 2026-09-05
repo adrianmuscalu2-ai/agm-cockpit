@@ -1,14 +1,14 @@
 .turn-authority-control-plane {
-  --agm-cyan: #58e8ff;
-  --agm-bg: #020c17;
-  --agm-panel: rgba(4, 25, 42, 0.88);
+  --agm-cyan: #e1e8ee;
+  --agm-bg: #090d11;
+  --agm-panel: rgba(18, 24, 30, 0.92);
   margin: 1.25rem 0 2rem;
   padding: 1rem 0 2rem;
   overflow: hidden;
   color: #e8fbff;
-  border: 1px solid rgba(88, 232, 255, 0.3);
+  border: 1px solid rgba(205, 218, 229, 0.3);
   border-radius: 24px;
-  background: radial-gradient(circle at 50% 30%, #073754 0, #031421 42%, #01070d 100%);
+  background: radial-gradient(circle at 50% 30%, #303b45 0, #171e25 42%, #090d11 100%);
 }
 
 .turn-authority-control-plane .premium-governance-heading h2 {
@@ -19,6 +19,21 @@
 
 .turn-authority-control-plane .agm-network-summary {
   grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+}
+
+.turn-authority-control-plane .agm-network-hero {
+  border-color: rgba(205, 218, 229, 0.38);
+  background: linear-gradient(180deg, rgba(22, 29, 36, 0.96), rgba(8, 12, 16, 0.98));
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.42), inset 0 0 45px rgba(205, 218, 229, 0.04);
+}
+
+.turn-authority-control-plane .agm-network-summary {
+  border-color: rgba(205, 218, 229, 0.3);
+  background: rgba(205, 218, 229, 0.12);
+}
+
+.turn-authority-control-plane .agm-network-summary > div {
+  background: #111820;
 }
 
 .turn-secondary-registry {
@@ -58,7 +73,7 @@
   gap: 1rem;
   align-items: flex-start;
   padding: 1rem;
-  border-bottom: 1px solid rgba(88, 232, 255, 0.3);
+  border-bottom: 1px solid rgba(205, 218, 229, 0.3);
 }
 
 .agm-operational-header small,
