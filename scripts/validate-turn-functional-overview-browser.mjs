@@ -97,6 +97,14 @@ try {
   await page.waitForSelector('[data-functional-zone]', { state: 'attached', timeout: 30_000 });
   await page.waitForSelector('[data-agent-network-detail][aria-busy="false"]', { state: 'attached', timeout: 30_000 });
   await page.waitForSelector('[data-basic-spatial-node]', { timeout: 30_000 });
+  await page.waitForFunction(() => {
+    const visibleCount = (selector) => [...document.querySelectorAll(selector)].filter((element) => element.getClientRects().length > 0).length;
+    return visibleCount('[data-turn-page="basic"]') === 1
+      && visibleCount('[data-basic-spatial-node]') === 10
+      && visibleCount('[data-basic-orbital-node]') === 10
+      && visibleCount('[data-basic-agent-planetary-node]') === 10
+      && visibleCount('[data-basic-agent-planetary-core]') === 1;
+  }, { timeout: 30_000 });
   await dismissFirstRun(page, report.checks);
   const effectiveOwnerAccessToken = ownerAccessToken || await page.evaluate(() => {
     try {
@@ -141,9 +149,9 @@ try {
   assert(await page.locator('[data-basic-operational-orbit]:visible').count() === 1, 'BASIC approved orbital panel is not visible on entry.');
   assert(await page.locator('[data-basic-orbital-node]:visible').count() === 10, 'BASIC orbital panel does not contain 10 real zones.');
   assert(await page.locator('[data-basic-orbital-criterion-map]:visible').count() === 6, 'BASIC does not expose all six truthful criterion maps.');
-  assert(await page.locator('[data-global-agent-planetary-panel]:visible').count() === 1, 'Global agent planetary system is not visible on BASIC entry.');
-  assert(await page.locator('[data-global-agent-planetary-node]:visible').count() === 28, 'Global agent planetary system does not contain 28 real agents.');
-  assert(await page.locator('[data-global-agent-planetary-core]:visible').count() === 1, 'Global agent planetary system does not expose the aggregate center.');
+  assert(await page.locator('[data-basic-agent-planetary-panel]:visible').count() === 1, 'BASIC agent planetary system is not visible on BASIC entry.');
+  assert(await page.locator('[data-basic-agent-planetary-node]:visible').count() === 10, 'BASIC agent planetary system does not contain all 10 real BASIC entities.');
+  assert(await page.locator('[data-basic-agent-planetary-core]:visible').count() === 1, 'BASIC agent planetary system does not expose the aggregate center.');
   assert(await page.locator('[data-turn-exit]:visible').count() === 1, 'TURN exit control is not visible.');
   for (const criterion of ['functional', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
     await page.locator(`.turn-approved-orbital-panel.basic .turn-orbital-criteria [data-basic-orbital-criterion="${criterion}"]`).click();
@@ -151,17 +159,20 @@ try {
     assert(await page.locator('[data-basic-orbital-node][data-orbital-status][data-orbital-active-source]').count() === 10, `BASIC criterion ${criterion} lacks status/source coverage.`);
   }
   await page.locator('.turn-approved-orbital-panel.basic .turn-orbital-criteria [data-basic-orbital-criterion="functional"]').click();
-  for (const criterion of ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
-    await page.locator(`[data-global-agent-planetary-criterion="${criterion}"]`).click();
-    assert(await page.locator('[data-global-agent-planetary-stage]').getAttribute('data-active-criterion') === criterion, `Global agent criterion ${criterion} did not activate.`);
-    assert(await page.locator('[data-global-agent-planetary-node][data-global-agent-status][data-global-agent-active-source]').count() === 28, `Global agent criterion ${criterion} lacks status/source coverage.`);
-    assert((await page.locator('[data-global-agent-planetary-core]').getAttribute('data-global-agent-core-status'))?.length > 0, `Global aggregate status is missing for ${criterion}.`);
+  for (const criterion of ['functional', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
+    await page.locator(`[data-basic-agent-planetary-criterion="${criterion}"]`).click();
+    assert(await page.locator('[data-basic-agent-planetary-stage]').getAttribute('data-active-criterion') === criterion, `BASIC agent criterion ${criterion} did not activate.`);
+    assert(await page.locator('[data-basic-agent-planetary-node][data-basic-agent-status][data-basic-agent-active-source]').count() === 10, `BASIC agent criterion ${criterion} lacks status/source coverage.`);
+    assert((await page.locator('[data-basic-agent-planetary-core]').getAttribute('data-basic-agent-core-status'))?.length > 0, `BASIC aggregate status is missing for ${criterion}.`);
   }
-  await page.locator('[data-global-agent-planetary-criterion="operational"]').click();
-  const globalSelectionText = await page.locator('[data-global-agent-planetary-selection]').innerText();
-  for (const field of ['Runtime / workload', 'Heartbeat / activitate', 'Freshness / dependențe', 'Sursă / dovadă', 'Incident / clasificare', 'Acțiune']) {
-    assert(globalSelectionText.includes(field), `Global selected-agent evidence is missing ${field}.`);
+  await page.locator('[data-basic-agent-planetary-criterion="functional"]').click();
+  await page.locator('[data-basic-agent-planetary-node]').first().click();
+  await page.waitForFunction(() => document.querySelector('[data-basic-agent-planetary-selection]')?.textContent?.includes('Sursă reală'));
+  const basicAgentSelectionText = await page.locator('[data-basic-agent-planetary-selection]').textContent() || '';
+  for (const field of ['Sursă reală', 'De ce / ce lipsește', 'Acțiune']) {
+    assert(basicAgentSelectionText.includes(field), `BASIC selected-agent evidence is missing ${field}.`);
   }
+  await page.locator('[data-basic-agent-planetary-panel]').screenshot({ path: resolve(evidenceRoot, 'turn-basic-agent-planetary-system.png') });
   assert(await page.locator('[data-turn-page="basic"] [data-operational-entry]:visible').count() === 6, 'BASIC does not expose all six agent/departments/P9/evidence entry points.');
   await verifyOperationalEntry(page, 'p9', 'investigate', '#turn-p9');
   await verifyOperationalEntry(page, 'event-store', 'incidents', '#turn-incident-page-title');
@@ -228,13 +239,13 @@ try {
       basicOrbitalCriterionKeys: [...document.querySelectorAll('[data-basic-orbital-criterion-map]')].map((map) => map.getAttribute('data-basic-orbital-criterion-map')),
       basicOrbitalCriterionCoverage: [...document.querySelectorAll('[data-basic-orbital-node]')].filter((node) => ['functional', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'].every((criterion) => node.getAttribute(`data-orbital-${criterion}-status`) && node.getAttribute(`data-orbital-${criterion}-source`))).length,
       basicOrbitalContract: document.querySelector('[data-basic-operational-orbit]')?.getAttribute('data-orbital-source') || '',
-      globalAgentPanelCount: document.querySelectorAll('[data-global-agent-planetary-panel]').length,
-      globalAgentNodeCount: document.querySelectorAll('[data-global-agent-planetary-node]').length,
-      globalAgentSourceCoverage: [...document.querySelectorAll('[data-global-agent-planetary-node]')].filter((node) => node.getAttribute('data-global-agent-evidence-source') && node.getAttribute('data-global-agent-runtime-presence') && node.getAttribute('data-global-agent-observed-at')).length,
-      globalAgentCriterionCoverage: [...document.querySelectorAll('[data-global-agent-planetary-node]')].filter((node) => ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'].every((criterion) => node.getAttribute(`data-global-${criterion}-status`) && node.getAttribute(`data-global-${criterion}-source`))).length,
-      globalAgentContract: document.querySelector('[data-global-agent-planetary-panel]')?.getAttribute('data-orbital-source') || '',
-      globalAgentCoreStatus: document.querySelector('[data-global-agent-planetary-core]')?.getAttribute('data-global-agent-core-status') || '',
-      globalAgentCoreSource: document.querySelector('[data-global-agent-planetary-core]')?.getAttribute('data-global-agent-core-source') || '',
+      basicAgentPanelCount: document.querySelectorAll('[data-basic-agent-planetary-panel]').length,
+      basicAgentNodeCount: document.querySelectorAll('[data-basic-agent-planetary-node]').length,
+      basicAgentSourceCoverage: [...document.querySelectorAll('[data-basic-agent-planetary-node]')].filter((node) => node.getAttribute('data-basic-agent-evidence-source') && node.getAttribute('data-basic-agent-observed-at')).length,
+      basicAgentCriterionCoverage: [...document.querySelectorAll('[data-basic-agent-planetary-node]')].filter((node) => ['functional', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'].every((criterion) => node.getAttribute(`data-basic-agent-${criterion}-status`) && node.getAttribute(`data-basic-agent-${criterion}-source`))).length,
+      basicAgentContract: document.querySelector('[data-basic-agent-planetary-panel]')?.getAttribute('data-orbital-source') || '',
+      basicAgentCoreStatus: document.querySelector('[data-basic-agent-planetary-core]')?.getAttribute('data-basic-agent-core-status') || '',
+      basicAgentCoreSource: document.querySelector('[data-basic-agent-planetary-core]')?.getAttribute('data-basic-agent-core-source') || '',
       premiumSpatialNodeCount: document.querySelectorAll('[data-premium-spatial-node]').length,
       premiumSpatialSourceCoverage: [...document.querySelectorAll('[data-premium-spatial-node]')].filter((node) => node.getAttribute('data-status-source') && node.getAttribute('data-runtime-presence')).length,
       premiumOrbitalNodeCount: document.querySelectorAll('[data-premium-orbital-node]').length,
@@ -291,12 +302,12 @@ try {
   assert(ui.basicOrbitalCriterionMapCount === 6 && new Set(ui.basicOrbitalCriterionKeys).size === 6, `BASIC exposes ${ui.basicOrbitalCriterionMapCount}/6 unique criterion maps.`);
   assert(ui.basicOrbitalCriterionCoverage === 10, `BASIC criterion status/source coverage is ${ui.basicOrbitalCriterionCoverage}/10.`);
   assert(ui.basicOrbitalContract === overview.contractVersion, `BASIC orbital contract is ${ui.basicOrbitalContract}.`);
-  assert(ui.globalAgentPanelCount === 1, `TURN exposes ${ui.globalAgentPanelCount}/1 global agent planetary systems.`);
-  assert(ui.globalAgentNodeCount === 28 && ui.globalAgentSourceCoverage === 28, `Global agent planetary source coverage is ${ui.globalAgentSourceCoverage}/${ui.globalAgentNodeCount}.`);
-  assert(ui.globalAgentCriterionCoverage === 28, `Global agent criterion status/source coverage is ${ui.globalAgentCriterionCoverage}/28.`);
-  assert(ui.globalAgentContract === dashboard.contractVersion, `Global agent planetary contract is ${ui.globalAgentContract}.`);
-  assert(['PASS', 'DEGRADED', 'FAIL', 'NO_TELEMETRY', 'STANDBY'].includes(ui.globalAgentCoreStatus), `Global aggregate status is ${ui.globalAgentCoreStatus || 'missing'}.`);
-  assert(ui.globalAgentCoreSource.includes(dashboard.contractVersion), `Global aggregate source is ${ui.globalAgentCoreSource || 'missing'}.`);
+  assert(ui.basicAgentPanelCount === 1, `TURN exposes ${ui.basicAgentPanelCount}/1 BASIC agent planetary systems.`);
+  assert(ui.basicAgentNodeCount === 10 && ui.basicAgentSourceCoverage === 10, `BASIC agent planetary source coverage is ${ui.basicAgentSourceCoverage}/${ui.basicAgentNodeCount}.`);
+  assert(ui.basicAgentCriterionCoverage === 10, `BASIC agent criterion status/source coverage is ${ui.basicAgentCriterionCoverage}/10.`);
+  assert(ui.basicAgentContract === overview.contractVersion, `BASIC agent planetary contract is ${ui.basicAgentContract}.`);
+  assert(['PASS', 'DEGRADED', 'FAIL', 'NO_TELEMETRY', 'STANDBY'].includes(ui.basicAgentCoreStatus), `BASIC aggregate status is ${ui.basicAgentCoreStatus || 'missing'}.`);
+  assert(ui.basicAgentCoreSource.includes(overview.contractVersion), `BASIC aggregate source is ${ui.basicAgentCoreSource || 'missing'}.`);
   assert(ui.premiumSpatialNodeCount === 28 && ui.premiumSpatialSourceCoverage === 28, `PREMIUM spatial source coverage is ${ui.premiumSpatialSourceCoverage}/${ui.premiumSpatialNodeCount}.`);
   assert(ui.premiumOrbitalNodeCount === 28 && ui.premiumOrbitalSourceCoverage === 28, `PREMIUM orbital source coverage is ${ui.premiumOrbitalSourceCoverage}/${ui.premiumOrbitalNodeCount}.`);
   assert(ui.premiumOrbitalCriterionMapCount === 6 && new Set(ui.premiumOrbitalCriterionKeys).size === 6, `PREMIUM exposes ${ui.premiumOrbitalCriterionMapCount}/6 unique criterion maps.`);

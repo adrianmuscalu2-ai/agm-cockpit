@@ -46,6 +46,7 @@ assert.match(liveStateSource, /truth\.falseGreen/);
 
 const governanceSource = await readFile(new URL('../src/premium-governance/premium-governance.runtime.ts', import.meta.url), 'utf8');
 const governanceViewSource = await readFile(new URL('../src/premium-governance/premium-governance.view.ts', import.meta.url), 'utf8');
+const functionalOverviewSource = await readFile(new URL('../src/turn-functional-overview.ts', import.meta.url), 'utf8');
 assert.match(governanceSource, /\/operations\/turn\/operational-dashboard/);
 assert.match(governanceSource, /Authorization: `Bearer \$\{turnAdminAccessToken\}`/);
 assert.match(governanceSource, /Registry-ul nu este folosit ca fallback/);
@@ -81,10 +82,6 @@ assert.match(governanceSource, /node\.lifecycleStatus\)} \(identity only\)/);
 assert.doesNotMatch(governanceSource, /M2M AUTHENTICATED · LIVE/);
 assert.doesNotMatch(governanceViewSource, /agm-orbit|turn-agent-panel\/index\.html/);
 assert.match(governanceSource, /data-premium-orbital-node/);
-assert.match(governanceSource, /renderGlobalAgentPlanetaryModel/);
-assert.match(governanceSource, /data-global-agent-planetary-node/);
-assert.match(governanceSource, /data-global-agent-core-status/);
-assert.match(governanceSource, /aggregateCriterionStatus/);
 assert.match(governanceSource, /data-orbital-evidence-source="\$\{escapeHtml\(node\.statusSource\)\}"/);
 assert.match(governanceSource, /data-orbital-runtime-presence/);
 assert.match(governanceSource, /evaluateOrbitalCriteria/);
@@ -112,12 +109,17 @@ assert.match(commandCenterSource, /data-secondary-registry/);
 assert.match(commandCenterSource, /data-turn-page="basic"/);
 assert.match(commandCenterSource, /data-turn-page="incidents"/);
 assert.match(commandCenterSource, /data-basic-spatial-stage/);
-assert.match(commandCenterSource, /data-global-agent-planetary-panel/);
-assert.match(commandCenterSource, /data-global-agent-planetary-stage/);
-assert.match(commandCenterSource, /data-global-agent-planetary-criteria/);
-for (const criterion of ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
-  assert.match(commandCenterSource, new RegExp(`data-global-agent-planetary-criterion="${criterion}"`));
+assert.match(commandCenterSource, /data-basic-agent-planetary-panel/);
+assert.match(commandCenterSource, /data-basic-agent-planetary-stage/);
+assert.match(commandCenterSource, /data-basic-agent-planetary-criteria/);
+for (const criterion of ['functional', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
+  assert.match(commandCenterSource, new RegExp(`data-basic-agent-planetary-criterion="${criterion}"`));
 }
+assert.match(functionalOverviewSource, /renderBasicAgentPlanetarySystem/);
+assert.match(functionalOverviewSource, /data-basic-agent-planetary-node/);
+assert.match(functionalOverviewSource, /data-basic-agent-core-status/);
+assert.match(functionalOverviewSource, /aggregateBasicAgentStatus/);
+assert.doesNotMatch(governanceSource, /data-basic-agent-planetary-node/);
 assert.match(commandCenterSource, /data-operational-incident-decisions/);
 assert.doesNotMatch(commandCenterSource, /turn-agent-panel\/index\.html/);
 assert.doesNotMatch(commandCenterSource, /renderRealStatusBoard/);
