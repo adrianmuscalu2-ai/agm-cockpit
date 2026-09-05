@@ -465,7 +465,7 @@ function render() {
   app.innerHTML = `
     <main class="shell view-${state.view} ${visualSceneClass()}">
       <section class="workspace" aria-labelledby="page-title">
-        ${state.view === 'home' ? renderHomeHeader() : premiumLayout ? '' : `<header class="topbar">
+        ${state.view === 'home' ? renderHomeHeader() : premiumLayout || state.view === 'turn' ? '' : `<header class="topbar">
           <nav class="module-strip" aria-label="${escapeHtml(t(language, 'nav.moduleStripLabel'))}">
             <div class="profile-chip" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}" aria-label="${escapeHtml(t(language, 'header.quickProfileAria'))}">
               <span>${escapeHtml(t(language, 'nav.profile'))}</span>
@@ -500,9 +500,9 @@ function render() {
 
         ${renderCurrentView()}
 
-        ${state.view === 'cockpit' || state.view === 'home' || premiumLayout ? '' : renderCommandPanel()}
+        ${state.view === 'cockpit' || state.view === 'home' || premiumLayout || state.view === 'turn' ? '' : renderCommandPanel()}
 
-        ${renderGlobalQuickActions()}
+        ${state.view === 'turn' ? '' : renderGlobalQuickActions()}
 
         <footer class="status" role="status">
           <span>${escapeHtml(state.status)}</span>

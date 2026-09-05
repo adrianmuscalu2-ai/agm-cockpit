@@ -188,6 +188,10 @@ try {
       incidentQualificationCoverage: [...document.querySelectorAll('[data-incident-decision]')].filter((node) => !['', 'DATA_UNAVAILABLE'].includes(node.getAttribute('data-incident-qualified') || '')).length,
       pageCount: new Set([...document.querySelectorAll('[data-turn-page]')].map((section) => section.getAttribute('data-turn-page'))).size,
       decorativeOrbitCount: document.querySelectorAll('.agm-orbit, .agm-network-node').length,
+      genericReadyBadgeCount: document.querySelectorAll('.view-turn .header-ready').length,
+      genericBrandPosterCount: document.querySelectorAll('.view-turn .brand-lockup, .view-turn .brand-logo').length,
+      genericCommandPanelCount: document.querySelectorAll('.view-turn .command-panel').length,
+      genericQuickActionsCount: document.querySelectorAll('.view-turn .quick-actions').length,
       authorityStatus: document.querySelector('[data-control-status]')?.textContent?.trim() || '',
       operationalSummary: {
         total: document.querySelector('[data-node-count]')?.textContent?.trim() || '',
@@ -235,6 +239,10 @@ try {
     assert(ui.operationalSummary[key] === String(expected), `Operational summary ${key} is ${ui.operationalSummary[key]}, expected ${expected}.`);
   }
   assert(ui.decorativeOrbitCount === 0, 'Decorative operational substitute is still rendered.');
+  assert(ui.genericReadyBadgeCount === 0, 'Generic OK READY badge is masking the TURN product verdict.');
+  assert(ui.genericBrandPosterCount === 0, 'Generic static brand poster dominates the TURN operational surface.');
+  assert(ui.genericCommandPanelCount === 0, 'Generic command panel is rendered inside the TURN operational route.');
+  assert(ui.genericQuickActionsCount === 0, 'Generic quick actions are rendered inside the TURN operational route.');
   assert(!['', 'DATA UNAVAILABLE', 'ACCES OPERAȚIONAL NECESAR'].includes(ui.authorityStatus), `Authority status is ${ui.authorityStatus}.`);
   assert(report.network.some((entry) => entry.authorizationPresent === true), 'UI request did not carry real Owner Access authorization.');
   assert(report.network.some((entry) => entry.status === 200), 'UI did not receive functional overview HTTP 200.');

@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { fetchTurnFunctionalOverview } from '../src/turn-functional-overview';
 
 const payload = {
@@ -21,4 +23,9 @@ assert.equal(observedAuthorization, 'Bearer owner-token');
 assert.equal(result.verdict.productOwnerAcceptance, 'NOT_GRANTED');
 assert.equal(result.verdict.finalProductionPass, 'RETRACTED');
 assert.equal(result.summary.unresolvedUnknown, 0);
+
+const mainSource = await readFile(resolve('src/main.ts'), 'utf8');
+assert.match(mainSource, /premiumLayout \|\| state\.view === 'turn' \? '' : `<header class="topbar">/);
+assert.match(mainSource, /premiumLayout \|\| state\.view === 'turn' \? '' : renderCommandPanel\(\)/);
+assert.match(mainSource, /state\.view === 'turn' \? '' : renderGlobalQuickActions\(\)/);
 console.log('TURN_FUNCTIONAL_OVERVIEW_WEB_CONTRACT=PASS');

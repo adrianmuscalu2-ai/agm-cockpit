@@ -92,3 +92,19 @@ Local verification: functional-overview contract `PASS`; operational-truth UI co
 - Product Owner acceptance remains `NOT_GRANTED`; `FINAL_PRODUCT_PASS` remains false and cannot be inferred from this technical Browser PASS.
 
 `RESCUE RECOVERED AUTHENTICATION -> CONTROLLED PRODUCTION AUDIT PASS -> EVIDENCE PRESERVED -> HANDOFF TO PRODUCT OWNER`
+
+## 2026-09-05 Production audit and visual rejection for `b87ec3f`
+
+- Product Owner explicitly approved push, Production deployment, and the secure masked-PIN audit route for `b87ec3f`.
+- GitHub Actions run `33949932421`: all jobs completed successfully.
+- Production deployment `6278011741` targeted exact SHA `b87ec3fab278ce56f882fc74d5e8b087e17da35a`.
+- Browser preflight: Browser Plugin `PASS`; Integrated Browser Control `PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE`; controlled Browser Session `PASS`; Target Page `PASS`.
+- Controlled Production evidence: `browser/2026-09-05T06-40-44-371Z/`.
+- Protected APIs returned HTTP 200 with real Owner Access. The PIN stayed masked, the bearer token was redacted, and transient process state was removed after the audit.
+- Real TURN coverage: Basic spatial nodes 10/10; Premium spatial nodes 28/28; Premium source coverage 28/28; incident decisions 7/7; pages 4/4; unresolved UNKNOWN 0; capability gaps 0.
+- Current real state: 20 healthy, 6 degraded, 1 failed, 0 unknown; 2 qualified persistent incidents and 5 request-driven optional providers correctly classified `NOT_REQUIRED` while idle.
+- Product Owner acceptance remains `NOT_GRANTED`; `FINAL_PRODUCT_PASS` remains false.
+
+Visual inspection rejected the released composition despite the technical Browser PASS: the global static brand poster and generic `OK READY` badge occupied the leading TURN surface and visually contradicted the TURN product verdict. The generic command panel and quick-actions surface were also unrelated to the dedicated TURN command route.
+
+Local bounded remediation removes these four generic surfaces only from `view-turn`, preserves the four TURN pages and their real telemetry/evidence pipeline, and adds static plus controlled-Browser regression assertions. A new Production SHA and one affected visual audit are required; accepted deployment, M2M, API, and incident evidence is preserved and must not be revalidated.
