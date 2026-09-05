@@ -47,6 +47,7 @@ assert.match(liveStateSource, /truth\.falseGreen/);
 const governanceSource = await readFile(new URL('../src/premium-governance/premium-governance.runtime.ts', import.meta.url), 'utf8');
 const governanceViewSource = await readFile(new URL('../src/premium-governance/premium-governance.view.ts', import.meta.url), 'utf8');
 const functionalOverviewSource = await readFile(new URL('../src/turn-functional-overview.ts', import.meta.url), 'utf8');
+const panelRuntimeSource = await readFile(new URL('../src/turn-agent-panel.integration.ts', import.meta.url), 'utf8');
 assert.match(governanceSource, /\/operations\/turn\/operational-dashboard/);
 assert.match(governanceSource, /Authorization: `Bearer \$\{turnAdminAccessToken\}`/);
 assert.match(governanceSource, /Registry-ul nu este folosit ca fallback/);
@@ -112,13 +113,17 @@ assert.match(commandCenterSource, /data-basic-spatial-stage/);
 assert.match(commandCenterSource, /data-basic-agent-planetary-panel/);
 assert.match(commandCenterSource, /data-basic-agent-planetary-stage/);
 assert.match(commandCenterSource, /data-basic-agent-planetary-criteria/);
-for (const criterion of ['functional', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
+for (const criterion of ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
   assert.match(commandCenterSource, new RegExp(`data-basic-agent-planetary-criterion="${criterion}"`));
 }
-assert.match(functionalOverviewSource, /renderBasicAgentPlanetarySystem/);
-assert.match(functionalOverviewSource, /data-basic-agent-planetary-node/);
-assert.match(functionalOverviewSource, /data-basic-agent-core-status/);
-assert.match(functionalOverviewSource, /aggregateBasicAgentStatus/);
+assert.match(panelRuntimeSource, /buildBasicAgentNetworkModel/);
+assert.match(panelRuntimeSource, /agentGovernanceRegistry\.map/);
+assert.match(panelRuntimeSource, /data-basic-agent-planetary-node/);
+assert.match(panelRuntimeSource, /data-basic-agent-core-status/);
+assert.match(panelRuntimeSource, /data-basic-agent-registry-presence="PRESENT"/);
+assert.match(panelRuntimeSource, /data-basic-agent-runtime-evidence/);
+assert.match(panelRuntimeSource, /IDENTITY_PRESENT · LIVE_RUNTIME_SOURCE_NOT_MAPPED/);
+assert.doesNotMatch(functionalOverviewSource, /data-basic-agent-planetary-node/);
 assert.doesNotMatch(governanceSource, /data-basic-agent-planetary-node/);
 assert.match(commandCenterSource, /data-operational-incident-decisions/);
 assert.doesNotMatch(commandCenterSource, /turn-agent-panel\/index\.html/);

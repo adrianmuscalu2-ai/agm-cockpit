@@ -221,20 +221,20 @@ function renderFunctionalOverview() {
       </section>
       <section class="turn-approved-orbital-panel basic-agent-system" id="turn-basic-agent-system" data-basic-agent-planetary-panel data-orbital-source="PENDING_REAL_SOURCE" aria-labelledby="turn-basic-agent-system-title">
         <header>
-          <div><span class="turn-kicker">TURN · BASIC LIVE AGENT NETWORK</span><h3 id="turn-basic-agent-system-title">AGM TURN BASIC AGENT PLANETARY SYSTEM</h3><p>Starea generală BASIC este în centru, iar toate capabilitățile și toate funcțiile-agent BASIC sunt pe orbite. Premium nu este proiectat în acest panou.</p></div>
-          <p class="turn-orbital-legend"><strong>BASIC la BASIC:</strong> fiecare culoare și stare provine exclusiv din evaluatorul BASIC, runtime, EventStore sau API. Registry-ul nu produce stare operațională.</p>
+          <div><span class="turn-kicker">TURN · BASIC OFFICIAL AGENT NETWORK</span><h3 id="turn-basic-agent-system-title">AGM TURN BASIC AGENT PLANETARY SYSTEM</h3><p>Starea generală este în centru, iar toate cele 37 de identități din Registrul oficial de agenți sunt pe orbite. Cele 10 submodule BASIC rămân separat în panoul de capabilități de mai sus.</p></div>
+          <p class="turn-orbital-legend"><strong>AGENT LA AGENT:</strong> registry-ul furnizează numai identitatea. Verde, galben sau roșu apare exclusiv când există probă runtime reală; lipsa sursei rămâne gri, REGISTRY ONLY / NO TELEMETRY.</p>
         </header>
         <nav class="turn-orbital-criteria" data-basic-agent-planetary-criteria aria-label="Factorul de stare al sistemului planetar BASIC">
-          <button type="button" data-basic-agent-planetary-criterion="functional" aria-selected="true">Stare funcțională</button>
+          <button type="button" data-basic-agent-planetary-criterion="operational" aria-selected="true">Stare operațională</button>
           <button type="button" data-basic-agent-planetary-criterion="telemetry" aria-selected="false">Telemetrie</button>
           <button type="button" data-basic-agent-planetary-criterion="procedural" aria-selected="false">Procedural</button>
-          <button type="button" data-basic-agent-planetary-criterion="component" aria-selected="false">Țintă / sursă</button>
+          <button type="button" data-basic-agent-planetary-criterion="component" aria-selected="false">Componentă / sursă</button>
           <button type="button" data-basic-agent-planetary-criterion="incidents" aria-selected="false">Incidente</button>
           <button type="button" data-basic-agent-planetary-criterion="freshness" aria-selected="false">Freshness</button>
         </nav>
-        <p class="turn-orbital-criterion-message" data-basic-agent-planetary-message>Se încarcă stările reale BASIC…</p>
-        <div class="turn-approved-orbital-stage" data-basic-agent-planetary-stage aria-busy="true"><p>Se citește turn-functional-overview.v2…</p></div>
-        <aside class="turn-approved-orbital-selection" data-basic-agent-planetary-selection><p>Selectează un agent BASIC pentru sursă, motiv și acțiune.</p></aside>
+        <p class="turn-orbital-criterion-message" data-basic-agent-planetary-message>Se reconciliază registrul oficial cu probele runtime reale…</p>
+        <div class="turn-approved-orbital-stage" data-basic-agent-planetary-stage aria-busy="true"><p>Se citesc agent-governance.registry și operations-health…</p></div>
+        <aside class="turn-approved-orbital-selection" data-basic-agent-planetary-selection><p>Selectează un agent pentru identitate, runtime, sursă, motiv și acțiune.</p></aside>
       </section>
       <div class="turn-spatial-summary" data-basic-spatial-summary><span>Se citesc sursele reale autorizate…</span></div>
       <div class="turn-spatial-stage turn-basic-stage" data-basic-spatial-stage aria-busy="true"></div>
