@@ -79,11 +79,16 @@ assert.match(governanceSource, /rootCauseClassification/);
 assert.match(governanceSource, /pipeline\.eventStore/);
 assert.match(governanceSource, /node\.lifecycleStatus\)} \(identity only\)/);
 assert.doesNotMatch(governanceSource, /M2M AUTHENTICATED · LIVE/);
-assert.doesNotMatch(governanceSource, /orbit/i);
+assert.doesNotMatch(governanceViewSource, /agm-orbit|turn-agent-panel\/index\.html/);
+assert.match(governanceSource, /data-premium-orbital-node/);
+assert.match(governanceSource, /data-orbital-evidence-source="\$\{escapeHtml\(node\.statusSource\)\}"/);
+assert.match(governanceSource, /data-orbital-runtime-presence/);
 assert.match(governanceViewSource, /data-premium-operational-panel/);
 assert.match(governanceViewSource, /data-operational-summary/);
 assert.match(governanceViewSource, /data-turn-page="premium"/);
 assert.match(governanceViewSource, /data-premium-spatial-stage/);
+assert.match(governanceViewSource, /data-premium-operational-orbit/);
+assert.match(governanceViewSource, /data-premium-orbital-stage/);
 assert.match(governanceViewSource, /data-turn-page="investigate"/);
 
 const commandCenterSource = await readFile(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');

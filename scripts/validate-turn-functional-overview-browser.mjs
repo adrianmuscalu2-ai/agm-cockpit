@@ -138,6 +138,8 @@ try {
   };
   assert(await page.locator('[data-turn-page="basic"]:visible').count() === 1, 'BASIC is not the primary visible TURN page.');
   assert(await page.locator('[data-basic-spatial-node]:visible').count() === 10, 'BASIC spatial model does not contain 10 real zones.');
+  assert(await page.locator('[data-basic-operational-orbit]:visible').count() === 1, 'BASIC approved orbital panel is not visible on entry.');
+  assert(await page.locator('[data-basic-orbital-node]:visible').count() === 10, 'BASIC orbital panel does not contain 10 real zones.');
   assert(await page.locator('[data-turn-page="basic"] [data-operational-entry]:visible').count() === 6, 'BASIC does not expose all six agent/departments/P9/evidence entry points.');
   await verifyOperationalEntry(page, 'p9', 'investigate', '#turn-p9');
   await verifyOperationalEntry(page, 'event-store', 'incidents', '#turn-incident-page-title');
@@ -149,6 +151,8 @@ try {
   await page.locator('[data-turn-page-target="premium"]').click();
   await page.waitForSelector('[data-turn-page="premium"]:not([hidden]) [data-premium-spatial-node]', { timeout: 30_000 });
   assert(await page.locator('[data-premium-spatial-node]:visible').count() === 28, 'PREMIUM spatial model does not contain 28 real agents.');
+  assert(await page.locator('[data-premium-operational-orbit]:visible').count() === 1, 'PREMIUM approved orbital panel is not visible on entry.');
+  assert(await page.locator('[data-premium-orbital-node]:visible').count() === 28, 'PREMIUM orbital panel does not contain 28 real agents.');
   await page.screenshot({ path: resolve(evidenceRoot, 'turn-premium-spatial.png'), fullPage: true });
   await page.locator('[data-turn-page-target="incidents"]').click();
   await page.waitForSelector('[data-turn-page="incidents"]:not([hidden]) [data-incident-pipeline-status]', { timeout: 30_000 });
@@ -189,8 +193,15 @@ try {
       registryMissingNodes: [...document.querySelectorAll('[data-canonical-agent-id][data-registry-presence="MISSING"]')].map((card) => card.getAttribute('data-canonical-agent-id')),
       operationalFieldCoverage: [...document.querySelectorAll('[data-canonical-agent-id]')].filter((card) => ['Runtime', 'Current state / health', 'Last heartbeat / probe', 'Last activity', 'Runtime freshness', 'Activity freshness', 'Current function', 'Current operation / workload', 'Dependencies', 'Incidents/errors', 'Evidence/source', 'Runtime evidence', 'Activity evidence', 'Why', 'Required action', 'Identity registry'].every((label) => card.textContent?.includes(label))).length,
       basicSpatialNodeCount: document.querySelectorAll('[data-basic-spatial-node]').length,
+      basicOrbitalNodeCount: document.querySelectorAll('[data-basic-orbital-node]').length,
+      basicOrbitalSourceCoverage: [...document.querySelectorAll('[data-basic-orbital-node]')].filter((node) => node.getAttribute('data-orbital-evidence-source') && node.getAttribute('data-orbital-observed-at')).length,
+      basicOrbitalContract: document.querySelector('[data-basic-operational-orbit]')?.getAttribute('data-orbital-source') || '',
       premiumSpatialNodeCount: document.querySelectorAll('[data-premium-spatial-node]').length,
       premiumSpatialSourceCoverage: [...document.querySelectorAll('[data-premium-spatial-node]')].filter((node) => node.getAttribute('data-status-source') && node.getAttribute('data-runtime-presence')).length,
+      premiumOrbitalNodeCount: document.querySelectorAll('[data-premium-orbital-node]').length,
+      premiumOrbitalSourceCoverage: [...document.querySelectorAll('[data-premium-orbital-node]')].filter((node) => node.getAttribute('data-orbital-evidence-source') && node.getAttribute('data-orbital-runtime-presence') && node.getAttribute('data-orbital-observed-at')).length,
+      premiumOrbitalContract: document.querySelector('[data-premium-operational-orbit]')?.getAttribute('data-orbital-source') || '',
+      approvedOrbitalPanelCount: document.querySelectorAll('[data-basic-operational-orbit], [data-premium-operational-orbit]').length,
       incidentDecisionCount: document.querySelectorAll('[data-incident-decision]').length,
       incidentQualificationCoverage: [...document.querySelectorAll('[data-incident-decision]')].filter((node) => !['', 'DATA_UNAVAILABLE'].includes(node.getAttribute('data-incident-qualified') || '')).length,
       pageCount: new Set([...document.querySelectorAll('[data-turn-page]')].map((section) => section.getAttribute('data-turn-page'))).size,
@@ -230,10 +241,15 @@ try {
   assert(ui.primaryBeforeRegistry, 'Premium operational panel is not positioned before the registry inventory.');
   assert(ui.secondaryRegistryCollapsed, 'Secondary registry inventory is not collapsed by default.');
   assert(ui.visibleSecondaryRegistryNodes === 0, `Secondary registry dominates the visible surface with ${ui.visibleSecondaryRegistryNodes} visible nodes.`);
-  assert(ui.staticAgentPanelCount === 0, 'Static/orbital agent panel is still rendered.');
+  assert(ui.staticAgentPanelCount === 0, 'Legacy static iframe agent panel is still rendered.');
   assert(ui.operationalNodeCount === 28 && ui.operationalFieldCoverage === 28, `Operational agent coverage is ${ui.operationalFieldCoverage}/${ui.operationalNodeCount}.`);
   assert(ui.basicSpatialNodeCount === 10, `BASIC spatial coverage is ${ui.basicSpatialNodeCount}/10.`);
+  assert(ui.basicOrbitalNodeCount === 10 && ui.basicOrbitalSourceCoverage === 10, `BASIC orbital source coverage is ${ui.basicOrbitalSourceCoverage}/${ui.basicOrbitalNodeCount}.`);
+  assert(ui.basicOrbitalContract === overview.contractVersion, `BASIC orbital contract is ${ui.basicOrbitalContract}.`);
   assert(ui.premiumSpatialNodeCount === 28 && ui.premiumSpatialSourceCoverage === 28, `PREMIUM spatial source coverage is ${ui.premiumSpatialSourceCoverage}/${ui.premiumSpatialNodeCount}.`);
+  assert(ui.premiumOrbitalNodeCount === 28 && ui.premiumOrbitalSourceCoverage === 28, `PREMIUM orbital source coverage is ${ui.premiumOrbitalSourceCoverage}/${ui.premiumOrbitalNodeCount}.`);
+  assert(ui.premiumOrbitalContract === dashboard.contractVersion, `PREMIUM orbital contract is ${ui.premiumOrbitalContract}.`);
+  assert(ui.approvedOrbitalPanelCount === 2, `TURN exposes ${ui.approvedOrbitalPanelCount}/2 approved live orbital panels.`);
   assert(ui.incidentDecisionCount === dashboard.incidentPipeline.nonHealthy && ui.incidentQualificationCoverage === ui.incidentDecisionCount, `Incident qualification coverage is ${ui.incidentQualificationCoverage}/${ui.incidentDecisionCount}.`);
   assert(ui.pageCount === 4, `TURN exposes ${ui.pageCount}/4 canonical pages.`);
   assert(ui.registryMissingNodes.length === 0, `Canonical registry identities missing in UI: ${ui.registryMissingNodes.join(', ')}.`);

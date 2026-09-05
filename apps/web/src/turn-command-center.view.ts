@@ -198,6 +198,14 @@ function renderFunctionalOverview() {
   return `<div id="turn-functional-overview" data-turn-functional-overview aria-live="polite" aria-busy="true">
     <section class="turn-spatial-page turn-basic-spatial-page" data-turn-page="basic" aria-labelledby="turn-functional-overview-title">
       <header><div><span class="turn-kicker">PAGINA 1 · BASIC · LIVE FUNCTIONAL VALUE</span><h2 id="turn-functional-overview-title">BASIC operational space</h2><p>Fiecare zonă este proiectată din EventStore/API și evaluatorul funcțional. Click pe un nod pentru sursă, lipsă și acțiune.</p></div><strong data-functional-verdict>SE ÎNCARCĂ</strong></header>
+      <section class="turn-approved-orbital-panel basic" data-basic-operational-orbit data-orbital-source="PENDING_REAL_SOURCE" aria-labelledby="turn-basic-orbit-title">
+        <header>
+          <div><span class="turn-kicker">TURN · APPROVED VISUAL SOURCE</span><h3 id="turn-basic-orbit-title">AGM TURN BASIC CONTROL PANEL</h3><p>Panoul orbital aprobat este recuperat; fiecare planetă este alimentată de evaluatorul funcțional și păstrează sursa reală a zonei.</p></div>
+          <p class="turn-orbital-legend"><strong>Criteriu vizual:</strong> verde = operațional/observat, galben = atenție, roșu = failed/capability missing, albastru = fără activitate/referință statică, gri = UNKNOWN legitim. Culoarea nu este derivată din registry.</p>
+        </header>
+        <div class="turn-approved-orbital-stage" data-basic-orbital-stage aria-busy="true"><p>Se citesc sursele reale autorizate…</p></div>
+        <aside class="turn-approved-orbital-selection" data-basic-orbital-selection><p>Selectează o planetă BASIC pentru sursă, motiv și acțiune.</p></aside>
+      </section>
       <div class="turn-spatial-summary" data-basic-spatial-summary><span>Se citesc sursele reale autorizate…</span></div>
       <div class="turn-spatial-stage turn-basic-stage" data-basic-spatial-stage aria-busy="true"></div>
       <aside class="turn-spatial-selection" data-basic-spatial-selection><p>Selectează o zonă BASIC.</p></aside>

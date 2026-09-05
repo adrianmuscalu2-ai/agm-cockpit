@@ -108,9 +108,12 @@ function renderOverview(root: HTMLElement, overview: TurnFunctionalOverview) {
 }
 
 function renderBasicSpatialModel(root: HTMLElement, basicZones: TurnFunctionalZone[], overview: TurnFunctionalOverview) {
+  root.querySelector<HTMLElement>('[data-basic-operational-orbit]')?.setAttribute('data-orbital-source', overview.contractVersion);
   const stage = root.querySelector<HTMLElement>('[data-basic-spatial-stage]');
+  const orbitalStage = root.querySelector<HTMLElement>('[data-basic-orbital-stage]');
   const summary = root.querySelector<HTMLElement>('[data-basic-spatial-summary]');
   const selection = root.querySelector<HTMLElement>('[data-basic-spatial-selection]');
+  const orbitalSelection = root.querySelector<HTMLElement>('[data-basic-orbital-selection]');
   const positions = spatialPositions(basicZones.length);
   const attention = basicZones.filter((zone) => ['ATTENTION', 'CAPABILITY_MISSING'].includes(zone.status)).length;
   const unknown = basicZones.filter((zone) => zone.status === 'UNKNOWN_LEGITIMATE').length;
@@ -128,15 +131,56 @@ function renderBasicSpatialModel(root: HTMLElement, basicZones: TurnFunctionalZo
     <div class="turn-spatial-core"><small>TURN BASIC</small><strong>${basicOperationalVerdict(basicZones)}</strong><span>${observed}/${basicZones.length} observate</span></div>
     ${basicZones.map((zone, index) => `<button type="button" class="turn-spatial-node status-${statusClass(zone.status)}" style="--node-x:${positions[index].x}%;--node-y:${positions[index].y}%" data-basic-spatial-node="${escapeHtml(zone.id)}" data-functional-status="${escapeHtml(zone.status)}" data-functional-source="${escapeHtml(zone.source.kind)}"><span aria-hidden="true"></span><strong>${escapeHtml(zone.title)}</strong><small>${escapeHtml(zone.status)}</small></button>`).join('')}`;
   stage.setAttribute('aria-busy', 'false');
+  if (orbitalStage) {
+    const planetPositions = orbitalPositions(basicZones.length);
+    orbitalStage.innerHTML = `${renderOrbitalRings()}
+      <div class="turn-approved-orbital-core status-model-live"><small>TURN BASIC</small><strong>LIVE MODEL</strong><span>${observed}/${basicZones.length} observate</span></div>
+      ${basicZones.map((zone, index) => renderBasicOrbitalPlanet(zone, planetPositions[index], index)).join('')}`;
+    orbitalStage.setAttribute('aria-busy', 'false');
+  }
   const select = (zone: TurnFunctionalZone) => {
     stage.querySelectorAll<HTMLElement>('[data-basic-spatial-node]').forEach((node) => node.classList.toggle('selected', node.dataset.basicSpatialNode === zone.id));
+    orbitalStage?.querySelectorAll<HTMLElement>('[data-basic-orbital-node]').forEach((node) => node.classList.toggle('selected', node.dataset.basicOrbitalNode === zone.id));
     if (selection) selection.innerHTML = renderSpatialZoneSelection(zone);
+    if (orbitalSelection) orbitalSelection.innerHTML = renderSpatialZoneSelection(zone);
   };
   stage.querySelectorAll<HTMLButtonElement>('[data-basic-spatial-node]').forEach((button) => button.addEventListener('click', () => {
     const zone = basicZones.find((candidate) => candidate.id === button.dataset.basicSpatialNode);
     if (zone) select(zone);
   }));
+  orbitalStage?.querySelectorAll<HTMLButtonElement>('[data-basic-orbital-node]').forEach((button) => button.addEventListener('click', () => {
+    const zone = basicZones.find((candidate) => candidate.id === button.dataset.basicOrbitalNode);
+    if (zone) select(zone);
+  }));
   if (basicZones[0]) select(basicZones[0]);
+}
+
+function renderBasicOrbitalPlanet(zone: TurnFunctionalZone, position: { x: number; y: number }, index: number) {
+  const observedAt = zone.source.observedAt ?? 'NO_REAL_OBSERVATION';
+  return `<button type="button" class="turn-approved-orbital-node status-${statusClass(zone.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%;--node-order:${index}" data-basic-orbital-node="${escapeHtml(zone.id)}" data-orbital-status="${escapeHtml(zone.status)}" data-orbital-evidence-source="${escapeHtml(zone.source.kind)}" data-orbital-observed-at="${escapeHtml(observedAt)}" title="${escapeHtml(`${zone.title} · ${zone.status} · ${zone.source.kind} · ${zone.source.label}`)}"><span class="turn-planet" aria-hidden="true"></span><small>${escapeHtml(zone.title)}</small></button>`;
+}
+
+function renderOrbitalRings() {
+  return `<svg class="turn-approved-orbital-rings" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <ellipse cx="50" cy="50" rx="46" ry="18"></ellipse>
+    <ellipse cx="50" cy="50" rx="40" ry="30" transform="rotate(25 50 50)"></ellipse>
+    <ellipse cx="50" cy="50" rx="40" ry="30" transform="rotate(-25 50 50)"></ellipse>
+    <ellipse cx="50" cy="50" rx="24" ry="38"></ellipse>
+    <ellipse cx="50" cy="50" rx="34" ry="42"></ellipse>
+  </svg>`;
+}
+
+function orbitalPositions(count: number) {
+  const ringCounts = [0, 0, 0];
+  for (let index = 0; index < count; index += 1) ringCounts[index % 3] += 1;
+  const ringOffsets = [0, 0, 0];
+  const radii = [{ x: 19, y: 16 }, { x: 32, y: 27 }, { x: 44, y: 37 }];
+  return Array.from({ length: count }, (_, index) => {
+    const ring = index % 3;
+    const position = ringOffsets[ring]++;
+    const angle = -Math.PI / 2 + (Math.PI * 2 * position) / Math.max(ringCounts[ring], 1) + ring * 0.28;
+    return { x: 50 + Math.cos(angle) * radii[ring].x, y: 50 + Math.sin(angle) * radii[ring].y };
+  });
 }
 
 function renderSpatialZoneSelection(zone: TurnFunctionalZone) {
@@ -184,12 +228,17 @@ function renderUnavailable(root: HTMLElement, reason: string) {
   if (zones) zones.innerHTML = `<p class="turn-functional-unavailable"><strong>DATA UNAVAILABLE</strong> · ${escapeHtml(reason)} Nicio stare funcțională nu este dedusă.</p>`;
   const stage = root.querySelector<HTMLElement>('[data-basic-spatial-stage]');
   if (stage) stage.innerHTML = `<p class="turn-functional-unavailable"><strong>DATA UNAVAILABLE</strong> · ${escapeHtml(reason)} Niciun nod nu este derivat din registry.</p>`;
+  const orbitalStage = root.querySelector<HTMLElement>('[data-basic-orbital-stage]');
+  if (orbitalStage) {
+    orbitalStage.innerHTML = `<p class="turn-functional-unavailable"><strong>DATA UNAVAILABLE</strong> · ${escapeHtml(reason)} Nu se fabrică planete din registry.</p>`;
+    orbitalStage.setAttribute('aria-busy', 'false');
+  }
   const verdict = root.querySelector<HTMLElement>('[data-functional-verdict]');
   if (verdict) verdict.textContent = 'DATA UNAVAILABLE';
 }
 
 function statusClass(status: string) {
-  return status.toLowerCase().replaceAll('_', '-');
+  return status.toLowerCase().replace(/[_\s]+/g, '-');
 }
 
 function escapeHtml(value: string) {

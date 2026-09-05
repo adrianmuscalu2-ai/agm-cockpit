@@ -40,4 +40,10 @@ for (const entry of ['p9', 'event-store', 'canonical-agent-registry', 'organizat
 assert.match(turnViewSource, /data-operational-entry="\$\{id\}"/);
 assert.match(turnViewSource, /id="turn-agent-control-panel"/);
 assert.match(turnViewSource, /id="turn-agent-register"/);
+assert.match(turnViewSource, /data-basic-operational-orbit/);
+assert.match(turnViewSource, /data-basic-orbital-stage/);
+const overviewRuntimeSource = await readFile(resolve('src/turn-functional-overview.ts'), 'utf8');
+assert.match(overviewRuntimeSource, /data-basic-orbital-node/);
+assert.match(overviewRuntimeSource, /data-orbital-evidence-source="\$\{escapeHtml\(zone\.source\.kind\)\}"/);
+assert.match(overviewRuntimeSource, /Nu se fabrică planete din registry/);
 console.log('TURN_FUNCTIONAL_OVERVIEW_WEB_CONTRACT=PASS');

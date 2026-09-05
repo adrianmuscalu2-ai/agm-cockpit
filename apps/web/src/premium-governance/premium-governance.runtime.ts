@@ -83,6 +83,11 @@ function renderRestricted(root: HTMLElement) {
   setText(root, '[data-network-message]', 'Autentifică Owner Access pentru date reale. Registry-ul nu este folosit ca fallback.');
   const host = root.querySelector<HTMLElement>('[data-network-departments]');
   if (host) host.innerHTML = '';
+  const orbitalStage = root.querySelector<HTMLElement>('[data-premium-orbital-stage]');
+  if (orbitalStage) {
+    orbitalStage.innerHTML = '<p class="turn-functional-unavailable"><strong>ACCES OPERAȚIONAL NECESAR</strong> · Nu se construiesc planete din registry.</p>';
+    orbitalStage.setAttribute('aria-busy', 'false');
+  }
   root.setAttribute('aria-busy', 'false');
 }
 
@@ -92,6 +97,11 @@ function renderUnavailable(root: HTMLElement, error: unknown) {
   setText(root, '[data-network-message]', error instanceof Error ? error.message : 'ACP_OPERATIONAL_DATA_UNAVAILABLE');
   const host = root.querySelector<HTMLElement>('[data-network-departments]');
   if (host) host.innerHTML = '';
+  const orbitalStage = root.querySelector<HTMLElement>('[data-premium-orbital-stage]');
+  if (orbitalStage) {
+    orbitalStage.innerHTML = `<p class="turn-functional-unavailable"><strong>DATA UNAVAILABLE</strong> · ${escapeHtml(error instanceof Error ? error.message : 'ACP_OPERATIONAL_DATA_UNAVAILABLE')} Nu se afișează fallback orbital.</p>`;
+    orbitalStage.setAttribute('aria-busy', 'false');
+  }
   root.setAttribute('aria-busy', 'false');
 }
 
@@ -128,8 +138,11 @@ function renderHero(root: HTMLElement, data: Dashboard) {
 }
 
 function renderPremiumSpatialModel(root: HTMLElement, data: Dashboard) {
+  root.querySelector<HTMLElement>('[data-premium-operational-orbit]')?.setAttribute('data-orbital-source', data.contractVersion);
   const stage = root.querySelector<HTMLElement>('[data-premium-spatial-stage]');
+  const orbitalStage = root.querySelector<HTMLElement>('[data-premium-orbital-stage]');
   const selection = root.querySelector<HTMLElement>('[data-premium-spatial-selection]');
+  const orbitalSelection = root.querySelector<HTMLElement>('[data-premium-orbital-selection]');
   if (!stage) return;
   const positions = networkPositions(data.nodes);
   const byId = new Map(data.nodes.map((node) => [node.canonicalId, node]));
@@ -144,16 +157,45 @@ function renderPremiumSpatialModel(root: HTMLElement, data: Dashboard) {
     return `<button type="button" class="turn-spatial-node premium status-${statusClass(node.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%" data-premium-spatial-node="${escapeHtml(node.canonicalId)}" data-canonical-status="${escapeHtml(node.status)}" data-runtime-presence="${escapeHtml(node.runtimePresence)}" data-status-source="${escapeHtml(node.statusSource)}"><span aria-hidden="true"></span><strong>${escapeHtml(shortNodeName(node.canonicalId))}</strong><small>${escapeHtml(node.status)}</small></button>`;
   }).join('')}`;
   stage.setAttribute('aria-busy', 'false');
+  if (orbitalStage) {
+    orbitalStage.innerHTML = `${renderPremiumOrbitalRings()}${data.nodes.map((node, index) => {
+      const position = positions.get(node.canonicalId)!;
+      return renderPremiumOrbitalPlanet(node, position, index);
+    }).join('')}`;
+    orbitalStage.setAttribute('aria-busy', 'false');
+  }
   const select = (node: NetworkNode) => {
     stage.querySelectorAll<HTMLElement>('[data-premium-spatial-node]').forEach((element) => element.classList.toggle('selected', element.dataset.premiumSpatialNode === node.canonicalId));
+    orbitalStage?.querySelectorAll<HTMLElement>('[data-premium-orbital-node]').forEach((element) => element.classList.toggle('selected', element.dataset.premiumOrbitalNode === node.canonicalId));
     if (selection) selection.innerHTML = renderSpatialAgentSelection(node);
+    if (orbitalSelection) orbitalSelection.innerHTML = renderSpatialAgentSelection(node);
   };
   stage.querySelectorAll<HTMLButtonElement>('[data-premium-spatial-node]').forEach((button) => button.addEventListener('click', () => {
     const node = byId.get(button.dataset.premiumSpatialNode ?? '');
     if (node) select(node);
   }));
+  orbitalStage?.querySelectorAll<HTMLButtonElement>('[data-premium-orbital-node]').forEach((button) => button.addEventListener('click', () => {
+    const node = byId.get(button.dataset.premiumOrbitalNode ?? '');
+    if (node) select(node);
+  }));
   const initial = byId.get('agm.authority.control-plane') ?? data.nodes[0];
   if (initial) select(initial);
+}
+
+function renderPremiumOrbitalRings() {
+  return `<svg class="turn-approved-orbital-rings" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <ellipse cx="50" cy="50" rx="47" ry="18"></ellipse>
+    <ellipse cx="50" cy="50" rx="42" ry="31" transform="rotate(24 50 50)"></ellipse>
+    <ellipse cx="50" cy="50" rx="42" ry="31" transform="rotate(-24 50 50)"></ellipse>
+    <ellipse cx="50" cy="50" rx="25" ry="40"></ellipse>
+    <ellipse cx="50" cy="50" rx="36" ry="44"></ellipse>
+  </svg>`;
+}
+
+function renderPremiumOrbitalPlanet(node: NetworkNode, position: { x: number; y: number }, index: number) {
+  const isCore = node.canonicalId === 'agm.authority.control-plane';
+  const observedAt = node.statusObservedAt ?? node.evidence.observedAt ?? 'NO_REAL_OBSERVATION';
+  return `<button type="button" class="turn-approved-orbital-node premium status-${statusClass(node.status)}${isCore ? ' is-core' : ''}" style="--node-x:${position.x}%;--node-y:${position.y}%;--node-order:${index}" data-premium-orbital-node="${escapeHtml(node.canonicalId)}" data-orbital-status="${escapeHtml(node.status)}" data-orbital-runtime-presence="${escapeHtml(node.runtimePresence)}" data-orbital-evidence-source="${escapeHtml(node.statusSource)}" data-orbital-observed-at="${escapeHtml(observedAt)}" title="${escapeHtml(`${node.canonicalId} · ${node.status} · ${node.health} · ${node.statusSource}`)}"><span class="turn-planet" aria-hidden="true"></span><small>${escapeHtml(shortNodeName(node.canonicalId))}</small></button>`;
 }
 
 function networkPositions(nodes: NetworkNode[]) {

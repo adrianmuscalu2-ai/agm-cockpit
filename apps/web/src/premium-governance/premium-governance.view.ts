@@ -49,6 +49,14 @@ export function renderTurnAuthorityControlPlane() {
         <p>Poziția și culoarea fiecărui nod sunt o proiecție interactivă a telemetriei canonice. Click pe agent pentru runtime, cauză, dovadă și acțiune.</p>
       </header>
       <section class="agm-network-hero" data-authority-dashboard aria-live="polite" aria-busy="true">
+        <section class="turn-approved-orbital-panel premium" data-premium-operational-orbit data-orbital-source="PENDING_REAL_SOURCE" aria-labelledby="turn-premium-orbit-title">
+          <header>
+            <div><span>TURN · APPROVED VISUAL SOURCE</span><h3 id="turn-premium-orbit-title">AGM TURN PREMIUM AGENT CONTROL PANEL</h3><p>Panoul orbital aprobat este recuperat ca proiecție interactivă a telemetriei canonice; panoul operațional existent rămâne integral mai jos.</p></div>
+            <p class="turn-orbital-legend"><strong>Criteriu vizual:</strong> verde = PASS, portocaliu = DEGRADED, roșu = FAIL, albastru = STANDBY, gri = NO TELEMETRY. Identitatea vine din registry; culoarea vine exclusiv din runtime/evidence.</p>
+          </header>
+          <div class="turn-approved-orbital-stage premium" data-premium-orbital-stage aria-busy="true"><p>Se citește telemetria operațională autorizată…</p></div>
+          <aside class="turn-approved-orbital-selection" data-premium-orbital-selection><p>Selectează o planetă Premium pentru runtime, heartbeat, motiv și acțiune.</p></aside>
+        </section>
         <header class="agm-operational-header"><div><small>Authority evaluator</small><strong data-control-status>SE ÎNCARCĂ</strong></div><p data-network-message>Se citesc sursele reale autorizate…</p><button type="button" data-run-operational-inspections>Rulează inspectorii reali</button></header>
         <footer class="agm-network-summary" data-operational-summary>
           <div><small>Total agents</small><strong data-node-count>—</strong></div>
