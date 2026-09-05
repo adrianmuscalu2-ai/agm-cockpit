@@ -1,4 +1,5 @@
 import { authenticatedApiFetch } from '../authenticated-api';
+import { USER_ACCESS_TOKEN_KEY } from '../premium-access/premium-access.client';
 import { carMoverI18nKeys, carMoverText } from '../car-mover/car-mover.i18n';
 import { emailTemplates } from '../emailTemplates';
 import { appI18nDictionary } from '../i18n/app-i18n.dictionary';
@@ -45,6 +46,7 @@ export type LinguisticAgentHeartbeat = {
   counts: LinguisticAgentResourceCounts;
   errors: string[];
   apiJournaled: boolean;
+  journalStatus: 'PERSISTED' | 'USER_SESSION_UNAVAILABLE' | 'REQUEST_FAILED';
 };
 
 const expectedCounts: LinguisticAgentResourceCounts = {
@@ -161,18 +163,19 @@ export function auditPremiumLinguisticAgent(
     counts,
     errors,
     apiJournaled: false,
+    journalStatus: 'USER_SESSION_UNAVAILABLE',
   };
 }
 
 function heartbeatDetail(heartbeat: LinguisticAgentHeartbeat) {
   const { app, operational, carMover, premium, total } = heartbeat.counts;
-  return `language=${heartbeat.language};app=${app};operational=${operational};carMover=${carMover};premium=${premium};total=${total};errors=${heartbeat.errors.length}`;
+  return `language=${heartbeat.language};app=${app};operational=${operational};carMover=${carMover};premium=${premium};total=${total};errors=${heartbeat.errors.length};journal=${heartbeat.journalStatus}`;
 }
 
 async function publishHeartbeat(target: (typeof finalLanguageAgentTargets)[number]) {
   const heartbeat = auditPremiumLinguisticAgent(target);
-  recordRuntimeOperationSnapshot(target.id, heartbeat.status, heartbeat.reason, heartbeatDetail(heartbeat));
-  if (document.visibilityState === 'visible') {
+  const userSessionAvailable = Boolean(globalThis.sessionStorage?.getItem(USER_ACCESS_TOKEN_KEY));
+  if (document.visibilityState === 'visible' && userSessionAvailable) {
     try {
       const response = await authenticatedApiFetch(`/operations/components/${target.id}/heartbeat`, {
         method: 'POST',
@@ -181,10 +184,13 @@ async function publishHeartbeat(target: (typeof finalLanguageAgentTargets)[numbe
         body: JSON.stringify({ status: heartbeat.status, reason: heartbeat.reason, detail: heartbeatDetail(heartbeat) }),
       });
       heartbeat.apiJournaled = response.ok;
+      heartbeat.journalStatus = response.ok ? 'PERSISTED' : 'REQUEST_FAILED';
     } catch {
       heartbeat.apiJournaled = false;
+      heartbeat.journalStatus = 'REQUEST_FAILED';
     }
   }
+  recordRuntimeOperationSnapshot(target.id, heartbeat.status, heartbeat.reason, heartbeatDetail(heartbeat));
   heartbeatJournal.push(heartbeat);
   if (heartbeatJournal.length > heartbeatJournalLimit) heartbeatJournal.splice(0, heartbeatJournal.length - heartbeatJournalLimit);
   return heartbeat;
@@ -196,7 +202,7 @@ export async function publishPremiumLinguisticAgentHeartbeats() {
 
 export function bindPremiumLinguisticAgentHeartbeats(onHeartbeat?: (heartbeats: LinguisticAgentHeartbeat[]) => void) {
   const latest = finalLanguageAgentTargets.map((target) => [...heartbeatJournal].reverse().find((entry) => entry.agentId === target.id)).filter((entry): entry is LinguisticAgentHeartbeat => Boolean(entry));
-  const latestWasPersisted = latest.length === finalLanguageAgentTargets.length && latest.every((entry) => entry.apiJournaled);
+  const latestIsCurrent = latest.length === finalLanguageAgentTargets.length && Date.now() - lastPublishStartedAt < heartbeatIntervalMs;
   const publish = () => {
     if (currentPublish) return currentPublish;
     lastPublishStartedAt = Date.now();
@@ -205,7 +211,7 @@ export function bindPremiumLinguisticAgentHeartbeats(onHeartbeat?: (heartbeats: 
       .finally(() => { currentPublish = undefined; });
     return currentPublish;
   };
-  const initial = latestWasPersisted && Date.now() - lastPublishStartedAt < heartbeatIntervalMs
+  const initial = latestIsCurrent
     ? Promise.resolve(latest)
     : publish();
   if (!heartbeatBound) {

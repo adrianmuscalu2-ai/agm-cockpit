@@ -110,6 +110,7 @@ const commandCenterSource = await readFile(new URL('../src/turn-command-center.v
 const productionPreflightSource = await readFile(new URL('../src/production-preflight.ts', import.meta.url), 'utf8');
 const secretTelemetrySource = await readFile(new URL('../src/secret-telemetry.ts', import.meta.url), 'utf8');
 const operationsHealthSource = await readFile(new URL('../src/operations-health.ts', import.meta.url), 'utf8');
+const linguisticRuntimeSource = await readFile(new URL('../src/premium-linguistic-agents/premium-linguistic-agents.runtime.ts', import.meta.url), 'utf8');
 const authorityControlPlaneCss = await readFile(new URL('../src/premium-governance/turn-authority-control-plane.css', import.meta.url), 'utf8');
 const mainSource = await readFile(new URL('../src/main.ts', import.meta.url), 'utf8');
 assert.match(commandCenterSource, /REGISTRY ONLY · fără afirmație runtime/);
@@ -148,6 +149,9 @@ assert.doesNotMatch(secretTelemetrySource, /authenticatedApiFetch/);
 assert.match(productionPreflightSource, /if \(refreshPromise\) return refreshPromise/);
 assert.match(operationsHealthSource, /if \(healthCyclePromise\) return healthCyclePromise/);
 assert.match(operationsHealthSource, /source\.evaluator === 'guardian' \? readOwnerAccessToken/);
+assert.match(linguisticRuntimeSource, /USER_SESSION_UNAVAILABLE/);
+assert.match(linguisticRuntimeSource, /sessionStorage\?\.getItem\(USER_ACCESS_TOKEN_KEY\)/);
+assert.match(linguisticRuntimeSource, /const latestIsCurrent/);
 assert.doesNotMatch(commandCenterSource, /turn-agent-panel\/index\.html/);
 assert.doesNotMatch(commandCenterSource, /renderRealStatusBoard/);
 const premiumPanelPosition = commandCenterSource.indexOf('${renderTurnAuthorityControlPlane()}');
