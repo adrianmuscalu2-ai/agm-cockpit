@@ -192,6 +192,7 @@ try {
       genericBrandPosterCount: document.querySelectorAll('.view-turn .brand-lockup, .view-turn .brand-logo').length,
       genericCommandPanelCount: document.querySelectorAll('.view-turn .command-panel').length,
       genericQuickActionsCount: document.querySelectorAll('.view-turn .quick-actions').length,
+      visibleEmptyPageContainerCount: [...document.querySelectorAll('[data-turn-page-container]')].filter((container) => container.getClientRects().length > 0 && !container.querySelector('[data-turn-page]:not([hidden])')).length,
       authorityStatus: document.querySelector('[data-control-status]')?.textContent?.trim() || '',
       operationalSummary: {
         total: document.querySelector('[data-node-count]')?.textContent?.trim() || '',
@@ -243,6 +244,7 @@ try {
   assert(ui.genericBrandPosterCount === 0, 'Generic static brand poster dominates the TURN operational surface.');
   assert(ui.genericCommandPanelCount === 0, 'Generic command panel is rendered inside the TURN operational route.');
   assert(ui.genericQuickActionsCount === 0, 'Generic quick actions are rendered inside the TURN operational route.');
+  assert(ui.visibleEmptyPageContainerCount === 0, 'A TURN page container is visible without active operational content.');
   assert(!['', 'DATA UNAVAILABLE', 'ACCES OPERAȚIONAL NECESAR'].includes(ui.authorityStatus), `Authority status is ${ui.authorityStatus}.`);
   assert(report.network.some((entry) => entry.authorizationPresent === true), 'UI request did not carry real Owner Access authorization.');
   assert(report.network.some((entry) => entry.status === 200), 'UI did not receive functional overview HTTP 200.');

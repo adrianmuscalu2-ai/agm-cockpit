@@ -10,6 +10,9 @@ export function bindTurnCommandNavigation() {
     root.querySelectorAll<HTMLElement>('[data-turn-page]').forEach((section) => {
       section.hidden = section.dataset.turnPage !== page;
     });
+    root.querySelectorAll<HTMLElement>('[data-turn-page-container]').forEach((container) => {
+      container.hidden = !container.querySelector('[data-turn-page]:not([hidden])');
+    });
     root.querySelectorAll<HTMLButtonElement>('[data-turn-page-target]').forEach((button) => {
       button.setAttribute('aria-selected', String(button.dataset.turnPageTarget === page));
     });

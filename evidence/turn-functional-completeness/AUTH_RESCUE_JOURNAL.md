@@ -108,3 +108,15 @@ Local verification: functional-overview contract `PASS`; operational-truth UI co
 Visual inspection rejected the released composition despite the technical Browser PASS: the global static brand poster and generic `OK READY` badge occupied the leading TURN surface and visually contradicted the TURN product verdict. The generic command panel and quick-actions surface were also unrelated to the dedicated TURN command route.
 
 Local bounded remediation removes these four generic surfaces only from `view-turn`, preserves the four TURN pages and their real telemetry/evidence pipeline, and adds static plus controlled-Browser regression assertions. A new Production SHA and one affected visual audit are required; accepted deployment, M2M, API, and incident evidence is preserved and must not be revalidated.
+
+## 2026-09-05 Production visual audit for `a97d4bd`
+
+- Product Owner approved all necessary release and secure-audit steps.
+- GitHub Actions run `33951130193` and Production deployment `6278211861` completed successfully on exact SHA `a97d4bd1545b2c342e30b6bd127be1c15c12a169`.
+- Browser preflight: Browser Plugin `PASS`; Integrated Browser Control `PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE`; controlled Browser Session `PASS`; Target Page `PASS`.
+- Controlled Production evidence: `browser/2026-09-05T07-02-48-206Z/`; masked HTTPS Owner unlock succeeded, evidence redacted, transient token and audit environment cleared.
+- Regression counts: generic ready badges 0; brand posters 0; generic command panels 0; generic quick actions 0; decorative orbits 0.
+- Real operational coverage remained unchanged: Basic 10/10; Premium 28/28 with 28/28 source coverage; incident decisions 7/7; health 20 healthy, 6 degraded, 1 failed, 0 unknown.
+- Visual inspection confirmed the primary false-green shell was removed, but found one empty rounded Premium wrapper visible on Basic/Incidents while both of its page children were hidden. This is classified as an empty-page-container composition defect, not a telemetry failure.
+
+Bounded local remediation marks the Premium wrapper as a TURN page container and synchronizes its `hidden` state with the active contained page. Static and Browser contracts now require zero visible empty page containers. Web Production build and the targeted TURN contract pass. Product Owner acceptance remains `NOT_GRANTED`; no final product verdict is inferred.

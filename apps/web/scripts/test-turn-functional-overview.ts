@@ -25,7 +25,11 @@ assert.equal(result.verdict.finalProductionPass, 'RETRACTED');
 assert.equal(result.summary.unresolvedUnknown, 0);
 
 const mainSource = await readFile(resolve('src/main.ts'), 'utf8');
+const navigationSource = await readFile(resolve('src/turn-command-navigation.ts'), 'utf8');
+const premiumViewSource = await readFile(resolve('src/premium-governance/premium-governance.view.ts'), 'utf8');
 assert.match(mainSource, /premiumLayout \|\| state\.view === 'turn' \? '' : `<header class="topbar">/);
 assert.match(mainSource, /premiumLayout \|\| state\.view === 'turn' \? '' : renderCommandPanel\(\)/);
 assert.match(mainSource, /state\.view === 'turn' \? '' : renderGlobalQuickActions\(\)/);
+assert.match(premiumViewSource, /data-premium-operational-panel data-turn-page-container hidden/);
+assert.match(navigationSource, /container\.hidden = !container\.querySelector\('\[data-turn-page\]:not\(\[hidden\]\)'\)/);
 console.log('TURN_FUNCTIONAL_OVERVIEW_WEB_CONTRACT=PASS');

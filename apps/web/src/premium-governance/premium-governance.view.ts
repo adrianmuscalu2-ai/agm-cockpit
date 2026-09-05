@@ -41,7 +41,7 @@ export function renderPremiumUserDashboard(translate: Translate, escapeHtml: Esc
 
 export function renderTurnAuthorityControlPlane() {
   return `
-    <div class="turn-authority-control-plane turn-premium-operational-panel" id="turn-authority-control-plane" data-premium-operational-panel>
+    <div class="turn-authority-control-plane turn-premium-operational-panel" id="turn-authority-control-plane" data-premium-operational-panel data-turn-page-container hidden>
     <section class="turn-spatial-page turn-premium-spatial-page" data-turn-page="premium" hidden aria-labelledby="turn-authority-control-plane-title">
       <header class="premium-governance-heading">
         <span>PAGINA 2 · TURN PREMIUM · REAL AGENT NETWORK</span>
