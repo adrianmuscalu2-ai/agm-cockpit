@@ -140,6 +140,14 @@ try {
   assert(await page.locator('[data-basic-spatial-node]:visible').count() === 10, 'BASIC spatial model does not contain 10 real zones.');
   assert(await page.locator('[data-basic-operational-orbit]:visible').count() === 1, 'BASIC approved orbital panel is not visible on entry.');
   assert(await page.locator('[data-basic-orbital-node]:visible').count() === 10, 'BASIC orbital panel does not contain 10 real zones.');
+  assert(await page.locator('[data-basic-orbital-criterion-map]:visible').count() === 6, 'BASIC does not expose all six truthful criterion maps.');
+  assert(await page.locator('[data-turn-exit]:visible').count() === 1, 'TURN exit control is not visible.');
+  for (const criterion of ['functional', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
+    await page.locator(`.turn-approved-orbital-panel.basic .turn-orbital-criteria [data-basic-orbital-criterion="${criterion}"]`).click();
+    assert(await page.locator('[data-basic-orbital-stage]').getAttribute('data-active-criterion') === criterion, `BASIC criterion ${criterion} did not activate.`);
+    assert(await page.locator('[data-basic-orbital-node][data-orbital-status][data-orbital-active-source]').count() === 10, `BASIC criterion ${criterion} lacks status/source coverage.`);
+  }
+  await page.locator('.turn-approved-orbital-panel.basic .turn-orbital-criteria [data-basic-orbital-criterion="functional"]').click();
   assert(await page.locator('[data-turn-page="basic"] [data-operational-entry]:visible').count() === 6, 'BASIC does not expose all six agent/departments/P9/evidence entry points.');
   await verifyOperationalEntry(page, 'p9', 'investigate', '#turn-p9');
   await verifyOperationalEntry(page, 'event-store', 'incidents', '#turn-incident-page-title');
@@ -202,6 +210,9 @@ try {
       basicSpatialNodeCount: document.querySelectorAll('[data-basic-spatial-node]').length,
       basicOrbitalNodeCount: document.querySelectorAll('[data-basic-orbital-node]').length,
       basicOrbitalSourceCoverage: [...document.querySelectorAll('[data-basic-orbital-node]')].filter((node) => node.getAttribute('data-orbital-evidence-source') && node.getAttribute('data-orbital-observed-at')).length,
+      basicOrbitalCriterionMapCount: document.querySelectorAll('[data-basic-orbital-criterion-map]').length,
+      basicOrbitalCriterionKeys: [...document.querySelectorAll('[data-basic-orbital-criterion-map]')].map((map) => map.getAttribute('data-basic-orbital-criterion-map')),
+      basicOrbitalCriterionCoverage: [...document.querySelectorAll('[data-basic-orbital-node]')].filter((node) => ['functional', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'].every((criterion) => node.getAttribute(`data-orbital-${criterion}-status`) && node.getAttribute(`data-orbital-${criterion}-source`))).length,
       basicOrbitalContract: document.querySelector('[data-basic-operational-orbit]')?.getAttribute('data-orbital-source') || '',
       premiumSpatialNodeCount: document.querySelectorAll('[data-premium-spatial-node]').length,
       premiumSpatialSourceCoverage: [...document.querySelectorAll('[data-premium-spatial-node]')].filter((node) => node.getAttribute('data-status-source') && node.getAttribute('data-runtime-presence')).length,
@@ -223,6 +234,7 @@ try {
       visibleEmptyPageContainerCount: [...document.querySelectorAll('[data-turn-page-container]')].filter((container) => container.getClientRects().length > 0 && !container.querySelector('[data-turn-page]:not([hidden])')).length,
       operationalEntryCount: document.querySelectorAll('[data-operational-entry]').length,
       operationalEntryTargets: [...document.querySelectorAll('[data-operational-entry]')].map((entry) => entry.getAttribute('data-operational-entry-target')),
+      turnExitHref: document.querySelector('[data-turn-exit]')?.getAttribute('href') || '',
       p9ProjectionState: document.querySelector('[data-p9-projection]')?.getAttribute('data-p9-projection') || '',
       p9Source: document.querySelector('[data-p9-field="source"]')?.textContent?.trim() || '',
       authorityStatus: document.querySelector('[data-control-status]')?.textContent?.trim() || '',
@@ -255,6 +267,8 @@ try {
   assert(ui.operationalNodeCount === 28 && ui.operationalFieldCoverage === 28, `Operational agent coverage is ${ui.operationalFieldCoverage}/${ui.operationalNodeCount}.`);
   assert(ui.basicSpatialNodeCount === 10, `BASIC spatial coverage is ${ui.basicSpatialNodeCount}/10.`);
   assert(ui.basicOrbitalNodeCount === 10 && ui.basicOrbitalSourceCoverage === 10, `BASIC orbital source coverage is ${ui.basicOrbitalSourceCoverage}/${ui.basicOrbitalNodeCount}.`);
+  assert(ui.basicOrbitalCriterionMapCount === 6 && new Set(ui.basicOrbitalCriterionKeys).size === 6, `BASIC exposes ${ui.basicOrbitalCriterionMapCount}/6 unique criterion maps.`);
+  assert(ui.basicOrbitalCriterionCoverage === 10, `BASIC criterion status/source coverage is ${ui.basicOrbitalCriterionCoverage}/10.`);
   assert(ui.basicOrbitalContract === overview.contractVersion, `BASIC orbital contract is ${ui.basicOrbitalContract}.`);
   assert(ui.premiumSpatialNodeCount === 28 && ui.premiumSpatialSourceCoverage === 28, `PREMIUM spatial source coverage is ${ui.premiumSpatialSourceCoverage}/${ui.premiumSpatialNodeCount}.`);
   assert(ui.premiumOrbitalNodeCount === 28 && ui.premiumOrbitalSourceCoverage === 28, `PREMIUM orbital source coverage is ${ui.premiumOrbitalSourceCoverage}/${ui.premiumOrbitalNodeCount}.`);
@@ -285,6 +299,7 @@ try {
   assert(ui.genericQuickActionsCount === 0, 'Generic quick actions are rendered inside the TURN operational route.');
   assert(ui.visibleEmptyPageContainerCount === 0, 'A TURN page container is visible without active operational content.');
   assert(ui.operationalEntryCount === 6 && new Set(ui.operationalEntryTargets).size === 6, 'BASIC operational entries are incomplete or duplicate.');
+  assert(ui.turnExitHref === '/basic', `TURN exit points to ${ui.turnExitHref || 'nothing'}, expected /basic.`);
   assert(ui.p9ProjectionState === 'live' && ui.p9Source.includes('OPERATIONAL_EVIDENCE'), `P9 operational projection is not live: ${ui.p9ProjectionState} / ${ui.p9Source}`);
   assert(!['', 'DATA UNAVAILABLE', 'ACCES OPERAȚIONAL NECESAR'].includes(ui.authorityStatus), `Authority status is ${ui.authorityStatus}.`);
   assert(report.network.some((entry) => entry.authorizationPresent === true), 'UI request did not carry real Owner Access authorization.');
@@ -294,6 +309,11 @@ try {
   await page.locator('[data-turn-functional-overview]').screenshot({ path: resolve(evidenceRoot, 'turn-functional-drilldown.png') });
   await page.locator('[data-premium-operational-panel]').screenshot({ path: resolve(evidenceRoot, 'turn-premium-operational-drilldown.png') });
   await page.screenshot({ path: resolve(evidenceRoot, 'turn-functional-overview-full-page.png'), fullPage: true });
+  await Promise.all([
+    page.waitForURL((url) => url.pathname === '/basic', { timeout: 30_000 }),
+    page.locator('[data-turn-exit]').click(),
+  ]);
+  report.checks.turnExitNavigation = { status: 'PASS', destination: new URL(page.url()).pathname };
   report.browserFields.targetPageStatus = 'PASS';
   report.status = 'PASS';
   report.completedAt = new Date().toISOString();

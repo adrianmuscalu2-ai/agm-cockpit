@@ -1,4 +1,12 @@
 export type TurnFunctionalZoneStatus = 'OPERATIONAL' | 'OBSERVED' | 'ATTENTION' | 'NO_ACTIVITY' | 'STATIC_REFERENCE' | 'CAPABILITY_MISSING' | 'UNKNOWN_LEGITIMATE';
+type BasicOrbitalStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
+const basicOrbitalCriteria = ['functional', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'] as const;
+type BasicOrbitalCriterion = typeof basicOrbitalCriteria[number];
+type BasicOrbitalEvaluation = Record<BasicOrbitalCriterion, { status: BasicOrbitalStatus; source: string; reason: string }>;
+const basicOrbitalLabels: Record<BasicOrbitalCriterion, string> = {
+  functional: 'Stare funcțională', telemetry: 'Telemetrie', procedural: 'Procedură / acțiune', component: 'Componentă / sursă', incidents: 'Incidente / atenții', freshness: 'Freshness',
+};
+const basicOrbitalStatusClasses = ['status-pass', 'status-degraded', 'status-fail', 'status-no-telemetry', 'status-standby'];
 
 export type TurnFunctionalZone = {
   id: string;
@@ -115,6 +123,9 @@ function renderBasicSpatialModel(root: HTMLElement, basicZones: TurnFunctionalZo
   const selection = root.querySelector<HTMLElement>('[data-basic-spatial-selection]');
   const orbitalSelection = root.querySelector<HTMLElement>('[data-basic-orbital-selection]');
   const positions = spatialPositions(basicZones.length);
+  const orbitalPositionsById = new Map<string, { x: number; y: number }>();
+  orbitalPositions(basicZones.length).forEach((position, index) => orbitalPositionsById.set(basicZones[index].id, position));
+  const criteriaById = new Map(basicZones.map((zone) => [zone.id, evaluateBasicOrbitalCriteria(zone, overview)]));
   const attention = basicZones.filter((zone) => ['ATTENTION', 'CAPABILITY_MISSING'].includes(zone.status)).length;
   const unknown = basicZones.filter((zone) => zone.status === 'UNKNOWN_LEGITIMATE').length;
   const observed = basicZones.filter((zone) => ['OPERATIONAL', 'OBSERVED', 'NO_ACTIVITY'].includes(zone.status)).length;
@@ -132,12 +143,13 @@ function renderBasicSpatialModel(root: HTMLElement, basicZones: TurnFunctionalZo
     ${basicZones.map((zone, index) => `<button type="button" class="turn-spatial-node status-${statusClass(zone.status)}" style="--node-x:${positions[index].x}%;--node-y:${positions[index].y}%" data-basic-spatial-node="${escapeHtml(zone.id)}" data-functional-status="${escapeHtml(zone.status)}" data-functional-source="${escapeHtml(zone.source.kind)}"><span aria-hidden="true"></span><strong>${escapeHtml(zone.title)}</strong><small>${escapeHtml(zone.status)}</small></button>`).join('')}`;
   stage.setAttribute('aria-busy', 'false');
   if (orbitalStage) {
-    const planetPositions = orbitalPositions(basicZones.length);
     orbitalStage.innerHTML = `${renderOrbitalRings()}
       <div class="turn-approved-orbital-core status-model-live"><small>TURN BASIC</small><strong>LIVE MODEL</strong><span>${observed}/${basicZones.length} observate</span></div>
-      ${basicZones.map((zone, index) => renderBasicOrbitalPlanet(zone, planetPositions[index], index)).join('')}`;
+      ${basicZones.map((zone, index) => renderBasicOrbitalPlanet(zone, orbitalPositionsById.get(zone.id)!, index, criteriaById.get(zone.id)!)).join('')}`;
     orbitalStage.setAttribute('aria-busy', 'false');
   }
+  const criterionMaps = root.querySelector<HTMLElement>('[data-basic-orbital-criterion-maps]');
+  if (criterionMaps) criterionMaps.innerHTML = renderBasicCriterionMaps(basicZones, orbitalPositionsById, criteriaById);
   const select = (zone: TurnFunctionalZone) => {
     stage.querySelectorAll<HTMLElement>('[data-basic-spatial-node]').forEach((node) => node.classList.toggle('selected', node.dataset.basicSpatialNode === zone.id));
     orbitalStage?.querySelectorAll<HTMLElement>('[data-basic-orbital-node]').forEach((node) => node.classList.toggle('selected', node.dataset.basicOrbitalNode === zone.id));
@@ -152,12 +164,93 @@ function renderBasicSpatialModel(root: HTMLElement, basicZones: TurnFunctionalZo
     const zone = basicZones.find((candidate) => candidate.id === button.dataset.basicOrbitalNode);
     if (zone) select(zone);
   }));
+  root.querySelectorAll<HTMLButtonElement>('[data-basic-orbital-criterion]').forEach((button) => button.addEventListener('click', () => {
+    const criterion = button.dataset.basicOrbitalCriterion as BasicOrbitalCriterion;
+    if (basicOrbitalCriteria.includes(criterion)) applyBasicOrbitalCriterion(root, basicZones, criteriaById, criterion);
+  }));
+  applyBasicOrbitalCriterion(root, basicZones, criteriaById, 'functional');
   if (basicZones[0]) select(basicZones[0]);
 }
 
-function renderBasicOrbitalPlanet(zone: TurnFunctionalZone, position: { x: number; y: number }, index: number) {
+function renderBasicOrbitalPlanet(zone: TurnFunctionalZone, position: { x: number; y: number }, index: number, criteria: BasicOrbitalEvaluation) {
   const observedAt = zone.source.observedAt ?? 'NO_REAL_OBSERVATION';
-  return `<button type="button" class="turn-approved-orbital-node status-${statusClass(zone.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%;--node-order:${index}" data-basic-orbital-node="${escapeHtml(zone.id)}" data-orbital-status="${escapeHtml(zone.status)}" data-orbital-evidence-source="${escapeHtml(zone.source.kind)}" data-orbital-observed-at="${escapeHtml(observedAt)}" title="${escapeHtml(`${zone.title} · ${zone.status} · ${zone.source.kind} · ${zone.source.label}`)}"><span class="turn-planet" aria-hidden="true"></span><small>${escapeHtml(zone.title)}</small></button>`;
+  const criterionAttributes = basicOrbitalCriteria.map((criterion) => `data-orbital-${criterion}-status="${criteria[criterion].status}" data-orbital-${criterion}-source="${escapeHtml(criteria[criterion].source)}"`).join(' ');
+  return `<button type="button" class="turn-approved-orbital-node status-${statusClass(criteria.functional.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%;--node-order:${index}" data-basic-orbital-node="${escapeHtml(zone.id)}" data-functional-status="${escapeHtml(zone.status)}" data-orbital-status="${criteria.functional.status}" data-orbital-evidence-source="${escapeHtml(zone.source.kind)}" data-orbital-observed-at="${escapeHtml(observedAt)}" ${criterionAttributes} title="${escapeHtml(`${zone.title} · ${zone.status} · ${zone.source.kind} · ${zone.source.label}`)}"><span class="turn-planet" aria-hidden="true"></span><small>${escapeHtml(zone.title)}</small></button>`;
+}
+
+function renderBasicCriterionMaps(zones: TurnFunctionalZone[], positions: Map<string, { x: number; y: number }>, criteriaById: Map<string, BasicOrbitalEvaluation>) {
+  return basicOrbitalCriteria.map((criterion) => {
+    const counts = countBasicCriterionStatuses(zones, criteriaById, criterion);
+    const planets = zones.map((zone) => {
+      const position = positions.get(zone.id)!;
+      const evaluation = criteriaById.get(zone.id)![criterion];
+      return `<span class="turn-orbital-mini-node status-${statusClass(evaluation.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%" title="${escapeHtml(`${zone.title} · ${evaluation.status} · ${evaluation.source}`)}"></span>`;
+    }).join('');
+    return `<button type="button" class="turn-orbital-criterion-map" data-basic-orbital-criterion-map="${criterion}" data-basic-orbital-criterion="${criterion}" aria-selected="${criterion === 'functional'}"><header><strong>${basicOrbitalLabels[criterion]}</strong><small>${counts.PASS} PASS · ${counts.DEGRADED} DEG · ${counts.FAIL} FAIL · ${counts.NO_TELEMETRY} NO DATA · ${counts.STANDBY} STANDBY</small></header><div>${renderOrbitalRings()}${planets}</div></button>`;
+  }).join('');
+}
+
+function applyBasicOrbitalCriterion(root: HTMLElement, zones: TurnFunctionalZone[], criteriaById: Map<string, BasicOrbitalEvaluation>, criterion: BasicOrbitalCriterion) {
+  const stage = root.querySelector<HTMLElement>('[data-basic-orbital-stage]');
+  if (stage) stage.dataset.activeCriterion = criterion;
+  root.querySelectorAll<HTMLElement>('[data-basic-orbital-criterion]').forEach((control) => control.setAttribute('aria-selected', String(control.dataset.basicOrbitalCriterion === criterion)));
+  root.querySelectorAll<HTMLElement>('[data-basic-orbital-node]').forEach((planet) => {
+    const zone = zones.find((candidate) => candidate.id === planet.dataset.basicOrbitalNode);
+    if (!zone) return;
+    const evaluation = criteriaById.get(zone.id)![criterion];
+    planet.classList.remove(...basicOrbitalStatusClasses);
+    planet.classList.add(`status-${statusClass(evaluation.status)}`);
+    planet.dataset.orbitalStatus = evaluation.status;
+    planet.dataset.orbitalActiveSource = evaluation.source;
+    planet.title = `${zone.title} · ${basicOrbitalLabels[criterion]} · ${evaluation.status} · ${evaluation.reason} · ${evaluation.source}`;
+  });
+  const counts = countBasicCriterionStatuses(zones, criteriaById, criterion);
+  const message = root.querySelector<HTMLElement>('[data-basic-orbital-criterion-message]');
+  if (message) message.textContent = `${basicOrbitalLabels[criterion]} · ${counts.PASS} PASS · ${counts.DEGRADED} DEGRADED · ${counts.FAIL} FAIL · ${counts.NO_TELEMETRY} NO TELEMETRY · ${counts.STANDBY} STANDBY · evaluat fără registry-as-runtime`;
+}
+
+function countBasicCriterionStatuses(zones: TurnFunctionalZone[], criteriaById: Map<string, BasicOrbitalEvaluation>, criterion: BasicOrbitalCriterion) {
+  const counts: Record<BasicOrbitalStatus, number> = { PASS: 0, DEGRADED: 0, FAIL: 0, NO_TELEMETRY: 0, STANDBY: 0 };
+  zones.forEach((zone) => { counts[criteriaById.get(zone.id)![criterion].status] += 1; });
+  return counts;
+}
+
+function evaluateBasicOrbitalCriteria(zone: TurnFunctionalZone, overview: TurnFunctionalOverview): BasicOrbitalEvaluation {
+  const functionalStatus: BasicOrbitalStatus = ['OPERATIONAL', 'OBSERVED'].includes(zone.status) ? 'PASS'
+    : zone.status === 'ATTENTION' ? 'DEGRADED'
+      : zone.status === 'CAPABILITY_MISSING' ? 'FAIL'
+        : zone.status === 'UNKNOWN_LEGITIMATE' ? 'NO_TELEMETRY' : 'STANDBY';
+  const telemetryStatus: BasicOrbitalStatus = zone.status === 'CAPABILITY_MISSING' ? 'FAIL'
+    : zone.status === 'UNKNOWN_LEGITIMATE' ? 'NO_TELEMETRY'
+      : zone.source.kind === 'STATIC_CONTRACT' ? 'STANDBY'
+        : zone.status === 'ATTENTION' ? 'DEGRADED'
+          : zone.source.kind === 'RUNTIME' || zone.source.observedAt ? 'PASS' : 'STANDBY';
+  const proceduralStatus: BasicOrbitalStatus = zone.status === 'CAPABILITY_MISSING' ? 'FAIL'
+    : zone.status === 'UNKNOWN_LEGITIMATE' ? 'NO_TELEMETRY'
+      : zone.status === 'ATTENTION' ? 'DEGRADED'
+        : ['NO_ACTIVITY', 'STATIC_REFERENCE'].includes(zone.status) ? 'STANDBY'
+          : zone.action.href ? 'PASS' : 'NO_TELEMETRY';
+  const componentStatus: BasicOrbitalStatus = zone.status === 'CAPABILITY_MISSING' ? 'FAIL'
+    : zone.status === 'ATTENTION' ? 'DEGRADED'
+      : zone.status === 'UNKNOWN_LEGITIMATE' ? 'NO_TELEMETRY'
+        : zone.source.kind === 'STATIC_CONTRACT' ? 'STANDBY' : 'PASS';
+  const incidentStatus: BasicOrbitalStatus = zone.status === 'CAPABILITY_MISSING' ? 'FAIL'
+    : zone.status === 'ATTENTION' ? 'DEGRADED'
+      : zone.status === 'UNKNOWN_LEGITIMATE' ? 'NO_TELEMETRY' : 'STANDBY';
+  const freshnessStatus: BasicOrbitalStatus = zone.status === 'CAPABILITY_MISSING' ? 'FAIL'
+    : zone.status === 'ATTENTION' ? 'DEGRADED'
+      : zone.status === 'UNKNOWN_LEGITIMATE' ? 'NO_TELEMETRY'
+        : zone.source.kind === 'RUNTIME' ? 'PASS' : 'STANDBY';
+  const source = `${zone.source.kind} · ${zone.source.label}`;
+  const observedAt = zone.source.observedAt ?? `snapshot ${overview.generatedAt}; no activity timestamp`;
+  return {
+    functional: { status: functionalStatus, source, reason: zone.status },
+    telemetry: { status: telemetryStatus, source, reason: zone.source.observedAt ? `observed ${zone.source.observedAt}` : `real source queried; ${observedAt}` },
+    procedural: { status: proceduralStatus, source: 'turn-functional-overview.v2 · action/implementation evaluator', reason: zone.implementation ?? zone.action.label },
+    component: { status: componentStatus, source, reason: zone.missing ?? zone.information },
+    incidents: { status: incidentStatus, source: 'turn-functional-overview.v2 · functional attention evaluator', reason: zone.status === 'ATTENTION' ? (zone.missing ?? 'FUNCTIONAL ATTENTION') : 'NO INCIDENT CLAIM IN BASIC CONTRACT' },
+    freshness: { status: freshnessStatus, source, reason: zone.source.kind === 'RUNTIME' ? `live probe · ${overview.generatedAt}` : `${observedAt} · no freshness SLA claim` },
+  };
 }
 
 function renderOrbitalRings() {

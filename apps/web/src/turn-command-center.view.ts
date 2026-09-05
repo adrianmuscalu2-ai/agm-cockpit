@@ -63,7 +63,10 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
           <h1>${escapeHtml(t(language, 'turn.title'))}</h1>
           <p>SEE → UNDERSTAND → DRILL DOWN → ACT. Suprafețele spațiale folosesc aceleași surse canonice ca detaliile operaționale.</p>
         </div>
-        <strong>PRODUCT OWNER ACCEPTANCE · NOT GRANTED</strong>
+        <div class="turn-command-header-actions">
+          <strong>PRODUCT OWNER ACCEPTANCE · NOT GRANTED</strong>
+          <a href="/basic" data-module="basic" data-turn-exit>Ieși din TURN · Înapoi în aplicație</a>
+        </div>
       </header>
 
       <nav class="turn-page-navigation" data-turn-page-navigation aria-label="Pagini TURN">
@@ -200,10 +203,20 @@ function renderFunctionalOverview() {
       <header><div><span class="turn-kicker">PAGINA 1 · BASIC · LIVE FUNCTIONAL VALUE</span><h2 id="turn-functional-overview-title">BASIC operational space</h2><p>Fiecare zonă este proiectată din EventStore/API și evaluatorul funcțional. Click pe un nod pentru sursă, lipsă și acțiune.</p></div><strong data-functional-verdict>SE ÎNCARCĂ</strong></header>
       <section class="turn-approved-orbital-panel basic" data-basic-operational-orbit data-orbital-source="PENDING_REAL_SOURCE" aria-labelledby="turn-basic-orbit-title">
         <header>
-          <div><span class="turn-kicker">TURN · APPROVED VISUAL SOURCE</span><h3 id="turn-basic-orbit-title">AGM TURN BASIC CONTROL PANEL</h3><p>Panoul orbital aprobat este recuperat; fiecare planetă este alimentată de evaluatorul funcțional și păstrează sursa reală a zonei.</p></div>
+          <div><span class="turn-kicker">TURN · APPROVED VISUAL SOURCE</span><h3 id="turn-basic-orbit-title">AGM TURN BASIC AGENT / CAPABILITY CONTROL PANEL</h3><p>Fiecare planetă reprezintă o capabilitate sau un agent Basic și este alimentată exclusiv de evaluatorul funcțional real.</p></div>
           <p class="turn-orbital-legend"><strong>Criteriu vizual:</strong> verde = operațional/observat, galben = atenție, roșu = failed/capability missing, albastru = fără activitate/referință statică, gri = UNKNOWN legitim. Culoarea nu este derivată din registry.</p>
         </header>
+        <nav class="turn-orbital-criteria" data-basic-orbital-criteria aria-label="Criteriul de colorare Basic">
+          <button type="button" data-basic-orbital-criterion="functional" aria-selected="true">Stare funcțională</button>
+          <button type="button" data-basic-orbital-criterion="telemetry" aria-selected="false">Telemetrie</button>
+          <button type="button" data-basic-orbital-criterion="procedural" aria-selected="false">Procedură / acțiune</button>
+          <button type="button" data-basic-orbital-criterion="component" aria-selected="false">Componentă / sursă</button>
+          <button type="button" data-basic-orbital-criterion="incidents" aria-selected="false">Incidente / atenții</button>
+          <button type="button" data-basic-orbital-criterion="freshness" aria-selected="false">Freshness</button>
+        </nav>
+        <p class="turn-orbital-criterion-message" data-basic-orbital-criterion-message>Se încarcă evaluatorul funcțional real…</p>
         <div class="turn-approved-orbital-stage" data-basic-orbital-stage aria-busy="true"><p>Se citesc sursele reale autorizate…</p></div>
+        <section class="turn-orbital-criterion-maps" data-basic-orbital-criterion-maps aria-label="Hărți planetare Basic pe criterii"></section>
         <aside class="turn-approved-orbital-selection" data-basic-orbital-selection><p>Selectează o planetă BASIC pentru sursă, motiv și acțiune.</p></aside>
       </section>
       <div class="turn-spatial-summary" data-basic-spatial-summary><span>Se citesc sursele reale autorizate…</span></div>

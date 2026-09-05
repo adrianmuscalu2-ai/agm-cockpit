@@ -42,8 +42,20 @@ assert.match(turnViewSource, /id="turn-agent-control-panel"/);
 assert.match(turnViewSource, /id="turn-agent-register"/);
 assert.match(turnViewSource, /data-basic-operational-orbit/);
 assert.match(turnViewSource, /data-basic-orbital-stage/);
+assert.match(turnViewSource, /data-basic-orbital-criteria/);
+assert.match(turnViewSource, /data-basic-orbital-criterion-maps/);
+assert.match(turnViewSource, /href="\/basic" data-module="basic" data-turn-exit/);
 const overviewRuntimeSource = await readFile(resolve('src/turn-functional-overview.ts'), 'utf8');
 assert.match(overviewRuntimeSource, /data-basic-orbital-node/);
 assert.match(overviewRuntimeSource, /data-orbital-evidence-source="\$\{escapeHtml\(zone\.source\.kind\)\}"/);
+assert.match(overviewRuntimeSource, /evaluateBasicOrbitalCriteria/);
+assert.match(overviewRuntimeSource, /NO INCIDENT CLAIM IN BASIC CONTRACT/);
+assert.match(overviewRuntimeSource, /no freshness SLA claim/);
+assert.match(overviewRuntimeSource, /data-orbital-\$\{criterion\}-status/);
+assert.match(overviewRuntimeSource, /data-orbital-\$\{criterion\}-source/);
+for (const criterion of ['functional', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
+  assert.match(turnViewSource, new RegExp(`data-basic-orbital-criterion="${criterion}"`));
+  assert.match(overviewRuntimeSource, new RegExp(`\\b${criterion}: \\{ status:`));
+}
 assert.match(overviewRuntimeSource, /Nu se fabrică planete din registry/);
 console.log('TURN_FUNCTIONAL_OVERVIEW_WEB_CONTRACT=PASS');
