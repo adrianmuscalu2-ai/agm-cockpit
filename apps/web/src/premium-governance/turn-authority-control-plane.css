@@ -28,6 +28,10 @@
   background: rgba(7, 17, 25, 0.76);
 }
 
+.turn-secondary-registry:not([open]) > :not(summary) {
+  display: none;
+}
+
 .turn-secondary-registry > summary {
   display: flex;
   justify-content: space-between;

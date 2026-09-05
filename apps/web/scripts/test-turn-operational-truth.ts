@@ -78,6 +78,7 @@ assert.match(governanceViewSource, /data-premium-operational-panel/);
 assert.match(governanceViewSource, /data-operational-summary/);
 
 const commandCenterSource = await readFile(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
+const authorityControlPlaneCss = await readFile(new URL('../src/premium-governance/turn-authority-control-plane.css', import.meta.url), 'utf8');
 const mainSource = await readFile(new URL('../src/main.ts', import.meta.url), 'utf8');
 assert.match(commandCenterSource, /REGISTRY ONLY · fără afirmație runtime/);
 assert.match(commandCenterSource, /data-secondary-registry/);
@@ -86,6 +87,9 @@ assert.doesNotMatch(commandCenterSource, /renderRealStatusBoard/);
 const premiumPanelPosition = commandCenterSource.indexOf('${renderTurnAuthorityControlPlane()}');
 const registryPosition = commandCenterSource.indexOf('${renderApprovedTurnDashboard(language)}');
 assert(premiumPanelPosition >= 0 && registryPosition > premiumPanelPosition, 'Premium operational panel must precede the secondary registry.');
-assert.match(mainSource, /linguisticHeartbeatReady\.then\([\s\S]*bindPremiumGovernanceRuntime[\s\S]*bindPremiumGovernanceRuntime/);
+assert.match(authorityControlPlaneCss, /\.turn-secondary-registry:not\(\[open\]\)\s*>\s*:not\(summary\)\s*{\s*display:\s*none;/);
+assert.match(mainSource, /void bindPremiumLinguisticAgentHeartbeats/);
+assert.match(mainSource, /bindPremiumGovernanceRuntime\(state\.adminSession\.accessToken\)/);
+assert.doesNotMatch(mainSource, /linguisticHeartbeatReady\.then/);
 
 console.log('TURN operational truth UI contract: PASS');

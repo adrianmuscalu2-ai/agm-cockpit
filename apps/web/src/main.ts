@@ -2300,16 +2300,13 @@ function renderLegalCard(titleKey: string, bodyKey: string, extra = '') {
 
 function bindShared() {
   bindAndroidComponentHeartbeat();
-  const linguisticHeartbeatReady = bindPremiumLinguisticAgentHeartbeats(() => publishPanelAgentModel());
+  void bindPremiumLinguisticAgentHeartbeats(() => publishPanelAgentModel());
   bindPremiumAccessRuntime(uiLanguage());
   bindCommunicationRuntime();
     bindPremiumAssistantRuntime();
     bindCarMoverRuntime();
   if (state.adminAccessVerified && state.adminSession?.accessToken) {
-    void linguisticHeartbeatReady.then(
-      () => bindPremiumGovernanceRuntime(state.adminSession?.accessToken),
-      () => bindPremiumGovernanceRuntime(state.adminSession?.accessToken),
-    );
+    bindPremiumGovernanceRuntime(state.adminSession.accessToken);
   } else {
     bindPremiumGovernanceRuntime();
   }

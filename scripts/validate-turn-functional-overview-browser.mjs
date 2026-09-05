@@ -136,6 +136,11 @@ try {
   const functionalNav = page.locator('a[href="#turn-functional-overview"]');
   await functionalNav.click();
   await page.waitForFunction(() => location.hash === '#turn-functional-overview');
+  await page.waitForFunction(() => {
+    const panel = document.querySelector('[data-agent-network-detail]');
+    return panel?.getAttribute('aria-busy') === 'false'
+      && document.querySelectorAll('[data-canonical-agent-id]').length === 28;
+  }, { timeout: 30_000 });
 
   const ui = await page.evaluate(() => {
     const root = document.querySelector('[data-turn-functional-overview]');
@@ -283,7 +288,11 @@ function validateOperationalDashboard(dashboard) {
     if (node.status === 'PASS') {
       assert(node.activityEvidence.observedAt && node.evidence.source !== 'RUNTIME_CAPABILITY_PROBE', `${node.canonicalId} is PASS without real activity evidence.`);
     }
-    if (node.status === 'STANDBY') {
+    if (node.runtimeMode === 'HUMAN') {
+      assert(node.status === 'STANDBY' && node.runtimePresence === 'NOT_APPLICABLE' && node.health === 'NOT_APPLICABLE', `${node.canonicalId} misrepresents human authority as a runtime process.`);
+      assert(node.runtimeEvidence.source === 'NOT_APPLICABLE', `${node.canonicalId} fabricates runtime evidence for human authority.`);
+    }
+    if (node.status === 'STANDBY' && node.runtimeMode !== 'HUMAN') {
       assert(node.runtimePresence === 'OBSERVED' && node.runtimeEvidence.observedAt, `${node.canonicalId} is STANDBY without a current runtime observation.`);
       assert(node.workloadState !== 'ACTIVE' && node.currentOperation, `${node.canonicalId} masks active work behind STANDBY.`);
     }

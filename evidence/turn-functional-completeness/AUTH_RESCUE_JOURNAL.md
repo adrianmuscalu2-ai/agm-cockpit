@@ -29,3 +29,51 @@ Classification: `PROCEDURE/GOVERNANCE` plus missing session credential. Product 
 `RESCUE ACTIVATED → EVIDENCE COLLECTION → APPROVED ALTERNATE ROUTE PREPARED → OWNER AUTHORIZATION PENDING → HANDOFF TO ATLAS`
 
 Bounded next action: after explicit approval, run `pnpm rescue:browser-preflight`, start `AGM_TURN_INTERACTIVE_OWNER_LOGIN=1 pnpm audit:turn-functional-overview`, let Product Owner enter the PIN directly in controlled Chromium, and retain only the redacted report/screenshots.
+
+## Production TURN validation attempt — 2026-09-05
+
+- Production revision: `ddfb0cb19184eb5d3191f70910b0ad4fccd0823e`.
+- GitHub Actions run: `33938863920` — `success`.
+- Production deployment: `6276143375` — approved explicitly and completed successfully.
+- Browser preflight: Plugin `PASS`; IAB `SESSION_ATTACHMENT_MISSING / OPTIONAL`; controlled Browser session `PASS`.
+- Authentication capability: neither `AGM_TURN_OWNER_ACCESS_TOKEN` nor `AGM_TURN_ADMIN_PIN` was present; values were not read or guessed.
+- Approved alternate route attempted: visible controlled Chromium with interactive Owner login.
+- Result: Owner login did not complete inside the 300-second window; protected requests remained HTTP 401 and the target-page test did not execute.
+- Evidence: `browser/2026-09-05T02-31-11-422Z/report.json`.
+- Classification: `PROCEDURE/GOVERNANCE — OWNER INTERACTION NOT COMPLETED`; not a TURN product verdict.
+- Preserved evidence: push, build, publish and Production deployment for `ddfb0cb` remain accepted; no M2M or deployment retest is required.
+
+`RESCUE ACTIVATED → EVIDENCE COLLECTION → APPROVED ALTERNATE ROUTE ATTEMPTED → OWNER INTERACTION REQUIRED → HANDOFF TO ATLAS`
+
+Bounded next action: when Product Owner confirms readiness, rerun only `AGM_TURN_INTERACTIVE_OWNER_LOGIN=1 pnpm audit:turn-functional-overview`, enter the PIN directly in controlled Chromium, and evaluate the resulting real Production TURN payload and Premium panel.
+
+## 2026-09-05 visible-session recovery
+
+| Attempt | Evidence | Result | Decision |
+|---|---|---|---|
+| Repeat controlled Chromium after Product Owner `GATA` | Browser process existed but Windows reported no process with a non-zero `MainWindowHandle` | headed Playwright session was not attached to the visible desktop | stop the unchanged attempt before another timeout |
+| Prepare a visible masked PowerShell credential prompt followed by headless controlled audit | script uses `Read-Host -AsSecureString`, HTTPS unlock, transient child-process token, and explicit memory/environment cleanup | execution rejected because prior approval covered Chromium only | do not circumvent; request separate explicit approval with credential-handling disclosure |
+
+Preserved evidence: Production workflow `33938863920` and deployment SHA `ddfb0cb` remain successful. Product validation remains `PENDING`; the session attachment failure is not a TURN product verdict.
+
+## 2026-09-05 secure prompt route and product findings
+
+| Attempt | Evidence | Result | Decision |
+|---|---|---|---|
+| Product Owner explicitly approved the secure PowerShell prompt route for `ddfb0cb` | PIN read with `Read-Host -AsSecureString`; unlock performed over HTTPS; bearer token passed only to the controlled child process and redacted from reports | real Owner Access obtained; protected functional-overview and operational-dashboard APIs returned HTTP 200 | authentication blocker recovered; continue only the affected TURN Browser audit |
+| Controlled Production audit with real token | `browser/2026-09-05T04-53-02-369Z/report.json` and `browser/2026-09-05T04-55-18-548Z/report.json` | validator incorrectly required runtime heartbeat for the human Product Owner identity | correct validator contract: human authority is `STANDBY / NOT_APPLICABLE`, with no fabricated runtime evidence |
+| Controlled Production audit after human-runtime correction | `browser/2026-09-05T04-57-01-409Z/report.json` | API contracts passed with 28 nodes and zero capability gaps; UI still exposed 37 registry nodes while the registry `<details>` was closed, and the Premium board had returned to a loading state before capture | real Web defects confirmed; no Product PASS and no weakening of registry/runtime assertions |
+
+Root causes isolated:
+
+- author CSS on `.network-agent` overrode the browser's native hidden rendering for descendants of a closed `<details>`;
+- Premium operational loading was unnecessarily sequenced behind browser linguistic-heartbeat publication, so an unrelated delayed/unauthorized heartbeat cycle could leave a newly rendered operational board pending.
+
+Local remediation prepared:
+
+- explicit closed-registry descendant hiding while preserving the inventory when the Product Owner opens it;
+- immediate authenticated operational-dashboard binding, independent of linguistic-heartbeat completion;
+- controlled validator waits for the current Premium panel to contain all 28 real operational cards after section navigation;
+- operational-truth contract test updated to enforce these properties.
+
+Local verification: functional-overview contract `PASS`; operational-truth UI contract `PASS`; Web production build `PASS`. A new Production revision is required before the minimal Browser retest can evaluate this remediation.

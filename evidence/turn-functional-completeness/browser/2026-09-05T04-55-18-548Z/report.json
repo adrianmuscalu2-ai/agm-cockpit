@@ -1,0 +1,749 @@
+{
+  "contract": "turn-functional-overview-browser.v1",
+  "startedAt": "2026-09-05T04:55:18.550Z",
+  "targetUrl": "https://app.agmcockpit.com/turn",
+  "apiUrl": "https://api.agmcockpit.com/api/v1/operations/turn/functional-overview",
+  "dashboardUrl": "https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard",
+  "evidenceScope": "PRODUCTION_LIVE",
+  "browser": "AGM controlled Playwright/Chromium",
+  "realSourcePolicy": "NO_ROUTE_STUBS_NO_MOCK_PAYLOAD_NO_STATUS_FALLBACK",
+  "ownerAccess": "REAL_BEARER_TOKEN_PROVIDED_REDACTED",
+  "status": "FAIL",
+  "productOwnerAcceptance": "NOT_GRANTED",
+  "finalProductPass": false,
+  "browserFields": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PENDING"
+  },
+  "checks": {
+    "preflight": {
+      "checkedAt": "2026-09-05T04:53:43.011Z",
+      "visualSignature": "EEBF4731BDDED4FC91FCA1E19798F42FBFFBB0870E5180F86B024FA9F403942C",
+      "iab": {
+        "status": "SESSION_ATTACHMENT_MISSING",
+        "reason": "Configured iab metadata is not runtime availability: no codex-computer-use process serves the configured session pipe."
+      },
+      "controlledRunner": "REQUIRED_AUTOMATIC_ROUTE"
+    },
+    "legalAcceptance": "ACCEPTED_FOR_CONTROLLED_SESSION",
+    "firstRunTutorial": "DISMISSED_FOR_CONTROLLED_SESSION",
+    "api": {
+      "httpStatus": 200,
+      "overview": {
+        "contractVersion": "turn-functional-overview.v2",
+        "generatedAt": "2026-09-05T04:55:23.078Z",
+        "scope": "PRODUCT_OWNER",
+        "companyScope": "CANONICAL_PRODUCTION_TENANT",
+        "verdict": {
+          "releasePipeline": "PASS",
+          "operationalTruthInfrastructure": "PASS",
+          "falseGreenPrevention": "PASS",
+          "turnFunctionalCompleteness": "READY_FOR_PRODUCT_OWNER_REVIEW",
+          "productOwnerAcceptance": "NOT_GRANTED",
+          "finalProductionPass": "RETRACTED"
+        },
+        "summary": {
+          "totalZones": 23,
+          "operational": 1,
+          "observed": 6,
+          "attention": 3,
+          "noActivity": 11,
+          "staticReference": 2,
+          "capabilityMissing": 0,
+          "legitimateUnknown": 0,
+          "unresolvedUnknown": 0
+        },
+        "zones": [
+          {
+            "id": "basic.translator",
+            "tier": "BASIC",
+            "title": "Traducător",
+            "status": "OPERATIONAL",
+            "information": "Providerul a produs o traducere funcțională la ultimul probe.",
+            "source": {
+              "kind": "RUNTIME",
+              "label": "TranslationService.functionalHealth / OpenAI",
+              "observedAt": "2026-09-05T04:55:23.078Z"
+            },
+            "evidence": {
+              "provider": "openai",
+              "functional": true
+            },
+            "action": {
+              "label": "Deschide zona",
+              "href": "/translator"
+            },
+            "missing": null,
+            "implementation": null,
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "basic.email",
+            "tier": "BASIC",
+            "title": "Email",
+            "status": "OBSERVED",
+            "information": "8 înregistrări reale sunt disponibile Product Owner-ului.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "CommunicationConversation/Message + GmailPilotTelemetry",
+              "observedAt": "2026-08-23T18:28:05.854Z"
+            },
+            "evidence": {
+              "conversations": 8,
+              "openConversations": 8,
+              "failedMessages": 0,
+              "gmailState": "NO_TELEMETRY",
+              "gmailBacklog": 0
+            },
+            "action": {
+              "label": "Deschide Email",
+              "href": "/email"
+            },
+            "missing": null,
+            "implementation": null,
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "basic.transport-document",
+            "tier": "BASIC",
+            "title": "Transport document",
+            "status": "NO_ACTIVITY",
+            "information": "Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "ProviderUsageEvent · basic.transport-document · metadata-only",
+              "observedAt": null
+            },
+            "evidence": {
+              "executions": 0,
+              "latestOutcome": "NO_ACTIVITY",
+              "latestLatencyMs": null,
+              "contentCaptured": false
+            },
+            "action": {
+              "label": "Deschide Basic și scanează documentul.",
+              "href": "/"
+            },
+            "missing": "Nu există încă activitate înregistrată.",
+            "implementation": "Collectorul metadata-only este implementat; autentificarea este necesară pentru tenant binding.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "basic.tachograph",
+            "tier": "BASIC",
+            "title": "Analiză tahograf",
+            "status": "NO_ACTIVITY",
+            "information": "Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "ProviderUsageEvent · basic.tachograph · metadata-only",
+              "observedAt": null
+            },
+            "evidence": {
+              "executions": 0,
+              "latestOutcome": "NO_ACTIVITY",
+              "latestLatencyMs": null,
+              "contentCaptured": false
+            },
+            "action": {
+              "label": "Deschide analiza tahograf.",
+              "href": "/knowledge/tahograf"
+            },
+            "missing": "Nu există încă activitate înregistrată.",
+            "implementation": "Collectorul metadata-only este implementat; autentificarea este necesară pentru tenant binding.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "basic.dashboard-text",
+            "tier": "BASIC",
+            "title": "Text bord",
+            "status": "NO_ACTIVITY",
+            "information": "Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "ProviderUsageEvent · basic.dashboard-text · metadata-only",
+              "observedAt": null
+            },
+            "evidence": {
+              "executions": 0,
+              "latestOutcome": "NO_ACTIVITY",
+              "latestLatencyMs": null,
+              "contentCaptured": false
+            },
+            "action": {
+              "label": "Deschide analiza textului de bord.",
+              "href": "/"
+            },
+            "missing": "Nu există încă activitate înregistrată.",
+            "implementation": "Collectorul metadata-only este implementat; autentificarea este necesară pentru tenant binding.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "basic.dashboard-warning",
+            "tier": "BASIC",
+            "title": "Martori bord",
+            "status": "NO_ACTIVITY",
+            "information": "Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "ProviderUsageEvent · basic.dashboard-warning · metadata-only",
+              "observedAt": null
+            },
+            "evidence": {
+              "executions": 0,
+              "latestOutcome": "NO_ACTIVITY",
+              "latestLatencyMs": null,
+              "contentCaptured": false
+            },
+            "action": {
+              "label": "Deschide analiza martorilor de bord.",
+              "href": "/knowledge/martori-bord"
+            },
+            "missing": "Nu există încă activitate înregistrată.",
+            "implementation": "Collectorul metadata-only este implementat; autentificarea este necesară pentru tenant binding.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "basic.legislation",
+            "tier": "BASIC",
+            "title": "Legislație",
+            "status": "NO_ACTIVITY",
+            "information": "Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "ProviderUsageEvent · basic.legislation · metadata-only",
+              "observedAt": null
+            },
+            "evidence": {
+              "executions": 0,
+              "latestOutcome": "NO_ACTIVITY",
+              "latestLatencyMs": null,
+              "contentCaptured": false
+            },
+            "action": {
+              "label": "Deschide analiza legislației.",
+              "href": "/knowledge/legislatie"
+            },
+            "missing": "Nu există încă activitate înregistrată.",
+            "implementation": "Collectorul metadata-only este implementat; autentificarea este necesară pentru tenant binding.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "basic.cargo-safety",
+            "tier": "BASIC",
+            "title": "Siguranța mărfii",
+            "status": "NO_ACTIVITY",
+            "information": "Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "ProviderUsageEvent · basic.cargo-safety · metadata-only",
+              "observedAt": null
+            },
+            "evidence": {
+              "executions": 0,
+              "latestOutcome": "NO_ACTIVITY",
+              "latestLatencyMs": null,
+              "contentCaptured": false
+            },
+            "action": {
+              "label": "Deschide analiza siguranței mărfii.",
+              "href": "/knowledge/ancorarea-marfii"
+            },
+            "missing": "Nu există încă activitate înregistrată.",
+            "implementation": "Collectorul metadata-only este implementat; autentificarea este necesară pentru tenant binding.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "basic.ocr-workspace",
+            "tier": "BASIC",
+            "title": "OCR și istoric local",
+            "status": "NO_ACTIVITY",
+            "information": "Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "ProviderUsageEvent · basic.ocr-workspace · metadata-only",
+              "observedAt": null
+            },
+            "evidence": {
+              "executions": 0,
+              "latestOutcome": "NO_ACTIVITY",
+              "latestLatencyMs": null,
+              "contentCaptured": false
+            },
+            "action": {
+              "label": "Deschide camera/OCR din Basic.",
+              "href": "/"
+            },
+            "missing": "Nu există încă activitate înregistrată.",
+            "implementation": "Collectorul metadata-only este implementat; autentificarea este necesară pentru tenant binding.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "basic.load-safety-knowledge",
+            "tier": "BASIC",
+            "title": "Ghid încărcare și ancorare",
+            "status": "STATIC_REFERENCE",
+            "information": "Pachetele knowledge publicate sunt referințe statice, nu dovadă runtime.",
+            "source": {
+              "kind": "STATIC_CONTRACT",
+              "label": "Knowledge/build contract versionat",
+              "observedAt": null
+            },
+            "evidence": {
+              "runtimeClaim": false
+            },
+            "action": {
+              "label": "Deschide referința",
+              "href": "/legal"
+            },
+            "missing": null,
+            "implementation": null,
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.before-departure",
+            "tier": "PREMIUM",
+            "title": "Înainte de plecare",
+            "status": "ATTENTION",
+            "information": "1 înregistrări reale sunt disponibile Product Owner-ului.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "PreDepartureSession",
+              "observedAt": "2026-08-11T12:29:18.514Z"
+            },
+            "evidence": {
+              "sessions": 1,
+              "incomplete": 1
+            },
+            "action": {
+              "label": "Revizuiește checklist-urile",
+              "href": "/before-departure.html"
+            },
+            "missing": "Finalizează sesiunile neconfirmate.",
+            "implementation": "Finalizează sesiunile neconfirmate.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.after-departure",
+            "tier": "PREMIUM",
+            "title": "După plecare",
+            "status": "OBSERVED",
+            "information": "4 înregistrări reale sunt disponibile Product Owner-ului.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "OperationalEventStore",
+              "observedAt": "2026-08-11T15:14:36.040Z"
+            },
+            "evidence": {
+              "events": 4
+            },
+            "action": {
+              "label": "Revizuiește evenimentele",
+              "href": "/after-departure.html"
+            },
+            "missing": null,
+            "implementation": null,
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.car-mover.planning",
+            "tier": "PREMIUM",
+            "title": "Car Mover · Planificare",
+            "status": "OBSERVED",
+            "information": "10 înregistrări reale sunt disponibile Product Owner-ului.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "CarMoverJob + CarMoverPlatformOffer",
+              "observedAt": "2026-08-23T17:49:52.308Z"
+            },
+            "evidence": {
+              "jobs": 10,
+              "activeJobs": 0,
+              "newOffers": 0
+            },
+            "action": {
+              "label": "Planifică sau revizuiește oferte",
+              "href": "/car-mover/planning"
+            },
+            "missing": null,
+            "implementation": null,
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.car-mover.active",
+            "tier": "PREMIUM",
+            "title": "Car Mover · Transfer activ",
+            "status": "NO_ACTIVITY",
+            "information": "Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "CarMoverJob + IncidentReport",
+              "observedAt": "2026-08-23T17:49:52.308Z"
+            },
+            "evidence": {
+              "activeJobs": 0,
+              "openIncidents": 0
+            },
+            "action": {
+              "label": "Urmărește transferurile",
+              "href": "/car-mover/active-transfer"
+            },
+            "missing": "Nu există încă activitate înregistrată.",
+            "implementation": "Rezolvă incidentele deschise.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.car-mover.completion",
+            "tier": "PREMIUM",
+            "title": "Car Mover · Finalizare și incidente",
+            "status": "OBSERVED",
+            "information": "10 înregistrări reale sunt disponibile Product Owner-ului.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "CarMoverJob + IncidentReport",
+              "observedAt": "2026-08-23T17:49:52.308Z"
+            },
+            "evidence": {
+              "jobs": 10,
+              "openIncidents": 0
+            },
+            "action": {
+              "label": "Finalizează și închide incidente",
+              "href": "/car-mover/completion-incidents"
+            },
+            "missing": null,
+            "implementation": null,
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.car-mover.accounting",
+            "tier": "PREMIUM",
+            "title": "Car Mover · Contabilitate",
+            "status": "ATTENTION",
+            "information": "10 înregistrări reale sunt disponibile Product Owner-ului.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "CarMoverInvoice + CarMoverFinancialEntry",
+              "observedAt": "2026-08-23T17:49:52.308Z"
+            },
+            "evidence": {
+              "jobs": 10,
+              "outstandingInvoices": 1
+            },
+            "action": {
+              "label": "Revizuiește facturile",
+              "href": "/car-mover/accounting"
+            },
+            "missing": "Exportă sau închide facturile restante.",
+            "implementation": "Exportă sau închide facturile restante.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.car-mover.archive",
+            "tier": "PREMIUM",
+            "title": "Car Mover · Arhivă",
+            "status": "OBSERVED",
+            "information": "10 înregistrări reale sunt disponibile Product Owner-ului.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "CarMoverJob.currentState",
+              "observedAt": "2026-08-23T17:49:52.308Z"
+            },
+            "evidence": {
+              "archivedJobs": 10
+            },
+            "action": {
+              "label": "Deschide arhiva",
+              "href": "/car-mover/archive"
+            },
+            "missing": null,
+            "implementation": null,
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.car-mover.guide",
+            "tier": "PREMIUM",
+            "title": "Car Mover · Ghid",
+            "status": "STATIC_REFERENCE",
+            "information": "Ghidul este conținut operațional static; nu pretinde stare runtime.",
+            "source": {
+              "kind": "STATIC_CONTRACT",
+              "label": "Knowledge/build contract versionat",
+              "observedAt": null
+            },
+            "evidence": {
+              "runtimeClaim": false
+            },
+            "action": {
+              "label": "Deschide referința",
+              "href": "/car-mover/guide"
+            },
+            "missing": null,
+            "implementation": null,
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.communications",
+            "tier": "PREMIUM",
+            "title": "Comunicații",
+            "status": "OBSERVED",
+            "information": "8 înregistrări reale sunt disponibile Product Owner-ului.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "CommunicationConversation/Message + GmailPilotTelemetry",
+              "observedAt": "2026-08-23T18:28:05.854Z"
+            },
+            "evidence": {
+              "conversations": 8,
+              "openConversations": 8,
+              "failedMessages": 0,
+              "gmailState": "NO_TELEMETRY",
+              "backlog": 0
+            },
+            "action": {
+              "label": "Revizuiește comunicațiile",
+              "href": "/premium/communications"
+            },
+            "missing": null,
+            "implementation": null,
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.voice",
+            "tier": "PREMIUM",
+            "title": "AI Friend",
+            "status": "NO_ACTIVITY",
+            "information": "Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "ProviderUsageEvent.adapterId=premium-assistant",
+              "observedAt": null
+            },
+            "evidence": {
+              "requests": 0,
+              "latestOutcome": "NO_ACTIVITY"
+            },
+            "action": {
+              "label": "Deschide funcția",
+              "href": "/premium/voice"
+            },
+            "missing": "Nu există încă activitate înregistrată.",
+            "implementation": "Rulează funcția și investighează ultimul rezultat non-SUCCESS.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.load-safety",
+            "tier": "PREMIUM",
+            "title": "Ladungssicherung",
+            "status": "NO_ACTIVITY",
+            "information": "Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "ProviderUsageEvent.adapterId=premium-load-safety.*",
+              "observedAt": null
+            },
+            "evidence": {
+              "requests": 0,
+              "latestOutcome": "NO_ACTIVITY"
+            },
+            "action": {
+              "label": "Deschide funcția",
+              "href": "/premium/ladungssicherung"
+            },
+            "missing": "Nu există încă activitate înregistrată.",
+            "implementation": "Rulează funcția și investighează ultimul rezultat non-SUCCESS.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.copilot",
+            "tier": "PREMIUM",
+            "title": "Copilot și oportunități",
+            "status": "NO_ACTIVITY",
+            "information": "Sursa reală a răspuns cu zero activitate; starea nu este UNKNOWN.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "Opportunity Intelligence + LiveAdapterTelemetry",
+              "observedAt": null
+            },
+            "evidence": {
+              "opportunities": 0,
+              "staleOpportunities": 0,
+              "verdicts": 0,
+              "humanDecisions": 0,
+              "jobLinks": 0,
+              "agentsObserved": 0,
+              "adaptersObserved": 0
+            },
+            "action": {
+              "label": "Decide asupra oportunităților",
+              "href": "/premium/copilot"
+            },
+            "missing": "Nu există încă activitate înregistrată.",
+            "implementation": "Rezolvă sursele stale/backlog-ul înaintea unei decizii.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          },
+          {
+            "id": "premium.team",
+            "tier": "PREMIUM",
+            "title": "Echipa Premium runtime",
+            "status": "ATTENTION",
+            "information": "102 înregistrări reale sunt disponibile Product Owner-ului.",
+            "source": {
+              "kind": "EVENT_STORE",
+              "label": "AgentRuntimeEvent + ComponentHeartbeat + PremiumNetworkRegistryEntry",
+              "observedAt": "2026-09-05T04:54:53.777Z"
+            },
+            "evidence": {
+              "runtimeEvents": 102,
+              "failedEvents": 15,
+              "heartbeats": 27,
+              "unhealthyHeartbeats": 10,
+              "expectedIdentities": 28,
+              "registeredIdentities": 28,
+              "registryMissing": "NONE"
+            },
+            "action": {
+              "label": "Inspectează echipa",
+              "href": "/premium/team"
+            },
+            "missing": "Investighează evenimentele FAILED și heartbeat-urile stale/degradate.",
+            "implementation": "Investighează evenimentele FAILED și heartbeat-urile stale/degradate.",
+            "legitimateUnknown": false,
+            "unknownReason": null
+          }
+        ]
+      }
+    }
+  },
+  "network": [
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/functional-overview",
+      "method": "GET",
+      "authorizationPresent": true,
+      "requestedAt": "2026-09-05T04:55:20.618Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard",
+      "method": "GET",
+      "authorizationPresent": true,
+      "requestedAt": "2026-09-05T04:55:20.724Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard",
+      "status": 200,
+      "respondedAt": "2026-09-05T04:55:20.949Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/functional-overview",
+      "status": 200,
+      "respondedAt": "2026-09-05T04:55:21.241Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/functional-overview",
+      "method": "GET",
+      "authorizationPresent": true,
+      "requestedAt": "2026-09-05T04:55:22.120Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/functional-overview",
+      "status": 200,
+      "respondedAt": "2026-09-05T04:55:22.333Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard",
+      "method": "GET",
+      "authorizationPresent": true,
+      "requestedAt": "2026-09-05T04:55:22.498Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/functional-overview",
+      "method": "GET",
+      "authorizationPresent": true,
+      "requestedAt": "2026-09-05T04:55:22.895Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard",
+      "status": 200,
+      "respondedAt": "2026-09-05T04:55:22.896Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/functional-overview",
+      "status": 200,
+      "respondedAt": "2026-09-05T04:55:23.090Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard",
+      "method": "GET",
+      "authorizationPresent": true,
+      "requestedAt": "2026-09-05T04:55:23.250Z"
+    },
+    {
+      "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard",
+      "status": 200,
+      "respondedAt": "2026-09-05T04:55:23.401Z"
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 429 ()",
+    "Failed to load resource: the server responded with a status of 429 ()",
+    "Failed to load resource: the server responded with a status of 429 ()",
+    "Failed to load resource: the server responded with a status of 401 ()"
+  ],
+  "pageErrors": [],
+  "failure": "Error: agm.human.product-owner is STANDBY without a current runtime observation.\n    at assert (file:///C:/Users/adria/Documents/AGM/.tmp/release-m2m-20260903/scripts/validate-turn-functional-overview-browser.mjs:319:25)\n    at validateOperationalDashboard (file:///C:/Users/adria/Documents/AGM/.tmp/release-m2m-20260903/scripts/validate-turn-functional-overview-browser.mjs:287:7)\n    at file:///C:/Users/adria/Documents/AGM/.tmp/release-m2m-20260903/scripts/validate-turn-functional-overview-browser.mjs:124:3\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+  "completedAt": "2026-09-05T04:55:23.493Z"
+}
