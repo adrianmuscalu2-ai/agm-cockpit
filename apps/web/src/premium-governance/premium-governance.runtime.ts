@@ -1,4 +1,5 @@
 import { resolveApiUrl } from '../authenticated-api';
+import { ingestBasicAgentOperationalDashboard, type BasicAgentTelemetryInventory } from '../turn-agent-panel.integration';
 
 type NodeStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
 const orbitalCriteria = ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'] as const;
@@ -32,6 +33,7 @@ type Dashboard = {
   incidents: Array<{ eventId: string; eventType: string; scopeId: string | null; reasonCode: string | null; occurredAt: string; correlationId: string; leaseId: string | null }>;
   capabilityGaps: Array<{ canonicalId: string; reason: string; requiredAction: string }>;
   incidentPipeline?: { contractVersion: string; eventStore: string; evaluatedAt: string; nonHealthy: number; qualified: number; notRequired: number; open: number; opened: number; resolved: number };
+  telemetryInventory?: BasicAgentTelemetryInventory;
 };
 type Envelope = { data?: Dashboard; message?: string | string[] };
 
@@ -50,6 +52,7 @@ export function bindPremiumGovernanceRuntime(turnAdminAccessToken?: string) {
     inspectionButton.disabled = true;
     inspectionButton.textContent = 'Inspectorii rulează…';
     void runInspections(turnAdminAccessToken).then(() => load(turnAdminAccessToken)).then((data) => {
+      ingestBasicAgentOperationalDashboard(data);
       if (hero) renderHero(hero, data);
       if (detail) renderDetail(detail, data);
       renderIncidentPipeline(data);
@@ -61,6 +64,7 @@ export function bindPremiumGovernanceRuntime(turnAdminAccessToken?: string) {
     });
   });
   void load(turnAdminAccessToken).then((data) => {
+    ingestBasicAgentOperationalDashboard(data);
     if (hero) renderHero(hero, data);
     if (detail) renderDetail(detail, data);
     renderIncidentPipeline(data);

@@ -24,6 +24,7 @@ type RuntimeCapabilityRequirement = { provider: string; methods: string[]; adapt
 type OperationalJournalEvent = Prisma.AuthorityAuditJournalGetPayload<Record<string, never>>;
 
 const RUNTIME_CAPABILITY_PROBE_VERSION = 'turn-runtime-capability-probe.v1';
+export const BASIC_AGENT_TELEMETRY_INVENTORY_CONTRACT = 'turn-basic-agent-telemetry-inventory.v1';
 export const RUNTIME_CAPABILITY_REQUIREMENTS: Readonly<Record<string, RuntimeCapabilityRequirement>> = {
   'premium.architecture-inspector': { provider: 'AuthorityControlPlaneService', methods: ['inspectOperationalCapabilities'] },
   'premium.release-inspector': { provider: 'AuthorityControlPlaneService', methods: ['inspectOperationalCapabilities'] },
@@ -259,6 +260,34 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         open: incidentReconciliation.openByCanonicalId.size,
         opened: incidentReconciliation.opened,
         resolved: incidentReconciliation.resolved,
+      },
+      telemetryInventory: {
+        contractVersion: BASIC_AGENT_TELEMETRY_INVENTORY_CONTRACT,
+        evaluatedAt: now,
+        runtimeEventWindow: {
+          source: 'AgentRuntimeEvent',
+          loaded: runtimeEvents.length,
+          limit: 1000,
+          oldestLoadedAt: runtimeEvents.length ? runtimeEvents[runtimeEvents.length - 1].occurredAt : null,
+        },
+        latestRuntimeEvents: [...lastRunByAgent.values()].map((event) => ({
+          agentId: event.agentId,
+          eventId: event.eventId,
+          mandateId: event.mandateId,
+          lifecycle: event.lifecycle,
+          occurredAt: event.occurredAt,
+          recordedAt: event.recordedAt,
+          evidenceRef: event.evidenceRef,
+        })),
+        componentHeartbeats: heartbeats.map((heartbeat) => ({
+          componentId: heartbeat.componentId,
+          recordId: heartbeat.id,
+          reportedStatus: heartbeat.reportedStatus,
+          lastSeenAt: heartbeat.lastSeenAt,
+          lastSuccessAt: heartbeat.lastSuccessAt,
+          lastFailureAt: heartbeat.lastFailureAt,
+          lastFailureReason: heartbeat.lastFailureReason,
+        })),
       },
       telemetryPolicy: 'OBSERVE_ONLY_NEVER_COMMAND_OR_BLOCK',
       capabilityGaps: operationalNodes.filter((node) => node.registryPresence === 'MISSING' || node.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED').map((node) => ({ canonicalId: node.canonicalId, reason: node.reason, requiredAction: node.requiredAction })),

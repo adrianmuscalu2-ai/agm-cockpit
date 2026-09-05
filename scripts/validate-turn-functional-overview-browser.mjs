@@ -143,7 +143,13 @@ try {
     authorityStatus: dashboard.controlPlane.status,
     opportunityGate: dashboard.opportunityIntelligence.gate,
     incidentPipeline: dashboard.incidentPipeline,
+    telemetryInventory: dashboard.telemetryInventory,
   };
+  await page.waitForFunction(() => {
+    const eventDrivenEvaluated = document.querySelectorAll('[data-basic-agent-runtime-evidence="EVENT_STORE_NO_ACTIVITY"], [data-basic-agent-runtime-evidence="REAL_EVENT"]').length;
+    const unevaluated = document.querySelectorAll('[data-basic-agent-runtime-evidence="NONE"]').length;
+    return eventDrivenEvaluated === 18 && unevaluated === 0;
+  }, { timeout: 30_000 });
   assert(await page.locator('[data-turn-page="basic"]:visible').count() === 1, 'BASIC is not the primary visible TURN page.');
   assert(await page.locator('[data-basic-spatial-node]:visible').count() === 10, 'BASIC spatial model does not contain 10 real zones.');
   assert(await page.locator('[data-basic-operational-orbit]:visible').count() === 1, 'BASIC approved orbital panel is not visible on entry.');
@@ -243,9 +249,10 @@ try {
       basicAgentNodeCount: document.querySelectorAll('[data-basic-agent-planetary-node]').length,
       basicAgentIdentityCoverage: [...document.querySelectorAll('[data-basic-agent-planetary-node]')].filter((node) => node.getAttribute('data-basic-agent-code') && node.getAttribute('data-basic-agent-registry-presence') === 'PRESENT').length,
       basicAgentEvidenceCoverage: [...document.querySelectorAll('[data-basic-agent-planetary-node]')].filter((node) => node.getAttribute('data-basic-agent-evidence-source') && node.getAttribute('data-basic-agent-observed-at') && node.getAttribute('data-basic-agent-runtime-evidence')).length,
-      basicAgentRealProbeCount: document.querySelectorAll('[data-basic-agent-planetary-node][data-basic-agent-runtime-evidence="REAL_PROBE"]').length,
+      basicAgentRealProbeCount: [...document.querySelectorAll('[data-basic-agent-planetary-node]')].filter((node) => ['REAL_PROBE', 'REAL_EVENT', 'REAL_DASHBOARD'].includes(node.getAttribute('data-basic-agent-runtime-evidence'))).length,
+      basicAgentEventStoreIdleCount: document.querySelectorAll('[data-basic-agent-planetary-node][data-basic-agent-runtime-evidence="EVENT_STORE_NO_ACTIVITY"]').length,
       basicAgentRegistryOnlyCount: document.querySelectorAll('[data-basic-agent-planetary-node][data-basic-agent-runtime-evidence="NONE"]').length,
-      basicAgentRegistryFalseGreen: document.querySelectorAll('[data-basic-agent-planetary-node][data-basic-agent-runtime-evidence="NONE"][data-basic-agent-operational-status="PASS"]').length,
+      basicAgentRegistryFalseGreen: document.querySelectorAll('[data-basic-agent-planetary-node]:is([data-basic-agent-runtime-evidence="NONE"], [data-basic-agent-runtime-evidence="EVENT_STORE_NO_ACTIVITY"])[data-basic-agent-operational-status="PASS"]').length,
       basicAgentCriterionCoverage: [...document.querySelectorAll('[data-basic-agent-planetary-node]')].filter((node) => ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'].every((criterion) => node.getAttribute(`data-basic-agent-${criterion}-status`) && node.getAttribute(`data-basic-agent-${criterion}-source`))).length,
       basicAgentContract: document.querySelector('[data-basic-agent-planetary-panel]')?.getAttribute('data-orbital-source') || '',
       basicAgentCoreStatus: document.querySelector('[data-basic-agent-planetary-core]')?.getAttribute('data-basic-agent-core-status') || '',
@@ -309,10 +316,10 @@ try {
   assert(ui.basicAgentPanelCount === 1, `TURN exposes ${ui.basicAgentPanelCount}/1 BASIC agent planetary systems.`);
   assert(ui.basicAgentNodeCount === 37 && ui.basicAgentIdentityCoverage === 37, `BASIC official agent identity coverage is ${ui.basicAgentIdentityCoverage}/${ui.basicAgentNodeCount}.`);
   assert(ui.basicAgentEvidenceCoverage === 37, `BASIC agent evidence classification coverage is ${ui.basicAgentEvidenceCoverage}/37.`);
-  assert(ui.basicAgentRealProbeCount + ui.basicAgentRegistryOnlyCount === 37, `BASIC runtime/registry partition is ${ui.basicAgentRealProbeCount}+${ui.basicAgentRegistryOnlyCount}/37.`);
-  assert(ui.basicAgentRegistryOnlyCount > 0 && ui.basicAgentRegistryFalseGreen === 0, `BASIC registry-only truth is invalid: ${ui.basicAgentRegistryOnlyCount} registry-only, ${ui.basicAgentRegistryFalseGreen} false green.`);
+  assert(ui.basicAgentRealProbeCount + ui.basicAgentEventStoreIdleCount + ui.basicAgentRegistryOnlyCount === 37, `BASIC evidence partition is ${ui.basicAgentRealProbeCount}+${ui.basicAgentEventStoreIdleCount}+${ui.basicAgentRegistryOnlyCount}/37.`);
+  assert(ui.basicAgentEventStoreIdleCount > 0 && ui.basicAgentRegistryOnlyCount === 0 && ui.basicAgentRegistryFalseGreen === 0, `BASIC operational evaluation is invalid: ${ui.basicAgentEventStoreIdleCount} event-store idle, ${ui.basicAgentRegistryOnlyCount} unevaluated, ${ui.basicAgentRegistryFalseGreen} false green.`);
   assert(ui.basicAgentCriterionCoverage === 37, `BASIC agent criterion status/source coverage is ${ui.basicAgentCriterionCoverage}/37.`);
-  assert(ui.basicAgentContract === 'AGM-BASIC-AGENT-NETWORK-V1', `BASIC agent planetary contract is ${ui.basicAgentContract}.`);
+  assert(ui.basicAgentContract === 'AGM-BASIC-AGENT-NETWORK-V2', `BASIC agent planetary contract is ${ui.basicAgentContract}.`);
   assert(['PASS', 'DEGRADED', 'FAIL', 'NO_TELEMETRY', 'STANDBY'].includes(ui.basicAgentCoreStatus), `BASIC aggregate status is ${ui.basicAgentCoreStatus || 'missing'}.`);
   assert(ui.basicAgentCoreSource.includes(ui.basicAgentContract), `BASIC aggregate source is ${ui.basicAgentCoreSource || 'missing'}.`);
   assert(ui.premiumSpatialNodeCount === 28 && ui.premiumSpatialSourceCoverage === 28, `PREMIUM spatial source coverage is ${ui.premiumSpatialSourceCoverage}/${ui.premiumSpatialNodeCount}.`);
@@ -423,6 +430,11 @@ function validateOperationalDashboard(dashboard) {
   assert(dashboard.incidentPipeline?.contractVersion === 'turn-operational-incident-pipeline.v1', 'Operational incident pipeline contract is missing.');
   assert(dashboard.incidentPipeline?.eventStore === 'AuthorityAuditJournal', `Unexpected incident EventStore ${dashboard.incidentPipeline?.eventStore}.`);
   assert(Number.isInteger(dashboard.incidentPipeline?.nonHealthy) && Number.isInteger(dashboard.incidentPipeline?.qualified) && Number.isInteger(dashboard.incidentPipeline?.notRequired), 'Operational incident pipeline counts are missing.');
+  assert(dashboard.telemetryInventory?.contractVersion === 'turn-basic-agent-telemetry-inventory.v1', `BASIC telemetry inventory contract is ${dashboard.telemetryInventory?.contractVersion ?? 'missing'}.`);
+  assert(dashboard.telemetryInventory?.runtimeEventWindow?.source === 'AgentRuntimeEvent', 'BASIC runtime event query evidence is missing.');
+  assert(Array.isArray(dashboard.telemetryInventory?.latestRuntimeEvents) && Array.isArray(dashboard.telemetryInventory?.componentHeartbeats), 'BASIC persistent telemetry inventory is incomplete.');
+  assert(dashboard.telemetryInventory.latestRuntimeEvents.every((event) => event.agentId && event.eventId && event.lifecycle && event.occurredAt && event.evidenceRef), 'BASIC runtime event inventory contains incomplete evidence.');
+  assert(dashboard.telemetryInventory.componentHeartbeats.every((heartbeat) => heartbeat.componentId && heartbeat.recordId && heartbeat.reportedStatus && heartbeat.lastSeenAt), 'BASIC component heartbeat inventory contains incomplete evidence.');
   for (const node of dashboard.nodes) {
     assert(node.canonicalId && node.kind && node.registryPresence && node.runtimePresence && node.currentFunction && node.currentOperation && node.workloadState, `${node.canonicalId || 'UNKNOWN_ID'} lacks identity/runtime fields.`);
     assert(node.status && node.health && node.freshness && node.dependencyState && node.authorityState?.state, `${node.canonicalId} lacks state/health/dependency/authority fields.`);
