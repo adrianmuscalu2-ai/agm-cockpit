@@ -27,6 +27,7 @@ export function renderProductionPreflight(snapshot?: ProductionPreflightSnapshot
 }
 
 let pollTimer: number | undefined;
+let refreshPromise: Promise<void> | undefined;
 export const productionPreflightPollIntervalMs = 60_000;
 function apiBaseUrl() {
   const env = (import.meta as ImportMeta & { env?: Record<string, string | boolean | undefined> }).env;
@@ -35,35 +36,40 @@ function apiBaseUrl() {
 }
 
 export function bindProductionPreflight(onSnapshot: (snapshot: ProductionPreflightSnapshot | undefined) => void) {
-  const root = document.querySelector<HTMLElement>('#production-preflight');
-  if (!root) return;
+  if (!document.querySelector('#production-preflight')) return;
   const refresh = async () => {
+    if (refreshPromise) return refreshPromise;
     const base = apiBaseUrl();
     if (!base) return;
-    const accessToken = readOwnerAccessToken(window.localStorage);
-    if (!accessToken) {
-      const hadSnapshot = latestProductionPreflightSnapshot !== undefined;
-      latestProductionPreflightSnapshot = undefined;
-      const status = root.querySelector('span');
-      if (status) status.textContent = 'AUTH REQUIRED';
-      if (hadSnapshot) onSnapshot(undefined);
-      return;
-    }
-    try {
-      const response = await fetch(`${base}/operations/production-preflight`, { cache: 'no-store', headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` } });
-      if (!response.ok) throw new Error('PREFLIGHT_UNAVAILABLE');
-      const snapshot = ((await response.json()) as { data?: ProductionPreflightSnapshot }).data;
-      if (!snapshot || snapshot.contract !== productionPreflightContract.version) throw new Error('PREFLIGHT_INVALID');
-      latestProductionPreflightSnapshot = snapshot;
-      root.outerHTML = renderProductionPreflight(snapshot);
-      onSnapshot(snapshot);
-    } catch {
-      const hadSnapshot = latestProductionPreflightSnapshot !== undefined;
-      latestProductionPreflightSnapshot = undefined;
-      const status = root.querySelector('span');
-      if (status) status.textContent = 'TELEMETRY UNAVAILABLE';
-      if (hadSnapshot) onSnapshot(undefined);
-    }
+    refreshPromise = (async () => {
+      const root = document.querySelector<HTMLElement>('#production-preflight');
+      if (!root) return;
+      const accessToken = readOwnerAccessToken(window.localStorage);
+      if (!accessToken) {
+        const hadSnapshot = latestProductionPreflightSnapshot !== undefined;
+        latestProductionPreflightSnapshot = undefined;
+        const status = root.querySelector('span');
+        if (status) status.textContent = 'AUTH REQUIRED';
+        if (hadSnapshot) onSnapshot(undefined);
+        return;
+      }
+      try {
+        const response = await fetch(`${base}/operations/production-preflight`, { cache: 'no-store', headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` } });
+        if (!response.ok) throw new Error('PREFLIGHT_UNAVAILABLE');
+        const snapshot = ((await response.json()) as { data?: ProductionPreflightSnapshot }).data;
+        if (!snapshot || snapshot.contract !== productionPreflightContract.version) throw new Error('PREFLIGHT_INVALID');
+        latestProductionPreflightSnapshot = snapshot;
+        root.outerHTML = renderProductionPreflight(snapshot);
+        onSnapshot(snapshot);
+      } catch {
+        const hadSnapshot = latestProductionPreflightSnapshot !== undefined;
+        latestProductionPreflightSnapshot = undefined;
+        const status = root.querySelector('span');
+        if (status) status.textContent = 'TELEMETRY UNAVAILABLE';
+        if (hadSnapshot) onSnapshot(undefined);
+      }
+    })().finally(() => { refreshPromise = undefined; });
+    return refreshPromise;
   };
   void refresh();
   if (pollTimer !== undefined) window.clearInterval(pollTimer);

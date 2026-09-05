@@ -21,6 +21,7 @@ describe('Production preflight safe report', () => {
     expect(snapshot.overallStatus).toBe('ATTENTION');
     expect(snapshot.checks).toHaveLength(8);
     expect(snapshot.checks.find((item) => item.id === 'production-api')).toMatchObject({ status: 'PASS', checkedAt: '2026-09-05T16:01:00.000Z' });
+    expect(snapshot.checks.find((item) => item.id === 'guardian-telemetry')).toMatchObject({ status: 'FAIL' });
     expect(snapshot.checks.find((item) => item.id === 'guardian-telemetry')?.safeDetail).toContain('ATTENTION');
     expect(JSON.stringify(snapshot)).not.toContain('PRIVATE KEY');
   });

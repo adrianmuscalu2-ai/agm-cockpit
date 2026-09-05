@@ -96,6 +96,7 @@ const snapshots = new Map<string, OperationSnapshot>();
 const telemetrySnapshotStorageKey = 'agm.turn.telemetry-snapshots.v1';
 let pollTimer: number | undefined;
 let snapshotListener: ((source: OperationService, snapshot: OperationSnapshot) => void) | undefined;
+let healthCyclePromise: Promise<void> | undefined;
 
 export function currentOperationSnapshots() {
   return new Map(snapshots);
@@ -423,10 +424,14 @@ async function checkSource(source: OperationService) {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 5000);
   try {
-    const response = await (source.requiresAuth ? authenticatedApiFetch : fetch)(resolvedUrl(source), {
+    const headers = new Headers({ Accept: 'application/json, text/html;q=0.9' });
+    const ownerToken = source.evaluator === 'guardian' ? readOwnerAccessToken(window.localStorage) : '';
+    if (ownerToken) headers.set('Authorization', `Bearer ${ownerToken}`);
+    const request = source.evaluator === 'guardian' ? fetch : source.requiresAuth ? authenticatedApiFetch : fetch;
+    const response = await request(resolvedUrl(source), {
       signal: controller.signal,
       cache: 'no-store',
-      headers: { Accept: 'application/json, text/html;q=0.9' },
+      headers,
     });
     const contentType = response.headers.get('content-type') ?? '';
     const body = contentType.includes('application/json')
@@ -475,11 +480,15 @@ async function checkSource(source: OperationService) {
   }
 }
 
-async function runHealthCycle() {
-  const inputs = monitoringHealthSources.filter((source) => source.kind !== 'aggregate');
-  const aggregates = monitoringHealthSources.filter((source) => source.kind === 'aggregate');
-  await Promise.all(inputs.map(checkSource));
-  await Promise.all(aggregates.map(checkSource));
+function runHealthCycle() {
+  if (healthCyclePromise) return healthCyclePromise;
+  healthCyclePromise = (async () => {
+    const inputs = monitoringHealthSources.filter((source) => source.kind !== 'aggregate');
+    const aggregates = monitoringHealthSources.filter((source) => source.kind === 'aggregate');
+    await Promise.all(inputs.map(checkSource));
+    await Promise.all(aggregates.map(checkSource));
+  })().finally(() => { healthCyclePromise = undefined; });
+  return healthCyclePromise;
 }
 
 export function bindOperationsHealthChecks(onSnapshot?: (source: OperationService, snapshot: OperationSnapshot) => void) {
@@ -491,7 +500,6 @@ export function bindOperationsHealthChecks(onSnapshot?: (source: OperationServic
     const snapshot = snapshots.get(source.id);
     if (snapshot) {
       renderSnapshot(source, snapshot);
-      snapshotListener?.(source, snapshot);
     }
   }
   void runHealthCycle();
@@ -513,4 +521,13 @@ export function bindOperationsHealthChecks(onSnapshot?: (source: OperationServic
       button.disabled = false;
     });
   });
+}
+
+function readOwnerAccessToken(storage: Storage) {
+  try {
+    const session = JSON.parse(storage.getItem('agm.admin.session') ?? 'null') as { accessToken?: string } | null;
+    return session?.accessToken?.trim() || '';
+  } catch {
+    return '';
+  }
 }
