@@ -120,3 +120,12 @@ Local bounded remediation removes these four generic surfaces only from `view-tu
 - Visual inspection confirmed the primary false-green shell was removed, but found one empty rounded Premium wrapper visible on Basic/Incidents while both of its page children were hidden. This is classified as an empty-page-container composition defect, not a telemetry failure.
 
 Bounded local remediation marks the Premium wrapper as a TURN page container and synchronizes its `hidden` state with the active contained page. Static and Browser contracts now require zero visible empty page containers. Web Production build and the targeted TURN contract pass. Product Owner acceptance remains `NOT_GRANTED`; no final product verdict is inferred.
+
+## 2026-09-05 Production audit for `a58d9d7` and discoverability mandate
+
+- GitHub Actions run `33951750539` and Production deployment `6278321185` completed successfully on exact SHA `a58d9d71778e839b20d98e1b2c633836f1b4df4d`.
+- Controlled Production evidence: `browser/2026-09-05T07-16-06-344Z/`; Browser Plugin, Browser Session, and Target Page `PASS`; IAB optional evidence unavailable; PIN masked; token redacted and cleared.
+- Visual and machine checks: generic false-green surfaces 0; decorative orbits 0; visible empty page containers 0; Basic 10/10; Premium 28/28; incident decisions 7/7; page errors 0.
+- Product Owner confirmed improvement but rejected discoverability: P9, EventStore evidence, the canonical agent registry, organization chart, departments, and agent control panel were not visible or directly reachable from Page 1.
+
+Local remediation restores discoverability without moving registry metadata into the primary runtime visualization: Page 1 receives six explicit operational entry points. Navigation opens the correct TURN page, opens the secondary registry disclosure only when required, and scrolls to the exact target. P9 remains truthfully labeled `OPERATIONAL_EVIDENCE`; EventStore incident evidence remains separately labeled `AuthorityAuditJournal`; registry surfaces remain explicitly non-runtime.

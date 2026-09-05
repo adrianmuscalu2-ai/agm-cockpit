@@ -33,7 +33,13 @@ export function bindTurnCommandNavigation() {
     event.preventDefault();
     selectPage(page);
     const href = trigger.getAttribute('href');
-    if (href?.startsWith('#') && href.length > 1) requestAnimationFrame(() => document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    if (href?.startsWith('#') && href.length > 1) requestAnimationFrame(() => {
+      const target = document.querySelector<HTMLElement>(href);
+      const disclosure = target?.closest<HTMLDetailsElement>('details');
+      if (disclosure) disclosure.open = true;
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      target?.focus({ preventScroll: true });
+    });
   });
 
   const initial = location.hash.startsWith('#turn-') ? location.hash.slice(6) : 'basic';

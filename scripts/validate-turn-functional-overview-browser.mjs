@@ -138,6 +138,13 @@ try {
   };
   assert(await page.locator('[data-turn-page="basic"]:visible').count() === 1, 'BASIC is not the primary visible TURN page.');
   assert(await page.locator('[data-basic-spatial-node]:visible').count() === 10, 'BASIC spatial model does not contain 10 real zones.');
+  assert(await page.locator('[data-turn-page="basic"] [data-operational-entry]:visible').count() === 6, 'BASIC does not expose all six agent/departments/P9/evidence entry points.');
+  await verifyOperationalEntry(page, 'p9', 'investigate', '#turn-p9');
+  await verifyOperationalEntry(page, 'event-store', 'incidents', '#turn-incident-page-title');
+  await verifyOperationalEntry(page, 'canonical-agent-registry', 'investigate', '#turn-agent-register');
+  await verifyOperationalEntry(page, 'organization-chart', 'investigate', '#turn-structure');
+  await verifyOperationalEntry(page, 'departments', 'investigate', '#turn-departments');
+  await verifyOperationalEntry(page, 'agent-control-panel', 'investigate', '#turn-agent-control-panel');
   await page.screenshot({ path: resolve(evidenceRoot, 'turn-basic-spatial.png'), fullPage: true });
   await page.locator('[data-turn-page-target="premium"]').click();
   await page.waitForSelector('[data-turn-page="premium"]:not([hidden]) [data-premium-spatial-node]', { timeout: 30_000 });
@@ -193,6 +200,10 @@ try {
       genericCommandPanelCount: document.querySelectorAll('.view-turn .command-panel').length,
       genericQuickActionsCount: document.querySelectorAll('.view-turn .quick-actions').length,
       visibleEmptyPageContainerCount: [...document.querySelectorAll('[data-turn-page-container]')].filter((container) => container.getClientRects().length > 0 && !container.querySelector('[data-turn-page]:not([hidden])')).length,
+      operationalEntryCount: document.querySelectorAll('[data-operational-entry]').length,
+      operationalEntryTargets: [...document.querySelectorAll('[data-operational-entry]')].map((entry) => entry.getAttribute('data-operational-entry-target')),
+      p9ProjectionState: document.querySelector('[data-p9-projection]')?.getAttribute('data-p9-projection') || '',
+      p9Source: document.querySelector('[data-p9-field="source"]')?.textContent?.trim() || '',
       authorityStatus: document.querySelector('[data-control-status]')?.textContent?.trim() || '',
       operationalSummary: {
         total: document.querySelector('[data-node-count]')?.textContent?.trim() || '',
@@ -245,6 +256,8 @@ try {
   assert(ui.genericCommandPanelCount === 0, 'Generic command panel is rendered inside the TURN operational route.');
   assert(ui.genericQuickActionsCount === 0, 'Generic quick actions are rendered inside the TURN operational route.');
   assert(ui.visibleEmptyPageContainerCount === 0, 'A TURN page container is visible without active operational content.');
+  assert(ui.operationalEntryCount === 6 && new Set(ui.operationalEntryTargets).size === 6, 'BASIC operational entries are incomplete or duplicate.');
+  assert(ui.p9ProjectionState === 'live' && ui.p9Source.includes('OPERATIONAL_EVIDENCE'), `P9 operational projection is not live: ${ui.p9ProjectionState} / ${ui.p9Source}`);
   assert(!['', 'DATA UNAVAILABLE', 'ACCES OPERAȚIONAL NECESAR'].includes(ui.authorityStatus), `Authority status is ${ui.authorityStatus}.`);
   assert(report.network.some((entry) => entry.authorizationPresent === true), 'UI request did not carry real Owner Access authorization.');
   assert(report.network.some((entry) => entry.status === 200), 'UI did not receive functional overview HTTP 200.');
@@ -267,6 +280,16 @@ try {
 }
 
 if (report.status !== 'PASS') process.exitCode = 1;
+
+async function verifyOperationalEntry(page, entryId, expectedPage, targetSelector) {
+  await page.locator(`[data-operational-entry="${entryId}"]`).click();
+  await page.waitForSelector(`[data-turn-page="${expectedPage}"]:not([hidden])`);
+  assert(await page.locator(targetSelector).count() === 1, `${entryId} target ${targetSelector} is missing.`);
+  assert(await page.locator(targetSelector).evaluate((target) => target.getClientRects().length > 0), `${entryId} target ${targetSelector} is not visible.`);
+  await page.locator('[data-turn-page-target="basic"]').click();
+  await page.waitForSelector('[data-turn-page="basic"]:not([hidden])');
+  await page.locator('[data-secondary-registry]').evaluateAll((items) => items.forEach((item) => { if (item instanceof HTMLDetailsElement) item.open = false; }));
+}
 
 function validateOverview(overview) {
   assert(overview?.contractVersion === 'turn-functional-overview.v2', 'Functional overview contract missing.');

@@ -201,6 +201,7 @@ function renderFunctionalOverview() {
       <div class="turn-spatial-summary" data-basic-spatial-summary><span>Se citesc sursele reale autorizate…</span></div>
       <div class="turn-spatial-stage turn-basic-stage" data-basic-spatial-stage aria-busy="true"></div>
       <aside class="turn-spatial-selection" data-basic-spatial-selection><p>Selectează o zonă BASIC.</p></aside>
+      ${renderBasicOperationalEntries()}
       <p class="turn-functional-generated" data-functional-generated-at>Se solicită proiecția live…</p>
     </section>
     <section class="turn-functional-overview turn-functional-drilldown" data-turn-page="investigate" hidden aria-labelledby="turn-functional-drilldown-title">
@@ -209,6 +210,21 @@ function renderFunctionalOverview() {
       <div data-functional-zones><p>Se citesc exclusiv sursele reale autorizate…</p></div>
     </section>
   </div>`;
+}
+
+function renderBasicOperationalEntries() {
+  const entries = [
+    ['p9', 'P9 Operational Board', 'OPERATIONAL_EVIDENCE · runtime + smoke + policy', 'investigate', 'turn-p9'],
+    ['event-store', 'EventStore / Incident Evidence', 'AuthorityAuditJournal · incidente persistente', 'incidents', 'turn-incident-page-title'],
+    ['canonical-agent-registry', 'Registrul Oficial de Agenți', 'REGISTRY ONLY · identitate, rol, departament', 'investigate', 'turn-agent-register'],
+    ['organization-chart', 'Organization Chart', 'Lanț oficial de coordonare și escaladare', 'investigate', 'turn-structure'],
+    ['departments', 'Departamente', 'Responsabilități declarative, separat de runtime', 'investigate', 'turn-departments'],
+    ['agent-control-panel', 'TURN Agent Control Panel', 'Panou de intrare în metadatele agenților', 'investigate', 'turn-agent-control-panel'],
+  ] as const;
+  return `<section class="turn-operational-entry-points" aria-labelledby="turn-operational-entry-title">
+    <header><div><span class="turn-kicker">ACCES DIRECT · INSTRUMENTE TURN</span><h3 id="turn-operational-entry-title">Agenți, departamente, P9 și evidence</h3></div><p>Intrările deschid instrumentul solicitat; registry rămâne separat de starea runtime.</p></header>
+    <nav aria-label="Intrări operaționale secundare">${entries.map(([id, label, source, page, target]) => `<a href="#${target}" data-open-turn-page="${page}" data-operational-entry="${id}" data-operational-entry-target="${target}"><strong>${label}</strong><small>${source}</small><span>DESCHIDE →</span></a>`).join('')}</nav>
+  </section>`;
 }
 
 function renderOperationalProtocol() {
@@ -345,7 +361,7 @@ function renderApprovedTurnDashboard(language: UiLanguage) {
       <div class="turn-dashboard-verdict"><span class="turn-light planned" aria-hidden="true"></span><strong>${approvedAgents.length} AGENȚI + P9</strong><small>REGISTRY ONLY · fără afirmație runtime</small></div>
     </header>
 
-    <section class="turn-entry-panel" aria-labelledby="turn-entry-title">
+    <section class="turn-entry-panel" id="turn-agent-control-panel" aria-labelledby="turn-entry-title">
       <header><div><span class="turn-kicker">PANOU DE INTRARE · REGISTRY METADATA</span><h3 id="turn-entry-title">Clasificarea din registru — nu stare runtime</h3></div><dl><div><dt>Înregistrați ca active</dt><dd>${statusCounts.active ?? 0}</dd></div><div><dt>Înregistrați pentru monitorizare</dt><dd>${statusCounts.monitoring ?? 0}</dd></div><div><dt>Planificați</dt><dd>${statusCounts.planned ?? 0}</dd></div></dl></header>
       <div class="turn-agent-light-grid">${agentGovernanceRegistry.map((agent) => `<div class="turn-agent-light" data-entry-agent-id="${escapeHtml(agent.id)}" title="${escapeHtml(agentDisplayRole(language, agent))}"><span class="turn-light planned" aria-hidden="true"></span><span><strong>${escapeHtml(agent.code)}</strong><small>${escapeHtml(agentDisplayName(language, agent))}</small></span><b>REGISTRY ONLY</b></div>`).join('')}</div>
     </section>
@@ -377,7 +393,7 @@ function renderApprovedTurnDashboard(language: UiLanguage) {
       <dl><div><dt>Independență</dt><dd>Oversight</dd></div><div><dt>Escaladare</dt><dd>L3 → L4</dd></div><div><dt>Autovalidare</dt><dd>Interzisă</dd></div></dl>
     </section>
 
-    <section class="turn-agent-register" aria-labelledby="turn-agent-register-title">
+    <section class="turn-agent-register" id="turn-agent-register" aria-labelledby="turn-agent-register-title">
       <header><div><span class="turn-kicker">REGISTRU CANONIC COMPLET</span><h3 id="turn-agent-register-title">Tabelul celor ${approvedAgents.length} de agenți</h3></div><strong>${agentGovernanceRegistry.length} poziții</strong></header>
       <div class="turn-agent-table-wrap"><table><thead><tr><th>#</th><th>Semnal</th><th>Cod</th><th>Agent</th><th>Rol</th><th>Departament</th><th>Stare</th></tr></thead><tbody>${approvedAgents.map((agent, index) => `<tr data-agent-row-id="${escapeHtml(agent.id)}"><td>${index + 1}</td><td><span class="turn-light planned" aria-label="registry only"></span></td><td><code>${escapeHtml(agent.code)}</code></td><td><strong>${escapeHtml(agentDisplayName(language, agent))}</strong></td><td>${escapeHtml(agentDisplayRole(language, agent))}</td><td>${escapeHtml(departmentDisplayName(agent.ownerDepartmentId))}</td><td><span class="turn-status planned">REGISTRY ONLY</span></td></tr>`).join('')}</tbody></table></div>
     </section>
