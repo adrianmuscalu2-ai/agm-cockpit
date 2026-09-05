@@ -104,6 +104,23 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v5
+      - name: Prepare encrypted-channel runtime references
+        shell: bash
+        env:
+          TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
+          GMAIL_FROM_ADDRESS: ${{ secrets.GMAIL_FROM_ADDRESS }}
+          GMAIL_OAUTH_CLIENT_ID: ${{ secrets.GMAIL_OAUTH_CLIENT_ID }}
+          GMAIL_OAUTH_CLIENT_SECRET: ${{ secrets.GMAIL_OAUTH_CLIENT_SECRET }}
+          GMAIL_OAUTH_REFRESH_TOKEN: ${{ secrets.GMAIL_OAUTH_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          for name in TOMTOM_API_KEY GMAIL_FROM_ADDRESS GMAIL_OAUTH_CLIENT_ID GMAIL_OAUTH_CLIENT_SECRET GMAIL_OAUTH_REFRESH_TOKEN; do
+            value="${!name:-}"
+            test -n "$value"
+            encoded="$(printf '%s' "$value" | base64 --wrap=0)"
+            echo "::add-mask::$encoded"
+            printf '%s_B64=%s\n' "$name" "$encoded" >> "$GITHUB_ENV"
+          done
       - name: Stage approved Production lifecycle files
         uses: appleboy/scp-action@v1
         with:
@@ -118,6 +135,7 @@ jobs:
           host: ${{ secrets.PRODUCTION_HOST }}
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          envs: TOMTOM_API_KEY_B64,GMAIL_FROM_ADDRESS_B64,GMAIL_OAUTH_CLIENT_ID_B64,GMAIL_OAUTH_CLIENT_SECRET_B64,GMAIL_OAUTH_REFRESH_TOKEN_B64
           script: |
             set -euo pipefail
             export AGM_IMAGE="${{ env.IMAGE_NAME }}@${{ needs.publish.outputs.digest }}"
@@ -133,6 +151,9 @@ jobs:
                 sudo cp --preserve=mode,timestamps "/opt/agm/production/$current" "$rollback_root/$current"
               fi
             done
+            if sudo test -f /opt/agm/production/secrets/agm-production.env; then
+              sudo cp --preserve=mode,timestamps /opt/agm/production/secrets/agm-production.env "$rollback_root/agm-production.env"
+            fi
             sudo cp --preserve=mode,timestamps /etc/systemd/system/agm-production-api.service "$rollback_root/agm-production-api.service"
             sudo cp --preserve=mode,timestamps /etc/systemd/system/agm-production-web.service "$rollback_root/agm-production-web.service"
             if sudo test -f /opt/agm/production/runtime/production-preflight.latest.json; then
@@ -142,6 +163,9 @@ jobs:
               for previous in release.env web-release.env compose.production.yml; do
                 if sudo test -f "$rollback_root/$previous"; then sudo cp "$rollback_root/$previous" "/opt/agm/production/$previous"; fi
               done
+              if sudo test -f "$rollback_root/agm-production.env"; then
+                sudo install -o root -g root -m 0600 "$rollback_root/agm-production.env" /opt/agm/production/secrets/agm-production.env
+              fi
               sudo cp "$rollback_root/agm-production-api.service" /etc/systemd/system/agm-production-api.service
               sudo cp "$rollback_root/agm-production-web.service" /etc/systemd/system/agm-production-web.service
               if sudo test -f "$rollback_root/production-preflight.latest.json"; then
@@ -155,6 +179,7 @@ jobs:
             diagnose_and_rollback() {
               failure_code=$?
               trap - ERR
+              if [ -n "${secret_candidate:-}" ]; then rm -f -- "$secret_candidate"; fi
               printf 'AGM_DEPLOY_FAILURE stage=%s exit=%s\n' "$deployment_stage" "$failure_code"
               sudo systemctl status agm-production-api.service --no-pager --full || true
               sudo systemctl status agm-production-web.service --no-pager --full || true
@@ -181,6 +206,36 @@ jobs:
             printf 'AGM_WEB_IMAGE=%s\nAGM_WEB_REVISION=%s\n' "$AGM_WEB_IMAGE" "$AGM_WEB_REVISION" | sudo tee /opt/agm/production/web-release.env >/dev/null
             sudo chmod 0644 /opt/agm/production/release.env
             sudo chmod 0644 /opt/agm/production/web-release.env
+            deployment_stage="configure-runtime-secret-references"
+            secret_env=/opt/agm/production/secrets/agm-production.env
+            sudo test -f "$secret_env"
+            for encoded_name in TOMTOM_API_KEY_B64 GMAIL_FROM_ADDRESS_B64 GMAIL_OAUTH_CLIENT_ID_B64 GMAIL_OAUTH_CLIENT_SECRET_B64 GMAIL_OAUTH_REFRESH_TOKEN_B64; do
+              test -n "${!encoded_name:-}"
+            done
+            tomtom_api_key="$(printf '%s' "$TOMTOM_API_KEY_B64" | base64 --decode)"
+            gmail_from_address="$(printf '%s' "$GMAIL_FROM_ADDRESS_B64" | base64 --decode)"
+            gmail_oauth_client_id="$(printf '%s' "$GMAIL_OAUTH_CLIENT_ID_B64" | base64 --decode)"
+            gmail_oauth_client_secret="$(printf '%s' "$GMAIL_OAUTH_CLIENT_SECRET_B64" | base64 --decode)"
+            gmail_oauth_refresh_token="$(printf '%s' "$GMAIL_OAUTH_REFRESH_TOKEN_B64" | base64 --decode)"
+            test -n "$tomtom_api_key"
+            test -n "$gmail_from_address"
+            test -n "$gmail_oauth_client_id"
+            test "${#gmail_oauth_client_secret}" -ge 16
+            test "${#gmail_oauth_refresh_token}" -ge 16
+            for value in "$tomtom_api_key" "$gmail_from_address" "$gmail_oauth_client_id" "$gmail_oauth_client_secret" "$gmail_oauth_refresh_token"; do
+              case "$value" in *$'\n'*|*$'\r'*) exit 1;; esac
+            done
+            case "$tomtom_api_key" in *[!A-Za-z0-9]*) exit 1;; esac
+            case "${tomtom_api_key,,}" in secret|replace-me|change-me-in-development) exit 1;; esac
+            case "$gmail_from_address" in *@*.*) ;; *) exit 1;; esac
+            case "$gmail_oauth_client_id" in *.apps.googleusercontent.com) ;; *) exit 1;; esac
+            secret_candidate="$(mktemp)"
+            sudo awk '!/^(TOMTOM_API_KEY|GMAIL_FROM_ADDRESS|GMAIL_OAUTH_CLIENT_ID|GMAIL_OAUTH_CLIENT_SECRET|GMAIL_OAUTH_REFRESH_TOKEN)=/' "$secret_env" > "$secret_candidate"
+            printf 'TOMTOM_API_KEY=%s\nGMAIL_FROM_ADDRESS=%s\nGMAIL_OAUTH_CLIENT_ID=%s\nGMAIL_OAUTH_CLIENT_SECRET=%s\nGMAIL_OAUTH_REFRESH_TOKEN=%s\n' \
+              "$tomtom_api_key" "$gmail_from_address" "$gmail_oauth_client_id" "$gmail_oauth_client_secret" "$gmail_oauth_refresh_token" >> "$secret_candidate"
+            sudo install -o root -g root -m 0600 "$secret_candidate" "$secret_env"
+            rm -f -- "$secret_candidate"
+            unset tomtom_api_key gmail_from_address gmail_oauth_client_id gmail_oauth_client_secret gmail_oauth_refresh_token
             deployment_stage="production-preflight-in-progress"
             sudo install -d -o root -g root -m 0755 /opt/agm/production/runtime
             preflight_path=/opt/agm/production/runtime/production-preflight.latest.json
@@ -203,6 +258,7 @@ jobs:
             curl --fail --silent --show-error --retry 30 --retry-delay 2 --retry-all-errors --max-time 5 https://api.agmcockpit.com/api/v1/health/live | grep -F 'agent-runtime-events.v1.3' >/dev/null
             test "$(curl --silent --output /dev/null --write-out '%{http_code}' https://api.agmcockpit.com/api/v1/agent-runtime-events)" = "401"
             test "$(curl --silent --output /dev/null --write-out '%{http_code}' https://api.agmcockpit.com/api/v1/authority-control-plane/dashboard)" = "401"
+            sudo docker exec agm-production-api node -e 'const e=process.env;const checks=[["session-signing",(e.JWT_SECRET||"").length>=32],["database-connection",/^postgres(?:ql)?:\/\//i.test(e.DATABASE_URL||"")],["translation-provider",(e.OPENAI_API_KEY||"").length>=20],["live-mobility-tomtom",/^[A-Za-z0-9]+$/.test(e.TOMTOM_API_KEY||"")],["gmail-oauth-client",(e.GMAIL_OAUTH_CLIENT_ID||"").endsWith(".apps.googleusercontent.com")],["gmail-oauth-client-secret",(e.GMAIL_OAUTH_CLIENT_SECRET||"").length>=16],["gmail-oauth-refresh",(e.GMAIL_OAUTH_REFRESH_TOKEN||"").length>=16],["turn-administration",e.AGM_TURN_ADMIN_ACCESS_MODE==="open-pre-release"||/^\$2[aby]\$\d{2}\$/.test(e.AGM_TURN_ADMIN_PIN_HASH||"")]];const attention=checks.filter(([,ok])=>!ok).map(([id])=>id);process.stdout.write(JSON.stringify({contract:"agm-secret-reference-preflight.v1",configured:checks.length-attention.length,attention}));if(attention.length)process.exit(1)'
             deployment_stage="restart-web"
             sudo systemctl restart agm-production-web.service
             sudo systemctl is-active --quiet agm-production-web.service
@@ -390,10 +446,11 @@ jobs:
             curl --fail --silent --show-error --max-time 5 https://api.agmcockpit.com/api/v1/health/live >/dev/null
             curl --fail --silent --show-error --max-time 5 https://api.agmcockpit.com/api/v1/health/ready >/dev/null
             test "$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 5 https://api.agmcockpit.com/api/v1/security/secrets/health)" = "401"
+            sudo docker exec agm-production-api node -e 'const e=process.env;const checks=[["session-signing",(e.JWT_SECRET||"").length>=32],["database-connection",/^postgres(?:ql)?:\/\//i.test(e.DATABASE_URL||"")],["translation-provider",(e.OPENAI_API_KEY||"").length>=20],["live-mobility-tomtom",/^[A-Za-z0-9]+$/.test(e.TOMTOM_API_KEY||"")],["gmail-oauth-client",(e.GMAIL_OAUTH_CLIENT_ID||"").endsWith(".apps.googleusercontent.com")],["gmail-oauth-client-secret",(e.GMAIL_OAUTH_CLIENT_SECRET||"").length>=16],["gmail-oauth-refresh",(e.GMAIL_OAUTH_REFRESH_TOKEN||"").length>=16],["turn-administration",e.AGM_TURN_ADMIN_ACCESS_MODE==="open-pre-release"||/^\$2[aby]\$\d{2}\$/.test(e.AGM_TURN_ADMIN_PIN_HASH||"")]];const attention=checks.filter(([,ok])=>!ok).map(([id])=>id);process.stdout.write(JSON.stringify({contract:"agm-secret-reference-preflight.v1",configured:checks.length-attention.length,attention}));if(attention.length)process.exit(1)'
             test "$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 5 https://app.agmcockpit.com/basic)" = "200"
             preflight_checked_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             sudo tee "$preflight_path" >/dev/null <<EOF
-            {"contract":"agm-production-preflight.v1","environment":"production","revision":"$expected_revision","producer":"AGM_PRODUCTION_RELEASE","checkedAt":"$preflight_checked_at","overallStatus":"READY","checks":[{"id":"ssh-identity","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The isolated GitHub Release identity opened this authenticated Production session."},{"id":"ssh-agent","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The dedicated deployment key was supplied directly; no interactive ssh-agent dependency is required."},{"id":"ssh-connectivity","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The current non-interactive SSH Production channel is connected."},{"id":"ssh-authentication","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The approved Production account executed service and container verification successfully."},{"id":"console-rescue","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The revision-bound database backup and checksum are present for automated rollback."},{"id":"production-api","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The exact API revision is deployed; public live and ready checks returned success."},{"id":"guardian-telemetry","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The Secret Guardian endpoint exists and correctly rejects unauthenticated access."},{"id":"recovery-procedure","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"API and Web lifecycle services are active and the rollback package is available."}]}
+            {"contract":"agm-production-preflight.v1","environment":"production","revision":"$expected_revision","producer":"AGM_PRODUCTION_RELEASE","checkedAt":"$preflight_checked_at","overallStatus":"READY","checks":[{"id":"ssh-identity","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The isolated GitHub Release identity opened this authenticated Production session."},{"id":"ssh-agent","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The dedicated deployment key was supplied directly; no interactive ssh-agent dependency is required."},{"id":"ssh-connectivity","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The current non-interactive SSH Production channel is connected."},{"id":"ssh-authentication","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The approved Production account executed service and container verification successfully."},{"id":"console-rescue","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The revision-bound database backup and checksum are present for automated rollback."},{"id":"production-api","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The exact API revision is deployed; public live and ready checks returned success."},{"id":"guardian-telemetry","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"All eight active Guardian references were validated inside the Production API container; values remained redacted."},{"id":"recovery-procedure","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"API and Web lifecycle services are active and the rollback package is available."}]}
             EOF
             sudo chmod 0644 "$preflight_path"
             sudo docker exec agm-production-api node -e 'const fs=require("node:fs");const report=JSON.parse(fs.readFileSync("/run/agm/production-preflight.latest.json","utf8"));if(report.contract!=="agm-production-preflight.v1"||report.revision!==process.env.AGM_REVISION||report.checks.length!==8||report.checks.some((check)=>check.status!=="PASS"))process.exit(1)'

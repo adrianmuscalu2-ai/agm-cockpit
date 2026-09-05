@@ -10,7 +10,12 @@ describe('Production preflight safe report', () => {
   const checkedAt = '2026-09-05T16:00:00.000Z';
   const checkIds = ['ssh-identity', 'ssh-agent', 'ssh-connectivity', 'ssh-authentication', 'console-rescue', 'production-api', 'guardian-telemetry', 'recovery-procedure'];
   const prisma = { $queryRaw: jest.fn().mockResolvedValue([{ result: 1 }]) };
-  const guardian = { snapshot: jest.fn(() => ({ contract: 'secret-telemetry.v1', overallStatus: 'ATTENTION', checkedAt })) };
+  const guardian = { snapshot: jest.fn(() => ({
+    contract: 'secret-telemetry.v1',
+    overallStatus: 'ATTENTION',
+    checkedAt,
+    secrets: [{ id: 'live-mobility-tomtom', status: 'MISSING' }],
+  })) };
 
   it('loads only revision-bound allowlisted metadata and refreshes live checks', async () => {
     const path = join(directory, 'report.json');
@@ -23,6 +28,7 @@ describe('Production preflight safe report', () => {
     expect(snapshot.checks.find((item) => item.id === 'production-api')).toMatchObject({ status: 'PASS', checkedAt: '2026-09-05T16:01:00.000Z' });
     expect(snapshot.checks.find((item) => item.id === 'guardian-telemetry')).toMatchObject({ status: 'FAIL' });
     expect(snapshot.checks.find((item) => item.id === 'guardian-telemetry')?.safeDetail).toContain('ATTENTION');
+    expect(snapshot.checks.find((item) => item.id === 'guardian-telemetry')?.safeDetail).toContain('live-mobility-tomtom:MISSING');
     expect(JSON.stringify(snapshot)).not.toContain('PRIVATE KEY');
   });
 

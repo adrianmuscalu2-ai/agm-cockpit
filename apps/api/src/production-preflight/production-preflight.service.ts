@@ -45,11 +45,22 @@ export class ProductionPreflightService {
         databaseAvailable = false;
       }
       const guardian = this.secretTelemetry.snapshot();
+      const guardianAttention = guardian.secrets
+        .filter((item) => item.status !== 'CONFIGURED')
+        .map((item) => `${item.id}:${item.status}`)
+        .join(', ');
       const checkedAt = now.toISOString();
       const liveChecks = checks.map((check) => check.id === 'production-api'
         ? { ...check, status: databaseAvailable ? check.status : 'FAIL', checkedAt, safeDetail: databaseAvailable ? 'API process and PostgreSQL dependency are currently available.' : 'API process is running, but PostgreSQL dependency is unavailable.' }
         : check.id === 'guardian-telemetry'
-          ? { ...check, status: guardian.contract && guardian.overallStatus === 'CONFIGURED' ? check.status : 'FAIL', checkedAt, safeDetail: `Secret telemetry producer responded ${guardian.overallStatus}; values remain redacted.` }
+          ? {
+            ...check,
+            status: guardian.contract && guardian.overallStatus === 'CONFIGURED' ? check.status : 'FAIL',
+            checkedAt,
+            safeDetail: guardianAttention
+              ? `Secret telemetry producer responded ${guardian.overallStatus}; affected metadata: ${guardianAttention}. Values remain redacted.`
+              : `Secret telemetry producer responded ${guardian.overallStatus}; all active references are configured. Values remain redacted.`,
+          }
           : check);
       return {
         contract: 'agm-production-preflight.v1',
