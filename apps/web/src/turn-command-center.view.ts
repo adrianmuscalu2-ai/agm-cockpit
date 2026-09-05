@@ -222,7 +222,7 @@ function renderFunctionalOverview() {
       <section class="turn-approved-orbital-panel basic-agent-system" id="turn-basic-agent-system" data-basic-agent-planetary-panel data-orbital-source="PENDING_REAL_SOURCE" aria-labelledby="turn-basic-agent-system-title">
         <header>
           <div><span class="turn-kicker">TURN · BASIC OFFICIAL AGENT NETWORK</span><h3 id="turn-basic-agent-system-title">AGM TURN BASIC AGENT PLANETARY SYSTEM</h3><p>Starea generală este în centru, iar toate cele 37 de identități din Registrul oficial de agenți sunt pe orbite. Cele 10 submodule BASIC rămân separat în panoul de capabilități de mai sus.</p></div>
-          <p class="turn-orbital-legend"><strong>AGENT LA AGENT:</strong> registry-ul furnizează numai identitatea. Probele, evenimentele și evaluatorii reali stabilesc starea; un agent event-driven fără eveniment recent este STANDBY / NO ACTIVITY, iar lipsa evaluatorului rămâne gri NO TELEMETRY.</p>
+          <p class="turn-orbital-legend"><strong>AGENT LA AGENT:</strong> registry-ul furnizează numai identitatea. Probele, evenimentele și evaluatorii reali stabilesc starea; un agent event-driven fără eveniment recent este STANDBY / NO ACTIVITY, iar lipsa evaluatorului rămâne gri NO TELEMETRY. Centrul raportează PARTIAL TELEMETRY când există date reale, dar acoperirea nu este completă.</p>
         </header>
         <nav class="turn-orbital-criteria" data-basic-agent-planetary-criteria aria-label="Factorul de stare al sistemului planetar BASIC">
           <button type="button" data-basic-agent-planetary-criterion="operational" aria-selected="true">Stare operațională</button>

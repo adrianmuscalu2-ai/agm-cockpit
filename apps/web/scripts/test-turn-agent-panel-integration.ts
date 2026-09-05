@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildPanelAgentModel, panelAgentMappingReport, panelAgentSources } from '../src/turn-agent-panel.integration';
+import { aggregateBasicAgentStatus, buildPanelAgentModel, panelAgentMappingReport, panelAgentSources } from '../src/turn-agent-panel.integration';
 import { agentGovernanceRegistry } from '../src/agent-governance.registry';
 import { turnOrganizationAgents } from '../src/turn-organization-chart';
 
@@ -33,5 +33,10 @@ assert.equal(model.some((agent) => ['core-orion-product-owner', 'nexa-copilot-vs
 assert.ok(model.every((agent) => !agent.turnAgentId || officialTurnIds.has(agent.turnAgentId)), 'no fictitious Turn IDs may enter the normalized model');
 assert.ok(model.every((agent) => agent.runtimeStatus === 'NO TELEMETRY' || agent.runtimeStatus === 'UNKNOWN' || agent.runtimeStatus === 'STALE' || agent.runtimeStatus === 'ACTIVE' || agent.runtimeStatus === 'DEGRADED' || agent.runtimeStatus === 'FAILED' || agent.runtimeStatus === 'CRITICAL'), 'runtime status must use the explicit contract');
 assert.equal(report.length, model.length, 'mapping report must cover the normalized model');
+assert.equal(aggregateBasicAgentStatus(['NO_TELEMETRY', 'NO_TELEMETRY']), 'NO_TELEMETRY', 'total absence remains explicit');
+assert.equal(aggregateBasicAgentStatus(['PASS', 'NO_TELEMETRY', 'STANDBY']), 'PARTIAL_TELEMETRY', 'partial coverage must not claim total absence');
+assert.equal(aggregateBasicAgentStatus(['PASS', 'STANDBY']), 'PASS', 'legitimate event-driven standby does not degrade observed agents');
+assert.equal(aggregateBasicAgentStatus(['PASS', 'DEGRADED', 'NO_TELEMETRY']), 'DEGRADED', 'confirmed degradation outranks unknown coverage');
+assert.equal(aggregateBasicAgentStatus(['PASS', 'FAIL']), 'FAIL', 'confirmed failure remains the highest priority');
 
 console.log(JSON.stringify({ pass: true, governanceRegistryEntries: agentGovernanceIds.size, turnOrganizationRegistryEntries: turnOrganizationAgents.length, agents: model.length, mapped: report.filter((row) => row.mappingStatus === 'MAPPED').length, unmapped: report.filter((row) => row.mappingStatus === 'UNMAPPED').length, statuses: [...new Set(model.map((agent) => agent.runtimeStatus))] }, null, 2));

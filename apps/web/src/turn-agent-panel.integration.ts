@@ -16,7 +16,8 @@ export const basicAgentNetworkContract = 'AGM-BASIC-AGENT-NETWORK-V2';
 export const basicAgentTelemetryInventoryContract = 'turn-basic-agent-telemetry-inventory.v1';
 const basicAgentCriteria = ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'] as const;
 type BasicAgentCriterion = typeof basicAgentCriteria[number];
-type BasicAgentStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
+export type BasicAgentStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
+export type BasicAgentAggregateStatus = BasicAgentStatus | 'PARTIAL_TELEMETRY';
 type BasicAgentEvaluation = Record<BasicAgentCriterion, { status: BasicAgentStatus; source: string; reason: string }>;
 type BasicAgentSource = { sourceId?: string; label: string; requiredAction: string };
 type BasicAgentEvidenceMode = 'REAL_PROBE' | 'REAL_EVENT' | 'REAL_DASHBOARD' | 'EVENT_STORE_NO_ACTIVITY' | 'NONE';
@@ -73,7 +74,7 @@ type BasicAgentNetworkNode = {
 const basicAgentCriterionLabels: Record<BasicAgentCriterion, string> = {
   operational: 'Stare operațională', telemetry: 'Telemetrie', procedural: 'Procedură', component: 'Componentă / sursă', incidents: 'Incidente', freshness: 'Freshness',
 };
-const basicAgentStatusClasses = ['status-pass', 'status-degraded', 'status-fail', 'status-no-telemetry', 'status-standby'];
+const basicAgentStatusClasses = ['status-pass', 'status-degraded', 'status-fail', 'status-no-telemetry', 'status-partial-telemetry', 'status-standby'];
 
 const basicAgentDashboardBindings: Readonly<Record<string, string>> = {
   'secret-credentials-guardian': 'agm.guardian.secrets',
@@ -466,7 +467,7 @@ function applyBasicAgentCriterion(panel: HTMLElement, nodes: BasicAgentNetworkNo
   });
   const counts: Record<BasicAgentStatus, number> = { PASS: 0, DEGRADED: 0, FAIL: 0, NO_TELEMETRY: 0, STANDBY: 0 };
   nodes.forEach((node) => { counts[node.criteria[criterion].status] += 1; });
-  const aggregate = counts.FAIL ? 'FAIL' : counts.DEGRADED ? 'DEGRADED' : counts.NO_TELEMETRY ? 'NO_TELEMETRY' : counts.PASS ? 'PASS' : 'STANDBY';
+  const aggregate = aggregateBasicAgentStatus(nodes.map((node) => node.criteria[criterion].status));
   const core = panel.querySelector<HTMLElement>('[data-basic-agent-planetary-core]');
   if (core) {
     core.classList.remove(...basicAgentStatusClasses);
@@ -501,7 +502,17 @@ function renderBasicAgentPlanetaryRings() {
   </svg>`;
 }
 
-function basicAgentStatusClass(status: BasicAgentStatus) {
+export function aggregateBasicAgentStatus(statuses: BasicAgentStatus[]): BasicAgentAggregateStatus {
+  if (statuses.includes('FAIL')) return 'FAIL';
+  if (statuses.includes('DEGRADED')) return 'DEGRADED';
+  const missing = statuses.filter((status) => status === 'NO_TELEMETRY').length;
+  if (missing === statuses.length) return 'NO_TELEMETRY';
+  if (missing > 0) return 'PARTIAL_TELEMETRY';
+  if (statuses.includes('PASS')) return 'PASS';
+  return 'STANDBY';
+}
+
+function basicAgentStatusClass(status: BasicAgentAggregateStatus) {
   return status.toLowerCase().replace('_', '-');
 }
 
