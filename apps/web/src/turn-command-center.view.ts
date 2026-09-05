@@ -315,13 +315,21 @@ export function renderExecutionReadinessGate(incidents: OperationalIncident[]) {
   const snapshot = currentProductionPreflightSnapshot();
   const preflightPass = Boolean(snapshot && snapshot.overallStatus === 'READY' && snapshot.checks.every((check) => check.status === 'PASS'));
   const routes = active.map(routeIncident).filter((route): route is NonNullable<typeof route> => Boolean(route));
-  const agents = new Map<string, { role: string; status: 'PASS' | 'HOLD' }>();
+  const agents = new Map<string, { role: string; status: 'PASS' | 'HOLD' | 'STANDBY' }>();
   routes.flatMap(activateIncidentRoute).forEach((activation) => agents.set(`${activation.agentId}:${activation.role}`, { role: `${activation.agentId} · ${activation.role}`, status: 'HOLD' }));
   if (!routes.length) {
-    ['release-operations · owner', 'secret-credentials-guardian · guardian', 'agent-inspector · validator', 'monitor-incidents · monitor'].forEach((role) => agents.set(role, { role, status: preflightPass ? 'PASS' : 'HOLD' }));
+    ['release-operations · owner', 'secret-credentials-guardian · guardian', 'agent-inspector · validator', 'monitor-incidents · monitor'].forEach((role) => agents.set(role, { role, status: preflightPass ? 'PASS' : snapshot ? 'HOLD' : 'STANDBY' }));
   }
   const ready = executionGateReady(incidents, snapshot) && [...agents.values()].every((agent) => agent.status === 'PASS');
-  return `<section class="execution-readiness-gate ${ready ? 'ready' : 'hold'}" id="turn-execution-gate"><header><div><span class="turn-kicker">POARTĂ OBLIGATORIE PRE-EXECUȚIE</span><h2>${ready ? 'GO ELIGIBLE' : 'HOLD — EXECUȚIA ESTE BLOCATĂ'}</h2></div>${renderStatusLight('incident', active[0]?.status)}</header><p>${ready ? 'Condițiile procedurale sunt PASS; execuția este permisă fără autorizare manuală suplimentară a Product Owner-ului.' : 'Gate-ul rămâne blocat numai de incidente confirmate curent sau de Production Preflight neconform.'}</p><div class="execution-agent-verdicts">${[...agents.values()].map((agent) => `<span class="${agent.status.toLowerCase()}">${escapeHtml(agent.role)} · ${agent.status}</span>`).join('')}</div><div class="gate-status-lights">${renderStatusLight('agent', 'AVAILABLE')}${renderStatusLight('target', snapshot?.overallStatus === 'READY' ? 'READY' : snapshot ? 'DEGRADED' : 'UNKNOWN')}</div><dl><div><dt>Production Preflight</dt><dd>${snapshot ? escapeHtml(snapshot.overallStatus) : 'NOT REPORTED'}</dd></div><div><dt>Autorizare execuție</dt><dd>${ready ? 'PERMISĂ AUTOMAT PRIN PROCEDURĂ' : 'INTERZISĂ'}</dd></div></dl></section>`;
+  const gateState = ready ? 'READY' : active.length || snapshot ? 'HOLD' : 'CONTEXT_MISMATCH';
+  const heading = gateState === 'READY' ? 'GO ELIGIBLE' : gateState === 'HOLD' ? 'HOLD — EXECUȚIA ESTE BLOCATĂ' : 'STANDBY — PREFLIGHT AUTOMAT LA EXECUȚIE';
+  const explanation = gateState === 'READY'
+    ? 'Condițiile procedurale sunt PASS; execuția este permisă fără autorizare manuală suplimentară a Product Owner-ului.'
+    : gateState === 'HOLD'
+      ? 'Gate-ul este blocat numai de incidente confirmate curent sau de Production Preflight ATTENTION.'
+      : 'Nu există incident curent și nu este activă o execuție. Lipsa raportului se clasifică CONTEXT_MISMATCH; fluxul Release & Operations trebuie să producă automat preflight-ul la execuție.';
+  const authorization = gateState === 'READY' ? 'PERMISĂ AUTOMAT PRIN PROCEDURĂ' : gateState === 'HOLD' ? 'INTERZISĂ' : 'AUTOMATĂ LA EXECUȚIE · OWNER ACTION: NONE';
+  return `<section class="execution-readiness-gate ${ready ? 'ready' : gateState === 'HOLD' ? 'hold' : 'standby'}" id="turn-execution-gate" data-execution-gate-state="${gateState}"><header><div><span class="turn-kicker">POARTĂ OBLIGATORIE PRE-EXECUȚIE</span><h2>${heading}</h2></div>${renderStatusLight('incident', active[0]?.status)}</header><p>${explanation}</p><div class="execution-agent-verdicts">${[...agents.values()].map((agent) => `<span class="${agent.status.toLowerCase()}">${escapeHtml(agent.role)} · ${agent.status}</span>`).join('')}</div><div class="gate-status-lights">${renderStatusLight('agent', 'AVAILABLE')}${renderStatusLight('target', snapshot?.overallStatus === 'READY' ? 'READY' : snapshot ? 'DEGRADED' : 'UNKNOWN')}</div><dl><div><dt>Production Preflight</dt><dd>${snapshot ? escapeHtml(snapshot.overallStatus) : 'CONTEXT_MISMATCH / NOT REPORTED'}</dd></div><div><dt>Autorizare execuție</dt><dd>${authorization}</dd></div></dl></section>`;
 }
 
 export function executionGateReady(incidents: OperationalIncident[], snapshot = currentProductionPreflightSnapshot()) {

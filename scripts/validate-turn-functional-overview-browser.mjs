@@ -5,6 +5,7 @@ import { chromium } from 'playwright';
 const targetUrl = process.env.AGM_TURN_FUNCTIONAL_URL || 'https://app.agmcockpit.com/turn';
 const apiUrl = process.env.AGM_TURN_FUNCTIONAL_API_URL || 'https://api.agmcockpit.com/api/v1/operations/turn/functional-overview';
 const dashboardUrl = process.env.AGM_TURN_OPERATIONAL_DASHBOARD_URL || 'https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard';
+const productionPreflightUrl = process.env.AGM_TURN_PRODUCTION_PREFLIGHT_URL || 'https://api.agmcockpit.com/api/v1/operations/production-preflight';
 const ownerAccessToken = process.env.AGM_TURN_OWNER_ACCESS_TOKEN?.trim();
 const interactiveOwnerLogin = process.env.AGM_TURN_INTERACTIVE_OWNER_LOGIN === '1';
 const evidenceScope = targetUrl === 'https://app.agmcockpit.com/turn' && apiUrl === 'https://api.agmcockpit.com/api/v1/operations/turn/functional-overview'
@@ -20,6 +21,7 @@ const report = {
   targetUrl,
   apiUrl,
   dashboardUrl,
+  productionPreflightUrl,
   evidenceScope,
   browser: 'AGM controlled Playwright/Chromium',
   realSourcePolicy: 'NO_ROUTE_STUBS_NO_MOCK_PAYLOAD_NO_STATUS_FALLBACK',
@@ -74,7 +76,7 @@ try {
     if (message.type() === 'error') report.consoleErrors.push(message.text());
   });
   page.on('pageerror', (error) => report.pageErrors.push(error.message));
-  const trackedApiUrls = new Set([apiUrl, dashboardUrl]);
+  const trackedApiUrls = new Set([apiUrl, dashboardUrl, productionPreflightUrl]);
   page.on('request', (request) => {
     if (trackedApiUrls.has(request.url())) report.network.push({
       url: request.url(),
@@ -145,6 +147,20 @@ try {
     incidentPipeline: dashboard.incidentPipeline,
     telemetryInventory: dashboard.telemetryInventory,
   };
+  const productionPreflightResponse = await fetch(productionPreflightUrl, {
+    cache: 'no-store',
+    headers: { Accept: 'application/json', Authorization: `Bearer ${effectiveOwnerAccessToken}` },
+  });
+  const productionPreflightPayload = await productionPreflightResponse.json().catch(() => ({}));
+  assert(productionPreflightResponse.status === 200, `Production preflight API HTTP ${productionPreflightResponse.status}`);
+  const productionPreflight = productionPreflightPayload?.data;
+  assert(productionPreflight?.contract === 'agm-production-preflight.v1', `Unexpected Production preflight contract ${productionPreflight?.contract}`);
+  assert(productionPreflight?.overallStatus === 'READY', `Production preflight is ${productionPreflight?.overallStatus ?? 'NOT REPORTED'}`);
+  assert(productionPreflight?.checks?.length === 8 && productionPreflight.checks.every((check) => check.status === 'PASS'), 'Production preflight is not 8/8 PASS.');
+  report.network.push({ url: productionPreflightUrl, method: 'GET', authorizationPresent: true, status: productionPreflightResponse.status, directContractValidation: true, respondedAt: new Date().toISOString() });
+  report.checks.productionPreflight = productionPreflight;
+  await page.waitForSelector('[data-production-preflight-status="READY"]', { timeout: 30_000 });
+  await page.waitForSelector('[data-execution-gate-state="READY"]', { timeout: 30_000 });
   await page.waitForFunction(() => {
     const eventDrivenEvaluated = document.querySelectorAll('[data-basic-agent-runtime-evidence="EVENT_STORE_NO_ACTIVITY"], [data-basic-agent-runtime-evidence="REAL_EVENT"]').length;
     const unevaluated = document.querySelectorAll('[data-basic-agent-runtime-evidence="NONE"]').length;
@@ -281,6 +297,8 @@ try {
       p9ProjectionState: document.querySelector('[data-p9-projection]')?.getAttribute('data-p9-projection') || '',
       p9Source: document.querySelector('[data-p9-field="source"]')?.textContent?.trim() || '',
       authorityStatus: document.querySelector('[data-control-status]')?.textContent?.trim() || '',
+      productionPreflightStatus: document.querySelector('[data-production-preflight-status]')?.getAttribute('data-production-preflight-status') || '',
+      executionGateState: document.querySelector('[data-execution-gate-state]')?.getAttribute('data-execution-gate-state') || '',
       operationalSummary: {
         total: document.querySelector('[data-node-count]')?.textContent?.trim() || '',
         running: document.querySelector('[data-runtime-running]')?.textContent?.trim() || '',
@@ -354,6 +372,8 @@ try {
   assert(ui.turnExitHref === '/basic', `TURN exit points to ${ui.turnExitHref || 'nothing'}, expected /basic.`);
   assert(ui.p9ProjectionState === 'live' && ui.p9Source.includes('OPERATIONAL_EVIDENCE'), `P9 operational projection is not live: ${ui.p9ProjectionState} / ${ui.p9Source}`);
   assert(!['', 'DATA UNAVAILABLE', 'ACCES OPERAȚIONAL NECESAR'].includes(ui.authorityStatus), `Authority status is ${ui.authorityStatus}.`);
+  assert(ui.productionPreflightStatus === 'READY', `Production Preflight UI is ${ui.productionPreflightStatus || 'missing'}.`);
+  assert(ui.executionGateState === 'READY', `Execution gate UI is ${ui.executionGateState || 'missing'}.`);
   assert(report.network.some((entry) => entry.authorizationPresent === true), 'UI request did not carry real Owner Access authorization.');
   assert(report.network.some((entry) => entry.status === 200), 'UI did not receive functional overview HTTP 200.');
   assert(report.pageErrors.length === 0, `Page errors: ${report.pageErrors.join(' | ')}`);

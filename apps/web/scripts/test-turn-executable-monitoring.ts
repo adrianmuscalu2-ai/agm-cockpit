@@ -5,6 +5,11 @@ import type { OperationService, OperationSnapshot } from '../src/operations-heal
 
 const source: OperationService = { id: 'security', label: 'Secret & Credentials Guardian', kind: 'http', source: 'safe telemetry' };
 const at = new Date('2026-08-06T12:00:00.000Z');
+const idleGate = renderExecutionReadinessGate([]);
+assert.match(idleGate, /data-execution-gate-state="CONTEXT_MISMATCH"/);
+assert.match(idleGate, /OWNER ACTION: NONE/);
+assert.doesNotMatch(idleGate, /secret-credentials-guardian · guardian · HOLD/);
+
 const offline: OperationSnapshot = { status: 'OFFLINE', checkedAt: at, changedAt: at, latencyMs: 120, freshness: 'OFFLINE' };
 const failure = operationsHealthEvent(source, offline);
 assert.equal(failure?.kind, 'failure');

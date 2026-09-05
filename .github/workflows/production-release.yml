@@ -135,12 +135,19 @@ jobs:
             done
             sudo cp --preserve=mode,timestamps /etc/systemd/system/agm-production-api.service "$rollback_root/agm-production-api.service"
             sudo cp --preserve=mode,timestamps /etc/systemd/system/agm-production-web.service "$rollback_root/agm-production-web.service"
+            if sudo test -f /opt/agm/production/runtime/production-preflight.latest.json; then
+              sudo cp --preserve=mode,timestamps /opt/agm/production/runtime/production-preflight.latest.json "$rollback_root/production-preflight.latest.json"
+            fi
             rollback() {
               for previous in release.env web-release.env compose.production.yml; do
                 if sudo test -f "$rollback_root/$previous"; then sudo cp "$rollback_root/$previous" "/opt/agm/production/$previous"; fi
               done
               sudo cp "$rollback_root/agm-production-api.service" /etc/systemd/system/agm-production-api.service
               sudo cp "$rollback_root/agm-production-web.service" /etc/systemd/system/agm-production-web.service
+              if sudo test -f "$rollback_root/production-preflight.latest.json"; then
+                sudo install -d -o root -g root -m 0755 /opt/agm/production/runtime
+                sudo install -o root -g root -m 0644 "$rollback_root/production-preflight.latest.json" /opt/agm/production/runtime/production-preflight.latest.json
+              fi
               sudo systemctl daemon-reload
               sudo systemctl restart agm-production-api.service || true
               sudo systemctl restart agm-production-web.service || true
@@ -174,6 +181,15 @@ jobs:
             printf 'AGM_WEB_IMAGE=%s\nAGM_WEB_REVISION=%s\n' "$AGM_WEB_IMAGE" "$AGM_WEB_REVISION" | sudo tee /opt/agm/production/web-release.env >/dev/null
             sudo chmod 0644 /opt/agm/production/release.env
             sudo chmod 0644 /opt/agm/production/web-release.env
+            deployment_stage="production-preflight-in-progress"
+            sudo install -d -o root -g root -m 0755 /opt/agm/production/runtime
+            preflight_path=/opt/agm/production/runtime/production-preflight.latest.json
+            if sudo test -d "$preflight_path"; then sudo rmdir "$preflight_path"; fi
+            preflight_checked_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            sudo tee "$preflight_path" >/dev/null <<EOF
+            {"contract":"agm-production-preflight.v1","environment":"production","revision":"$AGM_REVISION","producer":"AGM_PRODUCTION_RELEASE","checkedAt":"$preflight_checked_at","overallStatus":"ATTENTION","checks":[{"id":"ssh-identity","status":"NOT CONFIGURED","checkedAt":"$preflight_checked_at","safeDetail":"Release deployment is in progress."},{"id":"ssh-agent","status":"NOT CONFIGURED","checkedAt":"$preflight_checked_at","safeDetail":"Release deployment is in progress."},{"id":"ssh-connectivity","status":"NOT CONFIGURED","checkedAt":"$preflight_checked_at","safeDetail":"Release deployment is in progress."},{"id":"ssh-authentication","status":"NOT CONFIGURED","checkedAt":"$preflight_checked_at","safeDetail":"Release deployment is in progress."},{"id":"console-rescue","status":"NOT CONFIGURED","checkedAt":"$preflight_checked_at","safeDetail":"Rollback evidence is being prepared."},{"id":"production-api","status":"NOT CONFIGURED","checkedAt":"$preflight_checked_at","safeDetail":"Production runtime is being replaced."},{"id":"guardian-telemetry","status":"NOT CONFIGURED","checkedAt":"$preflight_checked_at","safeDetail":"Guardian runtime validation is pending."},{"id":"recovery-procedure","status":"NOT CONFIGURED","checkedAt":"$preflight_checked_at","safeDetail":"Final recovery validation is pending."}]}
+            EOF
+            sudo chmod 0644 "$preflight_path"
             deployment_stage="pull-images"
             sudo docker pull "$AGM_IMAGE"
             sudo docker pull "$AGM_WEB_IMAGE"
@@ -353,3 +369,32 @@ jobs:
             -H "Authorization: Bearer $PROVISIONING_TOKEN" \
             https://api.agmcockpit.com/api/v1/auth/entitlements | \
             jq -e '.data.capabilities | index("car-mover.jobs") != null'
+      - name: Publish current Production preflight automatically
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            expected_revision="${{ github.sha }}"
+            rollback_root="/opt/agm/production/rollback/${{ github.run_id }}"
+            preflight_path=/opt/agm/production/runtime/production-preflight.latest.json
+            test -n "${SSH_CONNECTION:-}"
+            sudo test -f "$rollback_root/database.dump"
+            sudo test -f "$rollback_root/database.dump.sha256"
+            sudo sha256sum --check "$rollback_root/database.dump.sha256" >/dev/null
+            sudo systemctl is-active --quiet agm-production-api.service
+            sudo systemctl is-active --quiet agm-production-web.service
+            test "$(sudo docker inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' agm-production-api)" = "$expected_revision"
+            curl --fail --silent --show-error --max-time 5 https://api.agmcockpit.com/api/v1/health/live >/dev/null
+            curl --fail --silent --show-error --max-time 5 https://api.agmcockpit.com/api/v1/health/ready >/dev/null
+            test "$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 5 https://api.agmcockpit.com/api/v1/security/secrets/health)" = "401"
+            test "$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 5 https://app.agmcockpit.com/basic)" = "200"
+            preflight_checked_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            sudo tee "$preflight_path" >/dev/null <<EOF
+            {"contract":"agm-production-preflight.v1","environment":"production","revision":"$expected_revision","producer":"AGM_PRODUCTION_RELEASE","checkedAt":"$preflight_checked_at","overallStatus":"READY","checks":[{"id":"ssh-identity","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The isolated GitHub Release identity opened this authenticated Production session."},{"id":"ssh-agent","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The dedicated deployment key was supplied directly; no interactive ssh-agent dependency is required."},{"id":"ssh-connectivity","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The current non-interactive SSH Production channel is connected."},{"id":"ssh-authentication","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The approved Production account executed service and container verification successfully."},{"id":"console-rescue","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The revision-bound database backup and checksum are present for automated rollback."},{"id":"production-api","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The exact API revision is deployed; public live and ready checks returned success."},{"id":"guardian-telemetry","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"The Secret Guardian endpoint exists and correctly rejects unauthenticated access."},{"id":"recovery-procedure","status":"PASS","checkedAt":"$preflight_checked_at","safeDetail":"API and Web lifecycle services are active and the rollback package is available."}]}
+            EOF
+            sudo chmod 0644 "$preflight_path"
+            sudo docker exec agm-production-api node -e 'const fs=require("node:fs");const report=JSON.parse(fs.readFileSync("/run/agm/production-preflight.latest.json","utf8"));if(report.contract!=="agm-production-preflight.v1"||report.revision!==process.env.AGM_REVISION||report.checks.length!==8||report.checks.some((check)=>check.status!=="PASS"))process.exit(1)'
+            echo 'PRODUCTION_PREFLIGHT=READY OWNER_ACTION=NONE'

@@ -558,6 +558,12 @@ function render() {
       render();
     });
     bindProductionPreflight((snapshot) => {
+      if (!snapshot) {
+        const snapshotChanged = lastRenderedProductionPreflightAt !== null;
+        lastRenderedProductionPreflightAt = null;
+        if (snapshotChanged) render();
+        return;
+      }
       const snapshotChanged = lastRenderedProductionPreflightAt !== snapshot.checkedAt;
       lastRenderedProductionPreflightAt = snapshot.checkedAt;
       const reconciled = reconcileProductionPreflightIncident(state.incidents, snapshot);

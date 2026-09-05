@@ -8,7 +8,7 @@ export const productionPreflightContract = {
 export type PreflightStatus = 'PASS' | 'FAIL' | 'NOT CONFIGURED';
 export type PreflightCheckId = 'ssh-identity' | 'ssh-agent' | 'ssh-connectivity' | 'ssh-authentication' | 'console-rescue' | 'production-api' | 'guardian-telemetry' | 'recovery-procedure';
 export type ProductionPreflightCheck = { id: PreflightCheckId; status: PreflightStatus; checkedAt: string; safeDetail: string };
-export type ProductionPreflightSnapshot = { contract: typeof productionPreflightContract.version; environment: 'production'; checkedAt: string; overallStatus: 'READY' | 'ATTENTION'; checks: ProductionPreflightCheck[] };
+export type ProductionPreflightSnapshot = { contract: typeof productionPreflightContract.version; environment: 'production'; revision?: string; producer?: string; checkedAt: string; sourceCheckedAt?: string; overallStatus: 'READY' | 'ATTENTION'; checks: ProductionPreflightCheck[] };
 
 let latestProductionPreflightSnapshot: ProductionPreflightSnapshot | undefined;
 
@@ -23,7 +23,7 @@ export function evaluateProductionPreflight(checks: ProductionPreflightCheck[], 
 export function renderProductionPreflight(snapshot?: ProductionPreflightSnapshot) {
   snapshot ??= latestProductionPreflightSnapshot;
   if (!snapshot) return `<section class="production-preflight" id="production-preflight"><header><strong>Production Access Preflight</strong><span>NOT REPORTED</span></header><p>Nu există încă un raport runtime importat. Starea Production nu este dedusă.</p></section>`;
-  return `<section class="production-preflight" id="production-preflight"><header><strong>Production Access Preflight</strong><span>${snapshot.overallStatus}</span></header><p>Ultima verificare: ${new Date(snapshot.checkedAt).toLocaleString()}</p><div>${snapshot.checks.map((check) => `<article class="${check.status === 'PASS' ? 'configured' : 'attention'}"><strong>${check.id}</strong><span>${check.status}</span><p>${escapeHtml(check.safeDetail)}</p></article>`).join('')}</div>${renderActivations()}</section>`;
+  return `<section class="production-preflight" id="production-preflight" data-production-preflight-status="${snapshot.overallStatus}"><header><strong>Production Access Preflight</strong><span>${snapshot.overallStatus}</span></header><p>Ultima verificare runtime: ${new Date(snapshot.checkedAt).toLocaleString()}${snapshot.revision ? ` · SHA ${escapeHtml(snapshot.revision.slice(0, 12))}` : ''}</p><div>${snapshot.checks.map((check) => `<article class="${check.status === 'PASS' ? 'configured' : 'attention'}"><strong>${check.id}</strong><span>${check.status}</span><p>${escapeHtml(check.safeDetail)}</p></article>`).join('')}</div>${renderActivations()}</section>`;
 }
 
 let pollTimer: number | undefined;
@@ -34,14 +34,23 @@ function apiBaseUrl() {
   return (configured || (env?.DEV ? '/api/v1' : '')).replace(/\/$/, '');
 }
 
-export function bindProductionPreflight(onSnapshot: (snapshot: ProductionPreflightSnapshot) => void) {
+export function bindProductionPreflight(onSnapshot: (snapshot: ProductionPreflightSnapshot | undefined) => void) {
   const root = document.querySelector<HTMLElement>('#production-preflight');
   if (!root) return;
   const refresh = async () => {
     const base = apiBaseUrl();
     if (!base) return;
+    const accessToken = readOwnerAccessToken(window.localStorage);
+    if (!accessToken) {
+      const hadSnapshot = latestProductionPreflightSnapshot !== undefined;
+      latestProductionPreflightSnapshot = undefined;
+      const status = root.querySelector('span');
+      if (status) status.textContent = 'AUTH REQUIRED';
+      if (hadSnapshot) onSnapshot(undefined);
+      return;
+    }
     try {
-      const response = await fetch(`${base}/operations/production-preflight`, { cache: 'no-store', headers: { Accept: 'application/json' } });
+      const response = await fetch(`${base}/operations/production-preflight`, { cache: 'no-store', headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` } });
       if (!response.ok) throw new Error('PREFLIGHT_UNAVAILABLE');
       const snapshot = ((await response.json()) as { data?: ProductionPreflightSnapshot }).data;
       if (!snapshot || snapshot.contract !== productionPreflightContract.version) throw new Error('PREFLIGHT_INVALID');
@@ -49,12 +58,25 @@ export function bindProductionPreflight(onSnapshot: (snapshot: ProductionPreflig
       root.outerHTML = renderProductionPreflight(snapshot);
       onSnapshot(snapshot);
     } catch {
-      root.querySelector('span')!.textContent = 'TELEMETRY UNAVAILABLE';
+      const hadSnapshot = latestProductionPreflightSnapshot !== undefined;
+      latestProductionPreflightSnapshot = undefined;
+      const status = root.querySelector('span');
+      if (status) status.textContent = 'TELEMETRY UNAVAILABLE';
+      if (hadSnapshot) onSnapshot(undefined);
     }
   };
   void refresh();
   if (pollTimer !== undefined) window.clearInterval(pollTimer);
   pollTimer = window.setInterval(() => void refresh(), productionPreflightPollIntervalMs);
+}
+
+function readOwnerAccessToken(storage: Storage) {
+  try {
+    const session = JSON.parse(storage.getItem('agm.admin.session') ?? 'null') as { accessToken?: string } | null;
+    return session?.accessToken?.trim() || '';
+  } catch {
+    return '';
+  }
 }
 
 function renderActivations() {
