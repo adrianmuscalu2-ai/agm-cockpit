@@ -29,6 +29,11 @@ export function renderProductionPreflight(snapshot?: ProductionPreflightSnapshot
 let pollTimer: number | undefined;
 let refreshPromise: Promise<void> | undefined;
 export const productionPreflightPollIntervalMs = 60_000;
+
+export function productionPreflightSnapshotFresh(snapshot: ProductionPreflightSnapshot, now = Date.now()) {
+  const age = now - Date.parse(snapshot.checkedAt);
+  return age >= 0 && age < productionPreflightPollIntervalMs;
+}
 function apiBaseUrl() {
   const env = (import.meta as ImportMeta & { env?: Record<string, string | boolean | undefined> }).env;
   const configured = typeof env?.VITE_AGM_API_BASE_URL === 'string' ? env.VITE_AGM_API_BASE_URL.trim() : '';
@@ -38,6 +43,7 @@ function apiBaseUrl() {
 export function bindProductionPreflight(onSnapshot: (snapshot: ProductionPreflightSnapshot | undefined) => void) {
   if (!document.querySelector('#production-preflight')) return;
   const refresh = async () => {
+    if (!document.querySelector('#production-preflight')) return;
     if (refreshPromise) return refreshPromise;
     const base = apiBaseUrl();
     if (!base) return;
@@ -71,9 +77,9 @@ export function bindProductionPreflight(onSnapshot: (snapshot: ProductionPreflig
     })().finally(() => { refreshPromise = undefined; });
     return refreshPromise;
   };
-  void refresh();
-  if (pollTimer !== undefined) window.clearInterval(pollTimer);
-  pollTimer = window.setInterval(() => void refresh(), productionPreflightPollIntervalMs);
+  const ownerAuthenticated = Boolean(readOwnerAccessToken(window.localStorage));
+  if (!latestProductionPreflightSnapshot || !ownerAuthenticated || !productionPreflightSnapshotFresh(latestProductionPreflightSnapshot)) void refresh();
+  if (pollTimer === undefined) pollTimer = window.setInterval(() => void refresh(), productionPreflightPollIntervalMs);
 }
 
 function readOwnerAccessToken(storage: Storage) {

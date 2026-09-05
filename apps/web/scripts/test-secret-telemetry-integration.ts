@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { reconcileSecretTelemetryIncident, renderSecretMetadata, secretTelemetryContract, type SecretTelemetrySnapshot } from '../src/secret-telemetry';
+import { reconcileSecretTelemetryIncident, renderSecretMetadata, secretTelemetryContract, secretTelemetrySnapshotFresh, type SecretTelemetrySnapshot } from '../src/secret-telemetry';
+import { productionPreflightSnapshotFresh, type ProductionPreflightSnapshot } from '../src/production-preflight';
 
 const root = resolve(import.meta.dirname, '..', '..', '..');
 const safe = (overallStatus: 'CONFIGURED' | 'ATTENTION', status: 'CONFIGURED' | 'MISSING' | 'INVALID', checkedAt: string): SecretTelemetrySnapshot => ({
@@ -13,6 +14,12 @@ const safe = (overallStatus: 'CONFIGURED' | 'ATTENTION', status: 'CONFIGURED' | 
 const configured = safe('CONFIGURED', 'CONFIGURED', '2026-08-05T08:00:00.000Z');
 const missing = safe('ATTENTION', 'MISSING', '2026-08-05T08:01:00.000Z');
 const restored = safe('CONFIGURED', 'CONFIGURED', '2026-08-05T08:02:00.000Z');
+
+assert.equal(secretTelemetrySnapshotFresh(configured, Date.parse(configured.checkedAt) + 59_999), true);
+assert.equal(secretTelemetrySnapshotFresh(configured, Date.parse(configured.checkedAt) + 60_000), false);
+const preflight = { contract: 'agm-production-preflight.v1', environment: 'production', overallStatus: 'READY', checkedAt: configured.checkedAt, checks: [] } as ProductionPreflightSnapshot;
+assert.equal(productionPreflightSnapshotFresh(preflight, Date.parse(preflight.checkedAt) + 59_999), true);
+assert.equal(productionPreflightSnapshotFresh(preflight, Date.parse(preflight.checkedAt) + 60_000), false);
 
 let incidents = reconcileSecretTelemetryIncident([], configured);
 assert.equal(incidents.length, 0, 'A valid state must not create an incident.');
@@ -36,4 +43,5 @@ assert.match(registry, /secret-credentials-guardian/);
 assert.match(monitoring, /renderSecretTelemetryPanel/);
 assert.match(operations, /security\/secrets\/health/);
 assert.match(main, /reconcileSecretTelemetryIncident/);
+assert.match(main, /bindProductionPreflight/);
 console.log('Secret Guardian telemetry and incident reconciliation: PASS');

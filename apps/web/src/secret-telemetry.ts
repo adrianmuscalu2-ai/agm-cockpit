@@ -15,6 +15,11 @@ let refreshPromise: Promise<void> | undefined;
 let latestSnapshot: SecretTelemetrySnapshot | undefined;
 export const secretTelemetryPollIntervalMs = 60_000;
 
+export function secretTelemetrySnapshotFresh(snapshot: SecretTelemetrySnapshot, now = Date.now()) {
+  const age = now - Date.parse(snapshot.checkedAt);
+  return age >= 0 && age < secretTelemetryPollIntervalMs;
+}
+
 function escapeHtml(value: string) {
   return value.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character] || character);
 }
@@ -59,6 +64,7 @@ export function bindSecretTelemetry(onSnapshot: (snapshot: SecretTelemetrySnapsh
   if (!document.querySelector('[data-secret-telemetry]')) return;
   if (latestSnapshot) paintSnapshot(latestSnapshot);
   const refresh = async () => {
+    if (!document.querySelector('[data-secret-telemetry]')) return;
     if (refreshPromise) return refreshPromise;
     const base = apiBaseUrl();
     if (!base) return;
@@ -83,9 +89,9 @@ export function bindSecretTelemetry(onSnapshot: (snapshot: SecretTelemetrySnapsh
     })().finally(() => { refreshPromise = undefined; });
     return refreshPromise;
   };
-  void refresh();
-  if (pollTimer !== undefined) window.clearInterval(pollTimer);
-  pollTimer = window.setInterval(() => void refresh(), secretTelemetryPollIntervalMs);
+  const ownerAuthenticated = Boolean(readOwnerAccessToken(window.localStorage));
+  if (!latestSnapshot || !ownerAuthenticated || !secretTelemetrySnapshotFresh(latestSnapshot)) void refresh();
+  if (pollTimer === undefined) pollTimer = window.setInterval(() => void refresh(), secretTelemetryPollIntervalMs);
 }
 
 function paintSnapshot(snapshot: SecretTelemetrySnapshot) {
