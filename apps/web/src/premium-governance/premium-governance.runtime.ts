@@ -95,6 +95,7 @@ function renderRestricted(root: HTMLElement) {
     orbitalStage.innerHTML = '<p class="turn-functional-unavailable"><strong>ACCES OPERAȚIONAL NECESAR</strong> · Nu se construiesc planete din registry.</p>';
     orbitalStage.setAttribute('aria-busy', 'false');
   }
+  renderGlobalAgentPlanetaryUnavailable('ACCES OPERAȚIONAL NECESAR · Nu se construiesc agenți din registry.');
   root.setAttribute('aria-busy', 'false');
 }
 
@@ -109,6 +110,7 @@ function renderUnavailable(root: HTMLElement, error: unknown) {
     orbitalStage.innerHTML = `<p class="turn-functional-unavailable"><strong>DATA UNAVAILABLE</strong> · ${escapeHtml(error instanceof Error ? error.message : 'ACP_OPERATIONAL_DATA_UNAVAILABLE')} Nu se afișează fallback orbital.</p>`;
     orbitalStage.setAttribute('aria-busy', 'false');
   }
+  renderGlobalAgentPlanetaryUnavailable(`${error instanceof Error ? error.message : 'ACP_OPERATIONAL_DATA_UNAVAILABLE'} · Nu se afișează fallback planetar.`);
   root.setAttribute('aria-busy', 'false');
 }
 
@@ -141,6 +143,7 @@ function renderHero(root: HTMLElement, data: Dashboard) {
     <section><h3>Opportunity Intelligence</h3><p><strong>${escapeHtml(data.opportunityIntelligence.gate)}</strong> · ${escapeHtml(data.opportunityIntelligence.reason)}</p><p>${escapeHtml(data.opportunityIntelligence.requiredAction ?? 'Nicio acțiune necesară din evaluarea curentă.')}</p><small>Sursă: OpportunityAgentTelemetry (${data.opportunityIntelligence.sources.length}) · evaluat ${formatDate(data.opportunityIntelligence.evaluatedAt)}</small></section>
     <section><h3>Capability gaps</h3><p>${data.capabilityGaps.length ? `${data.capabilityGaps.length} identități înregistrate nu au implementare executabilă; sunt marcate FAILED mai jos.` : 'Nicio capabilitate executabilă lipsă.'}</p></section>`;
   renderPremiumSpatialModel(root, data);
+  renderGlobalAgentPlanetaryModel(data);
   root.setAttribute('aria-busy', 'false');
 }
 
@@ -195,6 +198,107 @@ function renderPremiumSpatialModel(root: HTMLElement, data: Dashboard) {
   applyPremiumOrbitalCriterion(root, data.nodes, criteriaById, 'operational');
   const initial = byId.get('agm.authority.control-plane') ?? data.nodes[0];
   if (initial) select(initial);
+}
+
+function renderGlobalAgentPlanetaryModel(data: Dashboard) {
+  const panel = document.querySelector<HTMLElement>('[data-global-agent-planetary-panel]');
+  const stage = panel?.querySelector<HTMLElement>('[data-global-agent-planetary-stage]');
+  const selection = panel?.querySelector<HTMLElement>('[data-global-agent-planetary-selection]');
+  if (!panel || !stage) return;
+  panel.dataset.orbitalSource = data.contractVersion;
+  const positions = globalAgentPositions(data.nodes);
+  const byId = new Map(data.nodes.map((node) => [node.canonicalId, node]));
+  const criteriaById = new Map(data.nodes.map((node) => [node.canonicalId, evaluateOrbitalCriteria(node)]));
+  stage.innerHTML = `${renderPremiumOrbitalRings()}
+    <div class="turn-approved-orbital-core status-no-telemetry" data-global-agent-planetary-core data-global-agent-core-source="${escapeHtml(data.contractVersion)}">
+      <small data-global-agent-core-criterion>STARE GENERALĂ</small>
+      <strong data-global-agent-core-status>SE EVALUEAZĂ</strong>
+      <span data-global-agent-core-counts>${data.nodes.length} AGENȚI</span>
+    </div>
+    ${data.nodes.map((node, index) => renderGlobalAgentPlanet(node, positions.get(node.canonicalId)!, index, criteriaById.get(node.canonicalId)!)).join('')}`;
+  const select = (node: NetworkNode) => {
+    stage.querySelectorAll<HTMLElement>('[data-global-agent-planetary-node]').forEach((element) => element.classList.toggle('selected', element.dataset.globalAgentPlanetaryNode === node.canonicalId));
+    if (selection) selection.innerHTML = renderSpatialAgentSelection(node);
+  };
+  stage.querySelectorAll<HTMLButtonElement>('[data-global-agent-planetary-node]').forEach((button) => button.addEventListener('click', () => {
+    const node = byId.get(button.dataset.globalAgentPlanetaryNode ?? '');
+    if (node) select(node);
+  }));
+  panel.querySelectorAll<HTMLButtonElement>('[data-global-agent-planetary-criterion]').forEach((button) => button.addEventListener('click', () => {
+    const criterion = button.dataset.globalAgentPlanetaryCriterion as OrbitalCriterion;
+    if (orbitalCriteria.includes(criterion)) applyGlobalAgentPlanetaryCriterion(panel, data, criteriaById, criterion);
+  }));
+  applyGlobalAgentPlanetaryCriterion(panel, data, criteriaById, 'operational');
+  const initial = byId.get('agm.authority.control-plane') ?? data.nodes[0];
+  if (initial) select(initial);
+  stage.setAttribute('aria-busy', 'false');
+}
+
+function renderGlobalAgentPlanet(node: NetworkNode, position: { x: number; y: number }, index: number, criteria: OrbitalCriterionEvaluation) {
+  const observedAt = node.statusObservedAt ?? node.evidence.observedAt ?? 'NO_REAL_OBSERVATION';
+  const criterionAttributes = orbitalCriteria.map((criterion) => `data-global-${criterion}-status="${criteria[criterion].status}" data-global-${criterion}-source="${escapeHtml(criteria[criterion].source)}"`).join(' ');
+  return `<button type="button" class="turn-approved-orbital-node premium status-${statusClass(node.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%;--node-order:${index}" data-global-agent-planetary-node="${escapeHtml(node.canonicalId)}" data-global-agent-status="${escapeHtml(node.status)}" data-global-agent-runtime-presence="${escapeHtml(node.runtimePresence)}" data-global-agent-evidence-source="${escapeHtml(node.statusSource)}" data-global-agent-observed-at="${escapeHtml(observedAt)}" ${criterionAttributes} title="${escapeHtml(`${node.canonicalId} · ${node.status} · ${node.health} · ${node.statusSource}`)}"><span class="turn-planet" aria-hidden="true"></span><small>${escapeHtml(shortNodeName(node.canonicalId))}</small></button>`;
+}
+
+function applyGlobalAgentPlanetaryCriterion(panel: HTMLElement, data: Dashboard, criteriaById: Map<string, OrbitalCriterionEvaluation>, criterion: OrbitalCriterion) {
+  const stage = panel.querySelector<HTMLElement>('[data-global-agent-planetary-stage]');
+  if (stage) stage.dataset.activeCriterion = criterion;
+  panel.querySelectorAll<HTMLElement>('[data-global-agent-planetary-criterion]').forEach((control) => control.setAttribute('aria-selected', String(control.dataset.globalAgentPlanetaryCriterion === criterion)));
+  panel.querySelectorAll<HTMLElement>('[data-global-agent-planetary-node]').forEach((planet) => {
+    const node = data.nodes.find((candidate) => candidate.canonicalId === planet.dataset.globalAgentPlanetaryNode);
+    if (!node) return;
+    const evaluation = criteriaById.get(node.canonicalId)![criterion];
+    planet.classList.remove(...orbitalStatusClasses);
+    planet.classList.add(`status-${statusClass(evaluation.status)}`);
+    planet.dataset.globalAgentStatus = evaluation.status;
+    planet.dataset.globalAgentActiveSource = evaluation.source;
+    planet.title = `${node.canonicalId} · ${orbitalCriterionLabels[criterion]} · ${evaluation.status} · ${evaluation.reason} · ${evaluation.source}`;
+  });
+  const counts = countCriterionStatuses(data.nodes, criteriaById, criterion);
+  const aggregate = aggregateCriterionStatus(counts);
+  const core = panel.querySelector<HTMLElement>('[data-global-agent-planetary-core]');
+  if (core) {
+    core.classList.remove(...orbitalStatusClasses);
+    core.classList.add(`status-${statusClass(aggregate)}`);
+    core.dataset.globalAgentCoreStatus = aggregate;
+    core.dataset.globalAgentCoreSource = `${data.contractVersion} · ${data.generatedAt}`;
+  }
+  setText(panel, '[data-global-agent-core-criterion]', orbitalCriterionLabels[criterion]);
+  setText(panel, '[data-global-agent-core-status]', aggregate);
+  setText(panel, '[data-global-agent-core-counts]', `${counts.PASS} PASS · ${counts.DEGRADED} DEG · ${counts.FAIL} FAIL · ${counts.NO_TELEMETRY} NO DATA · ${counts.STANDBY} STANDBY`);
+  setText(panel, '[data-global-agent-planetary-message]', `${orbitalCriterionLabels[criterion]} · stare generală ${aggregate} · ${data.nodes.length} agenți evaluați · sursă ${data.contractVersion} · ${formatDate(data.generatedAt)}`);
+}
+
+function aggregateCriterionStatus(counts: Record<NodeStatus, number>): NodeStatus {
+  if (counts.FAIL) return 'FAIL';
+  if (counts.DEGRADED) return 'DEGRADED';
+  if (counts.NO_TELEMETRY) return 'NO_TELEMETRY';
+  if (counts.PASS) return 'PASS';
+  return 'STANDBY';
+}
+
+function globalAgentPositions(nodes: NetworkNode[]) {
+  const positions = new Map<string, { x: number; y: number }>();
+  nodes.forEach((node, index) => {
+    const ringIndex = index % 3;
+    const positionInRing = Math.floor(index / 3);
+    const ringCount = Math.ceil((nodes.length - ringIndex) / 3);
+    const radii = [{ x: 18, y: 20 }, { x: 31, y: 31 }, { x: 43, y: 42 }][ringIndex];
+    const angle = -Math.PI / 2 + (Math.PI * 2 * positionInRing) / Math.max(ringCount, 1) + ringIndex * Math.PI / Math.max(ringCount * 3, 1);
+    positions.set(node.canonicalId, { x: 50 + Math.cos(angle) * radii.x, y: 50 + Math.sin(angle) * radii.y });
+  });
+  return positions;
+}
+
+function renderGlobalAgentPlanetaryUnavailable(reason: string) {
+  const panel = document.querySelector<HTMLElement>('[data-global-agent-planetary-panel]');
+  const stage = panel?.querySelector<HTMLElement>('[data-global-agent-planetary-stage]');
+  const selection = panel?.querySelector<HTMLElement>('[data-global-agent-planetary-selection]');
+  if (!panel || !stage) return;
+  panel.dataset.orbitalSource = 'DATA_UNAVAILABLE';
+  stage.innerHTML = `<p class="turn-functional-unavailable"><strong>DATA UNAVAILABLE</strong> · ${escapeHtml(reason)}</p>`;
+  stage.setAttribute('aria-busy', 'false');
+  if (selection) selection.innerHTML = '<p>Nicio stare de agent nu este dedusă din registry și nu se afișează fallback.</p>';
 }
 
 function renderPremiumOrbitalRings() {

@@ -219,6 +219,23 @@ function renderFunctionalOverview() {
         <section class="turn-orbital-criterion-maps" data-basic-orbital-criterion-maps aria-label="Hărți planetare Basic pe criterii"></section>
         <aside class="turn-approved-orbital-selection" data-basic-orbital-selection><p>Selectează o planetă BASIC pentru sursă, motiv și acțiune.</p></aside>
       </section>
+      <section class="turn-approved-orbital-panel global-agent-system" id="turn-global-agent-system" data-global-agent-planetary-panel data-orbital-source="PENDING_REAL_SOURCE" aria-labelledby="turn-global-agent-system-title">
+        <header>
+          <div><span class="turn-kicker">TURN · LIVE AGENT NETWORK</span><h3 id="turn-global-agent-system-title">AGM TURN AGENT PLANETARY SYSTEM</h3><p>Starea generală este în centru, iar toți agenții operaționali sunt pe orbite. Structura vizuală istorică este readusă fără a elimina suprafețele actuale și este alimentată numai din runtime, telemetrie, evaluatori și evidence reale.</p></div>
+          <p class="turn-orbital-legend"><strong>Adevăr operațional:</strong> identitatea vine din registrul canonic, dar nicio culoare și nicio stare nu este dedusă din registry. Selectează factorul pentru a recalcula nucleul și fiecare agent.</p>
+        </header>
+        <nav class="turn-orbital-criteria" data-global-agent-planetary-criteria aria-label="Factorul de stare al sistemului planetar de agenți">
+          <button type="button" data-global-agent-planetary-criterion="operational" aria-selected="true">Stare operațională</button>
+          <button type="button" data-global-agent-planetary-criterion="telemetry" aria-selected="false">Telemetrie</button>
+          <button type="button" data-global-agent-planetary-criterion="procedural" aria-selected="false">Procedural</button>
+          <button type="button" data-global-agent-planetary-criterion="component" aria-selected="false">Țintă / dependențe</button>
+          <button type="button" data-global-agent-planetary-criterion="incidents" aria-selected="false">Incidente</button>
+          <button type="button" data-global-agent-planetary-criterion="freshness" aria-selected="false">Freshness</button>
+        </nav>
+        <p class="turn-orbital-criterion-message" data-global-agent-planetary-message>Se încarcă stările reale ale agenților…</p>
+        <div class="turn-approved-orbital-stage" data-global-agent-planetary-stage aria-busy="true"><p>Se citește AGM-PREMIUM-NETWORK-V1…</p></div>
+        <aside class="turn-approved-orbital-selection" data-global-agent-planetary-selection><p>Selectează un agent pentru runtime, heartbeat, activitate, dependențe, incidente, sursă, motiv și acțiune.</p></aside>
+      </section>
       <div class="turn-spatial-summary" data-basic-spatial-summary><span>Se citesc sursele reale autorizate…</span></div>
       <div class="turn-spatial-stage turn-basic-stage" data-basic-spatial-stage aria-busy="true"></div>
       <aside class="turn-spatial-selection" data-basic-spatial-selection><p>Selectează o zonă BASIC.</p></aside>
