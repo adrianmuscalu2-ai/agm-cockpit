@@ -8,9 +8,9 @@ function runtimeProvider(name: string, methods: string[], extra: Record<string, 
 }
 
 describe('TURN runtime capability probe', () => {
-  it('persists an actual provider/method/dependency observation for all 22 internal capabilities', async () => {
+  it('persists an actual provider/method/dependency observation for every internal capability and the control plane', async () => {
     const instances = [
-      runtimeProvider('AuthorityControlPlaneService', ['inspectOperationalCapabilities', 'issueLease', 'handoff', 'executeRecovery']),
+      runtimeProvider('AuthorityControlPlaneService', ['dashboard', 'inspectOperationalCapabilities', 'validateWrite', 'issueLease', 'handoff', 'executeRecovery']),
       runtimeProvider('OpportunityIntelligenceService', ['intake', 'analyze', 'copilot']),
       runtimeProvider('LiveAdapterService', ['resolve', 'ingestPlatformFeed']),
       runtimeProvider('CarMoverService', ['create', 'transition', 'recordFinance']),
@@ -34,11 +34,14 @@ describe('TURN runtime capability probe', () => {
     expect(prisma.$queryRaw).toHaveBeenCalledTimes(1);
     expect(upsert).toHaveBeenCalledTimes(Object.keys(RUNTIME_CAPABILITY_REQUIREMENTS).length);
     expect(upsert.mock.calls.every(([input]) => input.create.reportedStatus === 'ONLINE' && input.create.lastDetail.includes('turn-runtime-capability-probe.v1'))).toBe(true);
+    const controlPlaneProbe = upsert.mock.calls.map(([input]) => input).find((input) => input.create.componentId === 'agm.authority.control-plane');
+    expect(controlPlaneProbe.create.reportedStatus).toBe('ONLINE');
+    expect(controlPlaneProbe.update.lastDetail).toBeUndefined();
   });
 
   it('records a missing executable provider as DEGRADED evidence instead of inferring runtime', async () => {
     const instances = [
-      runtimeProvider('AuthorityControlPlaneService', ['inspectOperationalCapabilities', 'issueLease', 'handoff', 'executeRecovery']),
+      runtimeProvider('AuthorityControlPlaneService', ['dashboard', 'inspectOperationalCapabilities', 'validateWrite', 'issueLease', 'handoff', 'executeRecovery']),
       runtimeProvider('OpportunityIntelligenceService', ['intake', 'analyze', 'copilot']),
       runtimeProvider('LiveAdapterService', ['resolve', 'ingestPlatformFeed']),
       runtimeProvider('CarMoverService', ['create', 'transition', 'recordFinance']),

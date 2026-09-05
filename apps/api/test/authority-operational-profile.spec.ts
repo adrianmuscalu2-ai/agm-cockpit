@@ -29,9 +29,9 @@ describe('Premium operational telemetry coverage', () => {
   it('has a real runtime producer or executable capability probe for every non-human identity', () => {
     const covered = new Set([...Object.keys(RUNTIME_CAPABILITY_REQUIREMENTS), ...RUNTIME_NATIVE_TELEMETRY_IDS]);
     const operationalIds = premiumNetworkSeed.filter((node) => node.kind !== 'HUMAN_AUTHORITY').map((node) => node.canonicalId);
-    expect(Object.keys(RUNTIME_CAPABILITY_REQUIREMENTS)).toHaveLength(22);
+    expect(Object.keys(RUNTIME_CAPABILITY_REQUIREMENTS)).toHaveLength(23);
     expect(Object.values(RUNTIME_CAPABILITY_REQUIREMENTS).every((requirement) => requirement.provider && requirement.methods.length > 0)).toBe(true);
-    expect(RUNTIME_NATIVE_TELEMETRY_IDS).toHaveLength(5);
+    expect(RUNTIME_NATIVE_TELEMETRY_IDS).toHaveLength(4);
     expect(RUNTIME_NATIVE_TELEMETRY_IDS.some((id) => id in RUNTIME_CAPABILITY_REQUIREMENTS)).toBe(false);
     expect([...covered].sort()).toEqual([...operationalIds].sort());
   });

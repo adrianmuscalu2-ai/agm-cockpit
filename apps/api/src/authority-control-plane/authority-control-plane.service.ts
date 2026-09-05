@@ -26,6 +26,7 @@ type OperationalJournalEvent = Prisma.AuthorityAuditJournalGetPayload<Record<str
 const RUNTIME_CAPABILITY_PROBE_VERSION = 'turn-runtime-capability-probe.v1';
 export const BASIC_AGENT_TELEMETRY_INVENTORY_CONTRACT = 'turn-basic-agent-telemetry-inventory.v1';
 export const RUNTIME_CAPABILITY_REQUIREMENTS: Readonly<Record<string, RuntimeCapabilityRequirement>> = {
+  [AUTHORITY_CONTROL_PLANE_ID]: { provider: 'AuthorityControlPlaneService', methods: ['dashboard', 'inspectOperationalCapabilities', 'validateWrite'] },
   'premium.architecture-inspector': { provider: 'AuthorityControlPlaneService', methods: ['inspectOperationalCapabilities'] },
   'premium.release-inspector': { provider: 'AuthorityControlPlaneService', methods: ['inspectOperationalCapabilities'] },
   'premium.orchestrator': { provider: 'AuthorityControlPlaneService', methods: ['issueLease', 'handoff'] },
@@ -51,7 +52,6 @@ export const RUNTIME_CAPABILITY_REQUIREMENTS: Readonly<Record<string, RuntimeCap
 };
 
 export const RUNTIME_NATIVE_TELEMETRY_IDS = [
-  'agm.authority.control-plane',
   'agm.guardian.secrets',
   'premium-linguist-it',
   'premium-linguist-es',
@@ -560,7 +560,15 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     await Promise.all(probes.map(({ node, reportedStatus, reason, detail }) => this.prisma.componentHeartbeat.upsert({
       where: { companyId_componentId: { companyId, componentId: node.canonicalId } },
       create: { companyId, componentId: node.canonicalId, reportedStatus, lastSeenAt: now, lastSuccessAt: reportedStatus === 'ONLINE' ? now : null, lastFailureAt: reportedStatus === 'DEGRADED' ? now : null, lastFailureReason: reportedStatus === 'DEGRADED' ? reason : null, lastDetail: detail },
-      update: { reportedStatus, lastSeenAt: now, lastDetail: detail, ...(reportedStatus === 'ONLINE' ? { lastSuccessAt: now, lastFailureReason: null } : { lastFailureAt: now, lastFailureReason: reason }) },
+      update: {
+        reportedStatus,
+        lastSeenAt: now,
+        // The correlated M2M evidence stored by TurnOperationalTruthService owns
+        // ACP lastDetail. The continuous self-probe refreshes liveness without
+        // erasing that independently verified request/event correlation.
+        ...(node.canonicalId === AUTHORITY_CONTROL_PLANE_ID ? {} : { lastDetail: detail }),
+        ...(reportedStatus === 'ONLINE' ? { lastSuccessAt: now, lastFailureReason: null } : { lastFailureAt: now, lastFailureReason: reason }),
+      },
     })));
   }
 
