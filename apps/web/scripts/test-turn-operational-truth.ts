@@ -108,6 +108,7 @@ assert.match(governanceViewSource, /data-turn-page="investigate"/);
 
 const commandCenterSource = await readFile(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
 const productionPreflightSource = await readFile(new URL('../src/production-preflight.ts', import.meta.url), 'utf8');
+const secretTelemetrySource = await readFile(new URL('../src/secret-telemetry.ts', import.meta.url), 'utf8');
 const authorityControlPlaneCss = await readFile(new URL('../src/premium-governance/turn-authority-control-plane.css', import.meta.url), 'utf8');
 const mainSource = await readFile(new URL('../src/main.ts', import.meta.url), 'utf8');
 assert.match(commandCenterSource, /REGISTRY ONLY · fără afirmație runtime/);
@@ -139,6 +140,10 @@ assert.match(commandCenterSource, /CONTEXT_MISMATCH \/ NOT REPORTED/);
 assert.match(commandCenterSource, /OWNER ACTION: NONE/);
 assert.match(productionPreflightSource, /Authorization: `Bearer \$\{accessToken\}`/);
 assert.match(productionPreflightSource, /data-production-preflight-status/);
+assert.match(secretTelemetrySource, /agm\.admin\.session/);
+assert.match(secretTelemetrySource, /Authorization: `Bearer \$\{accessToken\}`/);
+assert.match(secretTelemetrySource, /if \(refreshPromise\) return refreshPromise/);
+assert.doesNotMatch(secretTelemetrySource, /authenticatedApiFetch/);
 assert.doesNotMatch(commandCenterSource, /turn-agent-panel\/index\.html/);
 assert.doesNotMatch(commandCenterSource, /renderRealStatusBoard/);
 const premiumPanelPosition = commandCenterSource.indexOf('${renderTurnAuthorityControlPlane()}');
@@ -147,6 +152,8 @@ assert(premiumPanelPosition >= 0 && registryPosition > premiumPanelPosition, 'Pr
 assert.match(authorityControlPlaneCss, /\.turn-secondary-registry:not\(\[open\]\)\s*>\s*:not\(summary\)\s*{\s*display:\s*none;/);
 assert.match(mainSource, /void bindPremiumLinguisticAgentHeartbeats/);
 assert.match(mainSource, /bindPremiumGovernanceRuntime\(state\.adminSession\.accessToken\)/);
+assert.match(mainSource, /lastRenderedProductionPreflightSignature/);
+assert.doesNotMatch(mainSource, /lastRenderedProductionPreflightAt/);
 assert.doesNotMatch(mainSource, /linguisticHeartbeatReady\.then/);
 
 console.log('TURN operational truth UI contract: PASS');

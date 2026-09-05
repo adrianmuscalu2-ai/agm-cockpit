@@ -351,7 +351,7 @@ const state = attachMailLegacyFacade(attachTranslatorLegacyFacade(attachContacts
 
 let activeTranslatorVoiceInput: Promise<void> | null = null;
 let lastTranslatorHealthCapturedAt: string | null = null;
-let lastRenderedProductionPreflightAt: string | null = null;
+let lastRenderedProductionPreflightSignature: string | null = null;
 let activeQuickLanguageMenuCleanup: (() => void) | null = null;
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
@@ -559,13 +559,14 @@ function render() {
     });
     bindProductionPreflight((snapshot) => {
       if (!snapshot) {
-        const snapshotChanged = lastRenderedProductionPreflightAt !== null;
-        lastRenderedProductionPreflightAt = null;
+        const snapshotChanged = lastRenderedProductionPreflightSignature !== null;
+        lastRenderedProductionPreflightSignature = null;
         if (snapshotChanged) render();
         return;
       }
-      const snapshotChanged = lastRenderedProductionPreflightAt !== snapshot.checkedAt;
-      lastRenderedProductionPreflightAt = snapshot.checkedAt;
+      const signature = `${snapshot.revision ?? ''}:${snapshot.sourceCheckedAt ?? ''}:${snapshot.overallStatus}:${snapshot.checks.map((check) => `${check.id}:${check.status}`).join(',')}`;
+      const snapshotChanged = lastRenderedProductionPreflightSignature !== signature;
+      lastRenderedProductionPreflightSignature = signature;
       const reconciled = reconcileProductionPreflightIncident(state.incidents, snapshot);
       const incidentsChanged = reconciled !== state.incidents;
       if (incidentsChanged) {
