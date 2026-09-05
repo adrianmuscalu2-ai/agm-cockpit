@@ -32,9 +32,10 @@ import {
   TomTomTrafficAdapter,
 } from './provider-adapters';
 import type { MobilityInputDto, PlatformFeedDto } from './live-adapter.dto';
+import { optionalExternalProviders } from '../car-mover/car-mover-routing.policy';
 
 const json = (value:unknown) => value as Prisma.InputJsonValue;
-const OPTIONAL_EXTERNAL_PROVIDERS=new Set(['here','tollguru']);
+const OPTIONAL_EXTERNAL_PROVIDERS=new Set<string>(optionalExternalProviders);
 export type OptionalExternalProviderAuthorization={providerIds:readonly ('here'|'tollguru')[];authorizationReference:string};
 
 @Injectable()

@@ -1,4 +1,4 @@
-import { evaluateSecretMetadata } from '../src/secret-telemetry/secret-telemetry.service';
+import { archivedOptionalSecretDefinitions, evaluateSecretMetadata } from '../src/secret-telemetry/secret-telemetry.service';
 
 const valid = {
   JWT_SECRET: 'a-secure-session-secret-with-more-than-32-characters',
@@ -44,5 +44,14 @@ describe('Secret & Credentials Guardian safe telemetry', () => {
     const snapshot = evaluateSecretMetadata(valid, 'test', '2026-08-24T13:00:00.000Z');
     expect(snapshot.secrets.find((item) => item.id === 'live-mobility-tomtom')?.status).toBe('CONFIGURED');
     expect(JSON.stringify(snapshot)).not.toContain(valid.TOMTOM_API_KEY);
+  });
+
+  it('excludes archived HERE and TollGuru references from active health', () => {
+    const { HERE_API_KEY: _here, TOLLGURU_API_KEY: _tollGuru, ...activeValues } = valid;
+    const snapshot = evaluateSecretMetadata(activeValues, 'production', '2026-09-05T16:00:00.000Z');
+
+    expect(snapshot.overallStatus).toBe('CONFIGURED');
+    expect(snapshot.secrets.some((item) => ['live-mobility-here', 'live-mobility-tollguru'].includes(item.id))).toBe(false);
+    expect(archivedOptionalSecretDefinitions.map((item) => item.id)).toEqual(['live-mobility-here', 'live-mobility-tollguru']);
   });
 });

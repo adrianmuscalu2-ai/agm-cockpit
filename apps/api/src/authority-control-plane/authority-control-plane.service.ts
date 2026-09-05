@@ -11,6 +11,7 @@ import { resolveCanonicalNodeState } from './canonical-node-state';
 import { TURN_OPERATIONAL_TRUTH_CONTRACT } from '../turn-operational-truth/turn-operational-truth.contract';
 import { operationalProfile } from './operational-profile';
 import { SecretTelemetryService } from '../secret-telemetry/secret-telemetry.service';
+import { optionalExternalProviders } from '../car-mover/car-mover-routing.policy';
 import { OPERATIONAL_INCIDENT_CONTRACT, operationalIncidentTransition, qualifyOperationalIncident, type OperationalIncidentQualification } from './operational-incident-evaluator';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
@@ -24,6 +25,7 @@ type RuntimeCapabilityRequirement = { provider: string; methods: string[]; adapt
 type OperationalJournalEvent = Prisma.AuthorityAuditJournalGetPayload<Record<string, never>>;
 
 const RUNTIME_CAPABILITY_PROBE_VERSION = 'turn-runtime-capability-probe.v1';
+const ARCHIVED_OPTIONAL_PROVIDER_IDS = new Set<string>(optionalExternalProviders);
 export const BASIC_AGENT_TELEMETRY_INVENTORY_CONTRACT = 'turn-basic-agent-telemetry-inventory.v1';
 export const RUNTIME_CAPABILITY_REQUIREMENTS: Readonly<Record<string, RuntimeCapabilityRequirement>> = {
   [AUTHORITY_CONTROL_PLANE_ID]: { provider: 'AuthorityControlPlaneService', methods: ['dashboard', 'inspectOperationalCapabilities', 'validateWrite'] },
@@ -41,8 +43,8 @@ export const RUNTIME_CAPABILITY_REQUIREMENTS: Readonly<Record<string, RuntimeCap
   'premium.adapters.geocoding': { provider: 'LiveAdapterService', methods: ['resolve'], adapterCategory: 'GEOCODING' },
   'premium.adapters.routing': { provider: 'LiveAdapterService', methods: ['resolve'], adapterCategory: 'ROUTE' },
   'premium.adapters.traffic': { provider: 'LiveAdapterService', methods: ['resolve'], adapterCategory: 'TRAFFIC' },
-  'premium.adapters.toll': { provider: 'LiveAdapterService', methods: ['resolve'], adapterCategory: 'TOLL' },
-  'premium.adapters.transit': { provider: 'LiveAdapterService', methods: ['resolve'], adapterCategory: 'TRANSIT' },
+  'premium.adapters.toll': { provider: 'LiveAdapterService', methods: ['resolve'] },
+  'premium.adapters.transit': { provider: 'LiveAdapterService', methods: ['resolve'] },
   'premium.adapters.platform-feed': { provider: 'LiveAdapterService', methods: ['ingestPlatformFeed'] },
   'premium.car-mover.job-service': { provider: 'CarMoverService', methods: ['create', 'transition'] },
   'premium.car-mover.incident-service': { provider: 'IncidentsService', methods: ['create', 'resolve'] },
@@ -544,7 +546,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       const provider = providers.get(requirement.provider);
       const missingMethods = requirement.methods.filter((method) => typeof provider?.[method] !== 'function');
       const configuredProviders = requirement.adapterCategory
-        ? adapterProviders.filter((candidate) => candidate.category === requirement.adapterCategory && safelyConfigured(candidate)).map((candidate) => String(candidate.providerId))
+        ? adapterProviders.filter((candidate) => candidate.category === requirement.adapterCategory && !ARCHIVED_OPTIONAL_PROVIDER_IDS.has(String(candidate.providerId)) && safelyConfigured(candidate)).map((candidate) => String(candidate.providerId))
         : [];
       const reason = !provider
         ? `RUNTIME_PROVIDER_NOT_LOADED:${requirement.provider}`

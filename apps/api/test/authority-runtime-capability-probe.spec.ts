@@ -58,4 +58,23 @@ describe('TURN runtime capability probe', () => {
     expect(evidenceProbe.create.reportedStatus).toBe('DEGRADED');
     expect(evidenceProbe.create.lastFailureReason).toBe('RUNTIME_PROVIDER_NOT_LOADED:EvidenceService');
   });
+
+  it('does not require archived HERE or TollGuru providers for active toll/transit readiness', async () => {
+    const instances = [
+      runtimeProvider('LiveAdapterService', ['resolve', 'ingestPlatformFeed']),
+      runtimeProvider('HereProvider', [], { category: 'GEOCODING', providerId: 'here', configured: () => true }),
+      runtimeProvider('TollGuruProvider', [], { category: 'TOLL', providerId: 'tollguru', configured: () => true }),
+    ];
+    const upsert = jest.fn().mockResolvedValue({});
+    const prisma = { $queryRaw: jest.fn().mockResolvedValue([{ result: 1 }]), componentHeartbeat: { upsert } };
+    const discovery = { getProviders: () => instances.map((instance) => ({ instance })) };
+    const service = new AuthorityControlPlaneService(prisma as never, {} as never, discovery as never);
+
+    await (service as unknown as { recordRuntimeCapabilityProbes(companyId: string): Promise<void> }).recordRuntimeCapabilityProbes('00000000-0000-0000-0000-000000000001');
+
+    const probes = new Map(upsert.mock.calls.map(([input]) => [input.create.componentId, input.create]));
+    expect(probes.get('premium.adapters.toll')).toMatchObject({ reportedStatus: 'ONLINE', lastFailureReason: null });
+    expect(probes.get('premium.adapters.transit')).toMatchObject({ reportedStatus: 'ONLINE', lastFailureReason: null });
+    expect(probes.get('premium.adapters.geocoding')).toMatchObject({ reportedStatus: 'DEGRADED', lastFailureReason: 'LIVE_PROVIDER_NOT_CONFIGURED:GEOCODING' });
+  });
 });
