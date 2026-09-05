@@ -1,5 +1,6 @@
 import { operationalProfile } from '../src/authority-control-plane/operational-profile';
 import { premiumNetworkSeed } from '../src/authority-control-plane/premium-network.seed';
+import { RUNTIME_CAPABILITY_REQUIREMENTS, RUNTIME_NATIVE_TELEMETRY_IDS } from '../src/authority-control-plane/authority-control-plane.service';
 
 describe('Premium operational telemetry coverage', () => {
   it('classifies every canonical identity without registry-derived runtime', () => {
@@ -23,5 +24,15 @@ describe('Premium operational telemetry coverage', () => {
     for (const id of ['premium.architecture-inspector', 'premium.release-inspector', 'premium.orchestrator']) {
       expect(operationalProfile(premiumNetworkSeed.find((node) => node.canonicalId === id)!)).toMatchObject({ expectedSource: 'RUNTIME_EVENT' });
     }
+  });
+
+  it('has a real runtime producer or executable capability probe for every non-human identity', () => {
+    const covered = new Set([...Object.keys(RUNTIME_CAPABILITY_REQUIREMENTS), ...RUNTIME_NATIVE_TELEMETRY_IDS]);
+    const operationalIds = premiumNetworkSeed.filter((node) => node.kind !== 'HUMAN_AUTHORITY').map((node) => node.canonicalId);
+    expect(Object.keys(RUNTIME_CAPABILITY_REQUIREMENTS)).toHaveLength(22);
+    expect(Object.values(RUNTIME_CAPABILITY_REQUIREMENTS).every((requirement) => requirement.provider && requirement.methods.length > 0)).toBe(true);
+    expect(RUNTIME_NATIVE_TELEMETRY_IDS).toHaveLength(5);
+    expect(RUNTIME_NATIVE_TELEMETRY_IDS.some((id) => id in RUNTIME_CAPABILITY_REQUIREMENTS)).toBe(false);
+    expect([...covered].sort()).toEqual([...operationalIds].sort());
   });
 });

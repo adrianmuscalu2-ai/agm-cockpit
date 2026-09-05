@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { randomUUID } from 'node:crypto';
 import type { RequestContext } from '../common/request-context';
 import { CanonicalAuthorityService } from '../canonical-authority/canonical-authority.service';
 import { hash } from '../opportunity-intelligence/opportunity-intelligence.engine';
@@ -64,16 +65,20 @@ export class LiveAdapterService {
     if(category==='TOLL'){
       const toll=input as TollInput;
       if(toll.tollRequired!==true||!toll.tollReason){
+        const warning=toll.tollRequired===true?'TOLL_REASON_REQUIRED_PROVIDER_NOT_CALLED':'TOLL_NOT_REQUIRED_PROVIDER_NOT_CALLED';
         void this.safeRecord({providerId:'tollguru',adapterId:'live.toll.tollguru',category,eventType:'TOLL_CALL_SKIPPED',inputHash,outcome:'NOT_REQUIRED',metrics:{reason:toll.tollRequired===true?'TOLL_REASON_REQUIRED':'TOLL_NOT_REQUIRED'}},ctx);
-        return Promise.resolve({mode:'SKIPPED',status:'HEALTHY',warning:toll.tollRequired===true?'TOLL_REASON_REQUIRED_PROVIDER_NOT_CALLED':'TOLL_NOT_REQUIRED_PROVIDER_NOT_CALLED'} as LiveResolution);
+        return this.withAdapterRuntime(category,ctx,()=>this.categoryTelemetry(ctx.companyId,category,toll.tollRequired===true?'DEGRADED':'HEALTHY','not-required',toll.tollRequired===true?'TOLL_REASON_REQUIRED':undefined)
+          .then(()=>({mode:'SKIPPED',status:toll.tollRequired===true?'DEGRADED':'HEALTHY',warning} as LiveResolution)));
       }
       if(!this.canonicalAuthority||!toll.authorityScopeConfirmed||!toll.authoritySources?.length){
-        return Promise.resolve({mode:'MANUAL',status:'DEGRADED',warning:'CANONICAL_AUTHORITY_REQUIRED:UNKNOWN_HUMAN_VERIFICATION',canonicalAuthority:{resolvedValue:null,fallback:'UNKNOWN_HUMAN_VERIFICATION',decisions:[]}} as LiveResolution);
+        return this.withAdapterRuntime(category,ctx,()=>this.categoryTelemetry(ctx.companyId,category,'DEGRADED','authority-gate','CANONICAL_AUTHORITY_REQUIRED')
+          .then(()=>({mode:'MANUAL',status:'DEGRADED',warning:'CANONICAL_AUTHORITY_REQUIRED:UNKNOWN_HUMAN_VERIFICATION',canonicalAuthority:{resolvedValue:null,fallback:'UNKNOWN_HUMAN_VERIFICATION',decisions:[]}} as LiveResolution)));
       }
       const evaluatedAt=toll.departureTime??new Date().toISOString();
       const authority=this.canonicalAuthority.evaluateMany(toll.authoritySources.map((item)=>({domain:'ROUTING_TOLL' as const,sourceId:item.sourceId,jurisdiction:item.jurisdiction,evaluatedAt,purpose:'NORMATIVE' as const,scopeConfirmed:true})));
       if(!authority.allNormativelyUsable){
-        return Promise.resolve({mode:'MANUAL',status:'DEGRADED',warning:'CANONICAL_AUTHORITY_NOT_CURRENT:UNKNOWN_HUMAN_VERIFICATION',canonicalAuthority:authority} as LiveResolution);
+        return this.withAdapterRuntime(category,ctx,()=>this.categoryTelemetry(ctx.companyId,category,'DEGRADED','authority-gate','CANONICAL_AUTHORITY_NOT_CURRENT')
+          .then(()=>({mode:'MANUAL',status:'DEGRADED',warning:'CANONICAL_AUTHORITY_NOT_CURRENT:UNKNOWN_HUMAN_VERIFICATION',canonicalAuthority:authority} as LiveResolution)));
       }
       return this.resolveWithAuthority(category,input,ctx,forceRefresh,allowedOptional,authority);
     }
@@ -82,7 +87,7 @@ export class LiveAdapterService {
       void existing.then((result)=>{if(result.provider)return this.safeRecord({providerId:result.provider,adapterId:`live.${category.toLowerCase()}.${result.provider}`,category,eventType:'REQUEST_COALESCED',inputHash,outcome:'DEDUPLICATED',coalesced:true},ctx);});
       return existing;
     }
-    const promise=this.resolveOnce(category,input,ctx,forceRefresh,allowedOptional).finally(()=>this.coalesced.delete(key));
+    const promise=this.withAdapterRuntime(category,ctx,()=>this.resolveOnce(category,input,ctx,forceRefresh,allowedOptional)).finally(()=>this.coalesced.delete(key));
     this.coalesced.set(key,promise);
     return promise;
   }
@@ -91,7 +96,7 @@ export class LiveAdapterService {
     const inputHash=hash(input),key=`${ctx.companyId}:${category}:${inputHash}:${[...allowedOptional].sort().join(',')}`;
     const existing=this.coalesced.get(key);
     if(existing)return existing;
-    const promise=this.resolveOnce(category,input,ctx,forceRefresh,allowedOptional).then((result)=>({...result,canonicalAuthority:authority})).finally(()=>this.coalesced.delete(key));
+    const promise=this.withAdapterRuntime(category,ctx,()=>this.resolveOnce(category,input,ctx,forceRefresh,allowedOptional)).then((result)=>({...result,canonicalAuthority:authority})).finally(()=>this.coalesced.delete(key));
     this.coalesced.set(key,promise);
     return promise;
   }
@@ -150,19 +155,32 @@ export class LiveAdapterService {
       await this.safeRecord({providerId:usableCached.providerId,adapterId:`live.${category.toLowerCase()}.${usableCached.providerId}`,category,eventType:'STALE_CACHE_HIT',inputHash,outcome:'STALE',cacheHit:true,stale:true,errorCode:lastCode},ctx);
       return{mode:'STALE_CACHE',status:'STALE',provider:usableCached.providerId,data:staleData,warning:'STALE_CACHE_EXPLICIT_WARNING',cacheAgeSeconds:Math.floor((Date.now()-usableCached.fetchedAt.getTime())/1000)};
     }
+    await this.categoryTelemetry(ctx.companyId,category,'DEGRADED','manual',lastCode);
     return{mode:'MANUAL',status:'DEGRADED',warning:`${lastCode}:MANUAL_FALLBACK_REQUIRED`};
   }
 
-  async ingestPlatformFeed(dto:PlatformFeedDto,ctx:RequestContext){
-    this.authorize(ctx);
-    const feed:PlatformOpportunityFeed={contractType:'PlatformOpportunityFeed',...dto,freshness:!dto.validUntil||new Date(dto.validUntil)>new Date()?'LIVE':'STALE'};
-    const expected=hash({platform:dto.sourcePlatform,id:dto.sourceOpportunityId,fields:dto.normalizedFields});
-    if(dto.dedupFingerprint!==expected)throw new LiveProviderError('MALFORMED_RESPONSE','PLATFORM_DEDUP_FINGERPRINT_MISMATCH');
-    const f=dto.normalizedFields as Record<string,unknown>;
-    const result=await this.opportunities.intake({idempotencyKey:`platform-feed:${dto.sourcePlatform}:${dto.rawReference}`,channel:'platform-api',provider:dto.sourcePlatform,platformReference:dto.rawReference,sourceOpportunityId:dto.sourceOpportunityId,platform:dto.sourcePlatform,pickupLocation:text(f.pickupLocation),deliveryLocation:text(f.deliveryLocation),pickupWindowStart:text(f.pickupWindowStart),deliveryWindowStart:text(f.deliveryWindowStart),priceAmount:number(f.priceAmount),currencyCode:text(f.currencyCode),declaredKm:number(f.declaredKm),vehicleType:text(f.vehicleType),sourceTimestamp:dto.sourceTimestamp,retainRawPayload:false},ctx);
-    const payloadHash=hash(feed);
-    const snapshot=await this.prisma.liveMobilitySnapshot.create({data:{companyId:ctx.companyId,category:'PLATFORM_FEED',contractType:feed.contractType,contractVersion:LIVE_ADAPTER_CONTRACT_VERSION,entityReference:result.normalizedOpportunityId??undefined,providerId:dto.sourcePlatform,sourceReference:dto.rawReference,inputHash:expected,payloadHash,payload:json(feed),fetchedAt:new Date(dto.sourceTimestamp),validUntil:new Date(dto.validUntil??new Date(dto.sourceTimestamp).getTime()+60*60_000),stale:feed.freshness==='STALE',confidence:dto.confidence}});
-    return{feed,snapshotId:snapshot.id,...result};
+  ingestPlatformFeed(dto:PlatformFeedDto,ctx:RequestContext){
+    return this.withAdapterRuntime('PLATFORM_FEED',ctx,()=>this.ingestPlatformFeedObserved(dto,ctx));
+  }
+
+  private async ingestPlatformFeedObserved(dto:PlatformFeedDto,ctx:RequestContext){
+    const started=Date.now();
+    try{
+      this.authorize(ctx);
+      const feed:PlatformOpportunityFeed={contractType:'PlatformOpportunityFeed',...dto,freshness:!dto.validUntil||new Date(dto.validUntil)>new Date()?'LIVE':'STALE'};
+      const expected=hash({platform:dto.sourcePlatform,id:dto.sourceOpportunityId,fields:dto.normalizedFields});
+      if(dto.dedupFingerprint!==expected)throw new LiveProviderError('MALFORMED_RESPONSE','PLATFORM_DEDUP_FINGERPRINT_MISMATCH');
+      const f=dto.normalizedFields as Record<string,unknown>;
+      const result=await this.opportunities.intake({idempotencyKey:`platform-feed:${dto.sourcePlatform}:${dto.rawReference}`,channel:'platform-api',provider:dto.sourcePlatform,platformReference:dto.rawReference,sourceOpportunityId:dto.sourceOpportunityId,platform:dto.sourcePlatform,pickupLocation:text(f.pickupLocation),deliveryLocation:text(f.deliveryLocation),pickupWindowStart:text(f.pickupWindowStart),deliveryWindowStart:text(f.deliveryWindowStart),priceAmount:number(f.priceAmount),currencyCode:text(f.currencyCode),declaredKm:number(f.declaredKm),vehicleType:text(f.vehicleType),sourceTimestamp:dto.sourceTimestamp,retainRawPayload:false},ctx);
+      const payloadHash=hash(feed);
+      const snapshot=await this.prisma.liveMobilitySnapshot.create({data:{companyId:ctx.companyId,category:'PLATFORM_FEED',contractType:feed.contractType,contractVersion:LIVE_ADAPTER_CONTRACT_VERSION,entityReference:result.normalizedOpportunityId??undefined,providerId:dto.sourcePlatform,sourceReference:dto.rawReference,inputHash:expected,payloadHash,payload:json(feed),fetchedAt:new Date(dto.sourceTimestamp),validUntil:new Date(dto.validUntil??new Date(dto.sourceTimestamp).getTime()+60*60_000),stale:feed.freshness==='STALE',confidence:dto.confidence}});
+      await this.categoryTelemetry(ctx.companyId,'PLATFORM_FEED',feed.freshness==='STALE'?'STALE':'HEALTHY',dto.sourcePlatform,undefined,Date.now()-started);
+      return{feed,snapshotId:snapshot.id,...result};
+    }catch(error){
+      const code=error instanceof LiveProviderError?error.code:'PLATFORM_FEED_EXECUTION_FAILED';
+      await this.categoryTelemetry(ctx.companyId,'PLATFORM_FEED','UNAVAILABLE',dto.sourcePlatform||'unknown',code,Date.now()-started);
+      throw error;
+    }
   }
 
   async opportunityInput(dto:MobilityInputDto,ctx:RequestContext){
@@ -201,6 +219,29 @@ export class LiveAdapterService {
     const adapterId=`live.${category.toLowerCase()}.${providerId}`;
     return this.prisma.liveAdapterTelemetry.upsert({where:{companyId_adapterId:{companyId,adapterId}},create:{companyId,adapterId,category,providerId,status:stale?'STALE':'HEALTHY',lastAttemptAt:new Date(),lastSuccessAt:fetchedAt,requestCount:0,errorCount:0,errorRateBps:0,rateLimitState:'CLEAR',cacheAgeSeconds:Math.floor((Date.now()-fetchedAt.getTime())/1000),contractVersion:LIVE_ADAPTER_CONTRACT_VERSION},update:{status:stale?'STALE':'HEALTHY',lastAttemptAt:new Date(),cacheAgeSeconds:Math.floor((Date.now()-fetchedAt.getTime())/1000)}});
   }
+  private categoryTelemetry(companyId:string,category:AdapterCategory|'PLATFORM_FEED',status:string,providerId:string,lastErrorCode?:string,latencyMs?:number){
+    const adapterId=`live.${category.toLowerCase().replace('_','-')}.runtime`;
+    const now=new Date();
+    return this.prisma.liveAdapterTelemetry.upsert({where:{companyId_adapterId:{companyId,adapterId}},create:{companyId,adapterId,category,providerId,status,lastAttemptAt:now,lastSuccessAt:status==='HEALTHY'?now:undefined,latencyMs,requestCount:1,errorCount:status==='HEALTHY'?0:1,errorRateBps:status==='HEALTHY'?0:10_000,rateLimitState:'CLEAR',lastErrorCode,contractVersion:LIVE_ADAPTER_CONTRACT_VERSION},update:{providerId,status,lastAttemptAt:now,...(status==='HEALTHY'?{lastSuccessAt:now}:{}),latencyMs,requestCount:{increment:1},errorCount:{increment:status==='HEALTHY'?0:1},errorRateBps:status==='HEALTHY'?0:10_000,lastErrorCode:lastErrorCode??null}});
+  }
+  private async withAdapterRuntime<T extends LiveResolution|Record<string,unknown>>(category:AdapterCategory|'PLATFORM_FEED',ctx:RequestContext,execute:()=>Promise<T>):Promise<T>{
+    const operationId=randomUUID(),agentId=adapterAgentId(category),startedAt=new Date();
+    await this.safeRuntimeEvent(ctx.companyId,agentId,operationId,'STARTED',1,startedAt,`Adapter category ${category} invocation started.`);
+    try{
+      const result=await execute();
+      const status='status' in result&&typeof result.status==='string'?result.status:'COMPLETED';
+      const outputRef='snapshotId' in result&&typeof result.snapshotId==='string'?`LiveMobilitySnapshot:${result.snapshotId}`:`AdapterInvocation:${operationId}`;
+      await this.safeRuntimeEvent(ctx.companyId,agentId,operationId,'COMPLETED',2,new Date(),`Adapter category ${category} completed with ${status}.`,outputRef);
+      return result;
+    }catch(error){
+      const code=error instanceof LiveProviderError?error.code:'ADAPTER_EXECUTION_FAILED';
+      await this.safeRuntimeEvent(ctx.companyId,agentId,operationId,'FAILED',2,new Date(),`Adapter category ${category} failed with ${code}.`,`failure:${code}`);
+      throw error;
+    }
+  }
+  private async safeRuntimeEvent(companyId:string,agentId:string,operationId:string,lifecycle:'STARTED'|'COMPLETED'|'FAILED',sequence:number,occurredAt:Date,detail:string,outputRef?:string){
+    try{await this.prisma.agentRuntimeEvent.create({data:{companyId,eventId:randomUUID(),mandateId:`live-adapter:${agentId}`,agentId,dossierId:operationId,lifecycle,sequence,occurredAt,evidenceRef:`AdapterInvocation:${operationId}`,outputRef,detail}});}catch{/* stale/missing runtime evidence remains visible if instrumentation persistence fails */}
+  }
   private async safeRecord(input:Parameters<PilotOperationsService['record']>[0],ctx:RequestContext){try{await this.pilot?.record(input,ctx);}catch{/* telemetry cannot block Car Mover */}}
   private authorizedOptionalProviders(authorization:OptionalExternalProviderAuthorization|undefined,ctx:RequestContext):ReadonlySet<string>{
     if(!authorization)return new Set();
@@ -215,3 +256,4 @@ function validate(data:NormalizedLiveContract,category:AdapterCategory){const ex
 const text=(v:unknown)=>typeof v==='string'?v:undefined;
 const number=(v:unknown)=>Number.isFinite(Number(v))?Number(v):undefined;
 const sum=(values:number[])=>values.reduce((a,b)=>a+b,0);
+const adapterAgentId=(category:AdapterCategory|'PLATFORM_FEED')=>`premium.adapters.${({GEOCODING:'geocoding',ROUTE:'routing',TRAFFIC:'traffic',TOLL:'toll',TRANSIT:'transit',PLATFORM_FEED:'platform-feed'} as Record<string,string>)[category]}`;

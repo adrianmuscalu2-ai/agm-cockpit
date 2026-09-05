@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../common/current-user.decorator';
@@ -7,9 +7,11 @@ import { requestIdFromHeader } from '../common/request-ids';
 import { responseEnvelope } from '../common/response';
 import { AnalyzeOpportunityDto, DecideOpportunityDto, IntakeOpportunityDto } from './opportunity-intelligence.dto';
 import { OpportunityIntelligenceService } from './opportunity-intelligence.service';
+import { OpportunityTelemetryInterceptor } from './opportunity-telemetry.interceptor';
 
 @Controller('opportunity-intelligence')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(OpportunityTelemetryInterceptor)
 export class OpportunityIntelligenceController {
   constructor(private readonly opportunities: OpportunityIntelligenceService) {}
 

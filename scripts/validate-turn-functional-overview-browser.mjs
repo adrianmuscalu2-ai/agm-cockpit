@@ -168,7 +168,7 @@ try {
       operationalNodeCount: document.querySelectorAll('[data-canonical-agent-id]').length,
       operationalNodeIds: [...document.querySelectorAll('[data-canonical-agent-id]')].map((card) => card.getAttribute('data-canonical-agent-id')),
       registryMissingNodes: [...document.querySelectorAll('[data-canonical-agent-id][data-registry-presence="MISSING"]')].map((card) => card.getAttribute('data-canonical-agent-id')),
-      operationalFieldCoverage: [...document.querySelectorAll('[data-canonical-agent-id]')].filter((card) => ['Runtime', 'Current state / health', 'Last heartbeat', 'Last activity', 'Freshness', 'Current function', 'Dependencies', 'Incidents/errors', 'Evidence/source', 'Why', 'Required action', 'Identity registry'].every((label) => card.textContent?.includes(label))).length,
+      operationalFieldCoverage: [...document.querySelectorAll('[data-canonical-agent-id]')].filter((card) => ['Runtime', 'Current state / health', 'Last heartbeat / probe', 'Last activity', 'Runtime freshness', 'Activity freshness', 'Current function', 'Current operation / workload', 'Dependencies', 'Incidents/errors', 'Evidence/source', 'Runtime evidence', 'Activity evidence', 'Why', 'Required action', 'Identity registry'].every((label) => card.textContent?.includes(label))).length,
       decorativeOrbitCount: document.querySelectorAll('.agm-orbit, .agm-network-node').length,
       authorityStatus: document.querySelector('[data-control-status]')?.textContent?.trim() || '',
       operationalSummary: {
@@ -179,6 +179,7 @@ try {
         degraded: document.querySelector('[data-health-degraded]')?.textContent?.trim() || '',
         failed: document.querySelector('[data-health-failed]')?.textContent?.trim() || '',
         unknown: document.querySelector('[data-health-unknown]')?.textContent?.trim() || '',
+        standby: document.querySelector('[data-health-standby]')?.textContent?.trim() || '',
       },
     };
   });
@@ -206,6 +207,7 @@ try {
     degraded: dashboard.nodes.filter((node) => node.health === 'DEGRADED').length,
     failed: dashboard.nodes.filter((node) => node.health === 'FAILED').length,
     unknown: dashboard.nodes.filter((node) => node.health === 'UNKNOWN').length,
+    standby: dashboard.nodes.filter((node) => node.status === 'STANDBY').length,
   };
   for (const [key, expected] of Object.entries(expectedSummary)) {
     assert(ui.operationalSummary[key] === String(expected), `Operational summary ${key} is ${ui.operationalSummary[key]}, expected ${expected}.`);
@@ -271,11 +273,24 @@ function validateOperationalDashboard(dashboard) {
   assert(new Set(dashboard.nodes.map((node) => node.canonicalId)).size === 28, 'Operational dashboard node identities are not unique.');
   assert(Array.isArray(dashboard.capabilityGaps) && dashboard.capabilityGaps.length === 0, `Operational capability gaps: ${JSON.stringify(dashboard.capabilityGaps)}.`);
   for (const node of dashboard.nodes) {
-    assert(node.canonicalId && node.kind && node.registryPresence && node.runtimePresence && node.currentFunction, `${node.canonicalId || 'UNKNOWN_ID'} lacks identity/runtime fields.`);
+    assert(node.canonicalId && node.kind && node.registryPresence && node.runtimePresence && node.currentFunction && node.currentOperation && node.workloadState, `${node.canonicalId || 'UNKNOWN_ID'} lacks identity/runtime fields.`);
     assert(node.status && node.health && node.freshness && node.dependencyState && node.authorityState?.state, `${node.canonicalId} lacks state/health/dependency/authority fields.`);
     assert(Array.isArray(node.incidents), `${node.canonicalId} lacks correlated incident telemetry.`);
+    assert(node.runtimeEvidence?.source && node.activityEvidence?.source && node.activityFreshness, `${node.canonicalId} lacks separated runtime/activity evidence.`);
     assert(node.registryPresence === 'PRESENT', `${node.canonicalId} is ${node.registryPresence} in the persistent registry.`);
     assert(node.statusSource !== 'REGISTRY' && node.evidence?.source && node.evidence.source !== 'REGISTRY', `${node.canonicalId} derives runtime from registry.`);
+    assert(node.runtimeEvidence.source !== 'REGISTRY' && node.activityEvidence.source !== 'REGISTRY', `${node.canonicalId} contains registry-derived evidence.`);
+    if (node.status === 'PASS') {
+      assert(node.activityEvidence.observedAt && node.evidence.source !== 'RUNTIME_CAPABILITY_PROBE', `${node.canonicalId} is PASS without real activity evidence.`);
+    }
+    if (node.status === 'STANDBY') {
+      assert(node.runtimePresence === 'OBSERVED' && node.runtimeEvidence.observedAt, `${node.canonicalId} is STANDBY without a current runtime observation.`);
+      assert(node.workloadState !== 'ACTIVE' && node.currentOperation, `${node.canonicalId} masks active work behind STANDBY.`);
+    }
+    if (node.workloadState === 'ACTIVE') {
+      assert(node.status !== 'STANDBY' && node.activityEvidence.source === 'RUNTIME_EVENT' && node.activityEvidence.observedAt, `${node.canonicalId} claims active work without a real runtime event.`);
+      assert(['STARTED', 'WORKING'].includes(node.lastRun?.lifecycle), `${node.canonicalId} active workload lacks an active lifecycle event.`);
+    }
     if (['FAIL', 'DEGRADED', 'NO_TELEMETRY'].includes(node.status)) {
       assert(node.reason && node.requiredAction, `${node.canonicalId} lacks reason/action for ${node.status}.`);
     }

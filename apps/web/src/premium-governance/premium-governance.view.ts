@@ -57,6 +57,7 @@ export function renderTurnAuthorityControlPlane() {
           <div><small>Degraded</small><strong data-health-degraded>—</strong></div>
           <div><small>Failed</small><strong data-health-failed>—</strong></div>
           <div><small>Unknown / no telemetry</small><strong data-health-unknown>—</strong></div>
+          <div><small>Standby / idle</small><strong data-health-standby>—</strong></div>
           <div><small>Executive authority</small><strong data-active-authorities>—</strong></div>
           <div><small>Authority conflicts</small><strong data-conflict-count>—</strong></div>
           <div><small>Opportunity Intelligence</small><strong data-opportunity-gate>NEEVALUAT</strong></div>

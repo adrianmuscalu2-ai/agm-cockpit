@@ -1,4 +1,5 @@
-import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, OnApplicationBootstrap, OnApplicationShutdown } from '@nestjs/common';
+import { DiscoveryService } from '@nestjs/core';
 import { Prisma } from '@prisma/client';
 import { createHash, randomUUID } from 'node:crypto';
 import type { RequestContext } from '../common/request-context';
@@ -14,12 +15,65 @@ import { SecretTelemetryService } from '../secret-telemetry/secret-telemetry.ser
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
 const AUTHORITY_ADMIN_ROLES = new Set(['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN']);
 const AUTHORITY_CONTROL_PLANE_ID = TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId;
+const COMPONENT_RUNTIME_PROBE_STALE_AFTER_MS = 90_000;
+const COMPONENT_RUNTIME_PROBE_INTERVAL_MS = 60_000;
 const json = (value: unknown) => value as Prisma.InputJsonValue;
 type DomainActivity = { status: string; observedAt: Date; recordId: string; detail: string; dependencyState: string };
+type RuntimeCapabilityRequirement = { provider: string; methods: string[]; adapterCategory?: string };
+
+const RUNTIME_CAPABILITY_PROBE_VERSION = 'turn-runtime-capability-probe.v1';
+export const RUNTIME_CAPABILITY_REQUIREMENTS: Readonly<Record<string, RuntimeCapabilityRequirement>> = {
+  'premium.architecture-inspector': { provider: 'AuthorityControlPlaneService', methods: ['inspectOperationalCapabilities'] },
+  'premium.release-inspector': { provider: 'AuthorityControlPlaneService', methods: ['inspectOperationalCapabilities'] },
+  'premium.orchestrator': { provider: 'AuthorityControlPlaneService', methods: ['issueLease', 'handoff'] },
+  'premium.recovery-executor': { provider: 'AuthorityControlPlaneService', methods: ['executeRecovery'] },
+  'premium.car-mover.intake-dedup': { provider: 'OpportunityIntelligenceService', methods: ['intake'] },
+  'premium.car-mover.opportunity-normalizer': { provider: 'OpportunityIntelligenceService', methods: ['intake'] },
+  'premium.car-mover.route-mobility': { provider: 'OpportunityIntelligenceService', methods: ['analyze'] },
+  'premium.car-mover.cost-risk': { provider: 'OpportunityIntelligenceService', methods: ['analyze'] },
+  'premium.car-mover.opportunity-planner': { provider: 'OpportunityIntelligenceService', methods: ['analyze'] },
+  'premium.car-mover.opportunity-judge': { provider: 'OpportunityIntelligenceService', methods: ['analyze'] },
+  'premium.copilot-gateway': { provider: 'OpportunityIntelligenceService', methods: ['copilot'] },
+  'premium.adapters.geocoding': { provider: 'LiveAdapterService', methods: ['resolve'], adapterCategory: 'GEOCODING' },
+  'premium.adapters.routing': { provider: 'LiveAdapterService', methods: ['resolve'], adapterCategory: 'ROUTE' },
+  'premium.adapters.traffic': { provider: 'LiveAdapterService', methods: ['resolve'], adapterCategory: 'TRAFFIC' },
+  'premium.adapters.toll': { provider: 'LiveAdapterService', methods: ['resolve'], adapterCategory: 'TOLL' },
+  'premium.adapters.transit': { provider: 'LiveAdapterService', methods: ['resolve'], adapterCategory: 'TRANSIT' },
+  'premium.adapters.platform-feed': { provider: 'LiveAdapterService', methods: ['ingestPlatformFeed'] },
+  'premium.car-mover.job-service': { provider: 'CarMoverService', methods: ['create', 'transition'] },
+  'premium.car-mover.incident-service': { provider: 'IncidentsService', methods: ['create', 'resolve'] },
+  'premium.car-mover.evidence-service': { provider: 'EvidenceService', methods: ['create', 'get'] },
+  'premium.car-mover.primary-accounting': { provider: 'CarMoverService', methods: ['recordFinance'] },
+  'premium.car-mover.archive-retention': { provider: 'CarMoverService', methods: ['transition'] },
+};
+
+export const RUNTIME_NATIVE_TELEMETRY_IDS = [
+  'agm.authority.control-plane',
+  'agm.guardian.secrets',
+  'premium-linguist-it',
+  'premium-linguist-es',
+  'premium-linguist-sv',
+] as const;
 
 @Injectable()
-export class AuthorityControlPlaneService {
-  constructor(private readonly prisma: PrismaService, private readonly secretTelemetry: SecretTelemetryService) {}
+export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnApplicationShutdown {
+  private runtimeProbeTimer: ReturnType<typeof setInterval> | undefined;
+
+  constructor(private readonly prisma: PrismaService, private readonly secretTelemetry: SecretTelemetryService, private readonly discovery: DiscoveryService) {}
+
+  async onApplicationBootstrap() {
+    await this.recordRuntimeCapabilityProbesForActiveCompanies();
+    this.runtimeProbeTimer = setInterval(() => {
+      void this.recordRuntimeCapabilityProbesForActiveCompanies().catch(() => {
+        // Existing persisted probes become STALE if the real monitor cannot complete.
+      });
+    }, COMPONENT_RUNTIME_PROBE_INTERVAL_MS);
+    this.runtimeProbeTimer.unref();
+  }
+
+  onApplicationShutdown() {
+    if (this.runtimeProbeTimer) clearInterval(this.runtimeProbeTimer);
+  }
 
   async dashboard(ctx: RequestContext) {
     const now = new Date();
@@ -29,7 +83,7 @@ export class AuthorityControlPlaneService {
       this.prisma.componentHeartbeat.findMany({ where: { companyId: ctx.companyId } }),
       this.prisma.agentRuntimeEvent.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: 1000 }),
       this.prisma.opportunityAgentTelemetry.findMany({ where: { companyId: ctx.companyId } }),
-      this.prisma.liveAdapterTelemetry.findMany({ where: { companyId: ctx.companyId } }),
+      this.prisma.liveAdapterTelemetry.findMany({ where: { companyId: ctx.companyId }, orderBy: { lastAttemptAt: 'desc' } }),
       this.prisma.authorityLease.findMany({ where: { companyId: ctx.companyId }, orderBy: { issuedAt: 'desc' }, take: 1000 }),
       this.prisma.authorityFailoverState.findMany({ where: { companyId: ctx.companyId } }),
       this.prisma.authorityAuditJournal.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: 500 }),
@@ -42,7 +96,8 @@ export class AuthorityControlPlaneService {
     const leases = allLeases.filter((lease) => ACTIVE_LEASE_STATES.includes(lease.state) && lease.expiresAt > now);
     const heartbeatById = new Map(heartbeats.map((item) => [item.componentId, item]));
     const opportunityTelemetryById = new Map(opportunityTelemetry.map((item) => [item.agentId, item]));
-    const liveTelemetryById = new Map(liveAdapterTelemetry.map((item) => [adapterRegistryId(item.category), item]));
+    const liveTelemetryById = new Map<string, (typeof liveAdapterTelemetry)[number]>();
+    for (const item of liveAdapterTelemetry) if (!liveTelemetryById.has(adapterRegistryId(item.category))) liveTelemetryById.set(adapterRegistryId(item.category), item);
     const lastRunByAgent = new Map<string, (typeof runtimeEvents)[number]>();
     for (const event of runtimeEvents) if (!lastRunByAgent.has(event.agentId)) lastRunByAgent.set(event.agentId, event);
     const leaseByAgent = new Map(leases.map((lease) => [lease.agentId, lease]));
@@ -63,6 +118,7 @@ export class AuthorityControlPlaneService {
       const failoverState = failoverByScope.get(item.scope);
       const domainRun = domainActivity.get(item.canonicalId);
       const secretRun = item.canonicalId === 'agm.guardian.secrets' ? secretSnapshot : null;
+      const runtimeEventActive = Boolean(lastRun && ['STARTED', 'WORKING'].includes(lastRun.lifecycle));
       const correlatedIncidents = rejectedIncidents
         .filter((incident) => incident.scopeId === item.scope || (incident.leaseId ? leaseAgentById.get(incident.leaseId) === item.canonicalId : false))
         .map((incident) => ({ eventId: incident.eventId, eventType: incident.eventType, scopeId: incident.scopeId, reasonCode: incident.reasonCode, occurredAt: incident.occurredAt, correlationId: incident.correlationId, leaseId: incident.leaseId }));
@@ -75,21 +131,48 @@ export class AuthorityControlPlaneService {
         ...(profile.expectedSource === 'RUNTIME_EVENT' && lastRun ? { runtimeEvent: { status: lastRun.lifecycle, observedAt: lastRun.occurredAt } } : {}),
         ...(profile.expectedSource === 'DOMAIN_EVENT_STORE' && domainRun ? { domainEvent: { status: domainRun.status, observedAt: domainRun.observedAt } } : {}),
       });
-      const observedAt = canonicalState.observedAt;
-      const stale = Boolean(observedAt && profile.freshnessWindowMs && now.getTime() - observedAt.getTime() > profile.freshnessWindowMs);
-      const runtimePresence = profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'ABSENT' : observedAt ? 'OBSERVED' : 'NOT_OBSERVED';
-      const sourceStatus = profile.runtimeMode === 'HUMAN' ? 'STANDBY' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'FAIL' : stale && canonicalState.status === 'PASS' ? 'DEGRADED' : canonicalState.status;
+      const activityObservedAt = runtimeEventActive ? lastRun!.occurredAt : canonicalState.observedAt;
+      const activityStale = Boolean(activityObservedAt && profile.freshnessWindowMs && now.getTime() - activityObservedAt.getTime() > profile.freshnessWindowMs);
+      const runtimeObservedAt = secretRun ? new Date(secretRun.checkedAt) : heartbeat?.lastSeenAt ?? null;
+      const runtimeStaleAfterMs = profile.expectedSource === 'COMPONENT_HEARTBEAT' ? profile.freshnessWindowMs : COMPONENT_RUNTIME_PROBE_STALE_AFTER_MS;
+      const runtimeStale = Boolean(runtimeObservedAt && runtimeStaleAfterMs && now.getTime() - runtimeObservedAt.getTime() > runtimeStaleAfterMs);
+      const runtimeCapabilityMissing = Boolean(heartbeat?.lastFailureReason?.startsWith('RUNTIME_PROVIDER_NOT_LOADED') || heartbeat?.lastFailureReason?.startsWith('RUNTIME_METHOD_NOT_LOADED'));
+      const runtimePresence = profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' || runtimeCapabilityMissing ? 'ABSENT' : runtimeObservedAt ? 'OBSERVED' : 'NOT_OBSERVED';
+      const activityStatus = profile.runtimeMode === 'HUMAN' ? 'STANDBY' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'FAIL' : runtimeEventActive ? 'PASS' : canonicalState.status;
+      const probeDegraded = heartbeat?.reportedStatus === 'DEGRADED' || (secretRun ? secretRun.overallStatus !== 'CONFIGURED' : false);
+      const sourceStatus = runtimePresence === 'ABSENT' || runtimeStale ? 'FAIL' : runtimePresence === 'NOT_OBSERVED' ? 'NO_TELEMETRY' : probeDegraded ? 'DEGRADED' : activityStatus === 'FAIL' ? 'FAIL' : activityStatus === 'DEGRADED' ? 'DEGRADED' : activityStatus === 'NO_TELEMETRY' || activityStale ? 'STANDBY' : activityStatus;
       const effectiveStatus = persisted ? sourceStatus : 'FAIL';
       const secretIssue = secretRun?.secrets.filter((secret) => secret.status !== 'CONFIGURED').map((secret) => `${secret.id}:${secret.status}`).join(', ') || null;
       const sourceFailureReason = secretIssue
         ?? (heartbeat && !['PASS', 'ONLINE', 'HEALTHY'].includes(heartbeat.reportedStatus) ? `ComponentHeartbeat status=${heartbeat.reportedStatus}${heartbeat.lastFailureReason ? `; ${heartbeat.lastFailureReason}` : ''}` : null)
         ?? (liveRun && liveRun.status !== 'HEALTHY' ? `LiveAdapterTelemetry status=${liveRun.status}${liveRun.lastErrorCode ? `; error=${liveRun.lastErrorCode}` : ''}; rateLimit=${liveRun.rateLimitState}` : null)
-        ?? (opportunityRun && (!['PASS', 'HEALTHY'].includes(opportunityRun.health) || !['PASS', 'HEALTHY'].includes(opportunityRun.dependencyHealth) || opportunityRun.freshnessStatus === 'STALE' || opportunityRun.backlog > 0) ? `OpportunityAgentTelemetry health=${opportunityRun.health}; dependency=${opportunityRun.dependencyHealth}; freshness=${opportunityRun.freshnessStatus}; backlog=${opportunityRun.backlog}` : null)
-        ?? (lastRun && !['PASS', 'ONLINE', 'HEALTHY', 'COMPLETED'].includes(lastRun.lifecycle) ? `AgentRuntimeEvent lifecycle=${lastRun.lifecycle}; detail=${lastRun.detail}` : null)
+        ?? (opportunityRun && (!['PASS', 'HEALTHY'].includes(opportunityRun.health) || !['PASS', 'HEALTHY'].includes(opportunityRun.dependencyHealth) || opportunityRun.freshnessStatus === 'STALE' || opportunityRun.backlog > 0) ? `OpportunityAgentTelemetry health=${opportunityRun.health}; dependency=${opportunityRun.dependencyHealth}; freshness=${opportunityRun.freshnessStatus}; backlog=${opportunityRun.backlog}; output=${opportunityRun.outputReference ?? 'NONE'}` : null)
+        ?? (lastRun && !['PASS', 'ONLINE', 'HEALTHY', 'STARTED', 'WORKING', 'COMPLETED'].includes(lastRun.lifecycle) ? `AgentRuntimeEvent lifecycle=${lastRun.lifecycle}; detail=${lastRun.detail}` : null)
         ?? (domainRun && domainRun.status !== 'PASS' ? `Domain event: ${domainRun.detail}` : null);
-      const reason = !persisted ? 'Canonical identity is absent from PremiumNetworkRegistryEntry.' : profile.missingCapability ?? (stale ? `Last real observation exceeds ${Math.round((profile.freshnessWindowMs ?? 0) / 60000)} minutes.` : effectiveStatus === 'NO_TELEMETRY' ? `No ${profile.expectedSource} observation exists for this identity.` : sourceFailureReason);
-      const requiredAction = !persisted ? 'Apply the approved registry provisioning migration; do not infer identity presence from telemetry.' : profile.requiredAction ?? (stale ? `Run the real ${profile.workload} path or restore its telemetry producer.` : effectiveStatus === 'FAIL' || effectiveStatus === 'DEGRADED' ? 'Inspect the cited evidence and restore the failed dependency or execution path.' : effectiveStatus === 'NO_TELEMETRY' ? `Exercise the real function to create ${profile.expectedSource} evidence; do not infer runtime from registry.` : null);
+      const reason = !persisted
+        ? 'Canonical identity is absent from PremiumNetworkRegistryEntry.'
+        : profile.runtimeMode === 'HUMAN' ? 'Human authority is not a process; runtime heartbeat is not applicable.'
+          : profile.missingCapability
+          ?? (runtimePresence === 'ABSENT' ? heartbeat?.lastFailureReason ?? 'Executable runtime capability is absent.'
+            : runtimePresence === 'NOT_OBSERVED' ? `No runtime heartbeat or capability probe exists for ${item.canonicalId}.`
+            : runtimeStale ? `Runtime observation exceeds ${Math.round((runtimeStaleAfterMs ?? 0) / 60000)} minutes.`
+              : effectiveStatus === 'STANDBY' ? `Runtime capability probe passed; no current execution is active. Last ${profile.expectedSource} activity is ${activityObservedAt ? activityStale ? 'stale' : 'completed' : 'not yet observed'}.`
+                : sourceFailureReason);
+      const requiredAction = !persisted
+        ? 'Apply the approved registry provisioning migration; do not infer identity presence from telemetry.'
+        : profile.requiredAction
+          ?? (runtimePresence === 'ABSENT' ? 'Restore the missing runtime provider or executable method.'
+            : runtimePresence === 'NOT_OBSERVED' ? 'Start the real runtime producer and publish its first authenticated observation.'
+            : runtimeStale ? 'Restore the runtime probe or component heartbeat producer.'
+              : effectiveStatus === 'FAIL' || effectiveStatus === 'DEGRADED' ? 'Inspect the cited evidence and restore the failed dependency or execution path.' : null);
       const nodeDependencyFailures = dependencyFailures(liveRun, opportunityRun, heartbeat, secretRun?.secrets.filter((secret) => secret.status !== 'CONFIGURED').map((secret) => `${secret.id}:${secret.status}`));
+      const statusUsesRuntimeEvidence = profile.runtimeMode !== 'HUMAN' && (effectiveStatus === 'STANDBY' || effectiveStatus === 'NO_TELEMETRY' || runtimePresence === 'ABSENT' || runtimeStale || probeDegraded);
+      const runtimeStatusSource = secretRun ? 'SECRET_TELEMETRY' : profile.expectedSource === 'COMPONENT_HEARTBEAT' ? 'COMPONENT_HEARTBEAT' : 'RUNTIME_CAPABILITY_PROBE';
+      const runtimeRecordReference = secretRun?.contract ?? (heartbeat ? `ComponentHeartbeat:${heartbeat.id}` : null);
+      const activityEvidenceSource = runtimeEventActive ? 'RUNTIME_EVENT' : profile.expectedSource;
+      const activityRecordReference = runtimeEventActive ? `AgentRuntimeEvent:${lastRun!.eventId}` : evidenceReference(item.canonicalId, liveRun?.id, opportunityRun?.id, profile.expectedSource === 'COMPONENT_HEARTBEAT' ? heartbeat?.id : null, lastRun?.eventId, domainRun?.recordId);
+      const workloadState = runtimeEventActive ? 'ACTIVE' : (opportunityRun?.backlog ?? 0) > 0 ? 'BACKLOG' : domainRun ? 'LAST_DOMAIN_STATE' : 'IDLE';
+      const currentOperation = runtimeEventActive ? lastRun!.detail : (opportunityRun?.backlog ?? 0) > 0 ? `${opportunityRun!.backlog} queued items` : domainRun?.detail ?? 'IDLE';
       return {
         canonicalId: item.canonicalId, kind: item.kind, module: item.module, ownerId: item.ownerId,
         supervisorId: item.supervisorId, scope: item.scope,
@@ -98,19 +181,24 @@ export class AuthorityControlPlaneService {
         runtimeMode: profile.runtimeMode,
         runtimePresence,
         currentFunction: profile.workload,
+        currentOperation,
+        workloadState,
         status: effectiveStatus,
-        statusLabel: profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'CAPABILITY NOT IMPLEMENTED' : profile.runtimeMode === 'HUMAN' ? 'HUMAN AUTHORITY' : stale ? 'STALE' : canonicalState.label,
-        statusSource: canonicalState.source,
-        statusObservedAt: observedAt,
-        health: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : effectiveStatus === 'PASS' ? 'HEALTHY' : effectiveStatus === 'FAIL' ? 'FAILED' : effectiveStatus === 'DEGRADED' ? 'DEGRADED' : 'UNKNOWN',
-        freshness: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : !observedAt ? 'NO_OBSERVATION' : stale ? 'STALE' : 'CURRENT',
-        lastHeartbeat: heartbeat?.lastSeenAt ?? null,
-        lastActivity: observedAt,
+        statusLabel: profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'CAPABILITY NOT IMPLEMENTED' : profile.runtimeMode === 'HUMAN' ? 'HUMAN AUTHORITY' : runtimePresence === 'ABSENT' ? 'RUNTIME CAPABILITY ABSENT' : runtimeStale ? 'RUNTIME STALE' : probeDegraded ? 'RUNTIME DEPENDENCY DEGRADED' : runtimeEventActive ? 'RUNTIME ACTIVE' : effectiveStatus === 'STANDBY' ? 'RUNTIME READY / IDLE' : canonicalState.label,
+        statusSource: profile.runtimeMode === 'HUMAN' ? 'HUMAN_AUTHORITY' : statusUsesRuntimeEvidence ? runtimeStatusSource : activityEvidenceSource,
+        statusObservedAt: statusUsesRuntimeEvidence ? runtimeObservedAt : activityObservedAt,
+        health: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : effectiveStatus === 'PASS' || effectiveStatus === 'STANDBY' ? 'HEALTHY' : effectiveStatus === 'FAIL' ? 'FAILED' : effectiveStatus === 'DEGRADED' ? 'DEGRADED' : 'UNKNOWN',
+        freshness: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : !runtimeObservedAt ? 'NO_RUNTIME_OBSERVATION' : runtimeStale ? 'STALE' : 'CURRENT',
+        activityFreshness: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : !activityObservedAt ? 'NO_ACTIVITY_OBSERVATION' : activityStale ? 'STALE' : 'CURRENT',
+        lastHeartbeat: runtimeObservedAt,
+        lastActivity: activityObservedAt,
         reason,
         requiredAction,
-        evidence: { source: profile.expectedSource, observedAt, recordReference: secretRun?.contract ?? evidenceReference(item.canonicalId, liveRun?.id, opportunityRun?.id, heartbeat?.id, lastRun?.eventId, domainRun?.recordId) },
+        evidence: { source: profile.runtimeMode === 'HUMAN' ? 'HUMAN_AUTHORITY' : statusUsesRuntimeEvidence ? runtimeStatusSource : activityEvidenceSource, observedAt: statusUsesRuntimeEvidence ? runtimeObservedAt : activityObservedAt, recordReference: statusUsesRuntimeEvidence ? runtimeRecordReference : activityRecordReference },
+        runtimeEvidence: { source: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : runtimeObservedAt ? runtimeStatusSource : 'NONE', observedAt: runtimeObservedAt, recordReference: runtimeRecordReference },
+        activityEvidence: { source: activityEvidenceSource, observedAt: activityObservedAt, recordReference: activityRecordReference },
         telemetry: secretRun ? { reportedStatus: secretRun.overallStatus, lastSeenAt: secretRun.checkedAt, lastSuccessAt: secretRun.overallStatus === 'CONFIGURED' ? secretRun.checkedAt : null, lastFailureAt: secretRun.overallStatus === 'ATTENTION' ? secretRun.checkedAt : null, detail: { contract: secretRun.contract, checkedSecrets: secretRun.secrets.length, valuesExposed: false } } : liveRun ? { reportedStatus: liveRun.status, lastSeenAt: liveRun.lastAttemptAt, lastSuccessAt: liveRun.lastSuccessAt, lastFailureAt: liveRun.lastErrorCode ? liveRun.lastAttemptAt : null, detail: { latencyMs: liveRun.latencyMs, errorRateBps: liveRun.errorRateBps, rateLimitState: liveRun.rateLimitState, fallbackActivation: liveRun.fallbackActivation, cacheAgeSeconds: liveRun.cacheAgeSeconds, providerId: liveRun.providerId, contractVersion: liveRun.contractVersion } } : opportunityRun ? { reportedStatus: opportunityRun.health, lastSeenAt: opportunityRun.lastRunAt, lastSuccessAt: opportunityRun.health === 'PASS' ? opportunityRun.lastRunAt : null, lastFailureAt: opportunityRun.health === 'FAIL' ? opportunityRun.lastRunAt : null, detail: { durationMs: opportunityRun.durationMs, freshnessStatus: opportunityRun.freshnessStatus, backlog: opportunityRun.backlog, dependencyHealth: opportunityRun.dependencyHealth, confidence: opportunityRun.confidence, outputReference: opportunityRun.outputReference, providerId: opportunityRun.providerId, contractVersion: opportunityRun.contractVersion } } : heartbeat ? { reportedStatus: heartbeat.reportedStatus, lastSeenAt: heartbeat.lastSeenAt, lastSuccessAt: heartbeat.lastSuccessAt, lastFailureAt: heartbeat.lastFailureAt, detail: heartbeat.lastDetail } : null,
-        dependencyState: secretRun ? secretRun.overallStatus : liveRun ? adapterHealth(liveRun.status) : opportunityRun ? opportunityRun.dependencyHealth : heartbeat?.lastFailureReason ? 'DEGRADED' : domainRun?.dependencyState ?? (profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : 'UNKNOWN'),
+        dependencyState: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : secretRun ? secretRun.overallStatus : heartbeat?.lastFailureReason ? 'DEGRADED' : liveRun ? adapterHealth(liveRun.status) : opportunityRun ? opportunityRun.dependencyHealth : domainRun?.dependencyState ?? (runtimeObservedAt ? 'PASS' : 'UNKNOWN'),
         dependencyFailures: nodeDependencyFailures,
         incidents: correlatedIncidents,
         authorityState: lease ? { state: lease.state, epoch: lease.epoch, fencingToken: lease.fencingToken, providerId: lease.providerId, expiresAt: lease.expiresAt } : { state: item.writePermissions ? 'STANDBY' : 'ADVISORY' },
@@ -374,6 +462,43 @@ export class AuthorityControlPlaneService {
     return activity;
   }
 
+  private async recordRuntimeCapabilityProbesForActiveCompanies() {
+    const companies = await this.prisma.company.findMany({ where: { isActive: true }, select: { id: true } });
+    await Promise.all(companies.map((company) => this.recordRuntimeCapabilityProbes(company.id)));
+  }
+
+  private async recordRuntimeCapabilityProbes(companyId: string) {
+    await this.prisma.$queryRaw`SELECT 1`;
+    const instances = this.discovery.getProviders().map((wrapper) => wrapper.instance as unknown).filter((instance): instance is Record<string, unknown> => Boolean(instance && typeof instance === 'object'));
+    const providers = new Map(instances.map((instance) => [instance.constructor.name, instance]));
+    const adapterProviders = instances.filter((instance) => typeof instance.category === 'string' && typeof instance.providerId === 'string' && typeof instance.configured === 'function');
+    const now = new Date();
+    const probes = premiumNetworkSeed.flatMap((node) => {
+      const requirement = RUNTIME_CAPABILITY_REQUIREMENTS[node.canonicalId];
+      if (!requirement) return [];
+      const provider = providers.get(requirement.provider);
+      const missingMethods = requirement.methods.filter((method) => typeof provider?.[method] !== 'function');
+      const configuredProviders = requirement.adapterCategory
+        ? adapterProviders.filter((candidate) => candidate.category === requirement.adapterCategory && safelyConfigured(candidate)).map((candidate) => String(candidate.providerId))
+        : [];
+      const reason = !provider
+        ? `RUNTIME_PROVIDER_NOT_LOADED:${requirement.provider}`
+        : missingMethods.length
+          ? `RUNTIME_METHOD_NOT_LOADED:${requirement.provider}.${missingMethods.join(',')}`
+          : requirement.adapterCategory && configuredProviders.length === 0
+            ? `LIVE_PROVIDER_NOT_CONFIGURED:${requirement.adapterCategory}`
+            : 'RUNTIME_CAPABILITY_PROBE_PASSED';
+      const reportedStatus = reason === 'RUNTIME_CAPABILITY_PROBE_PASSED' ? 'ONLINE' : 'DEGRADED';
+      const detail = JSON.stringify({ contract: RUNTIME_CAPABILITY_PROBE_VERSION, provider: requirement.provider, methods: requirement.methods, database: 'AVAILABLE', configuredProviders, processUptimeSeconds: Math.floor(process.uptime()) });
+      return [{ node, reportedStatus, reason, detail }];
+    });
+    await Promise.all(probes.map(({ node, reportedStatus, reason, detail }) => this.prisma.componentHeartbeat.upsert({
+      where: { companyId_componentId: { companyId, componentId: node.canonicalId } },
+      create: { companyId, componentId: node.canonicalId, reportedStatus, lastSeenAt: now, lastSuccessAt: reportedStatus === 'ONLINE' ? now : null, lastFailureAt: reportedStatus === 'DEGRADED' ? now : null, lastFailureReason: reportedStatus === 'DEGRADED' ? reason : null, lastDetail: detail },
+      update: { reportedStatus, lastSeenAt: now, lastDetail: detail, ...(reportedStatus === 'ONLINE' ? { lastSuccessAt: now, lastFailureReason: null } : { lastFailureAt: now, lastFailureReason: reason }) },
+    })));
+  }
+
   private async ensureFoundation(ctx: RequestContext) {
     await this.prisma.$transaction(async (tx) => {
       for (const item of premiumNetworkSeed) {
@@ -414,6 +539,14 @@ function adapterHealth(status: string) {
   if (['DEGRADED', 'RATE_LIMITED', 'STALE'].includes(status)) return 'DEGRADED';
   if (status === 'UNAVAILABLE') return 'FAIL';
   return 'NO_TELEMETRY';
+}
+
+function safelyConfigured(provider: Record<string, unknown>) {
+  try {
+    return (provider.configured as () => boolean).call(provider) === true;
+  } catch {
+    return false;
+  }
 }
 
 function adapterRegistryId(category: string) {

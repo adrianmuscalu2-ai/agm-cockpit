@@ -59,6 +59,8 @@ const heartbeatJournalLimit = 50;
 const heartbeatJournal: LinguisticAgentHeartbeat[] = [];
 let heartbeatBound = false;
 let heartbeatTimer: number | undefined;
+let lastPublishStartedAt = 0;
+let currentPublish: Promise<LinguisticAgentHeartbeat[]> | undefined;
 
 function flatten(value: unknown, path = '', result: Record<string, string> = {}) {
   if (typeof value === 'string') result[path] = value;
@@ -193,14 +195,27 @@ export async function publishPremiumLinguisticAgentHeartbeats() {
 }
 
 export function bindPremiumLinguisticAgentHeartbeats(onHeartbeat?: (heartbeats: LinguisticAgentHeartbeat[]) => void) {
-  if (heartbeatBound) return;
-  heartbeatBound = true;
-  const publish = () => { void publishPremiumLinguisticAgentHeartbeats().then((heartbeats) => onHeartbeat?.(heartbeats)); };
-  publish();
-  heartbeatTimer = window.setInterval(publish, heartbeatIntervalMs);
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') publish();
-  });
+  const latest = finalLanguageAgentTargets.map((target) => [...heartbeatJournal].reverse().find((entry) => entry.agentId === target.id)).filter((entry): entry is LinguisticAgentHeartbeat => Boolean(entry));
+  const latestWasPersisted = latest.length === finalLanguageAgentTargets.length && latest.every((entry) => entry.apiJournaled);
+  const publish = () => {
+    if (currentPublish) return currentPublish;
+    lastPublishStartedAt = Date.now();
+    currentPublish = publishPremiumLinguisticAgentHeartbeats()
+      .then((heartbeats) => { onHeartbeat?.(heartbeats); return heartbeats; })
+      .finally(() => { currentPublish = undefined; });
+    return currentPublish;
+  };
+  const initial = latestWasPersisted && Date.now() - lastPublishStartedAt < heartbeatIntervalMs
+    ? Promise.resolve(latest)
+    : publish();
+  if (!heartbeatBound) {
+    heartbeatBound = true;
+    heartbeatTimer = window.setInterval(() => { void publish(); }, heartbeatIntervalMs);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') void publish();
+    });
+  }
+  return initial;
 }
 
 export function premiumLinguisticAgentAuditTrail() {
@@ -211,5 +226,7 @@ export function stopPremiumLinguisticAgentHeartbeatsForTest() {
   if (heartbeatTimer !== undefined) window.clearInterval(heartbeatTimer);
   heartbeatTimer = undefined;
   heartbeatBound = false;
+  lastPublishStartedAt = 0;
+  currentPublish = undefined;
   heartbeatJournal.length = 0;
 }

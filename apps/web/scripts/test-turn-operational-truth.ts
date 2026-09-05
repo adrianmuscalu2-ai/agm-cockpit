@@ -51,10 +51,15 @@ assert.match(governanceSource, /Authorization: `Bearer \$\{turnAdminAccessToken\
 assert.match(governanceSource, /Registry-ul nu este folosit ca fallback/);
 assert.match(governanceSource, /node\.lastHeartbeat/);
 assert.match(governanceSource, /node\.lastActivity/);
+assert.match(governanceSource, /node\.activityFreshness/);
+assert.match(governanceSource, /node\.currentOperation/);
+assert.match(governanceSource, /node\.workloadState/);
 assert.match(governanceSource, /node\.dependencyFailures/);
 assert.match(governanceSource, /node\.incidents/);
 assert.match(governanceSource, /Incidents\/errors/);
 assert.match(governanceSource, /node\.evidence\.source/);
+assert.match(governanceSource, /node\.runtimeEvidence\.source/);
+assert.match(governanceSource, /node\.activityEvidence\.source/);
 assert.match(governanceSource, /node\.requiredAction/);
 assert.match(governanceSource, /node\.authorityState\.state/);
 assert.match(governanceSource, /node\.registryPresence/);
@@ -65,6 +70,7 @@ assert.match(governanceSource, /data-health-healthy/);
 assert.match(governanceSource, /data-health-degraded/);
 assert.match(governanceSource, /data-health-failed/);
 assert.match(governanceSource, /data-health-unknown/);
+assert.match(governanceSource, /data-health-standby/);
 assert.match(governanceSource, /node\.lifecycleStatus\)} \(identity only\)/);
 assert.doesNotMatch(governanceSource, /M2M AUTHENTICATED · LIVE/);
 assert.doesNotMatch(governanceSource, /orbit/i);
@@ -72,6 +78,7 @@ assert.match(governanceViewSource, /data-premium-operational-panel/);
 assert.match(governanceViewSource, /data-operational-summary/);
 
 const commandCenterSource = await readFile(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
+const mainSource = await readFile(new URL('../src/main.ts', import.meta.url), 'utf8');
 assert.match(commandCenterSource, /REGISTRY ONLY · fără afirmație runtime/);
 assert.match(commandCenterSource, /data-secondary-registry/);
 assert.doesNotMatch(commandCenterSource, /turn-agent-panel\/index\.html/);
@@ -79,5 +86,6 @@ assert.doesNotMatch(commandCenterSource, /renderRealStatusBoard/);
 const premiumPanelPosition = commandCenterSource.indexOf('${renderTurnAuthorityControlPlane()}');
 const registryPosition = commandCenterSource.indexOf('${renderApprovedTurnDashboard(language)}');
 assert(premiumPanelPosition >= 0 && registryPosition > premiumPanelPosition, 'Premium operational panel must precede the secondary registry.');
+assert.match(mainSource, /linguisticHeartbeatReady\.then\([\s\S]*bindPremiumGovernanceRuntime[\s\S]*bindPremiumGovernanceRuntime/);
 
 console.log('TURN operational truth UI contract: PASS');

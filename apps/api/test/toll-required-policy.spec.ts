@@ -10,8 +10,8 @@ const context: RequestContext = {
 };
 
 describe('Conditional TollGuru boundary', () => {
-  it('does not touch persistence or a provider when tollRequired is false', async () => {
-    const prisma = { liveAdapterCache: { findUnique: jest.fn() } };
+  it('records the skip without querying cache or invoking a provider when tollRequired is false', async () => {
+    const prisma = { liveAdapterCache: { findUnique: jest.fn() }, liveAdapterTelemetry: { upsert: jest.fn().mockResolvedValue({}) } };
     const tollGuru = { adapterId: 'live.toll.tollguru', providerId: 'tollguru', category: 'TOLL', priority: 10, configured: () => true, fetch: jest.fn() };
     const pilot = { record: jest.fn().mockResolvedValue({}) };
     const service = new LiveAdapterService(
@@ -37,14 +37,18 @@ describe('Conditional TollGuru boundary', () => {
     expect(result).toMatchObject({ mode: 'SKIPPED', status: 'HEALTHY', warning: 'TOLL_NOT_REQUIRED_PROVIDER_NOT_CALLED' });
     expect(tollGuru.fetch).not.toHaveBeenCalled();
     expect(prisma.liveAdapterCache.findUnique).not.toHaveBeenCalled();
+    expect(prisma.liveAdapterTelemetry.upsert).toHaveBeenCalledWith(expect.objectContaining({
+      create: expect.objectContaining({ category: 'TOLL', providerId: 'not-required', status: 'HEALTHY', errorCount: 0 }),
+    }));
     await Promise.resolve();
     expect(pilot.record).toHaveBeenCalledWith(expect.objectContaining({ eventType: 'TOLL_CALL_SKIPPED', outcome: 'NOT_REQUIRED' }), context);
   });
 
   it('rejects an unreasoned toll request before provider evaluation', async () => {
+    const prisma = { liveAdapterCache: { findUnique: jest.fn() }, liveAdapterTelemetry: { upsert: jest.fn().mockResolvedValue({}) } };
     const tollGuru = { adapterId: 'live.toll.tollguru', providerId: 'tollguru', category: 'TOLL', priority: 10, configured: () => true, fetch: jest.fn() };
     const service = new LiveAdapterService(
-      { liveAdapterCache: { findUnique: jest.fn() } } as never,
+      prisma as never,
       {} as never,
       { category: 'GEOCODING' } as never,
       { category: 'GEOCODING' } as never,
@@ -65,19 +69,26 @@ describe('Conditional TollGuru boundary', () => {
 
     expect(result.warning).toBe('TOLL_REASON_REQUIRED_PROVIDER_NOT_CALLED');
     expect(tollGuru.fetch).not.toHaveBeenCalled();
+    expect(prisma.liveAdapterTelemetry.upsert).toHaveBeenCalledWith(expect.objectContaining({
+      create: expect.objectContaining({ status: 'DEGRADED', lastErrorCode: 'TOLL_REASON_REQUIRED' }),
+    }));
   });
 
   it('fails closed before provider use when canonical authority context is absent',async()=>{
-    const prisma={liveAdapterCache:{findUnique:jest.fn().mockResolvedValue(null)}};
+    const prisma={liveAdapterCache:{findUnique:jest.fn().mockResolvedValue(null)},liveAdapterTelemetry:{upsert:jest.fn().mockResolvedValue({})}};
     const tollGuru={adapterId:'live.toll.tollguru',providerId:'tollguru',category:'TOLL',priority:10,configured:()=>true,fetch:jest.fn()};
     const service=new LiveAdapterService(prisma as never,{} as never,{category:'GEOCODING'} as never,{category:'GEOCODING'} as never,{category:'ROUTE'} as never,{category:'ROUTE'} as never,{category:'TRAFFIC'} as never,tollGuru as never,{category:'TRANSIT'} as never,undefined);
     const result=await service.resolve('TOLL',{routeReference:'route-with-tolls',origin:{latitude:48.1,longitude:11.5},destination:{latitude:48.2,longitude:11.6},tollRequired:true,tollReason:'ROUTE_TOLL_SEGMENTS'},context);
     expect(result).toMatchObject({mode:'MANUAL',status:'DEGRADED',warning:'CANONICAL_AUTHORITY_REQUIRED:UNKNOWN_HUMAN_VERIFICATION',canonicalAuthority:{resolvedValue:null,fallback:'UNKNOWN_HUMAN_VERIFICATION'}});
     expect(tollGuru.fetch).not.toHaveBeenCalled();
+    expect(prisma.liveAdapterTelemetry.upsert).toHaveBeenCalledWith(expect.objectContaining({create:expect.objectContaining({status:'DEGRADED',lastErrorCode:'CANONICAL_AUTHORITY_REQUIRED'})}));
   });
 
   it('evaluates canonical Routing/Toll authority before provider resolution',async()=>{
-    const prisma={liveAdapterCache:{findUnique:jest.fn().mockResolvedValue(null)}};
+    const prisma={
+      liveAdapterCache:{findUnique:jest.fn().mockResolvedValue(null)},
+      liveAdapterTelemetry:{upsert:jest.fn().mockResolvedValue({})},
+    };
     const tollGuru={adapterId:'live.toll.tollguru',providerId:'tollguru',category:'TOLL',priority:10,configured:()=>false,fetch:jest.fn()};
     const authority={evaluateMany:jest.fn().mockReturnValue({allNormativelyUsable:true,fallback:null,resolvedValue:null,decisions:[{sourceId:'CS-NL-GOV-TRUCK-TOLL-RATES-2026',state:'CANONICAL_CURRENT',normativeAuthority:true}]})};
     const service=new LiveAdapterService(prisma as never,{} as never,{category:'GEOCODING'} as never,{category:'GEOCODING'} as never,{category:'ROUTE'} as never,{category:'ROUTE'} as never,{category:'TRAFFIC'} as never,tollGuru as never,{category:'TRANSIT'} as never,undefined,authority as never);
@@ -85,5 +96,9 @@ describe('Conditional TollGuru boundary', () => {
     expect(authority.evaluateMany).toHaveBeenCalledWith([expect.objectContaining({domain:'ROUTING_TOLL',sourceId:'CS-NL-GOV-TRUCK-TOLL-RATES-2026',jurisdiction:'NL',scopeConfirmed:true})]);
     expect(result).toMatchObject({mode:'MANUAL',warning:'NO_CONFIGURED_PROVIDER:MANUAL_FALLBACK_REQUIRED',canonicalAuthority:{allNormativelyUsable:true}});
     expect(tollGuru.fetch).not.toHaveBeenCalled();
+    expect(prisma.liveAdapterTelemetry.upsert).toHaveBeenCalledWith(expect.objectContaining({
+      create:expect.objectContaining({category:'TOLL',status:'DEGRADED',lastErrorCode:'NO_CONFIGURED_PROVIDER'}),
+      update:expect.objectContaining({status:'DEGRADED',lastErrorCode:'NO_CONFIGURED_PROVIDER'}),
+    }));
   });
 });
