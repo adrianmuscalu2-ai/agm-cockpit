@@ -153,6 +153,13 @@ try {
   assert(await page.locator('[data-premium-spatial-node]:visible').count() === 28, 'PREMIUM spatial model does not contain 28 real agents.');
   assert(await page.locator('[data-premium-operational-orbit]:visible').count() === 1, 'PREMIUM approved orbital panel is not visible on entry.');
   assert(await page.locator('[data-premium-orbital-node]:visible').count() === 28, 'PREMIUM orbital panel does not contain 28 real agents.');
+  assert(await page.locator('[data-premium-orbital-criterion-map]:visible').count() === 6, 'PREMIUM does not expose all six real criterion maps.');
+  for (const criterion of ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
+    await page.locator(`.turn-orbital-criteria [data-premium-orbital-criterion="${criterion}"]`).click();
+    assert(await page.locator('[data-premium-orbital-stage]').getAttribute('data-active-criterion') === criterion, `PREMIUM criterion ${criterion} did not activate.`);
+    assert(await page.locator('[data-premium-orbital-node][data-orbital-status][data-orbital-active-source]').count() === 28, `PREMIUM criterion ${criterion} lacks status/source coverage.`);
+  }
+  await page.locator('.turn-orbital-criteria [data-premium-orbital-criterion="operational"]').click();
   await page.screenshot({ path: resolve(evidenceRoot, 'turn-premium-spatial.png'), fullPage: true });
   await page.locator('[data-turn-page-target="incidents"]').click();
   await page.waitForSelector('[data-turn-page="incidents"]:not([hidden]) [data-incident-pipeline-status]', { timeout: 30_000 });
@@ -200,6 +207,9 @@ try {
       premiumSpatialSourceCoverage: [...document.querySelectorAll('[data-premium-spatial-node]')].filter((node) => node.getAttribute('data-status-source') && node.getAttribute('data-runtime-presence')).length,
       premiumOrbitalNodeCount: document.querySelectorAll('[data-premium-orbital-node]').length,
       premiumOrbitalSourceCoverage: [...document.querySelectorAll('[data-premium-orbital-node]')].filter((node) => node.getAttribute('data-orbital-evidence-source') && node.getAttribute('data-orbital-runtime-presence') && node.getAttribute('data-orbital-observed-at')).length,
+      premiumOrbitalCriterionMapCount: document.querySelectorAll('[data-premium-orbital-criterion-map]').length,
+      premiumOrbitalCriterionKeys: [...document.querySelectorAll('[data-premium-orbital-criterion-map]')].map((map) => map.getAttribute('data-premium-orbital-criterion-map')),
+      premiumOrbitalCriterionCoverage: [...document.querySelectorAll('[data-premium-orbital-node]')].filter((node) => ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'].every((criterion) => node.getAttribute(`data-orbital-${criterion}-status`) && node.getAttribute(`data-orbital-${criterion}-source`))).length,
       premiumOrbitalContract: document.querySelector('[data-premium-operational-orbit]')?.getAttribute('data-orbital-source') || '',
       approvedOrbitalPanelCount: document.querySelectorAll('[data-basic-operational-orbit], [data-premium-operational-orbit]').length,
       incidentDecisionCount: document.querySelectorAll('[data-incident-decision]').length,
@@ -248,6 +258,8 @@ try {
   assert(ui.basicOrbitalContract === overview.contractVersion, `BASIC orbital contract is ${ui.basicOrbitalContract}.`);
   assert(ui.premiumSpatialNodeCount === 28 && ui.premiumSpatialSourceCoverage === 28, `PREMIUM spatial source coverage is ${ui.premiumSpatialSourceCoverage}/${ui.premiumSpatialNodeCount}.`);
   assert(ui.premiumOrbitalNodeCount === 28 && ui.premiumOrbitalSourceCoverage === 28, `PREMIUM orbital source coverage is ${ui.premiumOrbitalSourceCoverage}/${ui.premiumOrbitalNodeCount}.`);
+  assert(ui.premiumOrbitalCriterionMapCount === 6 && new Set(ui.premiumOrbitalCriterionKeys).size === 6, `PREMIUM exposes ${ui.premiumOrbitalCriterionMapCount}/6 unique criterion maps.`);
+  assert(ui.premiumOrbitalCriterionCoverage === 28, `PREMIUM criterion status/source coverage is ${ui.premiumOrbitalCriterionCoverage}/28.`);
   assert(ui.premiumOrbitalContract === dashboard.contractVersion, `PREMIUM orbital contract is ${ui.premiumOrbitalContract}.`);
   assert(ui.approvedOrbitalPanelCount === 2, `TURN exposes ${ui.approvedOrbitalPanelCount}/2 approved live orbital panels.`);
   assert(ui.incidentDecisionCount === dashboard.incidentPipeline.nonHealthy && ui.incidentQualificationCoverage === ui.incidentDecisionCount, `Incident qualification coverage is ${ui.incidentQualificationCoverage}/${ui.incidentDecisionCount}.`);

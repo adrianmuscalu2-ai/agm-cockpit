@@ -83,12 +83,21 @@ assert.doesNotMatch(governanceViewSource, /agm-orbit|turn-agent-panel\/index\.ht
 assert.match(governanceSource, /data-premium-orbital-node/);
 assert.match(governanceSource, /data-orbital-evidence-source="\$\{escapeHtml\(node\.statusSource\)\}"/);
 assert.match(governanceSource, /data-orbital-runtime-presence/);
+assert.match(governanceSource, /evaluateOrbitalCriteria/);
+assert.match(governanceSource, /data-orbital-\$\{criterion\}-status/);
+assert.match(governanceSource, /data-orbital-\$\{criterion\}-source/);
+for (const criterion of ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
+  assert.match(governanceSource, new RegExp(`\\b${criterion}: \\{ status:`));
+  assert.match(governanceViewSource, new RegExp(`data-premium-orbital-criterion="${criterion}"`));
+}
 assert.match(governanceViewSource, /data-premium-operational-panel/);
 assert.match(governanceViewSource, /data-operational-summary/);
 assert.match(governanceViewSource, /data-turn-page="premium"/);
 assert.match(governanceViewSource, /data-premium-spatial-stage/);
 assert.match(governanceViewSource, /data-premium-operational-orbit/);
 assert.match(governanceViewSource, /data-premium-orbital-stage/);
+assert.match(governanceViewSource, /data-premium-orbital-criteria/);
+assert.match(governanceViewSource, /data-premium-orbital-criterion-maps/);
 assert.match(governanceViewSource, /data-turn-page="investigate"/);
 
 const commandCenterSource = await readFile(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');

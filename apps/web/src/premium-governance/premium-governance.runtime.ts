@@ -1,6 +1,13 @@
 import { resolveApiUrl } from '../authenticated-api';
 
 type NodeStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
+const orbitalCriteria = ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'] as const;
+type OrbitalCriterion = typeof orbitalCriteria[number];
+type OrbitalCriterionEvaluation = Record<OrbitalCriterion, { status: NodeStatus; source: string; reason: string }>;
+const orbitalCriterionLabels: Record<OrbitalCriterion, string> = {
+  operational: 'Stare operațională', telemetry: 'Telemetrie', procedural: 'Procedural', component: 'Componentă / dependențe', incidents: 'Incidente', freshness: 'Freshness',
+};
+const orbitalStatusClasses = ['status-pass', 'status-degraded', 'status-fail', 'status-no-telemetry', 'status-standby'];
 type AuthorityChain = { leaseId: string; scopeId: string; agentId: string; providerId: string; mode: string; mandateKey: string | null; decisionKey: string | null; actionType: string | null; epoch: number; fencingToken: number; issuedAt: string; expiresAt: string };
 type NetworkNode = {
   canonicalId: string; kind: string; module: string; ownerId: string; supervisorId: string | null; scope: string;
@@ -146,6 +153,7 @@ function renderPremiumSpatialModel(root: HTMLElement, data: Dashboard) {
   if (!stage) return;
   const positions = networkPositions(data.nodes);
   const byId = new Map(data.nodes.map((node) => [node.canonicalId, node]));
+  const criteriaById = new Map(data.nodes.map((node) => [node.canonicalId, evaluateOrbitalCriteria(node)]));
   const links = data.nodes.flatMap((node) => {
     const from = positions.get(node.canonicalId);
     const targetId = node.supervisorId && byId.has(node.supervisorId) ? node.supervisorId : 'agm.authority.control-plane';
@@ -160,10 +168,12 @@ function renderPremiumSpatialModel(root: HTMLElement, data: Dashboard) {
   if (orbitalStage) {
     orbitalStage.innerHTML = `${renderPremiumOrbitalRings()}${data.nodes.map((node, index) => {
       const position = positions.get(node.canonicalId)!;
-      return renderPremiumOrbitalPlanet(node, position, index);
+      return renderPremiumOrbitalPlanet(node, position, index, criteriaById.get(node.canonicalId)!);
     }).join('')}`;
     orbitalStage.setAttribute('aria-busy', 'false');
   }
+  const criterionMaps = root.querySelector<HTMLElement>('[data-premium-orbital-criterion-maps]');
+  if (criterionMaps) criterionMaps.innerHTML = renderPremiumCriterionMaps(data.nodes, positions, criteriaById);
   const select = (node: NetworkNode) => {
     stage.querySelectorAll<HTMLElement>('[data-premium-spatial-node]').forEach((element) => element.classList.toggle('selected', element.dataset.premiumSpatialNode === node.canonicalId));
     orbitalStage?.querySelectorAll<HTMLElement>('[data-premium-orbital-node]').forEach((element) => element.classList.toggle('selected', element.dataset.premiumOrbitalNode === node.canonicalId));
@@ -178,6 +188,11 @@ function renderPremiumSpatialModel(root: HTMLElement, data: Dashboard) {
     const node = byId.get(button.dataset.premiumOrbitalNode ?? '');
     if (node) select(node);
   }));
+  root.querySelectorAll<HTMLButtonElement>('[data-premium-orbital-criterion]').forEach((button) => button.addEventListener('click', () => {
+    const criterion = button.dataset.premiumOrbitalCriterion as OrbitalCriterion;
+    if (orbitalCriteria.includes(criterion)) applyPremiumOrbitalCriterion(root, data.nodes, criteriaById, criterion);
+  }));
+  applyPremiumOrbitalCriterion(root, data.nodes, criteriaById, 'operational');
   const initial = byId.get('agm.authority.control-plane') ?? data.nodes[0];
   if (initial) select(initial);
 }
@@ -192,10 +207,73 @@ function renderPremiumOrbitalRings() {
   </svg>`;
 }
 
-function renderPremiumOrbitalPlanet(node: NetworkNode, position: { x: number; y: number }, index: number) {
+function renderPremiumOrbitalPlanet(node: NetworkNode, position: { x: number; y: number }, index: number, criteria: OrbitalCriterionEvaluation) {
   const isCore = node.canonicalId === 'agm.authority.control-plane';
   const observedAt = node.statusObservedAt ?? node.evidence.observedAt ?? 'NO_REAL_OBSERVATION';
-  return `<button type="button" class="turn-approved-orbital-node premium status-${statusClass(node.status)}${isCore ? ' is-core' : ''}" style="--node-x:${position.x}%;--node-y:${position.y}%;--node-order:${index}" data-premium-orbital-node="${escapeHtml(node.canonicalId)}" data-orbital-status="${escapeHtml(node.status)}" data-orbital-runtime-presence="${escapeHtml(node.runtimePresence)}" data-orbital-evidence-source="${escapeHtml(node.statusSource)}" data-orbital-observed-at="${escapeHtml(observedAt)}" title="${escapeHtml(`${node.canonicalId} · ${node.status} · ${node.health} · ${node.statusSource}`)}"><span class="turn-planet" aria-hidden="true"></span><small>${escapeHtml(shortNodeName(node.canonicalId))}</small></button>`;
+  const criterionAttributes = orbitalCriteria.map((criterion) => `data-orbital-${criterion}-status="${criteria[criterion].status}" data-orbital-${criterion}-source="${escapeHtml(criteria[criterion].source)}"`).join(' ');
+  return `<button type="button" class="turn-approved-orbital-node premium status-${statusClass(node.status)}${isCore ? ' is-core' : ''}" style="--node-x:${position.x}%;--node-y:${position.y}%;--node-order:${index}" data-premium-orbital-node="${escapeHtml(node.canonicalId)}" data-orbital-status="${escapeHtml(node.status)}" data-orbital-runtime-presence="${escapeHtml(node.runtimePresence)}" data-orbital-evidence-source="${escapeHtml(node.statusSource)}" data-orbital-observed-at="${escapeHtml(observedAt)}" ${criterionAttributes} title="${escapeHtml(`${node.canonicalId} · ${node.status} · ${node.health} · ${node.statusSource}`)}"><span class="turn-planet" aria-hidden="true"></span><small>${escapeHtml(shortNodeName(node.canonicalId))}</small></button>`;
+}
+
+function renderPremiumCriterionMaps(nodes: NetworkNode[], positions: Map<string, { x: number; y: number }>, criteriaById: Map<string, OrbitalCriterionEvaluation>) {
+  return orbitalCriteria.map((criterion) => {
+    const counts = countCriterionStatuses(nodes, criteriaById, criterion);
+    const planets = nodes.map((node) => {
+      const position = positions.get(node.canonicalId)!;
+      const evaluation = criteriaById.get(node.canonicalId)![criterion];
+      return `<span class="turn-orbital-mini-node status-${statusClass(evaluation.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%" title="${escapeHtml(`${node.canonicalId} · ${evaluation.status} · ${evaluation.source}`)}"></span>`;
+    }).join('');
+    return `<button type="button" class="turn-orbital-criterion-map" data-premium-orbital-criterion-map="${criterion}" data-premium-orbital-criterion="${criterion}" aria-selected="${criterion === 'operational'}"><header><strong>${orbitalCriterionLabels[criterion]}</strong><small>${counts.PASS} PASS · ${counts.DEGRADED} DEG · ${counts.FAIL} FAIL · ${counts.NO_TELEMETRY} NO DATA · ${counts.STANDBY} STANDBY</small></header><div>${renderPremiumOrbitalRings()}${planets}</div></button>`;
+  }).join('');
+}
+
+function applyPremiumOrbitalCriterion(root: HTMLElement, nodes: NetworkNode[], criteriaById: Map<string, OrbitalCriterionEvaluation>, criterion: OrbitalCriterion) {
+  const stage = root.querySelector<HTMLElement>('[data-premium-orbital-stage]');
+  if (stage) stage.dataset.activeCriterion = criterion;
+  root.querySelectorAll<HTMLElement>('[data-premium-orbital-criterion]').forEach((control) => control.setAttribute('aria-selected', String(control.dataset.premiumOrbitalCriterion === criterion)));
+  root.querySelectorAll<HTMLElement>('[data-premium-orbital-node]').forEach((planet) => {
+    const node = nodes.find((candidate) => candidate.canonicalId === planet.dataset.premiumOrbitalNode);
+    if (!node) return;
+    const evaluation = criteriaById.get(node.canonicalId)![criterion];
+    planet.classList.remove(...orbitalStatusClasses);
+    planet.classList.add(`status-${statusClass(evaluation.status)}`);
+    planet.dataset.orbitalStatus = evaluation.status;
+    planet.dataset.orbitalActiveSource = evaluation.source;
+    planet.title = `${node.canonicalId} · ${orbitalCriterionLabels[criterion]} · ${evaluation.status} · ${evaluation.reason} · ${evaluation.source}`;
+  });
+  const counts = countCriterionStatuses(nodes, criteriaById, criterion);
+  setText(root, '[data-premium-orbital-criterion-message]', `${orbitalCriterionLabels[criterion]} · ${counts.PASS} PASS · ${counts.DEGRADED} DEGRADED · ${counts.FAIL} FAIL · ${counts.NO_TELEMETRY} NO TELEMETRY · ${counts.STANDBY} STANDBY · evaluat din sursele fiecărui agent`);
+}
+
+function countCriterionStatuses(nodes: NetworkNode[], criteriaById: Map<string, OrbitalCriterionEvaluation>, criterion: OrbitalCriterion) {
+  const counts: Record<NodeStatus, number> = { PASS: 0, DEGRADED: 0, FAIL: 0, NO_TELEMETRY: 0, STANDBY: 0 };
+  nodes.forEach((node) => { counts[criteriaById.get(node.canonicalId)![criterion].status] += 1; });
+  return counts;
+}
+
+function evaluateOrbitalCriteria(node: NetworkNode): OrbitalCriterionEvaluation {
+  const human = node.runtimeMode === 'HUMAN';
+  const telemetryStatus: NodeStatus = human ? 'STANDBY'
+    : node.runtimePresence === 'ABSENT' || node.health === 'FAILED' ? 'FAIL'
+      : node.runtimePresence === 'NOT_OBSERVED' || node.health === 'UNKNOWN' ? 'NO_TELEMETRY'
+        : node.freshness === 'STALE' || node.health === 'DEGRADED' ? 'DEGRADED' : 'PASS';
+  const qualification = node.incidentQualification;
+  const proceduralStatus: NodeStatus = !qualification ? 'NO_TELEMETRY' : qualification.decision === 'QUALIFIED' ? 'FAIL' : 'PASS';
+  const dependencyText = `${node.dependencyState} ${node.dependencyFailures.join(' ')}`.toUpperCase();
+  const componentStatus: NodeStatus = human ? 'STANDBY'
+    : node.runtimePresence === 'ABSENT' || (/FAILED|UNAVAILABLE/.test(dependencyText) && node.status === 'FAIL') ? 'FAIL'
+      : node.dependencyFailures.length || /DEGRADED|MISSING|STALE/.test(dependencyText) ? 'DEGRADED'
+        : /UNKNOWN|NO_TELEMETRY/.test(dependencyText) ? 'NO_TELEMETRY' : 'PASS';
+  const incidentStatus: NodeStatus = !qualification ? 'NO_TELEMETRY' : qualification.openIncidentEventId || node.incidents.length ? 'FAIL' : 'PASS';
+  const freshnessText = `${node.freshness} ${node.activityFreshness}`.toUpperCase();
+  const freshnessStatus: NodeStatus = human ? 'STANDBY' : /STALE|EXPIRED/.test(freshnessText) ? 'DEGRADED' : /UNKNOWN|NO_TELEMETRY|NOT_OBSERVED/.test(freshnessText) ? 'NO_TELEMETRY' : 'PASS';
+  return {
+    operational: { status: node.status, source: node.statusSource, reason: node.reason ?? node.statusLabel },
+    telemetry: { status: telemetryStatus, source: `${node.runtimeEvidence.source} + ${node.activityEvidence.source}`, reason: `${node.runtimePresence} · ${node.health} · ${node.freshness}` },
+    procedural: { status: proceduralStatus, source: 'turn-operational-incident-pipeline.v1', reason: qualification ? `${qualification.decision} · ${qualification.reasonCode}` : 'EVALUATOR DATA UNAVAILABLE' },
+    component: { status: componentStatus, source: node.evidence.source, reason: `${node.dependencyState} · ${node.dependencyFailures.join(', ') || 'NONE'}` },
+    incidents: { status: incidentStatus, source: qualification?.openIncidentEventId ? 'AuthorityAuditJournal' : 'turn-operational-incident-pipeline.v1', reason: qualification ? `${qualification.decision} · ${qualification.openIncidentEventId ?? 'NO OPEN INCIDENT'}` : 'EVALUATOR DATA UNAVAILABLE' },
+    freshness: { status: freshnessStatus, source: `${node.runtimeEvidence.source} + ${node.activityEvidence.source}`, reason: `${node.freshness} · ${node.activityFreshness}` },
+  };
 }
 
 function networkPositions(nodes: NetworkNode[]) {

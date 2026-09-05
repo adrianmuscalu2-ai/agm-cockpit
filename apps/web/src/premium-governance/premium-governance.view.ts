@@ -54,7 +54,17 @@ export function renderTurnAuthorityControlPlane() {
             <div><span>TURN · APPROVED VISUAL SOURCE</span><h3 id="turn-premium-orbit-title">AGM TURN PREMIUM AGENT CONTROL PANEL</h3><p>Panoul orbital aprobat este recuperat ca proiecție interactivă a telemetriei canonice; panoul operațional existent rămâne integral mai jos.</p></div>
             <p class="turn-orbital-legend"><strong>Criteriu vizual:</strong> verde = PASS, portocaliu = DEGRADED, roșu = FAIL, albastru = STANDBY, gri = NO TELEMETRY. Identitatea vine din registry; culoarea vine exclusiv din runtime/evidence.</p>
           </header>
+          <nav class="turn-orbital-criteria" data-premium-orbital-criteria aria-label="Criteriul de colorare al agenților">
+            <button type="button" data-premium-orbital-criterion="operational" aria-selected="true">Stare operațională</button>
+            <button type="button" data-premium-orbital-criterion="telemetry" aria-selected="false">Telemetrie</button>
+            <button type="button" data-premium-orbital-criterion="procedural" aria-selected="false">Procedural</button>
+            <button type="button" data-premium-orbital-criterion="component" aria-selected="false">Componentă / dependențe</button>
+            <button type="button" data-premium-orbital-criterion="incidents" aria-selected="false">Incidente</button>
+            <button type="button" data-premium-orbital-criterion="freshness" aria-selected="false">Freshness</button>
+          </nav>
+          <p class="turn-orbital-criterion-message" data-premium-orbital-criterion-message>Se încarcă evaluatorul operațional real…</p>
           <div class="turn-approved-orbital-stage premium" data-premium-orbital-stage aria-busy="true"><p>Se citește telemetria operațională autorizată…</p></div>
+          <section class="turn-orbital-criterion-maps" data-premium-orbital-criterion-maps aria-label="Hărți planetare pe criterii"></section>
           <aside class="turn-approved-orbital-selection" data-premium-orbital-selection><p>Selectează o planetă Premium pentru runtime, heartbeat, motiv și acțiune.</p></aside>
         </section>
         <header class="agm-operational-header"><div><small>Authority evaluator</small><strong data-control-status>SE ÎNCARCĂ</strong></div><p data-network-message>Se citesc sursele reale autorizate…</p><button type="button" data-run-operational-inspections>Rulează inspectorii reali</button></header>
