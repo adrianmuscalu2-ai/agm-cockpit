@@ -262,3 +262,15 @@ Secure audit closure: Browser Plugin `PASS`; Integrated Browser Control `PLATFOR
 - No Production deploy was performed. Physical Android/PWA and Wi-Fi/mobile validation remain pending because no controllable device session was available. These are release gates, not reasons to discard the local recovery evidence.
 
 `RESCUE ACTIVATED -> ROOT CAUSE ISOLATED -> CANDIDATE REMEDIATED -> CONTROLLED 30-MINUTE SOAK PASS -> PRODUCTION/DEVICE VALIDATION PENDING -> HANDOFF TO PRODUCT OWNER`
+
+### Production release recovery — workflow `34020675399`
+
+| Time (UTC) | Attempt | Evidence | Result | Decision |
+|---|---|---|---|---|
+| 2026-09-06 08:00 | Push candidate `ad083ee34c0e24f98bdcbba9f068f6982863eedb` | workflow `34020675399` | `verify` stopped at API lint; publish/deploy were skipped, so Production remained unchanged | activate Rescue and preserve all local auth PASS evidence |
+| 2026-09-06 08:01 | Read exact failed-step log | `turn-admin.controller.ts:81`, unused `_maxAge` | single deterministic release-gate defect; no dependency/runtime failure | move `maxAge` exclusively to cookie set options; preserve identical clear-cookie security scope |
+| 2026-09-06 08:04 | Minimal affected retest | API lint, controller cookie-contract test, API build | PASS; 1 suite / 4 tests PASS | create follow-up release commit and rerun canonical workflow on the new exact SHA |
+
+Classification: `PRODUCT / RELEASE-GATE`. No image was published and no Production service, database, route or secret was modified by the failed run.
+
+`ATLAS BLOCKED -> RESCUE ACTIVATED -> EVIDENCE COLLECTION -> SCOPED LINT FIX -> MINIMAL RETEST PASS -> RECOVERED -> HANDOFF TO ATLAS`

@@ -74,12 +74,14 @@ function publicSession(result: IssuedSession) {
 }
 
 function setCookie(response: Response, value: string) {
-  response.cookie(COOKIE, value, cookieOptions());
+  response.cookie(COOKIE, value, {
+    ...cookieOptions(),
+    maxAge: TURN_ADMIN_CONTRACT.refreshSessionDays * 86_400_000,
+  });
 }
 
 function clearCookie(response: Response) {
-  const { maxAge: _maxAge, ...options } = cookieOptions();
-  response.clearCookie(COOKIE, options);
+  response.clearCookie(COOKIE, cookieOptions());
 }
 
 function cookieOptions() {
@@ -87,7 +89,6 @@ function cookieOptions() {
     httpOnly: true,
     sameSite: 'none' as const,
     secure: true,
-    maxAge: TURN_ADMIN_CONTRACT.refreshSessionDays * 86_400_000,
     path: '/api/v1/turn-admin',
   };
 }
