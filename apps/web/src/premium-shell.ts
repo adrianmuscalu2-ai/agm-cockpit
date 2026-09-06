@@ -10,7 +10,7 @@ type PremiumShellOptions = {
 };
 
 export function renderPremiumShell(options: PremiumShellOptions) {
-  const logoUrl = `${import.meta.env?.BASE_URL ?? '/'}images/images/logo1.png`;
+  const logoUrl = `${import.meta.env?.BASE_URL ?? '/'}icons/agm-app-icon-192.png`;
 
   return `
     <section class="${options.viewClass}" aria-labelledby="${options.labelledBy}">

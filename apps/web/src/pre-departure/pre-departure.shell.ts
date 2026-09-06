@@ -271,7 +271,7 @@ export function renderPreDepartureShell(state: PreDepartureViewState | PreDepart
     <main class="pre-departure-shell" data-e6-entry="before-departure">
       <header class="pre-departure-agm-topbar">
         <a href="/premium" class="pre-departure-brand" aria-label="AGM Premium">
-          <img src="/images/images/logo1.png" alt="AGM" />
+          <img src="/icons/agm-app-icon-192.png" alt="AGM" />
           <strong>AGM</strong>
           <span>Premium</span>
         </a>

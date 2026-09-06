@@ -494,7 +494,7 @@ function render() {
           </nav>
 
           <div class="brand-lockup" aria-label="${escapeHtml(t(language, 'header.brandAria'))}">
-            <img class="brand-logo" data-admin-trigger src="/images/images/logo1.png" alt="${escapeHtml(t(language, 'header.brandAlt'))}" />
+            <img class="brand-logo" data-admin-trigger src="/icons/agm-app-icon-512.png" alt="${escapeHtml(t(language, 'header.brandAlt'))}" />
           </div>
         </header>`}
 
@@ -623,6 +623,7 @@ function renderHomeHeader() {
   return `
     <header class="home-topbar">
       <button class="home-brand" data-module="home" data-admin-trigger type="button" aria-label="${escapeHtml(t(language, 'home.title'))}">
+        <img class="home-brand-logo" src="/icons/agm-app-icon-192.png" alt="" aria-hidden="true" />
         <strong>A.G.M.</strong>
         <span>Cockpit 1.4.0</span>
       </button>
@@ -813,7 +814,7 @@ function renderHome() {
   return `
     <section class="home-view" aria-labelledby="home-title">
       <figure class="home-visual">
-        <img data-admin-trigger src="/images/images/logo1.png" alt="${escapeHtml(t(language, 'header.brandAlt'))}" />
+        <img class="home-identity-logo" data-admin-trigger src="/icons/agm-app-icon-512.png" alt="${escapeHtml(t(language, 'header.brandAlt'))}" />
       </figure>
       <div class="home-intro">
         <div>

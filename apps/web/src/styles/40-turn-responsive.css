@@ -954,13 +954,19 @@
     padding: 8px;
   }
 
-  .topbar .brand-lockup,
   .header-ready {
     display: none;
   }
 
+  .topbar .brand-lockup {
+    display: flex;
+    min-height: 0;
+    padding: 0;
+  }
+
   .brand-logo {
-    max-height: 116px;
+    width: 56px;
+    max-height: 56px;
   }
 
   .module-strip {

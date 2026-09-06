@@ -7,6 +7,8 @@ const read = relative => readFileSync(new URL(relative, root), 'utf8');
 
 const serviceWorker = read('public/sw.js');
 const main = read('src/main.ts');
+const premiumShell = read('src/premium-shell.ts');
+const preDepartureShell = read('src/pre-departure/pre-departure.shell.ts');
 const index = read('index.html');
 const manifest = JSON.parse(read('public/manifest.webmanifest'));
 
@@ -32,5 +34,10 @@ assert.deepEqual(
     '/icons/agm-app-icon-maskable-512.png',
   ],
 );
+
+for (const source of [main, premiumShell, preDepartureShell]) {
+  assert.doesNotMatch(source, /images\/images\/logo1\.png/);
+  assert.match(source, /icons\/agm-app-icon-(?:192|512)\.png/);
+}
 
 console.log('PWA release invalidation + canonical Website icon contract: PASS');
