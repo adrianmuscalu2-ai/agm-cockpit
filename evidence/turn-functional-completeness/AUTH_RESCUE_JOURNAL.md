@@ -284,3 +284,15 @@ Classification: `PRODUCT / RELEASE-GATE`. No image was published and no Producti
 | 2026-09-06 08:08 | Minimal affected retest | DATA-001 persistence contract and API lint | PASS; 1 suite / 6 tests PASS; lint PASS | create a new exact SHA and rerun canonical workflow |
 
 Classification: `PRODUCT / GOVERNANCE CONTRACT`. Production remained unchanged and no accepted local auth evidence was invalidated.
+
+### Wave 1 Browser recovery — workflow `34021002110`
+
+| Time (UTC) | Attempt | Evidence | Result | Decision |
+|---|---|---|---|---|
+| 2026-09-06 08:08 | Push SHA `057282ad6a84310a54619805ac45cee8e92e3a01` | workflow `34021002110` | lint, 392 API tests, API/Web builds, operational truth, canonical route and preflight PASS; Wave 1 Browser failed while clicking Turkish language after repeated DOM detach | isolate application rerender source; publish/deploy skipped |
+| 2026-09-06 08:11 | Trace DOM lifecycle against P0 auth retry | `restoreAdministratorAccess()` retried an unavailable local API every 5 seconds and called global `render()` even on `/basic` | auth retry was destabilizing an unrelated surface; product lifecycle defect confirmed | keep retry, but render auth state only while TURN is active |
+| 2026-09-06 08:12 | Minimal affected validation | auth continuity static/behavior test, Web build, Browser preflight, Wave 1 controlled Browser | PASS; unrelated-surface rerender false; Wave 1 report `.tmp/wave1-browser-validation/2026-09-06T08-12-39-922Z/report.json` | create new exact SHA and rerun canonical workflow |
+
+Browser Plugin Status: `PASS`. Integrated Browser Control Status: `PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE`. Browser Session Status: `PASS`. Target Page Status: `PASS`.
+
+Classification: `PRODUCT / OBSERVER LIFECYCLE`. The change does not increase TTL, suppress truth, or alter TURN operational state; it prevents background auth recovery from rebuilding unrelated application surfaces.

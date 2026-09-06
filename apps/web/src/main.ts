@@ -4520,7 +4520,7 @@ async function restoreAdministratorAccess() {
       }, 5_000);
     }
   }
-  render();
+  if (state.view === 'turn') render();
 }
 
 function showMicrophonePermissionDenied(permission: MicrophonePermissionState) {

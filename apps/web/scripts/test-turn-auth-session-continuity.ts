@@ -101,6 +101,7 @@ assert.match(mainSource, /AUTH\/SESSION FAILURE/);
 assert.match(mainSource, /adminSessionRetryTimer/);
 assert.match(mainSource, /Nu este necesar PIN sau login manual/);
 assert.match(mainSource, /autentificarea nu produce DEGRADED sau FAIL/);
+assert.match(mainSource, /if \(state\.view === 'turn'\) render\(\);/, 'Background auth retries must not rerender unrelated application surfaces.');
 
 console.log(JSON.stringify({
   verdict: 'PASS',
@@ -110,6 +111,7 @@ console.log(JSON.stringify({
   explicitAuthFailure: true,
   transientFailurePreservesSession: true,
   automaticRestoreRetry: true,
+  unrelatedSurfaceRerender: false,
   persistentJwt: false,
 }));
 
