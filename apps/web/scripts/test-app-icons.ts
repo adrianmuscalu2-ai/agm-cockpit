@@ -73,11 +73,11 @@ const indexHtml = read('index.html').toString('utf8');
 assert.match(indexHtml, /\/icons\/agm-cockpit\.ico/);
 assert.match(indexHtml, /\/icons\/agm-app-icon-192\.png/);
 assert.match(indexHtml, /\/icons\/agm-app-icon-apple-180\.png/);
-assert.match(indexHtml, /<title>AGM Transporte<\/title>/);
+assert.match(indexHtml, /<title>AGM Website<\/title>/);
 
 const webManifest = JSON.parse(read('public/manifest.webmanifest').toString('utf8')) as { name?: string; short_name?: string };
-assert.equal(webManifest.name, 'AGM Transporte');
-assert.equal(webManifest.short_name, 'AGM Transporte');
+assert.equal(webManifest.name, 'AGM Website');
+assert.equal(webManifest.short_name, 'AGM Website');
 
 const capacitorConfig = read('capacitor.config.ts').toString('utf8');
 assert.match(capacitorConfig, /appId: 'com\.agm\.cockpit'/, 'Android technical identity must remain stable');
@@ -96,4 +96,4 @@ const mainSource = read('src/main.ts').toString('utf8');
 assert.match(mainSource, /const APP_VERSION = 'A\.G\.M\. Cockpit 1\.4\.0'/, 'Cockpit interior identity/hero contract must remain stable');
 assert.match(mainSource, /A\.G\.M\. Cockpit — parte din ecosistemul AGM Transporte\./, 'About relationship copy');
 
-console.log('AGM Transporte display name + Android/Windows icon isolation contract: PASS');
+console.log('AGM Website web identity + AGM Transporte Android/Windows isolation contract: PASS');

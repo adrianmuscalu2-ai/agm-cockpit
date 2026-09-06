@@ -1,7 +1,7 @@
 {
-  "name": "AGM Transporte",
-  "short_name": "AGM Transporte",
-  "description": "AGM Transporte application powered by the A.G.M. Cockpit operational experience.",
+  "name": "AGM Website",
+  "short_name": "AGM Website",
+  "description": "AGM Website for the A.G.M. Cockpit operational experience.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

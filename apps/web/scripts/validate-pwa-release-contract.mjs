@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const root = new URL('../', import.meta.url);
-const pwaRelease = 'agm-cockpit-1.4.0-mobile-data-production-v1-20260906';
+const pwaRelease = 'agm-cockpit-1.4.0-mobile-data-production-v2-20260906';
 const read = relative => readFileSync(new URL(relative, root), 'utf8');
 
 const serviceWorker = read('public/sw.js');
@@ -25,6 +25,9 @@ assert.match(index, /\/icons\/agm-cockpit\.ico/);
 assert.match(index, /\/icons\/agm-app-icon-192\.png/);
 assert.match(index, /\/icons\/agm-app-icon-apple-180\.png/);
 assert.doesNotMatch(index, /\/icons\/agm-transporte\.ico/);
+assert.match(index, /<title>AGM Website<\/title>/);
+assert.equal(manifest.name, 'AGM Website');
+assert.equal(manifest.short_name, 'AGM Website');
 assert.deepEqual(
   manifest.icons.map(icon => icon.src),
   [
