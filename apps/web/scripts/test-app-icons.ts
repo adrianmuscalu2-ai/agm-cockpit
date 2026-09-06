@@ -93,7 +93,7 @@ assert.match(androidStrings, /<string name="title_activity_main">AGM Transporte<
 assert.match(androidStrings, /<string name="package_name">com\.agm\.cockpit<\/string>/, 'Installed-app identity must not change');
 
 const mainSource = read('src/main.ts').toString('utf8');
-assert.match(mainSource, /const APP_VERSION = 'A\.G\.M\. Cockpit 1\.3\.0'/, 'Cockpit interior identity/hero contract must remain stable');
+assert.match(mainSource, /const APP_VERSION = 'A\.G\.M\. Cockpit 1\.4\.0'/, 'Cockpit interior identity/hero contract must remain stable');
 assert.match(mainSource, /A\.G\.M\. Cockpit — parte din ecosistemul AGM Transporte\./, 'About relationship copy');
 
 console.log('AGM Transporte display name + Android/Windows icon isolation contract: PASS');
