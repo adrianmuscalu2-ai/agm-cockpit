@@ -37,6 +37,8 @@ type Dashboard = {
 };
 type Envelope = { data?: Dashboard; message?: string | string[] };
 
+let dashboardRequest: Promise<Dashboard> | undefined;
+
 export function bindPremiumGovernanceRuntime(administratorAccessVerified = false) {
   const hero = document.querySelector<HTMLElement>('[data-authority-dashboard]');
   const detail = document.querySelector<HTMLElement>('[data-agent-network-detail]');
@@ -53,11 +55,14 @@ export function bindPremiumGovernanceRuntime(administratorAccessVerified = false
     inspectionButton.textContent = 'Inspectorii rulează…';
     void runInspections().then(() => load()).then((data) => {
       ingestBasicAgentOperationalDashboard(data);
-      if (hero) renderHero(hero, data);
-      if (detail) renderDetail(detail, data);
+      const currentHero = document.querySelector<HTMLElement>('[data-authority-dashboard]');
+      const currentDetail = document.querySelector<HTMLElement>('[data-agent-network-detail]');
+      if (currentHero) renderHero(currentHero, data);
+      if (currentDetail) renderDetail(currentDetail, data);
       renderIncidentPipeline(data);
     }).catch((error) => {
-      if (hero) renderRuntimeFailure(hero, error);
+      const currentHero = document.querySelector<HTMLElement>('[data-authority-dashboard]');
+      if (currentHero) renderRuntimeFailure(currentHero, error);
     }).finally(() => {
       inspectionButton.disabled = false;
       inspectionButton.textContent = 'Rulează inspectorii reali';
@@ -65,21 +70,33 @@ export function bindPremiumGovernanceRuntime(administratorAccessVerified = false
   });
   void load().then((data) => {
     ingestBasicAgentOperationalDashboard(data);
-    if (hero) renderHero(hero, data);
-    if (detail) renderDetail(detail, data);
+    const currentHero = document.querySelector<HTMLElement>('[data-authority-dashboard]');
+    const currentDetail = document.querySelector<HTMLElement>('[data-agent-network-detail]');
+    if (currentHero) renderHero(currentHero, data);
+    if (currentDetail) renderDetail(currentDetail, data);
     renderIncidentPipeline(data);
   }).catch((error) => {
-    if (hero) renderRuntimeFailure(hero, error);
-    if (detail) renderRuntimeFailure(detail, error);
+    const currentHero = document.querySelector<HTMLElement>('[data-authority-dashboard]');
+    const currentDetail = document.querySelector<HTMLElement>('[data-agent-network-detail]');
+    if (currentHero) renderRuntimeFailure(currentHero, error);
+    if (currentDetail) renderRuntimeFailure(currentDetail, error);
     renderIncidentUnavailable(isTurnAdminSessionError(error) ? 'AUTH/SESSION FAILURE' : error instanceof Error ? error.message : 'ACP_OPERATIONAL_DATA_UNAVAILABLE');
   });
 }
 
 async function load() {
-  const response = await turnAdminAuthenticatedFetch('/operations/turn/operational-dashboard', { cache: 'no-store' });
-  const envelope = await response.json().catch(() => ({})) as Envelope;
-  if (!response.ok || !envelope.data) throw new Error('Datele operaționale ACP nu sunt disponibile; nu se afișează fallback.');
-  return envelope.data;
+  if (!dashboardRequest) {
+    const pending = (async () => {
+      const response = await turnAdminAuthenticatedFetch('/operations/turn/operational-dashboard', { cache: 'no-store' });
+      const envelope = await response.json().catch(() => ({})) as Envelope;
+      if (!response.ok || !envelope.data) throw new Error('Datele operaționale ACP nu sunt disponibile; nu se afișează fallback.');
+      return envelope.data;
+    })().finally(() => {
+      if (dashboardRequest === pending) dashboardRequest = undefined;
+    });
+    dashboardRequest = pending;
+  }
+  return dashboardRequest;
 }
 
 async function runInspections() {

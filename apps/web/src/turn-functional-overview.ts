@@ -47,6 +47,8 @@ export type TurnFunctionalOverview = {
 
 import { isTurnAdminSessionError, turnAdminAuthenticatedFetch } from './admin-auth';
 
+let functionalOverviewRequest: Promise<TurnFunctionalOverview> | undefined;
+
 export async function fetchTurnFunctionalOverview(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
   const response = await fetcher('/operations/turn/functional-overview', {
     cache: 'no-store',
@@ -58,12 +60,21 @@ export async function fetchTurnFunctionalOverview(fetcher: typeof fetch = turnAd
 }
 
 export async function bindTurnFunctionalOverview(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
-  const root = document.querySelector<HTMLElement>('[data-turn-functional-overview]');
-  if (!root) return;
+  if (!document.querySelector('[data-turn-functional-overview]')) return;
   try {
-    const overview = await fetchTurnFunctionalOverview(fetcher);
+    if (!functionalOverviewRequest) {
+      const pending = fetchTurnFunctionalOverview(fetcher).finally(() => {
+        if (functionalOverviewRequest === pending) functionalOverviewRequest = undefined;
+      });
+      functionalOverviewRequest = pending;
+    }
+    const overview = await functionalOverviewRequest;
+    const root = document.querySelector<HTMLElement>('[data-turn-functional-overview]');
+    if (!root) return;
     renderOverview(root, overview);
   } catch (error) {
+    const root = document.querySelector<HTMLElement>('[data-turn-functional-overview]');
+    if (!root) return;
     renderUnavailable(root, isTurnAdminSessionError(error) ? 'AUTH/SESSION FAILURE · Nu se modifică starea agenților.' : error instanceof Error ? error.message : 'Sursa funcțională nu este disponibilă.');
   }
 }

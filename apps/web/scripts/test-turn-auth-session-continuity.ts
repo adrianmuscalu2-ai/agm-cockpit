@@ -96,12 +96,49 @@ await assert.rejects(
 assert.equal(auth.readAdministratorSession(), null, 'A terminal refresh failure must clear only the short-lived access token.');
 assert.equal(localStorage.getItem(auth.ADMIN_SESSION_KEY), null, 'No administrative JWT may be persisted in localStorage.');
 
+const overviewRoot = {
+  dataset: {} as Record<string, string>,
+  setAttribute() {},
+  querySelector() { return null; },
+};
+Object.defineProperty(globalThis, 'document', {
+  configurable: true,
+  value: { querySelector: () => overviewRoot },
+});
+let resolveOverviewResponse!: (response: Response) => void;
+const deferredOverviewResponse = new Promise<Response>((resolve) => { resolveOverviewResponse = resolve; });
+let overviewFetchCalls = 0;
+const overviewFetcher = (async () => {
+  overviewFetchCalls += 1;
+  return deferredOverviewResponse;
+}) as typeof fetch;
+const functionalOverview = await import('../src/turn-functional-overview');
+const firstOverviewBind = functionalOverview.bindTurnFunctionalOverview(overviewFetcher);
+const secondOverviewBind = functionalOverview.bindTurnFunctionalOverview(overviewFetcher);
+assert.equal(overviewFetchCalls, 1, 'Concurrent rerender binds must share one functional-overview request.');
+resolveOverviewResponse(json(200, {
+  data: {
+    contractVersion: 'turn-functional-overview.test',
+    generatedAt: new Date().toISOString(),
+    verdict: { turnFunctionalCompleteness: 'FAIL', productOwnerAcceptance: 'NOT_GRANTED', finalProductionPass: 'RETRACTED' },
+    summary: { totalZones: 0, operational: 0, observed: 0, attention: 0, noActivity: 0, staticReference: 0, capabilityMissing: 0, legitimateUnknown: 0, unresolvedUnknown: 0 },
+    zones: [],
+  },
+}));
+await Promise.all([firstOverviewBind, secondOverviewBind]);
+
 const mainSource = await readFile(new URL('../src/main.ts', import.meta.url), 'utf8');
+const functionalOverviewSource = await readFile(new URL('../src/turn-functional-overview.ts', import.meta.url), 'utf8');
+const premiumRuntimeSource = await readFile(new URL('../src/premium-governance/premium-governance.runtime.ts', import.meta.url), 'utf8');
 assert.match(mainSource, /AUTH\/SESSION FAILURE/);
 assert.match(mainSource, /adminSessionRetryTimer/);
 assert.match(mainSource, /Nu este necesar PIN sau login manual/);
 assert.match(mainSource, /autentificarea nu produce DEGRADED sau FAIL/);
 assert.match(mainSource, /if \(state\.view === 'turn'\) render\(\);/, 'Background auth retries must not rerender unrelated application surfaces.');
+assert.match(functionalOverviewSource, /functionalOverviewRequest/, 'TURN functional overview must coalesce rerender-overlapping reads.');
+assert.match(functionalOverviewSource, /const root = document\.querySelector<HTMLElement>/, 'Coalesced functional data must paint the current DOM after rerender.');
+assert.match(premiumRuntimeSource, /dashboardRequest/, 'Premium dashboard must coalesce rerender-overlapping reads.');
+assert.match(premiumRuntimeSource, /const currentDetail = document\.querySelector<HTMLElement>/, 'Coalesced Premium data must paint the current DOM after rerender.');
 
 console.log(JSON.stringify({
   verdict: 'PASS',
@@ -112,6 +149,7 @@ console.log(JSON.stringify({
   transientFailurePreservesSession: true,
   automaticRestoreRetry: true,
   unrelatedSurfaceRerender: false,
+  rerenderOverlappingReadsCoalesced: true,
   persistentJwt: false,
 }));
 
