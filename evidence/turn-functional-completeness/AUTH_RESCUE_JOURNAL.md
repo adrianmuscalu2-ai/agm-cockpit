@@ -274,3 +274,13 @@ Secure audit closure: Browser Plugin `PASS`; Integrated Browser Control `PLATFOR
 Classification: `PRODUCT / RELEASE-GATE`. No image was published and no Production service, database, route or secret was modified by the failed run.
 
 `ATLAS BLOCKED -> RESCUE ACTIVATED -> EVIDENCE COLLECTION -> SCOPED LINT FIX -> MINIMAL RETEST PASS -> RECOVERED -> HANDOFF TO ATLAS`
+
+### Persistence-contract recovery — workflow `34020869057`
+
+| Time (UTC) | Attempt | Evidence | Result | Decision |
+|---|---|---|---|---|
+| 2026-09-06 08:05 | Push recovery SHA `5deecb0015018384f87c9fcb5c7fa4432c96e8a6` | workflow `34020869057` | API lint PASS; API full suite 391 PASS / 1 FAIL; publish/deploy skipped | inspect only DATA-001 failure; preserve auth and lint PASS |
+| 2026-09-06 08:06 | Compare migration directory with append-only registry | `20260906120000_add_turn_admin_refresh_sessions`, SHA-256 `6F5079681BDF144D4F6B8C0D55BF46C4A55BB8BE56752C01A900B8EE4C87AF85` | migration was intentionally additive but absent from `DATA001_PERSISTENCE_CONTRACT`; `TurnAdminSession` was also absent from critical models | append exact immutable name/hash and critical model; do not alter migration bytes |
+| 2026-09-06 08:08 | Minimal affected retest | DATA-001 persistence contract and API lint | PASS; 1 suite / 6 tests PASS; lint PASS | create a new exact SHA and rerun canonical workflow |
+
+Classification: `PRODUCT / GOVERNANCE CONTRACT`. Production remained unchanged and no accepted local auth evidence was invalidated.
