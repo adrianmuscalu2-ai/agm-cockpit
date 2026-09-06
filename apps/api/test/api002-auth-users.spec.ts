@@ -1,4 +1,4 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -98,10 +98,21 @@ describe('API-002 Auth & Users contract', () => {
 
   it('detects replay of a rotated token and revokes the remaining session family',async()=>{
     const prisma=prismaMock();
-    prisma.authSession.findUnique.mockResolvedValue({id:'old',familyId:'family-1',revokedAt:new Date(),expiresAt:new Date(Date.now()+60_000),user:activeUser});
+    prisma.authSession.findUnique.mockResolvedValue({id:'old',familyId:'family-1',revokedAt:new Date(),replacedAt:new Date(Date.now()-10_000),expiresAt:new Date(Date.now()+60_000),user:activeUser});
     const service=new AuthService({} as never,{signAsync:jest.fn()} as unknown as JwtService,prisma as never);
     await expect(service.refresh('replayed-token')).rejects.toBeInstanceOf(UnauthorizedException);
     expect(prisma.authSession.updateMany).toHaveBeenCalledWith({where:{familyId:'family-1',revokedAt:null},data:{revokedAt:expect.any(Date),reuseDetectedAt:expect.any(Date)}});
+  });
+
+  it('does not revoke the successor when a concurrent refresh reuses the just-rotated token', async () => {
+    const prisma = prismaMock();
+    prisma.authSession.findUnique.mockResolvedValue({
+      id:'old', familyId:'family-1', revokedAt:new Date(), replacedAt:new Date(),
+      expiresAt:new Date(Date.now()+60_000), user:activeUser,
+    });
+    const service = new AuthService({} as never, { signAsync:jest.fn() } as unknown as JwtService, prisma as never);
+    await expect(service.refresh('concurrent-token')).rejects.toBeInstanceOf(ConflictException);
+    expect(prisma.authSession.updateMany).not.toHaveBeenCalled();
   });
 
   it.each([

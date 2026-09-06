@@ -1,5 +1,5 @@
 import { createIncident, transitionIncident, updateIncident, type IncidentDraft, type OperationalIncident } from './incident-journal';
-import { apiBaseUrl } from './authenticated-api';
+import { isTurnAdminSessionError, readAdministratorSession, turnAdminAuthenticatedFetch } from './admin-auth';
 
 export const secretTelemetryContract = {
   version: 'secret-telemetry.v1', guardianId: 'secret-credentials-guardian',
@@ -66,30 +66,26 @@ export function bindSecretTelemetry(onSnapshot: (snapshot: SecretTelemetrySnapsh
   const refresh = async () => {
     if (!document.querySelector('[data-secret-telemetry]')) return;
     if (refreshPromise) return refreshPromise;
-    const base = apiBaseUrl();
-    if (!base) return;
     refreshPromise = (async () => {
-      const accessToken = readOwnerAccessToken(window.localStorage);
-      if (!accessToken) {
-        paintUnavailable('AUTH REQUIRED', 'Deblochează Owner Access pentru telemetria Guardian.');
-        return;
-      }
       try {
-        const response = await fetch(`${base}/security/secrets/health`, { cache: 'no-store', headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` } });
+        const response = await turnAdminAuthenticatedFetch('/security/secrets/health', { cache: 'no-store', headers: { Accept: 'application/json' } });
         if (!response.ok) throw new Error('SECRET_TELEMETRY_UNAVAILABLE');
         const snapshot = ((await response.json()) as { data?: SecretTelemetrySnapshot }).data;
         if (!snapshot || snapshot.contract !== secretTelemetryContract.version) throw new Error('SECRET_TELEMETRY_INVALID');
         latestSnapshot = snapshot;
         onSnapshot(snapshot);
         paintSnapshot(snapshot);
-      } catch {
+      } catch (error) {
         latestSnapshot = undefined;
-        paintUnavailable('TELEMETRY UNAVAILABLE', 'Canalul de telemetrie nu răspunde. Nu se deduce starea secretelor.');
+        paintUnavailable(
+          isTurnAdminSessionError(error) ? 'AUTH/SESSION FAILURE' : 'TELEMETRY UNAVAILABLE',
+          isTurnAdminSessionError(error) ? 'Sesiunea Owner nu a putut fi reînnoită. Nu se deduce starea secretelor.' : 'Canalul de telemetrie nu răspunde. Nu se deduce starea secretelor.',
+        );
       }
     })().finally(() => { refreshPromise = undefined; });
     return refreshPromise;
   };
-  const ownerAuthenticated = Boolean(readOwnerAccessToken(window.localStorage));
+  const ownerAuthenticated = Boolean(readAdministratorSession());
   if (!latestSnapshot || !ownerAuthenticated || !secretTelemetrySnapshotFresh(latestSnapshot)) void refresh();
   if (pollTimer === undefined) pollTimer = window.setInterval(() => void refresh(), secretTelemetryPollIntervalMs);
 }
@@ -110,13 +106,4 @@ function paintUnavailable(status: string, detail: string) {
     if (overall) overall.textContent = status;
     if (items) items.innerHTML = `<p>${detail}</p>`;
   });
-}
-
-function readOwnerAccessToken(storage: Storage) {
-  try {
-    const session = JSON.parse(storage.getItem('agm.admin.session') ?? 'null') as { accessToken?: string } | null;
-    return session?.accessToken?.trim() || '';
-  } catch {
-    return '';
-  }
 }

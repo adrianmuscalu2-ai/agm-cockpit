@@ -54,6 +54,7 @@
     "test:turn-live-state": "tsx scripts/test-turn-live-state-reconciliation.ts",
     "test:turn-operational-truth": "tsx scripts/test-turn-operational-truth.ts",
     "test:turn-functional-overview": "tsx scripts/test-turn-functional-overview.ts",
+    "test:turn-auth-continuity": "tsx scripts/test-turn-auth-session-continuity.ts",
     "test:p9-turn-projection": "tsx scripts/test-p9-turn-projection.ts",
     "test:cloudflare-monitor": "tsx scripts/test-cloudflare-monitor-remediation.ts",
     "test:app-icons": "tsx scripts/test-app-icons.ts",

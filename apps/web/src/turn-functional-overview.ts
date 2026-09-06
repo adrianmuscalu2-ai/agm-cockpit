@@ -45,45 +45,26 @@ export type TurnFunctionalOverview = {
   zones: TurnFunctionalZone[];
 };
 
-type StoredAdminSession = { accessToken?: string };
+import { isTurnAdminSessionError, turnAdminAuthenticatedFetch } from './admin-auth';
 
-function apiBaseUrl() {
-  const env = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env;
-  const configured = env?.VITE_AGM_API_BASE_URL?.trim().replace(/\/$/, '');
-  return configured || (env?.DEV ? 'http://127.0.0.1:3000/api/v1' : '/api/v1');
-}
-
-export async function fetchTurnFunctionalOverview(accessToken: string, fetcher: typeof fetch = fetch) {
-  const response = await fetcher(`${apiBaseUrl()}/operations/turn/functional-overview`, {
+export async function fetchTurnFunctionalOverview(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
+  const response = await fetcher('/operations/turn/functional-overview', {
     cache: 'no-store',
-    headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` },
+    headers: { Accept: 'application/json' },
   });
   const payload = await response.json().catch(() => ({})) as { data?: TurnFunctionalOverview; message?: string };
   if (!response.ok || !payload.data) throw new Error(payload.message || `TURN_FUNCTIONAL_OVERVIEW_HTTP_${response.status}`);
   return payload.data;
 }
 
-export async function bindTurnFunctionalOverview(fetcher: typeof fetch = fetch, storage: Storage = window.localStorage) {
+export async function bindTurnFunctionalOverview(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
   const root = document.querySelector<HTMLElement>('[data-turn-functional-overview]');
   if (!root) return;
-  const session = readSession(storage);
-  if (!session?.accessToken) {
-    renderUnavailable(root, 'AUTH REQUIRED · Deblochează Owner Access pentru proiecția funcțională.');
-    return;
-  }
   try {
-    const overview = await fetchTurnFunctionalOverview(session.accessToken, fetcher);
+    const overview = await fetchTurnFunctionalOverview(fetcher);
     renderOverview(root, overview);
   } catch (error) {
-    renderUnavailable(root, error instanceof Error ? error.message : 'Sursa funcțională nu este disponibilă.');
-  }
-}
-
-function readSession(storage: Storage): StoredAdminSession | null {
-  try {
-    return JSON.parse(storage.getItem('agm.admin.session') ?? 'null') as StoredAdminSession | null;
-  } catch {
-    return null;
+    renderUnavailable(root, isTurnAdminSessionError(error) ? 'AUTH/SESSION FAILURE · Nu se modifică starea agenților.' : error instanceof Error ? error.message : 'Sursa funcțională nu este disponibilă.');
   }
 }
 

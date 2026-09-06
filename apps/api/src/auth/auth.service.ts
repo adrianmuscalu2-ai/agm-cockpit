@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -24,6 +24,9 @@ export class AuthService {
     const session = await this.prisma.authSession.findUnique({ where: { tokenHash: hash(rawToken) }, include: { user: { include: { roles: { include: { role: true } } } } } });
     if (!session) throw new UnauthorizedException();
     if (session.revokedAt) {
+      if (session.replacedAt && withinConcurrencyGrace(session.replacedAt, new Date())) {
+        throw new ConflictException('SESSION_REFRESH_IN_PROGRESS');
+      }
       await this.prisma.authSession.updateMany({
         where: { familyId: session.familyId, revokedAt: null },
         data: { revokedAt: new Date(), reuseDetectedAt: new Date() },
@@ -46,6 +49,10 @@ export class AuthService {
       return true;
     });
     if (!rotated) {
+      const latest = await this.prisma.authSession.findUnique({ where: { id: session.id } });
+      if (latest?.replacedAt && withinConcurrencyGrace(latest.replacedAt, now)) {
+        throw new ConflictException('SESSION_REFRESH_IN_PROGRESS');
+      }
       await this.prisma.authSession.updateMany({ where: { familyId: session.familyId, revokedAt: null }, data: { revokedAt: now, reuseDetectedAt: now } });
       throw new UnauthorizedException();
     }
@@ -77,3 +84,6 @@ export class AuthService {
 }
 type AuthUser = Prisma.UserGetPayload<{ include: { roles: { include: { role: true } } } }>;
 function hash(value: string) { return createHash('sha256').update(value).digest('hex'); }
+function withinConcurrencyGrace(replacedAt: Date, now: Date) {
+  return now.getTime() - replacedAt.getTime() <= AUTH_CONTRACT.refreshConcurrencyGraceSeconds * 1_000;
+}

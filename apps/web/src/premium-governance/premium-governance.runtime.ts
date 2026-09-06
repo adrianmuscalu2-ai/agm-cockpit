@@ -1,4 +1,4 @@
-import { resolveApiUrl } from '../authenticated-api';
+import { isTurnAdminSessionError, turnAdminAuthenticatedFetch } from '../admin-auth';
 import { ingestBasicAgentOperationalDashboard, type BasicAgentTelemetryInventory } from '../turn-agent-panel.integration';
 
 type NodeStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
@@ -37,11 +37,11 @@ type Dashboard = {
 };
 type Envelope = { data?: Dashboard; message?: string | string[] };
 
-export function bindPremiumGovernanceRuntime(turnAdminAccessToken?: string) {
+export function bindPremiumGovernanceRuntime(administratorAccessVerified = false) {
   const hero = document.querySelector<HTMLElement>('[data-authority-dashboard]');
   const detail = document.querySelector<HTMLElement>('[data-agent-network-detail]');
   if (!hero && !detail) return;
-  if (!turnAdminAccessToken) {
+  if (!administratorAccessVerified) {
     if (hero) renderRestricted(hero);
     if (detail) renderRestricted(detail);
     renderIncidentUnavailable('ACCES OPERAȚIONAL NECESAR · Registry-ul nu este folosit ca fallback.');
@@ -51,39 +51,39 @@ export function bindPremiumGovernanceRuntime(turnAdminAccessToken?: string) {
   inspectionButton?.addEventListener('click', () => {
     inspectionButton.disabled = true;
     inspectionButton.textContent = 'Inspectorii rulează…';
-    void runInspections(turnAdminAccessToken).then(() => load(turnAdminAccessToken)).then((data) => {
+    void runInspections().then(() => load()).then((data) => {
       ingestBasicAgentOperationalDashboard(data);
       if (hero) renderHero(hero, data);
       if (detail) renderDetail(detail, data);
       renderIncidentPipeline(data);
     }).catch((error) => {
-      if (hero) renderUnavailable(hero, error);
+      if (hero) renderRuntimeFailure(hero, error);
     }).finally(() => {
       inspectionButton.disabled = false;
       inspectionButton.textContent = 'Rulează inspectorii reali';
     });
   });
-  void load(turnAdminAccessToken).then((data) => {
+  void load().then((data) => {
     ingestBasicAgentOperationalDashboard(data);
     if (hero) renderHero(hero, data);
     if (detail) renderDetail(detail, data);
     renderIncidentPipeline(data);
   }).catch((error) => {
-    if (hero) renderUnavailable(hero, error);
-    if (detail) renderUnavailable(detail, error);
-    renderIncidentUnavailable(error instanceof Error ? error.message : 'ACP_OPERATIONAL_DATA_UNAVAILABLE');
+    if (hero) renderRuntimeFailure(hero, error);
+    if (detail) renderRuntimeFailure(detail, error);
+    renderIncidentUnavailable(isTurnAdminSessionError(error) ? 'AUTH/SESSION FAILURE' : error instanceof Error ? error.message : 'ACP_OPERATIONAL_DATA_UNAVAILABLE');
   });
 }
 
-async function load(turnAdminAccessToken: string) {
-  const response = await fetch(resolveApiUrl('/operations/turn/operational-dashboard'), { cache: 'no-store', credentials: 'include', headers: { Authorization: `Bearer ${turnAdminAccessToken}` } });
+async function load() {
+  const response = await turnAdminAuthenticatedFetch('/operations/turn/operational-dashboard', { cache: 'no-store' });
   const envelope = await response.json().catch(() => ({})) as Envelope;
   if (!response.ok || !envelope.data) throw new Error('Datele operaționale ACP nu sunt disponibile; nu se afișează fallback.');
   return envelope.data;
 }
 
-async function runInspections(turnAdminAccessToken: string) {
-  const response = await fetch(resolveApiUrl('/operations/turn/operational-inspections'), { method: 'POST', credentials: 'include', headers: { Authorization: `Bearer ${turnAdminAccessToken}` } });
+async function runInspections() {
+  const response = await turnAdminAuthenticatedFetch('/operations/turn/operational-inspections', { method: 'POST' });
   if (!response.ok) throw new Error(`Inspectorii operaționali au eșuat: HTTP ${response.status}.`);
 }
 
@@ -111,6 +111,25 @@ function renderUnavailable(root: HTMLElement, error: unknown) {
   const orbitalStage = root.querySelector<HTMLElement>('[data-premium-orbital-stage]');
   if (orbitalStage) {
     orbitalStage.innerHTML = `<p class="turn-functional-unavailable"><strong>DATA UNAVAILABLE</strong> · ${escapeHtml(error instanceof Error ? error.message : 'ACP_OPERATIONAL_DATA_UNAVAILABLE')} Nu se afișează fallback orbital.</p>`;
+    orbitalStage.setAttribute('aria-busy', 'false');
+  }
+  root.setAttribute('aria-busy', 'false');
+}
+
+function renderRuntimeFailure(root: HTMLElement, error: unknown) {
+  if (!isTurnAdminSessionError(error)) {
+    renderUnavailable(root, error);
+    return;
+  }
+  clearOperationalSummary(root, 'AUTH_FAILURE');
+  setText(root, '[data-control-status]', 'AUTH/SESSION FAILURE');
+  setText(root, '[data-network-contract]', 'Contract: sesiunea Product Owner nu a putut fi reînnoită');
+  setText(root, '[data-network-message]', 'AUTH/SESSION FAILURE · Stările agenților și serviciilor sunt păstrate; nu se deduce DEGRADED sau FAIL din autentificare.');
+  const host = root.querySelector<HTMLElement>('[data-network-departments]');
+  if (host) host.innerHTML = '';
+  const orbitalStage = root.querySelector<HTMLElement>('[data-premium-orbital-stage]');
+  if (orbitalStage) {
+    orbitalStage.innerHTML = '<p class="turn-functional-unavailable"><strong>AUTH/SESSION FAILURE</strong> · Reautentificarea este permisă numai conform politicii de securitate.</p>';
     orbitalStage.setAttribute('aria-busy', 'false');
   }
   root.setAttribute('aria-busy', 'false');

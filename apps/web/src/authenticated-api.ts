@@ -39,20 +39,31 @@ async function refreshAccessToken(force = false) {
     refreshPromise = (async () => {
       const base = apiBaseUrl();
       if (!base) return null;
-      try {
-        const response = await fetch(`${base}/auth/refresh`, { method: 'POST', credentials: 'include' });
-        const payload = await response.json().catch(() => ({})) as { data?: { accessToken?: string } };
-        const token = response.ok ? payload.data?.accessToken?.trim() : '';
-        if (!token) {
-          globalThis.sessionStorage?.removeItem(USER_ACCESS_TOKEN_KEY);
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+          const response = await fetch(`${base}/auth/refresh`, { method: 'POST', credentials: 'include' });
+          if (response.status === 409 && attempt < 2) {
+            await delay(100 * (attempt + 1));
+            continue;
+          }
+          const payload = await response.json().catch(() => ({})) as { data?: { accessToken?: string } };
+          const token = response.ok ? payload.data?.accessToken?.trim() : '';
+          if (!token) {
+            if (response.status !== 409) globalThis.sessionStorage?.removeItem(USER_ACCESS_TOKEN_KEY);
+            return null;
+          }
+          globalThis.sessionStorage?.setItem(USER_ACCESS_TOKEN_KEY, token);
+          return token;
+        } catch {
           return null;
         }
-        globalThis.sessionStorage?.setItem(USER_ACCESS_TOKEN_KEY, token);
-        return token;
-      } catch {
-        return null;
       }
+      return null;
     })().finally(() => { refreshPromise = null; });
   }
   return refreshPromise;
+}
+
+function delay(milliseconds: number) {
+  return new Promise<void>((resolve) => globalThis.setTimeout(resolve, milliseconds));
 }

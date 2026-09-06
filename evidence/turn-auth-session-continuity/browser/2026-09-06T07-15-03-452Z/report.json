@@ -1,0 +1,922 @@
+{
+  "contract": "agm-turn-auth-session-continuity-browser.v1",
+  "runId": "2026-09-06T07-15-03-452Z",
+  "startedAt": "2026-09-06T07:15:03.455Z",
+  "turnOpenedAt": "2026-09-06T07:15:20.674Z",
+  "endedAt": "2026-09-06T07:45:47.022Z",
+  "durationMinutes": 30.439133333333334,
+  "target": "https://localhost:5447",
+  "revision": "69f0d7097e92976d3cccf0260318ae62cdef2e26",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "testAccessTtlSeconds": 2,
+  "productionAccessTtlUnchangedSeconds": 900,
+  "rotationCycles": 97,
+  "reloadCycles": 10,
+  "reopenCycles": 4,
+  "checks": {
+    "tokenRotation": "PASS",
+    "silentRefresh": "PASS",
+    "sessionContinuity": "PASS",
+    "reloadContinuity": "PASS",
+    "reopenContinuity": "PASS",
+    "premiumDrillDownAfterTokenExpiry": "PASS",
+    "noManualPinLoginLoop": "PASS",
+    "noFalseAgentDegradationFromAuth": "PASS",
+    "previousAccessInvalidation": "PASS",
+    "refreshCookieContract": "PASS"
+  },
+  "responseSummary": {
+    "GET /src/production-preflight.ts 200": 15,
+    "POST /api/v1/turn-admin/refresh 401": 1,
+    "POST /api/v1/turn-admin/unlock 201": 1,
+    "GET /api/v1/operations/turn/operational-dashboard 200": 145,
+    "GET /api/v1/security/secrets/health 200": 86,
+    "GET /api/v1/operations/production-preflight 200": 39,
+    "GET /api/v1/operations/turn/operational-dashboard 401": 105,
+    "GET /api/v1/operations/turn/functional-overview 401": 107,
+    "GET /api/v1/security/secrets/health 401": 41,
+    "GET /api/v1/operations/turn/functional-overview 200": 145,
+    "POST /api/v1/turn-admin/refresh 201": 143,
+    "GET /api/v1/operations/production-preflight 401": 24
+  },
+  "observations": [
+    {
+      "cycle": 1,
+      "observedAt": "2026-09-06T07:15:45.429Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:15:25 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 2,
+      "observedAt": "2026-09-06T07:16:02.884Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:15:25 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 3,
+      "observedAt": "2026-09-06T07:16:20.961Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:15:25 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 4,
+      "observedAt": "2026-09-06T07:16:39.536Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:15:25 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 5,
+      "observedAt": "2026-09-06T07:16:57.691Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:15:25 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 6,
+      "observedAt": "2026-09-06T07:17:16.458Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:15:25 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 7,
+      "observedAt": "2026-09-06T07:17:34.407Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:15:25 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 8,
+      "observedAt": "2026-09-06T07:17:55.336Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "SE ÎNCARCĂ Se citesc sursele reale autorizate… Se citește telemetria operațională autorizată…"
+    },
+    {
+      "cycle": 9,
+      "observedAt": "2026-09-06T07:18:13.285Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:17:55 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 10,
+      "observedAt": "2026-09-06T07:18:30.490Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:17:55 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 11,
+      "observedAt": "2026-09-06T07:18:49.208Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:17:55 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 12,
+      "observedAt": "2026-09-06T07:19:06.722Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:17:55 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 13,
+      "observedAt": "2026-09-06T07:19:25.348Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:17:55 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 14,
+      "observedAt": "2026-09-06T07:19:42.477Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:17:55 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 15,
+      "observedAt": "2026-09-06T07:19:59.713Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:17:55 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 16,
+      "observedAt": "2026-09-06T07:20:22.231Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "SE ÎNCARCĂ Se citesc sursele reale autorizate… Se citește telemetria operațională autorizată…"
+    },
+    {
+      "cycle": 17,
+      "observedAt": "2026-09-06T07:20:40.812Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:20:22 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 18,
+      "observedAt": "2026-09-06T07:20:58.118Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:20:22 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 19,
+      "observedAt": "2026-09-06T07:21:17.674Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:20:22 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 20,
+      "observedAt": "2026-09-06T07:21:38.934Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:21:36 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 21,
+      "observedAt": "2026-09-06T07:21:57.340Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:21:36 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 22,
+      "observedAt": "2026-09-06T07:22:14.573Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:21:36 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 23,
+      "observedAt": "2026-09-06T07:22:33.993Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:21:36 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 24,
+      "observedAt": "2026-09-06T07:22:55.266Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:22:53 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 25,
+      "observedAt": "2026-09-06T07:23:13.245Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:22:53 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 26,
+      "observedAt": "2026-09-06T07:23:31.480Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:22:53 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 27,
+      "observedAt": "2026-09-06T07:23:49.423Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:22:53 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 28,
+      "observedAt": "2026-09-06T07:24:07.208Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:22:53 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 29,
+      "observedAt": "2026-09-06T07:24:25.698Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:22:53 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 30,
+      "observedAt": "2026-09-06T07:24:43.760Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:22:53 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 31,
+      "observedAt": "2026-09-06T07:25:01.127Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:22:53 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 32,
+      "observedAt": "2026-09-06T07:25:22.434Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "SE ÎNCARCĂ Se citesc sursele reale autorizate… Se citește telemetria operațională autorizată…"
+    },
+    {
+      "cycle": 33,
+      "observedAt": "2026-09-06T07:25:40.427Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:25:22 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 34,
+      "observedAt": "2026-09-06T07:25:57.644Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:25:22 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 35,
+      "observedAt": "2026-09-06T07:26:16.711Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:25:22 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 36,
+      "observedAt": "2026-09-06T07:26:35.474Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:25:22 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 37,
+      "observedAt": "2026-09-06T07:26:54.238Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:25:22 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 38,
+      "observedAt": "2026-09-06T07:27:11.571Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:25:22 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 39,
+      "observedAt": "2026-09-06T07:27:29.160Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:25:22 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 40,
+      "observedAt": "2026-09-06T07:27:50.587Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:27:50 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 41,
+      "observedAt": "2026-09-06T07:28:08.714Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:27:50 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 42,
+      "observedAt": "2026-09-06T07:28:25.971Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:27:50 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 43,
+      "observedAt": "2026-09-06T07:28:44.581Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:27:50 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 44,
+      "observedAt": "2026-09-06T07:29:01.928Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:27:50 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 45,
+      "observedAt": "2026-09-06T07:29:20.638Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:27:50 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 46,
+      "observedAt": "2026-09-06T07:29:37.947Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:27:50 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 47,
+      "observedAt": "2026-09-06T07:29:55.206Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:27:50 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 48,
+      "observedAt": "2026-09-06T07:30:15.894Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:30:13 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 49,
+      "observedAt": "2026-09-06T07:30:36.010Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:30:13 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 50,
+      "observedAt": "2026-09-06T07:30:54.011Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:30:13 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 51,
+      "observedAt": "2026-09-06T07:31:12.021Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:30:13 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 52,
+      "observedAt": "2026-09-06T07:31:30.133Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:30:13 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 53,
+      "observedAt": "2026-09-06T07:31:48.222Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:30:13 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 54,
+      "observedAt": "2026-09-06T07:32:07.241Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:30:13 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 55,
+      "observedAt": "2026-09-06T07:32:25.261Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:30:13 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 56,
+      "observedAt": "2026-09-06T07:32:47.508Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:32:46 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 57,
+      "observedAt": "2026-09-06T07:33:05.314Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:32:46 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 58,
+      "observedAt": "2026-09-06T07:33:22.590Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:32:46 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 59,
+      "observedAt": "2026-09-06T07:33:41.539Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:32:46 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 60,
+      "observedAt": "2026-09-06T07:34:03.123Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "SE ÎNCARCĂ Se citesc sursele reale autorizate… Se citește telemetria operațională autorizată…"
+    },
+    {
+      "cycle": 61,
+      "observedAt": "2026-09-06T07:34:21.056Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:34:03 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 62,
+      "observedAt": "2026-09-06T07:34:39.005Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:34:03 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 63,
+      "observedAt": "2026-09-06T07:34:56.899Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:34:03 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 64,
+      "observedAt": "2026-09-06T07:35:18.600Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:35:17 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 65,
+      "observedAt": "2026-09-06T07:35:37.464Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:35:17 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 66,
+      "observedAt": "2026-09-06T07:35:54.974Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:35:17 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 67,
+      "observedAt": "2026-09-06T07:36:14.068Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:35:17 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 68,
+      "observedAt": "2026-09-06T07:36:31.803Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:35:17 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 69,
+      "observedAt": "2026-09-06T07:36:50.521Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:35:17 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 70,
+      "observedAt": "2026-09-06T07:37:07.829Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:35:17 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 71,
+      "observedAt": "2026-09-06T07:37:25.772Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:35:17 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 72,
+      "observedAt": "2026-09-06T07:37:47.622Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:37:45 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 73,
+      "observedAt": "2026-09-06T07:38:05.683Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:37:45 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 74,
+      "observedAt": "2026-09-06T07:38:23.909Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:37:45 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 75,
+      "observedAt": "2026-09-06T07:38:41.702Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:37:45 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 76,
+      "observedAt": "2026-09-06T07:39:00.857Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:37:45 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 77,
+      "observedAt": "2026-09-06T07:39:19.121Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:37:45 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 78,
+      "observedAt": "2026-09-06T07:39:37.018Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:37:45 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 79,
+      "observedAt": "2026-09-06T07:39:55.302Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:37:45 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 80,
+      "observedAt": "2026-09-06T07:40:16.837Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:40:14 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 81,
+      "observedAt": "2026-09-06T07:40:34.509Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:40:14 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 82,
+      "observedAt": "2026-09-06T07:40:52.724Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:40:14 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 83,
+      "observedAt": "2026-09-06T07:41:10.376Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:40:14 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 84,
+      "observedAt": "2026-09-06T07:41:29.239Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:40:14 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 85,
+      "observedAt": "2026-09-06T07:41:46.605Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:40:14 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 86,
+      "observedAt": "2026-09-06T07:42:04.987Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:40:14 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 87,
+      "observedAt": "2026-09-06T07:42:22.993Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:40:14 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 88,
+      "observedAt": "2026-09-06T07:42:44.398Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:42:42 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 89,
+      "observedAt": "2026-09-06T07:43:02.859Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:42:42 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 90,
+      "observedAt": "2026-09-06T07:43:20.478Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:42:42 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 91,
+      "observedAt": "2026-09-06T07:43:38.379Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:42:42 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 92,
+      "observedAt": "2026-09-06T07:43:56.405Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:42:42 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 93,
+      "observedAt": "2026-09-06T07:44:14.743Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:42:42 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 94,
+      "observedAt": "2026-09-06T07:44:33.181Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:42:42 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 95,
+      "observedAt": "2026-09-06T07:44:51.746Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:42:42 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    },
+    {
+      "cycle": 96,
+      "observedAt": "2026-09-06T07:45:12.243Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "SE ÎNCARCĂ Se citesc sursele reale autorizate… Se citește telemetria operațională autorizată…"
+    },
+    {
+      "cycle": 97,
+      "observedAt": "2026-09-06T07:45:30.130Z",
+      "refreshRotated": true,
+      "priorAccessInvalidated": true,
+      "drillDownAccessible": true,
+      "manualLoginLoop": false,
+      "operationalFailureText": "FAIL Sursă COMPONENT_HEARTBEAT · observație NO REAL OBSERVATION · evaluat 06/09/2026, 09:45:13 \n    \n    \n    \n    \n    \n  human·product-ownerguardian·secretsauthority·control-planearchitecture-inspectorrelease-inspectororchestratorrecovery-executorcar-mover·intake-dedupcar-mover·opportunity-normalizercar-mover·route-mobilitycar-mover·cost-riskcar-mover·opportunity-plannercar-mover·opportunity-judgecopilot-gatewaypremium-linguist-itpremium-linguist-espremium-linguist-svadapters·geocodingadapters·routingadapters·trafficadapters·tolladapters·transitadapters·platform-feedcar-mover·job-servicecar-mover·incident-servicecar-mover·evidence-servicecar-mover·primary-accountingcar-mover·archive-retention"
+    }
+  ],
+  "failures": [],
+  "verdict": "PASS"
+}

@@ -123,7 +123,7 @@ import {
   type IncidentStatus,
 } from './incident-journal';
 import { isNativeAudioAvailable, NativeAudio, type MicrophonePermissionState } from './native-audio';
-import { changeAdministratorPin, localAdministratorBypassActive, localAdministratorSession, unlockAdministrator, validateAdministrator, type AdminSession } from './admin-auth';
+import { changeAdministratorPin, isTurnAdminSessionError, readAdministratorSession, restoreAdministratorSession, unlockAdministrator, validateAdministrator } from './admin-auth';
 import { premiumStatusKey, renderPremiumView, usesPremiumLayout } from './premium-app';
 import { renderPremiumAccessView } from './premium-access/premium-access.view';
 import { bindPremiumAccessRuntime } from './premium-access/premium-access.runtime';
@@ -236,7 +236,6 @@ const APP_BRAND_RELATION: Record<BasicLanguageCode, string> = {
 const PRIVACY_POLICY_VERSION = 'privacy-v2026.07.13';
 const TERMS_VERSION = 'terms-v2026.07.13';
 const LEGAL_ACCEPTANCE_KEY = `agm.legal.acceptance.${PRIVACY_POLICY_VERSION}.${TERMS_VERSION}`;
-const ADMIN_SESSION_KEY = 'agm.admin.session';
 purgeSensitiveLegacyLocalStorage(window.localStorage);
 bindSensitiveSessionCleanup(window.sessionStorage);
 purgeLegacyPersistentOcr(window.indexedDB, window.localStorage);
@@ -328,8 +327,9 @@ const state = attachMailLegacyFacade(attachTranslatorLegacyFacade(attachContacts
   isListening: false,
   voiceInputState: 'inactive' as 'inactive' | 'listening' | 'processing' | 'error',
   voicePlaybackState: 'stopped' as 'stopped' | 'playing' | 'error',
-  adminSession: localAdministratorBypassActive ? localAdministratorSession : readAdminSession(),
-  adminAccessVerified: localAdministratorBypassActive,
+  adminSession: readAdministratorSession(),
+  adminAccessVerified: false,
+  adminSessionFailure: null as string | null,
   adminChangePinOpen: false,
   adminMenuOpen: false,
   adminReportActive: false,
@@ -353,6 +353,7 @@ const state = attachMailLegacyFacade(attachTranslatorLegacyFacade(attachContacts
 let activeTranslatorVoiceInput: Promise<void> | null = null;
 let lastTranslatorHealthCapturedAt: string | null = null;
 let lastRenderedProductionPreflightSignature: string | null = null;
+let adminSessionRetryTimer: number | undefined;
 let activeQuickLanguageMenuCleanup: (() => void) | null = null;
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
@@ -800,8 +801,8 @@ function renderCurrentView() {
 
   if (state.view === 'turn') {
     return state.adminAccessVerified
-      ? `${localAdministratorBypassActive ? '<p class="status admin-local-access">Acces local de dezvoltare — PIN dezactivat până la pregătirea lansării.</p>' : ''}${renderTurnCommandCenter({ language: uiLanguage(), appVersion: APP_VERSION, incidents: state.incidents, incidentFilters: state.incidentFilters })}${renderChangeAdminPin()}`
-      : renderAdministratorLogin();
+      ? `${renderTurnCommandCenter({ language: uiLanguage(), appVersion: APP_VERSION, incidents: state.incidents, incidentFilters: state.incidentFilters })}${renderChangeAdminPin()}`
+      : state.adminSessionFailure ? renderAdministratorSessionFailure(state.adminSessionFailure) : renderAdministratorLogin();
   }
 
   return renderCockpit();
@@ -2315,13 +2316,8 @@ function bindShared() {
   bindCommunicationRuntime();
     bindPremiumAssistantRuntime();
     bindCarMoverRuntime();
-  if (state.adminAccessVerified && state.adminSession?.accessToken) {
-    bindTurnCommandNavigation();
-    bindPremiumGovernanceRuntime(state.adminSession.accessToken);
-  } else {
-    bindTurnCommandNavigation();
-    bindPremiumGovernanceRuntime();
-  }
+  bindTurnCommandNavigation();
+  bindPremiumGovernanceRuntime(state.adminAccessVerified);
   bindCopilotRuntime();
   document.querySelectorAll<HTMLButtonElement>('[data-global-action]').forEach((control) => {
     control.addEventListener('click', () => activateGlobalAction(control.dataset.globalAction));
@@ -2747,11 +2743,10 @@ async function authorizeAdminIncidentAccess() {
     redirectToAdministratorLogin();
     return false;
   }
-  const valid = await validateAdministrator(state.adminSession);
+  const valid = await validateAdministrator();
   if (!valid) {
     state.adminAccessVerified = false;
     state.adminSession = null;
-    window.sessionStorage.removeItem(ADMIN_SESSION_KEY);
     redirectToAdministratorLogin();
     return false;
   }
@@ -4441,8 +4436,17 @@ function renderAdministratorLogin() {
     </section>`;
 }
 
+function renderAdministratorSessionFailure(detail: string) {
+  return `
+    <section class="admin-login admin-session-failure" aria-labelledby="admin-session-failure-title" role="alert">
+      <header><span>AG-017</span><h1 id="admin-session-failure-title">AUTH/SESSION FAILURE</h1></header>
+      <p>${escapeHtml(detail)}</p>
+      <p>Stările agenților și serviciilor sunt păstrate; autentificarea nu produce DEGRADED sau FAIL.</p>
+      <button id="retryAdminSessionRefresh" class="primary" type="button">Reîncearcă reînnoirea sesiunii</button>
+    </section>`;
+}
+
 function renderChangeAdminPin() {
-  if (localAdministratorBypassActive) return '';
   if (!state.adminChangePinOpen) return '';
   return `<section class="modal-backdrop" role="dialog" aria-modal="true"><form id="changeAdminPinForm" class="admin-login">
     <h2>Schimbă PIN-ul AGM</h2>
@@ -4453,6 +4457,9 @@ function renderChangeAdminPin() {
 }
 
 function bindAdministratorLogin() {
+  document.querySelector<HTMLButtonElement>('#retryAdminSessionRefresh')?.addEventListener('click', () => {
+    void restoreAdministratorAccess();
+  });
   document.querySelector<HTMLFormElement>('#adminLoginForm')?.addEventListener('submit', (event) => {
     event.preventDefault();
     void authenticateAdministrator();
@@ -4469,9 +4476,9 @@ async function authenticateAdministrator() {
   const pin = document.querySelector<HTMLInputElement>('#adminPin')?.value ?? '';
   try {
     const session = await unlockAdministrator(pin);
-    window.localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
     state.adminSession = session;
     state.adminAccessVerified = true;
+    state.adminSessionFailure = null;
     state.status = 'Acces administrativ autorizat.';
   } catch (error) {
     state.adminAccessVerified = false;
@@ -4485,23 +4492,34 @@ async function submitAdminPinChange() {
   const currentPin = document.querySelector<HTMLInputElement>('#currentAdminPin')?.value ?? '';
   const newPin = document.querySelector<HTMLInputElement>('#newAdminPin')?.value ?? '';
   try {
-    await changeAdministratorPin(state.adminSession, currentPin, newPin);
+    await changeAdministratorPin(currentPin, newPin);
+    state.adminSession = null;
+    state.adminAccessVerified = false;
     state.adminChangePinOpen = false;
     state.status = 'PIN-ul administrativ AGM a fost schimbat.';
   } catch (error) { state.status = audioErrorMessage('Schimbare PIN', error); }
   render();
 }
 
-function readAdminSession(): AdminSession | null {
-  try {
-    return JSON.parse(window.localStorage.getItem(ADMIN_SESSION_KEY) ?? 'null') as AdminSession | null;
-  } catch { return null; }
-}
-
 async function restoreAdministratorAccess() {
-  if (!state.adminSession) return;
-  state.adminAccessVerified = await validateAdministrator(state.adminSession);
-  if (!state.adminAccessVerified) window.localStorage.removeItem(ADMIN_SESSION_KEY);
+  try {
+    state.adminSession = await restoreAdministratorSession();
+    state.adminAccessVerified = state.adminSession !== null;
+    state.adminSessionFailure = null;
+    if (adminSessionRetryTimer !== undefined) window.clearTimeout(adminSessionRetryTimer);
+    adminSessionRetryTimer = undefined;
+  } catch (error) {
+    state.adminAccessVerified = false;
+    state.adminSessionFailure = isTurnAdminSessionError(error)
+      ? 'Reînnoirea automată nu este disponibilă momentan. Nu este necesar PIN sau login manual.'
+      : 'Canalul de sesiune nu este disponibil momentan. Nu este necesar PIN sau login manual.';
+    if (adminSessionRetryTimer === undefined) {
+      adminSessionRetryTimer = window.setTimeout(() => {
+        adminSessionRetryTimer = undefined;
+        void restoreAdministratorAccess();
+      }, 5_000);
+    }
+  }
   render();
 }
 

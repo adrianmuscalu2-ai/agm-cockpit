@@ -4,10 +4,12 @@ import { readFileSync } from 'node:fs';
 const auth = readFileSync(new URL('../src/admin-auth.ts', import.meta.url), 'utf8');
 const main = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
 
-assert.match(auth, /import\.meta\.env\.DEV && localHostname/);
-assert.match(auth, /\['127\.0\.0\.1', 'localhost'\]/);
-assert.match(main, /adminAccessVerified: localAdministratorBypassActive/);
-assert.match(main, /PIN dezactivat până la pregătirea lansării/);
-assert.doesNotMatch(auth, /import\.meta\.env\.PROD.*bypass/i);
+assert.doesNotMatch(auth, /localAdministratorBypassActive|open-pre-release|agm-local-development-access/);
+assert.doesNotMatch(main, /PIN dezactivat până la pregătirea lansării/);
+assert.doesNotMatch(main, /localStorage\.setItem\(ADMIN_SESSION_KEY/);
+assert.match(auth, /sessionStorage\?\.setItem\(ADMIN_SESSION_KEY/);
+assert.match(auth, /localStorage\?\.removeItem\(ADMIN_SESSION_KEY/);
+assert.match(auth, /turn-admin\/refresh/);
+assert.match(auth, /credentials: 'include'/);
 
-console.log('Turn local development access contract: PASS');
+console.log('Turn administrative access has no bypass or persistent JWT: PASS');

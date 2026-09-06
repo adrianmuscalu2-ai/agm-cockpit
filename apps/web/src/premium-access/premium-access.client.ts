@@ -40,7 +40,7 @@ export function createPremiumAccessClient(input: {
     },
     async restore(): Promise<boolean> {
       try {
-        const payload = await request<{ accessToken: string; user: UserIdentity }>('/auth/refresh', { method: 'POST', credentials: 'include' });
+        const payload = await refreshSession();
         input.sessionStorage.setItem(USER_ACCESS_TOKEN_KEY, payload.accessToken);
         return true;
       } catch { input.sessionStorage.removeItem(USER_ACCESS_TOKEN_KEY); return false; }
@@ -73,6 +73,18 @@ export function createPremiumAccessClient(input: {
     if (!response.ok) throw new PremiumAccessClientError('request', response.status);
     if (envelope.data === undefined) throw new PremiumAccessClientError('invalid-response', response.status);
     return envelope.data;
+  }
+
+  async function refreshSession() {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        return await request<{ accessToken: string; user: UserIdentity }>('/auth/refresh', { method: 'POST', credentials: 'include' });
+      } catch (error) {
+        if (!(error instanceof PremiumAccessClientError) || error.status !== 409 || attempt === 2) throw error;
+        await new Promise<void>((resolve) => globalThis.setTimeout(resolve, 100 * (attempt + 1)));
+      }
+    }
+    throw new PremiumAccessClientError('request', 409);
   }
 }
 

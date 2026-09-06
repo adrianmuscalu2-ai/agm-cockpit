@@ -13,14 +13,14 @@ const payload = {
     zones: [],
   },
 };
-let observedAuthorization = '';
-const fetcher = (async (_input: RequestInfo | URL, init?: RequestInit) => {
-  observedAuthorization = new Headers(init?.headers).get('Authorization') ?? '';
+let observedUrl = '';
+const fetcher = (async (input: RequestInfo | URL) => {
+  observedUrl = String(input);
   return new Response(JSON.stringify(payload), { status: 200, headers: { 'Content-Type': 'application/json' } });
 }) as typeof fetch;
 
-const result = await fetchTurnFunctionalOverview('owner-token', fetcher);
-assert.equal(observedAuthorization, 'Bearer owner-token');
+const result = await fetchTurnFunctionalOverview(fetcher);
+assert.equal(observedUrl, '/operations/turn/functional-overview');
 assert.equal(result.verdict.productOwnerAcceptance, 'NOT_GRANTED');
 assert.equal(result.verdict.finalProductionPass, 'RETRACTED');
 assert.equal(result.summary.unresolvedUnknown, 0);

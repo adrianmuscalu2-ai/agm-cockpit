@@ -164,6 +164,22 @@ model TurnAdminCredential {
   updatedAt      DateTime  @updatedAt
 }
 
+model TurnAdminSession {
+  id              String    @id @default(uuid()) @db.Uuid
+  familyId        String    @db.Uuid
+  generation      Int       @default(0)
+  tokenHash       String    @unique @db.VarChar(64)
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  replacedAt      DateTime?
+  reuseDetectedAt DateTime?
+  lastUsedAt      DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+
+  @@index([familyId, generation])
+  @@index([expiresAt, revokedAt])
+}
+
 model MachineIdentity {
   id          String              @id @default(uuid()) @db.Uuid
   companyId   String              @db.Uuid

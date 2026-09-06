@@ -39,6 +39,7 @@
     "audit:premium-copilot-c0": "node scripts/validate-premium-copilot-c0-desktop.mjs",
     "audit:premium-authority-dashboard": "node scripts/validate-premium-authority-dashboard.mjs",
     "audit:opportunity-intelligence": "node scripts/validate-opportunity-intelligence-browser.mjs",
+    "audit:turn-auth-continuity": "node scripts/validate-turn-auth-session-continuity-browser.mjs",
     "audit:agma-wave2a-slice1": "node scripts/validate-agma-wave2a-slice1-desktop.mjs",
     "test:surface-sync": "node scripts/validate-product-surface.mjs",
     "test:browser-validation-flow": "tsx scripts/test-browser-validation-flow.ts",

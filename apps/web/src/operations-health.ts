@@ -1,6 +1,7 @@
 import healthConfiguration from '../../../config/operations-health.json';
 import { updateStatusLight } from './turn-status-lights';
 import { authenticatedApiFetch, resolveApiUrl } from './authenticated-api';
+import { isTurnAdminSessionError, turnAdminAuthenticatedFetch } from './admin-auth';
 
 export type OperationStatus =
   | 'ONLINE'
@@ -425,9 +426,7 @@ async function checkSource(source: OperationService) {
   const timeout = window.setTimeout(() => controller.abort(), 5000);
   try {
     const headers = new Headers({ Accept: 'application/json, text/html;q=0.9' });
-    const ownerToken = source.evaluator === 'guardian' ? readOwnerAccessToken(window.localStorage) : '';
-    if (ownerToken) headers.set('Authorization', `Bearer ${ownerToken}`);
-    const request = source.evaluator === 'guardian' ? fetch : source.requiresAuth ? authenticatedApiFetch : fetch;
+    const request = source.evaluator === 'guardian' ? turnAdminAuthenticatedFetch : source.requiresAuth ? authenticatedApiFetch : fetch;
     const response = await request(resolvedUrl(source), {
       signal: controller.signal,
       cache: 'no-store',
@@ -465,6 +464,10 @@ async function checkSource(source: OperationService) {
       lastFailureReason: reportedLastFailureReason !== undefined ? reportedLastFailureReason : !response.ok ? responseReason : undefined,
     });
   } catch (error) {
+    if (isTurnAdminSessionError(error)) {
+      markAuthenticationFailure(source);
+      return;
+    }
     const classified = source.id === 'cloudflare-public'
       ? classifyCloudflareProbeError(error)
       : { status: 'UNKNOWN' as const, outcome: 'TRANSPORT_ERROR' as const, confirmedOffline: false };
@@ -523,11 +526,10 @@ export function bindOperationsHealthChecks(onSnapshot?: (source: OperationServic
   });
 }
 
-function readOwnerAccessToken(storage: Storage) {
-  try {
-    const session = JSON.parse(storage.getItem('agm.admin.session') ?? 'null') as { accessToken?: string } | null;
-    return session?.accessToken?.trim() || '';
-  } catch {
-    return '';
-  }
+function markAuthenticationFailure(source: OperationService) {
+  document.querySelectorAll<HTMLElement>(`[data-operation-id="${source.id}"]`).forEach((card) => {
+    card.dataset.authStatus = 'failure';
+    const outcome = card.querySelector<HTMLElement>('.operation-service-outcome');
+    if (outcome) outcome.textContent = 'AUTH/SESSION FAILURE · starea operațională anterioară este păstrată';
+  });
 }

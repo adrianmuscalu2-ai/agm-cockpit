@@ -1,5 +1,6 @@
 import { createIncident, transitionIncident, updateIncident, type IncidentDraft, type OperationalIncident } from './incident-journal';
 import { activateIncidentRoute, incidentRoutingRegistry } from './incident-routing.registry';
+import { isTurnAdminSessionError, readAdministratorSession, turnAdminAuthenticatedFetch } from './admin-auth';
 
 export const productionPreflightContract = {
   version: 'agm-production-preflight.v1', incidentId: 'AGM-OPS-PRODUCTION-ACCESS', routeId: 'production-access',
@@ -34,40 +35,28 @@ export function productionPreflightSnapshotFresh(snapshot: ProductionPreflightSn
   const age = now - Date.parse(snapshot.checkedAt);
   return age >= 0 && age < productionPreflightPollIntervalMs;
 }
-function apiBaseUrl() {
-  const env = (import.meta as ImportMeta & { env?: Record<string, string | boolean | undefined> }).env;
-  const configured = typeof env?.VITE_AGM_API_BASE_URL === 'string' ? env.VITE_AGM_API_BASE_URL.trim() : '';
-  return (configured || (env?.DEV ? '/api/v1' : '')).replace(/\/$/, '');
-}
-
 export function bindProductionPreflight(onSnapshot: (snapshot: ProductionPreflightSnapshot | undefined) => void) {
   if (!document.querySelector('#production-preflight')) return;
   const refresh = async () => {
     if (!document.querySelector('#production-preflight')) return;
     if (refreshPromise) return refreshPromise;
-    const base = apiBaseUrl();
-    if (!base) return;
     refreshPromise = (async () => {
       const root = document.querySelector<HTMLElement>('#production-preflight');
       if (!root) return;
-      const accessToken = readOwnerAccessToken(window.localStorage);
-      if (!accessToken) {
-        const hadSnapshot = latestProductionPreflightSnapshot !== undefined;
-        latestProductionPreflightSnapshot = undefined;
-        const status = root.querySelector('span');
-        if (status) status.textContent = 'AUTH REQUIRED';
-        if (hadSnapshot) onSnapshot(undefined);
-        return;
-      }
       try {
-        const response = await fetch(`${base}/operations/production-preflight`, { cache: 'no-store', headers: { Accept: 'application/json', Authorization: `Bearer ${accessToken}` } });
+        const response = await turnAdminAuthenticatedFetch('/operations/production-preflight', { cache: 'no-store', headers: { Accept: 'application/json' } });
         if (!response.ok) throw new Error('PREFLIGHT_UNAVAILABLE');
         const snapshot = ((await response.json()) as { data?: ProductionPreflightSnapshot }).data;
         if (!snapshot || snapshot.contract !== productionPreflightContract.version) throw new Error('PREFLIGHT_INVALID');
         latestProductionPreflightSnapshot = snapshot;
         root.outerHTML = renderProductionPreflight(snapshot);
         onSnapshot(snapshot);
-      } catch {
+      } catch (error) {
+        if (isTurnAdminSessionError(error)) {
+          const status = root.querySelector('span');
+          if (status) status.textContent = 'AUTH/SESSION FAILURE';
+          return;
+        }
         const hadSnapshot = latestProductionPreflightSnapshot !== undefined;
         latestProductionPreflightSnapshot = undefined;
         const status = root.querySelector('span');
@@ -77,19 +66,11 @@ export function bindProductionPreflight(onSnapshot: (snapshot: ProductionPreflig
     })().finally(() => { refreshPromise = undefined; });
     return refreshPromise;
   };
-  const ownerAuthenticated = Boolean(readOwnerAccessToken(window.localStorage));
+  const ownerAuthenticated = Boolean(readAdministratorSession());
   if (!latestProductionPreflightSnapshot || !ownerAuthenticated || !productionPreflightSnapshotFresh(latestProductionPreflightSnapshot)) void refresh();
   if (pollTimer === undefined) pollTimer = window.setInterval(() => void refresh(), productionPreflightPollIntervalMs);
 }
 
-function readOwnerAccessToken(storage: Storage) {
-  try {
-    const session = JSON.parse(storage.getItem('agm.admin.session') ?? 'null') as { accessToken?: string } | null;
-    return session?.accessToken?.trim() || '';
-  } catch {
-    return '';
-  }
-}
 
 function renderActivations() {
   const route = incidentRoutingRegistry.find((item) => item.id === productionPreflightContract.routeId)!;
