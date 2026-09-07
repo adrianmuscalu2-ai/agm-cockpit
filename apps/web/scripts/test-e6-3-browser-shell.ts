@@ -63,7 +63,7 @@ assert.equal(JSON.stringify(securityMonitoringAgent).includes('AGM_TURN_ADMIN_PI
 assert.equal(JSON.stringify(securityMonitoringAgent).includes('OPENAI_API_KEY'), false);
 assert.ok(turnNavigationSource.includes('window.scrollY < 600'));
 assert.ok(turnNavigationSource.includes("behavior: 'smooth'"));
-assert.equal(turnOrganizationAgents.find((agent) => agent.id === 'mentor')?.subordinateAgentIds[0], 'adrian-turn-commander');
+assert.equal(turnOrganizationAgents.find((agent) => agent.id === 'agent-mentor')?.subordinateAgentIds[0], 'adrian-turn-commander');
 assert.deepEqual(
   turnOrganizationAgents.find((agent) => agent.id === 'adrian-turn-commander')?.subordinateAgentIds,
   ['atlas-operations', 'chief-monitoring-inspector', 'secret-credentials-guardian'],

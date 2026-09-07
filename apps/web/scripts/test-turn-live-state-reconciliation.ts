@@ -87,7 +87,8 @@ incidents = reconcileOperationsHealthIncident(incidents, recovery);
 assert.equal(incidents[0]?.status, 'validated');
 assert.equal(incidents.find((incident) => incident.id === 'AGM-FU-20260728-CLOUDFLARED-PERSISTENCE')?.status, 'validated');
 const gateWithoutPreflight = renderExecutionReadinessGate(incidents);
-assert.match(gateWithoutPreflight, /HOLD — EXECUȚIA ESTE BLOCATĂ/);
+assert.match(gateWithoutPreflight, /data-execution-gate-state="CONTEXT_MISMATCH"/);
+assert.match(gateWithoutPreflight, /STANDBY — PREFLIGHT AUTOMAT LA EXECUȚIE/);
 assert.match(gateWithoutPreflight, /data-status-kind="incident"[^>]*aria-label="incident: NONE"/);
 assert.match(gateWithoutPreflight, /data-status-kind="target"[^>]*aria-label="target: UNKNOWN \/ NO TELEMETRY"/);
 

@@ -40,7 +40,7 @@ export const monitoringAgents: MonitoringAgent[] = [
     id: 'monitor-browser', code: 'MON-004', name: 'Agent Monitorizare Browser',
     component: 'Client Browser AGM', sourceId: 'browser', source: 'Origin AGM curent · UI LIVE',
     responsibilities: 'Verifică încărcarea clientului Browser și sincronizarea cu auditul UI LIVE.',
-    intervention: 'Repornește frontend-ul și verifică ruta locală/publică.', incidentTerms: ['browser', 'web'],
+    intervention: 'Înregistrează rezultatul și escaladează către Frontend Experience / Release & Operations; monitorul nu repornește frontend-ul.', incidentTerms: ['browser', 'web'],
   },
   {
     id: 'monitor-android', code: 'MON-005', name: 'Agent Monitorizare Android',
@@ -88,7 +88,7 @@ export const monitoringAgents: MonitoringAgent[] = [
     id: 'monitor-security', code: 'MON-012', name: 'Agent de Securitate',
     component: 'Acces, secrete, configurații și integritate', sourceId: 'security',
     source: 'Secret Guardian telemetry v1 · metadate sigure', responsibilities: 'Monitorizează accesul Turn, PIN, tentative, CORS, rute, fișiere critice, loguri și capturi.',
-    intervention: 'Blochează publicarea, rotește credentialele expuse și deschide incident de securitate.',
+    intervention: 'Deschide incidentul și escaladează către Secret & Credentials Guardian și Release & Operations; monitorul nu blochează publicarea și nu rotește credențiale.',
     incidentTerms: ['securitate', 'security', 'cors', 'acces'],
     securityChecks: [
       'Turn protejat prin PIN; valoarea PIN nu este afișată.',
@@ -145,12 +145,9 @@ export function renderMonitoringDepartment(incidents: OperationalIncident[]) {
       const incident = incidentFor(agent, active);
       const isIncidentAgent = agent.id === 'monitor-incidents';
       const initialAgentStatus = 'UNKNOWN';
-      const initialTargetStatus = isIncidentAgent ? 'HEALTHY' : 'UNKNOWN';
-      const initialStatus = isIncidentAgent
-        ? active.length ? `${active.length} ACTIVE` : 'NO ACTIVE INCIDENTS'
-        : source?.displayStatus ?? source?.staticStatus ?? 'CHECKING';
-      const initialClass = isIncidentAgent
-        ? active.length ? 'degraded' : 'online'
+      const initialTargetStatus = 'UNKNOWN';
+      const initialStatus = isIncidentAgent ? 'UNKNOWN / NOT CHECKED' : source?.displayStatus ?? source?.staticStatus ?? 'CHECKING';
+      const initialClass = isIncidentAgent ? 'attention'
         : source?.kind === 'static'
           ? source.staticStatus === 'NOT IMPLEMENTED' ? 'not-implemented' : source.staticStatus === 'READY' ? 'online' : 'unconfigured'
           : 'attention';
@@ -161,23 +158,23 @@ export function renderMonitoringDepartment(incidents: OperationalIncident[]) {
           <div><dt>Agent status</dt><dd>${renderStatusLight('agent', initialAgentStatus, 'operation-agent-status')}</dd></div>
           <div><dt>Target status</dt><dd>${renderStatusLight('target', initialTargetStatus, 'operation-target-status')}</dd></div>
           <div><dt>Incident status</dt><dd>${renderStatusLight('incident', incident?.status, 'operation-incident-status')}</dd></div>
-          <div><dt>Data freshness</dt><dd class="operation-service-freshness">${isIncidentAgent ? 'LIVE' : 'UNKNOWN'}</dd></div>
-          <div><dt>Vârsta datelor</dt><dd class="operation-service-age">${isIncidentAgent ? '0s' : '—'}</dd></div>
-          <div><dt>Ultima verificare</dt><dd class="operation-service-checked">${isIncidentAgent ? new Date().toLocaleString() : '—'}</dd></div>
-          <div><dt>Timp răspuns</dt><dd class="operation-service-latency">${isIncidentAgent ? 'N/A' : '—'}</dd></div>
-          <div><dt>Rezultat probă</dt><dd class="operation-service-outcome">${isIncidentAgent ? 'NOT_AVAILABLE' : '—'}</dd></div>
+          <div><dt>Data freshness</dt><dd class="operation-service-freshness" ${isIncidentAgent ? 'data-incident-truth-freshness' : ''}>UNKNOWN</dd></div>
+          <div><dt>Vârsta datelor</dt><dd class="operation-service-age">—</dd></div>
+          <div><dt>Ultima verificare</dt><dd class="operation-service-checked" ${isIncidentAgent ? 'data-incident-truth-checked-at' : ''}>—</dd></div>
+          <div><dt>Timp răspuns</dt><dd class="operation-service-latency">—</dd></div>
+          <div><dt>Rezultat probă</dt><dd class="operation-service-outcome" ${isIncidentAgent ? 'data-incident-truth-state' : ''}>${isIncidentAgent ? 'UNKNOWN / NOT CHECKED' : '—'}</dd></div>
           <div><dt>URL efectiv</dt><dd class="operation-service-effective-url">${source?.url ? escapeHtml(source.url) : 'N/A'}</dd></div>
           <div><dt>Ultimul succes</dt><dd class="operation-service-last-success">—</dd></div>
           <div><dt>Ultimul eșec / motiv</dt><dd class="operation-service-last-failure">—</dd></div>
           <div><dt>Sursa datelor</dt><dd>${escapeHtml(agent.source)}</dd></div>
-          <div><dt>Incident activ</dt><dd>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">${escapeHtml(incident.id)}</a>` : 'Niciun incident activ'}</dd></div>
+          <div><dt>Incident activ</dt><dd>${incident ? `<a href="#incident-${escapeHtml(incident.id)}">${escapeHtml(incident.id)}</a>` : isIncidentAgent ? '<span data-incident-truth-state>UNKNOWN / NOT CHECKED</span>' : 'UNKNOWN / NOT CHECKED'}</dd></div>
           <div><dt>Responsabilitate</dt><dd>${escapeHtml(agent.responsibilities)}</dd></div>
           <div><dt>Procedură</dt><dd>${escapeHtml(agent.intervention)}</dd></div>
-          <div><dt>Ultima schimbare</dt><dd class="operation-service-changed">${isIncidentAgent ? new Date().toLocaleString() : '—'}</dd></div>
+          <div><dt>Ultima schimbare</dt><dd class="operation-service-changed">—</dd></div>
         </dl>
         ${agent.securityChecks ? `<details class="security-monitor-checks"><summary>Controale Agent de Securitate</summary><ul>${agent.securityChecks.map((check) => `<li>${escapeHtml(check)}</li>`).join('')}</ul><p>Nicio valoare secretă nu este colectată sau afișată.</p></details>` : ''}
         ${agent.id === 'monitor-security' ? renderSecretTelemetryPanel() : ''}
-        <div class="operation-actions">${source?.kind === 'http' || source?.kind === 'aggregate' ? `<button type="button" data-operation-recheck="${escapeHtml(source.id)}">Reverifică</button>` : '<button type="button" disabled>Reverificare indisponibilă</button>'}<a href="#incident-journal">Jurnal tehnic</a><a href="#turn-procedures">Procedură</a></div>
+        <div class="operation-actions">${isIncidentAgent ? '<button type="button" data-incident-truth-recheck>Reverifică incidente</button>' : source?.kind === 'http' || source?.kind === 'aggregate' ? `<button type="button" data-operation-recheck="${escapeHtml(source.id)}">Reverifică</button>` : '<button type="button" disabled>Reverificare indisponibilă</button>'}<a href="#incident-journal">Jurnal tehnic</a><a href="#turn-procedures">Procedură</a></div>
       </article>`;
     }).join('')}</div>
   </section>`;

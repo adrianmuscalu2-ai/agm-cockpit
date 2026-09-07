@@ -1,4 +1,9 @@
 prisma/migrations/**/migration.sql text eol=lf
+
+# Canonical authority files are byte-hash pinned and must materialize identically on every OS.
+AGM_LIBRARY/REGISTRY/canonical-sources.json text eol=lf
+AGM_LIBRARY/VIEWS/legislation-safety.view.json text eol=lf
+AGM_LIBRARY/VIEWS/routing-toll.view.json text eol=lf
 *.pdf -diff -text
 AGM_LIBRARY/**/*.official*.html -diff -text
 AGM_LIBRARY/PHASE3/REMOTE_CANONICAL_INTEGRITY/ARTIFACTS/CS-EU-IMPL-REG-2016-799-CONS-20230821.official.en.pdf filter=lfs diff=lfs merge=lfs -text

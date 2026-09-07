@@ -48,6 +48,7 @@
     "test:conversational-public-web-use": "tsx scripts/test-conversational-public-web-use.ts",
     "test:public-contact-controlled-action": "tsx scripts/test-public-contact-controlled-action.ts",
     "test:public-contact-e2e-orchestration": "tsx scripts/test-public-contact-e2e-orchestration.ts",
+    "test:agent-accountability": "tsx scripts/test-agent-accountability.ts",
     "test:public-visual-web-search": "tsx scripts/test-public-visual-web-search.ts",
     "test:android-premium-entitlement-cache": "tsx scripts/test-android-premium-entitlement-cache.ts",
     "test:device-capability-router": "tsx scripts/test-device-capability-router.ts",

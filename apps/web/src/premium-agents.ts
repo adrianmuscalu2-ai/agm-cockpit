@@ -10,7 +10,7 @@ export type PremiumAgent = {
 
 export const premiumAgents: readonly PremiumAgent[] = [
   {
-    id: 'mentor',
+    id: 'agent-mentor',
     marker: 'ME',
     nameKey: 'premium.team.agent.mentor.name',
     roleKey: 'premium.team.agent.mentor.role',

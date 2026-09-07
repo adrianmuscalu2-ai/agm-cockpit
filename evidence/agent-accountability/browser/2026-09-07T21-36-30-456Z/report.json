@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-07T21-36-30-456Z",
+  "status": "FAIL",
+  "flow": "IAB PROBE ONCE -> CONTROLLED AGM PLAYWRIGHT/CHROMIUM -> MON-010 TRUTH -> DUTY RECEIPT -> RELOAD",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "FAIL",
+  "targetPageStatus": "FAIL",
+  "target": "http://127.0.0.1:60710/turn",
+  "results": [
+    {
+      "id": "target-http-200",
+      "status": "PASS",
+      "detail": {
+        "status": 200,
+        "target": "http://127.0.0.1:60710/turn"
+      }
+    }
+  ],
+  "pageErrors": [
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)",
+    "TypeError: Cannot read properties of undefined (reading 'map')\n    at buildBasicAgentNetworkModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:372:52)\n    at renderBasicAgentPlanetaryModel (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:590:16)\n    at post (http://127.0.0.1:60710/src/turn-agent-panel.integration.ts:765:3)"
+  ],
+  "fatal": "page.waitForSelector: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#turn-agent-accountability') to be visible\u001b[22m\n\u001b[2m    57 × locator resolved to hidden <section id=\"turn-agent-accountability\" class=\"turn-agent-accountability\" aria-labelledby=\"turn-agent-accountability-title\">…</section>\u001b[22m\n",
+  "finishedAt": "2026-09-07T21:37:05.981Z"
+}

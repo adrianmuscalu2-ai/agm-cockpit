@@ -27,7 +27,7 @@ for (const id of ['premium-linguist-it', 'premium-linguist-es', 'premium-linguis
 assert.ok(model.some((agent) => agent.mappingStatus === 'MAPPED' && agent.turnAgentId === 'monitor-api' && agent.registryName === 'Agent Monitorizare API'), 'API monitor must be mapped from registry');
 assert.ok(model.some((agent) => agent.mappingStatus === 'MAPPED' && agent.turnAgentId === 'atlas-operations' && agent.registrySource === 'turn-organization-chart'), 'Atlas must be mapped from official Turn registry');
 assert.ok(model.some((agent) => agent.turnAgentId === 'adrian-turn-commander'), 'Turn Commander must use the canonical organization identity');
-assert.ok(model.some((agent) => agent.turnAgentId === 'mentor'), 'Mentor must use the canonical organization identity');
+assert.ok(model.some((agent) => agent.turnAgentId === 'agent-mentor'), 'Mentor must use the canonical organization identity');
 assert.ok(model.some((agent) => agent.turnAgentId === 'chief-monitoring-inspector'), 'Chief Monitoring Inspector must be represented independently from MON-010');
 assert.equal(model.some((agent) => ['core-orion-product-owner', 'nexa-copilot-vsc', 'geminii-copilot-dual'].includes(agent.panelAgentId)), false, 'decorative identities must not enter the operational model');
 assert.ok(model.every((agent) => !agent.turnAgentId || officialTurnIds.has(agent.turnAgentId)), 'no fictitious Turn IDs may enter the normalized model');

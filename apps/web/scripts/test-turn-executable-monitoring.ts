@@ -18,7 +18,7 @@ assert.equal(incidents[0]?.id, 'AGM-MON-SECRET-GUARDIAN');
 assert.equal(incidents[0]?.status, 'new');
 assert.match(incidents[0]?.owner ?? '', /secret-credentials-guardian/);
 assert.match(renderExecutionReadinessGate(incidents), /HOLD — EXECUȚIA ESTE BLOCATĂ/);
-assert.match(renderExecutionReadinessGate(incidents), /Autorizare execuție<\/dt><dd>INTERZISĂ/);
+assert.match(renderExecutionReadinessGate(incidents), /Autorizare execuție<\/dt><dd>NEDEMONSTRATĂ/);
 
 const duplicate = reconcileOperationsHealthIncident(incidents, failure!);
 assert.equal(duplicate, incidents, 'Polling repetat nu dublează incidentul.');

@@ -1,12 +1,20 @@
 # AGM Cockpit — Architecture Status
 
-**Data reconcilierii:** 2 august 2026
+**Data reconcilierii curente:** 7 septembrie 2026
 
 **Statut document:** sursa canonică pentru starea arhitecturii și a implementării
 
-**Baseline oficial protejat:** AGM v1.2.9 Stable Baseline
+**Module Governance Baseline:** 36 module `PASS / CLOSED`, conform dosarelor v1.0
 
-**Schimbare succesoare în curs de integrare:** AGM-CHG-20260801-ACCESS-PREMIUM-001
+**Current Stable Release:** AGM Cockpit 1.3.0 / Android versionCode 21
+
+**Current Source Line:** AGM Cockpit 1.4.0
+
+**Current Release Candidate:** 1.4.0 / Android versionCode 22; statutul publicării se stabilește exclusiv din workflow și runtime
+
+**Production snapshot la începutul reconcilierii:** revision `1fd434f2621b3b2225cc23ffab5ad2922a26bb5b`; workflow `34040489949`; Web bundle `assets/main-CJ9re3-m.js`
+
+**Governance interpretation:** `AGM_COCKPIT_GOVERNANCE_REGISTER_V1_1.md`
 
 ## 1. Autoritate și reguli de interpretare
 
@@ -16,18 +24,59 @@ autoritatea rămâne dosarul său din `evidence/governance/modules/`.
 
 Ordinea de prevalență este:
 
-1. baseline-ul oficial și manifestul său;
-2. deciziile de închidere și fișierele `MODULE_STATUS.md`;
-3. change record-urile succesoare aprobate;
-4. prezentul rezumat arhitectural;
-5. rapoartele istorice.
+1. mandatul sau decizia explicită și curentă a Product Ownerului;
+2. Governance Register v1.1, aprobat și activ;
+3. deciziile de închidere și fișierele `MODULE_STATUS.md`;
+4. change record-urile succesoare aprobate;
+5. contractele și manifestele artefactului/release-ului curent;
+6. prezentul rezumat arhitectural;
+7. rapoartele istorice.
+
+Documentele `PROPOSED`, `FINAL CANDIDATE`, `NOT ACTIVE` sau
+`CONTRACTED_NOT_IMPLEMENTED` nu generează autoritate. În special, Contractul
+Organizațional AGM v1 nu participă la precedența activă până la o decizie
+explicită ulterioară.
 
 Un modul `PASS / CLOSED` este implementat și protejat în limita contractului său.
 Această stare nu înseamnă că toate extinderile viitoare ale produsului sunt deja
 implementate. O schimbare validată devine parte din baseline numai după integrarea,
 retestarea, constituirea și aprobarea unui baseline succesor.
 
-## 2. Baseline oficial
+## 2. Identitățile canonice separate
+
+### 2.1 Module Governance Baseline
+
+Cele 36 de module APP-001–APP-015, API-001–API-008, PRE-001–PRE-008,
+DATA-001 și OPS-001–OPS-004 sunt `PASS / CLOSED`. Această stare este protejată
+în limitele contractului și artefactului validat. G0–G11 reprezintă coverage,
+nu rerun; schimbările succesoare redeschid numai gate-urile afectate.
+
+### 2.2 Current Stable Release
+
+Ultimul release stabil identificabil fără ambiguitate este AGM Cockpit 1.3.0,
+cu Android `versionCode 21`, conform auditului de publicare și dovezii pe
+dispozitiv real din 27 august 2026.
+
+### 2.3 Current Source Line
+
+Manifestele root și Web declară 1.4.0. Aceasta este linia de sursă curentă și nu
+este promovată automat la stable release sau Production identity.
+
+### 2.4 Current Release Candidate
+
+Linia de sursă conține candidatul 1.4.0 / Android `versionCode 22`. Statutul său
+de publicare nu este dedus din acest document; îl stabilesc numai workflow-ul de
+release și validarea runtime a artifactului promovat.
+
+### 2.5 Production snapshot la începutul reconcilierii
+
+Identitatea Production verificată înaintea acestui candidat, la 7 septembrie 2026, este revizia
+`1fd434f2621b3b2225cc23ffab5ad2922a26bb5b`, workflow GitHub Actions
+`34040489949`, bundle Web `assets/main-CJ9re3-m.js`; workflow-ul este `success`,
+iar rutele publice Web și API răspund HTTP 200. Verdictul acelei dovezi rămâne limitat
+la scope-ul său și nu este extins retroactiv la întreg produsul.
+
+## 3. Baseline istoric v1.2.9
 
 `AGM v1.2.9 Stable Baseline` este referința oficială pentru dezvoltarea ulterioară.
 Auditul general, programul structural MC-3B, SR-01–SR-14 și validarea finală pe
@@ -46,7 +95,7 @@ Artefactul Android oficial al baseline-ului este:
 Aplicația Web oficială este `https://app.agmcockpit.com/`. API-ul de producție
 utilizat de build-ul Web este `https://api.agmcockpit.com/api/v1`.
 
-## 3. Arhitectura implementată
+## 4. Arhitectura implementată
 
 AGM Cockpit nu mai este doar un backend. Suprafața implementată cuprinde:
 
@@ -66,7 +115,7 @@ AGM Cockpit nu mai este doar un backend. Suprafața implementată cuprinde:
 Endpoint-ul de sănătate rămâne sub `/api/v1`; absența unei rute API la `/` nu este
 un defect de readiness.
 
-## 4. Module închise oficial
+## 5. Module închise oficial
 
 Toate modulele cu dosar de închidere v1.0 sunt `PASS / CLOSED`:
 
@@ -82,7 +131,7 @@ Toate modulele cu dosar de închidere v1.0 sunt `PASS / CLOSED`:
 lor. `OPS-005 — Telemetrie continuă` rămâne separat, `PLANNED / INACTIVE` și nu
 este autorizat prin închiderile existente.
 
-## 5. Capabilități validate în baseline
+## 6. Capabilități validate în baseline
 
 Baseline-ul oficial include și protejează, conform dosarelor aplicabile:
 
@@ -118,7 +167,7 @@ Archived
 `MissionPaused`, `IncidentReported` și `Cancelled` există în model, dar nu fac parte
 din happy path-ul principal validat al vechiului checkpoint lifecycle.
 
-## 6. Schimbarea Access / Premium
+## 7. Schimbarea Access / Premium
 
 `AGM-CHG-20260801-ACCESS-PREMIUM-001` are verdictul curent `PASS / VALIDATED`.
 Contractele API/Web, gateway-ul `/access`, sesiunea, entitlement-ul și enforcement-ul
@@ -133,9 +182,9 @@ oficializare mai sunt necesare:
 4. retest Browser și Android;
 5. aprobarea și arhivarea baseline-ului succesor.
 
-## 7. Starea validării curente a workspace-ului
+## 8. Snapshot istoric al validării workspace-ului
 
-La reconcilierea din 2 august 2026:
+La snapshot-ul istoric din 2 august 2026:
 
 - API Jest: 27 suite, 136 teste — PASS;
 - API build — PASS;
@@ -148,7 +197,7 @@ La reconcilierea din 2 august 2026:
 Reconcilierea SR-14 nu modifică baseline-ul oficial v1.2.9 și nu redeschide
 candidatul Basic înghețat; ea protejează cascada succesoare deja validată.
 
-## 8. Condiții rămase pentru AGM Basic publicabil
+## 9. Condiții istorice pentru AGM Basic publicabil
 
 Modulele Basic existente trebuie integrate într-un flux de produs și validate ca
 release public. Restanțele aprobate sunt:
@@ -166,14 +215,14 @@ release public. Restanțele aprobate sunt:
 Aceste condiții nu schimbă starea `PASS / CLOSED` a modulelor de bază; ele reprezintă
 integrarea și porțile de publicare ale produsului AGM Basic.
 
-## 9. Condiții Premium ulterioare
+## 10. Condiții Premium ulterioare
 
 Dezvoltarea Premium completă urmează etapele canonice din `ROADMAP.md`. Condițiile
 arhitecturale încă deschise includ EventStore server-side, versiunea evenimentelor,
 proiecția comună UI, sincronizarea și recovery end-to-end și migrarea controlată a
 modulelor Premium rămase.
 
-## 10. Actualizare Premium — 11 august 2026
+## 11. Snapshot Premium — 11 august 2026
 
 Vertical Slice A (`required-document`) este `PASS / CLOSED`, cu Product Owner
 Acceptance acordat. Matricea Desktop A/B/H/K/L/O, Android Samsung SM-S931B,
@@ -196,7 +245,7 @@ pregătire într-o trimitere Email/WhatsApp automată.
 Vertical Slice A și Vertical Slice B sunt `PASS / CLOSED`. Celelalte 22 de
 situații sunt `NOT STARTED / NOT AUTHORIZED` și necesită mandate separate.
 
-## 11. Regula de actualizare
+## 12. Regula de actualizare
 
 Acest document se actualizează la fiecare închidere de modul, schimbare de baseline
 sau modificare a stării unei porți de release. Rapoartele istorice nu se rescriu;

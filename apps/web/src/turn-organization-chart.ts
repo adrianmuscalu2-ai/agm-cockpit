@@ -85,14 +85,14 @@ const atlasUnits = [
 
 const leadership: TurnOrganizationAgent[] = [
   {
-    id: 'mentor', name: 'MENTOR', kind: 'leader', departmentId: 'leadership',
-    coordinatorId: 'mentor', reportsToId: 'mentor', responsibility: 'Direcție strategică și mentorat.',
+    id: 'agent-mentor', name: 'MENTOR', kind: 'leader', departmentId: 'leadership',
+    coordinatorId: 'agent-mentor', reportsToId: 'agent-mentor', responsibility: 'Direcție strategică și mentorat.',
     accessLevel: 'strategic', procedure: 'Emite orientarea strategică și escaladează către Turn Commander.',
     escalationLevel: 'L4', subordinateAgentIds: ['adrian-turn-commander'],
   },
   {
     id: 'adrian-turn-commander', name: 'ADRIAN – TURN COMMANDER', kind: 'leader', departmentId: 'leadership',
-    coordinatorId: 'mentor', reportsToId: 'mentor', responsibility: 'Comandă, prioritizare și aprobare finală.',
+    coordinatorId: 'agent-mentor', reportsToId: 'agent-mentor', responsibility: 'Comandă, prioritizare și aprobare finală.',
     accessLevel: 'strategic', procedure: 'Aprobă direcția, checkpoint-urile și intervențiile majore.',
     escalationLevel: 'L4', subordinateAgentIds: ['atlas-operations', 'chief-monitoring-inspector', 'secret-credentials-guardian'],
   },
@@ -236,7 +236,7 @@ function relationDetails(agent: TurnOrganizationAgent) {
 }
 
 export function renderTurnOrganizationChart() {
-  const mentor = turnOrganizationAgents.find((agent) => agent.id === 'mentor')!;
+  const mentor = turnOrganizationAgents.find((agent) => agent.id === 'agent-mentor')!;
   const adrian = turnOrganizationAgents.find((agent) => agent.id === 'adrian-turn-commander')!;
   const atlas = turnOrganizationAgents.find((agent) => agent.id === 'atlas-operations')!;
   const inspector = turnOrganizationAgents.find((agent) => agent.id === 'chief-monitoring-inspector')!;

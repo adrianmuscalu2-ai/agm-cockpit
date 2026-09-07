@@ -1,0 +1,59 @@
+.turn-agent-accountability {
+  margin-block: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(112, 226, 255, 0.28);
+  border-radius: 1rem;
+  background: rgba(5, 19, 33, 0.78);
+}
+
+.turn-agent-accountability > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.turn-accountability-table-wrap {
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.turn-agent-accountability table {
+  width: 100%;
+  min-width: 1500px;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.turn-agent-accountability th,
+.turn-agent-accountability td {
+  padding: 0.55rem;
+  border: 1px solid rgba(148, 185, 210, 0.18);
+  text-align: left;
+  vertical-align: top;
+}
+
+.turn-agent-accountability tr[data-duty-state="DUTY VERIFIED"] strong {
+  color: #19ff88;
+}
+
+.turn-agent-accountability tr[data-duty-state="FAILED"] strong,
+.turn-agent-accountability tr[data-duty-state="ROLE DRIFT"] strong {
+  color: #ff6868;
+}
+
+.turn-agent-accountability tr[data-duty-state="UNKNOWN / NO CURRENT EVIDENCE"] strong {
+  color: #b8c4d6;
+}
+
+.incident-truth-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.5rem;
+}
+
+.incident-truth-details div {
+  padding: 0.55rem;
+  border: 1px solid rgba(148, 185, 210, 0.18);
+  border-radius: 0.6rem;
+}

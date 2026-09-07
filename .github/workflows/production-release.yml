@@ -44,8 +44,11 @@ jobs:
       - run: pnpm --filter @agm/api build
       - run: pnpm --filter @agm/web build
       - run: pnpm --filter @agm/web test:turn-operational-truth
+      - run: pnpm --filter @agm/web test:agent-accountability
       - run: pnpm audit:canonical-route
       - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm rescue:browser-preflight
+      - run: node scripts/validate-agent-accountability-browser.mjs
       - run: pnpm rescue:browser-preflight
       - run: pnpm audit:wave1-browser
 

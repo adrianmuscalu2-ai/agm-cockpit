@@ -161,7 +161,7 @@ assert.equal(renderPremiumView('home', translate, escapeHtml), undefined);
 assert.equal(premiumAgents.length, 8);
 assert.deepEqual(
   premiumAgents.map((agent) => agent.id),
-  ['mentor', 'atlas', 'inspector', 'transport', 'load-safety', 'communication', 'documents', 'journal'],
+  ['agent-mentor', 'atlas', 'inspector', 'transport', 'load-safety', 'communication', 'documents', 'journal'],
 );
 assert.ok(premiumAgents.every((agent) => agent.state === 'preparing'));
 assert.equal(

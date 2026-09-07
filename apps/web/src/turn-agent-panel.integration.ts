@@ -91,7 +91,7 @@ let basicAgentOperationalDashboard: BasicAgentOperationalDashboardEvidence | und
 
 export const panelAgentSources: PanelSource[] = [
   { panelAgentId: 'core-adrian-turn-commander', displayName: 'Adrian · Turn Commander', displayLevel: 0, department: 'Turn Command', responsibility: 'Comandă și aprobare finală', escalation: 'L4', turnAgentId: 'adrian-turn-commander' },
-  { panelAgentId: 'core-mentor', displayName: 'Mentor', displayLevel: 0, department: 'Turn Command', responsibility: 'Validare strategică', escalation: 'L4', turnAgentId: 'mentor' },
+  { panelAgentId: 'core-mentor', displayName: 'Mentor', displayLevel: 0, department: 'Turn Command', responsibility: 'Validare strategică', escalation: 'L4', turnAgentId: 'agent-mentor' },
   { panelAgentId: 'secret-credentials-guardian', displayName: 'Secret & Credentials Guardian', displayLevel: 1, department: 'Security, Privacy & Legal', responsibility: 'Protecția secretelor', escalation: 'L3', turnAgentId: 'secret-credentials-guardian' },
   { panelAgentId: 'atlas-coordonare-operationala', displayName: 'Atlas · Coordonare Operațională', displayLevel: 1, department: 'Turn Command / Operations', responsibility: 'Coordonare operațională', escalation: 'L2', turnAgentId: 'atlas-operations' },
   { panelAgentId: 'chief-monitoring-inspector', displayName: 'Inspector Șef Monitorizare', displayLevel: 1, department: 'Departamentul de Monitorizare', responsibility: 'Corelare independentă runtime și incidente', escalation: 'L3', turnAgentId: 'chief-monitoring-inspector', telemetrySource: 'Agregat MON-001–MON-012' },
@@ -99,7 +99,7 @@ export const panelAgentSources: PanelSource[] = [
   { panelAgentId: 'monitor-browser', displayName: 'Agent Monitorizare Browser', displayLevel: 2, department: 'Departamentul de Monitorizare', responsibility: 'Monitorizare Browser', escalation: 'L1', turnAgentId: 'monitor-browser', sourceId: 'browser', telemetrySource: 'Origin curent · HTTP probe' },
   { panelAgentId: 'monitor-android', displayName: 'Agent Monitorizare Android', displayLevel: 2, department: 'Departamentul de Monitorizare', responsibility: 'Monitorizare Android', escalation: 'L1', turnAgentId: 'monitor-android', sourceId: 'android', telemetrySource: 'Component heartbeat v1 · persistent și tenant-bound' },
   { panelAgentId: 'monitor-incidents', displayName: 'Agent Monitorizare Incidente', displayLevel: 2, department: 'Departamentul de Monitorizare', responsibility: 'Incidente', escalation: 'L2', turnAgentId: 'monitor-incidents' },
-  { panelAgentId: 'architecture-inspector', displayName: 'Architecture Inspector', displayLevel: 3, department: 'Architecture & Platform', responsibility: 'Inspecție integritate arhitectură', escalation: 'L2', turnAgentId: 'architecture-inspector' },
+  { panelAgentId: 'architecture-guardian', displayName: 'Architecture Guardian', displayLevel: 3, department: 'Architecture & Platform', responsibility: 'Limite, contracte, reutilizare și verdict arhitectural', escalation: 'L2', turnAgentId: 'architecture-guardian' },
   { panelAgentId: 'frontend-experience', displayName: 'Frontend Experience', displayLevel: 3, department: 'Frontend Experience', responsibility: 'UI/UX', escalation: 'L1', turnAgentId: 'frontend-experience' },
   { panelAgentId: 'backend-infrastructure', displayName: 'Backend & Infrastructure', displayLevel: 3, department: 'Backend & Infrastructure', responsibility: 'Backend', escalation: 'L1', turnAgentId: 'backend-infrastructure' },
   { panelAgentId: 'premium-linguist-it', displayName: 'Italian Language Agent', displayLevel: 3, department: 'i18n', responsibility: 'Validare operațională IT', escalation: 'L2', turnAgentId: 'premium-linguist-it', sourceId: 'premium-linguist-it', telemetrySource: 'Component heartbeat v1 · audit runtime 1.699 resurse' },
@@ -164,8 +164,8 @@ export function buildBasicAgentNetworkModel(dashboard = basicAgentOperationalDas
   const snapshots = currentOperationSnapshots();
   const language = (typeof document === 'undefined' ? 'ro' : document.documentElement.lang || 'ro') as UiLanguage;
   const inventory = dashboard?.telemetryInventory;
-  const runtimeEventByAgent = new Map(inventory?.latestRuntimeEvents.map((event) => [event.agentId, event]) ?? []);
-  const dashboardNodeById = new Map(dashboard?.nodes.map((node) => [node.canonicalId, node]) ?? []);
+  const runtimeEventByAgent = new Map(inventory?.latestRuntimeEvents?.map((event) => [event.agentId, event]) ?? []);
+  const dashboardNodeById = new Map(dashboard?.nodes?.map((node) => [node.canonicalId, node]) ?? []);
   return agentGovernanceRegistry.map((record) => {
     const monitor = monitoringAgents.find((candidate) => candidate.id === record.id);
     const priorPanelSource = panelAgentSources.find((candidate) => candidate.turnAgentId === record.id);

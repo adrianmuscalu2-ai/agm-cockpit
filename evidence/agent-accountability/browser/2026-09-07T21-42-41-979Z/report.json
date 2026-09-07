@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-07T21-42-41-979Z",
+  "status": "FAIL",
+  "flow": "IAB PROBE ONCE -> CONTROLLED AGM PLAYWRIGHT/CHROMIUM -> MON-010 TRUTH -> DUTY RECEIPT -> RELOAD",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "FAIL",
+  "targetPageStatus": "FAIL",
+  "target": "http://127.0.0.1:60986/turn",
+  "results": [
+    {
+      "id": "target-http-200",
+      "status": "PASS",
+      "detail": {
+        "status": 200,
+        "target": "http://127.0.0.1:60986/turn"
+      }
+    },
+    {
+      "id": "omitted-mon010-is-unknown",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "registered-without-receipt-is-not-active",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "canonical-identities-only",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "role-contract-enforced-visible",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "complete-zero-source-proves-no-active-incidents",
+      "status": "PASS",
+      "detail": {
+        "truth": "NO ACTIVE INCIDENTS",
+        "duty": "DUTY VERIFIED",
+        "receipt": {
+          "agentId": "monitor-incidents",
+          "roleContractVersion": "agm-agent-role.v1.1",
+          "mandateId": "incident-truth:2026-09-07T21:42:47.444Z",
+          "trigger": "PERIODIC_CHECK",
+          "startedAt": "2026-09-07T21:42:47.444Z",
+          "completedAt": "2026-09-07T21:42:57.487Z",
+          "source": [
+            "Incident Journal local",
+            "API-006 /incidents"
+          ],
+          "coverage": "COMPLETE",
+          "result": "PASS",
+          "evidenceRef": "runtime:incident-truth:2026-09-07T21:42:47.444Z",
+          "freshness": "CURRENT",
+          "openResponsibility": "NONE",
+          "escalation": "NONE",
+          "validator": "chief-monitoring-inspector",
+          "executedActions": [
+            "observe",
+            "verify",
+            "record"
+          ]
+        }
+      }
+    }
+  ],
+  "pageErrors": [],
+  "fatal": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-incident-truth-recheck]').first()\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" data-incident-truth-recheck=\"\">Reverifică incidente</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    55 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying click action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+  "finishedAt": "2026-09-07T21:43:27.739Z"
+}

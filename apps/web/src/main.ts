@@ -156,6 +156,9 @@ import { bindTurnAgentLiveState } from './turn-agent-live-state';
 import { bindTurnFunctionalOverview } from './turn-functional-overview';
 import { bindAndroidComponentHeartbeat } from './component-heartbeat';
 import { bindPremiumLinguisticAgentHeartbeats } from './premium-linguistic-agents/premium-linguistic-agents.runtime';
+import { bindAgentAccountabilityView, recordMonitoringDuty } from './agent-accountability';
+import { bindIncidentTruthMonitor } from './incident-truth';
+import './agent-accountability.css';
 import {
   TURN_REPORT_RECIPIENT,
   adminReportModuleForView,
@@ -542,6 +545,7 @@ function render() {
     bindIncidentJournal();
     bindProjectCatalog();
     bindOperationsHealthChecks((source, snapshot) => {
+      recordMonitoringDuty(source, snapshot);
       publishPanelAgentModel();
       const event = operationsHealthEvent(source, snapshot);
       if (!event) return;
@@ -581,6 +585,8 @@ function render() {
     void bindP9TurnProjection();
     bindTurnAgentLiveState();
     void bindTurnFunctionalOverview();
+    bindAgentAccountabilityView();
+    bindIncidentTruthMonitor(state.incidents);
     bindTurnBackToTop();
   }
   bindCommandPanel();

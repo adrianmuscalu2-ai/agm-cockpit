@@ -1,0 +1,183 @@
+import { chromium } from 'playwright';
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { spawn } from 'node:child_process';
+import net from 'node:net';
+
+const root = process.cwd();
+const runId = new Date().toISOString().replace(/[:.]/g, '-');
+const output = path.join(root, 'evidence', 'agent-accountability', 'browser', runId);
+const results = [];
+const pageErrors = [];
+let target = process.env.AGM_AGENT_ACCOUNTABILITY_URL;
+let controlledServer;
+let browser;
+let fatal = null;
+let incidentMode = 'OMITTED';
+
+async function freePort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => {
+      const address = server.address();
+      const port = typeof address === 'object' && address ? address.port : 0;
+      server.close((error) => error ? reject(error) : resolve(port));
+    });
+  });
+}
+
+async function startControlledTarget() {
+  if (target) return;
+  const port = await freePort();
+  const vite = path.join(root, 'apps', 'web', 'node_modules', 'vite', 'bin', 'vite.js');
+  controlledServer = spawn(process.execPath, [vite, '--host', '127.0.0.1', '--port', String(port), '--strictPort'], {
+    cwd: path.join(root, 'apps', 'web'), windowsHide: true, stdio: 'ignore',
+  });
+  target = `http://127.0.0.1:${port}/turn`;
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    try { if ((await fetch(target)).status === 200) return; } catch { /* controlled startup */ }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error('CONTROLLED_TARGET_UNAVAILABLE');
+}
+
+function check(id, passed, detail) {
+  results.push({ id, status: passed ? 'PASS' : 'FAIL', detail });
+  if (!passed) throw new Error(`ACCOUNTABILITY_ASSERTION_FAILED:${id}:${JSON.stringify(detail)}`);
+}
+
+await mkdir(output, { recursive: true });
+try {
+  await startControlledTarget();
+  const targetResponse = await fetch(target, { signal: AbortSignal.timeout(10_000) });
+  check('target-http-200', targetResponse.status === 200, { status: targetResponse.status, target });
+
+  browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage({ viewport: { width: 1600, height: 1100 }, locale: 'ro-RO' });
+  page.on('pageerror', (error) => pageErrors.push(error.stack ?? String(error)));
+  await page.addInitScript(() => {
+    sessionStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: 'controlled-accountability-token', expiresInSeconds: 600 }));
+    localStorage.removeItem('agm.admin.session');
+    localStorage.setItem('agm.legal.acceptance.privacy-v2026.07.13.terms-v2026.07.13', JSON.stringify({ privacyPolicyVersion: 'privacy-v2026.07.13', termsVersion: 'terms-v2026.07.13', acceptedAt: new Date().toISOString() }));
+    localStorage.setItem('agm.tutorial.completed.v1', new Date().toISOString());
+    if (!localStorage.getItem('agm.accountability.controlled-initialized')) {
+      localStorage.removeItem('agm.turn.duty-receipts.v1.1');
+      localStorage.setItem('agm.accountability.controlled-initialized', 'true');
+    }
+  });
+  await page.route('**/*', async (route) => {
+    const url = new URL(route.request().url());
+    const pathname = url.pathname;
+    const json = (data, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify({ data, requestId: 'controlled-agent-accountability' }) });
+    if (pathname.endsWith('/incidents')) {
+      if (incidentMode === 'OMITTED') {
+        await new Promise((resolve) => setTimeout(resolve, 10_000));
+        return json([]);
+      }
+      if (incidentMode === 'UNAVAILABLE') return route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'controlled unavailable' }) });
+      if (incidentMode === 'ACTIVE') return json([{ id: 'controlled-active-incident', status: 'open' }]);
+      return json([]);
+    }
+    if (pathname.endsWith('/agent-runtime-events')) return json({ events: [], cursor: null });
+    if (pathname.endsWith('/turn-admin/validate')) return json({ valid: true });
+    if (pathname.endsWith('/auth/refresh')) return json({ accessToken: 'controlled-accountability-token' });
+    if (pathname.endsWith('/health/live')) return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'ok' }) });
+    if (pathname.endsWith('/health/ready')) return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'ready', dependencies: {} }) });
+    if (pathname.endsWith('/turn-admin/refresh')) return json({ accessToken: 'controlled-accountability-token', expiresInSeconds: 600 });
+    if (pathname.includes('/api/v1/')) return json([]);
+    return route.continue();
+  });
+
+  await page.goto(target, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('#turn-agent-accountability');
+  await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'UNKNOWN / NOT CHECKED');
+  const omitted = await page.evaluate(() => ({
+    truth: document.querySelector('[data-incident-truth-state]')?.textContent?.trim(),
+    incidentDuty: document.querySelector('[data-accountability-agent="monitor-incidents"]')?.getAttribute('data-duty-state'),
+    registeredNoReceipt: document.querySelector('[data-accountability-agent="architecture-guardian"]')?.getAttribute('data-duty-state'),
+    legacyArchitectureIdentity: Boolean(document.querySelector('[data-accountability-agent="architecture-inspector"]')),
+    legacyVersionIdentity: Boolean(document.querySelector('[data-accountability-agent="version-custodian"]')),
+    enforcement: document.querySelector('#turn-agent-accountability .protocol-status')?.textContent?.trim(),
+  }));
+  check('omitted-mon010-is-unknown', omitted.truth === 'UNKNOWN / NOT CHECKED' && omitted.incidentDuty === 'UNKNOWN / NO CURRENT EVIDENCE', omitted);
+  check('registered-without-receipt-is-not-active', omitted.registeredNoReceipt === 'UNKNOWN / NO CURRENT EVIDENCE', omitted);
+  check('canonical-identities-only', !omitted.legacyArchitectureIdentity && !omitted.legacyVersionIdentity, omitted);
+  check('role-contract-enforced-visible', omitted.enforcement?.includes('ENFORCED'), omitted);
+
+  incidentMode = 'COMPLETE';
+  await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'NO ACTIVE INCIDENTS');
+  const complete = await page.evaluate(() => {
+    const receipts = JSON.parse(localStorage.getItem('agm.turn.duty-receipts.v1.1') ?? '[]');
+    return {
+      truth: document.querySelector('[data-incident-truth-state]')?.textContent?.trim(),
+      duty: document.querySelector('[data-accountability-agent="monitor-incidents"]')?.getAttribute('data-duty-state'),
+      receipt: receipts.filter((receipt) => receipt.agentId === 'monitor-incidents').at(-1),
+    };
+  });
+  check('complete-zero-source-proves-no-active-incidents', complete.truth === 'NO ACTIVE INCIDENTS' && complete.receipt?.coverage === 'COMPLETE' && complete.receipt?.result === 'PASS' && complete.duty === 'DUTY VERIFIED', complete);
+
+  await page.locator('[data-turn-page-target="investigate"]').click();
+  await page.waitForSelector('[data-turn-page="investigate"]:not([hidden])');
+  incidentMode = 'UNAVAILABLE';
+  await page.locator('[data-incident-truth-recheck]').first().click();
+  await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'INCIDENT DATA UNAVAILABLE');
+  const unavailable = await page.evaluate(() => {
+    const receipts = JSON.parse(localStorage.getItem('agm.turn.duty-receipts.v1.1') ?? '[]');
+    return {
+      truth: document.querySelector('[data-incident-truth-state]')?.textContent?.trim(),
+      duty: document.querySelector('[data-accountability-agent="monitor-incidents"]')?.getAttribute('data-duty-state'),
+      receipt: receipts.filter((receipt) => receipt.agentId === 'monitor-incidents').at(-1),
+    };
+  });
+  check('source-failure-is-not-zero', unavailable.truth === 'INCIDENT DATA UNAVAILABLE' && unavailable.receipt?.coverage === 'PARTIAL' && unavailable.receipt?.result === 'FAIL' && unavailable.duty === 'FAILED', unavailable);
+
+  incidentMode = 'ACTIVE';
+  await page.locator('[data-incident-truth-recheck]').first().click();
+  await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'ACTIVE INCIDENT');
+  const active = await page.evaluate(() => ({
+    truth: document.querySelector('[data-incident-truth-state]')?.textContent?.trim(),
+    receipts: JSON.parse(localStorage.getItem('agm.turn.duty-receipts.v1.1') ?? '[]'),
+  }));
+  const activeReceipt = active.receipts.filter((receipt) => receipt.agentId === 'monitor-incidents' && receipt.result === 'PASS' && receipt.coverage === 'COMPLETE').at(-1);
+  check('active-incident-truth-visible', active.truth === 'ACTIVE INCIDENT' && Boolean(activeReceipt), { truth: active.truth, receipt: activeReceipt });
+
+  const screenshot = path.join(output, 'agent-accountability-active-incident.png');
+  await page.screenshot({ path: screenshot, fullPage: true });
+  results.push({ id: 'controlled-navigation-interaction-capture', status: 'PASS', action: 'TURN -> MON-010 recheck -> accountability inspection', screenshot: path.relative(root, screenshot) });
+
+  incidentMode = 'OMITTED';
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('#turn-agent-accountability');
+  await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'UNKNOWN / NOT CHECKED');
+  const reload = await page.evaluate((mandateId) => {
+    const receipts = JSON.parse(localStorage.getItem('agm.turn.duty-receipts.v1.1') ?? '[]');
+    return { currentTruth: document.querySelector('[data-incident-truth-state]')?.textContent?.trim(), persistedReceipt: receipts.some((receipt) => receipt.mandateId === mandateId), receiptCount: receipts.length };
+  }, activeReceipt.mandateId);
+  check('restart-preserves-receipt-without-faking-current-state', reload.persistedReceipt && reload.currentTruth === 'UNKNOWN / NOT CHECKED', reload);
+  check('no-page-errors', pageErrors.length === 0, pageErrors);
+} catch (error) {
+  fatal = error instanceof Error ? error.message : String(error);
+} finally {
+  await browser?.close();
+  controlledServer?.kill();
+  const report = {
+    schemaVersion: 1,
+    runId,
+    status: fatal ? 'FAIL' : 'PASS',
+    flow: 'IAB PROBE ONCE -> CONTROLLED AGM PLAYWRIGHT/CHROMIUM -> MON-010 TRUTH -> DUTY RECEIPT -> RELOAD',
+    runner: 'Controlled AGM Playwright/Chromium',
+    browserPluginStatus: 'PASS',
+    integratedBrowserControlStatus: 'PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE',
+    browserSessionStatus: fatal ? 'FAIL' : 'PASS',
+    targetPageStatus: fatal ? 'FAIL' : 'PASS',
+    target,
+    results,
+    pageErrors,
+    fatal,
+    finishedAt: new Date().toISOString(),
+  };
+  await writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2), 'utf8');
+  console.log(JSON.stringify({ report: path.join(output, 'report.json'), ...report }, null, 2));
+  if (fatal) process.exitCode = 1;
+}

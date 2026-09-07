@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-07T21-29-03-669Z",
+  "status": "FAIL",
+  "flow": "IAB PROBE ONCE -> CONTROLLED AGM PLAYWRIGHT/CHROMIUM -> MON-010 TRUTH -> DUTY RECEIPT -> RELOAD",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "FAIL",
+  "targetPageStatus": "FAIL",
+  "target": "http://127.0.0.1:60387/turn",
+  "results": [
+    {
+      "id": "target-http-200",
+      "status": "PASS",
+      "detail": {
+        "status": 200,
+        "target": "http://127.0.0.1:60387/turn"
+      }
+    }
+  ],
+  "pageErrors": [],
+  "fatal": "page.waitForSelector: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#turn-agent-accountability') to be visible\u001b[22m\n",
+  "finishedAt": "2026-09-07T21:29:39.370Z"
+}

@@ -1,5 +1,6 @@
 import { fetchTurnOperationalTruth, operationalTruthIsPass, type OperationalTruthStep, type TurnOperationalTruth } from './turn-operational-truth';
 
+import { recordDutyReceipt, roleContractFor } from './agent-accountability';
 export type TurnAgentLifecycle = 'STARTED' | 'WORKING' | 'COMPLETED' | 'FAILED' | 'BLOCKED';
 export type TurnAgentRuntimeEvent = {
   eventId: string;
@@ -82,10 +83,33 @@ export function applyTurnAgentRuntimeEvents(events: readonly TurnAgentRuntimeEve
     history.push(...fresh);
     currentRuntimeEvent = history.at(-1);
     renderHistory();
-    return;
+  } else {
+    pendingVisualEvents.push(...fresh);
+    if (visualTimer === undefined && pendingVisualEvents.length) showNextPersistedEvent();
   }
-  pendingVisualEvents.push(...fresh);
-  if (visualTimer === undefined && pendingVisualEvents.length) showNextPersistedEvent();
+  for (const event of fresh.filter((candidate) => ['COMPLETED', 'FAILED', 'BLOCKED'].includes(candidate.lifecycle))) {
+    const contract = roleContractFor(event.agentId);
+    if (!contract) continue;
+    const started = [...history, ...fresh].find((candidate) => candidate.agentId === event.agentId && candidate.mandateId === event.mandateId && candidate.lifecycle === 'STARTED');
+    recordDutyReceipt({
+      agentId: event.agentId,
+      roleContractVersion: contract.roleContractVersion,
+      mandateId: event.mandateId,
+      trigger: contract.triggers.includes('INSPECTION_MANDATE') ? 'INSPECTION_MANDATE' : contract.triggers[0]!,
+      startedAt: started?.occurredAt ?? event.occurredAt,
+      completedAt: event.occurredAt,
+      source: [event.evidenceRef],
+      coverage: event.dossierId,
+      result: event.lifecycle === 'COMPLETED' ? 'PASS' : 'FAIL',
+      evidenceRef: event.outputRef ?? event.evidenceRef,
+      freshness: 'CURRENT',
+      openResponsibility: event.lifecycle === 'COMPLETED' ? 'NONE' : event.detail,
+      escalation: event.lifecycle === 'COMPLETED' ? 'NONE' : 'MANDATE OWNER',
+      validator: contract.validator,
+      independence: event.agentId === 'agent-inspector' ? 'REQUIRED' : undefined,
+      executedActions: ['inspect', 'record', 'report'],
+    });
+  }
 }
 
 async function poll(fetcher: typeof fetch) {
