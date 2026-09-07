@@ -47,6 +47,14 @@ try {
     telemetry: 'PASS', eventStore: 'PERSISTED', api: 'PASS', turn: 'EVIDENCE AVAILABLE', ui: 'READY FOR LIVE RENDER',
   })) assert(truth?.chain?.[step]?.status === expected, `${step} is ${truth?.chain?.[step]?.status}`);
 
+  if (canonicalProduction) {
+    const protectedDashboardResponse = await fetch('https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard', {
+      headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' },
+    });
+    report.checks.protectedOperationalDashboardHttp = protectedDashboardResponse.status;
+    assert(protectedDashboardResponse.status === 401, `Protected operational dashboard HTTP ${protectedDashboardResponse.status}`);
+  }
+
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1600, height: 1000 }, locale: 'ro-RO' });
   if (canonicalProduction) {
@@ -114,8 +122,10 @@ try {
   await page.locator('[data-live-refresh]').click();
   await page.waitForFunction(() => document.querySelector('[data-live-connection]')?.textContent?.includes('M2M AUTHENTICATED'));
   await page.locator('[data-turn-agent-live]').screenshot({ path: resolve(evidenceRoot, 'turn-authenticated-chain.png') });
-  await page.locator('[data-turn-page-target="premium"]').click();
-  await page.waitForSelector('[data-authority-dashboard][data-operational-truth="pass"]', { timeout: 45_000 });
+  if (!canonicalProduction) {
+    await page.locator('[data-turn-page-target="premium"]').click();
+    await page.waitForSelector('[data-authority-dashboard][data-operational-truth="pass"]', { timeout: 45_000 });
+  }
 
   const ui = await page.evaluate(() => {
     const text = (selector) => document.querySelector(selector)?.textContent?.trim() || '';
@@ -151,12 +161,18 @@ try {
   });
   report.checks.ui = ui;
   assert(ui.liveState === 'pass', `TURN live state is ${ui.liveState}`);
+  if (canonicalProduction) {
+    assert(ui.liveFalseGreen === '0', 'TURN UI FALSE GREEN is not zero');
+    assert(ui.liveUnexplainedDegraded === '0', 'TURN UI UNEXPLAINED DEGRADED is not zero');
+    assert(ui.connection.includes('M2M AUTHENTICATED') && ui.connection.includes('LIVE TELEMETRY'), `Unexpected connection label: ${ui.connection}`);
+  } else {
   assert(ui.heroState === 'pass', `ACP hero state is ${ui.heroState}`);
   assert(ui.liveFalseGreen === '0' && ui.heroFalseGreen === '0', 'UI FALSE GREEN is not zero');
   assert(ui.liveUnexplainedDegraded === '0' && ui.heroUnexplainedDegraded === '0', 'UI UNEXPLAINED DEGRADED is not zero');
   assert(ui.connection === 'M2M AUTHENTICATED · LIVE TELEMETRY', `Unexpected connection label: ${ui.connection}`);
   assert(ui.controlStatus === 'M2M AUTHENTICATED · LIVE', `Unexpected ACP label: ${ui.controlStatus}`);
   assert(!/AUTH REQUIRED|NO TELEMETRY/.test(`${ui.connection} ${ui.controlStatus} ${ui.message}`), 'ACP/auth warning remains visible');
+  }
   assert(ui.steps.length === 9, `Expected 9 operational steps, got ${ui.steps.length}`);
   assert(ui.steps.every((step) => step.status && step.source && step.evidence && step.evidence !== 'NO LIVE EVIDENCE'), 'Operational chain contains an unjustified step');
   assert(ui.unjustifiedStatuses.length === 0, `Unjustified displayed statuses: ${JSON.stringify(ui.unjustifiedStatuses)}`);
@@ -164,7 +180,7 @@ try {
   assert(report.network.some((entry) => entry.status === 200), 'UI did not receive operational truth HTTP 200');
   assert(report.pageErrors.length === 0, `Page errors: ${report.pageErrors.join(' | ')}`);
 
-  await page.locator('[data-authority-dashboard]').screenshot({ path: resolve(evidenceRoot, 'authority-control-plane-live.png') });
+  if (!canonicalProduction) await page.locator('[data-authority-dashboard]').screenshot({ path: resolve(evidenceRoot, 'authority-control-plane-live.png') });
   await page.screenshot({ path: resolve(evidenceRoot, 'turn-production-full-page.png'), fullPage: true });
   report.status = 'PASS';
   report.productionPass = evidenceScope === 'PRODUCTION_LIVE';
