@@ -51,9 +51,18 @@ try {
   const context = await browser.newContext({ viewport: { width: 1600, height: 1000 }, locale: 'ro-RO' });
   if (canonicalProduction) {
     await context.addInitScript(() => {
-      localStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: 'controlled-browser-audit-session', expiresInSeconds: 300 }));
+      sessionStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: 'controlled-browser-audit-session', expiresInSeconds: 300 }));
+      localStorage.removeItem('agm.admin.session');
     });
     await context.route('**/api/v1/turn-admin/validate', async (route) => {
+    await context.route('**/api/v1/turn-admin/refresh', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: { accessToken: 'controlled-browser-audit-session', expiresInSeconds: 300 }, requestId: 'controlled-turn-operational-truth-audit' }),
+      });
+    });
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

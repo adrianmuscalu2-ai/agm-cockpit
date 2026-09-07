@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-07T22-24-05-281Z",
+  "status": "PASS",
+  "flow": "IAB PROBE ONCE -> CONTROLLED AGM PLAYWRIGHT/CHROMIUM -> MON-010 TRUTH -> DUTY RECEIPT -> RELOAD",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "target": "http://127.0.0.1:62450/turn",
+  "results": [
+    {
+      "id": "target-http-200",
+      "status": "PASS",
+      "detail": {
+        "status": 200,
+        "target": "http://127.0.0.1:62450/turn"
+      }
+    },
+    {
+      "id": "omitted-mon010-is-unknown",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "registered-without-receipt-is-not-active",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "canonical-identities-only",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "role-contract-enforced-visible",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "complete-zero-source-proves-no-active-incidents",
+      "status": "PASS",
+      "detail": {
+        "truth": "NO ACTIVE INCIDENTS",
+        "duty": "DUTY VERIFIED",
+        "receipt": {
+          "agentId": "monitor-incidents",
+          "roleContractVersion": "agm-agent-role.v1.1",
+          "mandateId": "incident-truth:2026-09-07T22:24:10.105Z",
+          "trigger": "PERIODIC_CHECK",
+          "startedAt": "2026-09-07T22:24:10.105Z",
+          "completedAt": "2026-09-07T22:24:20.156Z",
+          "source": [
+            "Incident Journal local",
+            "API-006 /incidents"
+          ],
+          "coverage": "COMPLETE",
+          "result": "PASS",
+          "evidenceRef": "runtime:incident-truth:2026-09-07T22:24:10.105Z",
+          "freshness": "CURRENT",
+          "openResponsibility": "NONE",
+          "escalation": "NONE",
+          "validator": "chief-monitoring-inspector",
+          "executedActions": [
+            "observe",
+            "verify",
+            "record"
+          ]
+        }
+      }
+    },
+    {
+      "id": "source-failure-is-not-zero",
+      "status": "PASS",
+      "detail": {
+        "truth": "INCIDENT DATA UNAVAILABLE",
+        "duty": "FAILED",
+        "receipt": {
+          "agentId": "monitor-incidents",
+          "roleContractVersion": "agm-agent-role.v1.1",
+          "mandateId": "incident-truth:2026-09-07T22:24:20.847Z",
+          "trigger": "PERIODIC_CHECK",
+          "startedAt": "2026-09-07T22:24:20.847Z",
+          "completedAt": "2026-09-07T22:24:21.029Z",
+          "source": [
+            "Incident Journal local",
+            "API-006 /incidents"
+          ],
+          "coverage": "PARTIAL",
+          "result": "FAIL",
+          "evidenceRef": "runtime:incident-truth:2026-09-07T22:24:20.847Z",
+          "freshness": "UNKNOWN",
+          "openResponsibility": "Restore incident source access and repeat the check.",
+          "escalation": "SOURCE OWNER",
+          "validator": "chief-monitoring-inspector",
+          "executedActions": [
+            "observe",
+            "verify",
+            "record",
+            "escalate"
+          ]
+        }
+      }
+    },
+    {
+      "id": "active-incident-truth-visible",
+      "status": "PASS",
+      "detail": {
+        "truth": "ACTIVE INCIDENT",
+        "receipt": {
+          "agentId": "monitor-incidents",
+          "roleContractVersion": "agm-agent-role.v1.1",
+          "mandateId": "incident-truth:2026-09-07T22:24:21.098Z",
+          "trigger": "PERIODIC_CHECK",
+          "startedAt": "2026-09-07T22:24:21.098Z",
+          "completedAt": "2026-09-07T22:24:21.106Z",
+          "source": [
+            "Incident Journal local",
+            "API-006 /incidents"
+          ],
+          "coverage": "COMPLETE",
+          "result": "PASS",
+          "evidenceRef": "runtime:incident-truth:2026-09-07T22:24:21.098Z",
+          "freshness": "CURRENT",
+          "openResponsibility": "NONE",
+          "escalation": "NONE",
+          "validator": "chief-monitoring-inspector",
+          "executedActions": [
+            "observe",
+            "verify",
+            "record"
+          ]
+        }
+      }
+    },
+    {
+      "id": "controlled-navigation-interaction-capture",
+      "status": "PASS",
+      "action": "TURN -> MON-010 recheck -> accountability inspection",
+      "screenshot": "evidence\\agent-accountability\\browser\\2026-09-07T22-24-05-281Z\\agent-accountability-active-incident.png"
+    },
+    {
+      "id": "restart-preserves-receipt-without-faking-current-state",
+      "status": "PASS",
+      "detail": {
+        "currentTruth": "UNKNOWN / NOT CHECKED",
+        "persistedReceipt": true,
+        "receiptCount": 25
+      }
+    },
+    {
+      "id": "no-page-errors",
+      "status": "PASS",
+      "detail": []
+    }
+  ],
+  "pageErrors": [],
+  "fatal": null,
+  "finishedAt": "2026-09-07T22:24:30.185Z"
+}
