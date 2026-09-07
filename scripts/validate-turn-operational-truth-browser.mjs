@@ -54,7 +54,6 @@ try {
       sessionStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: 'controlled-browser-audit-session', expiresInSeconds: 300 }));
       localStorage.removeItem('agm.admin.session');
     });
-    await context.route('**/api/v1/turn-admin/validate', async (route) => {
     await context.route('**/api/v1/turn-admin/refresh', async (route) => {
       await route.fulfill({
         status: 200,
@@ -63,6 +62,7 @@ try {
       });
     });
 
+    await context.route('**/api/v1/turn-admin/validate', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -101,7 +101,6 @@ try {
     report.checks.firstRunTutorial = 'ALREADY_COMPLETED';
   }
   await page.waitForSelector('[data-turn-agent-live="pass"]', { timeout: 45_000 });
-  await page.waitForSelector('[data-authority-dashboard][data-operational-truth="pass"]', { timeout: 45_000 });
   if (await legalAcceptance.isVisible().catch(() => false)) {
     await legalAcceptance.click();
     await page.waitForSelector('.legal-acceptance-overlay', { state: 'detached', timeout: 15_000 });
@@ -114,6 +113,9 @@ try {
   }
   await page.locator('[data-live-refresh]').click();
   await page.waitForFunction(() => document.querySelector('[data-live-connection]')?.textContent?.includes('M2M AUTHENTICATED'));
+  await page.locator('[data-turn-agent-live]').screenshot({ path: resolve(evidenceRoot, 'turn-authenticated-chain.png') });
+  await page.locator('[data-turn-page-target="premium"]').click();
+  await page.waitForSelector('[data-authority-dashboard][data-operational-truth="pass"]', { timeout: 45_000 });
 
   const ui = await page.evaluate(() => {
     const text = (selector) => document.querySelector(selector)?.textContent?.trim() || '';
@@ -162,7 +164,6 @@ try {
   assert(report.network.some((entry) => entry.status === 200), 'UI did not receive operational truth HTTP 200');
   assert(report.pageErrors.length === 0, `Page errors: ${report.pageErrors.join(' | ')}`);
 
-  await page.locator('[data-turn-agent-live]').screenshot({ path: resolve(evidenceRoot, 'turn-authenticated-chain.png') });
   await page.locator('[data-authority-dashboard]').screenshot({ path: resolve(evidenceRoot, 'authority-control-plane-live.png') });
   await page.screenshot({ path: resolve(evidenceRoot, 'turn-production-full-page.png'), fullPage: true });
   report.status = 'PASS';
