@@ -29,6 +29,15 @@ export class TurnOperationalTruthController {
     return responseEnvelope(await this.truth.snapshot());
   }
 
+  @Get('agent-accountability')
+  @Throttle({ default: { limit: 20, ttl: 60_000, blockDuration: 60_000 } })
+  async agentAccountability(@Headers('authorization') authorization: string | undefined, @Res({ passthrough: true }) response: Response) {
+    await this.turnAdmin.requireOperationalAccess(authorization);
+    response.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    response.setHeader('Vary', 'Authorization');
+    return responseEnvelope(await this.authority.agentAccountability(ownerContext()));
+  }
+
   @Get('functional-overview')
   @Throttle({ default: { limit: 20, ttl: 60_000, blockDuration: 60_000 } })
   async productOverview(@Headers('authorization') authorization: string | undefined, @Res({ passthrough: true }) response: Response) {

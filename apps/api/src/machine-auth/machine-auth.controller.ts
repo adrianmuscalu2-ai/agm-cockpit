@@ -6,6 +6,7 @@ import type { RequestContext } from '../common/request-context';
 import { requestIdFromHeader } from '../common/request-ids';
 import { responseEnvelope } from '../common/response';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AuthorityControlPlaneService } from '../authority-control-plane/authority-control-plane.service';
 import { GitHubActionsOidcGuard } from './github-actions-oidc.guard';
 import { MachineAuthService } from './machine-auth.service';
 import { MachineTokenRequestDto, ProvisionMachineIdentityDto, RevokeMachineCredentialDto, RotateMachineCredentialDto } from './machine-auth.dto';
@@ -43,7 +44,13 @@ export class MachineProvisioningController {
 @Controller('auth/deploy/machines')
 @UseGuards(GitHubActionsOidcGuard)
 export class DeploymentMachineProvisioningController {
-  constructor(private readonly machines: MachineAuthService) {}
+  constructor(private readonly machines: MachineAuthService, private readonly authority: AuthorityControlPlaneService) {}
+
+  @Post('inspector-failover/exercise')
+  async exerciseInspectorFailover(@Req() request: DeploymentRequest, @Headers('x-request-id') requestId?: string) {
+    const ctx = deploymentContext(request, requestId);
+    return responseEnvelope(await this.authority.executeInspectorFailoverExercise(ctx.companyId, request.machineProvisioning.actorSubject), ctx.requestId);
+  }
 
   @Post()
   async provision(@Body() dto: ProvisionMachineIdentityDto, @Req() request: DeploymentRequest, @Headers('x-request-id') requestId?: string) {

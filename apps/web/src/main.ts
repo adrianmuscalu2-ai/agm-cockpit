@@ -157,8 +157,10 @@ import { bindTurnFunctionalOverview } from './turn-functional-overview';
 import { bindAndroidComponentHeartbeat } from './component-heartbeat';
 import { bindPremiumLinguisticAgentHeartbeats } from './premium-linguistic-agents/premium-linguistic-agents.runtime';
 import { bindAgentAccountabilityView, recordMonitoringDuty } from './agent-accountability';
+import { bindAgentRuntimeAccountability } from './agent-runtime-accountability';
 import { bindIncidentTruthMonitor } from './incident-truth';
 import './agent-accountability.css';
+import './agent-runtime-accountability.css';
 import {
   TURN_REPORT_RECIPIENT,
   adminReportModuleForView,
@@ -586,6 +588,7 @@ function render() {
     bindTurnAgentLiveState();
     void bindTurnFunctionalOverview();
     bindAgentAccountabilityView();
+    void bindAgentRuntimeAccountability();
     bindIncidentTruthMonitor(state.incidents);
     bindTurnBackToTop();
   }

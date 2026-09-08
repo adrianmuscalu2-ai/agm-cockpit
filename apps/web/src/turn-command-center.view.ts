@@ -17,6 +17,7 @@ import { renderTurnAuthorityControlPlane } from './premium-governance/premium-go
 import { dutyState, latestDutyReceipt, renderAgentAccountabilityView } from './agent-accountability';
 import { renderIncidentTruthDetails } from './incident-truth';
 import { renderTurnAgentLiveState } from './turn-agent-live-state';
+import { renderAgentRuntimeAccountability } from './agent-runtime-accountability';
 import {
   type TurnCommandItem,
   type TurnHealthStatus,
@@ -83,6 +84,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
 
       ${renderTurnAuthorityControlPlane()}
       ${renderTurnAgentLiveState()}
+      ${renderAgentRuntimeAccountability()}
 
       ${renderAgentAccountabilityView()}
 

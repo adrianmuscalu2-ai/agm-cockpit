@@ -406,6 +406,37 @@ jobs:
           jq -c '{contractVersion:.data.contractVersion,overallStatus:.data.overallStatus,reason:.data.reason,observedAt:.data.observedAt,ageSeconds:.data.ageSeconds,authStatus:.data.authStatus,telemetryStatus:.data.telemetryStatus,falseGreen:.data.falseGreen,unexplainedDegraded:.data.unexplainedDegraded,eventStore:.data.chain.eventStore.status,turn:.data.chain.turn.status}' <<<"$operational_truth"
           echo 'TURN_OPERATIONAL_TRUTH=PASS'
 
+          accountability=$(curl --fail --silent --show-error \
+            -X POST https://api.agmcockpit.com/api/v1/auth/deploy/machines/inspector-failover/exercise \
+            -H "Authorization: Bearer $PROVISIONING_TOKEN" \
+            -H 'Content-Type: application/json')
+          jq -e '
+            .data
+            | .contractVersion == "agent-runtime-accountability.v1"
+              and (.agents | length > 0)
+              and ([.agents[] | has("identity") and has("executable") and has("mandate") and has("lastExecution") and has("validator") and has("failover") and has("status")] | all)
+              and ([.agents[] | select(.status == "ACTIVE" and (.executable != "YES" or .mandate != "PROVEN" or .validation != "PROVEN" or .executionEvidenceRef == null))] | length == 0)
+              and ([.agents[] | select(.status == "DEGRADED" and (.reason | length == 0))] | length == 0)
+              and .inspector.primaryInspector == "premium.release-inspector"
+              and .inspector.primaryStatus == "FAILED"
+              and .inspector.secondaryInspector == "premium.architecture-inspector"
+              and .inspector.secondaryStatus == "COMPLETED"
+              and .inspector.mandateTransferred == true
+              and (.inspector.transferEvidenceRef | type == "string")
+              and (.incidents.inspectorFailureIncident | type == "string")
+              and .verdict.agentAccountability == "PASS"
+              and .verdict.inspectorFailover == "PASS"
+              and .verdict.controlCoverage == "COMPLETE"
+              and .verdict.falseActive == 0
+              and .verdict.unexplainedDegraded == 0
+              and .verdict.finalAgentRuntimePass == "PASS"
+          ' <<<"$accountability" >/dev/null
+          jq -c '{contract:.data.contractVersion,agents:(.data.agents|length),primary:.data.inspector.primaryStatus,secondary:.data.inspector.secondaryStatus,transferred:.data.inspector.mandateTransferred,incident:.data.incidents.inspectorFailureIncident,verdict:.data.verdict}' <<<"$accountability"
+          echo 'FINAL_AGENT_RUNTIME_PASS=PASS'
+          mkdir -p evidence/agent-accountability/production
+          jq '.' <<<"$accountability" > evidence/agent-accountability/production/agent-runtime-accountability.json
+          sha256sum evidence/agent-accountability/production/agent-runtime-accountability.json > evidence/agent-accountability/production/agent-runtime-accountability.json.sha256
+
           revoke_body=$(jq -nc '{reason:"Production release credential lifecycle validation."}')
           curl --fail --silent --show-error \
             -X POST "https://api.agmcockpit.com/api/v1/auth/deploy/machines/$client_id/credentials/$next_credential_id/revoke" \
@@ -418,6 +449,14 @@ jobs:
           unknown_body=$(jq -nc --arg id "$client_id" --arg secret "$unknown_secret" '{grant_type:"client_credentials",client_id:$id,client_secret:$secret}')
           test "$(curl --silent --output /dev/null --write-out '%{http_code}' -X POST https://api.agmcockpit.com/api/v1/auth/m2m/token -H 'Content-Type: application/json' --data "$unknown_body")" = '401'
           echo 'M2M_PRODUCTION_LIFECYCLE=PASS'
+      - name: Persist Production agent runtime evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-runtime-production-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/agent-accountability/production
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Verify Car Mover entitlement
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_car_mover }}
         env:
@@ -458,3 +497,37 @@ jobs:
             sudo chmod 0644 "$preflight_path"
             sudo docker exec agm-production-api node -e 'const fs=require("node:fs");const report=JSON.parse(fs.readFileSync("/run/agm/production-preflight.latest.json","utf8"));if(report.contract!=="agm-production-preflight.v1"||report.revision!==process.env.AGM_REVISION||report.checks.length!==8||report.checks.some((check)=>check.status!=="PASS"))process.exit(1)'
             echo 'PRODUCTION_PREFLIGHT=READY OWNER_ACTION=NONE'
+
+  production-agent-runtime-browser:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - uses: actions/download-artifact@v4
+        with:
+          name: agent-runtime-production-${{ github.run_id }}-${{ github.run_attempt }}
+          path: production-agent-runtime-evidence
+      - name: Browser preflight for Production accountability
+        run: pnpm rescue:browser-preflight
+      - name: Validate Production TURN with real Production snapshot
+        env:
+          AGM_AGENT_ACCOUNTABILITY_URL: https://app.agmcockpit.com/turn
+          AGM_AGENT_ACCOUNTABILITY_SNAPSHOT: ${{ github.workspace }}/production-agent-runtime-evidence/agent-runtime-accountability.json
+        run: node scripts/validate-agent-accountability-browser.mjs
+      - name: Persist Production TURN Browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-runtime-production-browser-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/agent-accountability/browser
+          if-no-files-found: error
+          retention-days: 30

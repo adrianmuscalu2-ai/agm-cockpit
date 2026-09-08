@@ -1,6 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
+import { AuthorityControlPlaneService } from '../src/authority-control-plane/authority-control-plane.service';
 import { DeploymentMachineProvisioningController } from '../src/machine-auth/machine-auth.controller';
 import { GitHubActionsOidcGuard } from '../src/machine-auth/github-actions-oidc.guard';
 import { GitHubActionsOidcService } from '../src/machine-auth/github-actions-oidc.service';
@@ -9,6 +10,7 @@ import { MachineAuthService } from '../src/machine-auth/machine-auth.service';
 const companyId = '30000000-0000-4000-8000-000000000001';
 const identityId = '10000000-0000-4000-8000-000000000001';
 const credentialId = '20000000-0000-4000-8000-000000000001';
+const actorSubject = 'repo:adrianmuscalu2-ai/agm-cockpit:environment:Production';
 
 describe('GitHub Actions OIDC deployment HTTP boundary', () => {
   let app: INestApplication;
@@ -20,7 +22,7 @@ describe('GitHub Actions OIDC deployment HTTP boundary', () => {
       requestId: '',
       correlationId: '',
       actorType: 'GitHubActionsOIDC',
-      actorSubject: 'repo:adrianmuscalu2-ai/agm-cockpit:environment:Production',
+      actorSubject,
       actorMetadata: { sha: 'a'.repeat(40), runId: '33773656386' },
     }),
   };
@@ -35,6 +37,12 @@ describe('GitHub Actions OIDC deployment HTTP boundary', () => {
       expiresAt: new Date('2026-09-04T00:00:00.000Z'),
     }),
   };
+  const authority = {
+    executeInspectorFailoverExercise: jest.fn().mockResolvedValue({
+      contractVersion: 'agent-runtime-accountability.v1',
+      verdict: { agentAccountability: 'PASS', inspectorFailover: 'PASS', controlCoverage: 'COMPLETE', falseActive: 0, unexplainedDegraded: 0, finalAgentRuntimePass: 'PASS' },
+    }),
+  };
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -43,6 +51,7 @@ describe('GitHub Actions OIDC deployment HTTP boundary', () => {
         GitHubActionsOidcGuard,
         { provide: GitHubActionsOidcService, useValue: oidc },
         { provide: MachineAuthService, useValue: machines },
+        { provide: AuthorityControlPlaneService, useValue: authority },
       ],
     }).compile();
     app = module.createNestApplication();
@@ -83,5 +92,19 @@ describe('GitHub Actions OIDC deployment HTTP boundary', () => {
       }),
     );
     expect(response.body.data).toMatchObject({ clientId: identityId, credentialId, companyId });
+  });
+
+  it('runs the controlled inspector failover exercise only in the guard-derived tenant', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/v1/auth/deploy/machines/inspector-failover/exercise')
+      .set('Authorization', 'Bearer github-actions-oidc-token')
+      .expect(201);
+
+    expect(oidc.authenticate).toHaveBeenCalledWith('github-actions-oidc-token');
+    expect(authority.executeInspectorFailoverExercise).toHaveBeenCalledWith(companyId, actorSubject);
+    expect(response.body.data).toMatchObject({
+      contractVersion: 'agent-runtime-accountability.v1',
+      verdict: { finalAgentRuntimePass: 'PASS', falseActive: 0, unexplainedDegraded: 0 },
+    });
   });
 });

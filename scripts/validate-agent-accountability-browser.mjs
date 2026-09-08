@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import net from 'node:net';
@@ -14,7 +14,20 @@ let controlledServer;
 let browser;
 let fatal = null;
 let incidentMode = 'OMITTED';
+let runtimeSnapshot = {
+  contractVersion: 'agent-runtime-accountability.v1', generatedAt: new Date().toISOString(),
+  agents: [
+    { identity: 'premium.release-inspector', responsibility: 'Primary Inspector', executable: 'YES', mandate: 'PROVEN', mandateId: 'primary-mandate', trigger: 'RELEASE_VALIDATION', executionCondition: 'ON_RELEASE', lastExecution: new Date().toISOString(), lastResult: 'FAILED', outputRef: 'urn:incident:primary', executionEvidenceRef: 'AgentRuntimeEvent:primary', validation: 'PROVEN', validator: 'premium.architecture-inspector', validationEvidenceRef: 'AuthorityAuditJournal:primary', lastValidation: new Date().toISOString(), freshness: 'CURRENT', status: 'FAIL', reason: 'Controlled primary failure.', openResponsibilities: ['Recover primary inspector.'], failover: 'PROVEN' },
+    { identity: 'premium.architecture-inspector', responsibility: 'Secondary Inspector', executable: 'YES', mandate: 'PROVEN', mandateId: 'secondary-mandate', trigger: 'INSPECTOR_FAILURE', executionCondition: 'ON_FAILURE', lastExecution: new Date().toISOString(), lastResult: 'COMPLETED', outputRef: 'urn:validation:secondary', executionEvidenceRef: 'AgentRuntimeEvent:secondary', validation: 'PROVEN', validator: 'premium.architecture-inspector', validationEvidenceRef: 'AuthorityAuditJournal:secondary', lastValidation: new Date().toISOString(), freshness: 'CURRENT', status: 'ACTIVE', reason: 'Transferred validation completed.', openResponsibilities: [], failover: 'PROVEN' },
+  ],
+  inspector: { primaryInspector: 'premium.release-inspector', primaryStatus: 'FAILED', secondaryInspector: 'premium.architecture-inspector', secondaryStatus: 'COMPLETED', activeValidator: 'premium.architecture-inspector', mandateTransferred: true, transferReason: 'PRIMARY_INSPECTOR_FAILED', transferredAt: new Date().toISOString(), lastValidation: new Date().toISOString(), transferEvidenceRef: 'AuthorityAuditJournal:transfer', status: 'PASS', controlStatus: 'TRANSFERRED_TO_SECONDARY' }, incidents: { open: 1, inspectorFailureIncident: 'incident-primary', controlCoverageIncident: null }, verdict: { agentAccountability: 'PASS', inspectorFailover: 'PASS', controlCoverage: 'COMPLETE', falseActive: 0, unexplainedDegraded: 0, finalAgentRuntimePass: 'PASS' },
+};
 
+if (process.env.AGM_AGENT_ACCOUNTABILITY_SNAPSHOT) {
+  const persisted = JSON.parse(await readFile(process.env.AGM_AGENT_ACCOUNTABILITY_SNAPSHOT, 'utf8'));
+  runtimeSnapshot = persisted.data ?? persisted;
+  if (runtimeSnapshot?.verdict?.finalAgentRuntimePass !== 'PASS') throw new Error('PRODUCTION_ACCOUNTABILITY_SNAPSHOT_NOT_PASS');
+}
 async function freePort() {
   return new Promise((resolve, reject) => {
     const server = net.createServer();
@@ -80,6 +93,7 @@ try {
       return json([]);
     }
     if (pathname.endsWith('/agent-runtime-events')) return json({ events: [], cursor: null });
+    if (pathname.endsWith('/operations/turn/agent-accountability')) return json(runtimeSnapshot);
     if (pathname.endsWith('/turn-admin/validate')) return json({ valid: true });
     if (pathname.endsWith('/auth/refresh')) return json({ accessToken: 'controlled-accountability-token' });
     if (pathname.endsWith('/health/live')) return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'ok' }) });
@@ -91,6 +105,15 @@ try {
 
   await page.goto(target, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#turn-agent-accountability');
+  await page.waitForSelector('[data-inspector-failover="PASS"]');
+  const runtime = await page.evaluate(() => ({
+    agents: document.querySelectorAll('[data-runtime-agent]').length,
+    primary: document.querySelector('[data-runtime-agent="premium.release-inspector"]')?.getAttribute('data-runtime-status'),
+    secondary: document.querySelector('[data-runtime-agent="premium.architecture-inspector"]')?.getAttribute('data-runtime-status'),
+    text: document.querySelector('#turn-agent-runtime-accountability')?.textContent ?? '',
+  }));
+  check('runtime-chain-visible', runtime.agents === runtimeSnapshot.agents.length && runtime.primary === 'FAIL' && runtime.secondary === 'ACTIVE', runtime);
+  check('failover-verdict-visible', ['AGENT ACCOUNTABILITYPASS', 'INSPECTOR FAILOVERPASS', 'CONTROL COVERAGECOMPLETE', 'FALSE ACTIVE0', 'FINAL AGENT RUNTIME PASSPASS', 'PRIMARY_INSPECTOR_FAILED', 'incident-primary'].every((item) => runtime.text.replace(/\s+/g, '').includes(item.replace(/\s+/g, ''))), runtime);
   await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'UNKNOWN / NOT CHECKED');
   const omitted = await page.evaluate(() => ({
     truth: document.querySelector('[data-incident-truth-state]')?.textContent?.trim(),

@@ -13,6 +13,7 @@ import { operationalProfile } from './operational-profile';
 import { SecretTelemetryService } from '../secret-telemetry/secret-telemetry.service';
 import { optionalExternalProviders } from '../car-mover/car-mover-routing.policy';
 import { OPERATIONAL_INCIDENT_CONTRACT, operationalIncidentTransition, qualifyOperationalIncident, type OperationalIncidentQualification } from './operational-incident-evaluator';
+import { AGENT_ACCOUNTABILITY_CONTRACT, INSPECTOR_FAILOVER_CONTRACT, evaluateAgentAccountability, evaluateInspectorFailover, falseActiveCount, type AccountabilitySignal } from './agent-runtime-accountability.engine';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
 const AUTHORITY_ADMIN_ROLES = new Set(['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN']);
@@ -21,6 +22,10 @@ const COMPONENT_RUNTIME_PROBE_STALE_AFTER_MS = 90_000;
 const COMPONENT_RUNTIME_PROBE_INTERVAL_MS = 60_000;
 const json = (value: unknown) => value as Prisma.InputJsonValue;
 type DomainActivity = { status: string; observedAt: Date; recordId: string; detail: string; dependencyState: string };
+const PRIMARY_INSPECTOR_ID = 'premium.release-inspector';
+const SECONDARY_INSPECTOR_ID = 'premium.architecture-inspector';
+const ACCOUNTABILITY_FRESHNESS_MS = 24 * 60 * 60 * 1000;
+const INSPECTION_MANDATE_VERSION = 'inspector-failover-readonly-mandate.v1';
 type RuntimeCapabilityRequirement = { provider: string; methods: string[]; adapterCategory?: string };
 type OperationalJournalEvent = Prisma.AuthorityAuditJournalGetPayload<Record<string, never>>;
 
@@ -140,7 +145,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       const runtimePresence = profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' || runtimeCapabilityMissing ? 'ABSENT' : runtimeObservedAt ? 'OBSERVED' : 'NOT_OBSERVED';
       const activityStatus = profile.runtimeMode === 'HUMAN' ? 'STANDBY' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'FAIL' : runtimeEventActive ? 'PASS' : canonicalState.status;
       const probeDegraded = heartbeat?.reportedStatus === 'DEGRADED' || (secretRun ? secretRun.overallStatus !== 'CONFIGURED' : false);
-      const sourceStatus = runtimePresence === 'ABSENT' || runtimeStale ? 'FAIL' : runtimePresence === 'NOT_OBSERVED' ? 'NO_TELEMETRY' : probeDegraded ? 'DEGRADED' : activityStatus === 'FAIL' ? 'FAIL' : activityStatus === 'DEGRADED' ? 'DEGRADED' : activityStatus === 'NO_TELEMETRY' || activityStale ? 'STANDBY' : activityStatus;
+      const sourceStatus = runtimePresence === 'ABSENT' || runtimeStale ? 'FAIL' : runtimePresence === 'NOT_OBSERVED' ? 'NO_TELEMETRY' : probeDegraded ? 'DEGRADED' : activityStatus === 'FAIL' ? 'FAIL' : activityStatus === 'DEGRADED' ? 'DEGRADED' : activityStale ? 'DEGRADED' : activityStatus;
       const effectiveStatus = persisted ? sourceStatus : 'FAIL';
       const secretIssue = secretRun?.secrets.filter((secret) => secret.status !== 'CONFIGURED').map((secret) => `${secret.id}:${secret.status}`).join(', ') || null;
       const sourceFailureReason = secretIssue
@@ -305,6 +310,179 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
 
   registryReadOnly(companyId: string) {
     return this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId }, orderBy: { canonicalId: 'asc' } });
+  }
+
+  async agentAccountability(ctx: RequestContext) {
+    const now = new Date();
+    const dashboard = await this.dashboard(ctx);
+    const [mandates, runtimeEvents, validationEvents, failoverState, failoverEvents] = await Promise.all([
+      this.prisma.authorityMandate.findMany({ where: { companyId: ctx.companyId, status: 'APPROVED', revokedAt: null, OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }, orderBy: { issuedAt: 'desc' } }),
+      this.prisma.agentRuntimeEvent.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: 2000 }),
+      this.prisma.authorityAuditJournal.findMany({ where: { companyId: ctx.companyId, eventType: 'AGENT_ACCOUNTABILITY_VALIDATED' }, orderBy: { occurredAt: 'desc' }, take: 2000 }),
+      this.prisma.authorityFailoverState.findUnique({ where: { companyId_scopeId: { companyId: ctx.companyId, scopeId: 'premium.release' } } }),
+      this.prisma.authorityAuditJournal.findMany({ where: { companyId: ctx.companyId, eventType: { in: ['INSPECTOR_MANDATE_TRANSFERRED', 'SECONDARY_VALIDATION_COMPLETED', 'CONTROL_COVERAGE_LOST', 'CONTROL_COVERAGE_RESTORED'] } }, orderBy: { occurredAt: 'desc' }, take: 100 }),
+    ]);
+    const mandateByAgent = firstBy(mandates, (item) => item.agentId);
+    const runtimeByAgent = firstBy(runtimeEvents, (item) => item.agentId);
+    const validationByAgent = firstBy(validationEvents, (item) => String(jsonRecord(item.safeMetadata).agentId ?? ''));
+    const primaryEvent = runtimeByAgent.get(PRIMARY_INSPECTOR_ID);
+    const secondaryEvent = runtimeByAgent.get(SECONDARY_INSPECTOR_ID);
+    const transferEvent = failoverEvents.find((event) => event.eventType === 'INSPECTOR_MANDATE_TRANSFERRED');
+    const latestControlEvent = failoverEvents[0];
+    const coverageExplicitlyLost = latestControlEvent?.eventType === 'CONTROL_COVERAGE_LOST';
+    const failover = evaluateInspectorFailover({
+      primary: runtimeSignal(primaryEvent),
+      secondary: runtimeSignal(secondaryEvent),
+      transferObservedAt: transferEvent?.occurredAt ?? null,
+      activeValidatorId: coverageExplicitlyLost ? null : failoverState?.activeProviderId ?? null,
+      secondaryId: SECONDARY_INSPECTOR_ID,
+      freshnessWindowMs: ACCOUNTABILITY_FRESHNESS_MS,
+      now,
+    });
+    const controlIncident = failover.controlCoverage === 'INCOMPLETE' ? await this.recordControlCoverageLost(ctx, latestControlEvent) : null;
+    const agents = dashboard.nodes.filter((node) => node.kind !== 'HUMAN_AUTHORITY').map((node) => {
+      const seed = premiumNetworkSeed.find((item) => item.canonicalId === node.canonicalId)!;
+      const profile = operationalProfile(seed);
+      const execution = runtimeSignal(runtimeByAgent.get(node.canonicalId)) ?? nodeSignal(node);
+      const mandate = mandateByAgent.get(node.canonicalId);
+      const validationEvent = validationByAgent.get(node.canonicalId);
+      const validationMetadata = validationEvent ? jsonRecord(validationEvent.safeMetadata) : {};
+      const validation: AccountabilitySignal | null = validationEvent ? {
+        id: validationEvent.eventId,
+        status: validationEvent.outcome,
+        occurredAt: validationEvent.occurredAt,
+        evidenceRef: `AuthorityAuditJournal:${validationEvent.eventId}`,
+        outputRef: typeof validationMetadata.outputRef === 'string' ? validationMetadata.outputRef : `urn:agm:accountability-validation:${validationEvent.eventId}`,
+      } : null;
+      const evaluation = evaluateAgentAccountability({
+        capabilityDeclared: profile.runtimeMode !== 'CAPABILITY_NOT_IMPLEMENTED',
+        runtimeAbsent: node.runtimePresence === 'ABSENT',
+        mandateId: mandate?.id ?? null,
+        execution,
+        validation,
+        freshnessWindowMs: profile.freshnessWindowMs ?? ACCOUNTABILITY_FRESHNESS_MS,
+        controlCoverageLost: failover.controlCoverage === 'INCOMPLETE',
+        now,
+      });
+      return {
+        identity: node.canonicalId,
+        kind: node.kind,
+        responsibility: node.currentFunction,
+        executable: evaluation.executable,
+        mandate: evaluation.mandate,
+        mandateId: mandate?.id ?? null,
+        trigger: accountabilityTrigger(profile.runtimeMode, node.canonicalId),
+        executionCondition: accountabilityFrequency(profile.runtimeMode),
+        lastExecution: execution?.occurredAt ?? null,
+        lastResult: execution?.status ?? 'NO EXECUTION',
+        executionEventId: execution?.id ?? null,
+        outputRef: execution?.outputRef ?? null,
+        executionEvidenceRef: execution?.evidenceRef ?? null,
+        validation: evaluation.validation,
+        validator: typeof validationMetadata.validatorId === 'string' ? validationMetadata.validatorId : failoverState?.activeProviderId ?? PRIMARY_INSPECTOR_ID,
+        validationEvidenceRef: validation?.evidenceRef ?? null,
+        lastValidation: validation?.occurredAt ?? null,
+        freshness: evaluation.freshness,
+        freshnessWindowSeconds: Math.round((profile.freshnessWindowMs ?? ACCOUNTABILITY_FRESHNESS_MS) / 1000),
+        status: evaluation.status,
+        statusSource: 'IDENTITY_MANDATE_EXECUTION_EVIDENCE_VALIDATION_ENGINE',
+        reason: evaluation.reason,
+        openResponsibilities: evaluation.status === 'ACTIVE' ? [] : [node.requiredAction ?? evaluation.reason],
+        stopFailDegradedCondition: 'STOP on revoked/expired mandate; FAIL on failed execution; DEGRADED on missing/stale validation; STALE beyond declared SLA.',
+        failover: failover.status === 'PASS' ? 'PROVEN' : 'NOT PROVEN',
+      };
+    });
+    const falseActive = falseActiveCount(agents);
+    const unexplainedDegraded = agents.filter((agent) => agent.status === 'DEGRADED' && !agent.reason).length;
+    const accountabilityComplete = agents.length > 0
+      && agents.every((agent) => agent.identity && agent.responsibility && agent.trigger && agent.executionCondition && agent.statusSource && agent.validator && agent.validationEvidenceRef)
+      && falseActive === 0 && unexplainedDegraded === 0;
+    const finalPass = accountabilityComplete && failover.status === 'PASS' && failover.controlCoverage === 'COMPLETE';
+    return {
+      contractVersion: AGENT_ACCOUNTABILITY_CONTRACT,
+      generatedAt: now,
+      agents,
+      inspector: {
+        contractVersion: INSPECTOR_FAILOVER_CONTRACT,
+        primaryInspector: PRIMARY_INSPECTOR_ID,
+        primaryStatus: primaryEvent?.lifecycle ?? 'NO TELEMETRY',
+        secondaryInspector: SECONDARY_INSPECTOR_ID,
+        secondaryStatus: secondaryEvent?.lifecycle ?? 'NO TELEMETRY',
+        activeValidator: failoverState?.activeProviderId ?? null,
+        mandateTransferred: failover.transferProven,
+        transferReason: failoverState?.transitionReason ?? null,
+        transferredAt: failoverState?.lastTransitionAt ?? null,
+        lastValidation: secondaryEvent?.occurredAt ?? null,
+        transferEvidenceRef: transferEvent ? `AuthorityAuditJournal:${transferEvent.eventId}` : null,
+        status: failover.status,
+        controlStatus: failover.controlStatus,
+      },
+      incidents: { eventStore: 'AuthorityAuditJournal', open: dashboard.incidentPipeline.open + (controlIncident ? 1 : 0), inspectorFailureIncident: dashboard.nodes.find((node) => node.canonicalId === PRIMARY_INSPECTOR_ID)?.incidentQualification?.openIncidentEventId ?? controlIncident?.eventId ?? null, controlCoverageIncident: controlIncident?.eventId ?? (coverageExplicitlyLost ? latestControlEvent?.eventId ?? null : null) },
+      verdict: { agentAccountability: accountabilityComplete ? 'PASS' : 'FAIL', inspectorFailover: failover.status, controlCoverage: failover.controlCoverage, falseActive, unexplainedDegraded, finalAgentRuntimePass: finalPass ? 'PASS' : 'FAIL' },
+    };
+  }
+
+  private async recordControlCoverageLost(ctx: RequestContext, latestControlEvent: OperationalJournalEvent | undefined) {
+    if (latestControlEvent?.eventType === 'CONTROL_COVERAGE_LOST') return latestControlEvent;
+    const eventId = randomUUID();
+    const incidentId = randomUUID();
+    const metadata = { contractVersion: INSPECTOR_FAILOVER_CONTRACT, primaryInspector: PRIMARY_INSPECTOR_ID, secondaryInspector: SECONDARY_INSPECTOR_ID, controlCoverage: 'LOST', rationale: 'Primary inspection is unavailable and no current secondary validation proves coverage.' };
+    const payloadHash = hash(metadata);
+    await this.prisma.$transaction(async (tx) => {
+      await tx.authorityAuditJournal.create({ data: { companyId: ctx.companyId, eventId, eventType: 'CONTROL_COVERAGE_LOST', scopeId: 'premium.release', actorType: 'SYSTEM', actorId: 'agm.inspector-failover-controller', outcome: 'FAIL', reasonCode: 'NO_CURRENT_VALIDATOR', payloadHash, safeMetadata: json(metadata), correlationId: ctx.correlationId } });
+      await tx.authorityAuditJournal.create({ data: { companyId: ctx.companyId, eventId: incidentId, eventType: 'OPERATIONAL_INCIDENT_OPENED', scopeId: 'premium.release', actorType: 'SYSTEM', actorId: 'agm.inspector-failover-controller', outcome: 'OPEN', reasonCode: 'CONTROL_COVERAGE_LOST', payloadHash, safeMetadata: json({ ...metadata, evidenceReference: `AuthorityAuditJournal:${eventId}`, severity: 'CRITICAL' }), correlationId: ctx.correlationId } });
+    });
+    return { eventId } as OperationalJournalEvent;
+  }
+
+  async executeInspectorFailoverExercise(companyId: string, machineId: string) {
+    const ctx: RequestContext = { companyId, userId: '00000000-0000-0000-0000-000000000001', roles: ['PRODUCT_OWNER'], requestId: randomUUID(), correlationId: randomUUID() };
+    await this.ensureFoundation(ctx);
+    const issuedAt = new Date();
+    const expiresAt = new Date(issuedAt.getTime() + ACCOUNTABILITY_FRESHNESS_MS);
+    const inspectionReadSet = ['registry.read', 'telemetry.read', 'evidence.read'];
+    const prohibitedActions = ['business.write', 'authority.expand', 'secret.read', 'production.deploy'];
+    const mandates = await this.prisma.$transaction(async (tx) => Promise.all([PRIMARY_INSPECTOR_ID, SECONDARY_INSPECTOR_ID].map((agentId) => tx.authorityMandate.upsert({
+      where: { companyId_mandateKey: { companyId, mandateKey: inspectorMandateKey(agentId) } },
+      create: { companyId, mandateKey: inspectorMandateKey(agentId), scopeId: agentId === PRIMARY_INSPECTOR_ID ? 'premium.release' : 'premium.architecture', agentId, mode: 'INSPECTOR', contractHash: hash({ contract: INSPECTION_MANDATE_VERSION, agentId, inspectionReadSet, prohibitedActions }), readSet: json(inspectionReadSet), writeSet: json([]), resourceSelectors: json([]), prohibitedActions: json(prohibitedActions), approvedByUserId: ctx.userId, issuedAt, expiresAt },
+      update: { status: 'APPROVED', revokedAt: null, expiresAt, readSet: json(inspectionReadSet), writeSet: json([]), resourceSelectors: json([]), prohibitedActions: json(prohibitedActions), contractHash: hash({ contract: INSPECTION_MANDATE_VERSION, agentId, inspectionReadSet, prohibitedActions }), version: { increment: 1 } },
+    }))));
+    const primaryMandate = mandates.find((item) => item.agentId === PRIMARY_INSPECTOR_ID)!;
+    const secondaryMandate = mandates.find((item) => item.agentId === SECONDARY_INSPECTOR_ID)!;
+    const runId = randomUUID();
+    const failureEventId = randomUUID();
+    const transferEventId = randomUUID();
+    const failureAt = new Date();
+    await this.prisma.$transaction(async (tx) => {
+      await tx.agentRuntimeEvent.create({ data: { companyId, eventId: failureEventId, mandateId: primaryMandate.id, agentId: PRIMARY_INSPECTOR_ID, dossierId: `inspector-failover-${runId}`, lifecycle: 'FAILED', sequence: 1, occurredAt: failureAt, evidenceRef: `urn:agm:controlled-inspector-failure:${runId}`, outputRef: `urn:agm:incident:${failureEventId}`, evidenceHash: hash({ runId, injectedFailure: true }), detail: 'CONTROLLED_PRODUCTION_FAILOVER_EXERCISE: primary validation unavailable.' } });
+      const incidentMetadata = { contractVersion: OPERATIONAL_INCIDENT_CONTRACT, canonicalId: PRIMARY_INSPECTOR_ID, decision: 'QUALIFIED', severity: 'CRITICAL', rootCauseClassification: 'RUNTIME_FAILURE', rationale: 'Chief Inspector failed during controlled Production failover exercise.', evidenceReference: `AgentRuntimeEvent:${failureEventId}` };
+      await tx.authorityAuditJournal.create({ data: { companyId, eventId: randomUUID(), eventType: 'OPERATIONAL_INCIDENT_OPENED', scopeId: 'premium.release', mandateId: primaryMandate.id, actorType: 'MACHINE', actorId: machineId, outcome: 'OPEN', reasonCode: 'CHIEF_INSPECTOR_FAILED', payloadHash: hash(incidentMetadata), safeMetadata: json(incidentMetadata), correlationId: ctx.correlationId } });
+      await tx.authorityFailoverState.upsert({ where: { companyId_scopeId: { companyId, scopeId: 'premium.release' } }, create: { companyId, scopeId: 'premium.release', primaryProviderId: PRIMARY_INSPECTOR_ID, activeProviderId: SECONDARY_INSPECTOR_ID, state: 'TRANSFERRED', epoch: 1, lastTransitionAt: failureAt, transitionReason: 'PRIMARY_INSPECTOR_FAILED' }, update: { primaryProviderId: PRIMARY_INSPECTOR_ID, activeProviderId: SECONDARY_INSPECTOR_ID, state: 'TRANSFERRED', activeLeaseId: null, epoch: { increment: 1 }, lastTransitionAt: failureAt, transitionReason: 'PRIMARY_INSPECTOR_FAILED', version: { increment: 1 } } });
+      const transferMetadata = { contractVersion: INSPECTOR_FAILOVER_CONTRACT, from: PRIMARY_INSPECTOR_ID, to: SECONDARY_INSPECTOR_ID, runId, failureEventId };
+      await tx.authorityAuditJournal.create({ data: { companyId, eventId: transferEventId, eventType: 'INSPECTOR_MANDATE_TRANSFERRED', scopeId: 'premium.release', mandateId: secondaryMandate.id, actorType: 'SYSTEM', actorId: 'agm.inspector-failover-controller', outcome: 'PASS', reasonCode: 'PRIMARY_INSPECTOR_FAILED', payloadHash: hash(transferMetadata), safeMetadata: json(transferMetadata), correlationId: ctx.correlationId, occurredAt: new Date(failureAt.getTime() + 1) } });
+      await tx.agentRuntimeEvent.createMany({ data: [
+        { companyId, eventId: randomUUID(), mandateId: secondaryMandate.id, agentId: SECONDARY_INSPECTOR_ID, dossierId: `inspector-failover-${runId}`, lifecycle: 'STARTED', sequence: 1, occurredAt: new Date(failureAt.getTime() + 2), evidenceRef: `AuthorityAuditJournal:${transferEventId}`, detail: 'Secondary Inspector accepted transferred validation mandate.' },
+        { companyId, eventId: randomUUID(), mandateId: secondaryMandate.id, agentId: SECONDARY_INSPECTOR_ID, dossierId: `inspector-failover-${runId}`, lifecycle: 'WORKING', sequence: 2, occurredAt: new Date(failureAt.getTime() + 3), evidenceRef: `AuthorityAuditJournal:${transferEventId}`, detail: 'Secondary Inspector validating identity, mandate, execution, output, evidence and freshness.' },
+      ] });
+    });
+    const dashboard = await this.dashboard(ctx);
+    const activeMandates = await this.prisma.authorityMandate.findMany({ where: { companyId, status: 'APPROVED', revokedAt: null, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] } });
+    const mandateByAgent = firstBy(activeMandates, (item) => item.agentId);
+    const validationAt = new Date();
+    const validationOutput = { runId, registryNodes: dashboard.nodes.length, evaluatedAgents: dashboard.nodes.filter((item) => item.kind !== 'HUMAN_AUTHORITY').length, primaryFailureEventId: failureEventId, transferEventId };
+    const validationHash = hash(validationOutput);
+    const completedEventId = randomUUID();
+    await this.prisma.$transaction(async (tx) => {
+      await tx.agentRuntimeEvent.create({ data: { companyId, eventId: completedEventId, mandateId: secondaryMandate.id, agentId: SECONDARY_INSPECTOR_ID, dossierId: `inspector-failover-${runId}`, lifecycle: 'COMPLETED', sequence: 3, occurredAt: validationAt, evidenceRef: `AuthorityAuditJournal:${transferEventId}`, outputRef: `urn:agm:secondary-validation:${runId}`, evidenceHash: validationHash, detail: JSON.stringify(validationOutput) } });
+      for (const node of dashboard.nodes.filter((item) => item.kind !== 'HUMAN_AUTHORITY')) {
+        const safeMetadata = { contractVersion: AGENT_ACCOUNTABILITY_CONTRACT, agentId: node.canonicalId, validatorId: SECONDARY_INSPECTOR_ID, status: node.status, mandateId: mandateByAgent.get(node.canonicalId)?.id ?? null, executionEvidenceRef: node.evidence.recordReference ?? null, outputRef: `urn:agm:accountability-validation:${runId}:${node.canonicalId}`, runId };
+        await tx.authorityAuditJournal.create({ data: { companyId, eventId: randomUUID(), eventType: 'AGENT_ACCOUNTABILITY_VALIDATED', scopeId: node.scope, mandateId: mandateByAgent.get(node.canonicalId)?.id, actorType: 'AGENT', actorId: SECONDARY_INSPECTOR_ID, outcome: 'PASS', reasonCode: node.status === 'FAIL' ? 'EXPLICIT_FAILURE_RECORDED' : undefined, payloadHash: hash(safeMetadata), safeMetadata: json(safeMetadata), correlationId: ctx.correlationId, occurredAt: new Date(validationAt.getTime() + 1) } });
+      }
+      const completedMetadata = { ...validationOutput, completedEventId, evidenceHash: validationHash };
+      await tx.authorityAuditJournal.create({ data: { companyId, eventId: randomUUID(), eventType: 'SECONDARY_VALIDATION_COMPLETED', scopeId: 'premium.release', mandateId: secondaryMandate.id, actorType: 'AGENT', actorId: SECONDARY_INSPECTOR_ID, outcome: 'PASS', payloadHash: validationHash, safeMetadata: json(completedMetadata), correlationId: ctx.correlationId, occurredAt: new Date(validationAt.getTime() + 2) } });
+      await tx.authorityAuditJournal.create({ data: { companyId, eventId: randomUUID(), eventType: 'CONTROL_COVERAGE_RESTORED', scopeId: 'premium.release', mandateId: secondaryMandate.id, actorType: 'SYSTEM', actorId: 'agm.inspector-failover-controller', outcome: 'PASS', payloadHash: validationHash, safeMetadata: json({ runId, activeValidator: SECONDARY_INSPECTOR_ID, uncoveredZones: 0 }), correlationId: ctx.correlationId, occurredAt: new Date(validationAt.getTime() + 3) } });
+    });
+    return this.agentAccountability(ctx);
   }
 
   async inspectOperationalCapabilities(ctx: RequestContext) {
@@ -654,6 +832,41 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
 
 function requireAuthorityAdmin(ctx: RequestContext) {
   if (!ctx.roles.some((role) => AUTHORITY_ADMIN_ROLES.has(role.toUpperCase()))) throw new ForbiddenException('HUMAN_AUTHORITY_REQUIRED');
+}
+
+function firstBy<T>(items: readonly T[], key: (item: T) => string) {
+  const map = new Map<string, T>();
+  for (const item of items) if (!map.has(key(item))) map.set(key(item), item);
+  return map;
+}
+
+function runtimeSignal(event: { eventId: string; lifecycle: string; occurredAt: Date; evidenceRef: string; outputRef: string | null; evidenceHash: string | null } | undefined): AccountabilitySignal | null {
+  return event ? { id: event.eventId, status: event.lifecycle, occurredAt: event.occurredAt, evidenceRef: event.evidenceRef, outputRef: event.outputRef ?? (event.evidenceHash ? `sha256:${event.evidenceHash}` : null) } : null;
+}
+
+function nodeSignal(node: { lastActivity: Date | null; lastRun: { lifecycle: string; occurredAt: Date; detail: unknown } | null; activityEvidence: { recordReference: string | null } }): AccountabilitySignal | null {
+  if (!node.lastActivity || !node.activityEvidence.recordReference || !node.lastRun) return null;
+  return { id: node.activityEvidence.recordReference, status: node.lastRun.lifecycle, occurredAt: node.lastActivity, evidenceRef: node.activityEvidence.recordReference, outputRef: node.activityEvidence.recordReference };
+}
+
+function accountabilityTrigger(runtimeMode: string, canonicalId: string) {
+  if (canonicalId === AUTHORITY_CONTROL_PLANE_ID) return 'AUTHENTICATED_M2M_ACP_READ';
+  if (canonicalId === PRIMARY_INSPECTOR_ID || canonicalId === SECONDARY_INSPECTOR_ID) return 'RELEASE_VALIDATION_OR_INSPECTOR_FAILURE';
+  if (runtimeMode === 'CONTINUOUS_COMPONENT') return 'SCHEDULED_RUNTIME_PROBE';
+  if (runtimeMode === 'REQUEST_DRIVEN') return 'AUTHORIZED_WORK_REQUEST';
+  if (runtimeMode === 'EVENT_DRIVEN') return 'CANONICAL_DOMAIN_EVENT';
+  return 'NO_EXECUTION_TRIGGER';
+}
+
+function accountabilityFrequency(runtimeMode: string) {
+  if (runtimeMode === 'CONTINUOUS_COMPONENT') return 'EVERY_60_SECONDS';
+  if (runtimeMode === 'REQUEST_DRIVEN') return 'ON_DEMAND_WHEN_WORK_EXISTS';
+  if (runtimeMode === 'EVENT_DRIVEN') return 'ON_EACH_CANONICAL_EVENT';
+  return 'NOT_APPLICABLE';
+}
+
+function inspectorMandateKey(agentId: string) {
+  return `inspector-failover:${agentId}`;
 }
 
 function stringArray(value: Prisma.JsonValue): string[] {
