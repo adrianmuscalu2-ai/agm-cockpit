@@ -20,13 +20,23 @@ let runtimeSnapshot = {
     { identity: 'premium.release-inspector', responsibility: 'Primary Inspector', executable: 'YES', mandate: 'PROVEN', mandateId: 'primary-mandate', trigger: 'RELEASE_VALIDATION', executionCondition: 'ON_RELEASE', lastExecution: new Date().toISOString(), lastResult: 'FAILED', outputRef: 'urn:incident:primary', executionEvidenceRef: 'AgentRuntimeEvent:primary', validation: 'PROVEN', validator: 'premium.architecture-inspector', validationEvidenceRef: 'AuthorityAuditJournal:primary', lastValidation: new Date().toISOString(), freshness: 'CURRENT', status: 'FAIL', reason: 'Controlled primary failure.', openResponsibilities: ['Recover primary inspector.'], failover: 'PROVEN' },
     { identity: 'premium.architecture-inspector', responsibility: 'Secondary Inspector', executable: 'YES', mandate: 'PROVEN', mandateId: 'secondary-mandate', trigger: 'INSPECTOR_FAILURE', executionCondition: 'ON_FAILURE', lastExecution: new Date().toISOString(), lastResult: 'COMPLETED', outputRef: 'urn:validation:secondary', executionEvidenceRef: 'AgentRuntimeEvent:secondary', validation: 'PROVEN', validator: 'premium.architecture-inspector', validationEvidenceRef: 'AuthorityAuditJournal:secondary', lastValidation: new Date().toISOString(), freshness: 'CURRENT', status: 'ACTIVE', reason: 'Transferred validation completed.', openResponsibilities: [], failover: 'PROVEN' },
   ],
-  inspector: { primaryInspector: 'premium.release-inspector', primaryStatus: 'FAILED', secondaryInspector: 'premium.architecture-inspector', secondaryStatus: 'COMPLETED', activeValidator: 'premium.architecture-inspector', mandateTransferred: true, transferReason: 'PRIMARY_INSPECTOR_FAILED', transferredAt: new Date().toISOString(), lastValidation: new Date().toISOString(), transferEvidenceRef: 'AuthorityAuditJournal:transfer', status: 'PASS', controlStatus: 'TRANSFERRED_TO_SECONDARY' }, incidents: { open: 1, inspectorFailureIncident: 'incident-primary', controlCoverageIncident: null }, verdict: { agentAccountability: 'PASS', inspectorFailover: 'PASS', controlCoverage: 'COMPLETE', falseActive: 0, unexplainedDegraded: 0, finalAgentRuntimePass: 'PASS' },
+  fleet: { total: 2, healthy: 1, degraded: 0, failed: 1, noTelemetry: 0, standby: 0 },
+  inspector: { primaryInspector: 'premium.release-inspector', primaryStatus: 'FAILED', secondaryInspector: 'premium.architecture-inspector', secondaryStatus: 'COMPLETED', activeValidator: 'premium.architecture-inspector', mandateTransferred: true, transferReason: 'PRIMARY_INSPECTOR_FAILED', transferredAt: new Date().toISOString(), lastValidation: new Date().toISOString(), transferEvidenceRef: 'AuthorityAuditJournal:transfer', status: 'PASS', controlStatus: 'TRANSFERRED_TO_SECONDARY' }, incidents: { open: 1, inspectorFailureIncident: 'incident-primary', controlCoverageIncident: null }, verdict: { controlSystem: 'PASS', overallOperationalState: 'FAIL', agentAccountability: 'FAIL', inspectorFailover: 'PASS', controlCoverage: 'COMPLETE', falseActive: 0, unexplainedDegraded: 0, finalAgentRuntimePass: 'FAIL' },
 };
+
+function validateRuntimeSnapshot(snapshot) {
+  const fleet = snapshot?.fleet;
+  const everyAgentAccountable = snapshot?.agents?.length > 0 && snapshot.agents.every((agent) => agent.status === 'ACTIVE' && agent.executable === 'YES' && agent.mandate === 'PROVEN' && agent.validation === 'PROVEN' && agent.executionEvidenceRef);
+  const expectedOverall = fleet && fleet.degraded === 0 && fleet.failed === 0 && fleet.noTelemetry === 0 && fleet.standby === 0 ? 'PASS' : 'FAIL';
+  const expectedAccountability = everyAgentAccountable ? 'PASS' : 'FAIL';
+  const expectedFinal = snapshot?.verdict?.controlSystem === 'PASS' && expectedAccountability === 'PASS' && snapshot?.verdict?.inspectorFailover === 'PASS' && snapshot?.verdict?.controlCoverage === 'COMPLETE' && expectedOverall === 'PASS' ? 'PASS' : 'FAIL';
+  if (snapshot?.verdict?.controlSystem !== 'PASS' || snapshot.verdict.agentAccountability !== expectedAccountability || snapshot.verdict.overallOperationalState !== expectedOverall || snapshot.verdict.finalAgentRuntimePass !== expectedFinal) throw new Error('PRODUCTION_ACCOUNTABILITY_SNAPSHOT_INCONSISTENT');
+}
 
 if (process.env.AGM_AGENT_ACCOUNTABILITY_SNAPSHOT) {
   const persisted = JSON.parse(await readFile(process.env.AGM_AGENT_ACCOUNTABILITY_SNAPSHOT, 'utf8'));
   runtimeSnapshot = persisted.data ?? persisted;
-  if (runtimeSnapshot?.verdict?.finalAgentRuntimePass !== 'PASS') throw new Error('PRODUCTION_ACCOUNTABILITY_SNAPSHOT_NOT_PASS');
+  validateRuntimeSnapshot(runtimeSnapshot);
 }
 async function freePort() {
   return new Promise((resolve, reject) => {
@@ -113,7 +123,17 @@ try {
     text: document.querySelector('#turn-agent-runtime-accountability')?.textContent ?? '',
   }));
   check('runtime-chain-visible', runtime.agents === runtimeSnapshot.agents.length && runtime.primary === 'FAIL' && runtime.secondary === 'ACTIVE', runtime);
-  const requiredVerdictText = ['AGENT ACCOUNTABILITYPASS', 'INSPECTOR FAILOVERPASS', 'CONTROL COVERAGECOMPLETE', 'FALSE ACTIVE0', 'FINAL AGENT RUNTIME PASSPASS', runtimeSnapshot.inspector.transferReason, runtimeSnapshot.incidents.controlCoverageIncident ?? runtimeSnapshot.incidents.inspectorFailureIncident].filter(Boolean);
+  const requiredVerdictText = [
+    `OVERALL OPERATIONAL STATE${runtimeSnapshot.verdict.overallOperationalState}`,
+    `CONTROL SYSTEM${runtimeSnapshot.verdict.controlSystem}`,
+    `AGENT ACCOUNTABILITY${runtimeSnapshot.verdict.agentAccountability}`,
+    `INSPECTOR FAILOVER${runtimeSnapshot.verdict.inspectorFailover}`,
+    `CONTROL COVERAGE${runtimeSnapshot.verdict.controlCoverage}`,
+    `FALSE ACTIVE${runtimeSnapshot.verdict.falseActive}`,
+    `FINAL AGENT RUNTIME PASS${runtimeSnapshot.verdict.finalAgentRuntimePass}`,
+    runtimeSnapshot.inspector.transferReason,
+    runtimeSnapshot.incidents.controlCoverageIncident ?? runtimeSnapshot.incidents.inspectorFailureIncident,
+  ].filter(Boolean);
   check('failover-verdict-visible', requiredVerdictText.every((item) => runtime.text.replace(/\s+/g, '').includes(String(item).replace(/\s+/g, ''))), runtime);
   if (process.env.AGM_AGENT_ACCOUNTABILITY_SNAPSHOT) {
     const screenshot = path.join(output, 'production-agent-runtime-accountability.png');

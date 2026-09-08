@@ -45,16 +45,19 @@ const runtimeSnapshot: AgentRuntimeAccountabilitySnapshot = {
     validationEvidenceRef: 'AuthorityAuditJournal:secondary', lastValidation: new Date().toISOString(), freshness: 'CURRENT', status: 'ACTIVE',
     reason: 'Full chain proven.', openResponsibilities: [], failover: 'PROVEN',
   }],
+  fleet: { total: 1, healthy: 1, degraded: 0, failed: 0, noTelemetry: 0, standby: 0 },
   inspector: {
     primaryInspector: 'premium.release-inspector', primaryStatus: 'FAILED', secondaryInspector: 'premium.architecture-inspector', secondaryStatus: 'COMPLETED',
     activeValidator: 'premium.architecture-inspector', mandateTransferred: true, transferReason: 'PRIMARY_INSPECTOR_FAILED', transferredAt: new Date().toISOString(),
     lastValidation: new Date().toISOString(), transferEvidenceRef: 'AuthorityAuditJournal:transfer', status: 'PASS', controlStatus: 'TRANSFERRED_TO_SECONDARY',
   },
   incidents: { open: 1, inspectorFailureIncident: 'incident-primary', controlCoverageIncident: null },
-  verdict: { agentAccountability: 'PASS', inspectorFailover: 'PASS', controlCoverage: 'COMPLETE', falseActive: 0, unexplainedDegraded: 0, finalAgentRuntimePass: 'PASS' },
+  verdict: { controlSystem: 'PASS', overallOperationalState: 'PASS', agentAccountability: 'PASS', inspectorFailover: 'PASS', controlCoverage: 'COMPLETE', falseActive: 0, unexplainedDegraded: 0, finalAgentRuntimePass: 'PASS' },
 };
 const runtimeMarkup = renderAgentRuntimeSnapshot(runtimeSnapshot);
 for (const required of [
+  'OVERALL OPERATIONAL STATE',
+  'CONTROL SYSTEM',
   'AGENT ACCOUNTABILITY',
   'INSPECTOR FAILOVER',
   'CONTROL COVERAGE',

@@ -1,5 +1,6 @@
 import {
   evaluateAgentAccountability,
+  evaluateAgentRuntimeVerdict,
   evaluateInspectorFailover,
   falseActiveCount,
   type AccountabilitySignal,
@@ -78,6 +79,35 @@ describe('agent runtime accountability engine', () => {
       freshnessWindowMs: 60 * 60 * 1000,
       now,
     })).toEqual(expect.objectContaining({ status: 'FAIL', controlCoverage: 'INCOMPLETE', controlStatus: 'CONTROL COVERAGE LOST' }));
+  });
+
+  it('keeps control-system PASS separate from a non-accountable fleet', () => {
+    expect(evaluateAgentRuntimeVerdict({
+      controlSystemComplete: true,
+      agents: [{ status: 'MANDATE NOT ASSIGNED', executable: 'YES', mandate: 'NOT PROVEN', validation: 'PROVEN', executionEvidenceRef: 'event:1' }],
+      inspectorFailover: 'PASS',
+      controlCoverage: 'COMPLETE',
+      overallOperationalState: 'FAIL',
+      falseActive: 0,
+      unexplainedDegraded: 0,
+    })).toEqual(expect.objectContaining({ controlSystem: 'PASS', agentAccountability: 'FAIL', overallOperationalState: 'FAIL', finalAgentRuntimePass: 'FAIL' }));
+  });
+
+  it('grants the final runtime PASS only when every agent and the fleet are operational', () => {
+    expect(evaluateAgentRuntimeVerdict({
+      controlSystemComplete: true,
+      agents: [{ status: 'ACTIVE', executable: 'YES', mandate: 'PROVEN', validation: 'PROVEN', executionEvidenceRef: 'event:1' }],
+      inspectorFailover: 'PASS',
+      controlCoverage: 'COMPLETE',
+      overallOperationalState: 'PASS',
+      falseActive: 0,
+      unexplainedDegraded: 0,
+    })).toEqual(expect.objectContaining({
+      controlSystem: 'PASS',
+      agentAccountability: 'PASS',
+      overallOperationalState: 'PASS',
+      finalAgentRuntimePass: 'PASS',
+    }));
   });
 
   it('detects every false ACTIVE projection', () => {

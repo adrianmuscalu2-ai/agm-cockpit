@@ -153,17 +153,18 @@ function renderRuntimeFailure(root: HTMLElement, error: unknown) {
 }
 
 function renderHero(root: HTMLElement, data: Dashboard) {
-  const runtimeObserved = data.nodes.filter((node) => node.runtimePresence === 'OBSERVED').length;
-  const runtimeAbsentOrUnseen = data.nodes.filter((node) => ['ABSENT', 'NOT_OBSERVED'].includes(node.runtimePresence)).length;
-  const healthy = data.nodes.filter((node) => node.health === 'HEALTHY').length;
-  const degraded = data.nodes.filter((node) => node.health === 'DEGRADED').length;
-  const failed = data.nodes.filter((node) => node.health === 'FAILED').length;
-  const unknown = data.nodes.filter((node) => node.health === 'UNKNOWN').length;
-  const standby = data.nodes.filter((node) => node.status === 'STANDBY').length;
+  const agentNodes = data.nodes.filter((node) => node.kind !== 'HUMAN_AUTHORITY');
+  const runtimeObserved = agentNodes.filter((node) => node.runtimePresence === 'OBSERVED').length;
+  const runtimeAbsentOrUnseen = agentNodes.filter((node) => ['ABSENT', 'NOT_OBSERVED'].includes(node.runtimePresence)).length;
+  const healthy = agentNodes.filter((node) => node.health === 'HEALTHY').length;
+  const degraded = agentNodes.filter((node) => node.health === 'DEGRADED').length;
+  const failed = agentNodes.filter((node) => node.health === 'FAILED').length;
+  const unknown = agentNodes.filter((node) => node.health === 'UNKNOWN').length;
+  const standby = agentNodes.filter((node) => node.status === 'STANDBY').length;
   root.dataset.operationalTruth = statusClass(data.controlPlane.status);
   setText(root, '[data-control-status]', data.controlPlane.status);
   setText(root, '[data-active-authorities]', String(data.controlPlane.activeExecutiveAuthorities));
-  setText(root, '[data-node-count]', String(data.nodes.length));
+  setText(root, '[data-node-count]', String(agentNodes.length));
   setText(root, '[data-runtime-running]', String(runtimeObserved));
   setText(root, '[data-runtime-not-running]', String(runtimeAbsentOrUnseen));
   setText(root, '[data-health-healthy]', String(healthy));

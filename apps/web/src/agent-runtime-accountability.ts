@@ -27,6 +27,7 @@ export type AgentRuntimeAccountabilitySnapshot = {
   contractVersion: string;
   generatedAt: string;
   agents: RuntimeAgentAccountability[];
+  fleet: { total: number; healthy: number; degraded: number; failed: number; noTelemetry: number; standby: number };
   inspector: {
     primaryInspector: string;
     primaryStatus: string;
@@ -43,6 +44,8 @@ export type AgentRuntimeAccountabilitySnapshot = {
   };
   incidents: { open: number; inspectorFailureIncident: string | null; controlCoverageIncident: string | null };
   verdict: {
+    controlSystem: 'PASS' | 'FAIL';
+    overallOperationalState: 'PASS' | 'FAIL';
     agentAccountability: 'PASS' | 'FAIL';
     inspectorFailover: 'PASS' | 'FAIL';
     controlCoverage: 'COMPLETE' | 'INCOMPLETE';
@@ -65,6 +68,8 @@ export function renderAgentRuntimeSnapshot(snapshot: AgentRuntimeAccountabilityS
   const v = snapshot.verdict;
   const i = snapshot.inspector;
   const verdicts = [
+    ['OVERALL OPERATIONAL STATE', v.overallOperationalState],
+    ['CONTROL SYSTEM', v.controlSystem],
     ['AGENT ACCOUNTABILITY', v.agentAccountability],
     ['INSPECTOR FAILOVER', v.inspectorFailover],
     ['CONTROL COVERAGE', v.controlCoverage],
@@ -72,8 +77,10 @@ export function renderAgentRuntimeSnapshot(snapshot: AgentRuntimeAccountabilityS
     ['UNEXPLAINED DEGRADED', String(v.unexplainedDegraded)],
     ['FINAL AGENT RUNTIME PASS', v.finalAgentRuntimePass],
   ].map(([label, value]) => `<div class="agent-runtime-verdict"><span>${esc(label)}</span><strong data-tone="${tone(value)}">${esc(value)}</strong></div>`).join('');
+  const f = snapshot.fleet;
+  const fleetSummary = `<section class="agent-runtime-fleet-summary" data-overall-operational-state="${esc(v.overallOperationalState)}"><h3>Fleet operational truth</h3><p><strong>${esc(f.total)} agents</strong> · ${esc(f.healthy)} HEALTHY · ${esc(f.degraded)} DEGRADED · ${esc(f.failed)} FAILED · ${esc(f.noTelemetry)} NO TELEMETRY · ${esc(f.standby)} STANDBY</p><ol><li>${esc(f.noTelemetry)} agents without current telemetry</li><li>${esc(f.degraded)} degraded agents</li><li>${esc(f.failed)} failed agents</li><li>Open incidents: ${esc(snapshot.incidents.open)}</li></ol></section>`;
   const rows = snapshot.agents.map((agent) => `<tr data-runtime-agent="${esc(agent.identity)}" data-runtime-status="${esc(agent.status)}"><td><code>${esc(agent.identity)}</code><small>${esc(agent.responsibility)}</small></td><td data-tone="${tone(agent.executable)}">${esc(agent.executable)}</td><td data-tone="${tone(agent.mandate)}">${esc(agent.mandate)}${agent.mandateId ? `<small>${esc(agent.mandateId)}</small>` : ''}</td><td>${esc(agent.trigger)}<small>${esc(agent.executionCondition)}</small></td><td>${esc(time(agent.lastExecution))}<small>${esc(agent.lastResult)}</small></td><td>${evidence(agent.outputRef)}<small>${evidence(agent.executionEvidenceRef)}</small></td><td data-tone="${tone(agent.validation)}">${esc(agent.validator)}<small>${esc(agent.validation)} - ${esc(time(agent.lastValidation))}</small></td><td data-tone="${tone(agent.freshness)}">${esc(agent.freshness)}</td><td data-tone="${tone(agent.status)}"><strong>${esc(agent.status)}</strong><small>${esc(agent.reason)}</small></td><td data-tone="${tone(agent.failover)}">${esc(agent.failover)}</td><td>${esc(agent.openResponsibilities.join('; ') || 'NONE')}</td></tr>`).join('');
-  return `<div class="agent-runtime-verdicts">${verdicts}</div><div class="agent-inspector-failover" data-inspector-failover="${esc(i.status)}"><h3>Inspector control chain</h3><dl><div><dt>Primary</dt><dd>${esc(i.primaryInspector)} - ${esc(i.primaryStatus)}</dd></div><div><dt>Secondary / validator</dt><dd>${esc(i.secondaryInspector)} - ${esc(i.secondaryStatus)} / ${esc(i.activeValidator ?? 'NONE')}</dd></div><div><dt>Mandate transfer</dt><dd>${i.mandateTransferred ? 'PROVEN' : 'NOT PROVEN'} - ${esc(i.transferReason ?? 'NO REASON')} - ${esc(time(i.transferredAt))}</dd></div><div><dt>Last validation</dt><dd>${esc(time(i.lastValidation))} - ${evidence(i.transferEvidenceRef)}</dd></div><div><dt>Coverage / incident</dt><dd>${esc(i.controlStatus)} - ${esc(snapshot.incidents.controlCoverageIncident ?? snapshot.incidents.inspectorFailureIncident ?? 'NO INCIDENT')}</dd></div></dl></div><div class="turn-accountability-table-wrap"><table><thead><tr><th>Identity / mandate</th><th>Executable</th><th>Mandate</th><th>Trigger / frequency</th><th>Last execution / result</th><th>Output / evidence</th><th>Validator</th><th>Freshness</th><th>Status</th><th>Failover</th><th>Open responsibility</th></tr></thead><tbody>${rows}</tbody></table></div><p class="agent-runtime-generated">Contract ${esc(snapshot.contractVersion)} - generated ${esc(time(snapshot.generatedAt))} - open incidents ${esc(snapshot.incidents.open)}</p>`;
+  return `<div class="agent-runtime-verdicts">${verdicts}</div>${fleetSummary}<div class="agent-inspector-failover" data-inspector-failover="${esc(i.status)}"><h3>Inspector control chain</h3><dl><div><dt>Primary</dt><dd>${esc(i.primaryInspector)} - ${esc(i.primaryStatus)}</dd></div><div><dt>Secondary / validator</dt><dd>${esc(i.secondaryInspector)} - ${esc(i.secondaryStatus)} / ${esc(i.activeValidator ?? 'NONE')}</dd></div><div><dt>Mandate transfer</dt><dd>${i.mandateTransferred ? 'PROVEN' : 'NOT PROVEN'} - ${esc(i.transferReason ?? 'NO REASON')} - ${esc(time(i.transferredAt))}</dd></div><div><dt>Last validation</dt><dd>${esc(time(i.lastValidation))} - ${evidence(i.transferEvidenceRef)}</dd></div><div><dt>Coverage / incident</dt><dd>${esc(i.controlStatus)} - ${esc(snapshot.incidents.controlCoverageIncident ?? snapshot.incidents.inspectorFailureIncident ?? 'NO INCIDENT')}</dd></div></dl></div><div class="turn-accountability-table-wrap"><table><thead><tr><th>Identity / mandate</th><th>Executable</th><th>Mandate</th><th>Trigger / frequency</th><th>Last execution / result</th><th>Output / evidence</th><th>Validator</th><th>Freshness</th><th>Status</th><th>Failover</th><th>Open responsibility</th></tr></thead><tbody>${rows}</tbody></table></div><p class="agent-runtime-generated">Contract ${esc(snapshot.contractVersion)} - generated ${esc(time(snapshot.generatedAt))} - open incidents ${esc(snapshot.incidents.open)}</p>`;
 }
 
 export async function fetchAgentRuntimeAccountability(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {

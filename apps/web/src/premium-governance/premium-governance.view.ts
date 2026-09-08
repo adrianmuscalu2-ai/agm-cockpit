@@ -89,7 +89,7 @@ export function renderTurnAuthorityControlPlane() {
 
       <section class="turn-premium-drilldown" data-turn-page="investigate" hidden id="turn-premium-network" aria-labelledby="turn-premium-network-title">
         <header class="premium-governance-heading">
-          <span>DRILL-DOWN · AUTHORITY + 28 OPERATIONAL NODES</span>
+          <span>DRILL-DOWN · AGENTS + HUMAN AUTHORITY</span>
           <h2 id="turn-premium-network-title">Premium evidence and runtime detail</h2>
           <p>Detaliul complet rămâne disponibil pentru investigație; nu ocupă suprafața principală de comandă.</p>
         </header>

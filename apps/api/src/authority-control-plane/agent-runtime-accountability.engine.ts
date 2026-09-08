@@ -95,6 +95,31 @@ export function falseActiveCount(items: Array<{ status: AgentAccountabilityStatu
   return items.filter((item) => item.status === 'ACTIVE' && (item.executable !== 'YES' || item.mandate !== 'PROVEN' || item.validation !== 'PROVEN' || !item.executionEvidenceRef)).length;
 }
 
+export function evaluateAgentRuntimeVerdict(input: {
+  controlSystemComplete: boolean;
+  agents: Array<{ status: AgentAccountabilityStatus; executable: string; mandate: string; validation: string; executionEvidenceRef: string | null }>;
+  inspectorFailover: 'PASS' | 'FAIL';
+  controlCoverage: 'COMPLETE' | 'INCOMPLETE';
+  overallOperationalState: 'PASS' | 'FAIL';
+  falseActive: number;
+  unexplainedDegraded: number;
+}) {
+  const controlSystem = input.controlSystemComplete && input.falseActive === 0 && input.unexplainedDegraded === 0 ? 'PASS' as const : 'FAIL' as const;
+  const fleetAccountable = input.agents.length > 0 && input.agents.every((agent) => agent.status === 'ACTIVE'
+    && agent.executable === 'YES'
+    && agent.mandate === 'PROVEN'
+    && agent.validation === 'PROVEN'
+    && Boolean(agent.executionEvidenceRef));
+  const agentAccountability = fleetAccountable ? 'PASS' as const : 'FAIL' as const;
+  const finalAgentRuntimePass = controlSystem === 'PASS'
+    && agentAccountability === 'PASS'
+    && input.inspectorFailover === 'PASS'
+    && input.controlCoverage === 'COMPLETE'
+    && input.overallOperationalState === 'PASS'
+    ? 'PASS' as const : 'FAIL' as const;
+  return { controlSystem, agentAccountability, overallOperationalState: input.overallOperationalState, inspectorFailover: input.inspectorFailover, controlCoverage: input.controlCoverage, falseActive: input.falseActive, unexplainedDegraded: input.unexplainedDegraded, finalAgentRuntimePass };
+}
+
 function result(executable: 'YES' | 'NO', mandate: 'PROVEN' | 'NOT PROVEN', validation: 'PROVEN' | 'NOT PROVEN', freshness: 'CURRENT' | 'STALE' | 'NO TELEMETRY', status: AgentAccountabilityStatus, reason: string): AgentAccountabilityEvaluation {
   return { executable, mandate, validation, freshness, status, reason };
 }

@@ -13,7 +13,7 @@ import { operationalProfile } from './operational-profile';
 import { SecretTelemetryService } from '../secret-telemetry/secret-telemetry.service';
 import { optionalExternalProviders } from '../car-mover/car-mover-routing.policy';
 import { OPERATIONAL_INCIDENT_CONTRACT, operationalIncidentTransition, qualifyOperationalIncident, type OperationalIncidentQualification } from './operational-incident-evaluator';
-import { AGENT_ACCOUNTABILITY_CONTRACT, INSPECTOR_FAILOVER_CONTRACT, evaluateAgentAccountability, evaluateInspectorFailover, falseActiveCount, type AccountabilitySignal } from './agent-runtime-accountability.engine';
+import { AGENT_ACCOUNTABILITY_CONTRACT, INSPECTOR_FAILOVER_CONTRACT, evaluateAgentAccountability, evaluateAgentRuntimeVerdict, evaluateInspectorFailover, falseActiveCount, type AccountabilitySignal } from './agent-runtime-accountability.engine';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
 const AUTHORITY_ADMIN_ROLES = new Set(['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN']);
@@ -394,14 +394,33 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     });
     const falseActive = falseActiveCount(agents);
     const unexplainedDegraded = agents.filter((agent) => agent.status === 'DEGRADED' && !agent.reason).length;
-    const accountabilityComplete = agents.length > 0
+    const controlSystemComplete = agents.length > 0
       && agents.every((agent) => agent.identity && agent.responsibility && agent.trigger && agent.executionCondition && agent.statusSource && agent.validator && agent.validationEvidenceRef)
       && falseActive === 0 && unexplainedDegraded === 0;
-    const finalPass = accountabilityComplete && failover.status === 'PASS' && failover.controlCoverage === 'COMPLETE';
+    const fleetNodes = dashboard.nodes.filter((node) => node.kind !== 'HUMAN_AUTHORITY');
+    const fleet = {
+      total: fleetNodes.length,
+      healthy: fleetNodes.filter((node) => node.health === 'HEALTHY').length,
+      degraded: fleetNodes.filter((node) => node.health === 'DEGRADED').length,
+      failed: fleetNodes.filter((node) => node.health === 'FAILED').length,
+      noTelemetry: fleetNodes.filter((node) => node.health === 'UNKNOWN').length,
+      standby: fleetNodes.filter((node) => node.status === 'STANDBY').length,
+    };
+    const overallOperationalState = fleet.degraded === 0 && fleet.failed === 0 && fleet.noTelemetry === 0 && fleet.standby === 0 ? 'PASS' as const : 'FAIL' as const;
+    const verdict = evaluateAgentRuntimeVerdict({
+      controlSystemComplete,
+      agents,
+      inspectorFailover: failover.status,
+      controlCoverage: failover.controlCoverage,
+      overallOperationalState,
+      falseActive,
+      unexplainedDegraded,
+    });
     return {
       contractVersion: AGENT_ACCOUNTABILITY_CONTRACT,
       generatedAt: now,
       agents,
+      fleet,
       inspector: {
         contractVersion: INSPECTOR_FAILOVER_CONTRACT,
         primaryInspector: PRIMARY_INSPECTOR_ID,
@@ -418,7 +437,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         controlStatus: failover.controlStatus,
       },
       incidents: { eventStore: 'AuthorityAuditJournal', open: dashboard.incidentPipeline.open + (controlIncident ? 1 : 0), inspectorFailureIncident: dashboard.nodes.find((node) => node.canonicalId === PRIMARY_INSPECTOR_ID)?.incidentQualification?.openIncidentEventId ?? controlIncident?.eventId ?? null, controlCoverageIncident: controlIncident?.eventId ?? (coverageExplicitlyLost ? latestControlEvent?.eventId ?? null : null) },
-      verdict: { agentAccountability: accountabilityComplete ? 'PASS' : 'FAIL', inspectorFailover: failover.status, controlCoverage: failover.controlCoverage, falseActive, unexplainedDegraded, finalAgentRuntimePass: finalPass ? 'PASS' : 'FAIL' },
+      verdict,
     };
   }
 
