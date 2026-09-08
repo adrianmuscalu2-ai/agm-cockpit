@@ -113,7 +113,14 @@ try {
     text: document.querySelector('#turn-agent-runtime-accountability')?.textContent ?? '',
   }));
   check('runtime-chain-visible', runtime.agents === runtimeSnapshot.agents.length && runtime.primary === 'FAIL' && runtime.secondary === 'ACTIVE', runtime);
-  check('failover-verdict-visible', ['AGENT ACCOUNTABILITYPASS', 'INSPECTOR FAILOVERPASS', 'CONTROL COVERAGECOMPLETE', 'FALSE ACTIVE0', 'FINAL AGENT RUNTIME PASSPASS', 'PRIMARY_INSPECTOR_FAILED', 'incident-primary'].every((item) => runtime.text.replace(/\s+/g, '').includes(item.replace(/\s+/g, ''))), runtime);
+  const requiredVerdictText = ['AGENT ACCOUNTABILITYPASS', 'INSPECTOR FAILOVERPASS', 'CONTROL COVERAGECOMPLETE', 'FALSE ACTIVE0', 'FINAL AGENT RUNTIME PASSPASS', runtimeSnapshot.inspector.transferReason, runtimeSnapshot.incidents.controlCoverageIncident ?? runtimeSnapshot.incidents.inspectorFailureIncident].filter(Boolean);
+  check('failover-verdict-visible', requiredVerdictText.every((item) => runtime.text.replace(/\s+/g, '').includes(String(item).replace(/\s+/g, ''))), runtime);
+  if (process.env.AGM_AGENT_ACCOUNTABILITY_SNAPSHOT) {
+    const screenshot = path.join(output, 'production-agent-runtime-accountability.png');
+    await page.screenshot({ path: screenshot, fullPage: true });
+    results.push({ id: 'production-runtime-accountability-capture', status: 'PASS', action: 'Production TURN -> real Production snapshot -> accountability inspection', screenshot: path.relative(root, screenshot) });
+    check('no-page-errors', pageErrors.length === 0, pageErrors);
+  } else {
   await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'UNKNOWN / NOT CHECKED');
   const omitted = await page.evaluate(() => ({
     truth: document.querySelector('[data-incident-truth-state]')?.textContent?.trim(),
@@ -143,7 +150,7 @@ try {
   await page.locator('[data-turn-page-target="investigate"]').click();
   await page.waitForSelector('[data-turn-page="investigate"]:not([hidden])');
   incidentMode = 'UNAVAILABLE';
-  await page.locator('[data-incident-truth-recheck]').first().click();
+  await page.locator('[data-incident-truth-recheck]:visible').click();
   await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'INCIDENT DATA UNAVAILABLE');
   const unavailable = await page.evaluate(() => {
     const receipts = JSON.parse(localStorage.getItem('agm.turn.duty-receipts.v1.1') ?? '[]');
@@ -156,7 +163,7 @@ try {
   check('source-failure-is-not-zero', unavailable.truth === 'INCIDENT DATA UNAVAILABLE' && unavailable.receipt?.coverage === 'PARTIAL' && unavailable.receipt?.result === 'FAIL' && unavailable.duty === 'FAILED', unavailable);
 
   incidentMode = 'ACTIVE';
-  await page.locator('[data-incident-truth-recheck]').first().click();
+  await page.locator('[data-incident-truth-recheck]:visible').click();
   await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'ACTIVE INCIDENT');
   const active = await page.evaluate(() => ({
     truth: document.querySelector('[data-incident-truth-state]')?.textContent?.trim(),
@@ -179,6 +186,7 @@ try {
   }, activeReceipt.mandateId);
   check('restart-preserves-receipt-without-faking-current-state', reload.persistedReceipt && reload.currentTruth === 'UNKNOWN / NOT CHECKED', reload);
   check('no-page-errors', pageErrors.length === 0, pageErrors);
+  }
 } catch (error) {
   fatal = error instanceof Error ? error.message : String(error);
 } finally {
@@ -188,7 +196,9 @@ try {
     schemaVersion: 1,
     runId,
     status: fatal ? 'FAIL' : 'PASS',
-    flow: 'IAB PROBE ONCE -> CONTROLLED AGM PLAYWRIGHT/CHROMIUM -> MON-010 TRUTH -> DUTY RECEIPT -> RELOAD',
+    flow: process.env.AGM_AGENT_ACCOUNTABILITY_SNAPSHOT
+      ? 'IAB PROBE ONCE -> CONTROLLED AGM PLAYWRIGHT/CHROMIUM -> PRODUCTION TURN -> REAL PRODUCTION SNAPSHOT -> ACCOUNTABILITY VERDICT'
+      : 'IAB PROBE ONCE -> CONTROLLED AGM PLAYWRIGHT/CHROMIUM -> MON-010 TRUTH -> DUTY RECEIPT -> RELOAD',
     runner: 'Controlled AGM Playwright/Chromium',
     browserPluginStatus: 'PASS',
     integratedBrowserControlStatus: 'PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE',
