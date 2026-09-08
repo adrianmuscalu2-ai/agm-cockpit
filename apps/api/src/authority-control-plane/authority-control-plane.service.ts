@@ -360,7 +360,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       const validationEvent = validationEvents.find((event) => {
         const metadata = jsonRecord(event.safeMetadata);
         const validatorMandate = mandateByAgent.get(event.actorId);
-        const { outputRef, ...receiptPayload } = metadata;
+        const { outputRef } = metadata;
         return Boolean(
           mandate
           && execution
@@ -377,8 +377,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
           && metadata.result === 'PASS'
           && typeof outputRef === 'string'
           && /^sha256:[a-f0-9]{64}$/i.test(outputRef)
-          && outputRef === `sha256:${hash(receiptPayload)}`
-          && event.payloadHash === hash(receiptPayload)
+          && outputRef === `sha256:${event.payloadHash}`
         );
       });
       const validationMetadata = validationEvent ? jsonRecord(validationEvent.safeMetadata) : {};

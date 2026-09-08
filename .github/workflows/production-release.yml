@@ -410,6 +410,7 @@ jobs:
             -X POST https://api.agmcockpit.com/api/v1/auth/deploy/machines/inspector-failover/exercise \
             -H "Authorization: Bearer $PROVISIONING_TOKEN" \
             -H 'Content-Type: application/json')
+          jq -c '{contract:.data.contractVersion,agents:[.data.agents[]|{identity,declaredOperational,operationalDeclaration,executable,mandate,lastResult,validation,freshness,status,reason}],operationalFleet:.data.operationalFleet,inspector:.data.inspector,incidents:.data.incidents,domainDutyResults:.data.recovery.domainDutyResults,inspectorEvaluations:.data.recovery.inspectorEvaluations,inspectorValidations:.data.recovery.inspectorValidations,verdict:.data.verdict}' <<<"$accountability"
           jq -e '
             .data
             | .contractVersion == "agent-runtime-accountability.v1"
