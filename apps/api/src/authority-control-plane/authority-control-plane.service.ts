@@ -26,6 +26,7 @@ const PRIMARY_INSPECTOR_ID = 'premium.release-inspector';
 const SECONDARY_INSPECTOR_ID = 'premium.architecture-inspector';
 const ACCOUNTABILITY_FRESHNESS_MS = 24 * 60 * 60 * 1000;
 const INSPECTION_MANDATE_VERSION = 'inspector-failover-readonly-mandate.v1';
+const DOMAIN_SERVICE_VALIDATION_CONTRACT = 'domain-service-operational-validation.v1';
 type RuntimeCapabilityRequirement = { provider: string; methods: string[]; adapterCategory?: string };
 type OperationalJournalEvent = Prisma.AuthorityAuditJournalGetPayload<Record<string, never>>;
 
@@ -88,7 +89,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
   async dashboard(ctx: RequestContext) {
     const now = new Date();
     const secretSnapshot = this.secretTelemetry.snapshot();
-    const [registry, heartbeats, runtimeEvents, opportunityTelemetry, liveAdapterTelemetry, allLeases, failover, operationalIncidentJournals, mandates, decisions, recovery, domainActivity, opportunityCount] = await Promise.all([
+    const [registry, heartbeats, runtimeEvents, opportunityTelemetry, liveAdapterTelemetry, allLeases, failover, operationalIncidentJournals, domainValidationJournals, mandates, decisions, recovery, domainActivity, opportunityCount] = await Promise.all([
       this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId: ctx.companyId }, orderBy: [{ module: 'asc' }, { canonicalId: 'asc' }] }),
       this.prisma.componentHeartbeat.findMany({ where: { companyId: ctx.companyId } }),
       this.prisma.agentRuntimeEvent.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: 1000 }),
@@ -97,6 +98,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       this.prisma.authorityLease.findMany({ where: { companyId: ctx.companyId }, orderBy: { issuedAt: 'desc' }, take: 1000 }),
       this.prisma.authorityFailoverState.findMany({ where: { companyId: ctx.companyId } }),
       this.prisma.authorityAuditJournal.findMany({ where: { companyId: ctx.companyId, eventType: { in: ['OPERATIONAL_INCIDENT_OPENED', 'OPERATIONAL_INCIDENT_RESOLVED'] } }, orderBy: { occurredAt: 'desc' }, take: 2000 }),
+      this.prisma.authorityAuditJournal.findMany({ where: { companyId: ctx.companyId, eventType: 'DOMAIN_SERVICE_VALIDATED', outcome: 'PASS', mandateId: { not: null }, occurredAt: { gte: new Date(now.getTime() - ACCOUNTABILITY_FRESHNESS_MS) } }, orderBy: { occurredAt: 'desc' }, take: 100 }),
       this.prisma.authorityMandate.findMany({ where: { companyId: ctx.companyId }, orderBy: { issuedAt: 'desc' }, take: 1000 }),
       this.prisma.authorityDecision.findMany({ where: { companyId: ctx.companyId }, orderBy: { decidedAt: 'desc' }, take: 1000 }),
       this.prisma.recoveryExecution.findFirst({ where: { companyId: ctx.companyId }, orderBy: { startedAt: 'desc' } }),
@@ -110,6 +112,14 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     for (const item of liveAdapterTelemetry) if (!liveTelemetryById.has(adapterRegistryId(item.category))) liveTelemetryById.set(adapterRegistryId(item.category), item);
     const lastRunByAgent = new Map<string, (typeof runtimeEvents)[number]>();
     for (const event of runtimeEvents) if (!lastRunByAgent.has(event.agentId)) lastRunByAgent.set(event.agentId, event);
+    const activeMandateIds = new Set(mandates.filter((mandate) => mandate.status === 'APPROVED' && !mandate.revokedAt && (!mandate.expiresAt || mandate.expiresAt > now)).map((mandate) => mandate.id));
+    const validDomainValidations = domainValidationJournals.filter((event) => {
+      const metadata = jsonRecord(event.safeMetadata);
+      const references = metadata.evidenceReferences;
+      return activeMandateIds.has(event.mandateId!) && metadata.contract === DOMAIN_SERVICE_VALIDATION_CONTRACT && metadata.executionKind === 'REAL_DOMAIN_SERVICE_DUTY' && metadata.result === 'PASS' && metadata.validatorMandateId === event.mandateId
+        && typeof metadata.outputRef === 'string' && /^sha256:[a-f0-9]{64}$/i.test(metadata.outputRef) && Array.isArray(references) && references.length > 0 && references.every((reference) => typeof reference === 'string');
+    });
+    const domainValidationById = firstBy(validDomainValidations, (event) => String(jsonRecord(event.safeMetadata).canonicalId ?? ''));
     const leaseByAgent = new Map(leases.map((lease) => [lease.agentId, lease]));
     const failoverByScope = new Map(failover.map((item) => [item.scopeId, item]));
     const registryById = new Map(registry.map((item) => [item.canonicalId, item]));
@@ -125,8 +135,10 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       const lease = leaseByAgent.get(item.canonicalId);
       const failoverState = failoverByScope.get(item.scope);
       const domainRun = domainActivity.get(item.canonicalId);
+      const domainValidationCandidate = domainValidationById.get(item.canonicalId);
       const secretRun = item.canonicalId === 'agm.guardian.secrets' ? secretSnapshot : null;
       const runtimeEventActive = Boolean(lastRun && ['STARTED', 'WORKING'].includes(lastRun.lifecycle));
+      const domainValidation = domainValidationCandidate && now.getTime() - domainValidationCandidate.occurredAt.getTime() <= (profile.freshnessWindowMs ?? ACCOUNTABILITY_FRESHNESS_MS) ? domainValidationCandidate : undefined;
       const canonicalState = resolveCanonicalNodeState({
         registryLifecycleStatus: item.lifecycleStatus,
         ...(profile.expectedSource === 'LIVE_ADAPTER' && liveRun ? { liveAdapter: { status: adapterHealth(liveRun.status), observedAt: liveRun.lastAttemptAt } } : {}),
@@ -134,9 +146,9 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         ...(profile.expectedSource === 'COMPONENT_HEARTBEAT' && heartbeat ? { heartbeat: { status: heartbeat.reportedStatus, observedAt: heartbeat.lastSeenAt, staleAfterMs: profile.freshnessWindowMs ?? undefined } } : {}),
         ...(profile.expectedSource === 'SECRET_TELEMETRY' && secretRun ? { secretTelemetry: { status: secretRun.overallStatus === 'CONFIGURED' ? 'PASS' : 'DEGRADED', observedAt: new Date(secretRun.checkedAt) } } : {}),
         ...(profile.expectedSource === 'RUNTIME_EVENT' && lastRun ? { runtimeEvent: { status: lastRun.lifecycle, observedAt: lastRun.occurredAt } } : {}),
-        ...(profile.expectedSource === 'DOMAIN_EVENT_STORE' && domainRun ? { domainEvent: { status: domainRun.status, observedAt: domainRun.observedAt } } : {}),
+        ...(profile.expectedSource === 'DOMAIN_EVENT_STORE' && (domainValidation || domainRun) ? { domainEvent: { status: domainValidation?.outcome ?? domainRun!.status, observedAt: domainValidation?.occurredAt ?? domainRun!.observedAt } } : {}),
       });
-      const activityObservedAt = runtimeEventActive ? lastRun!.occurredAt : canonicalState.observedAt;
+      const activityObservedAt = runtimeEventActive ? lastRun!.occurredAt : domainValidation?.occurredAt ?? canonicalState.observedAt;
       const activityStale = Boolean(activityObservedAt && profile.freshnessWindowMs && now.getTime() - activityObservedAt.getTime() > profile.freshnessWindowMs);
       const runtimeObservedAt = secretRun ? new Date(secretRun.checkedAt) : heartbeat?.lastSeenAt ?? null;
       const runtimeStaleAfterMs = profile.expectedSource === 'COMPONENT_HEARTBEAT' ? profile.freshnessWindowMs : COMPONENT_RUNTIME_PROBE_STALE_AFTER_MS;
@@ -153,7 +165,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         ?? (liveRun && liveRun.status !== 'HEALTHY' ? `LiveAdapterTelemetry status=${liveRun.status}${liveRun.lastErrorCode ? `; error=${liveRun.lastErrorCode}` : ''}; rateLimit=${liveRun.rateLimitState}` : null)
         ?? (opportunityRun && (!['PASS', 'HEALTHY'].includes(opportunityRun.health) || !['PASS', 'HEALTHY'].includes(opportunityRun.dependencyHealth) || opportunityRun.freshnessStatus === 'STALE' || opportunityRun.backlog > 0) ? `OpportunityAgentTelemetry health=${opportunityRun.health}; dependency=${opportunityRun.dependencyHealth}; freshness=${opportunityRun.freshnessStatus}; backlog=${opportunityRun.backlog}; output=${opportunityRun.outputReference ?? 'NONE'}` : null)
         ?? (lastRun && !['PASS', 'ONLINE', 'HEALTHY', 'STARTED', 'WORKING', 'COMPLETED'].includes(lastRun.lifecycle) ? `AgentRuntimeEvent lifecycle=${lastRun.lifecycle}; detail=${lastRun.detail}` : null)
-        ?? (domainRun && domainRun.status !== 'PASS' ? `Domain event: ${domainRun.detail}` : null);
+        ?? (!domainValidation && domainRun && domainRun.status !== 'PASS' ? `Domain event: ${domainRun.detail}` : null);
       const reason = !persisted
         ? 'Canonical identity is absent from PremiumNetworkRegistryEntry.'
         : profile.runtimeMode === 'HUMAN' ? 'Human authority is not a process; runtime heartbeat is not applicable.'
@@ -174,10 +186,10 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       const statusUsesRuntimeEvidence = profile.runtimeMode !== 'HUMAN' && (effectiveStatus === 'STANDBY' || effectiveStatus === 'NO_TELEMETRY' || runtimePresence === 'ABSENT' || runtimeStale || probeDegraded);
       const runtimeStatusSource = secretRun ? 'SECRET_TELEMETRY' : profile.expectedSource === 'COMPONENT_HEARTBEAT' ? 'COMPONENT_HEARTBEAT' : 'RUNTIME_CAPABILITY_PROBE';
       const runtimeRecordReference = secretRun?.contract ?? (heartbeat ? `ComponentHeartbeat:${heartbeat.id}` : null);
-      const activityEvidenceSource = runtimeEventActive ? 'RUNTIME_EVENT' : profile.expectedSource;
-      const activityRecordReference = runtimeEventActive ? `AgentRuntimeEvent:${lastRun!.eventId}` : evidenceReference(item.canonicalId, liveRun?.id, opportunityRun?.id, profile.expectedSource === 'COMPONENT_HEARTBEAT' ? heartbeat?.id : null, lastRun?.eventId, domainRun?.recordId);
-      const workloadState = runtimeEventActive ? 'ACTIVE' : (opportunityRun?.backlog ?? 0) > 0 ? 'BACKLOG' : domainRun ? 'LAST_DOMAIN_STATE' : 'IDLE';
-      const currentOperation = runtimeEventActive ? lastRun!.detail : (opportunityRun?.backlog ?? 0) > 0 ? `${opportunityRun!.backlog} queued items` : domainRun?.detail ?? 'IDLE';
+      const activityEvidenceSource = runtimeEventActive ? 'RUNTIME_EVENT' : domainValidation ? 'DOMAIN_VALIDATION_EVENT_STORE' : profile.expectedSource;
+      const activityRecordReference = runtimeEventActive ? `AgentRuntimeEvent:${lastRun!.eventId}` : domainValidation ? `AuthorityAuditJournal:${domainValidation.eventId}` : evidenceReference(item.canonicalId, liveRun?.id, opportunityRun?.id, profile.expectedSource === 'COMPONENT_HEARTBEAT' ? heartbeat?.id : null, lastRun?.eventId, domainRun?.recordId);
+      const workloadState = runtimeEventActive ? 'ACTIVE' : domainValidation ? 'VALIDATED' : (opportunityRun?.backlog ?? 0) > 0 ? 'BACKLOG' : domainRun ? 'LAST_DOMAIN_STATE' : 'IDLE';
+      const currentOperation = runtimeEventActive ? lastRun!.detail : domainValidation ? domainValidation.safeMetadata : (opportunityRun?.backlog ?? 0) > 0 ? `${opportunityRun!.backlog} queued items` : domainRun?.detail ?? 'IDLE';
       return {
         canonicalId: item.canonicalId, kind: item.kind, module: item.module, ownerId: item.ownerId,
         supervisorId: item.supervisorId, scope: item.scope,
@@ -203,12 +215,12 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         runtimeEvidence: { source: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : runtimeObservedAt ? runtimeStatusSource : 'NONE', observedAt: runtimeObservedAt, recordReference: runtimeRecordReference },
         activityEvidence: { source: activityEvidenceSource, observedAt: activityObservedAt, recordReference: activityRecordReference },
         telemetry: secretRun ? { reportedStatus: secretRun.overallStatus, lastSeenAt: secretRun.checkedAt, lastSuccessAt: secretRun.overallStatus === 'CONFIGURED' ? secretRun.checkedAt : null, lastFailureAt: secretRun.overallStatus === 'ATTENTION' ? secretRun.checkedAt : null, detail: { contract: secretRun.contract, checkedSecrets: secretRun.secrets.length, valuesExposed: false } } : liveRun ? { reportedStatus: liveRun.status, lastSeenAt: liveRun.lastAttemptAt, lastSuccessAt: liveRun.lastSuccessAt, lastFailureAt: liveRun.lastErrorCode ? liveRun.lastAttemptAt : null, detail: { latencyMs: liveRun.latencyMs, errorRateBps: liveRun.errorRateBps, rateLimitState: liveRun.rateLimitState, fallbackActivation: liveRun.fallbackActivation, cacheAgeSeconds: liveRun.cacheAgeSeconds, providerId: liveRun.providerId, contractVersion: liveRun.contractVersion } } : opportunityRun ? { reportedStatus: opportunityRun.health, lastSeenAt: opportunityRun.lastRunAt, lastSuccessAt: opportunityRun.health === 'PASS' ? opportunityRun.lastRunAt : null, lastFailureAt: opportunityRun.health === 'FAIL' ? opportunityRun.lastRunAt : null, detail: { durationMs: opportunityRun.durationMs, freshnessStatus: opportunityRun.freshnessStatus, backlog: opportunityRun.backlog, dependencyHealth: opportunityRun.dependencyHealth, confidence: opportunityRun.confidence, outputReference: opportunityRun.outputReference, providerId: opportunityRun.providerId, contractVersion: opportunityRun.contractVersion } } : heartbeat ? { reportedStatus: heartbeat.reportedStatus, lastSeenAt: heartbeat.lastSeenAt, lastSuccessAt: heartbeat.lastSuccessAt, lastFailureAt: heartbeat.lastFailureAt, detail: heartbeat.lastDetail } : null,
-        dependencyState: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : secretRun ? secretRun.overallStatus : heartbeat?.lastFailureReason ? 'DEGRADED' : liveRun ? adapterHealth(liveRun.status) : opportunityRun ? opportunityRun.dependencyHealth : domainRun?.dependencyState ?? (runtimeObservedAt ? 'PASS' : 'UNKNOWN'),
+        dependencyState: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : secretRun ? secretRun.overallStatus : heartbeat?.lastFailureReason ? 'DEGRADED' : liveRun ? adapterHealth(liveRun.status) : opportunityRun ? opportunityRun.dependencyHealth : domainValidation ? 'PASS' : domainRun?.dependencyState ?? (runtimeObservedAt ? 'PASS' : 'UNKNOWN'),
         dependencyFailures: nodeDependencyFailures,
         incidents: [],
         authorityState: lease ? { state: lease.state, epoch: lease.epoch, fencingToken: lease.fencingToken, providerId: lease.providerId, expiresAt: lease.expiresAt } : { state: item.writePermissions ? 'STANDBY' : 'ADVISORY' },
         failoverState: failoverState?.state ?? 'STANDBY',
-        lastRun: lastRun ? { lifecycle: lastRun.lifecycle, occurredAt: lastRun.occurredAt, detail: lastRun.detail } : liveRun ? { lifecycle: liveRun.status, occurredAt: liveRun.lastAttemptAt, detail: { latencyMs: liveRun.latencyMs, providerId: liveRun.providerId } } : opportunityRun ? { lifecycle: 'COMPLETED', occurredAt: opportunityRun.lastRunAt, detail: { durationMs: opportunityRun.durationMs, outputReference: opportunityRun.outputReference } } : domainRun ? { lifecycle: domainRun.status, occurredAt: domainRun.observedAt, detail: domainRun.detail } : null,
+        lastRun: lastRun ? { lifecycle: lastRun.lifecycle, occurredAt: lastRun.occurredAt, detail: lastRun.detail } : domainValidation ? { lifecycle: domainValidation.outcome, occurredAt: domainValidation.occurredAt, detail: domainValidation.safeMetadata } : liveRun ? { lifecycle: liveRun.status, occurredAt: liveRun.lastAttemptAt, detail: { latencyMs: liveRun.latencyMs, providerId: liveRun.providerId } } : opportunityRun ? { lifecycle: 'COMPLETED', occurredAt: opportunityRun.lastRunAt, detail: { durationMs: opportunityRun.durationMs, outputReference: opportunityRun.outputReference } } : domainRun ? { lifecycle: domainRun.status, occurredAt: domainRun.observedAt, detail: domainRun.detail } : null,
       };
     });
     const conflicts = findLeaseConflicts(leases);
@@ -324,7 +336,6 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     ]);
     const mandateByAgent = firstBy(mandates, (item) => item.agentId);
     const runtimeByAgent = firstBy(runtimeEvents, (item) => item.agentId);
-    const validationByAgent = firstBy(validationEvents, (item) => String(jsonRecord(item.safeMetadata).agentId ?? ''));
     const primaryEvent = runtimeByAgent.get(PRIMARY_INSPECTOR_ID);
     const secondaryEvent = runtimeByAgent.get(SECONDARY_INSPECTOR_ID);
     const transferEvent = failoverEvents.find((event) => event.eventType === 'INSPECTOR_MANDATE_TRANSFERRED');
@@ -345,14 +356,39 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       const profile = operationalProfile(seed);
       const execution = runtimeSignal(runtimeByAgent.get(node.canonicalId)) ?? nodeSignal(node);
       const mandate = mandateByAgent.get(node.canonicalId);
-      const validationEvent = validationByAgent.get(node.canonicalId);
+      const declaredOperational = Boolean(mandate);
+      const validationEvent = validationEvents.find((event) => {
+        const metadata = jsonRecord(event.safeMetadata);
+        const validatorMandate = mandateByAgent.get(event.actorId);
+        const { outputRef, ...receiptPayload } = metadata;
+        return Boolean(
+          mandate
+          && execution
+          && event.outcome === 'PASS'
+          && event.actorId !== node.canonicalId
+          && validatorMandate?.id === event.mandateId
+          && metadata.agentId === node.canonicalId
+          && metadata.validatorId === event.actorId
+          && metadata.validatorMandateId === event.mandateId
+          && metadata.targetMandateId === mandate.id
+          && metadata.executionEventId === execution.id
+          && metadata.executionEvidenceRef === execution.evidenceRef
+          && metadata.executionOutputRef === execution.outputRef
+          && metadata.result === 'PASS'
+          && typeof outputRef === 'string'
+          && /^sha256:[a-f0-9]{64}$/i.test(outputRef)
+          && outputRef === `sha256:${hash(receiptPayload)}`
+          && event.payloadHash === hash(receiptPayload)
+        );
+      });
       const validationMetadata = validationEvent ? jsonRecord(validationEvent.safeMetadata) : {};
       const validation: AccountabilitySignal | null = validationEvent ? {
         id: validationEvent.eventId,
+        mandateId: validationEvent.mandateId,
         status: validationEvent.outcome,
         occurredAt: validationEvent.occurredAt,
         evidenceRef: `AuthorityAuditJournal:${validationEvent.eventId}`,
-        outputRef: typeof validationMetadata.outputRef === 'string' ? validationMetadata.outputRef : `urn:agm:accountability-validation:${validationEvent.eventId}`,
+        outputRef: typeof validationMetadata.outputRef === 'string' ? validationMetadata.outputRef : null,
       } : null;
       const evaluation = evaluateAgentAccountability({
         capabilityDeclared: profile.runtimeMode !== 'CAPABILITY_NOT_IMPLEMENTED',
@@ -367,6 +403,9 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       return {
         identity: node.canonicalId,
         kind: node.kind,
+        declaredOperational,
+        operationalDeclaration: declaredOperational ? 'ACTIVE_AUTHORITY_MANDATE' : 'INACTIVE_NO_CURRENT_MANDATE',
+        authorizationSource: mandate ? 'AUTHORITY_MANDATE' : 'NONE',
         responsibility: node.currentFunction,
         executable: evaluation.executable,
         mandate: evaluation.mandate,
@@ -395,8 +434,12 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     const falseActive = falseActiveCount(agents);
     const unexplainedDegraded = agents.filter((agent) => agent.status === 'DEGRADED' && !agent.reason).length;
     const controlSystemComplete = agents.length > 0
-      && agents.every((agent) => agent.identity && agent.responsibility && agent.trigger && agent.executionCondition && agent.statusSource && agent.validator && agent.validationEvidenceRef)
+      && agents.every((agent) => agent.identity && agent.responsibility && agent.trigger && agent.executionCondition && agent.statusSource && agent.validator
+        && (agent.declaredOperational
+          ? Boolean(agent.validationEvidenceRef)
+          : agent.operationalDeclaration === 'INACTIVE_NO_CURRENT_MANDATE' && agent.status === 'MANDATE NOT ASSIGNED'))
       && falseActive === 0 && unexplainedDegraded === 0;
+    const openIncidents = dashboard.incidentPipeline.open + (controlIncident ? 1 : 0);
     const fleetNodes = dashboard.nodes.filter((node) => node.kind !== 'HUMAN_AUTHORITY');
     const fleet = {
       total: fleetNodes.length,
@@ -406,7 +449,17 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       noTelemetry: fleetNodes.filter((node) => node.health === 'UNKNOWN').length,
       standby: fleetNodes.filter((node) => node.status === 'STANDBY').length,
     };
-    const overallOperationalState = fleet.degraded === 0 && fleet.failed === 0 && fleet.noTelemetry === 0 && fleet.standby === 0 ? 'PASS' as const : 'FAIL' as const;
+    const operationalAgents = agents.filter((agent) => agent.declaredOperational);
+    const operationalFleet = {
+      total: operationalAgents.length,
+      active: operationalAgents.filter((agent) => agent.status === 'ACTIVE').length,
+      degraded: operationalAgents.filter((agent) => agent.status === 'DEGRADED').length,
+      failed: operationalAgents.filter((agent) => ['FAIL', 'CONTROL COVERAGE LOST'].includes(agent.status)).length,
+      noTelemetry: operationalAgents.filter((agent) => ['UNKNOWN / NO TELEMETRY', 'STALE', 'NOT EXECUTABLE'].includes(agent.status)).length,
+      mandateNotDemonstrated: operationalAgents.filter((agent) => agent.mandate !== 'PROVEN').length,
+      inactive: agents.length - operationalAgents.length,
+    };
+    const overallOperationalState = operationalFleet.total > 0 && operationalFleet.active === operationalFleet.total ? 'PASS' as const : 'FAIL' as const;
     const verdict = evaluateAgentRuntimeVerdict({
       controlSystemComplete,
       agents,
@@ -415,12 +468,15 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       overallOperationalState,
       falseActive,
       unexplainedDegraded,
+      primaryRecovered: failover.primaryRecovered,
+      openIncidents,
     });
     return {
       contractVersion: AGENT_ACCOUNTABILITY_CONTRACT,
       generatedAt: now,
       agents,
       fleet,
+      operationalFleet,
       inspector: {
         contractVersion: INSPECTOR_FAILOVER_CONTRACT,
         primaryInspector: PRIMARY_INSPECTOR_ID,
@@ -435,8 +491,10 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         transferEvidenceRef: transferEvent ? `AuthorityAuditJournal:${transferEvent.eventId}` : null,
         status: failover.status,
         controlStatus: failover.controlStatus,
+        primaryRecovered: failover.primaryRecovered,
+        failoverPreserved: failover.status === 'PASS' && failover.transferProven && failover.secondaryValidationProven,
       },
-      incidents: { eventStore: 'AuthorityAuditJournal', open: dashboard.incidentPipeline.open + (controlIncident ? 1 : 0), inspectorFailureIncident: dashboard.nodes.find((node) => node.canonicalId === PRIMARY_INSPECTOR_ID)?.incidentQualification?.openIncidentEventId ?? controlIncident?.eventId ?? null, controlCoverageIncident: controlIncident?.eventId ?? (coverageExplicitlyLost ? latestControlEvent?.eventId ?? null : null) },
+      incidents: { eventStore: 'AuthorityAuditJournal', open: openIncidents, inspectorFailureIncident: dashboard.nodes.find((node) => node.canonicalId === PRIMARY_INSPECTOR_ID)?.incidentQualification?.openIncidentEventId ?? controlIncident?.eventId ?? null, controlCoverageIncident: controlIncident?.eventId ?? (coverageExplicitlyLost ? latestControlEvent?.eventId ?? null : null) },
       verdict,
     };
   }
@@ -485,34 +543,105 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       ] });
     });
     const dashboard = await this.dashboard(ctx);
-    const activeMandates = await this.prisma.authorityMandate.findMany({ where: { companyId, status: 'APPROVED', revokedAt: null, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] } });
-    const mandateByAgent = firstBy(activeMandates, (item) => item.agentId);
     const validationAt = new Date();
     const validationOutput = { runId, registryNodes: dashboard.nodes.length, evaluatedAgents: dashboard.nodes.filter((item) => item.kind !== 'HUMAN_AUTHORITY').length, primaryFailureEventId: failureEventId, transferEventId };
     const validationHash = hash(validationOutput);
     const completedEventId = randomUUID();
     await this.prisma.$transaction(async (tx) => {
-      await tx.agentRuntimeEvent.create({ data: { companyId, eventId: completedEventId, mandateId: secondaryMandate.id, agentId: SECONDARY_INSPECTOR_ID, dossierId: `inspector-failover-${runId}`, lifecycle: 'COMPLETED', sequence: 3, occurredAt: validationAt, evidenceRef: `AuthorityAuditJournal:${transferEventId}`, outputRef: `urn:agm:secondary-validation:${runId}`, evidenceHash: validationHash, detail: JSON.stringify(validationOutput) } });
-      for (const node of dashboard.nodes.filter((item) => item.kind !== 'HUMAN_AUTHORITY')) {
-        const safeMetadata = { contractVersion: AGENT_ACCOUNTABILITY_CONTRACT, agentId: node.canonicalId, validatorId: SECONDARY_INSPECTOR_ID, status: node.status, mandateId: mandateByAgent.get(node.canonicalId)?.id ?? null, executionEvidenceRef: node.evidence.recordReference ?? null, outputRef: `urn:agm:accountability-validation:${runId}:${node.canonicalId}`, runId };
-        await tx.authorityAuditJournal.create({ data: { companyId, eventId: randomUUID(), eventType: 'AGENT_ACCOUNTABILITY_VALIDATED', scopeId: node.scope, mandateId: mandateByAgent.get(node.canonicalId)?.id, actorType: 'AGENT', actorId: SECONDARY_INSPECTOR_ID, outcome: 'PASS', reasonCode: node.status === 'FAIL' ? 'EXPLICIT_FAILURE_RECORDED' : undefined, payloadHash: hash(safeMetadata), safeMetadata: json(safeMetadata), correlationId: ctx.correlationId, occurredAt: new Date(validationAt.getTime() + 1) } });
-      }
+      await tx.agentRuntimeEvent.create({ data: { companyId, eventId: completedEventId, mandateId: secondaryMandate.id, agentId: SECONDARY_INSPECTOR_ID, dossierId: `inspector-failover-${runId}`, lifecycle: 'COMPLETED', sequence: 3, occurredAt: validationAt, evidenceRef: `AuthorityAuditJournal:${transferEventId}`, outputRef: `sha256:${validationHash}`, evidenceHash: validationHash, detail: JSON.stringify(validationOutput) } });
       const completedMetadata = { ...validationOutput, completedEventId, evidenceHash: validationHash };
       await tx.authorityAuditJournal.create({ data: { companyId, eventId: randomUUID(), eventType: 'SECONDARY_VALIDATION_COMPLETED', scopeId: 'premium.release', mandateId: secondaryMandate.id, actorType: 'AGENT', actorId: SECONDARY_INSPECTOR_ID, outcome: 'PASS', payloadHash: validationHash, safeMetadata: json(completedMetadata), correlationId: ctx.correlationId, occurredAt: new Date(validationAt.getTime() + 2) } });
       await tx.authorityAuditJournal.create({ data: { companyId, eventId: randomUUID(), eventType: 'CONTROL_COVERAGE_RESTORED', scopeId: 'premium.release', mandateId: secondaryMandate.id, actorType: 'SYSTEM', actorId: 'agm.inspector-failover-controller', outcome: 'PASS', payloadHash: validationHash, safeMetadata: json({ runId, activeValidator: SECONDARY_INSPECTOR_ID, uncoveredZones: 0 }), correlationId: ctx.correlationId, occurredAt: new Date(validationAt.getTime() + 3) } });
     });
-    return this.agentAccountability(ctx);
+    const domainDutyResults = await this.executeDomainReadDuties(ctx, secondaryMandate.id, runId);
+    const inspection = await this.inspectOperationalCapabilities(ctx);
+    const inspectorValidations = [];
+    for (const target of [
+      { agentId: PRIMARY_INSPECTOR_ID, targetMandateId: primaryMandate.id, validatorId: SECONDARY_INSPECTOR_ID, validatorMandateId: secondaryMandate.id, scopeId: 'premium.release' },
+      { agentId: SECONDARY_INSPECTOR_ID, targetMandateId: secondaryMandate.id, validatorId: PRIMARY_INSPECTOR_ID, validatorMandateId: primaryMandate.id, scopeId: 'premium.architecture' },
+    ]) {
+      const execution = inspection.evaluations.find((item) => item.agentId === target.agentId);
+      if (!execution?.passed || !execution.runtimeEventId || !execution.evidenceRef || !execution.outputRef || !execution.evidenceHash) continue;
+      const validatedAt = new Date(Math.max(Date.now(), inspection.evaluatedAt.getTime() + 1));
+      const safeMetadata = { contractVersion: AGENT_ACCOUNTABILITY_CONTRACT, agentId: target.agentId, validatorId: target.validatorId, validatorMandateId: target.validatorMandateId, targetMandateId: target.targetMandateId, executionEventId: execution.runtimeEventId, executionEvidenceRef: execution.evidenceRef, executionOutputRef: execution.outputRef, executionEvidenceHash: execution.evidenceHash, validatedAt: validatedAt.toISOString(), result: 'PASS', runId };
+      const outputRef = `sha256:${hash(safeMetadata)}`;
+      const receipt = await this.prisma.authorityAuditJournal.create({ data: { companyId, eventId: randomUUID(), eventType: 'AGENT_ACCOUNTABILITY_VALIDATED', scopeId: target.scopeId, mandateId: target.validatorMandateId, actorType: 'AGENT', actorId: target.validatorId, outcome: 'PASS', payloadHash: hash(safeMetadata), safeMetadata: json({ ...safeMetadata, outputRef }), correlationId: ctx.correlationId, occurredAt: validatedAt } });
+      inspectorValidations.push({ agentId: target.agentId, validatorId: target.validatorId, executionEventId: execution.runtimeEventId, validationEventId: receipt.eventId, outputRef });
+    }
+    await this.dashboard(ctx);
+    return { ...(await this.agentAccountability(ctx)), recovery: { runId, domainDutyResults, inspectorEvaluations: inspection.evaluations, inspectorValidations } };
+  }
+
+  private async executeDomainReadDuties(ctx: RequestContext, validatorMandateId: string, runId: string) {
+    type DutyResult = { canonicalId: string; scopeId: string; operation: string; passed: boolean; reason: string | null; evidenceReferences: string[]; checks: Record<string, unknown> };
+    type JobRow = { id: string };
+    type IncidentRow = { id: string; status: string; severity: string; transportJobId: string };
+    type EvidenceRow = { id: string; evidenceType: string; storageProvider: string; storageKey: string; checksumSha256: string | null };
+    type JobFile = { contractVersion: string; subjectId: string; timeline: Array<Record<string, unknown>>; auditReferences: readonly string[]; financialEntries: Array<Record<string, unknown>>; invoices: Array<Record<string, unknown>>; analysis: { entryCount: number } };
+    const providers = this.discovery.getProviders().map((wrapper) => wrapper.instance as unknown).filter((instance): instance is Record<string, unknown> => Boolean(instance && typeof instance === 'object'));
+    const carMover = providers.find((provider) => provider.constructor.name === 'CarMoverService') as unknown as { list(context: RequestContext): Promise<JobRow[]>; getJobFile(id: string, context: RequestContext): Promise<JobFile> } | undefined;
+    const incidents = providers.find((provider) => provider.constructor.name === 'IncidentsService') as unknown as { list(context: RequestContext): Promise<IncidentRow[]> } | undefined;
+    const evidence = providers.find((provider) => provider.constructor.name === 'EvidenceService') as unknown as { list(context: RequestContext): Promise<EvidenceRow[]> } | undefined;
+    const dutyContext: RequestContext = { ...ctx, roles: [...new Set([...ctx.roles, 'PREMIUM_ACCESS'])] };
+    const results: DutyResult[] = [];
+    if (!carMover) {
+      results.push(
+        { canonicalId: 'premium.car-mover.job-service', scopeId: 'premium.car-mover', operation: 'CarMoverService.list + getJobFile', passed: false, reason: 'RUNTIME_PROVIDER_NOT_LOADED', evidenceReferences: [], checks: {} },
+        { canonicalId: 'premium.car-mover.primary-accounting', scopeId: 'premium.car-mover', operation: 'CarMoverService.getJobFile financial projection', passed: false, reason: 'RUNTIME_PROVIDER_NOT_LOADED', evidenceReferences: [], checks: {} },
+      );
+    } else {
+      try {
+        const jobs = await carMover.list(dutyContext);
+        const jobFiles = await Promise.all(jobs.map((job) => carMover.getJobFile(job.id, dutyContext)));
+        const jobFile = jobFiles[0];
+        const accountingFile = jobFiles.find((file) => file.financialEntries.length > 0);
+        const jobPassed = Boolean(jobFile && jobFile.contractVersion === 'car-mover-job-file.v1' && jobFile.subjectId === jobs[0]?.id && jobFile.timeline.length > 0 && jobFile.auditReferences.length > 0 && jobFile.timeline.every((event) => typeof event.eventId === 'string' && typeof event.aggregateVersion === 'number'));
+        results.push({ canonicalId: 'premium.car-mover.job-service', scopeId: 'premium.car-mover', operation: 'CarMoverService.list + getJobFile', passed: jobPassed, reason: jobPassed ? null : 'JOB_FILE_INTEGRITY_NOT_PROVEN', evidenceReferences: jobFile ? [`CarMoverJob:${jobFile.subjectId}`, ...jobFile.auditReferences.map((id) => `AuditEvent:${id}`)] : [], checks: { returnedJobs: jobs.length, subjectId: jobFile?.subjectId ?? null, contractVersion: jobFile?.contractVersion ?? null, timelineEvents: jobFile?.timeline.length ?? 0, auditReferences: jobFile?.auditReferences.length ?? 0 } });
+        const ledgerPassed = Boolean(accountingFile && accountingFile.financialEntries.length > 0 && accountingFile.analysis.entryCount === accountingFile.financialEntries.length && accountingFile.financialEntries.every((entry) => typeof entry.id === 'string' && typeof entry.entryType === 'string' && typeof entry.currencyCode === 'string' && entry.amount !== undefined));
+        results.push({ canonicalId: 'premium.car-mover.primary-accounting', scopeId: 'premium.car-mover', operation: 'CarMoverService.getJobFile financial projection', passed: ledgerPassed, reason: ledgerPassed ? null : 'PRIMARY_LEDGER_INTEGRITY_NOT_PROVEN', evidenceReferences: accountingFile ? [`CarMoverJob:${accountingFile.subjectId}`, ...accountingFile.financialEntries.map((entry) => `CarMoverFinancialEntry:${String(entry.id)}`)] : [], checks: { subjectId: accountingFile?.subjectId ?? null, financialEntries: accountingFile?.financialEntries.length ?? 0, invoices: accountingFile?.invoices.length ?? 0, analyzedEntryCount: accountingFile?.analysis.entryCount ?? 0 } });
+      } catch (error) {
+        const reason = `REAL_DUTY_FAILED:${error instanceof Error ? error.constructor.name : 'UNKNOWN'}`;
+        results.push(
+          { canonicalId: 'premium.car-mover.job-service', scopeId: 'premium.car-mover', operation: 'CarMoverService.list + getJobFile', passed: false, reason, evidenceReferences: [], checks: {} },
+          { canonicalId: 'premium.car-mover.primary-accounting', scopeId: 'premium.car-mover', operation: 'CarMoverService.getJobFile financial projection', passed: false, reason, evidenceReferences: [], checks: {} },
+        );
+      }
+    }
+    try {
+      const rows = incidents ? await incidents.list(dutyContext) : [];
+      const knownStatuses = new Set(['open', 'investigating', 'resolved', 'validated', 'archived']);
+      const passed = Boolean(incidents && rows.length > 0 && rows.every((item) => Boolean(item.id && item.transportJobId && item.severity) && knownStatuses.has(item.status)));
+      results.push({ canonicalId: 'premium.car-mover.incident-service', scopeId: 'premium.car-mover', operation: 'IncidentsService.list', passed, reason: passed ? null : incidents ? 'INCIDENT_STORE_INTEGRITY_NOT_PROVEN' : 'RUNTIME_PROVIDER_NOT_LOADED', evidenceReferences: rows.map((item) => `IncidentReport:${item.id}`), checks: { returnedIncidents: rows.length, openIncidents: rows.filter((item) => !['resolved', 'validated', 'archived'].includes(item.status)).length } });
+    } catch (error) {
+      results.push({ canonicalId: 'premium.car-mover.incident-service', scopeId: 'premium.car-mover', operation: 'IncidentsService.list', passed: false, reason: `REAL_DUTY_FAILED:${error instanceof Error ? error.constructor.name : 'UNKNOWN'}`, evidenceReferences: [], checks: {} });
+    }
+    try {
+      const rows = evidence ? await evidence.list(dutyContext) : [];
+      const passed = Boolean(evidence && rows.length > 0 && rows.every((item) => Boolean(item.id && item.evidenceType && item.storageProvider && item.storageKey) && (!item.checksumSha256 || /^[a-f0-9]{64}$/i.test(item.checksumSha256))));
+      results.push({ canonicalId: 'premium.car-mover.evidence-service', scopeId: 'premium.car-mover', operation: 'EvidenceService.list', passed, reason: passed ? null : evidence ? 'EVIDENCE_STORE_INTEGRITY_NOT_PROVEN' : 'RUNTIME_PROVIDER_NOT_LOADED', evidenceReferences: rows.map((item) => `EvidenceMetadata:${item.id}`), checks: { returnedEvidence: rows.length, checksumsPresent: rows.filter((item) => Boolean(item.checksumSha256)).length } });
+    } catch (error) {
+      results.push({ canonicalId: 'premium.car-mover.evidence-service', scopeId: 'premium.car-mover', operation: 'EvidenceService.list', passed: false, reason: `REAL_DUTY_FAILED:${error instanceof Error ? error.constructor.name : 'UNKNOWN'}`, evidenceReferences: [], checks: {} });
+    }
+    const executedAt = new Date();
+    for (const result of results) {
+      const evidenceSetHash = hash(result.evidenceReferences.slice().sort());
+      const output = { contract: DOMAIN_SERVICE_VALIDATION_CONTRACT, executionKind: 'REAL_DOMAIN_SERVICE_DUTY', canonicalId: result.canonicalId, operation: result.operation, checks: result.checks, evidenceReferences: result.evidenceReferences.slice(0, 100), evidenceSetHash, validatorId: SECONDARY_INSPECTOR_ID, validatorMandateId, executedAt: executedAt.toISOString(), result: result.passed ? 'PASS' : 'FAIL', reason: result.reason, runId };
+      await this.prisma.authorityAuditJournal.create({ data: { companyId: ctx.companyId, eventId: randomUUID(), eventType: 'DOMAIN_SERVICE_VALIDATED', scopeId: result.scopeId, mandateId: validatorMandateId, actorType: 'AGENT', actorId: SECONDARY_INSPECTOR_ID, outcome: result.passed ? 'PASS' : 'FAIL', reasonCode: result.reason ?? undefined, payloadHash: hash(output), safeMetadata: json({ ...output, outputRef: `sha256:${hash(output)}` }), correlationId: ctx.correlationId, occurredAt: executedAt } });
+    }
+    return results.map((result) => ({ canonicalId: result.canonicalId, operation: result.operation, passed: result.passed, reason: result.reason, evidenceReferences: result.evidenceReferences, checks: result.checks }));
   }
 
   async inspectOperationalCapabilities(ctx: RequestContext) {
     requireAuthorityAdmin(ctx);
     const now = new Date();
-    const [registry, scopes, releaseEvent, heartbeat] = await Promise.all([
+    const [registry, scopes, releaseEvent, heartbeat, inspectorMandates] = await Promise.all([
       this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId: ctx.companyId } }),
       this.prisma.authorityScopePolicy.findMany({ where: { companyId: ctx.companyId, status: 'ACTIVE' } }),
       this.prisma.agentRuntimeEvent.findFirst({ where: { companyId: ctx.companyId, agentId: AUTHORITY_CONTROL_PLANE_ID }, orderBy: { occurredAt: 'desc' } }),
       this.prisma.componentHeartbeat.findUnique({ where: { companyId_componentId: { companyId: ctx.companyId, componentId: AUTHORITY_CONTROL_PLANE_ID } } }),
+      this.prisma.authorityMandate.findMany({ where: { companyId: ctx.companyId, agentId: { in: [PRIMARY_INSPECTOR_ID, SECONDARY_INSPECTOR_ID] }, status: 'APPROVED', revokedAt: null, OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }, orderBy: { issuedAt: 'desc' } }),
     ]);
+    const mandateByAgent = firstBy(inspectorMandates, (item) => item.agentId);
     const expectedIds = new Set(premiumNetworkSeed.map((node) => node.canonicalId));
     const actualIds = new Set(registry.map((node) => node.canonicalId));
     const architectureChecks = {
@@ -532,16 +661,22 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       { agentId: 'premium.architecture-inspector', checks: architectureChecks, passed: Object.values(architectureChecks).every(Boolean), evidenceRef: `PremiumNetworkRegistryEntry:${registry.length};AuthorityScopePolicy:${scopes.length}` },
       { agentId: 'premium.release-inspector', checks: releaseChecks, passed: Object.values(releaseChecks).every(Boolean), evidenceRef: `AgentRuntimeEvent:${releaseEvent?.eventId ?? 'MISSING'};ComponentHeartbeat:${heartbeat?.id ?? 'MISSING'}` },
     ];
+    const persistedEvaluations: Array<(typeof evaluations)[number] & { runtimeEventId: string; outputRef: string | null; evidenceHash: string | null }> = [];
     for (const evaluation of evaluations) {
+      const activeMandate = mandateByAgent.get(evaluation.agentId);
+      if (!activeMandate) throw new ConflictException('ACTIVE_INSPECTOR_MANDATE_REQUIRED');
+      const output = { contract: AGENT_ACCOUNTABILITY_CONTRACT, agentId: evaluation.agentId, checks: evaluation.checks, result: evaluation.passed ? 'PASS' : 'FAIL' };
+      const evidenceHash = hash(output);
       const event = await this.prisma.agentRuntimeEvent.create({ data: {
-        companyId: ctx.companyId, eventId: randomUUID(), mandateId: `turn-operational-inspection-${now.getTime()}`,
+        companyId: ctx.companyId, eventId: randomUUID(), mandateId: activeMandate.id,
         agentId: evaluation.agentId, dossierId: `turn-operational-inspection-${evaluation.agentId}-${now.getTime()}`,
         lifecycle: evaluation.passed ? 'COMPLETED' : 'FAILED', sequence: 1, occurredAt: now,
-        evidenceRef: evaluation.evidenceRef, detail: JSON.stringify(evaluation.checks),
+        evidenceRef: evaluation.evidenceRef, outputRef: `sha256:${evidenceHash}`, evidenceHash, detail: JSON.stringify(output),
       } });
-      await this.journal(this.prisma, ctx, { eventType: evaluation.passed ? 'OPERATIONAL_INSPECTION_COMPLETED' : 'OPERATIONAL_INSPECTION_FAILED', scopeId: evaluation.agentId === 'premium.release-inspector' ? 'premium.release' : 'premium.architecture', outcome: evaluation.passed ? 'PASS' : 'FAIL', reasonCode: evaluation.passed ? undefined : 'INSPECTION_CHECK_FAILED', safeMetadata: { agentId: evaluation.agentId, checks: evaluation.checks, runtimeEventId: event.eventId } });
+      await this.journal(this.prisma, ctx, { eventType: evaluation.passed ? 'OPERATIONAL_INSPECTION_COMPLETED' : 'OPERATIONAL_INSPECTION_FAILED', scopeId: evaluation.agentId === 'premium.release-inspector' ? 'premium.release' : 'premium.architecture', mandateId: activeMandate.id, outcome: evaluation.passed ? 'PASS' : 'FAIL', reasonCode: evaluation.passed ? undefined : 'INSPECTION_CHECK_FAILED', safeMetadata: { agentId: evaluation.agentId, checks: evaluation.checks, runtimeEventId: event.eventId, outputRef: `sha256:${evidenceHash}` } });
+      persistedEvaluations.push({ ...evaluation, runtimeEventId: event.eventId, outputRef: event.outputRef, evidenceHash: event.evidenceHash });
     }
-    return { evaluatedAt: now, evaluations };
+    return { evaluatedAt: now, evaluations: persistedEvaluations };
   }
 
   async createMandate(dto: CreateMandateDto, ctx: RequestContext) {
@@ -859,8 +994,8 @@ function firstBy<T>(items: readonly T[], key: (item: T) => string) {
   return map;
 }
 
-function runtimeSignal(event: { eventId: string; lifecycle: string; occurredAt: Date; evidenceRef: string; outputRef: string | null; evidenceHash: string | null } | undefined): AccountabilitySignal | null {
-  return event ? { id: event.eventId, status: event.lifecycle, occurredAt: event.occurredAt, evidenceRef: event.evidenceRef, outputRef: event.outputRef ?? (event.evidenceHash ? `sha256:${event.evidenceHash}` : null) } : null;
+function runtimeSignal(event: { eventId: string; mandateId: string | null; lifecycle: string; occurredAt: Date; evidenceRef: string; outputRef: string | null; evidenceHash: string | null } | undefined): AccountabilitySignal | null {
+  return event ? { id: event.eventId, mandateId: event.mandateId, status: event.lifecycle, occurredAt: event.occurredAt, evidenceRef: event.evidenceRef, outputRef: event.outputRef ?? (event.evidenceHash ? `sha256:${event.evidenceHash}` : null) } : null;
 }
 
 function nodeSignal(node: { lastActivity: Date | null; lastRun: { lifecycle: string; occurredAt: Date; detail: unknown } | null; activityEvidence: { recordReference: string | null } }): AccountabilitySignal | null {

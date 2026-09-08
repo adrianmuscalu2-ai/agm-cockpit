@@ -13,6 +13,7 @@ export type AgentAccountabilityStatus =
 
 export type AccountabilitySignal = {
   id: string;
+  mandateId?: string | null;
   status: string;
   occurredAt: Date;
   evidenceRef: string | null;
@@ -41,7 +42,7 @@ export function evaluateAgentAccountability(input: {
   const now = input.now ?? new Date();
   const mandate = input.mandateId ? 'PROVEN' : 'NOT PROVEN';
   const executionFresh = Boolean(input.execution && now.getTime() - input.execution.occurredAt.getTime() <= input.freshnessWindowMs);
-  const executionProven = Boolean(input.execution?.evidenceRef && input.execution?.outputRef);
+  const executionProven = Boolean(input.execution?.evidenceRef && input.execution?.outputRef && (!input.mandateId || input.execution.mandateId === input.mandateId));
   const validationFresh = Boolean(input.validation && now.getTime() - input.validation.occurredAt.getTime() <= input.freshnessWindowMs);
   const validationAccepted = Boolean(input.validation && ['PASS', 'COMPLETED', 'ACTIVE'].includes(input.validation.status.toUpperCase()));
   const validationProven = Boolean(input.validation?.evidenceRef && input.validation?.outputRef && validationFresh && validationAccepted);
@@ -69,6 +70,13 @@ export function evaluateInspectorFailover(input: {
   now?: Date;
 }) {
   const now = input.now ?? new Date();
+  const primaryCurrent = Boolean(
+    input.primary
+      && ['COMPLETED', 'PASS', 'ACTIVE'].includes(input.primary.status.toUpperCase())
+      && input.primary.evidenceRef
+      && input.primary.outputRef
+      && now.getTime() - input.primary.occurredAt.getTime() <= input.freshnessWindowMs,
+  );
   const primaryUnavailable = !input.primary
     || ['DEGRADED', 'FAILED', 'FAIL', 'BLOCKED', 'NO_TELEMETRY', 'STALE'].includes(input.primary.status.toUpperCase())
     || now.getTime() - input.primary.occurredAt.getTime() > input.freshnessWindowMs;
@@ -80,14 +88,19 @@ export function evaluateInspectorFailover(input: {
       && now.getTime() - input.secondary.occurredAt.getTime() <= input.freshnessWindowMs,
   );
   const transferProven = Boolean(input.transferObservedAt && input.activeValidatorId === input.secondaryId);
-  const pass = primaryUnavailable && secondaryCurrent && transferProven;
+  const failoverProven = secondaryCurrent && transferProven;
+  const pass = failoverProven && (primaryUnavailable || primaryCurrent);
   return {
+    primaryCurrent,
     primaryUnavailable,
+    primaryRecovered: primaryCurrent && transferProven,
     transferProven,
     secondaryValidationProven: secondaryCurrent,
     status: pass ? 'PASS' as const : 'FAIL' as const,
     controlCoverage: pass ? 'COMPLETE' as const : 'INCOMPLETE' as const,
-    controlStatus: pass ? 'TRANSFERRED_TO_SECONDARY' as const : 'CONTROL COVERAGE LOST' as const,
+    controlStatus: pass
+      ? primaryCurrent ? 'PRIMARY_RECOVERED_FAILOVER_PROVEN' as const : 'TRANSFERRED_TO_SECONDARY' as const
+      : 'CONTROL COVERAGE LOST' as const,
   };
 }
 
@@ -97,15 +110,21 @@ export function falseActiveCount(items: Array<{ status: AgentAccountabilityStatu
 
 export function evaluateAgentRuntimeVerdict(input: {
   controlSystemComplete: boolean;
-  agents: Array<{ status: AgentAccountabilityStatus; executable: string; mandate: string; validation: string; executionEvidenceRef: string | null }>;
+  agents: Array<{ declaredOperational: boolean; status: AgentAccountabilityStatus; executable: string; mandate: string; validation: string; executionEvidenceRef: string | null }>;
   inspectorFailover: 'PASS' | 'FAIL';
   controlCoverage: 'COMPLETE' | 'INCOMPLETE';
   overallOperationalState: 'PASS' | 'FAIL';
   falseActive: number;
   unexplainedDegraded: number;
+  primaryRecovered: boolean;
+  openIncidents: number;
 }) {
   const controlSystem = input.controlSystemComplete && input.falseActive === 0 && input.unexplainedDegraded === 0 ? 'PASS' as const : 'FAIL' as const;
-  const fleetAccountable = input.agents.length > 0 && input.agents.every((agent) => agent.status === 'ACTIVE'
+  const operationalAgents = input.agents.filter((agent) => agent.declaredOperational);
+  const mandateNotDemonstrated = operationalAgents.filter((agent) => agent.mandate !== 'PROVEN').length;
+  const noTelemetry = operationalAgents.filter((agent) => ['UNKNOWN / NO TELEMETRY', 'STALE', 'NOT EXECUTABLE'].includes(agent.status)).length;
+  const failed = operationalAgents.filter((agent) => ['FAIL', 'CONTROL COVERAGE LOST'].includes(agent.status)).length;
+  const fleetAccountable = operationalAgents.length > 0 && operationalAgents.every((agent) => agent.status === 'ACTIVE'
     && agent.executable === 'YES'
     && agent.mandate === 'PROVEN'
     && agent.validation === 'PROVEN'
@@ -116,8 +135,10 @@ export function evaluateAgentRuntimeVerdict(input: {
     && input.inspectorFailover === 'PASS'
     && input.controlCoverage === 'COMPLETE'
     && input.overallOperationalState === 'PASS'
+    && input.primaryRecovered
+    && input.openIncidents === 0
     ? 'PASS' as const : 'FAIL' as const;
-  return { controlSystem, agentAccountability, overallOperationalState: input.overallOperationalState, inspectorFailover: input.inspectorFailover, controlCoverage: input.controlCoverage, falseActive: input.falseActive, unexplainedDegraded: input.unexplainedDegraded, finalAgentRuntimePass };
+  return { controlSystem, agentAccountability, overallOperationalState: input.overallOperationalState, inspectorFailover: input.inspectorFailover, controlCoverage: input.controlCoverage, falseActive: input.falseActive, unexplainedDegraded: input.unexplainedDegraded, noTelemetry, failed, mandateNotDemonstrated, primaryRecovered: input.primaryRecovered, openIncidents: input.openIncidents, finalAgentRuntimePass };
 }
 
 function result(executable: 'YES' | 'NO', mandate: 'PROVEN' | 'NOT PROVEN', validation: 'PROVEN' | 'NOT PROVEN', freshness: 'CURRENT' | 'STALE' | 'NO TELEMETRY', status: AgentAccountabilityStatus, reason: string): AgentAccountabilityEvaluation {

@@ -9,6 +9,7 @@ import {
 const now = new Date('2026-09-08T12:00:00.000Z');
 const execution = (overrides: Partial<AccountabilitySignal> = {}): AccountabilitySignal => ({
   id: 'execution-1',
+  mandateId: 'mandate-1',
   status: 'COMPLETED',
   occurredAt: new Date('2026-09-08T11:55:00.000Z'),
   evidenceRef: 'EventStore:execution-1',
@@ -47,6 +48,7 @@ describe('agent runtime accountability engine', () => {
     [{ execution: null }, 'UNKNOWN / NO TELEMETRY'],
     [{ execution: execution({ evidenceRef: null }) }, 'UNKNOWN / NO TELEMETRY'],
     [{ execution: execution({ outputRef: null }) }, 'UNKNOWN / NO TELEMETRY'],
+    [{ execution: execution({ mandateId: 'different-mandate' }) }, 'UNKNOWN / NO TELEMETRY'],
     [{ execution: execution({ status: 'FAILED' }) }, 'FAIL'],
     [{ execution: execution({ occurredAt: new Date('2026-09-08T09:00:00.000Z') }) }, 'STALE'],
     [{ validation: null }, 'DEGRADED'],
@@ -81,27 +83,43 @@ describe('agent runtime accountability engine', () => {
     })).toEqual(expect.objectContaining({ status: 'FAIL', controlCoverage: 'INCOMPLETE', controlStatus: 'CONTROL COVERAGE LOST' }));
   });
 
+  it('keeps failover proven after the primary completes a real recovery execution', () => {
+    expect(evaluateInspectorFailover({
+      primary: execution({ id: 'primary-recovered' }),
+      secondary: execution({ id: 'secondary-current' }),
+      transferObservedAt: new Date('2026-09-08T11:55:30.000Z'),
+      activeValidatorId: 'secondary',
+      secondaryId: 'secondary',
+      freshnessWindowMs: 60 * 60 * 1000,
+      now,
+    })).toEqual(expect.objectContaining({ status: 'PASS', controlCoverage: 'COMPLETE', primaryRecovered: true, controlStatus: 'PRIMARY_RECOVERED_FAILOVER_PROVEN' }));
+  });
+
   it('keeps control-system PASS separate from a non-accountable fleet', () => {
     expect(evaluateAgentRuntimeVerdict({
       controlSystemComplete: true,
-      agents: [{ status: 'MANDATE NOT ASSIGNED', executable: 'YES', mandate: 'NOT PROVEN', validation: 'PROVEN', executionEvidenceRef: 'event:1' }],
+      agents: [{ declaredOperational: false, status: 'MANDATE NOT ASSIGNED', executable: 'YES', mandate: 'NOT PROVEN', validation: 'PROVEN', executionEvidenceRef: 'event:1' }],
       inspectorFailover: 'PASS',
       controlCoverage: 'COMPLETE',
       overallOperationalState: 'FAIL',
       falseActive: 0,
       unexplainedDegraded: 0,
+      primaryRecovered: true,
+      openIncidents: 0,
     })).toEqual(expect.objectContaining({ controlSystem: 'PASS', agentAccountability: 'FAIL', overallOperationalState: 'FAIL', finalAgentRuntimePass: 'FAIL' }));
   });
 
   it('grants the final runtime PASS only when every agent and the fleet are operational', () => {
     expect(evaluateAgentRuntimeVerdict({
       controlSystemComplete: true,
-      agents: [{ status: 'ACTIVE', executable: 'YES', mandate: 'PROVEN', validation: 'PROVEN', executionEvidenceRef: 'event:1' }],
+      agents: [{ declaredOperational: true, status: 'ACTIVE', executable: 'YES', mandate: 'PROVEN', validation: 'PROVEN', executionEvidenceRef: 'event:1' }],
       inspectorFailover: 'PASS',
       controlCoverage: 'COMPLETE',
       overallOperationalState: 'PASS',
       falseActive: 0,
       unexplainedDegraded: 0,
+      primaryRecovered: true,
+      openIncidents: 0,
     })).toEqual(expect.objectContaining({
       controlSystem: 'PASS',
       agentAccountability: 'PASS',

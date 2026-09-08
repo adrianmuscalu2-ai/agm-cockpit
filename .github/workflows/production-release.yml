@@ -414,24 +414,44 @@ jobs:
             .data
             | .contractVersion == "agent-runtime-accountability.v1"
               and (.agents | length > 0)
-              and ([.agents[] | has("identity") and has("executable") and has("mandate") and has("lastExecution") and has("validator") and has("failover") and has("status")] | all)
+              and ([.agents[] | has("identity") and has("declaredOperational") and has("operationalDeclaration") and has("executable") and has("mandate") and has("lastExecution") and has("validator") and has("failover") and has("status")] | all)
+              and ([.agents[] | select(.kind == "HUMAN_AUTHORITY")] | length == 0)
               and ([.agents[] | select(.status == "ACTIVE" and (.executable != "YES" or .mandate != "PROVEN" or .validation != "PROVEN" or .executionEvidenceRef == null))] | length == 0)
+              and ([.agents[] | select(.declaredOperational == true)] | length == 2)
+              and ([.agents[] | select(.declaredOperational == false and (.operationalDeclaration != "INACTIVE_NO_CURRENT_MANDATE" or .status != "MANDATE NOT ASSIGNED"))] | length == 0)
               and ([.agents[] | select(.status == "DEGRADED" and (.reason | length == 0))] | length == 0)
+              and .operationalFleet.total == 2
+              and .operationalFleet.active == 2
+              and .operationalFleet.degraded == 0
+              and .operationalFleet.failed == 0
+              and .operationalFleet.noTelemetry == 0
+              and .operationalFleet.mandateNotDemonstrated == 0
+              and .operationalFleet.inactive == 25
               and .inspector.primaryInspector == "premium.release-inspector"
-              and .inspector.primaryStatus == "FAILED"
+              and .inspector.primaryStatus == "COMPLETED"
               and .inspector.secondaryInspector == "premium.architecture-inspector"
               and .inspector.secondaryStatus == "COMPLETED"
               and .inspector.mandateTransferred == true
+              and .inspector.primaryRecovered == true
+              and .inspector.failoverPreserved == true
               and (.inspector.transferEvidenceRef | type == "string")
-              and (.incidents.inspectorFailureIncident | type == "string")
+              and .incidents.open == 0
+              and .incidents.inspectorFailureIncident == null
+              and (.recovery.domainDutyResults | length == 4)
+              and ([.recovery.domainDutyResults[] | .passed == true and (.evidenceReferences | length > 0)] | all)
               and .verdict.agentAccountability == "PASS"
               and .verdict.inspectorFailover == "PASS"
               and .verdict.controlCoverage == "COMPLETE"
               and .verdict.falseActive == 0
               and .verdict.unexplainedDegraded == 0
+              and .verdict.noTelemetry == 0
+              and .verdict.failed == 0
+              and .verdict.mandateNotDemonstrated == 0
+              and .verdict.primaryRecovered == true
+              and .verdict.openIncidents == 0
               and .verdict.finalAgentRuntimePass == "PASS"
           ' <<<"$accountability" >/dev/null
-          jq -c '{contract:.data.contractVersion,agents:(.data.agents|length),primary:.data.inspector.primaryStatus,secondary:.data.inspector.secondaryStatus,transferred:.data.inspector.mandateTransferred,incident:.data.incidents.inspectorFailureIncident,verdict:.data.verdict}' <<<"$accountability"
+          jq -c '{contract:.data.contractVersion,agents:(.data.agents|length),operationalFleet:.data.operationalFleet,primary:.data.inspector.primaryStatus,secondary:.data.inspector.secondaryStatus,transferred:.data.inspector.mandateTransferred,primaryRecovered:.data.inspector.primaryRecovered,failoverPreserved:.data.inspector.failoverPreserved,incidents:.data.incidents.open,domainDutyResults:.data.recovery.domainDutyResults,verdict:.data.verdict}' <<<"$accountability"
           echo 'FINAL_AGENT_RUNTIME_PASS=PASS'
           mkdir -p evidence/agent-accountability/production
           jq '.' <<<"$accountability" > evidence/agent-accountability/production/agent-runtime-accountability.json
