@@ -1,6 +1,7 @@
 import { Controller, ForbiddenException, Get, Param, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { AuthorityControlPlaneService } from '../authority-control-plane/authority-control-plane.service';
 import { responseEnvelope } from '../common/response';
+import type { RequestContext } from '../common/request-context';
 import { CurrentMachine } from './current-machine.decorator';
 import type { MachineRequestContext } from './machine-auth.contract';
 import { MachineJwtAuthGuard } from './machine-jwt-auth.guard';
@@ -14,5 +15,18 @@ export class MachineAuthorityController {
   async registry(@Param('companyId', ParseUUIDPipe) companyId: string, @CurrentMachine() machine: MachineRequestContext) {
     if (companyId !== machine.companyId) throw new ForbiddenException('CROSS_COMPANY_ACCESS_DENIED');
     return responseEnvelope(await this.authority.registryReadOnly(machine.companyId), machine.requestId);
+  }
+
+  @Get('companies/:companyId/agent-accountability')
+  async accountability(@Param('companyId', ParseUUIDPipe) companyId: string, @CurrentMachine() machine: MachineRequestContext) {
+    if (companyId !== machine.companyId) throw new ForbiddenException('CROSS_COMPANY_ACCESS_DENIED');
+    const context: RequestContext = {
+      companyId: machine.companyId,
+      userId: machine.machineIdentityId,
+      roles: ['MACHINE_ACP_READ'],
+      requestId: machine.requestId,
+      correlationId: machine.correlationId,
+    };
+    return responseEnvelope(await this.authority.agentAccountability(context), machine.requestId);
   }
 }

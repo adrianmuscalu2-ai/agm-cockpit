@@ -14,18 +14,20 @@ import { SecretTelemetryService } from '../secret-telemetry/secret-telemetry.ser
 import { optionalExternalProviders } from '../car-mover/car-mover-routing.policy';
 import { OPERATIONAL_INCIDENT_CONTRACT, operationalIncidentTransition, qualifyOperationalIncident, type OperationalIncidentQualification } from './operational-incident-evaluator';
 import { AGENT_ACCOUNTABILITY_CONTRACT, INSPECTOR_FAILOVER_CONTRACT, evaluateAgentAccountability, evaluateAgentRuntimeVerdict, evaluateInspectorFailover, falseActiveCount, type AccountabilitySignal } from './agent-runtime-accountability.engine';
-import { OperationalAgentDutyRunner } from './operational-agent-duty.runner';
+import { OperationalAgentDutyRunner, type OperationalAgentDutyResult } from './operational-agent-duty.runner';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
 const AUTHORITY_ADMIN_ROLES = new Set(['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN']);
 const AUTHORITY_CONTROL_PLANE_ID = TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId;
 const COMPONENT_RUNTIME_PROBE_STALE_AFTER_MS = 90_000;
 const COMPONENT_RUNTIME_PROBE_INTERVAL_MS = 60_000;
+const CRITICAL_CONTINUOUS_AGENT_IDS = new Set(['agm.authority.control-plane', 'agm.guardian.secrets']);
 const json = (value: unknown) => value as Prisma.InputJsonValue;
 type DomainActivity = { status: string; observedAt: Date; recordId: string; detail: string; dependencyState: string };
 const PRIMARY_INSPECTOR_ID = 'premium.release-inspector';
 const SECONDARY_INSPECTOR_ID = 'premium.architecture-inspector';
 const ACCOUNTABILITY_FRESHNESS_MS = 24 * 60 * 60 * 1000;
+const ACCOUNTABILITY_EVIDENCE_LOOKBACK_LIMIT = 4_000;
 const INSPECTION_MANDATE_VERSION = 'inspector-failover-readonly-mandate.v1';
 const DOMAIN_SERVICE_VALIDATION_CONTRACT = 'domain-service-operational-validation.v1';
 type RuntimeCapabilityRequirement = { provider: string; methods: string[]; adapterCategory?: string };
@@ -70,6 +72,7 @@ export const RUNTIME_NATIVE_TELEMETRY_IDS = [
 @Injectable()
 export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnApplicationShutdown {
   private runtimeProbeTimer: ReturnType<typeof setInterval> | undefined;
+  private runtimeCycleInFlight = false;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -79,10 +82,11 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
   ) {}
 
   async onApplicationBootstrap() {
-    await this.recordRuntimeCapabilityProbesForActiveCompanies();
+    await this.runRuntimeMonitoringCycle();
     this.runtimeProbeTimer = setInterval(() => {
-      void this.recordRuntimeCapabilityProbesForActiveCompanies().catch(() => {
-        // Existing persisted probes become STALE if the real monitor cannot complete.
+      void this.runRuntimeMonitoringCycle().catch(() => {
+        // Existing persisted evidence becomes STALE and the dashboard opens an
+        // incident if the real monitor cannot complete. No synthetic refresh.
       });
     }, COMPONENT_RUNTIME_PROBE_INTERVAL_MS);
     this.runtimeProbeTimer.unref();
@@ -92,13 +96,61 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     if (this.runtimeProbeTimer) clearInterval(this.runtimeProbeTimer);
   }
 
+  private async runRuntimeMonitoringCycle() {
+    if (this.runtimeCycleInFlight) return;
+    this.runtimeCycleInFlight = true;
+    try {
+      const companies = await this.prisma.company.findMany({ where: { isActive: true }, select: { id: true } });
+      await Promise.all(companies.map(async (company) => {
+        await this.recordRuntimeCapabilityProbes(company.id);
+        await this.executeCriticalContinuousDuties(company.id);
+      }));
+    } finally {
+      this.runtimeCycleInFlight = false;
+    }
+  }
+
+  private async executeCriticalContinuousDuties(companyId: string) {
+    const now = new Date();
+    const mandates = await this.prisma.authorityMandate.findMany({
+      where: {
+        companyId,
+        agentId: { in: [...CRITICAL_CONTINUOUS_AGENT_IDS, SECONDARY_INSPECTOR_ID] },
+        status: 'APPROVED',
+        revokedAt: null,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      },
+      orderBy: { issuedAt: 'desc' },
+    });
+    const mandateByAgent = firstBy(mandates, (mandate) => mandate.agentId);
+    const validatorMandate = mandateByAgent.get(SECONDARY_INSPECTOR_ID);
+    const dutyMandates = [...CRITICAL_CONTINUOUS_AGENT_IDS]
+      .map((agentId) => mandateByAgent.get(agentId))
+      .filter((mandate): mandate is NonNullable<typeof mandate> => Boolean(mandate));
+    if (!validatorMandate || dutyMandates.length !== CRITICAL_CONTINUOUS_AGENT_IDS.size) return;
+
+    const ctx: RequestContext = {
+      companyId,
+      userId: '00000000-0000-0000-0000-000000000001',
+      roles: ['PRODUCT_OWNER'],
+      requestId: randomUUID(),
+      correlationId: randomUUID(),
+    };
+    const runId = 'critical-continuous-' + randomUUID();
+    const executions = await this.operationalDuties.execute(ctx, dutyMandates, runId, CRITICAL_CONTINUOUS_AGENT_IDS);
+    await this.validateOperationalDutyResults(ctx, executions, validatorMandate, runId);
+    // Incidents are reconciled only after new execution and independent
+    // validation evidence have been persisted.
+    await this.dashboard(ctx);
+  }
+
   async dashboard(ctx: RequestContext) {
     const now = new Date();
     const secretSnapshot = this.secretTelemetry.snapshot();
     const [registry, heartbeats, runtimeEvents, opportunityTelemetry, liveAdapterTelemetry, allLeases, failover, operationalIncidentJournals, domainValidationJournals, mandates, decisions, recovery, domainActivity, opportunityCount] = await Promise.all([
       this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId: ctx.companyId }, orderBy: [{ module: 'asc' }, { canonicalId: 'asc' }] }),
       this.prisma.componentHeartbeat.findMany({ where: { companyId: ctx.companyId } }),
-      this.prisma.agentRuntimeEvent.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: 1000 }),
+      this.prisma.agentRuntimeEvent.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: ACCOUNTABILITY_EVIDENCE_LOOKBACK_LIMIT }),
       this.prisma.opportunityAgentTelemetry.findMany({ where: { companyId: ctx.companyId } }),
       this.prisma.liveAdapterTelemetry.findMany({ where: { companyId: ctx.companyId }, orderBy: { lastAttemptAt: 'desc' } }),
       this.prisma.authorityLease.findMany({ where: { companyId: ctx.companyId }, orderBy: { issuedAt: 'desc' }, take: 1000 }),
@@ -337,8 +389,8 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     const dashboard = await this.dashboard(ctx);
     const [mandates, runtimeEvents, validationEvents, failoverState, failoverEvents] = await Promise.all([
       this.prisma.authorityMandate.findMany({ where: { companyId: ctx.companyId, status: 'APPROVED', revokedAt: null, OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }, orderBy: { issuedAt: 'desc' } }),
-      this.prisma.agentRuntimeEvent.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: 2000 }),
-      this.prisma.authorityAuditJournal.findMany({ where: { companyId: ctx.companyId, eventType: 'AGENT_ACCOUNTABILITY_VALIDATED' }, orderBy: { occurredAt: 'desc' }, take: 2000 }),
+      this.prisma.agentRuntimeEvent.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: ACCOUNTABILITY_EVIDENCE_LOOKBACK_LIMIT }),
+      this.prisma.authorityAuditJournal.findMany({ where: { companyId: ctx.companyId, eventType: 'AGENT_ACCOUNTABILITY_VALIDATED' }, orderBy: { occurredAt: 'desc' }, take: ACCOUNTABILITY_EVIDENCE_LOOKBACK_LIMIT }),
       this.prisma.authorityFailoverState.findUnique({ where: { companyId_scopeId: { companyId: ctx.companyId, scopeId: 'premium.release' } } }),
       this.prisma.authorityAuditJournal.findMany({ where: { companyId: ctx.companyId, eventType: { in: ['INSPECTOR_MANDATE_TRANSFERRED', 'SECONDARY_VALIDATION_COMPLETED', 'CONTROL_COVERAGE_LOST', 'CONTROL_COVERAGE_RESTORED'] } }, orderBy: { occurredAt: 'desc' }, take: 100 }),
     ]);
@@ -585,18 +637,28 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       inspectorValidations.push({ agentId: target.agentId, validatorId: target.validatorId, executionEventId: execution.runtimeEventId, validationEventId: receipt.eventId, outputRef });
     }
     await this.dashboard(ctx);
-    const fleetValidations = [];
-    for (const execution of fleetDutyResults) {
+    const fleetValidations = await this.validateOperationalDutyResults(ctx, fleetDutyResults, secondaryMandate, runId);
+    if (fleetValidations.length !== fleetDutyResults.length) throw new ConflictException('NON_HUMAN_DUTY_VALIDATION_INCOMPLETE');
+    return { ...(await this.agentAccountability(ctx)), recovery: { runId, domainDutyResults, inspectorEvaluations: inspection.evaluations, inspectorValidations } };
+  }
+
+  private async validateOperationalDutyResults(
+    ctx: RequestContext,
+    executions: readonly OperationalAgentDutyResult[],
+    validatorMandate: { id: string },
+    runId: string,
+  ) {
+    const validations = [];
+    for (const execution of executions) {
       if (!execution.passed) continue;
       const seed = premiumNetworkSeed.find((item) => item.canonicalId === execution.agentId)!;
       const validatedAt = new Date(Math.max(Date.now(), new Date(execution.executedAt).getTime() + 1));
-      const safeMetadata = { contractVersion: AGENT_ACCOUNTABILITY_CONTRACT, agentId: execution.agentId, validatorId: SECONDARY_INSPECTOR_ID, validatorMandateId: secondaryMandate.id, targetMandateId: execution.mandateId, executionEventId: execution.executionEventId, executionEvidenceRef: execution.evidenceRef, executionOutputRef: execution.outputRef, executionEvidenceHash: execution.outputRef.replace('sha256:', ''), validatedAt: validatedAt.toISOString(), result: 'PASS', runId };
+      const safeMetadata = { contractVersion: AGENT_ACCOUNTABILITY_CONTRACT, agentId: execution.agentId, validatorId: SECONDARY_INSPECTOR_ID, validatorMandateId: validatorMandate.id, targetMandateId: execution.mandateId, executionEventId: execution.executionEventId, executionEvidenceRef: execution.evidenceRef, executionOutputRef: execution.outputRef, executionEvidenceHash: execution.outputRef.replace('sha256:', ''), validatedAt: validatedAt.toISOString(), result: 'PASS', runId };
       const outputRef = `sha256:${hash(safeMetadata)}`;
-      const receipt = await this.prisma.authorityAuditJournal.create({ data: { companyId, eventId: randomUUID(), eventType: 'AGENT_ACCOUNTABILITY_VALIDATED', scopeId: seed.scope, mandateId: secondaryMandate.id, actorType: 'AGENT', actorId: SECONDARY_INSPECTOR_ID, outcome: 'PASS', payloadHash: hash(safeMetadata), safeMetadata: json(Object.assign({}, safeMetadata, { outputRef })), correlationId: ctx.correlationId, occurredAt: validatedAt } });
-      fleetValidations.push({ agentId: execution.agentId, validatorId: SECONDARY_INSPECTOR_ID, executionEventId: execution.executionEventId, validationEventId: receipt.eventId, outputRef });
+      const receipt = await this.prisma.authorityAuditJournal.create({ data: { companyId: ctx.companyId, eventId: randomUUID(), eventType: 'AGENT_ACCOUNTABILITY_VALIDATED', scopeId: seed.scope, mandateId: validatorMandate.id, actorType: 'AGENT', actorId: SECONDARY_INSPECTOR_ID, outcome: 'PASS', payloadHash: hash(safeMetadata), safeMetadata: json({ ...safeMetadata, outputRef }), correlationId: ctx.correlationId, occurredAt: validatedAt } });
+      validations.push({ agentId: execution.agentId, validatorId: SECONDARY_INSPECTOR_ID, executionEventId: execution.executionEventId, validationEventId: receipt.eventId, outputRef });
     }
-    if (fleetValidations.length !== fleetDutyResults.length) throw new ConflictException('NON_HUMAN_DUTY_VALIDATION_INCOMPLETE');
-    return { ...(await this.agentAccountability(ctx)), recovery: { runId, domainDutyResults, inspectorEvaluations: inspection.evaluations, inspectorValidations } };
+    return validations;
   }
 
   private async executeDomainReadDuties(ctx: RequestContext, validatorMandateId: string, runId: string) {
@@ -889,11 +951,6 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     return activity;
   }
 
-  private async recordRuntimeCapabilityProbesForActiveCompanies() {
-    const companies = await this.prisma.company.findMany({ where: { isActive: true }, select: { id: true } });
-    await Promise.all(companies.map((company) => this.recordRuntimeCapabilityProbes(company.id)));
-  }
-
   private async recordRuntimeCapabilityProbes(companyId: string) {
     await this.prisma.$queryRaw`SELECT 1`;
     const instances = this.discovery.getProviders().map((wrapper) => wrapper.instance as unknown).filter((instance): instance is Record<string, unknown> => Boolean(instance && typeof instance === 'object'));
@@ -1032,7 +1089,7 @@ function nodeSignal(node: { lastActivity: Date | null; lastRun: { lifecycle: str
 }
 
 function accountabilityTrigger(runtimeMode: string, canonicalId: string) {
-  if (canonicalId === AUTHORITY_CONTROL_PLANE_ID) return 'AUTHENTICATED_M2M_ACP_READ';
+  if (canonicalId === AUTHORITY_CONTROL_PLANE_ID) return 'SCHEDULED_AUTHORITY_GRAPH_EVALUATION';
   if (canonicalId === PRIMARY_INSPECTOR_ID || canonicalId === SECONDARY_INSPECTOR_ID) return 'RELEASE_VALIDATION_OR_INSPECTOR_FAILURE';
   if (runtimeMode === 'CONTINUOUS_COMPONENT') return 'SCHEDULED_RUNTIME_PROBE';
   if (runtimeMode === 'REQUEST_DRIVEN') return 'AUTHORIZED_WORK_REQUEST';

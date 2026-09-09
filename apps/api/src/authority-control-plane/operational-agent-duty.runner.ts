@@ -63,12 +63,13 @@ export class OperationalAgentDutyRunner {
     private readonly discovery: DiscoveryService,
   ) {}
 
-  async execute(ctx: RequestContext, mandates: readonly ActiveMandate[], runId: string) {
+  async execute(ctx: RequestContext, mandates: readonly ActiveMandate[], runId: string, agentIds?: ReadonlySet<string>) {
     const mandateByAgent = new Map(mandates.map((mandate) => [mandate.agentId, mandate]));
     const dutyContext: RequestContext = { ...ctx, roles: [...new Set([...ctx.roles, 'PREMIUM_ACCESS'])] };
     const results: OperationalAgentDutyResult[] = [];
     for (const seed of premiumNetworkSeed) {
       if (seed.kind === 'HUMAN_AUTHORITY' || INSPECTORS.has(seed.canonicalId)) continue;
+      if (agentIds && !agentIds.has(seed.canonicalId)) continue;
       const mandate = mandateByAgent.get(seed.canonicalId);
       if (!mandate) throw new Error(`ACTIVE_DUTY_MANDATE_MISSING:${seed.canonicalId}`);
       const executedAt = new Date();

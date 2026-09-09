@@ -23,6 +23,7 @@ describe('TURN runtime capability probe', () => {
       company: { findMany: jest.fn().mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]) },
       $queryRaw: jest.fn().mockResolvedValue([{ result: 1 }]),
       componentHeartbeat: { upsert },
+      authorityMandate: { findMany: jest.fn().mockResolvedValue([]) },
     };
     const discovery = { getProviders: () => instances.map((instance) => ({ instance })) };
     const service = new AuthorityControlPlaneService(prisma as never, {} as never, discovery as never, {} as never);

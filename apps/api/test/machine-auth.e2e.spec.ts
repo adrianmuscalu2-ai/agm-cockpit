@@ -37,7 +37,10 @@ describe('M2M HTTP authentication boundary', () => {
       };
     }),
   };
-  const authority = { registryReadOnly: jest.fn().mockResolvedValue([]) };
+  const authority = {
+    registryReadOnly: jest.fn().mockResolvedValue([]),
+    agentAccountability: jest.fn().mockResolvedValue({ contractVersion: 'agent-runtime-accountability.v2' }),
+  };
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -99,6 +102,27 @@ describe('M2M HTTP authentication boundary', () => {
       .set('Authorization', `Bearer ${token()}`)
       .expect(200);
     expect(authority.registryReadOnly).toHaveBeenCalledWith(companyA);
+  });
+
+  it('allows the credential tenant to read accountability without executing a new duty snapshot', async () => {
+    await request(app.getHttpServer())
+      .get(`/api/v1/m2m/authority-control-plane/companies/${companyA}/agent-accountability`)
+      .set('Authorization', `Bearer ${token()}`)
+      .expect(200)
+      .expect(({ body }) => expect(body.data.contractVersion).toBe('agent-runtime-accountability.v2'));
+    expect(authority.agentAccountability).toHaveBeenCalledWith(expect.objectContaining({
+      companyId: companyA,
+      userId: identityId,
+      roles: ['MACHINE_ACP_READ'],
+    }));
+  });
+
+  it('rejects cross-company accountability reads', async () => {
+    await request(app.getHttpServer())
+      .get(`/api/v1/m2m/authority-control-plane/companies/${companyB}/agent-accountability`)
+      .set('Authorization', `Bearer ${token()}`)
+      .expect(403);
+    expect(authority.agentAccountability).not.toHaveBeenCalled();
   });
 
   function token(overrides: { issuer?: string; audience?: string; scope?: string } = {}) {

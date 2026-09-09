@@ -463,9 +463,54 @@ jobs:
               and .verdict.finalAgentRuntimePass == "PASS"
           ' <<<"$accountability" >/dev/null
           jq -c '{contract:.data.contractVersion,agents:(.data.agents|length),operationalFleet:.data.operationalFleet,primary:.data.inspector.primaryStatus,secondary:.data.inspector.secondaryStatus,transferred:.data.inspector.mandateTransferred,primaryRecovered:.data.inspector.primaryRecovered,failoverPreserved:.data.inspector.failoverPreserved,incidents:.data.incidents.open,domainDutyResults:.data.recovery.domainDutyResults,verdict:.data.verdict}' <<<"$accountability"
+          echo 'INITIAL_AGENT_RUNTIME_SNAPSHOT=PASS'
+
+          initial_acp_event=$(jq -er '.data.agents[] | select(.identity == "agm.authority.control-plane") | .executionEventId' <<<"$accountability")
+          initial_guardian_event=$(jq -er '.data.agents[] | select(.identity == "agm.guardian.secrets") | .executionEventId' <<<"$accountability")
+          accountability_url="https://api.agmcockpit.com/api/v1/m2m/authority-control-plane/companies/$company_id/agent-accountability"
+
+          sleep 70
+          checkpoint_one=$(curl --fail --silent --show-error -H "Authorization: Bearer $next_access_token" "$accountability_url")
+          checkpoint_one_acp_event=$(jq -er '.data.agents[] | select(.identity == "agm.authority.control-plane") | .executionEventId' <<<"$checkpoint_one")
+          checkpoint_one_guardian_event=$(jq -er '.data.agents[] | select(.identity == "agm.guardian.secrets") | .executionEventId' <<<"$checkpoint_one")
+          test "$checkpoint_one_acp_event" != "$initial_acp_event"
+          test "$checkpoint_one_guardian_event" != "$initial_guardian_event"
+
+          sleep 70
+          checkpoint_two=$(curl --fail --silent --show-error -H "Authorization: Bearer $next_access_token" "$accountability_url")
+          jq -e --arg previousAcp "$checkpoint_one_acp_event" --arg previousGuardian "$checkpoint_one_guardian_event" '
+            .data
+            | ([.agents[] | select(.identity == "agm.authority.control-plane" or .identity == "agm.guardian.secrets")] | length) == 2
+              and ([.agents[] | select(.identity == "agm.authority.control-plane" or .identity == "agm.guardian.secrets")
+                | .declaredOperational == true
+                  and .executable == "YES"
+                  and .mandate == "PROVEN"
+                  and .lastResult == "COMPLETED"
+                  and .validation == "PROVEN"
+                  and .validator == "premium.architecture-inspector"
+                  and .freshness == "CURRENT"
+                  and .freshnessWindowSeconds == 90
+                  and .status == "ACTIVE"
+                  and (.executionEvidenceRef | type == "string")
+                  and (.validationEvidenceRef | type == "string")
+                  and (.outputRef | type == "string")
+                  and .lastValidation >= .lastExecution] | all)
+              and ([.agents[] | select(.identity == "agm.authority.control-plane") | .executionEventId != $previousAcp] | all)
+              and ([.agents[] | select(.identity == "agm.guardian.secrets") | .executionEventId != $previousGuardian] | all)
+              and .operationalFleet.degraded == 0
+              and .fleet.degraded == 0
+              and .incidents.open == 0
+              and .verdict.overallOperationalState == "PASS"
+              and .verdict.agentAccountability == "PASS"
+              and .verdict.falseActive == 0
+              and .verdict.unexplainedDegraded == 0
+              and .verdict.finalAgentRuntimePass == "PASS"
+          ' <<<"$checkpoint_two" >/dev/null
+          jq -c '{generatedAt:.data.generatedAt,critical:[.data.agents[]|select(.identity == "agm.authority.control-plane" or .identity == "agm.guardian.secrets")|{identity,lastExecution,executionEventId,lastValidation,validator,freshness,status}],degraded:.data.fleet.degraded,openIncidents:.data.incidents.open,verdict:.data.verdict}' <<<"$checkpoint_two"
+          echo 'CRITICAL_AGENT_PERIODIC_SOAK=PASS CYCLES_AFTER_INITIAL=2 WINDOW_SECONDS=140'
           echo 'FINAL_AGENT_RUNTIME_PASS=PASS'
           mkdir -p evidence/agent-accountability/production
-          jq '.' <<<"$accountability" > evidence/agent-accountability/production/agent-runtime-accountability.json
+          jq '.' <<<"$checkpoint_two" > evidence/agent-accountability/production/agent-runtime-accountability.json
           sha256sum evidence/agent-accountability/production/agent-runtime-accountability.json > evidence/agent-accountability/production/agent-runtime-accountability.json.sha256
 
           revoke_body=$(jq -nc '{reason:"Production release credential lifecycle validation."}')

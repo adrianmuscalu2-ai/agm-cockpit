@@ -140,6 +140,22 @@ try {
     const screenshot = path.join(output, 'production-agent-runtime-accountability.png');
     await page.screenshot({ path: screenshot, fullPage: true });
     results.push({ id: 'production-runtime-accountability-capture', status: 'PASS', action: 'Production TURN -> real Production snapshot -> accountability inspection', screenshot: path.relative(root, screenshot) });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('#turn-agent-accountability');
+    const afterReload = await page.evaluate(() => ({
+      authorityControlPlane: document.querySelector('[data-runtime-agent="agm.authority.control-plane"]')?.getAttribute('data-runtime-status'),
+      secretsGuardian: document.querySelector('[data-runtime-agent="agm.guardian.secrets"]')?.getAttribute('data-runtime-status'),
+      verdict: [...document.querySelectorAll('.agent-runtime-verdict')]
+        .find((element) => element.querySelector('span')?.textContent?.trim() === 'FINAL AGENT RUNTIME PASS')
+        ?.querySelector('strong')?.textContent?.trim(),
+    }));
+    const reloadedScreenshot = path.join(output, 'production-agent-runtime-accountability-after-reload.png');
+    await page.screenshot({ path: reloadedScreenshot, fullPage: true });
+    check('production-critical-runtime-persists-after-reload',
+      afterReload.authorityControlPlane === 'ACTIVE'
+        && afterReload.secretsGuardian === 'ACTIVE'
+        && afterReload.verdict === 'PASS',
+      { ...afterReload, screenshot: path.relative(root, reloadedScreenshot) });
     check('no-page-errors', pageErrors.length === 0, pageErrors);
   } else {
   await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'UNKNOWN / NOT CHECKED');
