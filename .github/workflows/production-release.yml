@@ -487,6 +487,8 @@ jobs:
 
           sleep 100
           checkpoint_two=$(curl --fail --silent --show-error -H "Authorization: Bearer $next_access_token" "$accountability_url")
+          checkpoint_two_acp_event=$(jq -er '.data.agents[] | select(.identity == "agm.authority.control-plane") | .executionEventId' <<<"$checkpoint_two")
+          checkpoint_two_guardian_event=$(jq -er '.data.agents[] | select(.identity == "agm.guardian.secrets") | .executionEventId' <<<"$checkpoint_two")
           jq -e --arg previousAcp "$checkpoint_one_acp_event" --arg previousGuardian "$checkpoint_one_guardian_event" '
             .data
             | ([.agents[] | select(.identity == "agm.authority.control-plane" or .identity == "agm.guardian.secrets")] | length) == 2
