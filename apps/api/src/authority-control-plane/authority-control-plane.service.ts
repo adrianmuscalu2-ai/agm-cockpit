@@ -661,10 +661,9 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
   async inspectOperationalCapabilities(ctx: RequestContext) {
     requireAuthorityAdmin(ctx);
     const now = new Date();
-    const [registry, scopes, releaseEvent, heartbeat, inspectorMandates] = await Promise.all([
+    const [registry, scopes, heartbeat, inspectorMandates] = await Promise.all([
       this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId: ctx.companyId } }),
       this.prisma.authorityScopePolicy.findMany({ where: { companyId: ctx.companyId, status: 'ACTIVE' } }),
-      this.prisma.agentRuntimeEvent.findFirst({ where: { companyId: ctx.companyId, agentId: AUTHORITY_CONTROL_PLANE_ID }, orderBy: { occurredAt: 'desc' } }),
       this.prisma.componentHeartbeat.findUnique({ where: { companyId_componentId: { companyId: ctx.companyId, componentId: AUTHORITY_CONTROL_PLANE_ID } } }),
       this.prisma.authorityMandate.findMany({ where: { companyId: ctx.companyId, agentId: { in: [PRIMARY_INSPECTOR_ID, SECONDARY_INSPECTOR_ID] }, status: 'APPROVED', revokedAt: null, OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }, orderBy: { issuedAt: 'desc' } }),
     ]);
@@ -677,6 +676,8 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       telemetryBindingsComplete: premiumNetworkSeed.every((node) => operationalProfile(node).expectedSource !== 'NONE'),
     };
     const heartbeatEvidence = safeObject(heartbeat?.lastDetail);
+    const referencedRuntimeEventId = typeof heartbeatEvidence.runtimeEventId === 'string' ? heartbeatEvidence.runtimeEventId : null;
+    const releaseEvent = referencedRuntimeEventId ? await this.prisma.agentRuntimeEvent.findFirst({ where: { companyId: ctx.companyId, agentId: AUTHORITY_CONTROL_PLANE_ID, eventId: referencedRuntimeEventId } }) : null;
     const releaseChecks = {
       runtimeEventPresent: Boolean(releaseEvent),
       heartbeatPresent: Boolean(heartbeat),
