@@ -12,6 +12,7 @@ const pageErrors = [];
 let target = process.env.AGM_AGENT_ACCOUNTABILITY_URL;
 let controlledServer;
 let browser;
+let browserContext;
 let fatal = null;
 let incidentMode = 'OMITTED';
 let runtimeSnapshot = {
@@ -78,7 +79,12 @@ try {
   check('target-http-200', targetResponse.status === 200, { status: targetResponse.status, target });
 
   browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage({ viewport: { width: 1600, height: 1100 }, locale: 'ro-RO' });
+  browserContext = await browser.newContext({
+    viewport: { width: 1600, height: 1100 },
+    locale: 'ro-RO',
+    serviceWorkers: 'block',
+  });
+  const page = await browserContext.newPage();
   page.on('pageerror', (error) => pageErrors.push(error.stack ?? String(error)));
   await page.addInitScript(() => {
     sessionStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: 'controlled-accountability-token', expiresInSeconds: 600 }));
@@ -142,6 +148,14 @@ try {
     results.push({ id: 'production-runtime-accountability-capture', status: 'PASS', action: 'Production TURN -> real Production snapshot -> accountability inspection', screenshot: path.relative(root, screenshot) });
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#turn-agent-accountability');
+    await page.waitForFunction(() => {
+      const authorityControlPlane = document.querySelector('[data-runtime-agent="agm.authority.control-plane"]')?.getAttribute('data-runtime-status');
+      const secretsGuardian = document.querySelector('[data-runtime-agent="agm.guardian.secrets"]')?.getAttribute('data-runtime-status');
+      const verdict = [...document.querySelectorAll('.agent-runtime-verdict')]
+        .find((element) => element.querySelector('span')?.textContent?.trim() === 'FINAL AGENT RUNTIME PASS')
+        ?.querySelector('strong')?.textContent?.trim();
+      return Boolean(authorityControlPlane && secretsGuardian && verdict);
+    }, undefined, { timeout: 15_000 });
     const afterReload = await page.evaluate(() => ({
       authorityControlPlane: document.querySelector('[data-runtime-agent="agm.authority.control-plane"]')?.getAttribute('data-runtime-status'),
       secretsGuardian: document.querySelector('[data-runtime-agent="agm.guardian.secrets"]')?.getAttribute('data-runtime-status'),
