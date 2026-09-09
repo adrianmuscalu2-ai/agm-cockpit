@@ -28,6 +28,7 @@ export type TurnOperationalTruth = {
   authStatus: 'M2M AUTHENTICATED' | 'AUTH REQUIRED';
   telemetryStatus: 'LIVE TELEMETRY' | 'STALE TELEMETRY' | 'NO TELEMETRY';
   authorityControlPlane: { canonicalId: string; status: TurnOperationalTruthStatus; statusSource: string; observedAt: string | null };
+  accessProof: { status: 'CURRENT' | 'STALE' | 'MISSING'; observedAt: string | null; ageSeconds: number | null; freshnessWindowSeconds: number; role: 'HISTORICAL_RELEASE_ACCESS_PROOF_NOT_RUNTIME_FRESHNESS' };
   chain: {
     machineIdentity: OperationalTruthStep;
     credential: OperationalTruthStep;
@@ -74,6 +75,9 @@ export function operationalTruthIsPass(value: TurnOperationalTruth) {
     && value.telemetryStatus === 'LIVE TELEMETRY'
     && value.falseGreen === 0
     && value.unexplainedDegraded === 0
+    && value.authorityControlPlane.status === 'PASS'
+    && value.authorityControlPlane.statusSource === 'ACTIVE_MANDATE_AGENT_RUNTIME_EVENT_INDEPENDENT_VALIDATION_COMPONENT_HEARTBEAT'
+    && value.accessProof.status !== 'MISSING'
     && value.chain.machineIdentity.status === 'VERIFIED'
     && value.chain.credential.status === 'VERIFIED'
     && value.chain.token.status === 'VERIFIED'
@@ -82,5 +86,6 @@ export function operationalTruthIsPass(value: TurnOperationalTruth) {
     && value.chain.eventStore.status === 'PERSISTED'
     && value.chain.api.status === 'PASS'
     && value.chain.turn.status === 'EVIDENCE AVAILABLE'
-    && value.chain.ui.status === 'READY FOR LIVE RENDER';
+    && value.chain.ui.status === 'READY FOR LIVE RENDER'
+    && value.latestEvent?.lifecycle === 'COMPLETED';
 }

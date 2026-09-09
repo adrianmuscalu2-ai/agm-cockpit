@@ -4,6 +4,7 @@ import { monitoringAgents } from './monitoring-department';
 import { turnOrganizationAgents, type TurnOrganizationAgent } from './turn-organization-chart';
 import { t } from './i18n/app-i18n';
 import type { UiLanguage } from './i18n/app-i18n.types';
+import type { AgentRuntimeAccountabilitySnapshot, RuntimeAgentAccountability } from './agent-runtime-accountability';
 
 export type PanelRuntimeStatus = 'ACTIVE' | 'STANDBY' | 'DEGRADED' | 'CRITICAL' | 'FAILED' | 'STALE' | 'UNKNOWN' | 'NO TELEMETRY' | 'NOT VERIFIED';
 export type PanelMappingStatus = 'MAPPED' | 'UNMAPPED' | 'NO RUNTIME SOURCE' | 'NO TELEMETRY';
@@ -12,7 +13,7 @@ type PanelSource = { panelAgentId: string; displayName: string; displayLevel: nu
 export type NormalizedPanelAgent = PanelSource & { runtimeStatus: PanelRuntimeStatus; generalStatus: 'ACTIVE' | 'ATTENTION' | 'PLANNED' | 'WAITING FOR LIVE PROBE' | 'REGISTRY ONLY' | 'UNKNOWN' | 'DEGRADED' | 'FAILED'; proceduralStatus: 'ACTIVE' | 'MONITORED' | 'ATTENTION' | 'PLANNED' | 'UNKNOWN' | 'DEGRADED' | 'FAILED'; visualState: 'active' | 'degraded' | 'critical' | 'astral' | 'planned' | 'unknown'; health: string; freshness: string; lastSeen: string; telemetry: string; mappingStatus: PanelMappingStatus; color: string; registryEntry?: AgentGovernanceRecord; turnRegistryEntry?: TurnOrganizationAgent; registryName: string; registryRole: string; registrySource: string };
 
 const colors = { active: '#19ff88', degraded: '#ff9d38', critical: '#ff4040', planned: '#3f9bff', unknown: '#b8c4d6' };
-export const basicAgentNetworkContract = 'AGM-BASIC-AGENT-NETWORK-V2';
+export const basicAgentNetworkContract = 'AGM-BASIC-AGENT-RUNTIME-MAP-V3';
 export const basicAgentTelemetryInventoryContract = 'turn-basic-agent-telemetry-inventory.v1';
 const basicAgentCriteria = ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'] as const;
 type BasicAgentCriterion = typeof basicAgentCriteria[number];
@@ -88,6 +89,8 @@ const basicAgentEventDrivenIds = new Set([
   'director-turn-operations', 'agent-agm-chronicler',
 ]);
 let basicAgentOperationalDashboard: BasicAgentOperationalDashboardEvidence | undefined;
+let basicAgentRuntimeAccountability: AgentRuntimeAccountabilitySnapshot | undefined;
+let basicAgentRuntimeUnavailableReason = 'ACCOUNTABILITY_NOT_LOADED';
 
 export const panelAgentSources: PanelSource[] = [
   { panelAgentId: 'core-adrian-turn-commander', displayName: 'Adrian · Turn Commander', displayLevel: 0, department: 'Turn Command', responsibility: 'Comandă și aprobare finală', escalation: 'L4', turnAgentId: 'adrian-turn-commander' },
@@ -153,11 +156,24 @@ export function ingestBasicAgentOperationalDashboard(evidence: BasicAgentOperati
   basicAgentOperationalDashboard = evidence.telemetryInventory?.contractVersion === basicAgentTelemetryInventoryContract
     ? evidence
     : { ...evidence, telemetryInventory: undefined };
+}
+
+export function ingestBasicAgentRuntimeAccountability(snapshot: AgentRuntimeAccountabilitySnapshot) {
+  basicAgentRuntimeAccountability = snapshot;
+  basicAgentRuntimeUnavailableReason = '';
+  if (typeof document !== 'undefined') renderBasicAgentPlanetaryModel();
+}
+
+export function markBasicAgentRuntimeAccountabilityUnavailable(reason: string) {
+  basicAgentRuntimeAccountability = undefined;
+  basicAgentRuntimeUnavailableReason = reason;
   if (typeof document !== 'undefined') renderBasicAgentPlanetaryModel();
 }
 
 export function resetBasicAgentOperationalDashboardForTest() {
   basicAgentOperationalDashboard = undefined;
+  basicAgentRuntimeAccountability = undefined;
+  basicAgentRuntimeUnavailableReason = 'ACCOUNTABILITY_NOT_LOADED';
 }
 
 export function buildBasicAgentNetworkModel(dashboard = basicAgentOperationalDashboard): BasicAgentNetworkNode[] {
@@ -385,100 +401,125 @@ function basicAgentStatusFromRuntime(status: PanelRuntimeStatus): BasicAgentStat
   return 'NO_TELEMETRY';
 }
 
+type RuntimeAccountabilityPlanetNode = {
+  agent: RuntimeAgentAccountability;
+  criteria: BasicAgentEvaluation;
+};
+
+function runtimeAccountabilityStatus(agent: RuntimeAgentAccountability): BasicAgentStatus {
+  if (agent.status === 'ACTIVE') return 'PASS';
+  if (agent.status === 'DEGRADED' || agent.status === 'STALE') return 'DEGRADED';
+  if (agent.status === 'UNKNOWN / NO TELEMETRY') return 'NO_TELEMETRY';
+  if (agent.status === 'MANDATE NOT ASSIGNED') return 'STANDBY';
+  return 'FAIL';
+}
+
+function buildRuntimeAccountabilityPlanetNodes(snapshot: AgentRuntimeAccountabilitySnapshot): RuntimeAccountabilityPlanetNode[] {
+  return snapshot.agents
+    .filter((agent) => agent.identity !== 'agm.human.product-owner')
+    .map((agent) => {
+      const operational = runtimeAccountabilityStatus(agent);
+      const executionSource = agent.executionEvidenceRef ?? agent.executionEventId ?? 'NO EXECUTION EVIDENCE';
+      const validationSource = agent.validationEvidenceRef ?? 'NO VALIDATION EVIDENCE';
+      const criteria: BasicAgentEvaluation = {
+        operational: { status: operational, source: `${agent.statusSource} · ${executionSource} · ${validationSource}`, reason: agent.reason },
+        telemetry: { status: agent.freshness === 'CURRENT' ? 'PASS' : agent.freshness === 'STALE' ? 'DEGRADED' : 'NO_TELEMETRY', source: executionSource, reason: `Freshness ${agent.freshness}; SLA ${agent.freshnessWindowSeconds}s.` },
+        procedural: { status: agent.declaredOperational && agent.mandate === 'PROVEN' ? 'PASS' : agent.declaredOperational ? 'FAIL' : 'STANDBY', source: agent.mandateId ? `AuthorityMandate:${agent.mandateId}` : 'NO ACTIVE AUTHORITY MANDATE', reason: agent.operationalDeclaration },
+        component: { status: agent.executable === 'YES' ? 'PASS' : 'FAIL', source: agent.statusSource, reason: `EXECUTABLE ${agent.executable}` },
+        incidents: { status: agent.openResponsibilities.length === 0 ? 'PASS' : operational === 'FAIL' ? 'FAIL' : 'DEGRADED', source: `Agent accountability · open responsibilities ${agent.openResponsibilities.length}`, reason: agent.openResponsibilities.join('; ') || 'No open responsibility.' },
+        freshness: { status: agent.freshness === 'CURRENT' ? 'PASS' : agent.freshness === 'STALE' ? 'DEGRADED' : 'NO_TELEMETRY', source: `${executionSource} · ${validationSource}`, reason: `Execution ${agent.lastExecution ?? 'NONE'}; validation ${agent.lastValidation ?? 'NONE'}.` },
+      };
+      return { agent, criteria };
+    });
+}
+
 function renderBasicAgentPlanetaryModel() {
   const panel = document.querySelector<HTMLElement>('[data-basic-agent-planetary-panel]');
   const stage = panel?.querySelector<HTMLElement>('[data-basic-agent-planetary-stage]');
   const selection = panel?.querySelector<HTMLElement>('[data-basic-agent-planetary-selection]');
   if (!panel || !stage) return;
-  const nodes = buildBasicAgentNetworkModel();
-  const selectedId = stage.querySelector<HTMLElement>('[data-basic-agent-planetary-node].selected')?.dataset.basicAgentPlanetaryNode;
-  const activeCriterion = basicAgentCriteria.includes(stage.dataset.activeCriterion as BasicAgentCriterion)
-    ? stage.dataset.activeCriterion as BasicAgentCriterion
-    : 'operational';
-  const positions = basicAgentPlanetaryPositions(nodes.length);
+  const snapshot = basicAgentRuntimeAccountability;
   panel.dataset.orbitalSource = basicAgentNetworkContract;
+  if (!snapshot) {
+    panel.dataset.basicAgentCount = '0';
+    stage.innerHTML = `${renderBasicAgentPlanetaryRings()}<div class="turn-approved-orbital-core status-no-telemetry" data-basic-agent-planetary-core data-basic-agent-core-status="NO_TELEMETRY" data-basic-agent-core-source="${basicAgentNetworkContract} · ${escapeBasicAgentHtml(basicAgentRuntimeUnavailableReason)}"><small>STARE OPERAȚIONALĂ</small><strong>NO TELEMETRY</strong><span>0 AGENȚI PROMOVAȚI DIN CATALOG</span></div>`;
+    setBasicAgentPlanetaryText(panel, '[data-basic-agent-planetary-message]', `Proiecția persistentă Agent Runtime nu este disponibilă · ${basicAgentRuntimeUnavailableReason} · registry/catalog nu este fallback.`);
+    if (selection) selection.innerHTML = '<p>UNKNOWN / NO TELEMETRY · nu se deduce nicio stare din registry.</p>';
+    stage.setAttribute('aria-busy', 'false');
+    return;
+  }
+  const nodes = buildRuntimeAccountabilityPlanetNodes(snapshot);
+  const selectedId = stage.querySelector<HTMLElement>('[data-basic-agent-planetary-node].selected')?.dataset.basicAgentPlanetaryNode;
+  const activeCriterion = basicAgentCriteria.includes(stage.dataset.activeCriterion as BasicAgentCriterion) ? stage.dataset.activeCriterion as BasicAgentCriterion : 'operational';
+  const positions = basicAgentPlanetaryPositions(nodes.length);
   panel.dataset.basicAgentCount = String(nodes.length);
-  panel.dataset.basicAgentRealProbeCount = String(nodes.filter((node) => ['REAL_PROBE', 'REAL_EVENT', 'REAL_DASHBOARD'].includes(node.runtimeEvidence)).length);
-  panel.dataset.basicAgentEventStoreIdleCount = String(nodes.filter((node) => node.runtimeEvidence === 'EVENT_STORE_NO_ACTIVITY').length);
-  panel.dataset.basicAgentRegistryOnlyCount = String(nodes.filter((node) => node.runtimeEvidence === 'NONE').length);
-  stage.innerHTML = `${renderBasicAgentPlanetaryRings()}
-    <div class="turn-approved-orbital-core status-no-telemetry" data-basic-agent-planetary-core data-basic-agent-core-source="${basicAgentNetworkContract}">
-      <small data-basic-agent-core-criterion>STARE OPERAȚIONALĂ</small>
-      <strong data-basic-agent-core-status>SE EVALUEAZĂ</strong>
-      <span data-basic-agent-core-counts>${nodes.length} AGENȚI ÎN REGISTRUL OFICIAL</span>
-    </div>
-    ${nodes.map((node, index) => renderBasicAgentPlanet(node, positions[index], index)).join('')}`;
-  const select = (node: BasicAgentNetworkNode) => {
-    stage.querySelectorAll<HTMLElement>('[data-basic-agent-planetary-node]').forEach((element) => element.classList.toggle('selected', element.dataset.basicAgentPlanetaryNode === node.record.id));
-    if (selection) selection.innerHTML = renderBasicAgentSelection(node);
+  panel.dataset.basicAgentRealProbeCount = String(nodes.filter((node) => Boolean(node.agent.executionEvidenceRef && node.agent.validationEvidenceRef)).length);
+  panel.dataset.basicAgentEventStoreIdleCount = '0';
+  panel.dataset.basicAgentRegistryOnlyCount = '0';
+  panel.dataset.accountabilityGeneratedAt = snapshot.generatedAt;
+  stage.innerHTML = `${renderBasicAgentPlanetaryRings()}<div class="turn-approved-orbital-core status-no-telemetry" data-basic-agent-planetary-core data-basic-agent-core-source="${escapeBasicAgentHtml(`${snapshot.contractVersion}@${snapshot.generatedAt}`)}"><small data-basic-agent-core-criterion>STARE OPERAȚIONALĂ</small><strong data-basic-agent-core-status>SE EVALUEAZĂ</strong><span data-basic-agent-core-counts>${nodes.length} AGENȚI RUNTIME NON-UMANI</span></div>${nodes.map((node, index) => renderRuntimeAccountabilityPlanet(node, positions[index], index)).join('')}`;
+  const select = (node: RuntimeAccountabilityPlanetNode) => {
+    stage.querySelectorAll<HTMLElement>('[data-basic-agent-planetary-node]').forEach((element) => element.classList.toggle('selected', element.dataset.basicAgentPlanetaryNode === node.agent.identity));
+    if (selection) selection.innerHTML = renderRuntimeAccountabilitySelection(node.agent);
   };
   stage.querySelectorAll<HTMLButtonElement>('[data-basic-agent-planetary-node]').forEach((button) => button.addEventListener('click', () => {
-    const node = nodes.find((candidate) => candidate.record.id === button.dataset.basicAgentPlanetaryNode);
+    const node = nodes.find((candidate) => candidate.agent.identity === button.dataset.basicAgentPlanetaryNode);
     if (node) select(node);
   }));
   panel.querySelectorAll<HTMLButtonElement>('[data-basic-agent-planetary-criterion]').forEach((button) => button.addEventListener('click', () => {
     const criterion = button.dataset.basicAgentPlanetaryCriterion as BasicAgentCriterion;
-    if (basicAgentCriteria.includes(criterion)) applyBasicAgentCriterion(panel, nodes, criterion);
+    if (basicAgentCriteria.includes(criterion)) applyBasicAgentCriterion(panel, nodes, criterion, snapshot);
   }));
-  applyBasicAgentCriterion(panel, nodes, activeCriterion);
-  select(nodes.find((node) => node.record.id === selectedId) ?? nodes[0]);
+  applyBasicAgentCriterion(panel, nodes, activeCriterion, snapshot);
+  const selected = nodes.find((node) => node.agent.identity === selectedId) ?? nodes[0];
+  if (selected) select(selected);
   stage.setAttribute('aria-busy', 'false');
 }
 
-function renderBasicAgentPlanet(node: BasicAgentNetworkNode, position: { x: number; y: number }, index: number) {
+function renderRuntimeAccountabilityPlanet(node: RuntimeAccountabilityPlanetNode, position: { x: number; y: number }, index: number) {
+  const { agent } = node;
   const initial = node.criteria.operational;
   const criterionAttributes = basicAgentCriteria.map((criterion) => `data-basic-agent-${criterion}-status="${node.criteria[criterion].status}" data-basic-agent-${criterion}-source="${escapeBasicAgentHtml(node.criteria[criterion].source)}"`).join(' ');
-  return `<button type="button" class="turn-approved-orbital-node registry-agent status-${basicAgentStatusClass(initial.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%;--node-order:${index}" data-basic-agent-planetary-node="${escapeBasicAgentHtml(node.record.id)}" data-basic-agent-code="${escapeBasicAgentHtml(node.record.code)}" data-basic-agent-registry-presence="PRESENT" data-basic-agent-runtime-evidence="${node.runtimeEvidence}" data-basic-agent-runtime-presence="${node.runtimePresence}" data-basic-agent-runtime-mode="${node.runtimeMode}" data-basic-agent-status="${initial.status}" data-basic-agent-evidence-source="${escapeBasicAgentHtml(initial.source)}" data-basic-agent-observed-at="${escapeBasicAgentHtml(node.observedAt)}" ${criterionAttributes} title="${escapeBasicAgentHtml(`${node.name} · ${node.record.code} · ${initial.status} · ${node.reason}`)}"><span class="turn-planet" aria-hidden="true"></span><small>${escapeBasicAgentHtml(node.name)}</small></button>`;
+  return `<button type="button" class="turn-approved-orbital-node runtime-agent status-${basicAgentStatusClass(initial.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%;--node-order:${index}" data-basic-agent-planetary-node="${escapeBasicAgentHtml(agent.identity)}" data-basic-agent-code="${escapeBasicAgentHtml(agent.identity)}" data-basic-agent-runtime-source="AGENT_RUNTIME_ACCOUNTABILITY" data-basic-agent-runtime-evidence="${agent.executionEvidenceRef ? 'REAL_EVENT_VALIDATED' : 'NONE'}" data-basic-agent-runtime-presence="${agent.lastExecution ? 'OBSERVED' : 'NOT_OBSERVED'}" data-basic-agent-runtime-mode="${escapeBasicAgentHtml(agent.trigger)}" data-basic-agent-status="${initial.status}" data-basic-agent-evidence-source="${escapeBasicAgentHtml(initial.source)}" data-basic-agent-observed-at="${escapeBasicAgentHtml(agent.lastExecution ?? snapshotTimeFallback())}" ${criterionAttributes} title="${escapeBasicAgentHtml(`${agent.identity} · ${agent.status} · ${agent.reason}`)}"><span class="turn-planet" aria-hidden="true"></span><small>${escapeBasicAgentHtml(agent.identity)}</small></button>`;
 }
 
-function renderBasicAgentSelection(node: BasicAgentNetworkNode) {
-  const status = node.criteria.operational.status;
-  const runtimeLabel = node.runtimeEvidence === 'NONE'
-    ? 'REGISTRY ONLY · NO TELEMETRY'
-    : node.runtimeEvidence === 'EVENT_STORE_NO_ACTIVITY'
-      ? 'EVENT-DRIVEN · NO ACTIVITY OBSERVED'
-      : `${node.runtimeStatus} · ${node.health}`;
-  return `<header><div><small>${escapeBasicAgentHtml(node.record.id)}</small><h3>${escapeBasicAgentHtml(node.name)} · ${escapeBasicAgentHtml(node.record.code)}</h3></div><strong class="status-${basicAgentStatusClass(status)}">${escapeBasicAgentHtml(runtimeLabel)}</strong></header>
-    <p>${escapeBasicAgentHtml(node.role)} · ${escapeBasicAgentHtml(node.responsibilities)}</p>
-    <dl>
-      <div><dt>Identitate</dt><dd>${escapeBasicAgentHtml(node.record.id)} · ${escapeBasicAgentHtml(node.record.ownerDepartmentId)} · registry PRESENT</dd></div>
-      <div><dt>Runtime / health</dt><dd>${escapeBasicAgentHtml(runtimeLabel)}</dd></div>
-      <div><dt>Mod / operație curentă</dt><dd>${escapeBasicAgentHtml(node.runtimeMode)} · ${escapeBasicAgentHtml(node.currentOperation)}</dd></div>
-      <div><dt>Heartbeat / freshness</dt><dd>${escapeBasicAgentHtml(node.observedAt)} · ${escapeBasicAgentHtml(node.freshness)}</dd></div>
-      <div><dt>Sursă / dovadă</dt><dd>${escapeBasicAgentHtml(node.criteria.operational.source)}</dd></div>
-      <div><dt>Motiv</dt><dd>${escapeBasicAgentHtml(node.reason)}</dd></div>
-      <div><dt>Acțiune</dt><dd>${escapeBasicAgentHtml(node.requiredAction)}</dd></div>
-    </dl><a class="operation-action" href="#turn-agent-register" data-open-turn-page="investigate">Deschide registrul oficial</a>`;
+function snapshotTimeFallback() {
+  return basicAgentRuntimeAccountability?.generatedAt ?? 'NO TELEMETRY';
 }
 
-function applyBasicAgentCriterion(panel: HTMLElement, nodes: BasicAgentNetworkNode[], criterion: BasicAgentCriterion) {
+function renderRuntimeAccountabilitySelection(agent: RuntimeAgentAccountability) {
+  const status = runtimeAccountabilityStatus(agent);
+  return `<header><div><small>${escapeBasicAgentHtml(agent.identity)}</small><h3>${escapeBasicAgentHtml(agent.identity)}</h3></div><strong class="status-${basicAgentStatusClass(status)}">${escapeBasicAgentHtml(agent.status)}</strong></header><p>${escapeBasicAgentHtml(agent.responsibility)}</p><dl><div><dt>Mandat</dt><dd>${escapeBasicAgentHtml(agent.mandate)} · ${escapeBasicAgentHtml(agent.mandateId ?? 'NONE')}</dd></div><div><dt>Executor / trigger</dt><dd>${escapeBasicAgentHtml(agent.executable)} · ${escapeBasicAgentHtml(agent.trigger)} · ${escapeBasicAgentHtml(agent.executionCondition)}</dd></div><div><dt>Ultima execuție</dt><dd>${escapeBasicAgentHtml(agent.lastExecution ?? 'NO TELEMETRY')} · ${escapeBasicAgentHtml(agent.lastResult)}</dd></div><div><dt>Evidence persistent</dt><dd>${escapeBasicAgentHtml(agent.executionEvidenceRef ?? 'NOT PROVEN')} · ${escapeBasicAgentHtml(agent.outputRef ?? 'NOT PROVEN')}</dd></div><div><dt>Validator</dt><dd>${escapeBasicAgentHtml(agent.validator)} · ${escapeBasicAgentHtml(agent.validation)} · ${escapeBasicAgentHtml(agent.lastValidation ?? 'NO TELEMETRY')}</dd></div><div><dt>Freshness / SLA</dt><dd>${escapeBasicAgentHtml(agent.freshness)} · ${agent.freshnessWindowSeconds}s</dd></div><div><dt>Motiv</dt><dd>${escapeBasicAgentHtml(agent.reason)}</dd></div></dl><a class="operation-action" href="#turn-agent-runtime-accountability">Deschide accountability complet</a>`;
+}
+
+function applyBasicAgentCriterion(panel: HTMLElement, nodes: RuntimeAccountabilityPlanetNode[], criterion: BasicAgentCriterion, snapshot: AgentRuntimeAccountabilitySnapshot) {
   const stage = panel.querySelector<HTMLElement>('[data-basic-agent-planetary-stage]');
   if (stage) stage.dataset.activeCriterion = criterion;
   panel.querySelectorAll<HTMLElement>('[data-basic-agent-planetary-criterion]').forEach((control) => control.setAttribute('aria-selected', String(control.dataset.basicAgentPlanetaryCriterion === criterion)));
   panel.querySelectorAll<HTMLElement>('[data-basic-agent-planetary-node]').forEach((planet) => {
-    const node = nodes.find((candidate) => candidate.record.id === planet.dataset.basicAgentPlanetaryNode);
+    const node = nodes.find((candidate) => candidate.agent.identity === planet.dataset.basicAgentPlanetaryNode);
     if (!node) return;
     const evaluation = node.criteria[criterion];
     planet.classList.remove(...basicAgentStatusClasses);
     planet.classList.add(`status-${basicAgentStatusClass(evaluation.status)}`);
     planet.dataset.basicAgentStatus = evaluation.status;
     planet.dataset.basicAgentActiveSource = evaluation.source;
-    planet.title = `${node.name} · ${node.record.code} · ${basicAgentCriterionLabels[criterion]} · ${evaluation.status} · ${evaluation.reason}`;
+    planet.title = `${node.agent.identity} · ${basicAgentCriterionLabels[criterion]} · ${evaluation.status} · ${evaluation.reason}`;
   });
   const counts: Record<BasicAgentStatus, number> = { PASS: 0, DEGRADED: 0, FAIL: 0, NO_TELEMETRY: 0, STANDBY: 0 };
   nodes.forEach((node) => { counts[node.criteria[criterion].status] += 1; });
-  const aggregate = aggregateBasicAgentStatus(nodes.map((node) => node.criteria[criterion].status));
+  const aggregate = criterion === 'operational' ? snapshot.verdict.finalAgentRuntimePass : aggregateBasicAgentStatus(nodes.map((node) => node.criteria[criterion].status));
   const core = panel.querySelector<HTMLElement>('[data-basic-agent-planetary-core]');
   if (core) {
     core.classList.remove(...basicAgentStatusClasses);
     core.classList.add(`status-${basicAgentStatusClass(aggregate)}`);
     core.dataset.basicAgentCoreStatus = aggregate;
-    core.dataset.basicAgentCoreSource = `${basicAgentNetworkContract} · ${new Date().toISOString()}`;
+    core.dataset.basicAgentCoreSource = `${snapshot.contractVersion}@${snapshot.generatedAt}`;
   }
   setBasicAgentPlanetaryText(panel, '[data-basic-agent-core-criterion]', basicAgentCriterionLabels[criterion]);
   setBasicAgentPlanetaryText(panel, '[data-basic-agent-core-status]', aggregate);
   setBasicAgentPlanetaryText(panel, '[data-basic-agent-core-counts]', `${counts.PASS} PASS · ${counts.DEGRADED} DEG · ${counts.FAIL} FAIL · ${counts.NO_TELEMETRY} NO DATA · ${counts.STANDBY} STANDBY`);
-  setBasicAgentPlanetaryText(panel, '[data-basic-agent-planetary-message]', `${basicAgentCriterionLabels[criterion]} · ${nodes.length}/37 identități istorice vizibile, excluse din agregatul runtime · ${nodes.filter((node) => ['REAL_PROBE', 'REAL_EVENT', 'REAL_DASHBOARD'].includes(node.runtimeEvidence)).length} cu observație reală · ${nodes.filter((node) => node.runtimeEvidence === 'EVENT_STORE_NO_ACTIVITY').length} event-driven fără activitate · ${nodes.filter((node) => node.runtimeEvidence === 'NONE').length} fără evaluator · ${basicAgentNetworkContract}`);
+  setBasicAgentPlanetaryText(panel, '[data-basic-agent-planetary-message]', `${basicAgentCriterionLabels[criterion]} · ${nodes.length}/${snapshot.operationalFleet.total} agenți non-umani din aceeași proiecție persistentă · generated ${snapshot.generatedAt} · FINAL ${snapshot.verdict.finalAgentRuntimePass} · ${basicAgentNetworkContract}`);
 }
 
 function basicAgentPlanetaryPositions(count: number) {

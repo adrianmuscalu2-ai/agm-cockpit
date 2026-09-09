@@ -15,11 +15,12 @@ let browser;
 let browserContext;
 let fatal = null;
 let incidentMode = 'OMITTED';
+let runtimeRequestCount = 0;
 let runtimeSnapshot = {
   contractVersion: 'agent-runtime-accountability.v2', generatedAt: new Date().toISOString(),
   agents: [
-    { identity: 'premium.release-inspector', responsibility: 'Primary Inspector', declaredOperational: true, operationalDeclaration: 'ACTIVE_AUTHORITY_MANDATE', authorizationSource: 'AUTHORITY_MANDATE', executable: 'YES', mandate: 'PROVEN', mandateId: 'primary-mandate', trigger: 'RELEASE_VALIDATION', executionCondition: 'ON_RELEASE', lastExecution: new Date().toISOString(), lastResult: 'FAILED', outputRef: 'urn:incident:primary', executionEvidenceRef: 'AgentRuntimeEvent:primary', validation: 'PROVEN', validator: 'premium.architecture-inspector', validationEvidenceRef: 'AuthorityAuditJournal:primary', lastValidation: new Date().toISOString(), freshness: 'CURRENT', status: 'FAIL', reason: 'Controlled primary failure.', openResponsibilities: ['Recover primary inspector.'], failover: 'PROVEN' },
-    { identity: 'premium.architecture-inspector', responsibility: 'Secondary Inspector', declaredOperational: true, operationalDeclaration: 'ACTIVE_AUTHORITY_MANDATE', authorizationSource: 'AUTHORITY_MANDATE', executable: 'YES', mandate: 'PROVEN', mandateId: 'secondary-mandate', trigger: 'INSPECTOR_FAILURE', executionCondition: 'ON_FAILURE', lastExecution: new Date().toISOString(), lastResult: 'COMPLETED', outputRef: 'urn:validation:secondary', executionEvidenceRef: 'AgentRuntimeEvent:secondary', validation: 'PROVEN', validator: 'premium.architecture-inspector', validationEvidenceRef: 'AuthorityAuditJournal:secondary', lastValidation: new Date().toISOString(), freshness: 'CURRENT', status: 'ACTIVE', reason: 'Transferred validation completed.', openResponsibilities: [], failover: 'PROVEN' },
+    { identity: 'premium.release-inspector', responsibility: 'Primary Inspector', declaredOperational: true, operationalDeclaration: 'ACTIVE_AUTHORITY_MANDATE', authorizationSource: 'AUTHORITY_MANDATE', executable: 'YES', mandate: 'PROVEN', mandateId: 'primary-mandate', trigger: 'RELEASE_VALIDATION', executionCondition: 'ON_RELEASE', lastExecution: new Date().toISOString(), executionEventId: 'runtime-primary', lastResult: 'FAILED', outputRef: 'urn:incident:primary', executionEvidenceRef: 'AgentRuntimeEvent:primary', validation: 'PROVEN', validator: 'premium.architecture-inspector', validationEvidenceRef: 'AuthorityAuditJournal:primary', lastValidation: new Date().toISOString(), freshness: 'CURRENT', freshnessWindowSeconds: 90, status: 'FAIL', statusSource: 'IDENTITY_MANDATE_EXECUTION_EVIDENCE_VALIDATION_ENGINE', reason: 'Controlled primary failure.', openResponsibilities: ['Recover primary inspector.'], failover: 'PROVEN' },
+    { identity: 'premium.architecture-inspector', responsibility: 'Secondary Inspector', declaredOperational: true, operationalDeclaration: 'ACTIVE_AUTHORITY_MANDATE', authorizationSource: 'AUTHORITY_MANDATE', executable: 'YES', mandate: 'PROVEN', mandateId: 'secondary-mandate', trigger: 'INSPECTOR_FAILURE', executionCondition: 'ON_FAILURE', lastExecution: new Date().toISOString(), executionEventId: 'runtime-secondary', lastResult: 'COMPLETED', outputRef: 'urn:validation:secondary', executionEvidenceRef: 'AgentRuntimeEvent:secondary', validation: 'PROVEN', validator: 'premium.architecture-inspector', validationEvidenceRef: 'AuthorityAuditJournal:secondary', lastValidation: new Date().toISOString(), freshness: 'CURRENT', freshnessWindowSeconds: 90, status: 'ACTIVE', statusSource: 'IDENTITY_MANDATE_EXECUTION_EVIDENCE_VALIDATION_ENGINE', reason: 'Transferred validation completed.', openResponsibilities: [], failover: 'PROVEN' },
   ],
   fleet: { total: 2, healthy: 1, degraded: 0, failed: 1, noTelemetry: 0, standby: 0 },
   operationalFleet: { total: 2, active: 1, degraded: 0, failed: 1, noTelemetry: 0, mandateNotDemonstrated: 0, inactive: 0 },
@@ -102,7 +103,7 @@ try {
     const json = (data, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify({ data, requestId: 'controlled-agent-accountability' }) });
     if (pathname.endsWith('/incidents')) {
       if (incidentMode === 'OMITTED') {
-        await new Promise((resolve) => setTimeout(resolve, 10_000));
+        await new Promise((resolve) => setTimeout(resolve, 25_000));
         return json([]);
       }
       if (incidentMode === 'UNAVAILABLE') return route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'controlled unavailable' }) });
@@ -110,7 +111,10 @@ try {
       return json([]);
     }
     if (pathname.endsWith('/agent-runtime-events')) return json({ events: [], cursor: null });
-    if (pathname.endsWith('/operations/turn/agent-accountability')) return json(runtimeSnapshot);
+    if (pathname.endsWith('/operations/turn/agent-accountability')) {
+      runtimeRequestCount += 1;
+      return json(runtimeSnapshot);
+    }
     if (pathname.endsWith('/turn-admin/validate')) return json({ valid: true });
     if (pathname.endsWith('/auth/refresh')) return json({ accessToken: 'controlled-accountability-token' });
     if (pathname.endsWith('/health/live')) return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'ok' }) });
@@ -123,6 +127,7 @@ try {
   await page.goto(target, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#turn-agent-accountability');
   await page.waitForSelector('[data-inspector-failover="PASS"]');
+  await page.waitForFunction((count) => document.querySelectorAll('[data-basic-agent-planetary-node]').length === count, runtimeSnapshot.agents.length);
   const runtime = await page.evaluate(() => ({
     agents: document.querySelectorAll('[data-runtime-agent]').length,
     primary: document.querySelector('[data-runtime-agent="premium.release-inspector"]')?.getAttribute('data-runtime-status'),
@@ -130,6 +135,22 @@ try {
     text: document.querySelector('#turn-agent-runtime-accountability')?.textContent ?? '',
   }));
   check('runtime-chain-visible', runtime.agents === runtimeSnapshot.agents.length && runtime.primary === runtimeSnapshot.agents.find((agent) => agent.identity === 'premium.release-inspector')?.status && runtime.secondary === runtimeSnapshot.agents.find((agent) => agent.identity === 'premium.architecture-inspector')?.status, runtime);
+  const runtimeMap = await page.evaluate(() => ({
+    ids: [...document.querySelectorAll('[data-basic-agent-planetary-node]')].map((node) => node.getAttribute('data-basic-agent-planetary-node')).sort(),
+    statuses: Object.fromEntries([...document.querySelectorAll('[data-basic-agent-planetary-node]')].map((node) => [node.getAttribute('data-basic-agent-planetary-node'), node.getAttribute('data-basic-agent-status')])),
+    sources: [...document.querySelectorAll('[data-basic-agent-planetary-node]')].map((node) => node.getAttribute('data-basic-agent-runtime-source')),
+    core: document.querySelector('[data-basic-agent-planetary-core]')?.getAttribute('data-basic-agent-core-status'),
+    contract: document.querySelector('[data-basic-agent-planetary-panel]')?.getAttribute('data-orbital-source'),
+    generatedAt: document.querySelector('[data-basic-agent-planetary-panel]')?.getAttribute('data-accountability-generated-at'),
+  }));
+  const expectedMapIds = runtimeSnapshot.agents.map((agent) => agent.identity).sort();
+  const expectedMapStatuses = Object.fromEntries(runtimeSnapshot.agents.map((agent) => [agent.identity, agent.status === 'ACTIVE' ? 'PASS' : agent.status === 'DEGRADED' || agent.status === 'STALE' ? 'DEGRADED' : agent.status === 'UNKNOWN / NO TELEMETRY' ? 'NO_TELEMETRY' : agent.status === 'MANDATE NOT ASSIGNED' ? 'STANDBY' : 'FAIL']));
+  check('runtime-map-same-identities-and-status-engine', JSON.stringify(runtimeMap.ids) === JSON.stringify(expectedMapIds) && JSON.stringify(runtimeMap.statuses) === JSON.stringify(expectedMapStatuses) && runtimeMap.sources.every((source) => source === 'AGENT_RUNTIME_ACCOUNTABILITY') && runtimeMap.core === runtimeSnapshot.verdict.finalAgentRuntimePass && runtimeMap.contract === 'AGM-BASIC-AGENT-RUNTIME-MAP-V3', runtimeMap);
+  const firstGeneratedAt = runtimeMap.generatedAt;
+  const requestsBeforePollingProof = runtimeRequestCount;
+  runtimeSnapshot = { ...runtimeSnapshot, generatedAt: new Date(Date.parse(runtimeSnapshot.generatedAt) + 1_000).toISOString() };
+  await page.waitForFunction((expected) => document.querySelector('[data-basic-agent-planetary-panel]')?.getAttribute('data-accountability-generated-at') === expected, runtimeSnapshot.generatedAt, { timeout: 20_000 });
+  check('runtime-map-polls-same-persistent-projection', runtimeRequestCount > requestsBeforePollingProof && firstGeneratedAt !== runtimeSnapshot.generatedAt, { requestsBeforePollingProof, runtimeRequestCount, firstGeneratedAt, currentGeneratedAt: runtimeSnapshot.generatedAt });
   const requiredVerdictText = [
     `OVERALL OPERATIONAL STATE${runtimeSnapshot.verdict.overallOperationalState}`,
     `CONTROL SYSTEM${runtimeSnapshot.verdict.controlSystem}`,

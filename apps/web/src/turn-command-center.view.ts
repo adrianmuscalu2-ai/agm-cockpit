@@ -233,8 +233,8 @@ function renderFunctionalOverview() {
       </section>
       <section class="turn-approved-orbital-panel basic-agent-system" id="turn-basic-agent-system" data-basic-agent-planetary-panel data-orbital-source="PENDING_REAL_SOURCE" aria-labelledby="turn-basic-agent-system-title">
         <header>
-          <div><span class="turn-kicker">TURN · GOVERNANCE IDENTITY CATALOG</span><h3 id="turn-basic-agent-system-title">AGM GOVERNANCE IDENTITY MAP</h3><p>Cele 37 de identități istorice de guvernanță sunt afișate separat și nu sunt numărate drept procese runtime. Adevărul operațional al celor 27 de identități non-umane executabile este în panoul Agent Runtime & Inspector Failover.</p></div>
-          <p class="turn-orbital-legend"><strong>SEPARARE OBLIGATORIE:</strong> acest catalog furnizează identitate și istoric, nu ACTIVE. Nicio stare de aici nu îmbunătățește agregatul runtime și niciun STANDBY nu este acceptat drept închidere operațională.</p>
+          <div><span class="turn-kicker">TURN · LIVE AGENT RUNTIME</span><h3 id="turn-basic-agent-system-title">AGM AGENT RUNTIME MAP</h3><p>Exact aceiași agenți non-umani, aceleași execuții persistente și același validator care alimentează panoul Agent Runtime & Inspector Failover. Reîncărcare automată la 15 secunde.</p></div>
+          <p class="turn-orbital-legend"><strong>SURSĂ UNICĂ:</strong> identity + active mandate + execution + evidence + validation + freshness. Registry/catalog/config nu furnizează status și nu este fallback.</p>
         </header>
         <nav class="turn-orbital-criteria" data-basic-agent-planetary-criteria aria-label="Factorul de stare al sistemului planetar BASIC">
           <button type="button" data-basic-agent-planetary-criterion="operational" aria-selected="true">Stare operațională</button>
@@ -244,8 +244,8 @@ function renderFunctionalOverview() {
           <button type="button" data-basic-agent-planetary-criterion="incidents" aria-selected="false">Incidente</button>
           <button type="button" data-basic-agent-planetary-criterion="freshness" aria-selected="false">Freshness</button>
         </nav>
-        <p class="turn-orbital-criterion-message" data-basic-agent-planetary-message>Se reconciliază registrul oficial cu probele, AgentRuntimeEvent și evaluatorii reali…</p>
-        <div class="turn-approved-orbital-stage" data-basic-agent-planetary-stage aria-busy="true"><p>Se citesc operations-health, AgentRuntimeEvent și ComponentHeartbeat…</p></div>
+        <p class="turn-orbital-criterion-message" data-basic-agent-planetary-message>Se citește proiecția persistentă Agent Runtime Accountability…</p>
+        <div class="turn-approved-orbital-stage" data-basic-agent-planetary-stage aria-busy="true"><p>Se citesc mandatul, execuția, evidence-ul, validarea și freshness-ul fiecărui agent…</p></div>
         <aside class="turn-approved-orbital-selection" data-basic-agent-planetary-selection><p>Selectează un agent pentru identitate, runtime, sursă, motiv și acțiune.</p></aside>
       </section>
       <div class="turn-spatial-summary" data-basic-spatial-summary><span>Se citesc sursele reale autorizate…</span></div>

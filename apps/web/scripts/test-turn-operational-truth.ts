@@ -3,10 +3,10 @@ import { readFile } from 'node:fs/promises';
 import { operationalTruthIsPass, type TurnOperationalTruth } from '../src/turn-operational-truth';
 
 const pass = {
-  contractVersion: 'turn-operational-truth.v1',
+  contractVersion: 'turn-operational-truth.v2',
   generatedAt: '2026-09-04T12:00:01.000Z',
   overallStatus: 'PASS',
-  reason: 'AUTHENTICATED_M2M_ACP_READ_LIVE',
+  reason: 'ACP_PERIODIC_DUTY_CURRENT',
   falseGreen: 0,
   unexplainedDegraded: 0,
   observedAt: '2026-09-04T12:00:00.000Z',
@@ -14,7 +14,8 @@ const pass = {
   freshness: 'LIVE',
   authStatus: 'M2M AUTHENTICATED',
   telemetryStatus: 'LIVE TELEMETRY',
-  authorityControlPlane: { canonicalId: 'agm.authority.control-plane', status: 'PASS', statusSource: 'M2M_AUTHENTICATED_ACP_READ', observedAt: '2026-09-04T12:00:00.000Z' },
+  authorityControlPlane: { canonicalId: 'agm.authority.control-plane', status: 'PASS', statusSource: 'ACTIVE_MANDATE_AGENT_RUNTIME_EVENT_INDEPENDENT_VALIDATION_COMPONENT_HEARTBEAT', observedAt: '2026-09-04T12:00:00.000Z' },
+  accessProof: { status: 'STALE', observedAt: '2026-09-04T08:00:00.000Z', ageSeconds: 14400, freshnessWindowSeconds: 900, role: 'HISTORICAL_RELEASE_ACCESS_PROOF_NOT_RUNTIME_FRESHNESS' },
   chain: {
     machineIdentity: { status: 'VERIFIED' },
     credential: { status: 'VERIFIED' },
@@ -26,12 +27,14 @@ const pass = {
     turn: { status: 'EVIDENCE AVAILABLE' },
     ui: { status: 'READY FOR LIVE RENDER' },
   },
-  latestEvent: null,
+  latestEvent: { eventId: 'runtime-1', mandateId: 'mandate-1', agentId: 'agm.authority.control-plane', dossierId: 'critical-continuous-1', lifecycle: 'COMPLETED', sequence: 1, occurredAt: '2026-09-04T12:00:00.000Z', recordedAt: '2026-09-04T12:00:00.001Z', evidenceRef: 'AuthorityAuditJournal:event-1', evidenceHash: 'a'.repeat(64), detail: 'Periodic duty completed.' },
 } satisfies TurnOperationalTruth;
 
 assert.equal(operationalTruthIsPass(pass), true);
 assert.equal(operationalTruthIsPass({ ...pass, falseGreen: 1 }), false);
 assert.equal(operationalTruthIsPass({ ...pass, telemetryStatus: 'NO TELEMETRY' }), false);
+assert.equal(operationalTruthIsPass({ ...pass, accessProof: { ...pass.accessProof, status: 'MISSING' } }), false);
+assert.equal(operationalTruthIsPass({ ...pass, latestEvent: null }), false);
 assert.equal(operationalTruthIsPass({ ...pass, chain: { ...pass.chain, eventStore: { status: 'MISSING' } } }), false);
 assert.equal(operationalTruthIsPass({ ...pass, chain: { ...pass.chain, api: { status: 'FAIL' } } }), false);
 assert.equal(operationalTruthIsPass({ ...pass, chain: { ...pass.chain, turn: { status: 'NO TELEMETRY' } } }), false);
@@ -126,15 +129,17 @@ assert.match(commandCenterSource, /data-basic-agent-planetary-criteria/);
 for (const criterion of ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness']) {
   assert.match(commandCenterSource, new RegExp(`data-basic-agent-planetary-criterion="${criterion}"`));
 }
-assert.match(panelRuntimeSource, /buildBasicAgentNetworkModel/);
-assert.match(panelRuntimeSource, /agentGovernanceRegistry\.map/);
+assert.match(panelRuntimeSource, /buildRuntimeAccountabilityPlanetNodes/);
+assert.match(panelRuntimeSource, /ingestBasicAgentRuntimeAccountability/);
 assert.match(panelRuntimeSource, /data-basic-agent-planetary-node/);
 assert.match(panelRuntimeSource, /data-basic-agent-core-status/);
-assert.match(panelRuntimeSource, /data-basic-agent-registry-presence="PRESENT"/);
+assert.match(panelRuntimeSource, /data-basic-agent-runtime-source="AGENT_RUNTIME_ACCOUNTABILITY"/);
 assert.match(panelRuntimeSource, /data-basic-agent-runtime-evidence/);
-assert.match(panelRuntimeSource, /IDENTITY_PRESENT · OPERATIONAL_EVALUATOR_NOT_AVAILABLE/);
-assert.match(panelRuntimeSource, /turn-basic-agent-telemetry-inventory\.v1/);
-assert.match(panelRuntimeSource, /EVENT_STORE_NO_ACTIVITY/);
+assert.match(panelRuntimeSource, /registry\/catalog nu este fallback/);
+assert.match(panelRuntimeSource, /snapshot\.verdict\.finalAgentRuntimePass/);
+assert.match(panelRuntimeSource, /snapshot\.agents/);
+const runtimeRenderer = panelRuntimeSource.slice(panelRuntimeSource.indexOf('function renderBasicAgentPlanetaryModel'), panelRuntimeSource.indexOf('function basicAgentPlanetaryPositions'));
+assert.doesNotMatch(runtimeRenderer, /agentGovernanceRegistry|buildBasicAgentNetworkModel/);
 assert.match(governanceSource, /ingestBasicAgentOperationalDashboard/);
 assert.doesNotMatch(functionalOverviewSource, /data-basic-agent-planetary-node/);
 assert.doesNotMatch(governanceSource, /data-basic-agent-planetary-node/);

@@ -14,7 +14,7 @@ const evidenceRoot = resolve(process.env.AGM_TURN_OPERATIONAL_EVIDENCE_DIR || `e
 await mkdir(evidenceRoot, { recursive: true });
 
 const report = {
-  contract: 'turn-operational-truth-browser.v1',
+  contract: 'turn-operational-truth-browser.v2',
   startedAt: new Date().toISOString(),
   targetUrl,
   apiUrl,
@@ -36,12 +36,18 @@ try {
   report.checks.apiHttp = apiResponse.status;
   report.checks.apiTruth = truth;
   assert(apiResponse.status === 200, `Operational truth API HTTP ${apiResponse.status}`);
-  assert(truth?.contractVersion === 'turn-operational-truth.v1', 'Operational truth contract missing');
+  assert(truth?.contractVersion === 'turn-operational-truth.v2', 'Operational truth v2 contract missing');
   assert(truth?.overallStatus === 'PASS', `Operational truth is ${truth?.overallStatus}`);
+  assert(truth?.reason === 'ACP_PERIODIC_DUTY_CURRENT', `Operational truth reason is ${truth?.reason}`);
   assert(truth?.authStatus === 'M2M AUTHENTICATED', `Authentication is ${truth?.authStatus}`);
   assert(truth?.telemetryStatus === 'LIVE TELEMETRY', `Telemetry is ${truth?.telemetryStatus}`);
   assert(truth?.falseGreen === 0, `FALSE GREEN is ${truth?.falseGreen}`);
   assert(truth?.unexplainedDegraded === 0, `UNEXPLAINED DEGRADED is ${truth?.unexplainedDegraded}`);
+  assert(truth?.authorityControlPlane?.status === 'PASS', `ACP runtime status is ${truth?.authorityControlPlane?.status}`);
+  assert(truth?.authorityControlPlane?.statusSource === 'ACTIVE_MANDATE_AGENT_RUNTIME_EVENT_INDEPENDENT_VALIDATION_COMPONENT_HEARTBEAT', `ACP runtime source is ${truth?.authorityControlPlane?.statusSource}`);
+  assert(truth?.accessProof?.status !== 'MISSING', `M2M access proof is ${truth?.accessProof?.status}`);
+  assert(truth?.accessProof?.role === 'HISTORICAL_RELEASE_ACCESS_PROOF_NOT_RUNTIME_FRESHNESS', `M2M access proof role is ${truth?.accessProof?.role}`);
+  assert(truth?.latestEvent?.lifecycle === 'COMPLETED' && !truth.latestEvent.mandateId.startsWith('m2m-acp-read:'), 'Latest event is not a real periodic ACP duty.');
   for (const [step, expected] of Object.entries({
     machineIdentity: 'VERIFIED', credential: 'VERIFIED', token: 'VERIFIED', authenticatedAcpRead: 'PASS',
     telemetry: 'PASS', eventStore: 'PERSISTED', api: 'PASS', turn: 'EVIDENCE AVAILABLE', ui: 'READY FOR LIVE RENDER',
@@ -179,6 +185,22 @@ try {
   assert(ui.staticGreenCount === 0, `Static registry green count is ${ui.staticGreenCount}`);
   assert(report.network.some((entry) => entry.status === 200), 'UI did not receive operational truth HTTP 200');
   assert(report.pageErrors.length === 0, `Page errors: ${report.pageErrors.join(' | ')}`);
+
+  if (canonicalProduction) {
+    const initialRuntimeEventId = truth.latestEvent.eventId;
+    await page.waitForTimeout(70_000);
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await page.waitForSelector('[data-turn-agent-live="pass"]', { timeout: 45_000 });
+    const continuedResponse = await fetch(apiUrl, { headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' } });
+    const continuedTruth = (await continuedResponse.json())?.data;
+    assert(continuedResponse.status === 200, `Continued operational truth API HTTP ${continuedResponse.status}`);
+    assert(continuedTruth?.overallStatus === 'PASS' && continuedTruth?.reason === 'ACP_PERIODIC_DUTY_CURRENT', `Continued operational truth is ${continuedTruth?.overallStatus}/${continuedTruth?.reason}`);
+    assert(continuedTruth?.latestEvent?.eventId && continuedTruth.latestEvent.eventId !== initialRuntimeEventId, 'Periodic ACP duty did not advance after 70 seconds.');
+    assert(continuedTruth?.ageSeconds <= 90, `Continued runtime age is ${continuedTruth?.ageSeconds}`);
+    assert(continuedTruth?.chain?.eventStore?.eventId === continuedTruth?.latestEvent?.eventId, 'Continued EventStore/runtime correlation is inconsistent.');
+    report.checks.continuedAfterReload = { waitedSeconds: 70, initialRuntimeEventId, truth: continuedTruth };
+    await page.locator('[data-turn-agent-live]').screenshot({ path: resolve(evidenceRoot, 'turn-authenticated-chain-after-reload.png') });
+  }
 
   if (!canonicalProduction) await page.locator('[data-authority-dashboard]').screenshot({ path: resolve(evidenceRoot, 'authority-control-plane-live.png') });
   await page.screenshot({ path: resolve(evidenceRoot, 'turn-production-full-page.png'), fullPage: true });

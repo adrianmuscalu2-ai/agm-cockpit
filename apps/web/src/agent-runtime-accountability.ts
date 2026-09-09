@@ -1,4 +1,5 @@
 import { isTurnAdminSessionError, turnAdminAuthenticatedFetch } from './admin-auth';
+import { ingestBasicAgentRuntimeAccountability, markBasicAgentRuntimeAccountabilityUnavailable } from './turn-agent-panel.integration';
 
 export type RuntimeAgentAccountability = {
   identity: string;
@@ -12,6 +13,7 @@ export type RuntimeAgentAccountability = {
   trigger: string;
   executionCondition: string;
   lastExecution: string | null;
+  executionEventId: string | null;
   lastResult: string;
   outputRef: string | null;
   executionEvidenceRef: string | null;
@@ -20,11 +22,16 @@ export type RuntimeAgentAccountability = {
   validationEvidenceRef: string | null;
   lastValidation: string | null;
   freshness: 'CURRENT' | 'STALE' | 'NO TELEMETRY';
+  freshnessWindowSeconds: number;
   status: string;
+  statusSource: string;
   reason: string;
   openResponsibilities: string[];
   failover: 'PROVEN' | 'NOT PROVEN';
 };
+
+export const agentRuntimeAccountabilityPollIntervalMs = 15_000;
+let accountabilityPollTimer: number | undefined;
 
 export type AgentRuntimeAccountabilitySnapshot = {
   contractVersion: string;
@@ -112,14 +119,26 @@ export async function fetchAgentRuntimeAccountability(fetcher: typeof fetch = tu
 }
 
 export async function bindAgentRuntimeAccountability(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
+  if (accountabilityPollTimer !== undefined) window.clearInterval(accountabilityPollTimer);
   if (!document.querySelector('[data-agent-runtime-state]')) return;
-  try {
-    const snapshot = await fetchAgentRuntimeAccountability(fetcher);
-    const currentTarget = document.querySelector<HTMLElement>('[data-agent-runtime-state]');
-    if (currentTarget) currentTarget.innerHTML = renderAgentRuntimeSnapshot(snapshot);
-  } catch (error) {
-    const authRequired = isTurnAdminSessionError(error);
-    const currentTarget = document.querySelector<HTMLElement>('[data-agent-runtime-state]');
-    if (currentTarget) currentTarget.innerHTML = `<div class="agent-runtime-unavailable" data-tone="fail"><strong>UNKNOWN / NO TELEMETRY</strong><p>${authRequired ? 'Administrator validation is required to read protected operational evidence.' : 'The operational evidence endpoint is unavailable; no ACTIVE or PASS state is inferred.'}</p></div>`;
-  }
+  let inFlight = false;
+  const refresh = async () => {
+    if (inFlight) return;
+    inFlight = true;
+    try {
+      const snapshot = await fetchAgentRuntimeAccountability(fetcher);
+      const currentTarget = document.querySelector<HTMLElement>('[data-agent-runtime-state]');
+      if (currentTarget) currentTarget.innerHTML = renderAgentRuntimeSnapshot(snapshot);
+      ingestBasicAgentRuntimeAccountability(snapshot);
+    } catch (error) {
+      const authRequired = isTurnAdminSessionError(error);
+      const currentTarget = document.querySelector<HTMLElement>('[data-agent-runtime-state]');
+      if (currentTarget) currentTarget.innerHTML = `<div class="agent-runtime-unavailable" data-tone="fail"><strong>UNKNOWN / NO TELEMETRY</strong><p>${authRequired ? 'Administrator validation is required to read protected operational evidence.' : 'The operational evidence endpoint is unavailable; no ACTIVE or PASS state is inferred.'}</p></div>`;
+      markBasicAgentRuntimeAccountabilityUnavailable(authRequired ? 'ADMIN_SESSION_REQUIRED' : 'ACCOUNTABILITY_ENDPOINT_UNAVAILABLE');
+    } finally {
+      inFlight = false;
+    }
+  };
+  await refresh();
+  accountabilityPollTimer = window.setInterval(() => void refresh(), agentRuntimeAccountabilityPollIntervalMs);
 }

@@ -150,7 +150,7 @@ function renderOperationalTruth(root: HTMLElement, truth: TurnOperationalTruth) 
   const connection = root.querySelector<HTMLElement>('[data-live-connection]');
   if (connection) connection.textContent = `${truth.authStatus} · ${truth.telemetryStatus}`;
   const current = root.querySelector<HTMLElement>('[data-live-current]');
-  if (current) current.textContent = `${truth.reason} · ${truth.observedAt ? new Date(truth.observedAt).toLocaleString() : 'fără observație autenticată'}`;
+  if (current) current.textContent = `${truth.reason} · runtime ${truth.observedAt ? new Date(truth.observedAt).toLocaleString() : 'fără execuție'} · access proof ${truth.accessProof.status} (${truth.accessProof.observedAt ? new Date(truth.accessProof.observedAt).toLocaleString() : 'missing'})`;
   const steps: Array<[string, OperationalTruthStep]> = [
     ['MACHINE IDENTITY', truth.chain.machineIdentity],
     ['CREDENTIAL', truth.chain.credential],

@@ -110,50 +110,103 @@ export class TurnOperationalTruthService {
 
   async snapshot(now = new Date()) {
     const companyId = GITHUB_ACTIONS_PROVISIONING_CONTRACT.companyId;
-    const audit = await this.prisma.authorityAuditJournal.findFirst({
-      where: {
+    const [accessAudit, heartbeat, mandate] = await Promise.all([
+      this.prisma.authorityAuditJournal.findFirst({ where: { companyId, eventType: TURN_OPERATIONAL_TRUTH_CONTRACT.authenticatedReadEventType, outcome: 'PASS', actorType: 'MACHINE' }, orderBy: { occurredAt: 'desc' } }),
+      this.prisma.componentHeartbeat.findUnique({ where: {
+        companyId_componentId: { companyId, componentId: TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId },
+      } }),
+      this.prisma.authorityMandate.findFirst({ where: {
         companyId,
-        eventType: TURN_OPERATIONAL_TRUTH_CONTRACT.authenticatedReadEventType,
-        outcome: 'PASS',
-        actorType: 'MACHINE',
-      },
-      orderBy: { occurredAt: 'desc' },
-    });
-    const metadata = readMetadata(audit?.safeMetadata);
-    if (!audit || !metadata) return emptySnapshot(now);
-
-    const [runtimeEvent, heartbeat] = await Promise.all([
-      this.prisma.agentRuntimeEvent.findFirst({ where: {
+        agentId: TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId,
+        status: 'APPROVED',
+        revokedAt: null,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      }, orderBy: { issuedAt: 'desc' } }),
+    ]);
+    if (!accessAudit && !heartbeat && !mandate) return emptySnapshot(now);
+    const metadata = readMetadata(accessAudit?.safeMetadata);
+    const [accessRuntimeEvent, runtimeEvent] = await Promise.all([
+      metadata ? this.prisma.agentRuntimeEvent.findFirst({ where: {
         companyId,
         eventId: metadata.runtimeEventId,
         agentId: TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId,
         evidenceRef: `${TURN_OPERATIONAL_TRUTH_CONTRACT.evidencePrefix}${metadata.requestId}`,
         evidenceHash: metadata.responseDigest,
-      } }),
-      this.prisma.componentHeartbeat.findUnique({ where: {
-        companyId_componentId: { companyId, componentId: TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId },
-      } }),
+      } }) : Promise.resolve(null),
+      mandate ? this.prisma.agentRuntimeEvent.findFirst({ where: {
+        companyId,
+        mandateId: mandate.id,
+        agentId: TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId,
+      }, orderBy: { occurredAt: 'desc' } }) : Promise.resolve(null),
     ]);
+    const validationEvents = runtimeEvent ? await this.prisma.authorityAuditJournal.findMany({ where: {
+      companyId,
+      eventType: 'AGENT_ACCOUNTABILITY_VALIDATED',
+      outcome: 'PASS',
+    }, orderBy: { occurredAt: 'desc' }, take: 100 }) : [];
+    const validation = runtimeEvent && mandate ? validationEvents.find((event) => {
+      const value = jsonRecord(event.safeMetadata);
+      return event.actorId !== runtimeEvent.agentId
+        && value.agentId === runtimeEvent.agentId
+        && value.targetMandateId === mandate.id
+        && value.executionEventId === runtimeEvent.eventId
+        && value.executionEvidenceRef === runtimeEvent.evidenceRef
+        && value.executionOutputRef === runtimeEvent.outputRef
+        && value.validatorId === event.actorId
+        && value.validatorMandateId === event.mandateId
+        && value.result === 'PASS';
+    }) : undefined;
+    const validatorMandate = validation?.mandateId ? await this.prisma.authorityMandate.findFirst({ where: {
+      id: validation.mandateId,
+      companyId,
+      agentId: validation.actorId,
+      status: 'APPROVED',
+      revokedAt: null,
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    } }) : null;
+
     const heartbeatEvidence = heartbeatDetail(heartbeat?.lastDetail);
-    const eventStoreCorrelated = Boolean(runtimeEvent);
-    const telemetryCorrelated = Boolean(
-      heartbeat
+    const accessCorrelated = Boolean(
+      accessAudit
+      && metadata
+      && accessRuntimeEvent
       && heartbeatEvidence
       && heartbeatEvidence.requestId === metadata.requestId
       && heartbeatEvidence.runtimeEventId === metadata.runtimeEventId
       && heartbeatEvidence.responseDigest === metadata.responseDigest,
     );
-    const ageMs = Math.max(0, now.getTime() - audit.occurredAt.getTime());
+    const accessAgeMs = accessAudit ? Math.max(0, now.getTime() - accessAudit.occurredAt.getTime()) : null;
+    const accessFresh = accessAgeMs !== null && accessAgeMs <= TURN_OPERATIONAL_TRUTH_CONTRACT.accessProofFreshnessWindowMs;
+    const executionComplete = Boolean(runtimeEvent && runtimeEvent.lifecycle === 'COMPLETED' && runtimeEvent.evidenceRef && runtimeEvent.outputRef && runtimeEvent.evidenceHash);
+    const heartbeatAgeMs = heartbeat ? Math.max(0, now.getTime() - heartbeat.lastSeenAt.getTime()) : Number.POSITIVE_INFINITY;
+    const executionAgeMs = runtimeEvent ? Math.max(0, now.getTime() - runtimeEvent.occurredAt.getTime()) : Number.POSITIVE_INFINITY;
+    const validationAgeMs = validation ? Math.max(0, now.getTime() - validation.occurredAt.getTime()) : Number.POSITIVE_INFINITY;
+    const ageMs = Math.max(heartbeatAgeMs, executionAgeMs, validationAgeMs);
     const fresh = ageMs <= TURN_OPERATIONAL_TRUTH_CONTRACT.freshnessWindowMs;
-    const complete = eventStoreCorrelated && telemetryCorrelated;
-    const overallStatus: TurnOperationalTruthStatus = !complete ? 'NO_TELEMETRY' : fresh ? 'PASS' : 'DEGRADED';
-    const reason = !eventStoreCorrelated
-      ? 'EVENTSTORE_CORRELATION_MISSING'
-      : !telemetryCorrelated
-        ? 'ACP_TELEMETRY_CORRELATION_MISSING'
-        : fresh
-          ? 'AUTHENTICATED_M2M_ACP_READ_LIVE'
-          : 'AUTHENTICATED_M2M_ACP_READ_STALE';
+    const heartbeatHealthy = Boolean(heartbeat && heartbeat.reportedStatus === 'ONLINE');
+    const runtimeComplete = Boolean(mandate && executionComplete && validation && validatorMandate && heartbeatHealthy);
+    const complete = runtimeComplete && fresh && accessCorrelated;
+    const evidencePresent = Boolean(mandate || runtimeEvent || validation || heartbeat);
+    const overallStatus: TurnOperationalTruthStatus = complete ? 'PASS' : evidencePresent ? 'DEGRADED' : 'NO_TELEMETRY';
+    const reason = !accessCorrelated
+      ? 'M2M_ACCESS_PROOF_CORRELATION_MISSING'
+      : !mandate
+        ? 'ACP_ACTIVE_MANDATE_MISSING'
+        : !runtimeEvent
+          ? 'ACP_PERIODIC_DUTY_MISSING'
+          : runtimeEvent.lifecycle !== 'COMPLETED'
+            ? `ACP_PERIODIC_DUTY_${runtimeEvent.lifecycle}`
+            : !executionComplete
+              ? 'ACP_PERIODIC_DUTY_EVIDENCE_INCOMPLETE'
+              : !validation
+                ? 'ACP_PERIODIC_VALIDATION_CORRELATION_MISSING'
+                : !validatorMandate
+                  ? 'ACP_VALIDATOR_MANDATE_MISSING'
+                  : !heartbeatHealthy
+                    ? `ACP_HEARTBEAT_${heartbeat?.reportedStatus ?? 'MISSING'}`
+                    : !fresh
+                      ? 'ACP_PERIODIC_DUTY_STALE'
+                      : 'ACP_PERIODIC_DUTY_CURRENT';
 
     return {
       contractVersion: TURN_OPERATIONAL_TRUTH_CONTRACT.version,
@@ -162,27 +215,34 @@ export class TurnOperationalTruthService {
       reason,
       falseGreen: 0,
       unexplainedDegraded: 0,
-      observedAt: audit.occurredAt.toISOString(),
-      ageSeconds: Math.floor(ageMs / 1_000),
+      observedAt: runtimeEvent?.occurredAt.toISOString() ?? null,
+      ageSeconds: Number.isFinite(ageMs) ? Math.floor(ageMs / 1_000) : null,
       freshness: fresh ? 'LIVE' : 'STALE',
-      authStatus: 'M2M AUTHENTICATED',
-      telemetryStatus: complete ? (fresh ? 'LIVE TELEMETRY' : 'STALE TELEMETRY') : 'NO TELEMETRY',
+      authStatus: accessCorrelated ? 'M2M AUTHENTICATED' : 'AUTH REQUIRED',
+      telemetryStatus: runtimeComplete ? (fresh ? 'LIVE TELEMETRY' : 'STALE TELEMETRY') : 'NO TELEMETRY',
       authorityControlPlane: {
         canonicalId: TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId,
         status: overallStatus,
-        statusSource: TURN_OPERATIONAL_TRUTH_CONTRACT.authenticatedReadEventType,
-        observedAt: audit.occurredAt.toISOString(),
+        statusSource: 'ACTIVE_MANDATE_AGENT_RUNTIME_EVENT_INDEPENDENT_VALIDATION_COMPONENT_HEARTBEAT',
+        observedAt: runtimeEvent?.occurredAt.toISOString() ?? null,
+      },
+      accessProof: {
+        status: !accessCorrelated ? 'MISSING' : accessFresh ? 'CURRENT' : 'STALE',
+        observedAt: accessAudit?.occurredAt.toISOString() ?? null,
+        ageSeconds: accessAgeMs === null ? null : Math.floor(accessAgeMs / 1_000),
+        freshnessWindowSeconds: Math.round(TURN_OPERATIONAL_TRUTH_CONTRACT.accessProofFreshnessWindowMs / 1_000),
+        role: 'HISTORICAL_RELEASE_ACCESS_PROOF_NOT_RUNTIME_FRESHNESS',
       },
       chain: {
-        machineIdentity: { status: 'VERIFIED', ref: publicRef(metadata.machineIdentityId), source: 'VALIDATED_MACHINE_JWT_CONTEXT' },
-        credential: { status: 'VERIFIED', ref: publicRef(metadata.credentialId), source: 'ACTIVE_CREDENTIAL_AT_AUTHENTICATION' },
-        token: { status: 'VERIFIED', scope: metadata.scopes.join(' '), contract: metadata.authContract, source: 'MACHINE_JWT_GUARD' },
-        authenticatedAcpRead: { status: 'PASS', route: publicRoute(metadata.route, companyId), requestId: metadata.requestId, responseDigest: metadata.responseDigest, registryNodeCount: metadata.registryNodeCount },
-        telemetry: { status: telemetryCorrelated ? 'PASS' : 'MISSING', source: 'CORRELATED_COMPONENT_HEARTBEAT', observedAt: heartbeat?.lastSeenAt.toISOString() ?? null },
-        eventStore: { status: eventStoreCorrelated ? 'PERSISTED' : 'MISSING', eventId: runtimeEvent?.eventId ?? null, recordedAt: runtimeEvent?.recordedAt.toISOString() ?? null },
-        api: { status: 'PASS', source: 'TURN_OPERATIONAL_TRUTH_PROJECTION', responseDigest: metadata.responseDigest },
-        turn: { status: complete ? 'EVIDENCE AVAILABLE' : 'NO TELEMETRY', source: 'LIVE API ONLY', eventId: runtimeEvent?.eventId ?? null },
-        ui: { status: complete ? 'READY FOR LIVE RENDER' : 'NO TELEMETRY', source: 'NO FALLBACK' },
+        machineIdentity: { status: accessCorrelated ? 'VERIFIED' : 'MISSING', ref: metadata ? publicRef(metadata.machineIdentityId) : null, source: 'VALIDATED_MACHINE_JWT_CONTEXT' },
+        credential: { status: accessCorrelated ? 'VERIFIED' : 'MISSING', ref: metadata ? publicRef(metadata.credentialId) : null, source: 'ACTIVE_CREDENTIAL_AT_AUTHENTICATION' },
+        token: { status: accessCorrelated ? 'VERIFIED' : 'MISSING', scope: metadata?.scopes.join(' ') ?? null, contract: metadata?.authContract ?? MACHINE_AUTH_CONTRACT.version, source: 'MACHINE_JWT_GUARD' },
+        authenticatedAcpRead: { status: accessCorrelated ? 'PASS' : 'MISSING', route: metadata ? publicRoute(metadata.route, companyId) : null, requestId: metadata?.requestId ?? null, responseDigest: metadata?.responseDigest ?? null, registryNodeCount: metadata?.registryNodeCount ?? null, source: 'HISTORICAL_RELEASE_ACCESS_PROOF' },
+        telemetry: { status: heartbeatHealthy && fresh ? 'PASS' : heartbeat ? 'STALE' : 'MISSING', source: 'CURRENT_COMPONENT_HEARTBEAT', observedAt: heartbeat?.lastSeenAt.toISOString() ?? null },
+        eventStore: { status: executionComplete && validation ? 'PERSISTED' : 'MISSING', eventId: runtimeEvent?.eventId ?? null, recordedAt: runtimeEvent?.recordedAt.toISOString() ?? null, source: validation ? `VALIDATED_BY:${validation.actorId}` : 'NO_CORRELATED_VALIDATION' },
+        api: { status: 'PASS', source: 'TURN_OPERATIONAL_TRUTH_PROJECTION', responseDigest: metadata?.responseDigest ?? null },
+        turn: { status: complete ? 'EVIDENCE AVAILABLE' : 'NO TELEMETRY', source: 'LIVE API ONLY_NO_REGISTRY_FALLBACK', eventId: runtimeEvent?.eventId ?? null },
+        ui: { status: complete ? 'READY FOR LIVE RENDER' : 'NO TELEMETRY', source: 'NO_FALLBACK' },
       },
       latestEvent: runtimeEvent ? {
         eventId: runtimeEvent.eventId,
@@ -206,7 +266,7 @@ function emptySnapshot(now: Date) {
     contractVersion: TURN_OPERATIONAL_TRUTH_CONTRACT.version,
     generatedAt: now.toISOString(),
     overallStatus: 'NO_TELEMETRY' as const,
-    reason: 'NO_AUTHENTICATED_M2M_ACP_READ',
+    reason: 'M2M_ACCESS_PROOF_CORRELATION_MISSING',
     falseGreen: 0,
     unexplainedDegraded: 0,
     observedAt: null,
@@ -215,6 +275,7 @@ function emptySnapshot(now: Date) {
     authStatus: 'AUTH REQUIRED',
     telemetryStatus: 'NO TELEMETRY',
     authorityControlPlane: { canonicalId: TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId, status: 'NO_TELEMETRY' as const, statusSource: 'NONE', observedAt: null },
+    accessProof: { status: 'MISSING', observedAt: null, ageSeconds: null, freshnessWindowSeconds: Math.round(TURN_OPERATIONAL_TRUTH_CONTRACT.accessProofFreshnessWindowMs / 1_000), role: 'HISTORICAL_RELEASE_ACCESS_PROOF_NOT_RUNTIME_FRESHNESS' },
     chain: {
       machineIdentity: { status: 'MISSING', ref: null, source: 'NO_FALLBACK' },
       credential: { status: 'MISSING', ref: null, source: 'NO_FALLBACK' },
@@ -228,6 +289,10 @@ function emptySnapshot(now: Date) {
     },
     latestEvent: null,
   };
+}
+
+function jsonRecord(value: Prisma.JsonValue | undefined) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Prisma.JsonObject : {};
 }
 
 function readMetadata(value: Prisma.JsonValue | undefined): ReadMetadata | null {

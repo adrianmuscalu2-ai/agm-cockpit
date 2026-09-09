@@ -44,6 +44,7 @@ jobs:
       - run: pnpm --filter @agm/api build
       - run: pnpm --filter @agm/web build
       - run: pnpm --filter @agm/web test:turn-operational-truth
+      - run: pnpm --filter @agm/web test:turn-functional-overview
       - run: pnpm --filter @agm/web test:agent-accountability
       - run: pnpm audit:canonical-route
       - run: pnpm exec playwright install --with-deps chromium
@@ -383,12 +384,17 @@ jobs:
             https://api.agmcockpit.com/api/v1/operations/turn/operational-truth)
           jq -e --arg identity "$identity_ref" --arg credential "$credential_ref" '
             .data
-            | .contractVersion == "turn-operational-truth.v1"
+            | .contractVersion == "turn-operational-truth.v2"
               and .overallStatus == "PASS"
+              and .reason == "ACP_PERIODIC_DUTY_CURRENT"
               and .authStatus == "M2M AUTHENTICATED"
               and .telemetryStatus == "LIVE TELEMETRY"
               and .falseGreen == 0
               and .unexplainedDegraded == 0
+              and .authorityControlPlane.status == "PASS"
+              and .authorityControlPlane.statusSource == "ACTIVE_MANDATE_AGENT_RUNTIME_EVENT_INDEPENDENT_VALIDATION_COMPONENT_HEARTBEAT"
+              and .accessProof.status == "CURRENT"
+              and .accessProof.role == "HISTORICAL_RELEASE_ACCESS_PROOF_NOT_RUNTIME_FRESHNESS"
               and .chain.machineIdentity.status == "VERIFIED"
               and .chain.machineIdentity.ref == $identity
               and .chain.credential.status == "VERIFIED"
@@ -396,14 +402,17 @@ jobs:
               and .chain.token.status == "VERIFIED"
               and .chain.token.scope == "acp:read"
               and .chain.authenticatedAcpRead.status == "PASS"
-              and .chain.authenticatedAcpRead.responseDigest == .latestEvent.evidenceHash
-              and .chain.authenticatedAcpRead.requestId == .latestEvent.dossierId
+              and (.chain.authenticatedAcpRead.responseDigest | test("^[a-f0-9]{64}$"))
+              and (.chain.authenticatedAcpRead.requestId | type == "string")
               and .chain.telemetry.status == "PASS"
               and .chain.eventStore.status == "PERSISTED"
               and .chain.eventStore.eventId == .latestEvent.eventId
               and .chain.api.status == "PASS"
               and .chain.turn.status == "EVIDENCE AVAILABLE"
               and .chain.ui.status == "READY FOR LIVE RENDER"
+              and .latestEvent.agentId == "agm.authority.control-plane"
+              and .latestEvent.lifecycle == "COMPLETED"
+              and (.latestEvent.mandateId | startswith("m2m-acp-read:") | not)
           ' <<<"$operational_truth" >/dev/null
           jq -c '{contractVersion:.data.contractVersion,overallStatus:.data.overallStatus,reason:.data.reason,observedAt:.data.observedAt,ageSeconds:.data.ageSeconds,authStatus:.data.authStatus,telemetryStatus:.data.telemetryStatus,falseGreen:.data.falseGreen,unexplainedDegraded:.data.unexplainedDegraded,eventStore:.data.chain.eventStore.status,turn:.data.chain.turn.status}' <<<"$operational_truth"
           echo 'TURN_OPERATIONAL_TRUTH=PASS'
@@ -469,14 +478,14 @@ jobs:
           initial_guardian_event=$(jq -er '.data.agents[] | select(.identity == "agm.guardian.secrets") | .executionEventId' <<<"$accountability")
           accountability_url="https://api.agmcockpit.com/api/v1/m2m/authority-control-plane/companies/$company_id/agent-accountability"
 
-          sleep 70
+          sleep 100
           checkpoint_one=$(curl --fail --silent --show-error -H "Authorization: Bearer $next_access_token" "$accountability_url")
           checkpoint_one_acp_event=$(jq -er '.data.agents[] | select(.identity == "agm.authority.control-plane") | .executionEventId' <<<"$checkpoint_one")
           checkpoint_one_guardian_event=$(jq -er '.data.agents[] | select(.identity == "agm.guardian.secrets") | .executionEventId' <<<"$checkpoint_one")
           test "$checkpoint_one_acp_event" != "$initial_acp_event"
           test "$checkpoint_one_guardian_event" != "$initial_guardian_event"
 
-          sleep 70
+          sleep 100
           checkpoint_two=$(curl --fail --silent --show-error -H "Authorization: Bearer $next_access_token" "$accountability_url")
           jq -e --arg previousAcp "$checkpoint_one_acp_event" --arg previousGuardian "$checkpoint_one_guardian_event" '
             .data
@@ -507,7 +516,25 @@ jobs:
               and .verdict.finalAgentRuntimePass == "PASS"
           ' <<<"$checkpoint_two" >/dev/null
           jq -c '{generatedAt:.data.generatedAt,critical:[.data.agents[]|select(.identity == "agm.authority.control-plane" or .identity == "agm.guardian.secrets")|{identity,lastExecution,executionEventId,lastValidation,validator,freshness,status}],degraded:.data.fleet.degraded,openIncidents:.data.incidents.open,verdict:.data.verdict}' <<<"$checkpoint_two"
-          echo 'CRITICAL_AGENT_PERIODIC_SOAK=PASS CYCLES_AFTER_INITIAL=2 WINDOW_SECONDS=140'
+          live_truth_after_soak=$(curl --fail --silent --show-error https://api.agmcockpit.com/api/v1/operations/turn/operational-truth)
+          jq -e --arg acpEvent "$checkpoint_two_acp_event" '
+            .data
+            | .contractVersion == "turn-operational-truth.v2"
+              and .overallStatus == "PASS"
+              and .reason == "ACP_PERIODIC_DUTY_CURRENT"
+              and .freshness == "LIVE"
+              and .ageSeconds <= 90
+              and .telemetryStatus == "LIVE TELEMETRY"
+              and .authorityControlPlane.status == "PASS"
+              and .chain.telemetry.status == "PASS"
+              and .chain.eventStore.status == "PERSISTED"
+              and .chain.eventStore.eventId == $acpEvent
+              and .latestEvent.eventId == $acpEvent
+              and .latestEvent.lifecycle == "COMPLETED"
+          ' <<<"$live_truth_after_soak" >/dev/null
+          jq -c '{generatedAt:.data.generatedAt,overallStatus:.data.overallStatus,reason:.data.reason,observedAt:.data.observedAt,ageSeconds:.data.ageSeconds,accessProof:.data.accessProof,latestEvent:.data.latestEvent.eventId}' <<<"$live_truth_after_soak"
+          echo 'CRITICAL_AGENT_PERIODIC_SOAK=PASS CYCLES_AFTER_INITIAL=2 WINDOW_SECONDS=200'
+          echo 'LIVE_TRUTH_ACCOUNTABILITY_AGREEMENT=PASS'
           echo 'FINAL_AGENT_RUNTIME_PASS=PASS'
           mkdir -p evidence/agent-accountability/production
           jq '.' <<<"$checkpoint_two" > evidence/agent-accountability/production/agent-runtime-accountability.json
@@ -594,6 +621,10 @@ jobs:
           path: production-agent-runtime-evidence
       - name: Browser preflight for Production accountability
         run: pnpm rescue:browser-preflight
+      - name: Validate live Production operational truth after soak
+        run: node scripts/validate-turn-operational-truth-browser.mjs
+      - name: Browser preflight for Production accountability UI
+        run: pnpm rescue:browser-preflight
       - name: Validate Production TURN with real Production snapshot
         env:
           AGM_AGENT_ACCOUNTABILITY_URL: https://app.agmcockpit.com/turn
@@ -612,6 +643,7 @@ jobs:
         with:
           name: agent-runtime-production-browser-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
+            evidence/turn-operational-reconciliation/browser
             evidence/agent-accountability/browser
             evidence/turn-responsive-brand/browser
           if-no-files-found: error
