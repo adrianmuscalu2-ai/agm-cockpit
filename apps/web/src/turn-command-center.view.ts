@@ -62,10 +62,13 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       data-active-turn-page="basic"
     >
       <header class="turn-command-header">
-        <div>
+        <div class="turn-command-identity">
+          <img class="turn-command-logo" src="/icons/agm-app-icon-512.png" alt="AGM" />
+          <div class="turn-command-copy">
           <span class="turn-kicker">TURN · REAL OPERATIONAL COMMAND</span>
           <h1>${escapeHtml(t(language, 'turn.title'))}</h1>
           <p>SEE → UNDERSTAND → DRILL DOWN → ACT. Suprafețele spațiale folosesc aceleași surse canonice ca detaliile operaționale.</p>
+          </div>
         </div>
         <div class="turn-command-header-actions">
           <strong>PRODUCT OWNER ACCEPTANCE · NOT GRANTED</strong>
@@ -230,8 +233,8 @@ function renderFunctionalOverview() {
       </section>
       <section class="turn-approved-orbital-panel basic-agent-system" id="turn-basic-agent-system" data-basic-agent-planetary-panel data-orbital-source="PENDING_REAL_SOURCE" aria-labelledby="turn-basic-agent-system-title">
         <header>
-          <div><span class="turn-kicker">TURN · BASIC OFFICIAL AGENT NETWORK</span><h3 id="turn-basic-agent-system-title">AGM TURN BASIC AGENT PLANETARY SYSTEM</h3><p>Starea generală este în centru, iar toate cele 37 de identități din Registrul oficial de agenți sunt pe orbite. Cele 10 submodule BASIC rămân separat în panoul de capabilități de mai sus.</p></div>
-          <p class="turn-orbital-legend"><strong>AGENT LA AGENT:</strong> registry-ul furnizează numai identitatea. Probele, evenimentele și evaluatorii reali stabilesc starea; un agent event-driven fără eveniment recent este STANDBY / NO ACTIVITY, iar lipsa evaluatorului rămâne gri NO TELEMETRY. Centrul raportează PARTIAL TELEMETRY când există date reale, dar acoperirea nu este completă.</p>
+          <div><span class="turn-kicker">TURN · GOVERNANCE IDENTITY CATALOG</span><h3 id="turn-basic-agent-system-title">AGM GOVERNANCE IDENTITY MAP</h3><p>Cele 37 de identități istorice de guvernanță sunt afișate separat și nu sunt numărate drept procese runtime. Adevărul operațional al celor 27 de identități non-umane executabile este în panoul Agent Runtime & Inspector Failover.</p></div>
+          <p class="turn-orbital-legend"><strong>SEPARARE OBLIGATORIE:</strong> acest catalog furnizează identitate și istoric, nu ACTIVE. Nicio stare de aici nu îmbunătățește agregatul runtime și niciun STANDBY nu este acceptat drept închidere operațională.</p>
         </header>
         <nav class="turn-orbital-criteria" data-basic-agent-planetary-criteria aria-label="Factorul de stare al sistemului planetar BASIC">
           <button type="button" data-basic-agent-planetary-criterion="operational" aria-selected="true">Stare operațională</button>

@@ -5,10 +5,11 @@ import { AuthorityControlPlaneService } from './authority-control-plane.service'
 import { TurnAdminModule } from '../turn-admin/turn-admin.module';
 import { SecretTelemetryModule } from '../secret-telemetry/secret-telemetry.module';
 
+import { OperationalAgentDutyRunner } from './operational-agent-duty.runner';
 @Module({
   imports: [DiscoveryModule, TurnAdminModule, SecretTelemetryModule],
   controllers: [AuthorityControlPlaneController],
-  providers: [AuthorityControlPlaneService],
+  providers: [AuthorityControlPlaneService, OperationalAgentDutyRunner],
   exports: [AuthorityControlPlaneService],
 })
 export class AuthorityControlPlaneModule {}

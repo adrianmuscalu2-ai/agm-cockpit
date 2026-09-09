@@ -1,4 +1,4 @@
-const CACHE_NAME = 'agm-cockpit-1.4.0-mobile-data-production-v2-20260906';
+const CACHE_NAME = 'agm-cockpit-1.4.0-final-remediation-v3-20260909';
 const APP_SHELL = ['/', '/manifest.webmanifest', '/icons/agm-app-icon-192.png'];
 
 function isCacheableResponse(request, response) {

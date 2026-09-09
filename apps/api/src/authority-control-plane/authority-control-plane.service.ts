@@ -14,6 +14,7 @@ import { SecretTelemetryService } from '../secret-telemetry/secret-telemetry.ser
 import { optionalExternalProviders } from '../car-mover/car-mover-routing.policy';
 import { OPERATIONAL_INCIDENT_CONTRACT, operationalIncidentTransition, qualifyOperationalIncident, type OperationalIncidentQualification } from './operational-incident-evaluator';
 import { AGENT_ACCOUNTABILITY_CONTRACT, INSPECTOR_FAILOVER_CONTRACT, evaluateAgentAccountability, evaluateAgentRuntimeVerdict, evaluateInspectorFailover, falseActiveCount, type AccountabilitySignal } from './agent-runtime-accountability.engine';
+import { OperationalAgentDutyRunner } from './operational-agent-duty.runner';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
 const AUTHORITY_ADMIN_ROLES = new Set(['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN']);
@@ -70,7 +71,12 @@ export const RUNTIME_NATIVE_TELEMETRY_IDS = [
 export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnApplicationShutdown {
   private runtimeProbeTimer: ReturnType<typeof setInterval> | undefined;
 
-  constructor(private readonly prisma: PrismaService, private readonly secretTelemetry: SecretTelemetryService, private readonly discovery: DiscoveryService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly secretTelemetry: SecretTelemetryService,
+    private readonly discovery: DiscoveryService,
+    private readonly operationalDuties: OperationalAgentDutyRunner,
+  ) {}
 
   async onApplicationBootstrap() {
     await this.recordRuntimeCapabilityProbesForActiveCompanies();
@@ -137,7 +143,9 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       const domainRun = domainActivity.get(item.canonicalId);
       const domainValidationCandidate = domainValidationById.get(item.canonicalId);
       const secretRun = item.canonicalId === 'agm.guardian.secrets' ? secretSnapshot : null;
-      const runtimeEventActive = Boolean(lastRun && ['STARTED', 'WORKING'].includes(lastRun.lifecycle));
+      const runtimeEventExecuting = Boolean(lastRun && ['STARTED', 'WORKING'].includes(lastRun.lifecycle));
+      const runtimeDutyCompleted = Boolean(lastRun && lastRun.lifecycle === 'COMPLETED' && lastRun.mandateId && lastRun.evidenceRef && lastRun.outputRef && lastRun.evidenceHash);
+      const runtimeActivityProven = runtimeEventExecuting || runtimeDutyCompleted;
       const domainValidation = domainValidationCandidate && now.getTime() - domainValidationCandidate.occurredAt.getTime() <= (profile.freshnessWindowMs ?? ACCOUNTABILITY_FRESHNESS_MS) ? domainValidationCandidate : undefined;
       const canonicalState = resolveCanonicalNodeState({
         registryLifecycleStatus: item.lifecycleStatus,
@@ -148,14 +156,14 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         ...(profile.expectedSource === 'RUNTIME_EVENT' && lastRun ? { runtimeEvent: { status: lastRun.lifecycle, observedAt: lastRun.occurredAt } } : {}),
         ...(profile.expectedSource === 'DOMAIN_EVENT_STORE' && (domainValidation || domainRun) ? { domainEvent: { status: domainValidation?.outcome ?? domainRun!.status, observedAt: domainValidation?.occurredAt ?? domainRun!.observedAt } } : {}),
       });
-      const activityObservedAt = runtimeEventActive ? lastRun!.occurredAt : domainValidation?.occurredAt ?? canonicalState.observedAt;
+      const activityObservedAt = runtimeActivityProven ? lastRun!.occurredAt : domainValidation?.occurredAt ?? canonicalState.observedAt;
       const activityStale = Boolean(activityObservedAt && profile.freshnessWindowMs && now.getTime() - activityObservedAt.getTime() > profile.freshnessWindowMs);
       const runtimeObservedAt = secretRun ? new Date(secretRun.checkedAt) : heartbeat?.lastSeenAt ?? null;
       const runtimeStaleAfterMs = profile.expectedSource === 'COMPONENT_HEARTBEAT' ? profile.freshnessWindowMs : COMPONENT_RUNTIME_PROBE_STALE_AFTER_MS;
       const runtimeStale = Boolean(runtimeObservedAt && runtimeStaleAfterMs && now.getTime() - runtimeObservedAt.getTime() > runtimeStaleAfterMs);
       const runtimeCapabilityMissing = Boolean(heartbeat?.lastFailureReason?.startsWith('RUNTIME_PROVIDER_NOT_LOADED') || heartbeat?.lastFailureReason?.startsWith('RUNTIME_METHOD_NOT_LOADED'));
       const runtimePresence = profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' || runtimeCapabilityMissing ? 'ABSENT' : runtimeObservedAt ? 'OBSERVED' : 'NOT_OBSERVED';
-      const activityStatus = profile.runtimeMode === 'HUMAN' ? 'STANDBY' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'FAIL' : runtimeEventActive ? 'PASS' : canonicalState.status;
+      const activityStatus = profile.runtimeMode === 'HUMAN' ? 'STANDBY' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'FAIL' : runtimeActivityProven ? 'PASS' : canonicalState.status;
       const probeDegraded = heartbeat?.reportedStatus === 'DEGRADED' || (secretRun ? secretRun.overallStatus !== 'CONFIGURED' : false);
       const sourceStatus = runtimePresence === 'ABSENT' || runtimeStale ? 'FAIL' : runtimePresence === 'NOT_OBSERVED' ? 'NO_TELEMETRY' : probeDegraded ? 'DEGRADED' : activityStatus === 'FAIL' ? 'FAIL' : activityStatus === 'DEGRADED' ? 'DEGRADED' : activityStale ? 'DEGRADED' : activityStatus;
       const effectiveStatus = persisted ? sourceStatus : 'FAIL';
@@ -186,10 +194,10 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       const statusUsesRuntimeEvidence = profile.runtimeMode !== 'HUMAN' && (effectiveStatus === 'STANDBY' || effectiveStatus === 'NO_TELEMETRY' || runtimePresence === 'ABSENT' || runtimeStale || probeDegraded);
       const runtimeStatusSource = secretRun ? 'SECRET_TELEMETRY' : profile.expectedSource === 'COMPONENT_HEARTBEAT' ? 'COMPONENT_HEARTBEAT' : 'RUNTIME_CAPABILITY_PROBE';
       const runtimeRecordReference = secretRun?.contract ?? (heartbeat ? `ComponentHeartbeat:${heartbeat.id}` : null);
-      const activityEvidenceSource = runtimeEventActive ? 'RUNTIME_EVENT' : domainValidation ? 'DOMAIN_VALIDATION_EVENT_STORE' : profile.expectedSource;
-      const activityRecordReference = runtimeEventActive ? `AgentRuntimeEvent:${lastRun!.eventId}` : domainValidation ? `AuthorityAuditJournal:${domainValidation.eventId}` : evidenceReference(item.canonicalId, liveRun?.id, opportunityRun?.id, profile.expectedSource === 'COMPONENT_HEARTBEAT' ? heartbeat?.id : null, lastRun?.eventId, domainRun?.recordId);
-      const workloadState = runtimeEventActive ? 'ACTIVE' : domainValidation ? 'VALIDATED' : (opportunityRun?.backlog ?? 0) > 0 ? 'BACKLOG' : domainRun ? 'LAST_DOMAIN_STATE' : 'IDLE';
-      const currentOperation = runtimeEventActive ? lastRun!.detail : domainValidation ? domainValidation.safeMetadata : (opportunityRun?.backlog ?? 0) > 0 ? `${opportunityRun!.backlog} queued items` : domainRun?.detail ?? 'IDLE';
+      const activityEvidenceSource = runtimeActivityProven ? 'RUNTIME_EVENT' : domainValidation ? 'DOMAIN_VALIDATION_EVENT_STORE' : profile.expectedSource;
+      const activityRecordReference = runtimeActivityProven ? `AgentRuntimeEvent:${lastRun!.eventId}` : domainValidation ? `AuthorityAuditJournal:${domainValidation.eventId}` : evidenceReference(item.canonicalId, liveRun?.id, opportunityRun?.id, profile.expectedSource === 'COMPONENT_HEARTBEAT' ? heartbeat?.id : null, lastRun?.eventId, domainRun?.recordId);
+      const workloadState = runtimeEventExecuting ? 'ACTIVE' : runtimeDutyCompleted ? 'VALIDATED' : domainValidation ? 'VALIDATED' : (opportunityRun?.backlog ?? 0) > 0 ? 'BACKLOG' : domainRun ? 'LAST_DOMAIN_STATE' : 'IDLE';
+      const currentOperation = runtimeActivityProven ? lastRun!.detail : domainValidation ? domainValidation.safeMetadata : (opportunityRun?.backlog ?? 0) > 0 ? `${opportunityRun!.backlog} queued items` : domainRun?.detail ?? 'IDLE';
       return {
         canonicalId: item.canonicalId, kind: item.kind, module: item.module, ownerId: item.ownerId,
         supervisorId: item.supervisorId, scope: item.scope,
@@ -201,7 +209,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         currentOperation,
         workloadState,
         status: effectiveStatus,
-        statusLabel: profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'CAPABILITY NOT IMPLEMENTED' : profile.runtimeMode === 'HUMAN' ? 'HUMAN AUTHORITY' : runtimePresence === 'ABSENT' ? 'RUNTIME CAPABILITY ABSENT' : runtimeStale ? 'RUNTIME STALE' : probeDegraded ? 'RUNTIME DEPENDENCY DEGRADED' : runtimeEventActive ? 'RUNTIME ACTIVE' : effectiveStatus === 'STANDBY' ? 'RUNTIME READY / IDLE' : canonicalState.label,
+        statusLabel: profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'CAPABILITY NOT IMPLEMENTED' : profile.runtimeMode === 'HUMAN' ? 'HUMAN AUTHORITY' : runtimePresence === 'ABSENT' ? 'RUNTIME CAPABILITY ABSENT' : runtimeStale ? 'RUNTIME STALE' : probeDegraded ? 'RUNTIME DEPENDENCY DEGRADED' : runtimeEventExecuting ? 'RUNTIME ACTIVE' : runtimeDutyCompleted ? 'DUTY EXECUTED / VALIDATED' : effectiveStatus === 'STANDBY' ? 'RUNTIME READY / IDLE' : canonicalState.label,
         statusSource: profile.runtimeMode === 'HUMAN' ? 'HUMAN_AUTHORITY' : statusUsesRuntimeEvidence ? runtimeStatusSource : activityEvidenceSource,
         statusObservedAt: statusUsesRuntimeEvidence ? runtimeObservedAt : activityObservedAt,
         health: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : effectiveStatus === 'PASS' || effectiveStatus === 'STANDBY' ? 'HEALTHY' : effectiveStatus === 'FAIL' ? 'FAILED' : effectiveStatus === 'DEGRADED' ? 'DEGRADED' : 'UNKNOWN',
@@ -434,9 +442,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     const unexplainedDegraded = agents.filter((agent) => agent.status === 'DEGRADED' && !agent.reason).length;
     const controlSystemComplete = agents.length > 0
       && agents.every((agent) => agent.identity && agent.responsibility && agent.trigger && agent.executionCondition && agent.statusSource && agent.validator
-        && (agent.declaredOperational
-          ? Boolean(agent.validationEvidenceRef)
-          : agent.operationalDeclaration === 'INACTIVE_NO_CURRENT_MANDATE' && agent.status === 'MANDATE NOT ASSIGNED'))
+        && agent.declaredOperational && Boolean(agent.validationEvidenceRef))
       && falseActive === 0 && unexplainedDegraded === 0;
     const openIncidents = dashboard.incidentPipeline.open + (controlIncident ? 1 : 0);
     const fleetNodes = dashboard.nodes.filter((node) => node.kind !== 'HUMAN_AUTHORITY');
@@ -458,7 +464,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       mandateNotDemonstrated: operationalAgents.filter((agent) => agent.mandate !== 'PROVEN').length,
       inactive: agents.length - operationalAgents.length,
     };
-    const overallOperationalState = operationalFleet.total > 0 && operationalFleet.active === operationalFleet.total ? 'PASS' as const : 'FAIL' as const;
+    const overallOperationalState = operationalFleet.total === agents.length && operationalFleet.total > 0 && operationalFleet.active === operationalFleet.total ? 'PASS' as const : 'FAIL' as const;
     const verdict = evaluateAgentRuntimeVerdict({
       controlSystemComplete,
       agents,
@@ -524,6 +530,16 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       update: { status: 'APPROVED', revokedAt: null, expiresAt, readSet: json(inspectionReadSet), writeSet: json([]), resourceSelectors: json([]), prohibitedActions: json(prohibitedActions), contractHash: hash({ contract: INSPECTION_MANDATE_VERSION, agentId, inspectionReadSet, prohibitedActions }), version: { increment: 1 } },
     }))));
     const primaryMandate = mandates.find((item) => item.agentId === PRIMARY_INSPECTOR_ID)!;
+    const operationalMandates = await this.prisma.$transaction(async (tx) => Promise.all(premiumNetworkSeed
+      .filter((seed) => seed.kind !== 'HUMAN_AUTHORITY' && ![PRIMARY_INSPECTOR_ID, SECONDARY_INSPECTOR_ID].includes(seed.canonicalId))
+      .map((seed) => tx.authorityMandate.upsert({
+        where: { companyId_mandateKey: { companyId, mandateKey: `operational-duty:${seed.canonicalId}` } },
+        create: { companyId, mandateKey: `operational-duty:${seed.canonicalId}`, scopeId: seed.scope, agentId: seed.canonicalId, mode: 'OPERATIONAL_DUTY', contractHash: hash({ contract: 'agent-operational-duty.v1', agentId: seed.canonicalId, readSet: seed.readPermissions }), readSet: json(seed.readPermissions), writeSet: json([]), resourceSelectors: json([]), prohibitedActions: json(Array.from(new Set(seed.prohibitedActions.concat(prohibitedActions)))), approvedByUserId: ctx.userId, issuedAt, expiresAt },
+        update: { status: 'APPROVED', revokedAt: null, expiresAt, readSet: json(seed.readPermissions), writeSet: json([]), resourceSelectors: json([]), prohibitedActions: json(Array.from(new Set(seed.prohibitedActions.concat(prohibitedActions)))), contractHash: hash({ contract: 'agent-operational-duty.v1', agentId: seed.canonicalId, readSet: seed.readPermissions }), version: { increment: 1 } },
+      }))));
+    const allMandates = mandates.concat(operationalMandates);
+    if (allMandates.length !== premiumNetworkSeed.filter((seed) => seed.kind !== 'HUMAN_AUTHORITY').length) throw new ConflictException('NON_HUMAN_MANDATE_COVERAGE_INCOMPLETE');
+
     const secondaryMandate = mandates.find((item) => item.agentId === SECONDARY_INSPECTOR_ID)!;
     const runId = randomUUID();
     const failureEventId = randomUUID();
@@ -553,6 +569,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       await tx.authorityAuditJournal.create({ data: { companyId, eventId: randomUUID(), eventType: 'CONTROL_COVERAGE_RESTORED', scopeId: 'premium.release', mandateId: secondaryMandate.id, actorType: 'SYSTEM', actorId: 'agm.inspector-failover-controller', outcome: 'PASS', payloadHash: validationHash, safeMetadata: json({ runId, activeValidator: SECONDARY_INSPECTOR_ID, uncoveredZones: 0 }), correlationId: ctx.correlationId, occurredAt: new Date(validationAt.getTime() + 3) } });
     });
     const domainDutyResults = await this.executeDomainReadDuties(ctx, secondaryMandate.id, runId);
+    const fleetDutyResults = await this.operationalDuties.execute(ctx, allMandates, runId);
     const inspection = await this.inspectOperationalCapabilities(ctx);
     const inspectorValidations = [];
     for (const target of [
@@ -568,6 +585,17 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       inspectorValidations.push({ agentId: target.agentId, validatorId: target.validatorId, executionEventId: execution.runtimeEventId, validationEventId: receipt.eventId, outputRef });
     }
     await this.dashboard(ctx);
+    const fleetValidations = [];
+    for (const execution of fleetDutyResults) {
+      if (!execution.passed) continue;
+      const seed = premiumNetworkSeed.find((item) => item.canonicalId === execution.agentId)!;
+      const validatedAt = new Date(Math.max(Date.now(), new Date(execution.executedAt).getTime() + 1));
+      const safeMetadata = { contractVersion: AGENT_ACCOUNTABILITY_CONTRACT, agentId: execution.agentId, validatorId: SECONDARY_INSPECTOR_ID, validatorMandateId: secondaryMandate.id, targetMandateId: execution.mandateId, executionEventId: execution.executionEventId, executionEvidenceRef: execution.evidenceRef, executionOutputRef: execution.outputRef, executionEvidenceHash: execution.outputRef.replace('sha256:', ''), validatedAt: validatedAt.toISOString(), result: 'PASS', runId };
+      const outputRef = `sha256:${hash(safeMetadata)}`;
+      const receipt = await this.prisma.authorityAuditJournal.create({ data: { companyId, eventId: randomUUID(), eventType: 'AGENT_ACCOUNTABILITY_VALIDATED', scopeId: seed.scope, mandateId: secondaryMandate.id, actorType: 'AGENT', actorId: SECONDARY_INSPECTOR_ID, outcome: 'PASS', payloadHash: hash(safeMetadata), safeMetadata: json(Object.assign({}, safeMetadata, { outputRef })), correlationId: ctx.correlationId, occurredAt: validatedAt } });
+      fleetValidations.push({ agentId: execution.agentId, validatorId: SECONDARY_INSPECTOR_ID, executionEventId: execution.executionEventId, validationEventId: receipt.eventId, outputRef });
+    }
+    if (fleetValidations.length !== fleetDutyResults.length) throw new ConflictException('NON_HUMAN_DUTY_VALIDATION_INCOMPLETE');
     return { ...(await this.agentAccountability(ctx)), recovery: { runId, domainDutyResults, inspectorEvaluations: inspection.evaluations, inspectorValidations } };
   }
 

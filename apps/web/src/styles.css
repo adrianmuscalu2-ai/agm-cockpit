@@ -3,6 +3,7 @@
 @import './styles/20-domain-tools.css';
 @import './styles/30-operations.css';
 @import './styles/40-turn-responsive.css';
+@import './styles/45-turn-final-remediation.css';
 @import './styles/50-roadmap-responsive.css';
 
 :where(.premium-assistant-view, .premium-copilot-view) {

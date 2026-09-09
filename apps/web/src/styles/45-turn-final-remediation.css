@@ -1,0 +1,194 @@
+/* Product Owner final remediation: TURN uses the viewport without zoom-based calibration. */
+
+.view-turn.shell {
+  padding: clamp(6px, 1vw, 14px);
+}
+
+.view-turn .workspace {
+  width: min(1840px, 100%);
+  max-width: none;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.view-turn .turn-command-center {
+  width: 100%;
+  min-width: 0;
+}
+
+.turn-command-header,
+.turn-page-navigation,
+.turn-spatial-page,
+.turn-incident-page,
+.turn-investigation-page {
+  width: 100%;
+  max-width: 1840px;
+}
+
+.turn-command-header {
+  align-items: center;
+  padding: clamp(12px, 1.4vw, 22px);
+}
+
+.turn-command-identity {
+  display: flex;
+  min-width: 0;
+  gap: clamp(10px, 1.2vw, 18px);
+  align-items: center;
+}
+
+.turn-command-logo {
+  flex: 0 0 auto;
+  width: clamp(58px, 5.4vw, 92px);
+  height: auto;
+  border-radius: 22%;
+  box-shadow: 0 0 24px rgba(41, 177, 255, 0.28);
+}
+
+.turn-command-identity > div {
+  min-width: 0;
+}
+
+.turn-approved-orbital-panel > header {
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  padding: clamp(14px, 1.4vw, 22px);
+}
+
+.turn-approved-orbital-panel h3 {
+  font-size: clamp(1.15rem, 2vw, 2rem);
+}
+
+.turn-approved-orbital-stage,
+.turn-approved-orbital-panel.basic-agent-system .turn-approved-orbital-stage {
+  min-height: 0;
+  height: clamp(420px, 55vh, 650px);
+}
+
+.turn-spatial-stage,
+.turn-premium-stage {
+  min-height: 0;
+  height: clamp(420px, 57vh, 680px);
+}
+
+@media (max-width: 1280px) {
+  .view-turn.shell { padding: 6px; }
+  .turn-command-header { align-items: flex-start; }
+  .turn-approved-orbital-panel > header { grid-template-columns: 1fr; }
+  .turn-approved-orbital-stage,
+  .turn-approved-orbital-panel.basic-agent-system .turn-approved-orbital-stage {
+    height: clamp(400px, 52vh, 560px);
+  }
+}
+
+@media (max-width: 900px) {
+  .turn-command-identity { align-items: flex-start; }
+  .turn-command-logo { width: 64px; }
+  .turn-approved-orbital-stage,
+  .turn-approved-orbital-panel.basic-agent-system .turn-approved-orbital-stage,
+  .turn-spatial-stage,
+  .turn-premium-stage {
+    height: auto;
+  }
+  .turn-approved-orbital-stage {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 12px;
+  }
+  .turn-approved-orbital-rings,
+  .turn-approved-orbital-stage > .turn-approved-orbital-core {
+    display: none;
+  }
+  .turn-approved-orbital-node,
+  .turn-approved-orbital-panel.basic-agent-system .turn-approved-orbital-node.registry-agent,
+  .turn-approved-orbital-node.premium,
+  .turn-approved-orbital-node.is-core {
+    position: relative;
+    inset: auto;
+    width: auto;
+    min-height: 72px;
+    padding: 9px 6px;
+    transform: none;
+    border: 1px solid color-mix(in srgb, var(--orbital-color) 48%, transparent);
+    border-radius: 10px;
+    background: rgba(4, 18, 30, 0.86);
+  }
+  .turn-approved-orbital-node small,
+  .turn-approved-orbital-panel.basic-agent-system .turn-approved-orbital-node.registry-agent small,
+  .turn-approved-orbital-node.premium small,
+  .turn-approved-orbital-node.is-core small {
+    display: block;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 700px) {
+  .turn-command-header { padding: 12px 10px; }
+  .turn-command-identity { gap: 10px; }
+  .turn-command-logo { width: 52px; }
+  .turn-command-header-actions { width: 100%; }
+  .turn-command-header-actions > strong,
+  .turn-command-header-actions > a { width: 100%; white-space: normal; text-align: center; }
+  .turn-page-navigation { padding-inline: 8px; }
+  .turn-spatial-page,
+  .turn-incident-page { padding: 12px 8px; }
+  .turn-approved-orbital-panel { margin-block: 12px; border-radius: 13px; }
+  .turn-approved-orbital-stage { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .turn-orbital-criterion-maps { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 420px) {
+  .turn-approved-orbital-stage { grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px; }
+  .turn-approved-orbital-node,
+  .turn-approved-orbital-panel.basic-agent-system .turn-approved-orbital-node.registry-agent {
+    min-height: 66px;
+  }
+}
+
+/* Intrinsic-size containment prevents wide TURN descendants from freezing a previous viewport width. */
+.view-turn.shell {
+  inline-size: 100%;
+  max-inline-size: 100vw;
+  min-inline-size: 0;
+}
+
+.view-turn .workspace {
+  inline-size: min(1840px, calc(100vw - 2 * clamp(6px, 1vw, 14px)));
+  max-inline-size: calc(100vw - 2 * clamp(6px, 1vw, 14px));
+  min-inline-size: 0;
+  grid-template-columns: minmax(0, 1fr);
+  contain: inline-size;
+}
+
+.view-turn .workspace > *,
+.view-turn .turn-command-center > *,
+.view-turn [data-turn-page] > * {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+.view-turn .turn-command-center {
+  inline-size: 100%;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+
+@media (max-width: 1280px) {
+  .view-turn.shell {
+    inline-size: 100vw;
+    padding: 6px;
+  }
+  .view-turn .workspace {
+    inline-size: calc(100vw - 12px);
+    max-inline-size: calc(100vw - 12px);
+  }
+  .turn-approved-orbital-panel.basic-agent-system .turn-approved-orbital-stage {
+    height: min(68vh, 680px);
+    max-height: min(68vh, 680px);
+    align-content: start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}

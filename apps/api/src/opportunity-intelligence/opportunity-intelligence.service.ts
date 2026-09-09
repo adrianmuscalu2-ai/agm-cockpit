@@ -10,6 +10,15 @@ import type { AnalyzeOpportunityDto, AuthorityProofDto, DecideOpportunityDto, In
 import { aggregateChain, assessCost, assessRoute, hash, judgeChain, normalizeOpportunity, OPPORTUNITY_CONTRACT_VERSION, opportunityCopilotProjection, type NormalizedOpportunityValue } from './opportunity-intelligence.engine';
 
 const json = (value: unknown) => value as Prisma.InputJsonValue;
+const OPERATIONAL_DUTY_AGENTS = new Set([
+  'premium.car-mover.intake-dedup',
+  'premium.car-mover.opportunity-normalizer',
+  'premium.car-mover.route-mobility',
+  'premium.car-mover.cost-risk',
+  'premium.car-mover.opportunity-planner',
+  'premium.car-mover.opportunity-judge',
+  'premium.copilot-gateway',
+]);
 const REQUIRED_ROLE = 'PREMIUM_ACCESS';
 
 @Injectable()
@@ -240,6 +249,37 @@ export class OpportunityIntelligenceService {
     return { decision, jobLinks: links, automaticAcceptance: false, createdOnlyAfterHumanDecision: true };
   }
 
+  async executeOperationalDuty(agentId: string, ctx: RequestContext) {
+    this.authorize(ctx);
+    if (!OPERATIONAL_DUTY_AGENTS.has(agentId)) throw new BadRequestException('OPPORTUNITY_OPERATIONAL_DUTY_AGENT_UNSUPPORTED');
+    const started = Date.now();
+    let operation = 'Poll normalized opportunity workload';
+    let output: unknown;
+    if (agentId === 'premium.car-mover.intake-dedup') {
+      operation = 'Import and deduplicate the current governed offer queue';
+      output = await this.importExistingOffers(ctx);
+    } else if (agentId === 'premium.car-mover.opportunity-normalizer') {
+      operation = 'Validate the current normalized opportunity projection';
+      output = await this.list(ctx);
+    } else if (agentId === 'premium.copilot-gateway') {
+      operation = 'Project current opportunity decisions through Copilot gateway';
+      output = await this.copilot(ctx);
+    } else {
+      operation = 'Evaluate current route, cost, chain and verdict workload';
+      output = await this.planning(ctx);
+    }
+    const outputReference = `urn:agm:opportunity-duty:${agentId}:${hash(output)}`;
+    const telemetry = await this.telemetry(ctx.companyId, agentId, 'agm-operational-duty-runner', Date.now() - started, outputReference, 100);
+    return {
+      agentId,
+      operation,
+      output,
+      outputReference,
+      telemetryId: telemetry.id,
+      executedAt: telemetry.lastRunAt,
+      workloadItems: Array.isArray(output) ? output.length : 1,
+    };
+  }
   async telemetrySnapshot(ctx: RequestContext) { this.authorize(ctx); return this.prisma.opportunityAgentTelemetry.findMany({ where: { companyId: ctx.companyId }, orderBy: { agentId: 'asc' } }); }
 
   private authorize(ctx: RequestContext) { if (!ctx.roles.includes(REQUIRED_ROLE)) throw new ForbiddenException('Car Mover entitlement required.'); }

@@ -25,7 +25,7 @@ describe('TURN runtime capability probe', () => {
       componentHeartbeat: { upsert },
     };
     const discovery = { getProviders: () => instances.map((instance) => ({ instance })) };
-    const service = new AuthorityControlPlaneService(prisma as never, {} as never, discovery as never);
+    const service = new AuthorityControlPlaneService(prisma as never, {} as never, discovery as never, {} as never);
 
     await service.onApplicationBootstrap();
     service.onApplicationShutdown();
@@ -50,7 +50,7 @@ describe('TURN runtime capability probe', () => {
     const upsert = jest.fn().mockResolvedValue({});
     const prisma = { $queryRaw: jest.fn().mockResolvedValue([{ result: 1 }]), componentHeartbeat: { upsert } };
     const discovery = { getProviders: () => instances.map((instance) => ({ instance })) };
-    const service = new AuthorityControlPlaneService(prisma as never, {} as never, discovery as never);
+    const service = new AuthorityControlPlaneService(prisma as never, {} as never, discovery as never, {} as never);
 
     await (service as unknown as { recordRuntimeCapabilityProbes(companyId: string): Promise<void> }).recordRuntimeCapabilityProbes('00000000-0000-0000-0000-000000000001');
 
@@ -68,7 +68,7 @@ describe('TURN runtime capability probe', () => {
     const upsert = jest.fn().mockResolvedValue({});
     const prisma = { $queryRaw: jest.fn().mockResolvedValue([{ result: 1 }]), componentHeartbeat: { upsert } };
     const discovery = { getProviders: () => instances.map((instance) => ({ instance })) };
-    const service = new AuthorityControlPlaneService(prisma as never, {} as never, discovery as never);
+    const service = new AuthorityControlPlaneService(prisma as never, {} as never, discovery as never, {} as never);
 
     await (service as unknown as { recordRuntimeCapabilityProbes(companyId: string): Promise<void> }).recordRuntimeCapabilityProbes('00000000-0000-0000-0000-000000000001');
 

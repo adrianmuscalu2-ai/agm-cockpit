@@ -1,4 +1,4 @@
-export const AGENT_ACCOUNTABILITY_CONTRACT = 'agent-runtime-accountability.v1';
+export const AGENT_ACCOUNTABILITY_CONTRACT = 'agent-runtime-accountability.v2';
 export const INSPECTOR_FAILOVER_CONTRACT = 'inspector-failover.v1';
 
 export type AgentAccountabilityStatus =
@@ -124,7 +124,9 @@ export function evaluateAgentRuntimeVerdict(input: {
   const mandateNotDemonstrated = operationalAgents.filter((agent) => agent.mandate !== 'PROVEN').length;
   const noTelemetry = operationalAgents.filter((agent) => ['UNKNOWN / NO TELEMETRY', 'STALE', 'NOT EXECUTABLE'].includes(agent.status)).length;
   const failed = operationalAgents.filter((agent) => ['FAIL', 'CONTROL COVERAGE LOST'].includes(agent.status)).length;
-  const fleetAccountable = operationalAgents.length > 0 && operationalAgents.every((agent) => agent.status === 'ACTIVE'
+  const expiredRuntimeEvidence = input.agents.filter((agent) => agent.status === 'STALE').length;
+  const unexplainedStandby = input.agents.filter((agent) => !agent.declaredOperational).length;
+  const fleetAccountable = operationalAgents.length === input.agents.length && operationalAgents.length > 0 && operationalAgents.every((agent) => agent.status === 'ACTIVE'
     && agent.executable === 'YES'
     && agent.mandate === 'PROVEN'
     && agent.validation === 'PROVEN'
@@ -138,7 +140,7 @@ export function evaluateAgentRuntimeVerdict(input: {
     && input.primaryRecovered
     && input.openIncidents === 0
     ? 'PASS' as const : 'FAIL' as const;
-  return { controlSystem, agentAccountability, overallOperationalState: input.overallOperationalState, inspectorFailover: input.inspectorFailover, controlCoverage: input.controlCoverage, falseActive: input.falseActive, unexplainedDegraded: input.unexplainedDegraded, noTelemetry, failed, mandateNotDemonstrated, primaryRecovered: input.primaryRecovered, openIncidents: input.openIncidents, finalAgentRuntimePass };
+  return { controlSystem, agentAccountability, overallOperationalState: input.overallOperationalState, inspectorFailover: input.inspectorFailover, controlCoverage: input.controlCoverage, falseActive: input.falseActive, unexplainedDegraded: input.unexplainedDegraded, unexplainedStandby, expiredRuntimeEvidence, noTelemetry, failed, mandateNotDemonstrated, primaryRecovered: input.primaryRecovered, openIncidents: input.openIncidents, finalAgentRuntimePass };
 }
 
 function result(executable: 'YES' | 'NO', mandate: 'PROVEN' | 'NOT PROVEN', validation: 'PROVEN' | 'NOT PROVEN', freshness: 'CURRENT' | 'STALE' | 'NO TELEMETRY', status: AgentAccountabilityStatus, reason: string): AgentAccountabilityEvaluation {

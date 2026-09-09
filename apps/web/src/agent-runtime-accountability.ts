@@ -53,6 +53,8 @@ export type AgentRuntimeAccountabilitySnapshot = {
     controlSystem: 'PASS' | 'FAIL';
     overallOperationalState: 'PASS' | 'FAIL';
     agentAccountability: 'PASS' | 'FAIL';
+    unexplainedStandby: number;
+    expiredRuntimeEvidence: number;
     inspectorFailover: 'PASS' | 'FAIL';
     controlCoverage: 'COMPLETE' | 'INCOMPLETE';
     falseActive: number;
@@ -87,6 +89,8 @@ export function renderAgentRuntimeSnapshot(snapshot: AgentRuntimeAccountabilityS
     ['FALSE ACTIVE', String(v.falseActive)],
     ['UNEXPLAINED DEGRADED', String(v.unexplainedDegraded)],
     ['NO TELEMETRY - ACTIVE MANDATES', String(v.noTelemetry)],
+    ['UNEXPLAINED STANDBY', String(v.unexplainedStandby)],
+    ['EXPIRED RUNTIME EVIDENCE', String(v.expiredRuntimeEvidence)],
     ['FAILED - ACTIVE MANDATES', String(v.failed)],
     ['MANDATE NOT DEMONSTRATED - OPERATIONAL', String(v.mandateNotDemonstrated)],
     ['FINAL AGENT RUNTIME PASS', v.finalAgentRuntimePass],

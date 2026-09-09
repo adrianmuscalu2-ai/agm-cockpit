@@ -478,7 +478,7 @@ function applyBasicAgentCriterion(panel: HTMLElement, nodes: BasicAgentNetworkNo
   setBasicAgentPlanetaryText(panel, '[data-basic-agent-core-criterion]', basicAgentCriterionLabels[criterion]);
   setBasicAgentPlanetaryText(panel, '[data-basic-agent-core-status]', aggregate);
   setBasicAgentPlanetaryText(panel, '[data-basic-agent-core-counts]', `${counts.PASS} PASS · ${counts.DEGRADED} DEG · ${counts.FAIL} FAIL · ${counts.NO_TELEMETRY} NO DATA · ${counts.STANDBY} STANDBY`);
-  setBasicAgentPlanetaryText(panel, '[data-basic-agent-planetary-message]', `${basicAgentCriterionLabels[criterion]} · ${nodes.length}/37 agenți oficiali vizibili · ${nodes.filter((node) => ['REAL_PROBE', 'REAL_EVENT', 'REAL_DASHBOARD'].includes(node.runtimeEvidence)).length} cu observație reală · ${nodes.filter((node) => node.runtimeEvidence === 'EVENT_STORE_NO_ACTIVITY').length} event-driven fără activitate · ${nodes.filter((node) => node.runtimeEvidence === 'NONE').length} fără evaluator · ${basicAgentNetworkContract}`);
+  setBasicAgentPlanetaryText(panel, '[data-basic-agent-planetary-message]', `${basicAgentCriterionLabels[criterion]} · ${nodes.length}/37 identități istorice vizibile, excluse din agregatul runtime · ${nodes.filter((node) => ['REAL_PROBE', 'REAL_EVENT', 'REAL_DASHBOARD'].includes(node.runtimeEvidence)).length} cu observație reală · ${nodes.filter((node) => node.runtimeEvidence === 'EVENT_STORE_NO_ACTIVITY').length} event-driven fără activitate · ${nodes.filter((node) => node.runtimeEvidence === 'NONE').length} fără evaluator · ${basicAgentNetworkContract}`);
 }
 
 function basicAgentPlanetaryPositions(count: number) {

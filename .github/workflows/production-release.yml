@@ -50,6 +50,8 @@ jobs:
       - run: pnpm rescue:browser-preflight
       - run: node scripts/validate-agent-accountability-browser.mjs
       - run: pnpm rescue:browser-preflight
+      - run: node scripts/validate-turn-responsive-brand-browser.mjs
+      - run: pnpm rescue:browser-preflight
       - run: pnpm audit:wave1-browser
 
   publish:
@@ -413,21 +415,27 @@ jobs:
           jq -c '{contract:.data.contractVersion,agents:[.data.agents[]|{identity,declaredOperational,operationalDeclaration,executable,mandate,lastResult,validation,freshness,status,reason}],operationalFleet:.data.operationalFleet,inspector:.data.inspector,incidents:.data.incidents,domainDutyResults:.data.recovery.domainDutyResults,inspectorEvaluations:.data.recovery.inspectorEvaluations,inspectorValidations:.data.recovery.inspectorValidations,verdict:.data.verdict}' <<<"$accountability"
           jq -e '
             .data
-            | .contractVersion == "agent-runtime-accountability.v1"
+            | .contractVersion == "agent-runtime-accountability.v2"
               and (.agents | length > 0)
               and ([.agents[] | has("identity") and has("declaredOperational") and has("operationalDeclaration") and has("executable") and has("mandate") and has("lastExecution") and has("validator") and has("failover") and has("status")] | all)
               and ([.agents[] | select(.kind == "HUMAN_AUTHORITY")] | length == 0)
               and ([.agents[] | select(.status == "ACTIVE" and (.executable != "YES" or .mandate != "PROVEN" or .validation != "PROVEN" or .executionEvidenceRef == null))] | length == 0)
-              and ([.agents[] | select(.declaredOperational == true)] | length == 2)
-              and ([.agents[] | select(.declaredOperational == false and (.operationalDeclaration != "INACTIVE_NO_CURRENT_MANDATE" or .status != "MANDATE NOT ASSIGNED"))] | length == 0)
+              and (.agents | length == 27)
+              and ([.agents[] | .declaredOperational == true and .operationalDeclaration == "ACTIVE_AUTHORITY_MANDATE" and .executable == "YES" and .mandate == "PROVEN" and .lastResult == "COMPLETED" and .validation == "PROVEN" and .freshness == "CURRENT" and .status == "ACTIVE" and (.executionEvidenceRef | type == "string") and (.outputRef | type == "string")] | all)
               and ([.agents[] | select(.status == "DEGRADED" and (.reason | length == 0))] | length == 0)
-              and .operationalFleet.total == 2
-              and .operationalFleet.active == 2
+              and .operationalFleet.total == 27
+              and .operationalFleet.active == 27
               and .operationalFleet.degraded == 0
               and .operationalFleet.failed == 0
               and .operationalFleet.noTelemetry == 0
               and .operationalFleet.mandateNotDemonstrated == 0
-              and .operationalFleet.inactive == 25
+              and .operationalFleet.inactive == 0
+              and .fleet.total == 27
+              and .fleet.healthy == 27
+              and .fleet.degraded == 0
+              and .fleet.failed == 0
+              and .fleet.noTelemetry == 0
+              and .fleet.standby == 0
               and .inspector.primaryInspector == "premium.release-inspector"
               and .inspector.primaryStatus == "COMPLETED"
               and .inspector.secondaryInspector == "premium.architecture-inspector"
@@ -445,6 +453,8 @@ jobs:
               and .verdict.controlCoverage == "COMPLETE"
               and .verdict.falseActive == 0
               and .verdict.unexplainedDegraded == 0
+              and .verdict.unexplainedStandby == 0
+              and .verdict.expiredRuntimeEvidence == 0
               and .verdict.noTelemetry == 0
               and .verdict.failed == 0
               and .verdict.mandateNotDemonstrated == 0
@@ -544,11 +554,20 @@ jobs:
           AGM_AGENT_ACCOUNTABILITY_URL: https://app.agmcockpit.com/turn
           AGM_AGENT_ACCOUNTABILITY_SNAPSHOT: ${{ github.workspace }}/production-agent-runtime-evidence/agent-runtime-accountability.json
         run: node scripts/validate-agent-accountability-browser.mjs
+      - name: Browser preflight for Production responsive and branding validation
+        run: pnpm rescue:browser-preflight
+      - name: Validate Production TURN responsive matrix and canonical branding
+        env:
+          AGM_TURN_RESPONSIVE_URL: https://app.agmcockpit.com/turn
+          AGM_AGENT_ACCOUNTABILITY_SNAPSHOT: ${{ github.workspace }}/production-agent-runtime-evidence/agent-runtime-accountability.json
+        run: node scripts/validate-turn-responsive-brand-browser.mjs
       - name: Persist Production TURN Browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent-runtime-production-browser-${{ github.run_id }}-${{ github.run_attempt }}
-          path: evidence/agent-accountability/browser
+          path: |
+            evidence/agent-accountability/browser
+            evidence/turn-responsive-brand/browser
           if-no-files-found: error
           retention-days: 30

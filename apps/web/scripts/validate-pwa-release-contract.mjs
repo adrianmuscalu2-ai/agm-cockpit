@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const root = new URL('../', import.meta.url);
-const pwaRelease = 'agm-cockpit-1.4.0-mobile-data-production-v2-20260906';
+const pwaRelease = 'agm-cockpit-1.4.0-final-remediation-v3-20260909';
 const read = relative => readFileSync(new URL(relative, root), 'utf8');
 
 const serviceWorker = read('public/sw.js');

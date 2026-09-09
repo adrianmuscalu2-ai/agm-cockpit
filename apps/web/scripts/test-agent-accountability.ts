@@ -36,7 +36,7 @@ assert.equal(evaluateIncidentTruth({ attemptedAt: new Date().toISOString(), chec
 assert.equal(evaluateIncidentTruth({ attemptedAt: new Date().toISOString(), checkedAt: new Date(Date.now() - 90_001).toISOString(), coverage: 'COMPLETE', activeRecords: 0 }).state, 'UNKNOWN / NOT CHECKED');
 
 const runtimeSnapshot: AgentRuntimeAccountabilitySnapshot = {
-  contractVersion: 'agent-runtime-accountability.v1',
+  contractVersion: 'agent-runtime-accountability.v2',
   generatedAt: new Date().toISOString(),
   agents: [{
     identity: 'premium.architecture-inspector', responsibility: 'Independent validation', executable: 'YES', mandate: 'PROVEN', mandateId: 'mandate-secondary',
@@ -54,7 +54,7 @@ const runtimeSnapshot: AgentRuntimeAccountabilitySnapshot = {
     lastValidation: new Date().toISOString(), transferEvidenceRef: 'AuthorityAuditJournal:transfer', status: 'PASS', controlStatus: 'PRIMARY_RECOVERED_FAILOVER_PROVEN', primaryRecovered: true, failoverPreserved: true,
   },
   incidents: { open: 0, inspectorFailureIncident: null, controlCoverageIncident: null },
-  verdict: { controlSystem: 'PASS', overallOperationalState: 'PASS', agentAccountability: 'PASS', inspectorFailover: 'PASS', controlCoverage: 'COMPLETE', falseActive: 0, unexplainedDegraded: 0, noTelemetry: 0, failed: 0, mandateNotDemonstrated: 0, primaryRecovered: true, openIncidents: 0, finalAgentRuntimePass: 'PASS' },
+  verdict: { controlSystem: 'PASS', overallOperationalState: 'PASS', agentAccountability: 'PASS', inspectorFailover: 'PASS', controlCoverage: 'COMPLETE', falseActive: 0, unexplainedDegraded: 0, unexplainedStandby: 0, expiredRuntimeEvidence: 0, noTelemetry: 0, failed: 0, mandateNotDemonstrated: 0, primaryRecovered: true, openIncidents: 0, finalAgentRuntimePass: 'PASS' },
 };
 const runtimeMarkup = renderAgentRuntimeSnapshot(runtimeSnapshot);
 for (const required of [
@@ -66,6 +66,8 @@ for (const required of [
   'FALSE ACTIVE',
   'UNEXPLAINED DEGRADED',
   'NO TELEMETRY - ACTIVE MANDATES',
+  'UNEXPLAINED STANDBY',
+  'EXPIRED RUNTIME EVIDENCE',
   'MANDATE NOT DEMONSTRATED - OPERATIONAL',
   'Mandated operational fleet',
   'FINAL AGENT RUNTIME PASS',
