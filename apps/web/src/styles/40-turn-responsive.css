@@ -965,8 +965,8 @@
   }
 
   .brand-logo {
-    width: 56px;
-    max-height: 56px;
+    width: min(100%, 360px);
+    max-height: 116px;
   }
 
   .module-strip {

@@ -109,8 +109,10 @@ try {
   await page.waitForSelector('.turn-command-header');
   const logo = await page.locator('.turn-command-logo').evaluate((image) => ({
     src: image.getAttribute('src'), complete: image.complete, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight,
+    renderedWidth: image.getBoundingClientRect().width, renderedHeight: image.getBoundingClientRect().height,
   }));
-  check('canonical-logo-restored', logo.src === '/icons/agm-app-icon-512.png' && logo.complete && logo.naturalWidth === 512 && logo.naturalHeight === 512, logo);
+  check('canonical-logo-restored', logo.src === '/images/images/logo1.png' && logo.complete && logo.naturalWidth === 1536 && logo.naturalHeight === 1024, logo);
+  check('turn-logo-readable-size', logo.renderedWidth >= 150 && logo.renderedHeight >= 90, logo);
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
@@ -131,6 +133,30 @@ try {
     const premium = document.querySelector('[data-turn-page="premium"]');
     return Boolean(basic && premium && basic !== premium && basic.hasAttribute('hidden') && !premium.hasAttribute('hidden'));
   }), { target });
+
+  const origin = new URL(target).origin;
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto(`${origin}/home`, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('.home-visual img');
+  const homeLogo = await page.locator('.home-visual img').evaluate((image) => ({
+    src: image.getAttribute('src'), complete: image.complete, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight,
+  }));
+  check('home-approved-logo-restored', homeLogo.src === '/images/images/logo1.png' && homeLogo.complete && homeLogo.naturalWidth === 1536 && homeLogo.naturalHeight === 1024, homeLogo);
+  check('home-no-horizontal-overflow', await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), { viewport: 'desktop-1920x1080' });
+  await page.screenshot({ path: path.join(output, 'home-desktop-1920x1080.png'), fullPage: true });
+
+  await page.goto(`${origin}/before-departure.html`, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('.pre-departure-brand img');
+  const preDepartureLogo = await page.locator('.pre-departure-brand img').evaluate((image) => ({
+    src: image.getAttribute('src'), complete: image.complete, naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight,
+  }));
+  check('pre-departure-approved-logo-restored', preDepartureLogo.src === '/images/images/logo1.png' && preDepartureLogo.complete && preDepartureLogo.naturalWidth === 1536 && preDepartureLogo.naturalHeight === 1024, preDepartureLogo);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`${origin}/home`, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('.home-visual img');
+  check('home-phone-no-horizontal-overflow', await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), { viewport: 'phone-pwa-390x844' });
+  await page.screenshot({ path: path.join(output, 'home-phone-pwa-390x844.png'), fullPage: true });
   check('no-page-errors', pageErrors.length === 0, pageErrors);
 } finally {
   if (browser) await browser.close();
@@ -140,7 +166,7 @@ try {
 const status = checks.every((item) => item.status === 'PASS') ? 'PASS' : 'FAIL';
 const report = {
   schemaVersion: 1, runId, status, target, browserPluginStatus: 'PASS', integratedBrowserControlStatus: 'PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE',
-  browserSessionStatus: 'PASS', targetPageStatus: 'PASS', logoAsset: '/icons/agm-app-icon-512.png', viewports, checks, pageErrors, finishedAt: new Date().toISOString(),
+  browserSessionStatus: 'PASS', targetPageStatus: 'PASS', logoAsset: '/images/images/logo1.png', viewports, checks, pageErrors, finishedAt: new Date().toISOString(),
 };
 await writeFile(path.join(output, 'report.json'), JSON.stringify(report, null, 2));
 console.log(JSON.stringify({ report: path.join(output, 'report.json'), status, checks: checks.length, viewports: viewports.length }, null, 2));

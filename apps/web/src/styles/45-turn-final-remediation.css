@@ -38,9 +38,10 @@
 
 .turn-command-logo {
   flex: 0 0 auto;
-  width: clamp(58px, 5.4vw, 92px);
+  width: clamp(150px, 16vw, 260px);
   height: auto;
-  border-radius: 22%;
+  border-radius: 10px;
+  object-fit: contain;
   box-shadow: 0 0 24px rgba(41, 177, 255, 0.28);
 }
 
@@ -81,7 +82,7 @@
 
 @media (max-width: 900px) {
   .turn-command-identity { align-items: flex-start; }
-  .turn-command-logo { width: 64px; }
+  .turn-command-logo { width: clamp(130px, 28vw, 210px); }
   .turn-approved-orbital-stage,
   .turn-approved-orbital-panel.basic-agent-system .turn-approved-orbital-stage,
   .turn-spatial-stage,
@@ -126,7 +127,7 @@
 @media (max-width: 700px) {
   .turn-command-header { padding: 12px 10px; }
   .turn-command-identity { gap: 10px; }
-  .turn-command-logo { width: 52px; }
+  .turn-command-logo { width: min(42vw, 160px); }
   .turn-command-header-actions { width: 100%; }
   .turn-command-header-actions > strong,
   .turn-command-header-actions > a { width: 100%; white-space: normal; text-align: center; }

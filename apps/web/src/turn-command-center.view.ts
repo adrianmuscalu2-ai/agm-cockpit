@@ -63,7 +63,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
     >
       <header class="turn-command-header">
         <div class="turn-command-identity">
-          <img class="turn-command-logo" src="/icons/agm-app-icon-512.png" alt="AGM" />
+          <img class="turn-command-logo" src="/images/images/logo1.png" alt="AGM" />
           <div class="turn-command-copy">
           <span class="turn-kicker">TURN · REAL OPERATIONAL COMMAND</span>
           <h1>${escapeHtml(t(language, 'turn.title'))}</h1>

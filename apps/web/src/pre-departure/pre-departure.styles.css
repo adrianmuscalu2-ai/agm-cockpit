@@ -80,7 +80,7 @@ a {
 .pre-departure-brand img {
   width: 42px;
   height: 42px;
-  object-fit: cover;
+  object-fit: contain;
   border: 1px solid #8b7a35;
   border-radius: 6px;
 }

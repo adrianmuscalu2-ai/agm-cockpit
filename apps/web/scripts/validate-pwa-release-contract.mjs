@@ -1,9 +1,17 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
 const root = new URL('../', import.meta.url);
-const pwaRelease = 'agm-cockpit-1.4.0-final-remediation-v3-20260909';
+const pwaRelease = 'agm-cockpit-1.4.0-logo-restoration-v1-20260910';
 const read = relative => readFileSync(new URL(relative, root), 'utf8');
+const approvedLogo = readFileSync(new URL('public/images/images/logo1.png', root));
+
+assert.equal(
+  createHash('sha256').update(approvedLogo).digest('hex'),
+  'e237c15acc1f95da37cbd01401fc7ecd0fbd66fa0993883e3cf6992c795623e5',
+  'Approved AGM logo asset changed',
+);
 
 const serviceWorker = read('public/sw.js');
 const main = read('src/main.ts');
@@ -18,6 +26,7 @@ assert.match(main, /updateViaCache:\s*'none'/);
 assert.match(serviceWorker, /keys\.filter\(\(key\) => key !== CACHE_NAME\)\.map\(\(key\) => caches\.delete\(key\)\)/);
 assert.match(serviceWorker, /self\.skipWaiting\(\)/);
 assert.match(serviceWorker, /self\.clients\.claim\(\)/);
+assert.match(serviceWorker, /\/images\/images\/logo1\.png/);
 assert.match(serviceWorker, /requestUrl\.origin !== self\.location\.origin/);
 assert.match(serviceWorker, /fetch\(event\.request, \{ cache: 'no-store' \}\)/);
 
@@ -39,8 +48,10 @@ assert.deepEqual(
 );
 
 for (const source of [main, premiumShell, preDepartureShell]) {
-  assert.doesNotMatch(source, /images\/images\/logo1\.png/);
-  assert.match(source, /icons\/agm-app-icon-(?:192|512)\.png/);
+  assert.match(source, /images\/images\/logo1\.png/);
 }
 
-console.log('PWA release invalidation + canonical Website icon contract: PASS');
+assert.doesNotMatch(main, /home-identity-logo/);
+assert.doesNotMatch(main, /home-brand-logo/);
+
+console.log('PWA release invalidation + approved AGM logo restoration contract: PASS');
