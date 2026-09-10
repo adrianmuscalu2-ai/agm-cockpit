@@ -30,6 +30,8 @@ repository.
 | 2026-09-10T03:13Z | Production run `34431511568` branding matrix | Test runtime race | Deploy, M2M, runtime soak and TURN Production passed; Home and Pre-Departure reported `complete=false` while already exposing the correct `1536x1024` natural dimensions | Diagnose asset and wait semantics before retry |
 | 2026-09-10T03:18Z | Direct Production asset and bundle probe | Product evidence / PASS | Asset HTTP 200, 2,276,375 bytes, approved SHA-256; active bundle references `/images/images/logo1.png` and not the replaced square artwork | Product artifact proven correct |
 | 2026-09-10T03:22Z | Add deterministic image `load` + `decode()` synchronization and rerun the affected Production matrix | Recovered / PASS | 57/57 checks PASS on `https://app.agmcockpit.com/turn` with the same official Production snapshot | Promote the test synchronization fix and rerun the official workflow |
+| 2026-09-10T03:37Z | Production run `34433307114` final TURN/accountability correlation | Test procedure race | Authenticated checkpoint was 27/27 ACTIVE with 0 incidents after two cycles; the immediately following public TURN read advanced to the next valid 60-second ACP event, so strict cross-request event-ID equality failed | Preserve runtime PASS and repair only the non-atomic correlation assertion |
+| 2026-09-10T03:42Z | Read-only Production TURN probe | Product evidence / PASS | HTTP 200, overall PASS, LIVE telemetry, age 29s, EventStore PERSISTED, identical TURN/EventStore latest event | Accept same-or-successor ACP event while retaining chronology, identity, persistence, lifecycle and freshness gates |
 
 ## Browser gate
 
@@ -44,6 +46,14 @@ The first Production workflow correctly remained FAIL because the Browser
 validator sampled the large image before decoding completed. The permanent
 validator fix waits for image load and `decode()`; it does not relax the
 accepted hash, dimensions, rendered-size, responsive, or page-error criteria.
+
+The second Production workflow also correctly remained FAIL. Its authenticated
+accountability snapshot proved 27/27 ACTIVE, zero degraded agents and zero open
+incidents after two periodic cycles. The public TURN endpoint was read on the
+next scheduler boundary and legitimately exposed the successor ACP event. The
+repaired correlation gate accepts only the checkpoint event or a chronologically
+newer completed ACP event, and still requires current telemetry, persisted
+EventStore evidence, matching TURN/EventStore IDs and live freshness.
 
 ## Preserved boundaries
 

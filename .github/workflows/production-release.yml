@@ -488,6 +488,7 @@ jobs:
           sleep 100
           checkpoint_two=$(curl --fail --silent --show-error -H "Authorization: Bearer $next_access_token" "$accountability_url")
           checkpoint_two_acp_event=$(jq -er '.data.agents[] | select(.identity == "agm.authority.control-plane") | .executionEventId' <<<"$checkpoint_two")
+          checkpoint_two_acp_execution=$(jq -er '.data.agents[] | select(.identity == "agm.authority.control-plane") | .lastExecution' <<<"$checkpoint_two")
           checkpoint_two_guardian_event=$(jq -er '.data.agents[] | select(.identity == "agm.guardian.secrets") | .executionEventId' <<<"$checkpoint_two")
           jq -e --arg previousAcp "$checkpoint_one_acp_event" --arg previousGuardian "$checkpoint_one_guardian_event" '
             .data
@@ -519,7 +520,7 @@ jobs:
           ' <<<"$checkpoint_two" >/dev/null
           jq -c '{generatedAt:.data.generatedAt,critical:[.data.agents[]|select(.identity == "agm.authority.control-plane" or .identity == "agm.guardian.secrets")|{identity,lastExecution,executionEventId,lastValidation,validator,freshness,status}],degraded:.data.fleet.degraded,openIncidents:.data.incidents.open,verdict:.data.verdict}' <<<"$checkpoint_two"
           live_truth_after_soak=$(curl --fail --silent --show-error https://api.agmcockpit.com/api/v1/operations/turn/operational-truth)
-          jq -e --arg acpEvent "$checkpoint_two_acp_event" '
+          jq -e --arg acpEvent "$checkpoint_two_acp_event" --arg acpObservedAt "$checkpoint_two_acp_execution" '
             .data
             | .contractVersion == "turn-operational-truth.v2"
               and .overallStatus == "PASS"
@@ -530,8 +531,13 @@ jobs:
               and .authorityControlPlane.status == "PASS"
               and .chain.telemetry.status == "PASS"
               and .chain.eventStore.status == "PERSISTED"
-              and .chain.eventStore.eventId == $acpEvent
-              and .latestEvent.eventId == $acpEvent
+              and .latestEvent.agentId == "agm.authority.control-plane"
+              and .latestEvent.occurredAt >= $acpObservedAt
+              and ((.latestEvent.eventId == $acpEvent) or (.latestEvent.occurredAt > $acpObservedAt))
+              and .chain.eventStore.eventId == .latestEvent.eventId
+              and .chain.turn.eventId == .latestEvent.eventId
+              and .observedAt == .latestEvent.occurredAt
+              and .authorityControlPlane.observedAt == .latestEvent.occurredAt
               and .latestEvent.lifecycle == "COMPLETED"
           ' <<<"$live_truth_after_soak" >/dev/null
           jq -c '{generatedAt:.data.generatedAt,overallStatus:.data.overallStatus,reason:.data.reason,observedAt:.data.observedAt,ageSeconds:.data.ageSeconds,accessProof:.data.accessProof,latestEvent:.data.latestEvent.eventId}' <<<"$live_truth_after_soak"
