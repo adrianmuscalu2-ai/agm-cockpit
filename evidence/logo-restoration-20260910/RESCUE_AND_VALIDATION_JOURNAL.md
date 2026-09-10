@@ -27,6 +27,9 @@ repository.
 | 2026-09-10T02:42Z | Browser audit extension — Home at `/` | Test procedure | Canonical router maps `/` to Basic and `/home` to Home | Correct test route only; no product change |
 | 2026-09-10T02:46Z | Browser audit extension — unauthenticated Premium | Test procedure | Entitlement gate correctly routed to Access | Preserve gate; rely on source contract for protected Premium shell |
 | 2026-09-10T02:48Z | Controlled AGM Playwright/Chromium audit | Recovered / PASS | 57 checks PASS across 6 TURN viewports plus Home and Pre-Departure; zero page errors | HANDOFF TO RELEASE VALIDATION |
+| 2026-09-10T03:13Z | Production run `34431511568` branding matrix | Test runtime race | Deploy, M2M, runtime soak and TURN Production passed; Home and Pre-Departure reported `complete=false` while already exposing the correct `1536x1024` natural dimensions | Diagnose asset and wait semantics before retry |
+| 2026-09-10T03:18Z | Direct Production asset and bundle probe | Product evidence / PASS | Asset HTTP 200, 2,276,375 bytes, approved SHA-256; active bundle references `/images/images/logo1.png` and not the replaced square artwork | Product artifact proven correct |
+| 2026-09-10T03:22Z | Add deterministic image `load` + `decode()` synchronization and rerun the affected Production matrix | Recovered / PASS | 57/57 checks PASS on `https://app.agmcockpit.com/turn` with the same official Production snapshot | Promote the test synchronization fix and rerun the official workflow |
 
 ## Browser gate
 
@@ -36,6 +39,11 @@ repository.
 - Target Page Status: `PASS`
 - Controlled report: `evidence/turn-responsive-brand/browser/2026-09-10T02-48-07-053Z/report.json`
 - Verdict: `LOCAL LOGO RESTORATION VALIDATION = PASS`
+
+The first Production workflow correctly remained FAIL because the Browser
+validator sampled the large image before decoding completed. The permanent
+validator fix waits for image load and `decode()`; it does not relax the
+accepted hash, dimensions, rendered-size, responsive, or page-error criteria.
 
 ## Preserved boundaries
 
