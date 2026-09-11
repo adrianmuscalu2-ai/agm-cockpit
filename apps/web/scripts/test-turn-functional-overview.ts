@@ -33,7 +33,7 @@ const turnViewSource = await readFile(resolve('src/turn-command-center.view.ts')
 const panelRuntimeSource = await readFile(resolve('src/turn-agent-panel.integration.ts'), 'utf8');
 assert.match(mainSource, /premiumLayout \|\| state\.view === 'turn' \? '' : `<header class="topbar">/);
 assert.match(mainSource, /premiumLayout \|\| state\.view === 'turn' \? '' : renderCommandPanel\(\)/);
-assert.match(mainSource, /state\.view === 'turn' \? '' : renderGlobalQuickActions\(\)/);
+assert.match(mainSource, /\$\{renderGlobalQuickActions\(\)\}/);
 assert.match(premiumViewSource, /data-premium-operational-panel data-turn-page-container hidden/);
 assert.match(navigationSource, /container\.hidden = !container\.querySelector\('\[data-turn-page\]:not\(\[hidden\]\)'\)/);
 assert.match(navigationSource, /closest<HTMLDetailsElement>\('details'\)/);
