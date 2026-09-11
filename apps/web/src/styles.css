@@ -648,3 +648,112 @@
     padding-block: 0.65rem;
   }
 }
+
+.global-ocr-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2200;
+  display: grid;
+  place-items: center;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+  overflow-y: auto;
+  background: rgba(0, 7, 16, 0.78);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.global-ocr-dialog,
+.global-ocr-context-result {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid rgba(83, 205, 255, 0.58);
+  border-radius: 1rem;
+  background: linear-gradient(145deg, rgba(4, 22, 38, 0.98), rgba(3, 12, 24, 0.98));
+  color: #eefaff;
+  box-shadow: 0 22px 64px rgba(0, 3, 10, 0.68), inset 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.global-ocr-dialog {
+  width: min(44rem, 100%);
+  max-height: calc(100dvh - 2rem);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  overflow-y: auto;
+}
+
+.global-ocr-dialog > header,
+.global-ocr-context-result > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.global-ocr-dialog > header span,
+.global-ocr-context-result > header span {
+  color: #62d9ff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.global-ocr-dialog > header h2,
+.global-ocr-context-result > header h2,
+.global-ocr-dialog > header p {
+  margin: 0.25rem 0 0;
+}
+
+#globalOcrClose {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  font-size: 1.45rem;
+}
+
+.global-ocr-capture-actions,
+.global-ocr-dialog > footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.global-ocr-capture-actions button {
+  flex: 1 1 12rem;
+  min-height: 3.25rem;
+}
+
+.global-ocr-progress {
+  color: #8ceaff;
+  font-weight: 800;
+}
+
+.global-ocr-failure {
+  margin: 0;
+  padding: 0.8rem;
+  border: 1px solid rgba(255, 126, 126, 0.66);
+  border-radius: 0.65rem;
+  background: rgba(106, 15, 26, 0.48);
+  color: #ffd8dc;
+}
+
+.global-ocr-context-result {
+  margin: 1rem 0;
+  padding: 1rem;
+}
+
+.global-ocr-context-result textarea,
+.global-ocr-dialog textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 700px) {
+  .global-ocr-overlay {
+    place-items: end center;
+    padding-inline: 0;
+  }
+
+  .global-ocr-dialog {
+    width: 100%;
+    max-height: calc(100dvh - env(safe-area-inset-top));
+    border-radius: 1rem 1rem 0 0;
+  }
+}

@@ -14,6 +14,20 @@ export type OcrControllerState = {
   status: string;
 };
 
+export type OcrProcessOutcome =
+  | { status: 'completed' | 'low-quality'; text: string; confidence: number; imageDataUrl: string }
+  | { status: 'no-text'; text: ''; confidence: 0; imageDataUrl: string }
+  | { status: 'unsupported-file' | 'ocr-unavailable' | 'processing-failed'; text: ''; confidence: 0; imageDataUrl: string };
+
+export type OcrProcessOptions = {
+  applyToTranslator?: boolean;
+};
+
+function classifyProcessingFailure(error: unknown): OcrProcessOutcome['status'] {
+  const detail = error instanceof Error ? `${error.name} ${error.message}` : String(error);
+  return detail.includes('LOCAL_OCR_UNAVAILABLE') ? 'ocr-unavailable' : 'processing-failed';
+}
+
 export function createOcrController(dependencies: {
   state: OcrControllerState;
   ocrState?: OcrState;
@@ -29,11 +43,11 @@ export function createOcrController(dependencies: {
   const { state } = dependencies;
   const ocr = dependencies.ocrState ?? state;
   return {
-    async process(file: File): Promise<void> {
+    async process(file: File, options: OcrProcessOptions = {}): Promise<OcrProcessOutcome> {
       if (!file.type.startsWith('image/')) {
         state.status = dependencies.message('ocr.status.unsupportedFile');
         dependencies.render();
-        return;
+        return { status: 'unsupported-file', text: '', confidence: 0, imageDataUrl: '' };
       }
       ocr.isOcrProcessing = true;
       state.status = dependencies.message('ocr.status.processing');
@@ -46,6 +60,7 @@ export function createOcrController(dependencies: {
           ocr.ocrExtractedText = '';
           ocr.ocrConfidence = 0;
           state.status = dependencies.message('ocr.status.noText');
+          return { status: 'no-text', text: '', confidence: 0, imageDataUrl };
         } else if (!result.isUsable) {
           ocr.ocrImageDataUrl = imageDataUrl;
           // Keep uncertain OCR visible so the user can compare it with the
@@ -53,16 +68,19 @@ export function createOcrController(dependencies: {
           ocr.ocrExtractedText = result.text;
           ocr.ocrConfidence = result.confidence;
           state.status = dependencies.message('ocr.status.lowQuality', { confidence: result.confidence });
+          return { status: 'low-quality', text: result.text, confidence: result.confidence, imageDataUrl };
         } else {
           ocr.ocrImageDataUrl = imageDataUrl;
           ocr.ocrExtractedText = result.text;
           ocr.ocrConfidence = result.confidence;
-          state.translatorText = result.text;
+          if (options.applyToTranslator !== false) state.translatorText = result.text;
           state.status = dependencies.message('ocr.status.completed', { confidence: result.confidence });
+          return { status: 'completed', text: result.text, confidence: result.confidence, imageDataUrl };
         }
       } catch (error) {
         console.error('[AGM OCR] Image processing failed.', error);
         state.status = dependencies.message('ocr.status.failed');
+        return { status: classifyProcessingFailure(error), text: '', confidence: 0, imageDataUrl: '' };
       } finally {
         ocr.isOcrProcessing = false;
         dependencies.render();

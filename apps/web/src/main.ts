@@ -61,6 +61,13 @@ import { contactStorageKey, readContacts, saveContacts, emptyContactDraft } from
 import { searchContacts } from './contact-manager/contact-manager.service';
 import { createContactManagerController } from './contact-manager/contact-manager.controller';
 import { createOcrController } from './ocr/ocr.controller';
+import {
+  createGlobalCameraOcrService,
+  isGlobalCameraOcrOrigin,
+  type GlobalCameraOcrFailure,
+  type GlobalCameraOcrOrigin,
+} from './global-camera-ocr/global-camera-ocr.service';
+import { nativeCameraCaptureRuntime } from './global-camera-ocr/native-camera-capture.runtime';
 import { createIncidentController } from './incident/incident.controller';
 import { isTurnSectionFragment, routeForShellView, shellViewFromRoute } from './app-shell/navigation.contract';
 import { attachTranslatorLegacyFacade, createTranslatorState } from './app-shell/translator-state.store';
@@ -74,6 +81,7 @@ import { dashboardWarningContainmentCopy, dashboardWarningVisionEnabled } from '
 import { USER_ACCESS_TOKEN_KEY } from './premium-access/premium-access.client';
 import { clearOriginalEvidence } from './premium-situation-router/required-document.evidence-store';
 import { recognizeTextFromImage } from './ocr-translator';
+import { getDeviceCapabilitySnapshot } from './device-capability-router/device-capability.runtime';
 import {
   analyzeTransportDocument,
   formatTransportDocumentResult,
@@ -360,6 +368,9 @@ let lastTranslatorHealthCapturedAt: string | null = null;
 let lastRenderedProductionPreflightSignature: string | null = null;
 let adminSessionRetryTimer: number | undefined;
 let activeQuickLanguageMenuCleanup: (() => void) | null = null;
+let globalCameraAvailable: boolean | null = null;
+let globalCameraPermission: PermissionState | 'unknown' = 'unknown';
+let globalOcrEmailBaseMessage = '';
 
 const appRoot = document.querySelector<HTMLDivElement>('#app');
 
@@ -425,6 +436,12 @@ const ocrController = createOcrController({
   createId: createLocalId,
   now: () => new Date().toISOString(),
   persist: (history) => ocrHistoryRepository.save(history),
+});
+
+const globalCameraOcr = createGlobalCameraOcrService({
+  process: (file) => ocrController.process(file, { applyToTranslator: false }),
+  applyResult: applyGlobalCameraOcrResult,
+  changed: render,
 });
 
 const incidentController = createIncidentController({
@@ -507,9 +524,11 @@ function render() {
 
         ${renderCurrentView()}
 
+        ${renderGlobalOcrContextResult()}
+
         ${state.view === 'cockpit' || state.view === 'home' || premiumLayout || state.view === 'turn' ? '' : renderCommandPanel()}
 
-        ${state.view === 'turn' ? '' : renderGlobalQuickActions()}
+        ${renderGlobalQuickActions()}
 
         <footer class="status" role="status">
           <span>${escapeHtml(state.status)}</span>
@@ -522,6 +541,7 @@ function render() {
           <strong>${APP_VERSION}</strong>
         </footer>
       </section>
+      ${renderGlobalCameraOcrDialog()}
       ${state.legalAcceptanceAccepted ? '' : renderLegalAcceptanceNotice()}
       ${state.legalAcceptanceAccepted && state.tutorialOpen ? renderTutorial() : ''}
       ${state.legalAcceptanceAccepted && !state.tutorialOpen && state.contextualHint !== null ? renderContextualHint() : ''}
@@ -2318,6 +2338,45 @@ function renderLegalCard(titleKey: string, bodyKey: string, extra = '') {
   `;
 }
 
+function renderGlobalOcrContextResult() {
+  const session = globalCameraOcr.snapshot;
+  if (!session.origin || session.origin !== state.view || !session.text.trim()) return '';
+  const language = uiLanguage();
+  return `<section class='global-ocr-context-result' data-global-ocr-origin='${escapeHtml(session.origin)}' aria-labelledby='global-ocr-context-title'>
+    <header><div><span>CAMERA / OCR</span><h2 id='global-ocr-context-title'>${escapeHtml(t(language, 'ocr.page.result'))}</h2></div><strong>${escapeHtml(t(language, 'ocr.confidence', { confidence: session.confidence }))}</strong></header>
+    <textarea id='globalOcrContextText' rows='6' aria-label='${escapeHtml(t(language, 'ocr.page.result'))}'>${escapeHtml(session.text)}</textarea>
+    <div class='quick-actions actions'><button id='globalOcrReopen' type='button'>${escapeHtml(t(language, 'ocr.page.camera'))}</button><button id='globalOcrCopy' type='button'>${escapeHtml(t(language, 'ocr.page.copy'))}</button><button id='globalOcrDismissResult' type='button'>${escapeHtml(t(language, 'ocr.page.clear'))}</button></div>
+  </section>`;
+}
+
+function renderGlobalCameraOcrDialog() {
+  const session = globalCameraOcr.snapshot;
+  if (!session.open) return '';
+  const language = uiLanguage();
+  const copy = ocrPageCopy();
+  const failure = session.failure ? globalCameraOcrFailureCopy(session.failure) : '';
+  return `<div class='global-ocr-overlay' role='presentation'><section class='global-ocr-dialog' role='dialog' aria-modal='true' aria-labelledby='global-ocr-title' ${session.processing ? 'aria-busy=true' : ''}>
+    <header><div><span>CAMERA / OCR</span><h2 id='global-ocr-title'>${escapeHtml(copy.title)}</h2><p>${escapeHtml(copy.description)}</p></div><button id='globalOcrClose' type='button' aria-label='${escapeHtml(t(language, 'common.close'))}'>×</button></header>
+    <div class='global-ocr-capture-actions'><button id='globalOcrTakePhoto' class='primary' type='button' ${session.processing ? 'disabled' : ''}>${escapeHtml(copy.camera)}</button><button id='globalOcrChooseImage' type='button' ${session.processing ? 'disabled' : ''}>${escapeHtml(copy.file)}</button><input id='globalOcrCameraInput' class='visually-hidden' type='file' accept='image/*' capture='environment' /><input id='globalOcrFileInput' class='visually-hidden' type='file' accept='image/*' /></div>
+    <small>${escapeHtml(copy.local)}</small>
+    ${session.processing ? `<p class='global-ocr-progress' role='status'>${escapeHtml(t(language, 'ocr.status.processing'))}</p>` : ''}
+    ${failure ? `<p class='global-ocr-failure' role='alert'>${escapeHtml(failure)}</p>` : ''}
+    ${session.imageDataUrl ? `<div class='ocr-preview-panel'><img src='${escapeHtml(session.imageDataUrl)}' alt='${escapeHtml(t(language, 'ocr.imageAlt'))}' /><div><strong>${escapeHtml(t(language, 'ocr.previewTitle'))}</strong><p>${escapeHtml(t(language, 'ocr.confidence', { confidence: session.confidence }))}</p></div></div>` : ''}
+    ${session.text ? `<label class='message-field'><span>${escapeHtml(copy.result)}</span><textarea id='globalOcrDialogText' rows='8'>${escapeHtml(session.text)}</textarea></label>` : ''}
+    <footer>${session.text ? `<button id='globalOcrDialogCopy' type='button'>${escapeHtml(copy.copy)}</button>` : ''}<button id='globalOcrDone' class='primary' type='button' ${session.processing ? 'disabled' : ''}>${escapeHtml(t(language, 'common.close'))}</button></footer>
+  </section></div>`;
+}
+
+function globalCameraOcrFailureCopy(failure: GlobalCameraOcrFailure) {
+  if (failure === 'permission-denied') return audioMessage('Permisiunea camerei a fost refuzată. Acordați permisiunea în setările browserului sau Android.', 'Die Kameraberechtigung wurde verweigert. Erteilen Sie sie in den Browser- oder Android-Einstellungen.', 'Camera permission was denied. Grant it in browser or Android settings.');
+  if (failure === 'camera-unavailable') return audioMessage('Camera fizică nu este disponibilă pe acest dispozitiv.', 'Die physische Kamera ist auf diesem Gerät nicht verfügbar.', 'The physical camera is unavailable on this device.');
+  if (failure === 'ocr-unavailable') return audioMessage('Runtime-ul OCR local nu este disponibil. Imaginea nu a fost trimisă către un serviciu extern.', 'Die lokale OCR-Laufzeit ist nicht verfügbar. Das Bild wurde nicht an einen externen Dienst gesendet.', 'Local OCR is unavailable. The image was not sent to an external service.');
+  if (failure === 'unsupported-file') return t(uiLanguage(), 'ocr.status.unsupportedFile');
+  if (failure === 'no-text') return t(uiLanguage(), 'ocr.status.noText');
+  return t(uiLanguage(), 'ocr.status.failed');
+}
+
+// Global OCR is bound with the shared shell.
 function bindShared() {
   bindAndroidComponentHeartbeat();
   void bindPremiumLinguisticAgentHeartbeats(() => publishPanelAgentModel());
@@ -2331,6 +2390,7 @@ function bindShared() {
   document.querySelectorAll<HTMLButtonElement>('[data-global-action]').forEach((control) => {
     control.addEventListener('click', () => activateGlobalAction(control.dataset.globalAction));
   });
+  bindGlobalCameraOcr();
   document.querySelectorAll<HTMLButtonElement>('[data-basic-action]').forEach((control) => {
     control.addEventListener('click', () => activateBasicAction(control.dataset.basicAction));
   });
@@ -2557,6 +2617,10 @@ function activateGlobalAction(action: string | undefined) {
     return;
   }
   if (action === 'ocr') {
+    if (isGlobalCameraOcrOrigin(state.view)) {
+      openGlobalCameraOcr(state.view);
+      return;
+    }
     basicPhotoAnalysisMode = null;
     transportDocumentTextConfirmed = false;
     transportDocumentAnalysis = null;
@@ -3414,6 +3478,114 @@ function bindTextCorrector() {
     state.status = t(uiLanguage(), 'textCorrector.status.languageChanged', { language: languageLabel(language) });
     render();
   });
+}
+
+function openGlobalCameraOcr(origin: GlobalCameraOcrOrigin) {
+  if (!ensureLegalAcceptanceForCamera()) return;
+  if (origin === 'email' && globalCameraOcr.snapshot.origin !== 'email') {
+    globalOcrEmailBaseMessage = state.message.trim();
+  }
+  globalCameraOcr.open(origin);
+  void preflightGlobalCamera();
+}
+
+async function preflightGlobalCamera() {
+  try {
+    const snapshot = await getDeviceCapabilitySnapshot({ forceRefresh: true });
+    globalCameraAvailable = snapshot.capabilities.camera;
+  } catch {
+    globalCameraAvailable = null;
+  }
+  if (!navigator.permissions?.query) return;
+  try {
+    const permission = await navigator.permissions.query({ name: 'camera' as PermissionName });
+    globalCameraPermission = permission.state;
+    permission.addEventListener('change', () => {
+      globalCameraPermission = permission.state;
+    });
+  } catch {
+    globalCameraPermission = 'unknown';
+  }
+}
+
+async function requestGlobalCameraInput(inputId: 'globalOcrCameraInput' | 'globalOcrFileInput') {
+  if (!ensureLegalAcceptanceForCamera()) return;
+  if (inputId === 'globalOcrCameraInput' && nativeCameraCaptureRuntime.isNativeAndroid()) {
+    const result = await nativeCameraCaptureRuntime.capture();
+    if (result.status === 'captured') {
+      await globalCameraOcr.process(result.file);
+    } else if (result.status !== 'cancelled') {
+      globalCameraOcr.fail(result.status);
+    }
+    return;
+  }
+  if (inputId === 'globalOcrCameraInput' && globalCameraPermission === 'denied') {
+    globalCameraOcr.fail('permission-denied');
+    return;
+  }
+  if (inputId === 'globalOcrCameraInput' && globalCameraAvailable === false) {
+    globalCameraOcr.fail('camera-unavailable');
+    return;
+  }
+  const input = document.querySelector<HTMLInputElement>(`#${inputId}`);
+  if (!input) {
+    globalCameraOcr.fail('camera-unavailable');
+    return;
+  }
+  input.value = '';
+  input.click();
+}
+
+function bindGlobalCameraOcr() {
+  document.querySelectorAll<HTMLElement>('[data-copilot-camera], [data-car-mover-quick=ocr], a[data-module=ocr]').forEach((trigger) => {
+    trigger.addEventListener('click', (event) => {
+      if (!isGlobalCameraOcrOrigin(state.view)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (trigger.hasAttribute('data-copilot-camera')) {
+        window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));
+      }
+      openGlobalCameraOcr(state.view);
+    }, { capture: true });
+  });
+
+  const bindInput = (id: 'globalOcrCameraInput' | 'globalOcrFileInput') => {
+    const input = document.querySelector<HTMLInputElement>(`#${id}`);
+    input?.addEventListener('change', () => {
+      const file = input.files?.[0];
+      if (file) void globalCameraOcr.process(file);
+    });
+  };
+
+  document.querySelector<HTMLButtonElement>('#globalOcrTakePhoto')?.addEventListener('click', () => void requestGlobalCameraInput('globalOcrCameraInput'));
+  document.querySelector<HTMLButtonElement>('#globalOcrChooseImage')?.addEventListener('click', () => void requestGlobalCameraInput('globalOcrFileInput'));
+  document.querySelector<HTMLButtonElement>('#globalOcrClose')?.addEventListener('click', () => globalCameraOcr.close());
+  document.querySelector<HTMLButtonElement>('#globalOcrDone')?.addEventListener('click', () => globalCameraOcr.close());
+  document.querySelector<HTMLButtonElement>('#globalOcrReopen')?.addEventListener('click', () => {
+    if (isGlobalCameraOcrOrigin(state.view)) openGlobalCameraOcr(state.view);
+  });
+  document.querySelector<HTMLButtonElement>('#globalOcrDismissResult')?.addEventListener('click', () => globalCameraOcr.clear());
+  const copyResult = () => void copyPlainText(globalCameraOcr.snapshot.text);
+  document.querySelector<HTMLButtonElement>('#globalOcrCopy')?.addEventListener('click', copyResult);
+  document.querySelector<HTMLButtonElement>('#globalOcrDialogCopy')?.addEventListener('click', copyResult);
+  const editResult = (event: Event) => globalCameraOcr.edit((event.target as HTMLTextAreaElement).value);
+  document.querySelector<HTMLTextAreaElement>('#globalOcrContextText')?.addEventListener('input', editResult);
+  document.querySelector<HTMLTextAreaElement>('#globalOcrDialogText')?.addEventListener('input', editResult);
+  bindInput('globalOcrCameraInput');
+  bindInput('globalOcrFileInput');
+}
+
+function applyGlobalCameraOcrResult(origin: GlobalCameraOcrOrigin, text: string) {
+  if (origin === 'cockpit') {
+    state.translatorText = text;
+  } else if (origin === 'email') {
+    state.emailComposeMode = 'manual';
+    state.message = globalOcrEmailBaseMessage ? `${globalOcrEmailBaseMessage}\n\n${text}` : text;
+    if (state.translatorEnabled) state.mailTranslationState = 'pending';
+    markMailDraftChanged();
+  } else if (origin === 'corrector') {
+    state.correctorText = text;
+  }
 }
 
 function bindContactManager() {

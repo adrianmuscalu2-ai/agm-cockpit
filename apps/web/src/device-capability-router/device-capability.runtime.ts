@@ -45,7 +45,7 @@ function browserSnapshot(now = Date.now()): DeviceCapabilitySnapshot {
       speechRecognition: false,
       onDeviceSpeechRecognition: false,
       textToSpeech: typeof window !== 'undefined' && Boolean(window.speechSynthesis),
-      camera: typeof navigator !== 'undefined' && Boolean(navigator.mediaDevices),
+      camera: supportsImageCaptureInput(),
       localWebOcr: true,
       shareText: false,
       processText: false,
@@ -117,12 +117,21 @@ export async function getDeviceCapabilitySnapshot(options: { forceRefresh?: bool
     const fallback = browserSnapshot(now);
     fallback.platform = 'android';
     fallback.capabilities.textToSpeech = false;
-    fallback.capabilities.camera = false;
-    fallback.capabilities.localWebOcr = false;
+    fallback.capabilities.camera = supportsImageCaptureInput();
+    fallback.capabilities.localWebOcr = true;
     const snapshot = writeSnapshot(fallback);
     lastCapabilityLookup = { latencyMs: performance.now() - startedAt, cacheHit: false };
     return snapshot;
   }
+}
+
+export function supportsImageCaptureInput() {
+  if (typeof document === 'undefined') return false;
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.setAttribute('capture', 'environment');
+  return input.accept === 'image/*' && input.getAttribute('capture') === 'environment';
 }
 
 export function invalidateDeviceCapabilityCache() {
