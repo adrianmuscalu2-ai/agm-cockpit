@@ -60,15 +60,15 @@ function knowledge(sources: CanonicalSource[], workspaceRoot?: string) {
 }
 
 describe('Premium Assistant canonical knowledge reuse', () => {
-  it('loads the real registry, indexes only approved sources, and withholds expired fragments', () => {
+  it('loads the real registry and indexes only the two approved sources confirmed by controlled refresh', () => {
     const loader = new RealCanonicalAuthorityLoader(new ConfigService({ AGM_CANONICAL_LIBRARY_ROOT: resolve(__dirname, '..', '..', '..') }));
     const service = new PremiumAssistantKnowledgeService(loader);
     expect(service.stats().canonicalSources).toBe(862);
-    expect(service.stats().semanticEntries).toBe(16);
+    expect(service.stats().semanticEntries).toBe(2);
     const result = service.resolve('toll camion Germania Toll Collect', 'ro', false, NOW);
     expect(result.sources.length).toBeGreaterThan(0);
-    expect(result.context).toHaveLength(0);
-    expect(result.requiresLiveSearch).toBe(true);
+    expect(result.context.length).toBeGreaterThan(0);
+    expect(result.context.every((item) => item.freshnessStatus === 'CURRENT')).toBe(true);
     expect(result.sources.every((item) => isApprovedReviewStatus(item.provenance.reviewStatus))).toBe(true);
   });
 
@@ -169,6 +169,20 @@ describe('Premium Assistant canonical knowledge reuse', () => {
     expect(isApprovedReviewStatus('DRAFT_NOT_APPROVED')).toBe(false);
     expect(isApprovedReviewStatus('APPROVED_THEN_REVOKED')).toBe(false);
     expect(isApprovedReviewStatus('APPROVED_BUT_SUSPENDED')).toBe(false);
+  });
+
+  it('does not let legacy status CURRENT override a blocking freshness state', () => {
+    const blocked = source('CS-APPROVED-BUT-CHANGED', {
+      status: 'CURRENT',
+      freshness: {
+        capturedAt: '2026-09-10T00:00:00.000Z',
+        lastFreshnessCheck: '2026-09-12T00:00:00.000Z',
+        nextFreshnessCheck: '2026-09-19T00:00:00.000Z',
+        currentStatus: 'NEW_VERSION_DETECTED',
+        reviewRequired: true,
+      },
+    });
+    expect(knowledge([blocked]).stats().semanticEntries).toBe(0);
   });
 
   it('redacts structured secrets and personal data before egress', () => {

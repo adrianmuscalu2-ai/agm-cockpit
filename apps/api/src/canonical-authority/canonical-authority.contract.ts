@@ -86,7 +86,7 @@ export type CanonicalAuthorityDecision = {
 };
 
 export const CANONICAL_BASELINE = {
-  registry: { count: 862, sha256: '7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245' },
+  registry: { count: 862, sha256: '7fd9d416180d98b96d92b29f9f76570bbb008af320a74190fccca40e56b3cdf8' },
   routingToll: { count: 289, sha256: '049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0' },
   legislationSafety: { count: 66, sha256: 'c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab' },
 } as const;

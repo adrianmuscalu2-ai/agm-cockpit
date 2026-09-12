@@ -61,7 +61,7 @@ check('DK_NO_AUTO_EXTENSION', dk?.reviewContext?.automaticVersionExtension === f
 
 const registryHash = sha256(paths.registry);
 const viewHash = sha256(paths.view);
-check('REGISTRY_AUTHORIZED_ATOMIC_STATE', registryHash === '7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245', registryHash, '7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245');
+check('REGISTRY_AUTHORIZED_ATOMIC_STATE', registryHash === '7fd9d416180d98b96d92b29f9f76570bbb008af320a74190fccca40e56b3cdf8', registryHash, '7fd9d416180d98b96d92b29f9f76570bbb008af320a74190fccca40e56b3cdf8');
 check('ROUTING_TOLL_VIEW_AUTHORIZED_ATOMIC_STATE', viewHash === '049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0', viewHash, '049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0');
 check('PRODUCTION_DATA_MUTATION', initial.guardrails.runtimeProduction, 'NO_CHANGE');
 check('COMMIT_PUSH', initial.guardrails.commitPush, 'NOT_EXECUTED');

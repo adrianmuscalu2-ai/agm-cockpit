@@ -288,7 +288,7 @@ describe('source freshness / expiry / supersession policy', () => {
   it('proves Registry and Routing/Toll view match the authorized ROUTING-TOLL-001 atomic state', () => {
     const root = resolve(process.cwd(), '..', '..');
     const hash = (relative: string) => createHash('sha256').update(readFileSync(resolve(root, relative))).digest('hex');
-    expect(hash('AGM_LIBRARY/REGISTRY/canonical-sources.json')).toBe('7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245');
+    expect(hash('AGM_LIBRARY/REGISTRY/canonical-sources.json')).toBe('7fd9d416180d98b96d92b29f9f76570bbb008af320a74190fccca40e56b3cdf8');
     expect(hash('AGM_LIBRARY/VIEWS/legislation-safety.view.json')).toBe('c6d45d7c4fcc86574790add0491e37727691909f287d461e356be05f69a1b0ab');
     expect(hash('AGM_LIBRARY/VIEWS/routing-toll.view.json')).toBe('049deb2d0714ffee8f71ff6ac6945ab2a084b69981a1e9f7e81910d0bf9f62b0');
   });

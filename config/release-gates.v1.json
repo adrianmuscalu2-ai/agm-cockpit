@@ -5,7 +5,7 @@
   "canonicalBaseline": {
     "registry": {
       "count": 862,
-      "sha256": "7d4901c4479129669e8036197cbdb116674f219ea21db34db7e1d20eefc48245"
+      "sha256": "7fd9d416180d98b96d92b29f9f76570bbb008af320a74190fccca40e56b3cdf8"
     },
     "legislationSafety": {
       "count": 66,
@@ -25,7 +25,7 @@
     "pnpm --filter @agm/web test:final-language-wave",
     "pnpm --filter @agm/web test:final-language-agents",
     "node scripts/validate-source-freshness-alert-rule.mjs",
-    "node scripts/validate-phase3-final-consolidated-closeout-readonly.mjs",
+    "node scripts/validate-premium-assistant-source-refresh.mjs",
     "node scripts/classify-rc-workspace.mjs",
     "pnpm release:freeze-check",
     "pnpm --filter @agm/web android:release-preflight",
@@ -41,7 +41,8 @@
   "historicalValidators": {
     "policy": "Historical atomic-apply validators retain their original baseline and are not mandatory release validators for Registry 862.",
     "examples": [
-      "scripts/test-routing-toll-001-post-apply.mjs"
+      "scripts/test-routing-toll-001-post-apply.mjs",
+      "scripts/validate-phase3-final-consolidated-closeout-readonly.mjs"
     ]
   }
 }

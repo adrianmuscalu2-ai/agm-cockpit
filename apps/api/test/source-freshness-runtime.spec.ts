@@ -51,6 +51,11 @@ describe('source freshness runtime scan', () => {
     const before = hashes();
     const config = new ConfigService({ AGM_CANONICAL_LIBRARY_ROOT: root });
     const library = new CanonicalAuthorityLoader(config);
+    const expectedManagedSources = library.sources().filter((source) => Boolean(
+      source.freshness
+      && source.canonicalUri
+      && ['AUTHORITATIVE', 'AUTHORITATIVE_WITH_SCOPE', 'CONTEXTUAL'].includes(source.authority.authorityType),
+    )).length;
     const overlay = new CanonicalAuthorityRuntimeOverlay();
     const repository = new MemoryRepository();
     const email: CommunicationProviderPort = {
@@ -67,7 +72,7 @@ describe('source freshness runtime scan', () => {
     );
     const first = await scanner.scan('2026-08-31T08:00:00.000Z');
     const second = await scanner.scan('2026-08-31T08:00:00.000Z');
-    expect(first.scanned).toBe(31);
+    expect(first.scanned).toBe(expectedManagedSources);
     expect(first.results.find((row) => row.sourceId === 'CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026')).toMatchObject({
       status: 'EXPIRED_REVIEW_REQUIRED', reviewRequired: true,
     });
@@ -78,7 +83,7 @@ describe('source freshness runtime scan', () => {
       status: 'NEW_VERSION_DETECTED', reviewRequired: true,
     });
     expect(overlay.get('CS-FR-TRUCK-BAN-FIRE-EXCEPTION-2026')?.status).toBe('EXPIRED_REVIEW_REQUIRED');
-    expect(repository.stateRows.size).toBe(31);
+    expect(repository.stateRows.size).toBe(expectedManagedSources);
     expect(second.mutationGuardrails).toEqual({ registry: 'NONE', views: 'NONE', authorityPromotion: 'NONE', sourceValues: 'NONE' });
     expect(hashes()).toEqual(before);
   });

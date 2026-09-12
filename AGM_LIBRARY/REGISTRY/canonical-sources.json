@@ -1,8 +1,8 @@
 {
   "$schema": "../SCHEMAS/canonical-source-registry.schema.json",
   "schemaVersion": "agm-canonical-source-registry.v1",
-  "registryVersion": "1.4.0",
-  "generatedAt": "2026-08-30T20:00:00.000Z",
+  "registryVersion": "1.4.1",
+  "generatedAt": "2026-09-12T18:24:28.225Z",
   "authority": "AGM_CENTRAL_REGISTRY",
   "authorityMode": "SINGLE_SOURCE_OF_TRUTH",
   "sourceMode": "REFERENCE_ONLY_NO_PHYSICAL_COPY",
@@ -28145,10 +28145,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://media.asfinag.at/media/p31n1jxq/go-maut-tarife-2026_de.pdf"
+        "https://media.asfinag.at/media/p31n1jxq/go-maut-tarife-2026_de.pdf",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2025-12-18T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "FRESHNESS_UNKNOWN",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh could not confirm currentness; source reuse remains blocked."
+        ]
+      }
     },
     {
       "sourceId": "CS-AT-ASFINAG-VIGNETTE-SECTION-2026",
@@ -28186,10 +28198,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://media.asfinag.at/media/1mpjid2j/asf_vignettenfolder_2026_de.pdf"
+        "https://media.asfinag.at/media/1mpjid2j/asf_vignettenfolder_2026_de.pdf",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2025-11-18T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "FRESHNESS_UNKNOWN",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh could not confirm currentness; source reuse remains blocked."
+        ]
+      }
     },
     {
       "sourceId": "CS-BE-VIAPASS",
@@ -28227,10 +28251,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://www.viapass.be/en/"
+        "https://www.viapass.be/en/",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-08-29T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-BE-VIAPASS-RATES-2026",
@@ -28268,10 +28304,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://www.viapass.be/de/tarife/"
+        "https://www.viapass.be/de/tarife/",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-07-01T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-CZ-EDALNICE-VIGNETTE-2026",
@@ -28309,10 +28357,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://edalnice.gov.cz/en"
+        "https://edalnice.gov.cz/en",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-08-29T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-CZ-MYTO-RATES-2026",
@@ -28350,10 +28410,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026"
+        "https://myto.gov.cz/cs/emytne/sazby-mytneho-2026",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-01-01T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-DE-BFSTRMG",
@@ -28391,10 +28463,20 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html"
+        "https://www.gesetze-im-internet.de/bfstrmg/BJNR137810011.html",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-05-15T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": "2026-09-19T18:24:28.225Z",
+        "currentStatus": "CURRENT",
+        "reviewRequired": false,
+        "usageFallback": "ALLOWED_WITHIN_APPROVED_SCOPE",
+        "limitations": []
+      }
     },
     {
       "sourceId": "CS-DE-TOLL-COLLECT-RATES",
@@ -28432,10 +28514,20 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html"
+        "https://www.toll-collect.de/en/toll_collect/bezahlen/maut_tarife/p1745_mauttarife_07_2024.html",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-08-29T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": "2026-09-19T18:24:28.225Z",
+        "currentStatus": "CURRENT",
+        "reviewRequired": false,
+        "usageFallback": "ALLOWED_WITHIN_APPROVED_SCOPE",
+        "limitations": []
+      }
     },
     {
       "sourceId": "CS-DK-KMTOLL-EETS",
@@ -28473,10 +28565,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://vejafgifter.dk/en/which-roads/"
+        "https://vejafgifter.dk/en/which-roads/",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-08-29T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-DK-SE-ORESUND-RATES-2026",
@@ -28515,10 +28619,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://www.oresundsbron.com/en/prices"
+        "https://www.oresundsbron.com/en/prices",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-05-18T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-DK-STOREBAELT-RATES-2026",
@@ -28556,10 +28672,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://www.storebaelt.dk/en/prices-and-discounts/private/"
+        "https://www.storebaelt.dk/en/prices-and-discounts/private/",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-01-01T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-FR-ART-TARIFF-GOVERNANCE",
@@ -28597,10 +28725,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://www.autorite-transports.fr/les-autoroutes/les-tarifs-des-peages/"
+        "https://www.autorite-transports.fr/les-autoroutes/les-tarifs-des-peages/",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-08-29T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-FR-MOTORWAY-TOLLS",
@@ -28638,10 +28778,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france"
+        "https://www.ecologie.gouv.fr/politiques-publiques/peages-autoroutes-france",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-08-29T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-NL-A24-ETOL-2026",
@@ -28679,10 +28831,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://www.rijksoverheid.nl/themas/verkeer-en-vervoer/wegen/tijdelijke-tolheffing-blankenburgverbinding-en-via15"
+        "https://www.rijksoverheid.nl/themas/verkeer-en-vervoer/wegen/tijdelijke-tolheffing-blankenburgverbinding-en-via15",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-01-01T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-NL-TRUCK-TOLL",
@@ -28720,10 +28884,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://www.vrachtwagenheffing.nl/en"
+        "https://www.vrachtwagenheffing.nl/en",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-08-29T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-PL-ETOLL-RATES",
@@ -28761,10 +28937,22 @@
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_FINAL_PRE_APPLY/PRODUCT_OWNER_DECISION_16_OF_16.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_HUMAN_AUTHORITY_REVIEW/FINAL_16_SOURCE_AUTHORITY_DECISION_TABLE.json",
         "AGM_LIBRARY/PHASE3/ROUTING_TOLL_001_CLOSURE/REMOTE_ACQUISITION_MANIFEST.json",
-        "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/"
+        "https://etoll.gov.pl/en/e-toll-system/rates-and-payments/",
+        "AGM_LIBRARY/PHASE3/PREMIUM_ASSISTANT_SOURCE_REFRESH_20260912/REFRESH_MANIFEST.json"
       ],
       "supersedes": [],
-      "supersededBy": []
+      "supersededBy": [],
+      "freshness": {
+        "capturedAt": "2026-08-29T00:00:00.000Z",
+        "lastFreshnessCheck": "2026-09-12T18:24:28.225Z",
+        "nextFreshnessCheck": null,
+        "currentStatus": "NEW_VERSION_DETECTED",
+        "reviewRequired": true,
+        "usageFallback": "UNKNOWN_HUMAN_VERIFICATION",
+        "limitations": [
+          "Controlled refresh detected changed bytes; Product Owner review is required before reuse."
+        ]
+      }
     },
     {
       "sourceId": "CS-CH-BAZG-LSVA-DIRECTIVE-V1-2",

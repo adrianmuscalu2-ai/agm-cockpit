@@ -47,6 +47,8 @@ jobs:
       - run: pnpm --filter @agm/web test:turn-functional-overview
       - run: pnpm --filter @agm/web test:agent-accountability
       - run: pnpm audit:canonical-route
+      - run: node scripts/validate-production-ssh-transport.mjs
+      - run: node scripts/validate-premium-assistant-source-refresh.mjs
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm rescue:browser-preflight
       - run: node scripts/validate-agent-accountability-browser.mjs
@@ -127,22 +129,53 @@ jobs:
             echo "::add-mask::$encoded"
             printf '%s_B64=%s\n' "$name" "$encoded" >> "$GITHUB_ENV"
           done
-      - name: Stage approved Production lifecycle files
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          source: deploy/production/compose.production.yml,deploy/production/agm-production-api.service,deploy/production/agm-production-web.service
-          target: /tmp/agm-release-${{ github.run_id }}
+      - name: Prepare isolated OpenSSH transport and stage Production lifecycle files
+        shell: bash
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+          PRODUCTION_SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          command -v ssh >/dev/null
+          command -v scp >/dev/null
+          command -v ssh-keyscan >/dev/null
+          command -v ssh-keygen >/dev/null
+          test -n "$PRODUCTION_HOST"
+          test -n "$PRODUCTION_USER"
+          test -n "$PRODUCTION_SSH_KEY"
+          ssh_key_file="$RUNNER_TEMP/agm-production-ssh-key"
+          known_hosts_file="$RUNNER_TEMP/agm-production-known-hosts"
+          umask 077
+          printf '%s\n' "$PRODUCTION_SSH_KEY" > "$ssh_key_file"
+          chmod 0600 "$ssh_key_file"
+          ssh-keyscan -T 15 -H "$PRODUCTION_HOST" > "$known_hosts_file"
+          test -s "$known_hosts_file"
+          ssh-keygen -lf "$known_hosts_file"
+          printf 'AGM_SSH_KEY_FILE=%s\nAGM_SSH_KNOWN_HOSTS_FILE=%s\n' "$ssh_key_file" "$known_hosts_file" >> "$GITHUB_ENV"
+          ssh -i "$ssh_key_file" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$known_hosts_file" \
+            "$PRODUCTION_USER@$PRODUCTION_HOST" \
+            'install -d -m 0700 "/tmp/agm-release-${{ github.run_id }}/deploy/production"'
+          scp -i "$ssh_key_file" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$known_hosts_file" \
+            deploy/production/compose.production.yml \
+            deploy/production/agm-production-api.service \
+            deploy/production/agm-production-web.service \
+            "$PRODUCTION_USER@$PRODUCTION_HOST:/tmp/agm-release-${{ github.run_id }}/deploy/production/"
       - name: Deploy approved digest through Release & Operations
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          envs: TOMTOM_API_KEY_B64,GMAIL_FROM_ADDRESS_B64,GMAIL_OAUTH_CLIENT_ID_B64,GMAIL_OAUTH_CLIENT_SECRET_B64,GMAIL_OAUTH_REFRESH_TOKEN_B64
-          script: |
+        shell: bash
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+        run: |
+          set -euo pipefail
+          test -f "$AGM_SSH_KEY_FILE"
+          test -s "$AGM_SSH_KNOWN_HOSTS_FILE"
+          {
+            for name in TOMTOM_API_KEY_B64 GMAIL_FROM_ADDRESS_B64 GMAIL_OAUTH_CLIENT_ID_B64 GMAIL_OAUTH_CLIENT_SECRET_B64 GMAIL_OAUTH_REFRESH_TOKEN_B64; do
+              test -n "${!name:-}"
+              printf 'export %s=%q\n' "$name" "${!name}"
+            done
+            cat <<'AGM_REMOTE_DEPLOY' | sed 's/^  //'
             set -euo pipefail
             export AGM_IMAGE="${{ env.IMAGE_NAME }}@${{ needs.publish.outputs.digest }}"
             export AGM_WEB_IMAGE="${{ env.WEB_IMAGE_NAME }}@${{ needs.publish-web.outputs.digest }}"
@@ -289,6 +322,9 @@ jobs:
             curl --fail --silent --show-error --retry 15 --retry-delay 1 --retry-all-errors --max-time 5 https://app.agmcockpit.com/car-mover/menu | grep -F '/assets/main-' >/dev/null
             deployment_stage="complete"
             trap - ERR
+          AGM_REMOTE_DEPLOY
+          } | ssh -i "$AGM_SSH_KEY_FILE" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
+            "$PRODUCTION_USER@$PRODUCTION_HOST" 'bash -se'
       - name: Provision approved Car Mover entitlement
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_car_mover }}
         env:
@@ -576,12 +612,16 @@ jobs:
             https://api.agmcockpit.com/api/v1/auth/entitlements | \
             jq -e '.data.capabilities | index("car-mover.jobs") != null'
       - name: Publish current Production preflight automatically
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          script: |
+        shell: bash
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+        run: |
+          set -euo pipefail
+          test -f "$AGM_SSH_KEY_FILE"
+          test -s "$AGM_SSH_KNOWN_HOSTS_FILE"
+          {
+            cat <<'AGM_REMOTE_PREFLIGHT' | sed 's/^  //'
             set -euo pipefail
             expected_revision="${{ github.sha }}"
             rollback_root="/opt/agm/production/rollback/${{ github.run_id }}"
@@ -605,6 +645,16 @@ jobs:
             sudo chmod 0644 "$preflight_path"
             sudo docker exec agm-production-api node -e 'const fs=require("node:fs");const report=JSON.parse(fs.readFileSync("/run/agm/production-preflight.latest.json","utf8"));if(report.contract!=="agm-production-preflight.v1"||report.revision!==process.env.AGM_REVISION||report.checks.length!==8||report.checks.some((check)=>check.status!=="PASS"))process.exit(1)'
             echo 'PRODUCTION_PREFLIGHT=READY OWNER_ACTION=NONE'
+          AGM_REMOTE_PREFLIGHT
+          } | ssh -i "$AGM_SSH_KEY_FILE" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
+            "$PRODUCTION_USER@$PRODUCTION_HOST" 'bash -se'
+      - name: Remove ephemeral OpenSSH material
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${AGM_SSH_KEY_FILE:-}" ]; then rm -f -- "$AGM_SSH_KEY_FILE"; fi
+          if [ -n "${AGM_SSH_KNOWN_HOSTS_FILE:-}" ]; then rm -f -- "$AGM_SSH_KNOWN_HOSTS_FILE"; fi
 
   production-agent-runtime-browser:
     needs: deploy

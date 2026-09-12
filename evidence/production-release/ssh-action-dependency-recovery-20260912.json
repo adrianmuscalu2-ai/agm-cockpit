@@ -1,0 +1,62 @@
+{
+  "contract": "agm-production-ssh-transport-recovery.v1",
+  "recordedAt": "2026-09-12T18:24:28.225Z",
+  "classification": "DEFECT_DE_RUNTIME_SESIUNE",
+  "affectedRun": {
+    "repository": "AGM",
+    "runId": 34710108436,
+    "environment": "Production",
+    "conclusion": "FAIL",
+    "failureTimestamp": "2026-09-12T18:14:48Z"
+  },
+  "rootCause": {
+    "component": "appleboy/ssh-action@v1.2.0",
+    "dependency": "drone-ssh-1.8.0-linux-amd64",
+    "operation": "dynamic runtime download from GitHub",
+    "error": "curl: (35) Recv failure: Connection reset by peer",
+    "remoteCommandsExecuted": false
+  },
+  "preservedEvidence": {
+    "verify": "PASS",
+    "publish": "PASS",
+    "publishWeb": "PASS",
+    "productionReleaseChanged": false,
+    "publicProbeAt": "2026-09-12T18:38:20.8028583Z",
+    "publicProbe": {
+      "apiLive": 200,
+      "apiReady": 200,
+      "webBasic": 200
+    }
+  },
+  "recovery": {
+    "strategy": "Replace dynamic SSH/SCP action downloads with the OpenSSH client already present on the GitHub-hosted runner.",
+    "hostVerification": "Isolated per-run known_hosts generated for the authorized Production host; StrictHostKeyChecking is mandatory on every SSH/SCP invocation.",
+    "keyHandling": "Ephemeral runner-only key file with mode 0600 and unconditional cleanup.",
+    "dynamicRuntimeDownloads": 0,
+    "localValidator": "scripts/validate-production-ssh-transport.mjs"
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "route": "Original approved run",
+      "result": "FAIL",
+      "reason": "Transport action binary download failed before SSH."
+    },
+    {
+      "attempt": 2,
+      "route": "Permanent workflow repair using preinstalled OpenSSH",
+      "result": "LOCAL_RECOVERY_IMPLEMENTED",
+      "reason": "No unchanged retry and no speculative package installation."
+    }
+  ],
+  "localValidation": {
+    "transportContract": "PASS",
+    "dynamicRuntimeDownloads": 0,
+    "apiTests": "439/439 PASS",
+    "apiLint": "PASS",
+    "apiBuild": "PASS",
+    "sourceRefreshContract": "PASS"
+  },
+  "status": "PRODUCTION_RETEST_PENDING",
+  "closureRule": "Recovery is not PASS until a new workflow revision completes the Production deployment and public end-to-end probes."
+}

@@ -209,7 +209,7 @@ function sourceFreshness(source: CanonicalSource, originType: AssistantSourceRef
   const policyTtlMs = originType === 'AGM_INTERNAL' ? 30 * 86_400_000 : 7 * 86_400_000;
   const checkedAtMs = Date.parse(checkedAt ?? '');
   const expiresAtMs = explicitExpiry ? Date.parse(explicitExpiry) : Number.isFinite(checkedAtMs) ? checkedAtMs + policyTtlMs : NaN;
-  const registryCurrent = source.status === 'CURRENT' || source.freshness?.currentStatus === 'CURRENT';
+  const registryCurrent = isRegistryCurrent(source);
   const expired = Number.isFinite(expiresAtMs) && expiresAtMs <= now.getTime();
   return {
     status: expired ? 'EXPIRED' : registryCurrent ? 'CURRENT' : 'UNKNOWN',
@@ -348,8 +348,13 @@ function inferLanguage(source: CanonicalSource) {
 }
 
 export function isCurrentApprovedSource(source: CanonicalSource) {
-  const current = source.status === 'CURRENT' || source.freshness?.currentStatus === 'CURRENT';
-  return current && isApprovedReviewStatus(source.authority.reviewStatus);
+  return isRegistryCurrent(source) && isApprovedReviewStatus(source.authority.reviewStatus);
+}
+
+function isRegistryCurrent(source: CanonicalSource) {
+  return source.freshness?.currentStatus
+    ? source.freshness.currentStatus === 'CURRENT'
+    : source.status === 'CURRENT';
 }
 
 export function isApprovedReviewStatus(value: string) {
