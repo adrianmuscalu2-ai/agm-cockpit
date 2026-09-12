@@ -27,6 +27,7 @@ type DomainActivity = { status: string; observedAt: Date; recordId: string; deta
 const PRIMARY_INSPECTOR_ID = 'premium.release-inspector';
 const SECONDARY_INSPECTOR_ID = 'premium.architecture-inspector';
 const ACCOUNTABILITY_FRESHNESS_MS = 24 * 60 * 60 * 1000;
+const ACCOUNTABILITY_MANDATE_TTL_MS = 30 * 60 * 60 * 1000;
 const ACCOUNTABILITY_EVIDENCE_LOOKBACK_LIMIT = 4_000;
 const INSPECTION_MANDATE_VERSION = 'inspector-failover-readonly-mandate.v1';
 const DOMAIN_SERVICE_VALIDATION_CONTRACT = 'domain-service-operational-validation.v1';
@@ -573,7 +574,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     const ctx: RequestContext = { companyId, userId: '00000000-0000-0000-0000-000000000001', roles: ['PRODUCT_OWNER'], requestId: randomUUID(), correlationId: randomUUID() };
     await this.ensureFoundation(ctx);
     const issuedAt = new Date();
-    const expiresAt = new Date(issuedAt.getTime() + ACCOUNTABILITY_FRESHNESS_MS);
+    const expiresAt = new Date(issuedAt.getTime() + ACCOUNTABILITY_MANDATE_TTL_MS);
     const inspectionReadSet = ['registry.read', 'telemetry.read', 'evidence.read'];
     const prohibitedActions = ['business.write', 'authority.expand', 'secret.read', 'production.deploy'];
     const mandates = await this.prisma.$transaction(async (tx) => Promise.all([PRIMARY_INSPECTOR_ID, SECONDARY_INSPECTOR_ID].map((agentId) => tx.authorityMandate.upsert({

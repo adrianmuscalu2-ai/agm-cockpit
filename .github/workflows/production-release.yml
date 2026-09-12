@@ -380,6 +380,7 @@ jobs:
 
           identity_ref="sha256:$(printf '%s' "$client_id" | sha256sum | cut -d' ' -f1)"
           credential_ref="sha256:$(printf '%s' "$next_credential_id" | sha256sum | cut -d' ' -f1)"
+          accountability=$(curl --fail --silent --show-error -X POST https://api.agmcockpit.com/api/v1/auth/deploy/machines/inspector-failover/exercise -H "Authorization: Bearer $PROVISIONING_TOKEN" -H 'Content-Type: application/json')
           operational_truth=$(curl --fail --silent --show-error \
             https://api.agmcockpit.com/api/v1/operations/turn/operational-truth)
           jq -e --arg identity "$identity_ref" --arg credential "$credential_ref" '
@@ -417,10 +418,6 @@ jobs:
           jq -c '{contractVersion:.data.contractVersion,overallStatus:.data.overallStatus,reason:.data.reason,observedAt:.data.observedAt,ageSeconds:.data.ageSeconds,authStatus:.data.authStatus,telemetryStatus:.data.telemetryStatus,falseGreen:.data.falseGreen,unexplainedDegraded:.data.unexplainedDegraded,eventStore:.data.chain.eventStore.status,turn:.data.chain.turn.status}' <<<"$operational_truth"
           echo 'TURN_OPERATIONAL_TRUTH=PASS'
 
-          accountability=$(curl --fail --silent --show-error \
-            -X POST https://api.agmcockpit.com/api/v1/auth/deploy/machines/inspector-failover/exercise \
-            -H "Authorization: Bearer $PROVISIONING_TOKEN" \
-            -H 'Content-Type: application/json')
           jq -c '{contract:.data.contractVersion,agents:[.data.agents[]|{identity,declaredOperational,operationalDeclaration,executable,mandate,lastResult,validation,freshness,status,reason}],operationalFleet:.data.operationalFleet,inspector:.data.inspector,incidents:.data.incidents,domainDutyResults:.data.recovery.domainDutyResults,inspectorEvaluations:.data.recovery.inspectorEvaluations,inspectorValidations:.data.recovery.inspectorValidations,verdict:.data.verdict}' <<<"$accountability"
           jq -e '
             .data

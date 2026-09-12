@@ -1,0 +1,114 @@
+name: AGM Production Agent Runtime Continuity
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agm-production-agent-runtime-continuity
+  cancel-in-progress: false
+
+jobs:
+  renew-and-validate:
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Verify the real Production API
+        run: |
+          set -euo pipefail
+          test "$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 10 https://api.agmcockpit.com/api/v1/health/live)" = '200'
+          test "$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 10 https://api.agmcockpit.com/api/v1/health/ready)" = '200'
+
+      - name: Renew mandates and produce current accountability evidence
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/agent-runtime-continuity
+          oidc_response=$(curl --fail --silent --show-error \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=agm%3Aproduction-machine-provisioning")
+          continuity_token=$(jq -er '.value' <<<"$oidc_response")
+          echo "::add-mask::$continuity_token"
+          status=$(curl --silent --show-error \
+            --output evidence/agent-runtime-continuity/accountability.json \
+            --write-out '%{http_code}' \
+            -X POST https://api.agmcockpit.com/api/v1/auth/deploy/machines/inspector-failover/exercise \
+            -H "Authorization: Bearer $continuity_token" \
+            -H 'Content-Type: application/json')
+          test "$status" = '201'
+          jq -e '
+            .data
+            | .contractVersion == "agent-runtime-accountability.v2"
+              and (.agents | length == 27)
+              and ([.agents[]
+                | .declaredOperational == true
+                  and .operationalDeclaration == "ACTIVE_AUTHORITY_MANDATE"
+                  and .executable == "YES"
+                  and .mandate == "PROVEN"
+                  and .lastResult == "COMPLETED"
+                  and .validation == "PROVEN"
+                  and .freshness == "CURRENT"
+                  and .status == "ACTIVE"
+                  and (.executionEvidenceRef | type == "string")
+                  and (.validationEvidenceRef | type == "string")
+                  and (.outputRef | type == "string")] | all)
+              and .operationalFleet.total == 27
+              and .operationalFleet.active == 27
+              and .operationalFleet.degraded == 0
+              and .operationalFleet.failed == 0
+              and .operationalFleet.noTelemetry == 0
+              and .inspector.primaryInspector == "premium.release-inspector"
+              and .inspector.secondaryInspector == "premium.architecture-inspector"
+              and .inspector.secondaryStatus == "COMPLETED"
+              and .inspector.mandateTransferred == true
+              and .inspector.primaryRecovered == true
+              and .inspector.failoverPreserved == true
+              and .incidents.open == 0
+              and .verdict.agentAccountability == "PASS"
+              and .verdict.inspectorFailover == "PASS"
+              and .verdict.controlCoverage == "COMPLETE"
+              and .verdict.falseActive == 0
+              and .verdict.expiredRuntimeEvidence == 0
+              and .verdict.finalAgentRuntimePass == "PASS"
+          ' evidence/agent-runtime-continuity/accountability.json
+          jq -c '{contract:.data.contractVersion,generatedAt:.data.generatedAt,active:.data.operationalFleet.active,total:.data.operationalFleet.total,validator:.data.inspector.secondaryInspector,controlCoverage:.data.verdict.controlCoverage,finalPass:.data.verdict.finalAgentRuntimePass}' evidence/agent-runtime-continuity/accountability.json
+          sha256sum evidence/agent-runtime-continuity/accountability.json > evidence/agent-runtime-continuity/accountability.json.sha256
+
+      - name: Verify post-renewal Production truth
+        run: |
+          set -euo pipefail
+          sleep 75
+          curl --fail --silent --show-error --max-time 10 \
+            https://api.agmcockpit.com/api/v1/operations/turn/operational-truth \
+            > evidence/agent-runtime-continuity/operational-truth.json
+          jq -e '
+            .data
+            | .contractVersion == "turn-operational-truth.v2"
+              and .overallStatus == "PASS"
+              and .reason == "ACP_PERIODIC_DUTY_CURRENT"
+              and .freshness == "LIVE"
+              and .ageSeconds <= 90
+              and .falseGreen == 0
+              and .unexplainedDegraded == 0
+              and .authorityControlPlane.status == "PASS"
+              and .chain.eventStore.status == "PERSISTED"
+              and .chain.api.status == "PASS"
+              and .chain.ui.status == "READY FOR LIVE RENDER"
+          ' evidence/agent-runtime-continuity/operational-truth.json
+          sha256sum evidence/agent-runtime-continuity/operational-truth.json > evidence/agent-runtime-continuity/operational-truth.json.sha256
+
+      - name: Persist continuity evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-agent-runtime-continuity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/agent-runtime-continuity
+          if-no-files-found: error
+          retention-days: 30

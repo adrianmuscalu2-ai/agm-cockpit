@@ -107,4 +107,46 @@ describe('GitHub Actions OIDC deployment HTTP boundary', () => {
       verdict: { finalAgentRuntimePass: 'PASS', falseActive: 0, unexplainedDegraded: 0 },
     });
   });
+
+  it('allows the restricted continuity identity only on the failover exercise endpoint', async () => {
+    oidc.authenticate.mockResolvedValue({
+      userId: 'github-actions-oidc',
+      companyId,
+      roles: ['AGENT_RUNTIME_CONTINUITY'],
+      requestId: '',
+      correlationId: '',
+      actorType: 'GitHubActionsOIDC',
+      actorSubject,
+      actorMetadata: { sha: 'a'.repeat(40), runId: '33773656386' },
+    });
+
+    await request(app.getHttpServer())
+      .post('/api/v1/auth/deploy/machines/inspector-failover/exercise')
+      .set('Authorization', 'Bearer github-actions-continuity-token')
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post('/api/v1/auth/deploy/machines')
+      .set('Authorization', 'Bearer github-actions-continuity-token')
+      .send({ subject: 'forbidden-provisioning', expiresInDays: 1 })
+      .expect(403);
+    await request(app.getHttpServer())
+      .post(`/api/v1/auth/deploy/machines/${identityId}/credentials/rotate`)
+      .set('Authorization', 'Bearer github-actions-continuity-token')
+      .send({ expiresInDays: 1 })
+      .expect(403);
+    await request(app.getHttpServer())
+      .post(`/api/v1/auth/deploy/machines/${identityId}/credentials/${credentialId}/revoke`)
+      .set('Authorization', 'Bearer github-actions-continuity-token')
+      .send({ reason: 'forbidden continuity operation' })
+      .expect(403);
+    await request(app.getHttpServer())
+      .post(`/api/v1/auth/deploy/machines/${identityId}/revoke`)
+      .set('Authorization', 'Bearer github-actions-continuity-token')
+      .send({ reason: 'forbidden continuity operation' })
+      .expect(403);
+
+    expect(authority.executeInspectorFailoverExercise).toHaveBeenCalledWith(companyId, actorSubject);
+    expect(machines.provision).not.toHaveBeenCalled();
+  });
 });

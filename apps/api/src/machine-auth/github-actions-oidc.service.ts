@@ -34,12 +34,12 @@ export class GitHubActionsOidcService {
     } catch {
       throw new UnauthorizedException('Invalid GitHub Actions OIDC token.');
     }
-    this.assertClaims(claims);
+    const trustedWorkflow = this.assertClaims(claims);
     const companyId = await this.resolveTenant();
     return {
       userId: 'github-actions-oidc',
       companyId,
-      roles: [GITHUB_ACTIONS_PROVISIONING_CONTRACT.role],
+      roles: [trustedWorkflow.role],
       requestId: '',
       correlationId: '',
       actorType: 'GitHubActionsOIDC' as const,
@@ -60,6 +60,11 @@ export class GitHubActionsOidcService {
     const expectedRevision = this.config.get<string>('AGM_REVISION');
     const policy = GITHUB_ACTIONS_PROVISIONING_CONTRACT;
     const now = Math.floor(Date.now() / 1_000);
+    const trustedWorkflow = policy.trustedWorkflows.find((candidate) => (
+      claims.ref === candidate.ref
+      && claims.workflow_ref === candidate.workflowRef
+      && (candidate.eventNames as readonly string[]).includes(claims.event_name)
+    ));
     if (!expectedRevision || !/^[0-9a-f]{40}$/.test(expectedRevision)) throw new ServiceUnavailableException('Production revision binding is unavailable.');
     if (
       claims.sub !== policy.subject
@@ -67,9 +72,7 @@ export class GitHubActionsOidcService {
       || claims.repository_id !== policy.repositoryId
       || claims.repository_owner_id !== policy.repositoryOwnerId
       || claims.environment !== policy.environment
-      || claims.ref !== policy.ref
-      || claims.workflow_ref !== policy.workflowRef
-      || claims.event_name !== policy.eventName
+      || !trustedWorkflow
       || claims.runner_environment !== policy.runnerEnvironment
       || claims.sha !== expectedRevision
       || !/^\d+$/.test(claims.run_id)
@@ -83,6 +86,7 @@ export class GitHubActionsOidcService {
       || claims.exp <= claims.iat
       || claims.exp - claims.iat > policy.maxTokenLifetimeSeconds
     ) throw new UnauthorizedException('GitHub Actions OIDC claims do not match the Production provisioning policy.');
+    return trustedWorkflow;
   }
 
   private async resolveTenant() {

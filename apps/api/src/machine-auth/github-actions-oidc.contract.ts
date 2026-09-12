@@ -10,6 +10,20 @@ export const GITHUB_ACTIONS_PROVISIONING_CONTRACT = {
   ref: 'refs/heads/agm-canonical-20260820',
   workflowRef: 'adrianmuscalu2-ai/agm-cockpit/.github/workflows/production-release.yml@refs/heads/agm-canonical-20260820',
   eventName: 'push',
+  trustedWorkflows: [
+    {
+      ref: 'refs/heads/agm-canonical-20260820',
+      workflowRef: 'adrianmuscalu2-ai/agm-cockpit/.github/workflows/production-release.yml@refs/heads/agm-canonical-20260820',
+      eventNames: ['push'],
+      role: 'DEPLOYMENT_PROVISIONER',
+    },
+    {
+      ref: 'refs/heads/agm-canonical-20260820',
+      workflowRef: 'adrianmuscalu2-ai/agm-cockpit/.github/workflows/production-agent-runtime-continuity.yml@refs/heads/agm-canonical-20260820',
+      eventNames: ['schedule', 'workflow_dispatch'],
+      role: 'AGENT_RUNTIME_CONTINUITY',
+    },
+  ],
   runnerEnvironment: 'github-hosted',
   companyId: '00000000-0000-0000-0000-000000000001',
   role: 'DEPLOYMENT_PROVISIONER',

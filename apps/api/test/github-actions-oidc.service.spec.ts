@@ -122,6 +122,41 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
     expect(lookup.where.users.some.roles.some.role.code.in).toContain('company_owner');
   });
 
+  it.each(['schedule', 'workflow_dispatch'])('accepts the pinned continuity workflow for %s only at the deployed Production SHA', async (eventName) => {
+    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
+    const { service } = harness();
+    await expect(service.authenticate(await token({
+      ref: continuity.ref,
+      workflow_ref: continuity.workflowRef,
+      event_name: eventName,
+    }))).resolves.toMatchObject({
+      companyId,
+      roles: ['AGENT_RUNTIME_CONTINUITY'],
+      actorMetadata: { workflowRef: continuity.workflowRef, ref: continuity.ref, sha: revision },
+    });
+  });
+
+  it('rejects the continuity workflow when its SHA differs from Production', async () => {
+    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
+    const { service } = harness();
+    await expect(service.authenticate(await token({
+      ref: continuity.ref,
+      workflow_ref: continuity.workflowRef,
+      event_name: 'schedule',
+      sha: 'b'.repeat(40),
+    }))).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('rejects an unpinned workflow even when repository, environment and branch are trusted', async () => {
+    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
+    const { service } = harness();
+    await expect(service.authenticate(await token({
+      ref: continuity.ref,
+      workflow_ref: 'adrianmuscalu2-ai/agm-cockpit/.github/workflows/untrusted.yml@refs/heads/agm-canonical-20260820',
+      event_name: 'schedule',
+    }))).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
   it('caches a validated signing key only within the bounded JWKS cache window', async () => {
     const { service } = harness();
     await service.authenticate(await token({ jti: '00000000-0000-4000-8000-000000000001' }));
