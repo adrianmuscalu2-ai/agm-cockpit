@@ -20,6 +20,33 @@ export type AccountabilitySignal = {
   outputRef: string | null;
 };
 
+export function selectLatestAccountableExecution<TExecution, TValidation>(input: {
+  executions: readonly TExecution[];
+  validations: readonly TValidation[];
+  now: Date;
+  pendingValidationGraceMs: number;
+  occurredAt: (execution: TExecution) => Date;
+  isAwaitingValidation: (execution: TExecution) => boolean;
+  isFailure: (execution: TExecution) => boolean;
+  validationMatches: (execution: TExecution, validation: TValidation) => boolean;
+}): { execution: TExecution; validation: TValidation | null } | null {
+  const latest = input.executions[0];
+  if (!latest) return null;
+  const latestValidation = input.validations.find((candidate) => input.validationMatches(latest, candidate));
+  if (latestValidation) return { execution: latest, validation: latestValidation };
+  if (input.isFailure(latest) || !input.isAwaitingValidation(latest)) return { execution: latest, validation: null };
+
+  const pendingAgeMs = input.now.getTime() - input.occurredAt(latest).getTime();
+  if (pendingAgeMs < 0 || pendingAgeMs > input.pendingValidationGraceMs) return { execution: latest, validation: null };
+
+  for (const execution of input.executions.slice(1)) {
+    const validation = input.validations.find((candidate) => input.validationMatches(execution, candidate));
+    if (validation) return { execution, validation };
+  }
+
+  return { execution: latest, validation: null };
+}
+
 export type AgentAccountabilityEvaluation = {
   executable: 'YES' | 'NO';
   mandate: 'PROVEN' | 'NOT PROVEN';

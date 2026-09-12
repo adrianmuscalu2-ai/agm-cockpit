@@ -3,6 +3,7 @@ import {
   evaluateAgentRuntimeVerdict,
   evaluateInspectorFailover,
   falseActiveCount,
+  selectLatestAccountableExecution,
   type AccountabilitySignal,
 } from '../src/authority-control-plane/agent-runtime-accountability.engine';
 
@@ -37,6 +38,58 @@ const evaluate = (overrides: Partial<Parameters<typeof evaluateAgentAccountabili
 });
 
 describe('agent runtime accountability engine', () => {
+  it('keeps the latest validated execution during the persistence gap for its successor', () => {
+    const selected = selectLatestAccountableExecution({
+      executions: [
+        { id: 'new', status: 'COMPLETED', occurredAt: new Date('2026-09-08T12:00:00.000Z') },
+        { id: 'proven', status: 'COMPLETED', occurredAt: new Date('2026-09-08T11:59:00.000Z') },
+      ],
+      validations: [{ executionId: 'proven' }],
+      now: new Date('2026-09-08T12:00:01.000Z'),
+      pendingValidationGraceMs: 2_000,
+      occurredAt: (candidate) => candidate.occurredAt,
+      isAwaitingValidation: (candidate) => candidate.status === 'COMPLETED',
+      isFailure: (candidate) => candidate.status === 'FAILED',
+      validationMatches: (candidate, proof) => proof.executionId === candidate.id,
+    });
+
+    expect(selected).toEqual({ execution: { id: 'proven', status: 'COMPLETED', occurredAt: new Date('2026-09-08T11:59:00.000Z') }, validation: { executionId: 'proven' } });
+  });
+
+  it('fails closed after the bounded pending-validation grace expires', () => {
+    const latest = { id: 'unvalidated', status: 'COMPLETED', occurredAt: new Date('2026-09-08T12:00:00.000Z') };
+    const selected = selectLatestAccountableExecution({
+      executions: [latest, { id: 'proven', status: 'COMPLETED', occurredAt: new Date('2026-09-08T11:59:00.000Z') }],
+      validations: [{ executionId: 'proven' }],
+      now: new Date('2026-09-08T12:00:02.001Z'),
+      pendingValidationGraceMs: 2_000,
+      occurredAt: (candidate) => candidate.occurredAt,
+      isAwaitingValidation: (candidate) => candidate.status === 'COMPLETED',
+      isFailure: (candidate) => candidate.status === 'FAILED',
+      validationMatches: (candidate, proof) => proof.executionId === candidate.id,
+    });
+
+    expect(selected).toEqual({ execution: latest, validation: null });
+  });
+
+  it('never hides a latest failed execution behind older PASS evidence', () => {
+    const selected = selectLatestAccountableExecution({
+      executions: [
+        { id: 'failed', status: 'FAILED', occurredAt: new Date('2026-09-08T12:00:00.000Z') },
+        { id: 'proven', status: 'COMPLETED', occurredAt: new Date('2026-09-08T11:59:00.000Z') },
+      ],
+      validations: [{ executionId: 'proven' }],
+      now: new Date('2026-09-08T12:00:00.100Z'),
+      pendingValidationGraceMs: 2_000,
+      occurredAt: (candidate) => candidate.occurredAt,
+      isAwaitingValidation: (candidate) => candidate.status === 'COMPLETED',
+      isFailure: (candidate) => candidate.status === 'FAILED',
+      validationMatches: (candidate, proof) => proof.executionId === candidate.id,
+    });
+
+    expect(selected).toEqual({ execution: { id: 'failed', status: 'FAILED', occurredAt: new Date('2026-09-08T12:00:00.000Z') }, validation: null });
+  });
+
   it('declares ACTIVE only for the full evidence chain', () => {
     expect(evaluate()).toEqual(expect.objectContaining({ executable: 'YES', mandate: 'PROVEN', validation: 'PROVEN', freshness: 'CURRENT', status: 'ACTIVE' }));
   });

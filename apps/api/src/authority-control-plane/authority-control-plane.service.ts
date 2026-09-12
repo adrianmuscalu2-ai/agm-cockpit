@@ -13,7 +13,7 @@ import { operationalProfile } from './operational-profile';
 import { SecretTelemetryService } from '../secret-telemetry/secret-telemetry.service';
 import { optionalExternalProviders } from '../car-mover/car-mover-routing.policy';
 import { OPERATIONAL_INCIDENT_CONTRACT, operationalIncidentTransition, qualifyOperationalIncident, type OperationalIncidentQualification } from './operational-incident-evaluator';
-import { AGENT_ACCOUNTABILITY_CONTRACT, INSPECTOR_FAILOVER_CONTRACT, evaluateAgentAccountability, evaluateAgentRuntimeVerdict, evaluateInspectorFailover, falseActiveCount, type AccountabilitySignal } from './agent-runtime-accountability.engine';
+import { AGENT_ACCOUNTABILITY_CONTRACT, INSPECTOR_FAILOVER_CONTRACT, evaluateAgentAccountability, evaluateAgentRuntimeVerdict, evaluateInspectorFailover, falseActiveCount, selectLatestAccountableExecution, type AccountabilitySignal } from './agent-runtime-accountability.engine';
 import { OperationalAgentDutyRunner, type OperationalAgentDutyResult } from './operational-agent-duty.runner';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
@@ -415,16 +415,17 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     const agents = dashboard.nodes.filter((node) => node.kind !== 'HUMAN_AUTHORITY').map((node) => {
       const seed = premiumNetworkSeed.find((item) => item.canonicalId === node.canonicalId)!;
       const profile = operationalProfile(seed);
-      const execution = runtimeSignal(runtimeByAgent.get(node.canonicalId)) ?? nodeSignal(node);
       const mandate = mandateByAgent.get(node.canonicalId);
       const declaredOperational = Boolean(mandate);
-      const validationEvent = validationEvents.find((event) => {
+      const runtimeCandidates = runtimeEvents.filter((event) => event.agentId === node.canonicalId);
+      const validationMatches = (candidateExecution: (typeof runtimeEvents)[number], event: (typeof validationEvents)[number]) => {
+        const candidateSignal = runtimeSignal(candidateExecution);
         const metadata = jsonRecord(event.safeMetadata);
         const validatorMandate = mandateByAgent.get(event.actorId);
         const { outputRef } = metadata;
         return Boolean(
           mandate
-          && execution
+          && candidateSignal
           && event.outcome === 'PASS'
           && event.actorId !== node.canonicalId
           && validatorMandate?.id === event.mandateId
@@ -432,15 +433,38 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
           && metadata.validatorId === event.actorId
           && metadata.validatorMandateId === event.mandateId
           && metadata.targetMandateId === mandate.id
-          && metadata.executionEventId === execution.id
-          && metadata.executionEvidenceRef === execution.evidenceRef
-          && metadata.executionOutputRef === execution.outputRef
+          && metadata.executionEventId === candidateSignal.id
+          && metadata.executionEvidenceRef === candidateSignal.evidenceRef
+          && metadata.executionOutputRef === candidateSignal.outputRef
           && metadata.result === 'PASS'
           && typeof outputRef === 'string'
           && /^sha256:[a-f0-9]{64}$/i.test(outputRef)
           && outputRef === `sha256:${event.payloadHash}`
         );
+      };
+      const selectedEvidence = selectLatestAccountableExecution({
+        executions: runtimeCandidates,
+        validations: validationEvents,
+        now,
+        pendingValidationGraceMs: 2_000,
+        occurredAt: (event) => event.occurredAt,
+        isAwaitingValidation: (event) => event.lifecycle.toUpperCase() === 'COMPLETED',
+        isFailure: (event) => ['FAILED', 'FAIL', 'BLOCKED', 'ERROR'].includes(event.lifecycle.toUpperCase()),
+        validationMatches,
       });
+      const execution = runtimeSignal(selectedEvidence?.execution) ?? nodeSignal(node);
+      const validationEvent = selectedEvidence?.validation ?? (!runtimeCandidates.length ? validationEvents.find((event) => {
+        const metadata = jsonRecord(event.safeMetadata);
+        const validatorMandate = mandateByAgent.get(event.actorId);
+        const { outputRef } = metadata;
+        return Boolean(mandate && execution && event.outcome === 'PASS' && event.actorId !== node.canonicalId
+          && validatorMandate?.id === event.mandateId && metadata.agentId === node.canonicalId
+          && metadata.validatorId === event.actorId && metadata.validatorMandateId === event.mandateId
+          && metadata.targetMandateId === mandate.id && metadata.executionEventId === execution.id
+          && metadata.executionEvidenceRef === execution.evidenceRef && metadata.executionOutputRef === execution.outputRef
+          && metadata.result === 'PASS' && typeof outputRef === 'string'
+          && /^sha256:[a-f0-9]{64}$/i.test(outputRef) && outputRef === `sha256:${event.payloadHash}`);
+      }) : null);
       const validationMetadata = validationEvent ? jsonRecord(validationEvent.safeMetadata) : {};
       const validation: AccountabilitySignal | null = validationEvent ? {
         id: validationEvent.eventId,
