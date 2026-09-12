@@ -47,6 +47,19 @@
       "route": "Permanent workflow repair using preinstalled OpenSSH",
       "result": "LOCAL_RECOVERY_IMPLEMENTED",
       "reason": "No unchanged retry and no speculative package installation."
+    },
+    {
+      "attempt": 3,
+      "runId": 34711891714,
+      "route": "Canonical CI verification",
+      "result": "FAIL_BEFORE_PUBLISH",
+      "reason": "Git text normalization changed candidate evidence bytes between Windows and Linux; publish and deploy were skipped."
+    },
+    {
+      "attempt": 4,
+      "route": "Preserve controlled refresh candidates as immutable binary evidence",
+      "result": "LOCAL_RECOVERY_IMPLEMENTED",
+      "reason": "A repository attribute now disables line-ending normalization for every controlled-refresh candidate."
     }
   ],
   "localValidation": {
