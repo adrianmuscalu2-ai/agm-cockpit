@@ -30,6 +30,15 @@ describe('Premium assistant read-only contract', () => {
     const supplied = JSON.parse(body.input[1].content);
     expect(supplied.tenantBoundary).toBe('tenant-1');
     expect(supplied).not.toHaveProperty('tenantId');
+    expect(supplied.knowledgeContext).toEqual([]);
+    expect(supplied.sourcePolicy).toEqual({
+      libraryFirst: true,
+      liveSearchRequired: false,
+      egressEligibility: 'CURRENT_APPROVED_ONLY',
+      maxSources: 6,
+      maxCharsPerSource: 900,
+      sensitiveDataRedaction: true,
+    });
     expect(body.tools).toBeUndefined();
     expect(body.tool_choice).toBeUndefined();
     expect(body.max_output_tokens).toBe(220);

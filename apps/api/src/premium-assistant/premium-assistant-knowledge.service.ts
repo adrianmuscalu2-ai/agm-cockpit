@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { basename, extname } from 'node:path';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { basename, extname, isAbsolute, relative, resolve } from 'node:path';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CanonicalAuthorityLoader } from '../canonical-authority/canonical-authority.loader';
 import type { CanonicalSource } from '../canonical-authority/canonical-authority.contract';
@@ -8,9 +9,12 @@ import type { AssistantSourceReference, AssistantSourceTrace } from './premium-a
 const LIBRARY_CACHE_TTL_MS = 15 * 60_000;
 const LIVE_CACHE_TTL_MS = 60_000;
 const TRACE_TTL_MS = 30 * 60_000;
-const MAX_SOURCES = 6;
+export const MAX_EGRESS_SOURCES = 6;
+export const MAX_EGRESS_CHARS_PER_SOURCE = 900;
+const MAX_INDEXED_SOURCE_BYTES = 768 * 1024;
+const TEXT_SOURCE_EXTENSIONS = new Set(['.html', '.htm', '.md', '.txt', '.json', '.csv', '.tsv']);
 
-type IndexedSource = { source: CanonicalSource; reference: AssistantSourceReference; terms: Set<string>; dedupKey: string };
+type IndexedSource = { source: CanonicalSource; reference: AssistantSourceReference; terms: Set<string>; dedupKey: string; content: string };
 type CachedAnswer = { text: string; kind: 'answer' | 'clarification'; sources: AssistantSourceReference[]; expiresAtMs: number };
 type StoredTrace = { trace: AssistantSourceTrace; ownerCompanyId: string; expiresAtMs: number };
 
@@ -22,36 +26,41 @@ export class PremiumAssistantKnowledgeService {
   private readonly invalidated = new Map<string, { reason: string; invalidatedAt: string }>();
 
   constructor(private readonly library: CanonicalAuthorityLoader) {
-    this.index = deduplicate(this.library.sources().filter(isCurrentSource).map((source) => this.indexSource(source)));
+    this.index = deduplicate(this.library.sources().filter(isCurrentApprovedSource).map((source) => this.indexSource(source)));
   }
 
   resolve(question: string, language: string, liveIntent: boolean, now = new Date()) {
     this.prune(now.getTime());
     const queryTerms = semanticTerms(question);
-    const ranked = this.index
+    const rankedEntries = this.index
       .filter((entry) => !this.invalidated.has(entry.source.sourceId))
       .map((entry) => ({ entry, score: semanticScore(queryTerms, entry.terms, language, entry.reference.language) }))
       .filter((item) => item.score > 0)
       .sort((left, right) => right.score - left.score || left.entry.source.sourceId.localeCompare(right.entry.source.sourceId))
-      .slice(0, MAX_SOURCES)
-      .map((item) => refreshReference(item.entry.reference, now));
+      .slice(0, MAX_EGRESS_SOURCES);
+    const ranked = rankedEntries.map((item) => refreshReference(item.entry.reference, now));
     const allCurrent = ranked.length > 0 && ranked.every((source) => source.freshness.status === 'CURRENT');
     const alwaysLive = /(?:^|[^a-z0-9])(weather|wetter|meteo|vreme|traffic|verkehr|trafic|price|preis|pret|opening|geoffnet|deschis)/i.test(normalize(question));
     const expiredMatch = ranked.some((source) => ['STALE', 'EXPIRED', 'INVALIDATED'].includes(source.freshness.status));
     return {
       sources: ranked,
       requiresLiveSearch: alwaysLive || expiredMatch || (liveIntent && !allCurrent),
-      context: ranked.map((source) => ({
-        sourceId: source.sourceId,
-        title: source.title,
-        origin: source.origin,
-        urlOrIdentifier: source.urlOrIdentifier,
-        domain: source.domain,
-        language: source.language,
-        confidence: source.confidence,
-        freshness: source.freshness,
-        provenance: source.provenance,
-      })),
+      context: rankedEntries.map((item, index) => {
+        const source = ranked[index]!;
+        const excerpt = relevantExcerpt(item.entry.content, queryTerms);
+        if (!excerpt || source.freshness.status !== 'CURRENT') return null;
+        return {
+          sourceId: source.sourceId,
+          title: redactSensitiveContent(source.title),
+          origin: redactSensitiveContent(source.origin),
+          domain: source.domain,
+          language: source.language,
+          confidence: source.confidence,
+          freshnessStatus: source.freshness.status,
+          reviewStatus: source.provenance.reviewStatus,
+          excerpt,
+        };
+      }).filter((item): item is NonNullable<typeof item> => Boolean(item)),
     };
   }
 
@@ -141,8 +150,27 @@ export class PremiumAssistantKnowledgeService {
       freshness: sourceFreshness(source, originType, new Date()),
       provenance: { canonicalPath: source.canonicalPath, sha256: source.sha256, authorityType: source.authority.authorityType, reviewStatus: source.authority.reviewStatus },
     };
-    const semanticText = [source.sourceId, source.version, source.authority.issuingBody, source.authority.jurisdictions.join(' '), domains.join(' '), source.canonicalPath, source.canonicalUri].filter(Boolean).join(' ');
-    return { source, reference, terms: semanticTerms(semanticText), dedupKey: source.sha256 || normalize(source.canonicalUri ?? source.sourceId) };
+    const content = this.readApprovedTextSource(source);
+    const semanticText = [source.sourceId, source.version, source.authority.issuingBody, source.authority.jurisdictions.join(' '), domains.join(' '), source.canonicalPath, source.canonicalUri, content].filter(Boolean).join(' ');
+    return { source, reference, terms: semanticTerms(semanticText), dedupKey: source.sha256 || normalize(source.canonicalUri ?? source.sourceId), content };
+  }
+
+  private readApprovedTextSource(source: CanonicalSource) {
+    if (!isCurrentApprovedSource(source) || !source.canonicalPath.replace(/\\/g, '/').startsWith('AGM_LIBRARY/')) return '';
+    if (!TEXT_SOURCE_EXTENSIONS.has(extname(source.canonicalPath).toLowerCase())) return '';
+    const workspaceRoot = this.library.workspaceRoot;
+    if (!workspaceRoot || typeof this.library.absolutePath !== 'function') return '';
+    const libraryRoot = resolve(workspaceRoot, 'AGM_LIBRARY');
+    const target = this.library.absolutePath(source.canonicalPath);
+    const containedPath = relative(libraryRoot, target);
+    if (!containedPath || containedPath.startsWith('..') || isAbsolute(containedPath) || !existsSync(target)) return '';
+    try {
+      if (!statSync(target).isFile()) return '';
+      const bytes = readFileSync(target).subarray(0, MAX_INDEXED_SOURCE_BYTES);
+      return sourceText(bytes.toString('utf8'), extname(source.canonicalPath).toLowerCase());
+    } catch {
+      return '';
+    }
   }
 
   private prune(nowMs: number) {
@@ -216,6 +244,84 @@ function semanticScore(query: Set<string>, source: Set<string>, requestedLanguag
   return score;
 }
 
+function relevantExcerpt(content: string, query: Set<string>) {
+  if (!content) return '';
+  const candidates = content.split(/(?:\r?\n){1,}|(?<=[.!?])\s+/).map((value) => value.trim()).filter((value) => value.length >= 24);
+  const ranked = candidates
+    .map((value, index) => ({ value, index, score: semanticScore(query, semanticTerms(value), '', '') }))
+    .filter((item) => item.score > 0)
+    .sort((left, right) => right.score - left.score || left.index - right.index)
+    .slice(0, 4)
+    .sort((left, right) => left.index - right.index)
+    .map((item) => item.value);
+  return redactSensitiveContent(ranked.join(' ')).slice(0, MAX_EGRESS_CHARS_PER_SOURCE).trim();
+}
+
+function sourceText(value: string, extension: string) {
+  const withoutExecutableHtml = extension === '.html' || extension === '.htm'
+    ? value
+      .replace(/<(script|style|noscript|svg)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<!--[\s\S]*?-->/g, ' ')
+      .replace(/<[^>]+>/g, ' ')
+    : value;
+  return decodeHtmlEntities(withoutExecutableHtml).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function decodeHtmlEntities(value: string) {
+  return value
+    .replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&#(\d{1,6});/g, (_match, code: string) => String.fromCodePoint(Number(code)));
+}
+
+export function redactSensitiveContent(value: string) {
+  return value
+    .replace(/-----BEGIN [^-\r\n]*PRIVATE KEY-----[\s\S]*?-----END [^-\r\n]*PRIVATE KEY-----/gi, '[REDACTED_SECRET]')
+    .replace(/\b(?:sk|rk|pk|ghp|gho|github_pat)[-_][A-Za-z0-9_-]{16,}\b/g, '[REDACTED_SECRET]')
+    .replace(/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g, '[REDACTED_SECRET]')
+    .replace(/\b(api[_-]?key|client[_-]?secret|access[_-]?token|refresh[_-]?token|password|passwd|authorization|bearer)\b\s*[:=]\s*["']?[^\s,"';]{6,}/gi, '$1=[REDACTED_SECRET]')
+    .replace(/\b[A-Z]{2}\d{2}(?:[ ]?[A-Z0-9]){11,30}\b/gi, '[REDACTED_IBAN]')
+    .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, '[REDACTED_EMAIL]')
+    .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g, '[REDACTED_IP]')
+    .replace(/(?:\+\d{1,3}[ .()-]*)?(?:\d[ .()-]*){7,14}\d\b/g, '[REDACTED_PHONE]')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export type AssistantKnowledgeEgress = {
+  sourceId: string;
+  title: string;
+  origin: string;
+  domain: string[];
+  language: string;
+  confidence: number;
+  freshnessStatus: string;
+  reviewStatus: string;
+  excerpt: string;
+};
+
+export function prepareKnowledgeEgress(context: readonly AssistantKnowledgeEgress[]) {
+  return context
+    .filter((item) => item.freshnessStatus === 'CURRENT' && isApprovedReviewStatus(item.reviewStatus))
+    .slice(0, MAX_EGRESS_SOURCES)
+    .map((item) => ({
+      sourceId: redactSensitiveContent(item.sourceId),
+      title: redactSensitiveContent(item.title),
+      origin: redactSensitiveContent(item.origin),
+      domain: item.domain.slice(0, 8).map(redactSensitiveContent),
+      language: redactSensitiveContent(item.language),
+      confidence: item.confidence,
+      freshnessStatus: 'CURRENT' as const,
+      reviewStatus: redactSensitiveContent(item.reviewStatus),
+      excerpt: redactSensitiveContent(item.excerpt).slice(0, MAX_EGRESS_CHARS_PER_SOURCE).trim(),
+    }))
+    .filter((item) => item.excerpt.length > 0);
+}
+
 function semanticTerms(value: string) {
   const aliases: Record<string, string[]> = {
     tacho: ['tachograph', 'tachograf', 'tahograf'], tachograph: ['tacho', 'tachograf', 'tahograf'], tachograf: ['tacho', 'tachograph', 'tahograf'], tahograf: ['tacho', 'tachograph', 'tachograf'],
@@ -241,6 +347,14 @@ function inferLanguage(source: CanonicalSource) {
   return jurisdiction && jurisdiction.length === 2 ? jurisdiction : 'und';
 }
 
-function isCurrentSource(source: CanonicalSource) {
-  return source.status === 'CURRENT' || source.freshness?.currentStatus === 'CURRENT';
+export function isCurrentApprovedSource(source: CanonicalSource) {
+  const current = source.status === 'CURRENT' || source.freshness?.currentStatus === 'CURRENT';
+  return current && isApprovedReviewStatus(source.authority.reviewStatus);
+}
+
+export function isApprovedReviewStatus(value: string) {
+  const reviewStatus = value.toUpperCase();
+  const approved = reviewStatus === 'APPROVED' || /(?:^|_)APPROVED(?:_|$)/.test(reviewStatus);
+  const restricted = /NOT_APPROVED|NOT_AUTHORIZED|NOT_PROMOTED|PENDING|DRAFT|REVOKED|DENIED|REJECTED|SUSPENDED|EXPIRED/.test(reviewStatus);
+  return approved && !restricted;
 }

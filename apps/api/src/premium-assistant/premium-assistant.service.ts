@@ -3,7 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import type { RequestContext } from '../common/request-context';
 import { PrismaService } from '../prisma/prisma.service';
 import { PREMIUM_ASSISTANT_CONTRACT, type AssistantSourceReference, type AssistantSourceTrace, type PremiumAssistantResponse } from './premium-assistant.contract';
-import { liveSourceReference, PremiumAssistantKnowledgeService } from './premium-assistant-knowledge.service';
+import {
+  liveSourceReference,
+  MAX_EGRESS_CHARS_PER_SOURCE,
+  MAX_EGRESS_SOURCES,
+  prepareKnowledgeEgress,
+  PremiumAssistantKnowledgeService,
+} from './premium-assistant-knowledge.service';
 import type { PremiumAssistantRequestDto } from './dto/premium-assistant-request.dto';
 
 type OpenAiPayload = { output_text?: string; output?: Array<{ content?: Array<{ text?: string; annotations?: unknown[] }> }> };
@@ -48,6 +54,7 @@ export class PremiumAssistantService {
 
     const sourceResolutionStartedAt = Date.now();
     const resolution = this.knowledge?.resolve(request.confirmedText, request.language, requiresLiveSearch(request.confirmedText)) ?? { sources: [], requiresLiveSearch: requiresLiveSearch(request.confirmedText), context: [] };
+    const knowledgeContext = prepareKnowledgeEgress(resolution.context);
     const sourceResolutionMs = Date.now() - sourceResolutionStartedAt;
     const providerStartedAt = Date.now();
     let response: Response;
@@ -59,7 +66,23 @@ export class PremiumAssistantService {
           model: this.config.get<string>('OPENAI_PREMIUM_ASSISTANT_MODEL', PREMIUM_ASSISTANT_CONTRACT.defaultModel),
           input: [
             { role: 'system', content: systemInstruction(request.language) },
-            { role: 'user', content: JSON.stringify({ productId: request.productId, moduleId: request.moduleId, tenantBoundary: user.companyId, contextRefs, history: request.history, confirmedText: request.confirmedText, knowledgeContext: resolution.context, sourcePolicy: { libraryFirst: true, liveSearchRequired: resolution.requiresLiveSearch } }) },
+            { role: 'user', content: JSON.stringify({
+              productId: request.productId,
+              moduleId: request.moduleId,
+              tenantBoundary: user.companyId,
+              contextRefs,
+              history: request.history,
+              confirmedText: request.confirmedText,
+              knowledgeContext,
+              sourcePolicy: {
+                libraryFirst: true,
+                liveSearchRequired: resolution.requiresLiveSearch,
+                egressEligibility: 'CURRENT_APPROVED_ONLY',
+                maxSources: MAX_EGRESS_SOURCES,
+                maxCharsPerSource: MAX_EGRESS_CHARS_PER_SOURCE,
+                sensitiveDataRedaction: true,
+              },
+            }) },
           ],
           ...(resolution.requiresLiveSearch ? { tools: [{ type: 'web_search' }], tool_choice: 'auto' } : {}),
           max_output_tokens: 220,

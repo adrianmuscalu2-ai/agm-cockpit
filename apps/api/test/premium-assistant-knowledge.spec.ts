@@ -1,9 +1,18 @@
 import type { CanonicalSource } from '../src/canonical-authority/canonical-authority.contract';
 import type { CanonicalAuthorityLoader } from '../src/canonical-authority/canonical-authority.loader';
 import { CanonicalAuthorityLoader as RealCanonicalAuthorityLoader } from '../src/canonical-authority/canonical-authority.loader';
-import { PremiumAssistantKnowledgeService } from '../src/premium-assistant/premium-assistant-knowledge.service';
+import {
+  isApprovedReviewStatus,
+  MAX_EGRESS_CHARS_PER_SOURCE,
+  MAX_EGRESS_SOURCES,
+  prepareKnowledgeEgress,
+  PremiumAssistantKnowledgeService,
+  redactSensitiveContent,
+} from '../src/premium-assistant/premium-assistant-knowledge.service';
 import { ConfigService } from '@nestjs/config';
-import { resolve } from 'node:path';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
 
 const NOW = new Date('2026-09-12T12:00:00.000Z');
 
@@ -38,23 +47,29 @@ function source(id: string, overrides: Partial<CanonicalSource> = {}): Canonical
   };
 }
 
-function knowledge(sources: CanonicalSource[]) {
+function knowledge(sources: CanonicalSource[], workspaceRoot?: string) {
   const byId = new Map(sources.map((item) => [item.sourceId, item]));
   const loader = {
+    workspaceRoot,
     sources: () => sources,
     source: (id: string) => byId.get(id),
     contains: (_domain: string, id: string) => id.includes('TACHO') || id.includes('LEGAL'),
+    absolutePath: (path: string) => resolve(workspaceRoot ?? '', path),
   } as unknown as CanonicalAuthorityLoader;
   return new PremiumAssistantKnowledgeService(loader);
 }
 
 describe('Premium Assistant canonical knowledge reuse', () => {
-  it('loads the real 862-entry canonical registry and reuses its tacho metadata', () => {
+  it('loads the real registry, indexes only approved sources, and withholds expired fragments', () => {
     const loader = new RealCanonicalAuthorityLoader(new ConfigService({ AGM_CANONICAL_LIBRARY_ROOT: resolve(__dirname, '..', '..', '..') }));
     const service = new PremiumAssistantKnowledgeService(loader);
     expect(service.stats().canonicalSources).toBe(862);
-    expect(service.stats().semanticEntries).toBeGreaterThan(0);
-    expect(service.resolve('tahograf Germania camion', 'ro', false, NOW).sources.some((item) => item.sourceId.includes('TACHO'))).toBe(true);
+    expect(service.stats().semanticEntries).toBe(16);
+    const result = service.resolve('toll camion Germania Toll Collect', 'ro', false, NOW);
+    expect(result.sources.length).toBeGreaterThan(0);
+    expect(result.context).toHaveLength(0);
+    expect(result.requiresLiveSearch).toBe(true);
+    expect(result.sources.every((item) => isApprovedReviewStatus(item.provenance.reviewStatus))).toBe(true);
   });
 
   it('serves a current AGM Library match without redundant live search', () => {
@@ -69,6 +84,25 @@ describe('Premium Assistant canonical knowledge reuse', () => {
       freshness: { status: 'CURRENT' },
       confidence: 0.98,
     });
+  });
+
+  it('extracts only a relevant, redacted, bounded fragment from an approved current AGM text source', () => {
+    const root = mkdtempSync(join(tmpdir(), 'agm-knowledge-'));
+    try {
+      const item = source('CS-AGM-TACHO-CONTENT', { canonicalPath: 'AGM_LIBRARY/TEST/CS-AGM-TACHO-CONTENT.html' });
+      const target = resolve(root, item.canonicalPath);
+      mkdirSync(dirname(target), { recursive: true });
+      writeFileSync(target, '<html><script>api_key=sk-script_12345678901234567890</script><body>Tahograf Germania: verifică timpii de conducere. Contact driver@example.com sau +49 151 23456789. Alte informații generale.</body></html>');
+      const result = knowledge([item], root).resolve('Ce verific la tahograf în Germania?', 'ro', false, NOW);
+      expect(result.context).toHaveLength(1);
+      expect(result.context[0]?.excerpt).toContain('Tahograf Germania');
+      expect(result.context[0]?.excerpt.length).toBeLessThanOrEqual(MAX_EGRESS_CHARS_PER_SOURCE);
+      expect(result.context[0]?.excerpt).toContain('[REDACTED_EMAIL]');
+      expect(result.context[0]?.excerpt).toContain('[REDACTED_PHONE]');
+      expect(result.context[0]?.excerpt).not.toContain('sk-script_');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 
   it('requires a live source for intrinsically live questions', () => {
@@ -124,5 +158,50 @@ describe('Premium Assistant canonical knowledge reuse', () => {
     const result = knowledge([expired]).resolve('tahograf', 'ro', false, NOW);
     expect(result.sources[0]?.freshness.status).toBe('EXPIRED');
     expect(result.requiresLiveSearch).toBe(true);
+  });
+
+  it('rejects approval states that are pending, not authorized, not promoted, draft, or explicitly unapproved', () => {
+    expect(isApprovedReviewStatus('APPROVED')).toBe(true);
+    expect(isApprovedReviewStatus('PRODUCT_OWNER_APPROVED_2026_08_30_WITH_EXACT_SCOPE')).toBe(true);
+    expect(isApprovedReviewStatus('HUMAN_APPROVED_INTEGRITY_VERIFIED_PENDING_REGISTRY_APPLY_AUTHORIZATION')).toBe(false);
+    expect(isApprovedReviewStatus('PRODUCT_OWNER_APPROVED_WITH_EXACT_SCOPE_ATOMIC_APPLY_NOT_AUTHORIZED')).toBe(false);
+    expect(isApprovedReviewStatus('PRODUCT_OWNER_APPROVED_WITH_EXACT_SCOPE_PRE_APPLY_NOT_PROMOTED')).toBe(false);
+    expect(isApprovedReviewStatus('DRAFT_NOT_APPROVED')).toBe(false);
+    expect(isApprovedReviewStatus('APPROVED_THEN_REVOKED')).toBe(false);
+    expect(isApprovedReviewStatus('APPROVED_BUT_SUSPENDED')).toBe(false);
+  });
+
+  it('redacts structured secrets and personal data before egress', () => {
+    const redacted = redactSensitiveContent('Email driver@example.com phone +49 151 23456789 api_key=sk-test_12345678901234567890 IP 192.168.1.10');
+    expect(redacted).toContain('[REDACTED_EMAIL]');
+    expect(redacted).toContain('[REDACTED_PHONE]');
+    expect(redacted).toContain('[REDACTED_SECRET]');
+    expect(redacted).toContain('[REDACTED_IP]');
+    expect(redacted).not.toContain('driver@example.com');
+    expect(redacted).not.toContain('23456789');
+  });
+
+  it('enforces CURRENT/APPROVED, six sources, 900 characters and redaction again at the provider boundary', () => {
+    const approved = Array.from({ length: 8 }, (_, index) => ({
+      sourceId: 'source-' + index,
+      title: 'Contact driver' + index + '@example.com',
+      origin: 'AGM',
+      domain: ['ROUTING_TOLL'],
+      language: 'ro',
+      confidence: 0.98,
+      freshnessStatus: 'CURRENT',
+      reviewStatus: 'APPROVED',
+      excerpt: 'api_key=sk-test_12345678901234567890 ' + 'informație '.repeat(150),
+    }));
+    const rejected = [
+      { ...approved[0]!, sourceId: 'expired', freshnessStatus: 'EXPIRED' },
+      { ...approved[0]!, sourceId: 'pending', reviewStatus: 'HUMAN_APPROVED_PENDING' },
+    ];
+    const result = prepareKnowledgeEgress([...approved, ...rejected]);
+    expect(result).toHaveLength(MAX_EGRESS_SOURCES);
+    expect(result.every((item) => item.excerpt.length <= MAX_EGRESS_CHARS_PER_SOURCE)).toBe(true);
+    expect(JSON.stringify(result)).not.toContain('driver0@example.com');
+    expect(JSON.stringify(result)).not.toContain('sk-test_');
+    expect(result.some((item) => item.sourceId === 'expired' || item.sourceId === 'pending')).toBe(false);
   });
 });
