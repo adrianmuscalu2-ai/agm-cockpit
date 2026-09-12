@@ -68,6 +68,10 @@ import {
   type GlobalCameraOcrOrigin,
 } from './global-camera-ocr/global-camera-ocr.service';
 import { nativeCameraCaptureRuntime } from './global-camera-ocr/native-camera-capture.runtime';
+import {
+  captureFromDesktopWebcam,
+  shouldUseDesktopWebcam,
+} from './global-camera-ocr/browser-camera-capture.runtime';
 import { createIncidentController } from './incident/incident.controller';
 import { isTurnSectionFragment, routeForShellView, shellViewFromRoute } from './app-shell/navigation.contract';
 import { attachTranslatorLegacyFacade, createTranslatorState } from './app-shell/translator-state.store';
@@ -3516,6 +3520,33 @@ async function requestGlobalCameraInput(inputId: 'globalOcrCameraInput' | 'globa
       await globalCameraOcr.process(result.file);
     } else if (result.status !== 'cancelled') {
       globalCameraOcr.fail(result.status);
+    }
+    return;
+  }
+  if (inputId === 'globalOcrCameraInput' && shouldUseDesktopWebcam()) {
+    const copy = ocrPageCopy();
+    const result = await captureFromDesktopWebcam({
+      title: copy.title,
+      description: copy.description,
+      capture: copy.camera,
+      cancel: t(uiLanguage(), 'common.close'),
+    });
+    if (result.status === 'captured') {
+      await globalCameraOcr.process(result.file);
+      return;
+    }
+    if (result.status === 'permission-denied') {
+      globalCameraOcr.fail(result.status);
+      return;
+    }
+    if (result.status === 'camera-unavailable') {
+      const fallback = document.querySelector<HTMLInputElement>('#globalOcrFileInput');
+      if (fallback) {
+        fallback.value = '';
+        fallback.click();
+      } else {
+        globalCameraOcr.fail(result.status);
+      }
     }
     return;
   }
