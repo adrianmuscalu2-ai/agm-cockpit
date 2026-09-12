@@ -126,12 +126,15 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
     const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
     const { service } = harness();
     await expect(service.authenticate(await token({
+      sub: continuity.subject,
+      environment: continuity.environment,
       ref: continuity.ref,
       workflow_ref: continuity.workflowRef,
       event_name: eventName,
     }))).resolves.toMatchObject({
       companyId,
       roles: ['AGENT_RUNTIME_CONTINUITY'],
+      actorSubject: continuity.subject,
       actorMetadata: { workflowRef: continuity.workflowRef, ref: continuity.ref, sha: revision },
     });
   });
@@ -140,6 +143,8 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
     const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
     const { service } = harness();
     await expect(service.authenticate(await token({
+      sub: continuity.subject,
+      environment: continuity.environment,
       ref: continuity.ref,
       workflow_ref: continuity.workflowRef,
       event_name: 'schedule',
@@ -147,10 +152,22 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
     }))).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
+  it('rejects the continuity workflow when it presents the deploy environment subject', async () => {
+    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
+    const { service } = harness();
+    await expect(service.authenticate(await token({
+      ref: continuity.ref,
+      workflow_ref: continuity.workflowRef,
+      event_name: 'schedule',
+    }))).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
   it('rejects an unpinned workflow even when repository, environment and branch are trusted', async () => {
     const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
     const { service } = harness();
     await expect(service.authenticate(await token({
+      sub: continuity.subject,
+      environment: continuity.environment,
       ref: continuity.ref,
       workflow_ref: 'adrianmuscalu2-ai/agm-cockpit/.github/workflows/untrusted.yml@refs/heads/agm-canonical-20260820',
       event_name: 'schedule',

@@ -61,17 +61,17 @@ export class GitHubActionsOidcService {
     const policy = GITHUB_ACTIONS_PROVISIONING_CONTRACT;
     const now = Math.floor(Date.now() / 1_000);
     const trustedWorkflow = policy.trustedWorkflows.find((candidate) => (
-      claims.ref === candidate.ref
+      claims.sub === candidate.subject
+      && claims.environment === candidate.environment
+      && claims.ref === candidate.ref
       && claims.workflow_ref === candidate.workflowRef
       && (candidate.eventNames as readonly string[]).includes(claims.event_name)
     ));
     if (!expectedRevision || !/^[0-9a-f]{40}$/.test(expectedRevision)) throw new ServiceUnavailableException('Production revision binding is unavailable.');
     if (
-      claims.sub !== policy.subject
-      || claims.repository !== policy.repository
+      claims.repository !== policy.repository
       || claims.repository_id !== policy.repositoryId
       || claims.repository_owner_id !== policy.repositoryOwnerId
-      || claims.environment !== policy.environment
       || !trustedWorkflow
       || claims.runner_environment !== policy.runnerEnvironment
       || claims.sha !== expectedRevision

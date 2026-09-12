@@ -12,12 +12,16 @@ export const GITHUB_ACTIONS_PROVISIONING_CONTRACT = {
   eventName: 'push',
   trustedWorkflows: [
     {
+      subject: 'repo:adrianmuscalu2-ai/agm-cockpit:environment:Production',
+      environment: 'Production',
       ref: 'refs/heads/agm-canonical-20260820',
       workflowRef: 'adrianmuscalu2-ai/agm-cockpit/.github/workflows/production-release.yml@refs/heads/agm-canonical-20260820',
       eventNames: ['push'],
       role: 'DEPLOYMENT_PROVISIONER',
     },
     {
+      subject: 'repo:adrianmuscalu2-ai/agm-cockpit:environment:Production-Agent-Runtime-Continuity',
+      environment: 'Production-Agent-Runtime-Continuity',
       ref: 'refs/heads/agm-canonical-20260820',
       workflowRef: 'adrianmuscalu2-ai/agm-cockpit/.github/workflows/production-agent-runtime-continuity.yml@refs/heads/agm-canonical-20260820',
       eventNames: ['schedule', 'workflow_dispatch'],
