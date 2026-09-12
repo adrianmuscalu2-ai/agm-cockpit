@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-12T16-54-36-543Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "status": "PASS",
+  "browserGate": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS"
+  },
+  "checks": {
+    "compactSummary": true,
+    "sixSourcesVisible": true,
+    "markersVisible": true,
+    "audioInvokedBeforeSourceRequest": true,
+    "audioStartedBeforeDelayedSourcesComplete": true,
+    "metricsSeparated": true
+  },
+  "target": "http://127.0.0.1:62066",
+  "metrics": {
+    "time-to-first-token": 180,
+    "time-to-first-audio": 66,
+    "answer-complete": 478,
+    "sources-visible": 35
+  },
+  "timingEvidence": {
+    "speakInvokedAt": 1789232080368,
+    "audioStartedAt": 1789232080399,
+    "sourceRequestAt": 1789232080374,
+    "sourceFulfilledAt": 1789232081584,
+    "sourceDetailDelayMs": 1210
+  },
+  "revision": "44f28bf63f0838d5cc0bdb9c7e59739baad8cae9",
+  "finishedAt": "2026-09-12T16:54:43.040Z"
+}

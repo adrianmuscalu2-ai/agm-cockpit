@@ -73,7 +73,7 @@ try {
         await new Promise(resolve => setTimeout(resolve, wait));
         trace.deliveredAt = performance.now();
         trace.signalAbortedAtDelivery = Boolean(init?.signal?.aborted);
-        return new Response(JSON.stringify({ data: { contractVersion: 'premium-assistant.v1', kind: 'answer', text: answer, provider: 'openai', productId: 'agm-cockpit', moduleId: 'premium-cockpit', contextRefs: [], externalEffectPerformed: false, timing: { orchestratorMs: 7, modelMs: wait - 7, serverTotalMs: wait } }, requestId: `controlled-${Date.now()}` }), { status: 200, headers: { 'content-type': 'application/json' } });
+        return new Response(JSON.stringify({ data: { contractVersion: 'premium-assistant.v2', kind: 'answer', text: answer, provider: 'openai', productId: 'agm-cockpit', moduleId: 'premium-cockpit', contextRefs: [], sourceTrace: { traceId: 'browser-fixture', status: 'NO_VERIFIED_SOURCES', generatedAt: new Date().toISOString(), counts: { total: 0, library: 0, cache: 0, live: 0 } }, cache: { disposition: 'MISS', ttlSeconds: 900 }, externalEffectPerformed: false, timing: { timeToFirstTokenMs: wait - 7, orchestratorMs: 7, modelMs: wait - 7, answerCompleteMs: wait, serverTotalMs: wait, sourceResolutionMs: 0 } }, requestId: `controlled-${Date.now()}` }), { status: 200, headers: { 'content-type': 'application/json' } });
       };
       class FakeUtterance { constructor(text) { this.text = text; this.lang = ''; this.onstart = null; this.onend = null; this.onerror = null; } }
       const fakeSynthesis = {

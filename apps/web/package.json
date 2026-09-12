@@ -20,6 +20,7 @@
     "test:premium-conversation-foundation": "tsx scripts/test-premium-conversation-foundation.ts",
     "test:premium-assistant-client": "tsx scripts/test-premium-assistant-client.ts",
     "test:premium-assistant-ui": "tsx scripts/test-premium-assistant-ui.ts",
+    "test:premium-assistant-source-latency": "tsx scripts/test-premium-assistant-source-latency.ts",
     "test:car-mover-p0-02": "tsx scripts/test-car-mover-p0-02.ts",
     "test:premium-copilot-c0": "tsx scripts/test-premium-single-copilot-c0.ts",
     "test:premium-grounding": "tsx scripts/test-premium-assistant-grounding.ts",

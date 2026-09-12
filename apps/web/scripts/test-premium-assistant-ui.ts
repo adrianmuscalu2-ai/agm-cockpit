@@ -15,6 +15,9 @@ for(const language of basicLanguageCodes){
   assert.ok(html.includes('data-assistant-history'));
   assert.ok(html.includes('data-assistant-open-settings'));
   assert.ok(html.includes('data-assistant-latency'));
+  assert.ok(html.includes('data-assistant-sources-shell'));
+  assert.ok(html.includes('data-assistant-sources-toggle'));
+  assert.ok(html.includes('data-assistant-sources-list'));
   assert.ok(html.includes('data-assistant-retry'));
   assert.ok(html.includes('premium-assistant-mic'));
   assert.ok(html.includes(messages.title));
@@ -26,6 +29,7 @@ assert.match(css,/\[data-assistant-history\] li\[data-role="assistant"\]/);
 assert.match(css,/--agm-ai-assistant-visual:\s*url\('\/images\/agm-ai-assistant-microphone-v1\.png'\)/);
 assert.match(css,/\.premium-assistant-view \.premium-module[\s\S]*background:\s*var\(--agm-ai-glass\)/);
 assert.match(css,/\.premium-assistant-view \.premium-assistant-mic/);
+assert.match(css,/\.premium-assistant-sources > button/);
 const runtime=readFileSync(new URL('../src/premium-voice-shell/premium-assistant.runtime.ts',import.meta.url),'utf8');
 assert.match(runtime,/agm\.premium\.assistant\.history\.v1/);
 assert.match(runtime,/while\(history\.length>20\)history\.shift\(\)/);
@@ -35,6 +39,9 @@ assert.match(runtime,/async function interruptAndListen\(\)\{const lease=await p
 assert.match(runtime,/\['LISTENING','SPEECH_DETECTED','TRANSCRIBING','UNDERSTANDING','PREPARING','SPEAKING'\]\.includes\(session\.state\(\)\)/);
 assert.match(runtime,/transcript\.addEventListener\('input',\(\)=>void interruptForNewQuestion\(\)\)/, 'Typing a new question must interrupt the old request or playback');
 assert.match(runtime,/session\.markEngineResponse\(result\.timing\)/, 'Premium latency telemetry must separate server and network response time');
+assert.match(runtime,/startAnswerAndSourcePresentation\(\(\)=>speak\([\s\S]*?\),\(\)=>presentSources\(/, 'TTS must be invoked before source presentation starts');
+assert.doesNotMatch(runtime,/await presentSources\(/, 'Source presentation must never block the answer/audio path');
+assert.match(runtime,/'time-to-first-token'[\s\S]*'time-to-first-audio'[\s\S]*'answer-complete'[\s\S]*'sources-visible'/, 'All four source-latency metrics must be recorded separately');
 assert.match(runtime,/Promise\.allSettled\(\[stopCapture\(\),stopSpeaking\(\)\]\)/, 'A new turn must stop capture and playback atomically');
 assert.match(runtime,/activeRequest\?\.abort\(\)/, 'A new turn must abort the prior provider request');
 assert.match(runtime,/event\.turnId!==activeTurnId/, 'Stale native playback events must not update the current turn');

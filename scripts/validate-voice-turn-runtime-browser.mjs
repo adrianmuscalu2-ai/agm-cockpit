@@ -21,7 +21,7 @@ const freePort = () => new Promise((resolve, reject) => {
   socket.on('error', reject);
   socket.listen(0, '127.0.0.1', () => { const address = socket.address(); socket.close(() => resolve(address.port)); });
 });
-const response = (text, modelMs = 40) => ({ data: { contractVersion: 'premium-assistant.v1', kind: 'answer', text, provider: 'openai', productId: 'agm-cockpit', moduleId: 'premium-cockpit', contextRefs: [], externalEffectPerformed: false, timing: { orchestratorMs: 7, modelMs, serverTotalMs: modelMs + 7 } }, requestId: `voice-${Date.now()}` });
+const response = (text, modelMs = 40) => ({ data: { contractVersion: 'premium-assistant.v2', kind: 'answer', text, provider: 'openai', productId: 'agm-cockpit', moduleId: 'premium-cockpit', contextRefs: [], sourceTrace: { traceId: 'voice-fixture', status: 'NO_VERIFIED_SOURCES', generatedAt: new Date().toISOString(), counts: { total: 0, library: 0, cache: 0, live: 0 } }, cache: { disposition: 'MISS', ttlSeconds: 900 }, externalEffectPerformed: false, timing: { timeToFirstTokenMs: modelMs, orchestratorMs: 7, modelMs, answerCompleteMs: modelMs + 7, serverTotalMs: modelMs + 7, sourceResolutionMs: 0 } }, requestId: `voice-${Date.now()}` });
 
 await mkdir(out, { recursive: true });
 try {

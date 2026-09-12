@@ -16,6 +16,10 @@ export function renderCopilot(l: BasicLanguageCode, e: (value: string) => string
         <h2>${e(t(l, 'prompt'))}</h2>
         <button class="copilot-mic" type="button" data-assistant-start aria-pressed="false"><span>ASCULTARE ON</span><span class="copilot-mic-icon" aria-hidden="true">&#127908;</span></button>
         <button type="button" data-assistant-stop hidden>${e(t(l, 'cancel'))}</button>
+        <div class="premium-assistant-sources" data-assistant-sources-shell hidden>
+          <button type="button" data-assistant-sources-toggle aria-expanded="false"><span data-assistant-sources-summary></span><span data-assistant-sources-toggle-label></span></button>
+          <div data-assistant-sources-panel hidden><p role="status" data-assistant-sources-status></p><ol data-assistant-sources-list></ol></div>
+        </div>
         <div class="copilot-tools"><button type="button" data-copilot-camera>📷 ${e(t(l, 'camera'))}</button><button type="button" data-copilot-text>⌨ ${e(t(l, 'keyboard'))}</button><button type="button" data-assistant-replay>🔊 ${e(t(l, 'speaker'))}</button><button type="button" data-copilot-alert>🔔 Alertă</button><button type="button" data-copilot-whatsapp>WhatsApp</button><button type="button" data-copilot-email>Email</button></div>
         <p role="status" data-assistant-status>${e(t(l, 'textHint'))}</p>
         <button type="button" data-assistant-open-settings hidden>⚙ Settings</button>

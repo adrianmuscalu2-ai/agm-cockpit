@@ -88,7 +88,7 @@ try {
       probe.requests.push({ actualText, scripted, at: performance.now() });
       const answer = scripted.includes('WEB_TTS_OLD') ? 'This old browser answer must stop now and never return after the new mobile question starts.' : 'CURRENT PHYSICAL CHROME VOICE ANSWER';
       await new Promise(resolve => setTimeout(resolve, 70));
-      return new Response(JSON.stringify({ data: { contractVersion: 'premium-assistant.v1', kind: 'answer', text: answer, provider: 'openai', productId: 'agm-cockpit', moduleId: 'premium-cockpit', contextRefs: [], externalEffectPerformed: false, timing: { orchestratorMs: 8, modelMs: 62, serverTotalMs: 70 } } }), { status: 200, headers: { 'content-type': 'application/json' } });
+      return new Response(JSON.stringify({ data: { contractVersion: 'premium-assistant.v2', kind: 'answer', text: answer, provider: 'openai', productId: 'agm-cockpit', moduleId: 'premium-cockpit', contextRefs: [], sourceTrace: { traceId: 'mobile-fixture', status: 'NO_VERIFIED_SOURCES', generatedAt: new Date().toISOString(), counts: { total: 0, library: 0, cache: 0, live: 0 } }, cache: { disposition: 'MISS', ttlSeconds: 900 }, externalEffectPerformed: false, timing: { timeToFirstTokenMs: 62, orchestratorMs: 8, modelMs: 62, answerCompleteMs: 70, serverTotalMs: 70, sourceResolutionMs: 0 } } }), { status: 200, headers: { 'content-type': 'application/json' } });
     };
     addEventListener('DOMContentLoaded', () => new MutationObserver(() => probe.authorityCounts.push(document.querySelectorAll('[data-active-voice-turn]').length)).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['data-active-voice-turn'] }));
   });

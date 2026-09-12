@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-12T16-52-54-723Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "status": "FAIL",
+  "browserGate": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PENDING"
+  },
+  "checks": {},
+  "target": "http://127.0.0.1:61973",
+  "fatal": "page.waitForFunction: Timeout 30000ms exceeded.\n    at C:\\Users\\adria\\Documents\\AGM\\.tmp\\library-source-latency\\scripts\\validate-premium-assistant-sources-browser.mjs:39:290",
+  "revision": "44f28bf63f0838d5cc0bdb9c7e59739baad8cae9",
+  "finishedAt": "2026-09-12T16:53:31.291Z"
+}
