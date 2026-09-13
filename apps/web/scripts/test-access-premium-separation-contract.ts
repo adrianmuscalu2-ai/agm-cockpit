@@ -58,6 +58,37 @@ assert.equal((requests[1]?.init?.headers as Record<string, string>).Authorizatio
 client.logout();
 assert.equal(client.hasSession(), false);
 
+const renewalMemory = new Map<string, string>([[USER_ACCESS_TOKEN_KEY, 'expired-token']]);
+const renewalRequests: Array<{ url: string; authorization: string | null }> = [];
+let entitlementAttempts = 0;
+const renewalClient = createPremiumAccessClient({
+  apiBaseUrl: 'https://api.example.test/api/v1',
+  sessionStorage: {
+    getItem: (key) => renewalMemory.get(key) ?? null,
+    setItem: (key, value) => { renewalMemory.set(key, value); },
+    removeItem: (key) => { renewalMemory.delete(key); },
+  },
+  fetch: (async (url, init) => {
+    renewalRequests.push({ url: String(url), authorization: new Headers(init?.headers).get('Authorization') });
+    if (String(url).endsWith('/auth/refresh')) {
+      return new Response(JSON.stringify({ data: { accessToken: 'renewed-token', user: { id: 'user-001', displayName: 'Test', email: 'test@example.com', roles: ['PREMIUM_ACCESS'] } } }), { status: 200 });
+    }
+    entitlementAttempts += 1;
+    return entitlementAttempts === 1
+      ? new Response('{}', { status: 401 })
+      : new Response(JSON.stringify({ data: premium }), { status: 200 });
+  }) as typeof fetch,
+});
+assert.equal((await renewalClient.entitlements()).tier, 'premium');
+assert.deepEqual(renewalRequests.map((item) => item.url), [
+  'https://api.example.test/api/v1/auth/entitlements',
+  'https://api.example.test/api/v1/auth/refresh',
+  'https://api.example.test/api/v1/auth/entitlements',
+]);
+assert.equal(renewalRequests[0]?.authorization, 'Bearer expired-token');
+assert.equal(renewalRequests[2]?.authorization, 'Bearer renewed-token');
+assert.equal(renewalMemory.get(USER_ACCESS_TOKEN_KEY), 'renewed-token');
+
 clearVerifiedPremiumAccess();
 assert.equal(isPremiumNavigationAllowed('premium', now), false);
 registerVerifiedPremiumAccess({ ...premium, capabilities: ['premium.command-center', 'premium.team'] });

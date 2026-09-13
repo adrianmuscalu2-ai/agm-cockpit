@@ -70,23 +70,23 @@ export type AssistantSourceTrace = {
 export function createPremiumAssistantClient(input: {
   apiBaseUrl: string;
   fetch: typeof fetch;
-  sessionStorage: Pick<Storage, 'getItem'>;
+  sessionStorage: Pick<Storage, 'getItem'> & Partial<Pick<Storage, 'setItem' | 'removeItem'>>;
 }) {
   const baseUrl = input.apiBaseUrl.trim().replace(/\/$/, '');
+  let refreshPromise: Promise<string | null> | null = null;
   return {
     async respond(request: PremiumAssistantClientRequest, options: { signal?: AbortSignal } = {}): Promise<PremiumAssistantClientResponse> {
-      const token = input.sessionStorage.getItem(USER_ACCESS_TOKEN_KEY);
-      if (!token) throw new PremiumAssistantClientError('authentication-required');
       let response: Response;
       try {
-        response = await input.fetch(`${baseUrl}/premium-assistant/respond`, {
+        response = await fetchWithAutomaticRefresh(`${baseUrl}/premium-assistant/respond`, {
           method: 'POST',
           credentials: 'include',
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(request),
           signal: options.signal,
         });
       } catch (error) {
+        if (error instanceof PremiumAssistantClientError) throw error;
         if (error instanceof DOMException && error.name === 'AbortError') throw error;
         throw new PremiumAssistantClientError('network');
       }
@@ -101,17 +101,15 @@ export function createPremiumAssistantClient(input: {
       return value;
     },
     async sources(traceId: string, options: { signal?: AbortSignal } = {}): Promise<AssistantSourceTrace> {
-      const token = input.sessionStorage.getItem(USER_ACCESS_TOKEN_KEY);
-      if (!token) throw new PremiumAssistantClientError('authentication-required');
       let response: Response;
       try {
-        response = await input.fetch(baseUrl + '/premium-assistant/sources/' + encodeURIComponent(traceId), {
+        response = await fetchWithAutomaticRefresh(baseUrl + '/premium-assistant/sources/' + encodeURIComponent(traceId), {
           method: 'GET',
           credentials: 'include',
-          headers: { Authorization: 'Bearer ' + token },
           signal: options.signal,
         });
       } catch (error) {
+        if (error instanceof PremiumAssistantClientError) throw error;
         if (error instanceof DOMException && error.name === 'AbortError') throw error;
         throw new PremiumAssistantClientError('network');
       }
@@ -124,6 +122,67 @@ export function createPremiumAssistantClient(input: {
       return value;
     },
   };
+
+  async function fetchWithAutomaticRefresh(url: string, init: RequestInit) {
+    let token = input.sessionStorage.getItem(USER_ACCESS_TOKEN_KEY);
+    if (!token) token = await refreshAccessToken();
+    if (!token) throw new PremiumAssistantClientError('authentication-required');
+    let response = await fetchWithToken(url, token, init);
+    if (response.status !== 401) return response;
+    token = await refreshAccessToken(true);
+    if (!token) return response;
+    response = await fetchWithToken(url, token, init);
+    return response;
+  }
+
+  function fetchWithToken(url: string, token: string, init: RequestInit) {
+    const headers = new Headers(init.headers);
+    headers.set('Authorization', `Bearer ${token}`);
+    return input.fetch(url, { ...init, credentials: 'include', headers });
+  }
+
+  async function refreshAccessToken(force = false) {
+    const existing = input.sessionStorage.getItem(USER_ACCESS_TOKEN_KEY);
+    if (existing && !force) return existing;
+    if (!refreshPromise) {
+      refreshPromise = (async () => {
+        for (let attempt = 0; attempt < 3; attempt += 1) {
+          let response: Response;
+          try {
+            response = await input.fetch(`${baseUrl}/auth/refresh`, {
+              method: 'POST',
+              credentials: 'include',
+              headers: { Accept: 'application/json' },
+            });
+          } catch {
+            throw new PremiumAssistantClientError('network');
+          }
+          if (response.status === 409 && attempt < 2) {
+            await delay(100 * (attempt + 1));
+            continue;
+          }
+          if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+              input.sessionStorage.removeItem?.(USER_ACCESS_TOKEN_KEY);
+              return null;
+            }
+            throw new PremiumAssistantClientError('provider-unavailable');
+          }
+          const envelope = await response.json().catch(() => ({})) as { data?: { accessToken?: string } };
+          const refreshed = envelope.data?.accessToken?.trim();
+          if (!refreshed) throw new PremiumAssistantClientError('invalid-response');
+          input.sessionStorage.setItem?.(USER_ACCESS_TOKEN_KEY, refreshed);
+          return refreshed;
+        }
+        throw new PremiumAssistantClientError('provider-unavailable');
+      })().finally(() => { refreshPromise = null; });
+    }
+    return refreshPromise;
+  }
+}
+
+function delay(milliseconds: number) {
+  return new Promise<void>((resolve) => globalThis.setTimeout(resolve, milliseconds));
 }
 
 export class PremiumAssistantClientError extends Error {

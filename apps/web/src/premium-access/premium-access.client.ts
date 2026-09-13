@@ -46,7 +46,7 @@ export function createPremiumAccessClient(input: {
       } catch { input.sessionStorage.removeItem(USER_ACCESS_TOKEN_KEY); return false; }
     },
     async entitlements(): Promise<AccessEntitlementSnapshot> {
-      const token = input.sessionStorage.getItem(USER_ACCESS_TOKEN_KEY);
+      let token = input.sessionStorage.getItem(USER_ACCESS_TOKEN_KEY);
       if (!token) throw new PremiumAccessClientError('unauthenticated');
       try {
         return await request<AccessEntitlementSnapshot>('/auth/entitlements', {
@@ -55,7 +55,21 @@ export function createPremiumAccessClient(input: {
         });
       } catch (error) {
         if (error instanceof PremiumAccessClientError && error.status === 401) {
-          input.sessionStorage.removeItem(USER_ACCESS_TOKEN_KEY);
+          try {
+            const refreshed = await refreshSession();
+            token = refreshed.accessToken;
+            input.sessionStorage.setItem(USER_ACCESS_TOKEN_KEY, token);
+            return await request<AccessEntitlementSnapshot>('/auth/entitlements', {
+              cache: 'no-store',
+              headers: { Authorization: `Bearer ${token}` },
+            });
+          } catch (refreshError) {
+            if (refreshError instanceof PremiumAccessClientError &&
+              (refreshError.status === 401 || refreshError.status === 403)) {
+              input.sessionStorage.removeItem(USER_ACCESS_TOKEN_KEY);
+            }
+            throw refreshError;
+          }
         }
         throw error;
       }

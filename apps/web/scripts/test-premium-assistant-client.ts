@@ -2,8 +2,14 @@ import assert from 'node:assert/strict';
 import { createPremiumAssistantClient, PremiumAssistantClientError } from '../src/premium-voice-shell/premium-assistant.client';
 
 const request = { productId:'agm-cockpit' as const, moduleId:'required-document', language:'ro' as const, confirmedText:'Ce verific?', history:[] };
-const missing = createPremiumAssistantClient({ apiBaseUrl:'/api/v1', fetch, sessionStorage:{ getItem:()=>null } });
+let missingRefreshCalls = 0;
+const missing = createPremiumAssistantClient({
+  apiBaseUrl:'/api/v1',
+  fetch:(async (url) => { assert.ok(String(url).endsWith('/auth/refresh')); missingRefreshCalls += 1; return new Response('{}', {status:401}); }) as typeof fetch,
+  sessionStorage:{ getItem:()=>null },
+});
 await assert.rejects(() => missing.respond(request), (error) => error instanceof PremiumAssistantClientError && error.reason === 'authentication-required');
+assert.equal(missingRefreshCalls, 1);
 
 let sentBody: unknown;
 const sourceTrace = { traceId:'trace-1', status:'LIBRARY_ONLY' as const, generatedAt:'2026-09-12T12:00:00.000Z', counts:{total:1,library:1,cache:0,live:0} };
@@ -28,7 +34,36 @@ const legacyCompatible = createPremiumAssistantClient({
 });
 await assert.doesNotReject(() => legacyCompatible.respond(request));
 
+const renewalMemory = new Map<string, string>([['agm.auth.accessToken', 'expired-token']]);
+const renewalRequests: Array<{url:string;authorization:string|null}> = [];
+let protectedAttempts = 0;
+const renewalClient = createPremiumAssistantClient({
+  apiBaseUrl:'https://api.example/api/v1',
+  sessionStorage:{
+    getItem:key=>renewalMemory.get(key)??null,
+    setItem:(key,value)=>void renewalMemory.set(key,value),
+    removeItem:key=>void renewalMemory.delete(key),
+  },
+  fetch:(async (url, init) => {
+    const authorization = new Headers(init?.headers).get('Authorization');
+    renewalRequests.push({url:String(url), authorization});
+    if(String(url).endsWith('/auth/refresh')) return new Response(JSON.stringify({data:{accessToken:'renewed-token'}}),{status:200});
+    protectedAttempts += 1;
+    if(protectedAttempts===1) return new Response('{}',{status:401});
+    return new Response(JSON.stringify({data:answer}),{status:200});
+  }) as typeof fetch,
+});
+await assert.doesNotReject(()=>renewalClient.respond(request));
+assert.deepEqual(renewalRequests.map(item=>item.url),[
+  'https://api.example/api/v1/premium-assistant/respond',
+  'https://api.example/api/v1/auth/refresh',
+  'https://api.example/api/v1/premium-assistant/respond',
+]);
+assert.equal(renewalRequests[0]?.authorization,'Bearer expired-token');
+assert.equal(renewalRequests[2]?.authorization,'Bearer renewed-token');
+assert.equal(renewalMemory.get('agm.auth.accessToken'),'renewed-token');
+
 const unsafe = createPremiumAssistantClient({ apiBaseUrl:'/api/v1', sessionStorage:{getItem:()=> 'token'}, fetch:(async()=>new Response(JSON.stringify({data:{...answer,externalEffectPerformed:true}}),{status:200})) as typeof fetch });
 await assert.rejects(() => unsafe.respond(request), (error) => error instanceof PremiumAssistantClientError && error.reason === 'invalid-response');
-console.log('Premium assistant client: auth/read-only/v1+v2 compatibility and async source trace validation PASS');
+console.log('Premium assistant client: automatic session renewal, auth/read-only/v1+v2 compatibility and async source trace validation PASS');
 
