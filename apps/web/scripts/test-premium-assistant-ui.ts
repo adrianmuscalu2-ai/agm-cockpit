@@ -38,6 +38,8 @@ assert.match(runtime,/\['LISTENING','SPEECH_DETECTED','TRANSCRIBING','UNDERSTAND
 assert.match(runtime,/transcript\.addEventListener\('input',\(\)=>void interruptForNewQuestion\(\)\)/, 'Typing a new question must interrupt the old request or playback');
 assert.match(runtime,/session\.markEngineResponse\(result\.timing\)/, 'Premium latency telemetry must separate server and network response time');
 assert.match(runtime,/const spoken=await speak\(groundedText,sequence,turnId\)/, 'Clean user answer must flow directly to TTS');
+assert.match(runtime,/const speechText=normalizeSpeechText\(text,language\)/, 'Visible answer and semantically normalized TTS text must remain separate');
+assert.match(runtime,/new SpeechSynthesisUtterance\(speechText\)/, 'Browser TTS must receive semantic speech text');
 assert.doesNotMatch(runtime,/client\.sources\(|presentSources|data-assistant-sources/, 'Engineering source trace must not be fetched or rendered by the user runtime');
 assert.match(runtime,/Promise\.allSettled\(\[stopCapture\(\),stopSpeaking\(\)\]\)/, 'A new turn must stop capture and playback atomically');
 assert.match(runtime,/activeRequest\?\.abort\(\)/, 'A new turn must abort the prior provider request');
@@ -55,6 +57,8 @@ assert.match(runtime,/kind:'stt-terminal-error'/, 'A native no-match error must 
 assert.match(runtime,/session\.off\(\);toggle\.setAttribute\('aria-pressed','false'\);status\.textContent=errorText;\s*return;/, 'A native no-match error must stop hands-free instead of blinking in an automatic retry loop');
 assert.doesNotMatch(runtime,/transcriptionError;await new Promise\(resolve=>setTimeout\(resolve,700\)\)/, 'STT errors must not relaunch recognition automatically');
 const nativeAudio=readFileSync(new URL('../android/app/src/main/java/com/agm/cockpit/AgmAudioPlugin.java',import.meta.url),'utf8');
+const nativeAudioRuntime=readFileSync(new URL('../src/native-audio.ts',import.meta.url),'utf8');
+assert.match(nativeAudioRuntime,/nativeAudioBridge\.speak\(\{ \.\.\.options, text: normalizeSpeechText\(options\.text, options\.language\) \}\)/, 'Every native Android TTS entry point must normalize semantic speech');
 assert.match(nativeAudio,/public void stopSpeaking[\s\S]*stopSpeakingImmediately\(\)/, 'Interrupted Android playback must use the immediate native queue flush path');
 assert.match(nativeAudio,/onBeginningOfSpeech\(\)[\s\S]*stopSpeakingImmediately\(\)/, 'Native speech detection must defensively stop stale playback');
 assert.match(nativeAudio,/oldAudioStopLatencyMs/, 'Native barge-in must expose the measured audio-stop latency');

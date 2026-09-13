@@ -52,6 +52,8 @@ describe('Premium assistant read-only contract', () => {
     expect(body.input[0].content).toContain('Source provenance is captured separately');
     expect(body.input[0].content).toContain('never include citations');
     expect(body.input[0].content).toContain('never reproduce an hourly/event timeline');
+    expect(body.input[0].content).toContain('Interpret standardized measurements and transport/navigation tokens');
+    expect(body.input[0].content).toContain("speech layer localizes pronunciation separately");
     expect(body.input[0].content).toContain('do not repeat a question already answered');
   });
 

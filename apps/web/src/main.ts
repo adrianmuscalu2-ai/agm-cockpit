@@ -42,6 +42,7 @@ import {
   normalizeQuickLanguages,
   type BasicLanguageCode,
 } from './language-registry';
+import { normalizeSpeechText } from './speech-semantics';
 import {
   type ProfileSettings,
   defaultProfile,
@@ -4766,7 +4767,7 @@ async function speakTranslation() {
   }
 
   window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
+  const utterance = new SpeechSynthesisUtterance(normalizeSpeechText(text, state.translatorTargetLanguage));
   utterance.lang = speechLocale(state.translatorTargetLanguage);
   utterance.rate = 1.1;
   utterance.onerror = (event) => {
@@ -4809,7 +4810,7 @@ async function speakEmailMessage() {
   }
 
   window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
+  const utterance = new SpeechSynthesisUtterance(normalizeSpeechText(text, state.targetLanguage));
   utterance.lang = speechLocale(state.targetLanguage);
   utterance.rate = 1.1;
   window.speechSynthesis.speak(utterance);

@@ -1,5 +1,6 @@
 import { Capacitor, registerPlugin, type PluginListenerHandle } from '@capacitor/core';
 import { recordRoutingMetric, routeDeviceOperation } from './device-capability-router/device-capability.runtime';
+import { normalizeSpeechText } from './speech-semantics';
 
 export type MicrophonePermissionState = 'granted' | 'denied' | 'prompt' | 'prompt-with-rationale';
 
@@ -73,7 +74,7 @@ const NativeAudio: NativeAudioPlugin = {
     if (decision.authority !== 'LOCAL_DEVICE') throw new Error('TEXT_TO_SPEECH_UNAVAILABLE');
     const startedAt = performance.now();
     try {
-      await nativeAudioBridge.speak(options);
+      await nativeAudioBridge.speak({ ...options, text: normalizeSpeechText(options.text, options.language) });
       recordRoutingMetric({
         operation: 'TTS', authority: decision.authority, executionMode: decision.executionMode,
         decisionLatencyMs: decision.decisionLatencyMs, executionLatencyMs: performance.now() - startedAt,
