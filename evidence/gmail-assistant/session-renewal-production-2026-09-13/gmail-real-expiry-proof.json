@@ -1,0 +1,17 @@
+{
+  "phase": "PASS",
+  "issuedAt": "2026-09-13T12:19:36.577Z",
+  "completedAt": "2026-09-13T13:20:52.375Z",
+  "expiresInSeconds": 3599,
+  "plannedWaitSeconds": 3674,
+  "graceWaitSeconds": 0,
+  "initialRefreshStatus": 200,
+  "initialGmailStatus": 200,
+  "expiredTokenGmailStatus": 401,
+  "refreshAfterExpiryStatus": 200,
+  "refreshedTokenChanged": true,
+  "refreshedGmailStatus": 200,
+  "tokensPrinted": false,
+  "secretsPrinted": false,
+  "messageContentRead": false
+}
