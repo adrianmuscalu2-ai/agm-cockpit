@@ -54,7 +54,7 @@ export function classifyGmailIntent(text: string): GmailAssistantIntent | null {
   };
   if (topic) return { operation: 'SEARCH_TOPIC', gmailQuery: quoteGmailTerm(topic), maxMessages: latest ? 1 : maxMessages };
   if (today) return { operation: 'LIST_TODAY', gmailQuery: 'newer_than:1d', maxMessages };
-  if (summarize) return { operation: 'SUMMARIZE_RECENT', gmailQuery: '', maxMessages };
+  if (summarize) return { operation: 'SUMMARIZE_RECENT', gmailQuery: '', maxMessages: latest ? 1 : maxMessages };
   return { operation: 'LIST_RECENT', gmailQuery: '', maxMessages: latest ? 1 : maxMessages };
 }
 

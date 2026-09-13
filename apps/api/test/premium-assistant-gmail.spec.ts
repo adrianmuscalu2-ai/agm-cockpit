@@ -31,6 +31,10 @@ describe('Premium Assistant Gmail capability', () => {
     expect(classifyGmailIntent(text)).toMatchObject({ operation });
   });
 
+  it('limits a latest-message summary to exactly one Gmail result', () => {
+    expect(classifyGmailIntent('Rezuma ultimul e-mail')).toMatchObject({ operation: 'SUMMARIZE_RECENT', maxMessages: 1 });
+  });
+
   it('keeps outbound email intent separate from Gmail inbox access', () => {
     expect(classifyGmailIntent('Trimite un e-mail către dispecer')).toBeNull();
   });
