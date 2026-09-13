@@ -11,6 +11,7 @@ import {
   PremiumAssistantKnowledgeService,
 } from './premium-assistant-knowledge.service';
 import type { PremiumAssistantRequestDto } from './dto/premium-assistant-request.dto';
+import { classifyGmailIntent, composeGmailAnswer, gmailFailureCode, PremiumAssistantGmailService } from './premium-assistant-gmail.service';
 
 type OpenAiPayload = { output_text?: string; output?: Array<{ content?: Array<{ text?: string; annotations?: unknown[] }> }> };
 type ProviderResult = { text?: string; timeToFirstTokenMs: number; completedMs: number; citations: Array<{ url: string; title?: string }> };
@@ -23,11 +24,14 @@ export class PremiumAssistantService {
     private readonly config: ConfigService,
     @Optional() private readonly prisma?: PrismaService,
     @Optional() private readonly knowledge?: PremiumAssistantKnowledgeService,
+    @Optional() private readonly gmail?: PremiumAssistantGmailService,
   ) {}
 
   async respond(user: RequestContext, request: PremiumAssistantRequestDto): Promise<PremiumAssistantResponse> {
     const serverStartedAt = Date.now();
     if (!user.roles.includes(PREMIUM_ASSISTANT_CONTRACT.requiredRole)) throw new ForbiddenException('Premium entitlement required.');
+    const gmailIntent = classifyGmailIntent(request.confirmedText);
+    if (gmailIntent) return this.respondFromGmail(user, request, serverStartedAt, gmailIntent.operation);
     const apiKey = this.config.get<string>('OPENAI_API_KEY');
     if (!apiKey) {
       await this.recordUsage(user, 'CONFIGURATION_MISSING', serverStartedAt, 'OPENAI_API_KEY_MISSING');
@@ -141,6 +145,37 @@ export class PremiumAssistantService {
     return result;
   }
 
+  private async respondFromGmail(user: RequestContext, request: PremiumAssistantRequestDto, startedAt: number, operation: string): Promise<PremiumAssistantResponse> {
+    const contextRefs = [request.tripId && `trip:${request.tripId}`, request.operationalCaseId && `case:${request.operationalCaseId}`, request.situationId && `situation:${request.situationId}`].filter((value): value is string => Boolean(value));
+    if (!this.gmail?.configured()) {
+      await this.recordGmailUsage(user, 'UNAVAILABLE', startedAt, 'NOT_CONFIGURED');
+      return this.gmailResponse(user, request, contextRefs, startedAt, gmailUnavailableText(request.language), operation, [], 'UNAVAILABLE', 'NOT_CONFIGURED');
+    }
+    try {
+      const result = await this.gmail.retrieve(request.confirmedText);
+      await this.recordGmailUsage(user, 'SUCCESS', startedAt);
+      return this.gmailResponse(user, request, contextRefs, startedAt, composeGmailAnswer(result, request.language), result.intent.operation, result.sources, 'SUCCESS', null);
+    } catch (error) {
+      const errorCode = gmailFailureCode(error);
+      this.logger.warn(`Premium Assistant Gmail retrieval failed: ${errorCode}`);
+      await this.recordGmailUsage(user, 'UNAVAILABLE', startedAt, errorCode);
+      return this.gmailResponse(user, request, contextRefs, startedAt, gmailUnavailableText(request.language), operation, [], 'UNAVAILABLE', errorCode);
+    }
+  }
+
+  private gmailResponse(user: RequestContext, request: PremiumAssistantRequestDto, contextRefs: string[], startedAt: number, text: string, operation: string, sources: AssistantSourceReference[], status: 'SUCCESS' | 'UNAVAILABLE', errorCode: string | null) {
+    const observedAt = new Date();
+    const traceStatus: AssistantSourceTrace['status'] = sources.length ? 'READY' : 'NO_VERIFIED_SOURCES';
+    const trace = this.knowledge?.createTrace(sources, traceStatus, user.companyId, observedAt) ?? emptyTrace(sources, traceStatus, observedAt);
+    const elapsed = Date.now() - startedAt;
+    return responseValue({
+      text, kind: 'answer', provider: 'agm', moduleId: request.moduleId, contextRefs, trace,
+      cacheDisposition: 'MISS', cacheTtlSeconds: 0,
+      toolTrace: { tool: 'gmail-inbox', status, operation, resultCount: sources.length, errorCode },
+      timing: { timeToFirstTokenMs: 0, orchestratorMs: elapsed, modelMs: 0, answerCompleteMs: elapsed, serverTotalMs: elapsed, sourceResolutionMs: elapsed },
+    });
+  }
+
   sourceTrace(user: RequestContext, traceId: string) {
     if (!user.roles.includes(PREMIUM_ASSISTANT_CONTRACT.requiredRole)) throw new ForbiddenException('Premium entitlement required.');
     if (!this.knowledge) throw new NotFoundException('Assistant source trace unavailable.');
@@ -180,6 +215,26 @@ export class PremiumAssistantService {
       } });
     } catch (error) {
       this.logger.error('Premium assistant usage telemetry could not be persisted.', error instanceof Error ? error.stack : undefined);
+    }
+  }
+
+  private async recordGmailUsage(user: RequestContext, outcome: string, startedAt: number, errorCode?: string) {
+    if (!this.prisma) return;
+    try {
+      await this.prisma.providerUsageEvent.create({ data: {
+        companyId: user.companyId,
+        userId: user.userId,
+        providerId: 'gmail',
+        adapterId: 'premium-assistant-gmail',
+        category: 'GMAIL_INBOX',
+        eventType: 'PROVIDER_REQUEST',
+        outcome,
+        latencyMs: Date.now() - startedAt,
+        errorCode,
+        fallbackActivation: false,
+      } });
+    } catch (error) {
+      this.logger.error('Premium Assistant Gmail telemetry could not be persisted.', error instanceof Error ? error.stack : undefined);
     }
   }
 }
@@ -317,7 +372,7 @@ function uniqueCitations(values: Array<{ url: string; title?: string }>) {
   return values.filter((value) => seen.has(value.url) ? false : (seen.add(value.url), true));
 }
 
-function responseValue(input: { text: string; kind: 'answer' | 'clarification'; moduleId: string; contextRefs: readonly string[]; trace: AssistantSourceTrace; cacheDisposition: 'HIT' | 'MISS'; cacheTtlSeconds: number; timing: PremiumAssistantResponse['timing'] }): PremiumAssistantResponse {
+function responseValue(input: { text: string; kind: 'answer' | 'clarification'; provider?: 'openai' | 'agm'; moduleId: string; contextRefs: readonly string[]; trace: AssistantSourceTrace; cacheDisposition: 'HIT' | 'MISS'; cacheTtlSeconds: number; toolTrace?: PremiumAssistantResponse['toolTrace']; timing: PremiumAssistantResponse['timing'] }): PremiumAssistantResponse {
   const sourceTrace: Omit<AssistantSourceTrace, 'sources'> = {
     traceId: input.trace.traceId,
     status: input.trace.status,
@@ -328,15 +383,25 @@ function responseValue(input: { text: string; kind: 'answer' | 'clarification'; 
     contractVersion: PREMIUM_ASSISTANT_CONTRACT.version,
     kind: input.kind,
     text: input.text,
-    provider: 'openai',
+    provider: input.provider ?? 'openai',
     productId: PREMIUM_ASSISTANT_CONTRACT.productId,
     moduleId: input.moduleId,
     contextRefs: input.contextRefs,
     sourceTrace,
+    ...(input.toolTrace ? { toolTrace: input.toolTrace } : {}),
     cache: { disposition: input.cacheDisposition, ttlSeconds: input.cacheTtlSeconds },
     externalEffectPerformed: false,
     timing: input.timing,
   };
+}
+
+function gmailUnavailableText(language: string) {
+  const messages: Record<string, string> = {
+    ro: 'Gmail nu este disponibil momentan sau autorizarea contului a expirat. Nu am căutat pe web; reconectează contul Gmail și încearcă din nou.',
+    de: 'Gmail ist derzeit nicht verfügbar oder die Kontoberechtigung ist abgelaufen. Ich habe nicht im Web gesucht; verbinden Sie Gmail erneut und versuchen Sie es noch einmal.',
+    en: 'Gmail is currently unavailable or the account authorization has expired. I did not search the web; reconnect Gmail and try again.',
+  };
+  return messages[language] ?? messages.en!;
 }
 
 function responseCacheTtlSeconds(sources: readonly AssistantSourceReference[], now: Date) {

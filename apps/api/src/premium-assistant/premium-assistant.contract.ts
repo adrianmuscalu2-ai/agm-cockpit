@@ -23,7 +23,7 @@ export type AssistantSourceReference = {
   domain: string[];
   language: string;
   confidence: number;
-  originType: 'AGM_INTERNAL' | 'DOCUMENT_LIBRARY' | 'WEB';
+  originType: 'AGM_INTERNAL' | 'DOCUMENT_LIBRARY' | 'WEB' | 'GMAIL';
   retrievalType: 'LIBRARY' | 'CACHE' | 'LIVE';
   freshness: { status: 'CURRENT' | 'STALE' | 'EXPIRED' | 'UNKNOWN' | 'INVALIDATED'; checkedAt: string | null; expiresAt: string | null; ttlSeconds: number };
   provenance: { canonicalPath: string | null; sha256: string | null; authorityType: string; reviewStatus: string };
@@ -41,11 +41,12 @@ export type PremiumAssistantResponse = {
   contractVersion: typeof PREMIUM_ASSISTANT_CONTRACT.version;
   kind: 'answer' | 'clarification';
   text: string;
-  provider: 'openai';
+  provider: 'openai' | 'agm';
   productId: typeof PREMIUM_ASSISTANT_CONTRACT.productId;
   moduleId: string;
   contextRefs: readonly string[];
   sourceTrace: Omit<AssistantSourceTrace, 'sources'>;
+  toolTrace?: { tool: 'gmail-inbox'; status: 'SUCCESS' | 'UNAVAILABLE'; operation: string; resultCount: number; errorCode: string | null };
   cache: { disposition: 'HIT' | 'MISS'; ttlSeconds: number };
   externalEffectPerformed: false;
   timing: { timeToFirstTokenMs: number; orchestratorMs: number; modelMs: number; answerCompleteMs: number; serverTotalMs: number; sourceResolutionMs: number };
