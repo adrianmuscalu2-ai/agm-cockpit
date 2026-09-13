@@ -25,7 +25,7 @@ describe('Premium assistant read-only contract', () => {
   it('uses the authenticated tenant boundary and never performs an external effect', async () => {
     const provider = jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({ output_text: 'Verifică documentul și valabilitatea lui.' }), { status: 200 }));
     const result = await new PremiumAssistantService(config).respond(premiumUser, request);
-    expect(result).toMatchObject({ contractVersion: 'premium-assistant.v2', kind: 'answer', provider: 'openai', productId: 'agm-cockpit', moduleId: 'required-document', sourceTrace: { status: 'NO_VERIFIED_SOURCES', counts: { total: 0 } }, externalEffectPerformed: false, timing: { timeToFirstTokenMs: expect.any(Number), orchestratorMs: expect.any(Number), modelMs: expect.any(Number), answerCompleteMs: expect.any(Number), serverTotalMs: expect.any(Number), sourceResolutionMs: expect.any(Number) } });
+    expect(result).toMatchObject({ contractVersion: 'premium-assistant.v1', kind: 'answer', provider: 'openai', productId: 'agm-cockpit', moduleId: 'required-document', sourceTrace: { status: 'NO_VERIFIED_SOURCES', counts: { total: 0 } }, externalEffectPerformed: false, timing: { timeToFirstTokenMs: expect.any(Number), orchestratorMs: expect.any(Number), modelMs: expect.any(Number), answerCompleteMs: expect.any(Number), serverTotalMs: expect.any(Number), sourceResolutionMs: expect.any(Number) } });
     const body = JSON.parse(String((provider.mock.calls[0]?.[1] as RequestInit).body));
     const supplied = JSON.parse(body.input[1].content);
     expect(supplied.tenantBoundary).toBe('tenant-1');

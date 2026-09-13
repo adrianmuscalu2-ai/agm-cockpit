@@ -1,5 +1,8 @@
 export const PREMIUM_ASSISTANT_CONTRACT = {
-  version: 'premium-assistant.v2',
+  // Source trace and cache metadata are additive fields. Keep the response
+  // identity compatible with already-installed v1 Android clients; a future
+  // breaking version requires explicit client/server negotiation.
+  version: 'premium-assistant.v1',
   productId: 'agm-cockpit',
   requiredRole: 'PREMIUM_ACCESS',
   provider: 'openai',
