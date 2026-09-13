@@ -16,10 +16,6 @@ export function renderPremiumAssistantView(language: BasicLanguageCode, escapeHt
             <button class="premium-assistant-mic" type="button" data-assistant-start><span>${escapeHtml(m.start)}</span><span class="premium-assistant-mic-icon" aria-hidden="true">&#127908;</span></button>
             <button type="button" data-assistant-stop hidden>${escapeHtml(m.stop)}</button>
           </div>
-          <div class="premium-assistant-sources" data-assistant-sources-shell hidden>
-            <button type="button" data-assistant-sources-toggle aria-expanded="false"><span data-assistant-sources-summary></span><span data-assistant-sources-toggle-label></span></button>
-            <div data-assistant-sources-panel hidden><p role="status" data-assistant-sources-status></p><ol data-assistant-sources-list></ol></div>
-          </div>
           <p role="status" data-assistant-status>${escapeHtml(m.textFallback)}</p>
           <button type="button" data-assistant-open-settings hidden>⚙ Settings</button>
           <label><strong>${escapeHtml(m.transcript)}</strong><textarea data-assistant-transcript maxlength="2000" rows="5" placeholder="${escapeHtml(m.textFallback)}"></textarea></label>

@@ -1,5 +1,5 @@
 import { ForbiddenException } from '@nestjs/common';
-import { PremiumAssistantService, requiresLiveSearch } from '../src/premium-assistant/premium-assistant.service';
+import { composeUserAnswer, PremiumAssistantService, requiresLiveSearch } from '../src/premium-assistant/premium-assistant.service';
 
 describe('Premium assistant read-only contract', () => {
   const config = { get: (key: string, fallback?: string) => key === 'OPENAI_API_KEY' ? 'test-key' : fallback } as any;
@@ -49,8 +49,9 @@ describe('Premium assistant read-only contract', () => {
     expect(body.input[0].content).toContain('Use live public-web search only');
     expect(body.input[0].content).toContain('official and primary sources');
     expect(body.input[0].content).toContain('Answer only the newest confirmedText');
-    expect(body.input[0].content).toContain('Sources and citations are presented separately');
-    expect(body.input[0].content).toContain('never append a source list');
+    expect(body.input[0].content).toContain('Source provenance is captured separately');
+    expect(body.input[0].content).toContain('never include citations');
+    expect(body.input[0].content).toContain('never reproduce an hourly/event timeline');
     expect(body.input[0].content).toContain('do not repeat a question already answered');
   });
 
@@ -76,5 +77,99 @@ describe('Premium assistant read-only contract', () => {
     const body = JSON.parse(String((provider.mock.calls[0]?.[1] as RequestInit).body));
     expect(body.tools).toEqual([{ type: 'web_search' }]);
     expect(body.tool_choice).toBe('auto');
+  });
+
+  it('keeps provider citations in engineering trace but out of the user response', async () => {
+    const liveUrl = 'https://weather.example.test/heilbronn';
+    jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+      output_text: 'Mâine vor fi aproximativ 23°C. ([weather.example.test](https://weather.example.test/heilbronn))',
+      output: [{ content: [{ annotations: [{ type: 'url_citation', url: liveUrl, title: 'Weather Heilbronn' }] }] }],
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    let storedTrace: any;
+    const knowledge = {
+      cacheKey: jest.fn().mockReturnValue('weather-key'),
+      cachedAnswer: jest.fn().mockReturnValue(null),
+      resolve: jest.fn().mockReturnValue({ sources: [], requiresLiveSearch: true, context: [] }),
+      createTrace: jest.fn().mockImplementation((sources, status, companyId, observedAt) => {
+        storedTrace = {
+          traceId: 'weather-trace',
+          status,
+          generatedAt: observedAt.toISOString(),
+          counts: { total: sources.length, library: 0, cache: 0, live: sources.length },
+          sources,
+          ownerCompanyId: companyId,
+        };
+        return storedTrace;
+      }),
+      trace: jest.fn().mockImplementation(() => storedTrace),
+      storeAnswer: jest.fn(),
+    };
+    const service = new PremiumAssistantService(config, undefined, knowledge as any);
+
+    const result = await service.respond(premiumUser, { ...request, confirmedText: 'Cum va fi vremea mâine în Heilbronn?' });
+    const engineeringTrace = service.sourceTrace(premiumUser, result.sourceTrace.traceId);
+
+    expect(result.text).toBe('Mâine vor fi aproximativ 23°C.');
+    expect(result.text).not.toContain('http');
+    expect(result).not.toHaveProperty('sources');
+    expect(engineeringTrace.sources).toEqual([
+      expect.objectContaining({ urlOrIdentifier: liveUrl, retrievalType: 'LIVE', originType: 'WEB' }),
+    ]);
+  });
+
+  it('collapses a raw hourly appendix and preserves the synthesized factual conclusion', () => {
+    const providerText = [
+      'Mâine, în Heilbronn, vremea va fi variabilă, cu aproximativ 23°C după-amiaza și posibile averse.',
+      '## Prognoză orară:',
+      '* 04:00: 15°C, noros',
+      '* 05:00: 15°C, noros',
+      '* 06:00: 15°C, noros',
+      '* 07:00: 14°C, noros',
+    ].join('\n');
+
+    expect(composeUserAnswer(providerText)).toBe(
+      'Mâine, în Heilbronn, vremea va fi variabilă, cu aproximativ 23°C după-amiaza și posibile averse.',
+    );
+  });
+
+  it('removes inline links, citation markers, document identifiers, and source sections from user text', () => {
+    const providerText = [
+      'Verifică valabilitatea în [ghidul aplicabil](https://example.test/guide) înainte de plecare. [1]',
+      '### Surse',
+      '- AGM_LIBRARY/operations/guide.md',
+      '- WEB-0123456789abcdef',
+      '- https://example.test/guide',
+    ].join('\n');
+
+    expect(composeUserAnswer(providerText)).toBe(
+      'Verifică valabilitatea în ghidul aplicabil înainte de plecare.',
+    );
+  });
+
+  it('applies the same clean user-text boundary to cached answers', async () => {
+    const provider = jest.spyOn(global, 'fetch');
+    const trace = {
+      traceId: 'cached-trace',
+      status: 'READY' as const,
+      generatedAt: new Date().toISOString(),
+      counts: { total: 1, library: 0, cache: 0, live: 1 },
+      sources: [],
+    };
+    const knowledge = {
+      cacheKey: jest.fn().mockReturnValue('cached-weather'),
+      cachedAnswer: jest.fn().mockReturnValue({
+        text: 'Va fi mai cald după-amiaza. ([weather.example.test](https://weather.example.test))',
+        kind: 'answer',
+        sources: [],
+        expiresAtMs: Date.now() + 60_000,
+      }),
+      createTrace: jest.fn().mockReturnValue(trace),
+    };
+
+    const result = await new PremiumAssistantService(config, undefined, knowledge as any).respond(premiumUser, request);
+
+    expect(result.text).toBe('Va fi mai cald după-amiaza.');
+    expect(result.cache.disposition).toBe('HIT');
+    expect(provider).not.toHaveBeenCalled();
   });
 });

@@ -10,6 +10,7 @@ for (const language of basicLanguageCodes) {
   for (const key of androidAssistantKeys) assert.ok(androidAssistantText(language, key).trim(), `${language}:android:${key}`);
   const html = renderCopilot(language, value => value);
   for (const marker of ['data-assistant-start','data-assistant-transcript','data-copilot-route','data-copilot-camera','data-assistant-replay','data-copilot-safety','data-assistant-open-settings','data-assistant-latency','data-assistant-retry']) assert.match(html, new RegExp(marker));
+  assert.doesNotMatch(html, /data-assistant-sources|premium-assistant-sources/, 'Copilot user UI must not expose engineering source traces');
   assert.doesNotMatch(html, /HUB-0|foundation|Înainte de Plecare|După Plecare/);
 }
 assert.equal(routeCopilotIntent('Mi s-a aprins martorul de frână').intent, 'DASHBOARD_WARNING');
