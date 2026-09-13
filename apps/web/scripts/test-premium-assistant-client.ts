@@ -22,7 +22,13 @@ const sources = await client.sources(answer.sourceTrace.traceId);
 assert.equal(sources.sources.length, 1);
 assert.equal(sources.sources[0]?.retrievalType, 'LIBRARY');
 
+const legacyCompatible = createPremiumAssistantClient({
+  apiBaseUrl:'/api/v1', sessionStorage:{getItem:()=> 'token'},
+  fetch:(async()=>new Response(JSON.stringify({data:{...answer,contractVersion:'premium-assistant.v1'}}),{status:200})) as typeof fetch,
+});
+await assert.doesNotReject(() => legacyCompatible.respond(request));
+
 const unsafe = createPremiumAssistantClient({ apiBaseUrl:'/api/v1', sessionStorage:{getItem:()=> 'token'}, fetch:(async()=>new Response(JSON.stringify({data:{...answer,externalEffectPerformed:true}}),{status:200})) as typeof fetch });
 await assert.rejects(() => unsafe.respond(request), (error) => error instanceof PremiumAssistantClientError && error.reason === 'invalid-response');
-console.log('Premium assistant client: auth/read-only/v2 async source trace validation PASS');
+console.log('Premium assistant client: auth/read-only/v1+v2 compatibility and async source trace validation PASS');
 

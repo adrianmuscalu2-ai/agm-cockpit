@@ -13,7 +13,7 @@ export type PremiumAssistantClientRequest = {
 };
 
 export type PremiumAssistantClientResponse = {
-  contractVersion: 'premium-assistant.v2';
+  contractVersion: 'premium-assistant.v1' | 'premium-assistant.v2';
   kind: 'answer' | 'clarification';
   text: string;
   provider: 'openai';
@@ -94,7 +94,7 @@ export function createPremiumAssistantClient(input: {
       if (!response.ok) throw new PremiumAssistantClientError('provider-unavailable');
       const envelope = await response.json().catch(() => ({})) as { data?: PremiumAssistantClientResponse };
       const value = envelope.data;
-      if (!value || value.contractVersion !== 'premium-assistant.v2' || value.externalEffectPerformed !== false || !value.text?.trim() || !value.sourceTrace?.traceId) {
+      if (!value || !['premium-assistant.v1', 'premium-assistant.v2'].includes(value.contractVersion) || value.externalEffectPerformed !== false || !value.text?.trim() || !value.sourceTrace?.traceId) {
         throw new PremiumAssistantClientError('invalid-response');
       }
       return value;
