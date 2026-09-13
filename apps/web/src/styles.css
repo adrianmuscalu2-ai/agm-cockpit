@@ -226,6 +226,35 @@
   backdrop-filter: blur(8px);
 }
 
+.premium-device-assistant {
+  border-color: rgba(69, 196, 255, .62);
+  background: linear-gradient(145deg, rgba(4, 32, 74, .95), rgba(20, 17, 70, .92));
+}
+
+.premium-device-assistant-kicker {
+  color: #72d7ff;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.premium-device-handoff-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.6fr) auto auto;
+  gap: .75rem;
+  margin-top: 1rem;
+  align-items: end;
+}
+
+.premium-device-handoff-form label { display: grid; gap: .35rem; min-width: 0; }
+.premium-device-handoff-form input,
+.premium-device-handoff-form select { width: 100%; min-width: 0; }
+
+@media (max-width: 720px) {
+  .premium-device-handoff-form { grid-template-columns: 1fr; }
+}
+
 .premium-assistant-view [data-assistant-response] {
   white-space: pre-wrap;
   overflow-wrap: anywhere;

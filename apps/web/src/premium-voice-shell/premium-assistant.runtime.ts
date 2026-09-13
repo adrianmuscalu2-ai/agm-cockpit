@@ -9,6 +9,7 @@ import { detectPremiumConversationIntent, type PremiumConversationActionProposal
 import { premiumConversationMessages } from './premium-conversation.i18n';
 import { recordRoutingMetric, routeDeviceOperation } from '../device-capability-router/device-capability.runtime';
 import { normalizeSpeechText } from '../speech-semantics';
+import { bindDeviceAssistantHandoff, handleSpokenAndroidAssistantCommand } from '../premium-capabilities/device-assistant-handoff.runtime';
 
 type Recognition = { lang:string;interimResults:boolean;continuous:boolean;onresult:((event:any)=>void)|null;onerror:((event:any)=>void)|null;onend:(()=>void)|null;onspeechstart?:(()=>void)|null;onspeechend?:(()=>void)|null;start():void;stop():void;abort?():void };
 type RecognitionConstructor = new()=>Recognition;
@@ -51,6 +52,7 @@ export function bindPremiumAssistantRuntime(){
  const env=(import.meta as ImportMeta&{env?:Record<string,string|boolean|undefined>}).env;const configured=typeof env?.VITE_AGM_API_BASE_URL==='string'?env.VITE_AGM_API_BASE_URL.trim():'';const apiBase=configured||(env?.DEV===true?'/api/v1':'');
  const client=createPremiumAssistantClient({apiBaseUrl:apiBase,fetch:window.fetch.bind(window),sessionStorage});const history=loadHistory();let answerText='';let activeRequest:AbortController|undefined;let requestSequence=0;let recognition:Recognition|undefined;let cancelRecognitionPromise:(()=>void)|undefined;let activeTurnId:string|undefined;let activeBrowserSpeech:{turnId:string;resolve:()=>void}|undefined;let lastAudioStopReceipt:RuntimeAudioStopReceipt|undefined;let disposed=false;const staleTurnEvents=new Set<string>();const nativeListenerHandles:Array<{remove:()=>Promise<void>}>=[];
  const session=new VoiceSessionController(renderState);renderHistory();renderState('OFF');
+ const disposeDeviceAssistantHandoff=bindDeviceAssistantHandoff(runtimeRoot,language);
 
  const offlineHandler=()=>{activeRequest?.abort();status.textContent=connectionText(language,false);};
  const onlineHandler=()=>{if(session.state()==='OFF'||session.state()==='STANDBY')status.textContent=connectionText(language,true);};
@@ -58,6 +60,7 @@ export function bindPremiumAssistantRuntime(){
  disposeActivePremiumAssistantRuntime=()=>{
   if(disposed)return;disposed=true;session.off();requestSequence+=1;activeRequest?.abort();activeRequest=undefined;activeTurnId=undefined;
   delete runtimeRoot.dataset.activeVoiceTurn;
+  disposeDeviceAssistantHandoff();
   window.removeEventListener('agm-android-assistant-handoff',handoffHandler);window.removeEventListener('offline',offlineHandler);window.removeEventListener('online',onlineHandler);
   for(const handle of nativeListenerHandles)void handle.remove();
   void enqueueVoiceCancellation(async()=>{await Promise.allSettled([stopCapture(),stopSpeaking()]);});
@@ -164,6 +167,7 @@ export function bindPremiumAssistantRuntime(){
  async function stopCapture(){const current=recognition;const cancel=cancelRecognitionPromise;recognition=undefined;cancelRecognitionPromise=undefined;cancel?.();try{if(isNativeAudioAvailable())await NativeAudio.stopListening();else if(current?.abort)current.abort();else current?.stop();}catch{}}
  async function processTranscript(confirmedText:string):Promise<boolean>{
   if(!confirmedText){status.textContent=m.emptyTranscript;return false;}
+  if(await handleSpokenAndroidAssistantCommand(confirmedText,language,status))return true;
   if(!navigator.onLine){session.transition('ERROR');status.textContent=connectionText(language,false);return false;}
     if(detectPremiumConversationIntent(confirmedText)==='navigate-to-car-mover'){
     if(!isPremiumNavigationAllowed('carMover')){if(actionPanel)actionPanel.hidden=true;response.textContent='Accesul Car Mover nu este acordat. Deschid fluxul de acces.';panel.hidden=false;window.history.pushState({},'', '/access');window.dispatchEvent(new PopStateEvent('popstate'));return true;}

@@ -2,9 +2,11 @@ import type { BasicLanguageCode } from '../language-registry';
 import { renderPremiumShell } from '../premium-shell';
 import { premiumAssistantUiMessages } from './premium-assistant-ui.i18n';
 import { premiumConversationMessages } from './premium-conversation.i18n';
+import { deviceAssistantCopy } from '../premium-capabilities/device-assistant-handoff.i18n';
 
 export function renderPremiumAssistantView(language: BasicLanguageCode, escapeHtml: (value:string)=>string) {
   const m = premiumAssistantUiMessages[language];
+  const d = deviceAssistantCopy[language];
   return renderPremiumShell({
     viewClass:'premium-assistant-view', labelledBy:'premium-assistant-title', brandHref:'/premium', brandModule:'premium', brandAriaLabel:escapeHtml(m.back),
     navigation:`<a href="/premium" data-module="premium" class="premium-back">${escapeHtml(m.back)}</a>`,
@@ -25,6 +27,31 @@ export function renderPremiumAssistantView(language: BasicLanguageCode, escapeHt
             <button type="button" data-assistant-retry hidden>↻ Retry</button>
             <button type="button" data-assistant-cancel>${escapeHtml(m.cancel)}</button>
           </div>
+        </div>
+      </section>
+      <section class="premium-module premium-device-assistant" data-device-assistant-handoff hidden>
+        <div class="premium-module-content">
+          <span class="premium-device-assistant-kicker">AGM &rarr; Android Assistant</span>
+          <h2>${escapeHtml(d.title)}</h2>
+          <p>${escapeHtml(d.description)}</p>
+          <div class="premium-assistant-controls">
+            <button type="button" data-device-assistant-open>${escapeHtml(d.open)}</button>
+            <button type="button" data-device-assistant-context>${escapeHtml(d.sendContext)}</button>
+            <button type="button" data-device-assistant-settings>${escapeHtml(d.settings)}</button>
+          </div>
+          <div class="premium-device-handoff-form">
+            <label><span>${escapeHtml(d.action)}</span><select data-device-handoff-action>
+              <option value="NAVIGATION">${escapeHtml(d.navigation)}</option>
+              <option value="DIAL">${escapeHtml(d.dial)}</option>
+              <option value="OPEN_APP">${escapeHtml(d.app)}</option>
+              <option value="REMINDER">${escapeHtml(d.reminder)}</option>
+              <option value="ALARM">${escapeHtml(d.alarm)}</option>
+            </select></label>
+            <label><span>${escapeHtml(d.value)}</span><input data-device-handoff-value maxlength="500" autocomplete="off"></label>
+            <label><span>${escapeHtml(d.time)}</span><input data-device-handoff-time type="time" hidden></label>
+            <button type="button" data-device-handoff-execute>${escapeHtml(d.execute)}</button>
+          </div>
+          <p role="status" aria-live="polite" data-device-handoff-status></p>
         </div>
       </section>
       <section class="premium-module" data-assistant-response-panel hidden>

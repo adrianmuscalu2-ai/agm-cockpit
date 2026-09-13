@@ -44,16 +44,19 @@ public class AgmCapabilityPlugin extends Plugin {
 
     @PluginMethod
     public void launchAssistant(PluginCall call) {
-        Intent intent = new Intent(Intent.ACTION_ASSIST);
-        if (intent.resolveActivity(getContext().getPackageManager()) == null) {
-            JSObject out = new JSObject(); out.put("status", "UNAVAILABLE"); call.resolve(out); return;
-        }
-        try {
-            getActivity().startActivity(intent);
-            JSObject out = new JSObject(); out.put("status", "OPENED"); call.resolve(out);
-        } catch (Exception error) {
-            call.reject("Android assistant handoff failed", "ASSISTANT_HANDOFF_FAILED", error);
-        }
+        call.resolve(DeviceHandoffIntents.launchAssistant(getActivity(), call.getString("contextText", "")));
+    }
+
+    @PluginMethod
+    public void performDeviceHandoff(PluginCall call) {
+        call.resolve(DeviceHandoffIntents.perform(
+            getActivity(),
+            call.getString("action", ""),
+            call.getString("value", ""),
+            call.getString("contextText", ""),
+            call.getInt("hour"),
+            call.getInt("minute")
+        ));
     }
 
     @PluginMethod
@@ -75,12 +78,7 @@ public class AgmCapabilityPlugin extends Plugin {
 
     @PluginMethod
     public void openAssistantSettings(PluginCall call) {
-        Intent intent = new Intent(Settings.ACTION_VOICE_INPUT_SETTINGS);
-        if (intent.resolveActivity(getContext().getPackageManager()) == null) {
-            JSObject out = new JSObject(); out.put("status", "UNAVAILABLE"); call.resolve(out); return;
-        }
-        try { getActivity().startActivity(intent); JSObject out = new JSObject(); out.put("status", "OPENED"); call.resolve(out); }
-        catch (Exception error) { call.reject("Assistant settings failed", "ASSISTANT_SETTINGS_FAILED", error); }
+        call.resolve(DeviceHandoffIntents.openAssistantSettings(getActivity()));
     }
 
     @PluginMethod

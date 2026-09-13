@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "validatedAt": "2026-09-13T22:46:00+02:00",
+  "status": "PASS",
+  "baseRevision": "bccb6fa4363841481ab7130e15d41f2db1b4f6a7",
+  "device": { "model": "SM-S931B", "android": "16", "sdk": 36 },
+  "app": { "applicationId": "com.agm.cockpit", "versionName": "1.4.0", "versionCode": 24 },
+  "checks": {
+    "signedAab": "PASS",
+    "forceStopRelaunch": "PASS",
+    "moduleVisible": "PASS",
+    "selectedAssistantHandoffBeforeRestart": "PASS",
+    "mapsResolverHandoff": "PASS",
+    "phoneRestart": "PASS",
+    "agmRelaunchAfterRestart": "PASS",
+    "selectedAssistantHandoffAfterRestart": "PASS",
+    "providerHardCoding": "NONE",
+    "accessibilityService": "NONE"
+  },
+  "browser": {
+    "plugin": "PASS",
+    "integratedControl": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "session": "PASS",
+    "targetPage": "PASS",
+    "runId": "2026-09-13T19-48-24-227Z"
+  },
+  "artifacts": {
+    "aabSha256": "CB9A58E55B7F0BC8826D11EF4DBD9A6DCB84302DFA5C19F668207C3E23D96E3E",
+    "universalApkSha256": "C49FD35D37FB99E093F9985085B58C4522348E926D41EAB818561FFC71F57155",
+    "signingCertificateSha256": "6E:18:2B:67:BD:A9:E4:C4:F6:EE:93:D7:95:F6:19:AF:06:88:D3:96:7F:9B:74:B5:37:9A:42:FE:67:AC:C8:C1"
+  },
+  "secretsPrinted": false,
+  "keystoreMutation": "NONE"
+}

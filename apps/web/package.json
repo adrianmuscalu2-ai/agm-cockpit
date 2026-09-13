@@ -53,6 +53,7 @@
     "test:public-visual-web-search": "tsx scripts/test-public-visual-web-search.ts",
     "test:android-premium-entitlement-cache": "tsx scripts/test-android-premium-entitlement-cache.ts",
     "test:device-capability-router": "tsx scripts/test-device-capability-router.ts",
+    "test:device-assistant-handoff": "tsx scripts/test-device-assistant-handoff.ts",
     "test:turn-live-state": "tsx scripts/test-turn-live-state-reconciliation.ts",
     "test:turn-operational-truth": "tsx scripts/test-turn-operational-truth.ts",
     "test:turn-functional-overview": "tsx scripts/test-turn-functional-overview.ts",
