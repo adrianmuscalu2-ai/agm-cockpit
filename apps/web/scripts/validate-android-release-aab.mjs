@@ -44,7 +44,7 @@ if (!expectedCertificateSha256 || !/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(expect
 const applicationId = build.match(/applicationId\s+["']([^"']+)["']/)?.[1] ?? null;
 const versionName = build.match(/versionName\s+["']([^"']+)["']/)?.[1] ?? null;
 const versionCode = Number(build.match(/versionCode\s+(\d+)/)?.[1] ?? Number.NaN);
-if (applicationId !== 'com.agm.cockpit' || versionName !== '1.3.0' || versionCode !== 21) {
+if (applicationId !== 'com.agm.cockpit' || versionName !== '1.4.0' || versionCode !== 22) {
   console.error('ANDROID_RELEASE_IDENTITY_OR_VERSION_MISMATCH');
   process.exit(1);
 }

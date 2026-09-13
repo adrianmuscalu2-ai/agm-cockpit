@@ -1,0 +1,28 @@
+gradle.projectsEvaluated {
+    def requiredEnvironment = { String name ->
+        def value = System.getenv(name)
+        if (value == null || value.trim().isEmpty()) {
+            throw new GradleException("SECURE_BUNDLETOOL_CONFIGURATION_MISSING:${name}")
+        }
+        value
+    }
+
+    rootProject.tasks.register('secureBundletoolRun', JavaExec) {
+        group = 'verification'
+        description = 'Runs the non-logging SecureBundletoolRunner with the Android buildscript classpath.'
+        classpath = rootProject.files(
+            requiredEnvironment('AGM_SECURE_BUNDLETOOL_CLASSES'),
+            rootProject.buildscript.configurations.classpath
+        )
+        mainClass = 'SecureBundletoolRunner'
+        args(
+            requiredEnvironment('AGM_SECURE_BUNDLE_PATH'),
+            requiredEnvironment('AGM_SECURE_BUNDLE_OUTPUT'),
+            requiredEnvironment('AGM_SECURE_BUNDLETOOL_KEYSTORE'),
+            requiredEnvironment('AGM_SECURE_BUNDLETOOL_ALIAS'),
+            requiredEnvironment('AGM_SECURE_BUNDLETOOL_FINGERPRINT'),
+            requiredEnvironment('AGM_SECURE_BUNDLETOOL_STATUS'),
+            requiredEnvironment('AGM_SECURE_BUNDLETOOL_AAPT2')
+        )
+    }
+}
