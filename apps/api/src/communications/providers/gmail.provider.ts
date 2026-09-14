@@ -23,7 +23,7 @@ export type GmailInboxMessage = {
 };
 
 export class GmailProviderError extends Error {
-  constructor(readonly code: 'NOT_CONFIGURED' | 'AUTHORIZATION_FAILED' | 'API_FAILED', readonly status?: number, readonly reason?: string) {
+  constructor(readonly code: 'NOT_CONFIGURED' | 'AUTHORIZATION_FAILED' | 'NETWORK_UNAVAILABLE' | 'API_FAILED', readonly status?: number, readonly reason?: string) {
     super(`GMAIL_${code}${status ? `:${status}` : ''}${reason ? `:${reason}` : ''}`);
   }
 }
@@ -142,10 +142,13 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
       ...init,
       headers: { authorization: `Bearer ${await this.accessToken()}`, 'content-type': 'application/json', ...init?.headers },
     });
-    let response = await request();
+    let response: Response;
+    try { response = await request(); }
+    catch (error) { if (error instanceof GmailProviderError) throw error; throw new GmailProviderError('NETWORK_UNAVAILABLE'); }
     if (response.status === 401 && !this.config.get<string>('GMAIL_ACCESS_TOKEN')) {
       this.cachedToken = undefined;
-      response = await request();
+      try { response = await request(); }
+      catch (error) { if (error instanceof GmailProviderError) throw error; throw new GmailProviderError('NETWORK_UNAVAILABLE'); }
     }
     if (!response.ok) throw new GmailProviderError(response.status === 401 || response.status === 403 ? 'AUTHORIZATION_FAILED' : 'API_FAILED', response.status);
     return response;
@@ -161,7 +164,9 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
       refresh_token: this.config.getOrThrow<string>('GMAIL_OAUTH_REFRESH_TOKEN'),
       grant_type: 'refresh_token',
     });
-    const response = await this.trackedFetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body });
+    let response: Response;
+    try { response = await this.trackedFetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body }); }
+    catch { throw new GmailProviderError('NETWORK_UNAVAILABLE'); }
     if (!response.ok) {
       const failure = await response.json().catch(() => ({})) as { error?: string };
       const safeReason = ['invalid_grant', 'invalid_client', 'unauthorized_client', 'invalid_request'].includes(failure.error ?? '') ? failure.error : undefined;

@@ -55,8 +55,17 @@ public class AgmCapabilityPlugin extends Plugin {
             call.getString("value", ""),
             call.getString("contextText", ""),
             call.getInt("hour"),
-            call.getInt("minute")
+            call.getInt("minute"),
+            call.getLong("startEpochMs"),
+            call.getString("mimeType", ""),
+            call.getString("contentUri", ""),
+            call.getString("subject", "")
         ));
+    }
+
+    @PluginMethod
+    public void getAndroidActionProtocolStatus(PluginCall call) {
+        call.resolve(DeviceHandoffIntents.protocolStatus(getActivity()));
     }
 
     @PluginMethod

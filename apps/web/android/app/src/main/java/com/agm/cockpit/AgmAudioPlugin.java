@@ -81,6 +81,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     @PluginMethod
     public void checkMicrophonePermission(PluginCall call) {
         String state = getPermissionState("microphone").toString();
+        PermissionProtocol.markObserved(getContext(), Manifest.permission.RECORD_AUDIO, "granted".equals(state));
         Log.i(TAG, "Microphone permission state: " + state);
         JSObject result = new JSObject();
         result.put("state", state);
@@ -90,12 +91,14 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     @PluginMethod
     public void requestMicrophonePermission(PluginCall call) {
         Log.i(TAG, "Requesting microphone permission");
+        PermissionProtocol.markRequested(getContext(), Manifest.permission.RECORD_AUDIO);
         requestPermissionForAlias("microphone", call, "microphonePermissionCallback");
     }
 
     @PermissionCallback
     private void microphonePermissionCallback(PluginCall call) {
         String state = getPermissionState("microphone").toString();
+        PermissionProtocol.markRequestResult(getContext(), Manifest.permission.RECORD_AUDIO, "granted".equals(state));
         Log.i(TAG, "Microphone permission result: " + state);
         JSObject result = new JSObject();
         result.put("state", state);

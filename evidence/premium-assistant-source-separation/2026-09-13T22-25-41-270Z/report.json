@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 2,
+  "runId": "2026-09-13T22-25-41-270Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "status": "FAIL",
+  "browserGate": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS"
+  },
+  "checks": {
+    "naturalAnswerRendered": true,
+    "noCitationOrUrlInUserText": true,
+    "noEngineeringSourceUi": true,
+    "engineeringEndpointNotFetchedByUserRuntime": true,
+    "cleanAnswerPassedToTts": false
+  },
+  "target": "http://127.0.0.1:64570",
+  "fatal": "Error: Source separation checks failed: {\"naturalAnswerRendered\":true,\"noCitationOrUrlInUserText\":true,\"noEngineeringSourceUi\":true,\"engineeringEndpointNotFetchedByUserRuntime\":true,\"cleanAnswerPassedToTts\":false}\n    at file:///C:/Users/adria/Documents/AGM/_codex_stage_android_action_layer_20260913/scripts/validate-premium-assistant-sources-browser.mjs:164:11",
+  "revision": "4c0b1f0b8ae894da23ecd03ffa4978fe5f099970",
+  "finishedAt": "2026-09-13T22:25:48.879Z"
+}

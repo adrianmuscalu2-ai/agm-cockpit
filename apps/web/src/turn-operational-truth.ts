@@ -15,6 +15,8 @@ export type OperationalTruthStep = {
   contract?: string;
 };
 
+export type AndroidActionOperationalStep = { name: string; status: string; source: string; evidenceId: string | null; observedAt: string | null };
+
 export type TurnOperationalTruth = {
   contractVersion: string;
   generatedAt: string;
@@ -28,6 +30,19 @@ export type TurnOperationalTruth = {
   authStatus: 'M2M AUTHENTICATED' | 'AUTH REQUIRED';
   telemetryStatus: 'LIVE TELEMETRY' | 'STALE TELEMETRY' | 'NO TELEMETRY';
   authorityControlPlane: { canonicalId: string; status: TurnOperationalTruthStatus; statusSource: string; observedAt: string | null };
+  androidActionLayer?: {
+    contractVersion: 'android-action-operational-truth.v1';
+    assistantHandoff: AndroidActionOperationalStep;
+    intentRouter: AndroidActionOperationalStep;
+    navigation: AndroidActionOperationalStep;
+    dialer: AndroidActionOperationalStep;
+    calendar: AndroidActionOperationalStep;
+    share: AndroidActionOperationalStep;
+    driverVoiceMode: AndroidActionOperationalStep;
+    androidPermissions: AndroidActionOperationalStep;
+    gmailAuthorization: AndroidActionOperationalStep;
+    guardianPermissionControl: AndroidActionOperationalStep;
+  };
   accessProof: { status: 'CURRENT' | 'STALE' | 'MISSING'; observedAt: string | null; ageSeconds: number | null; freshnessWindowSeconds: number; role: 'HISTORICAL_RELEASE_ACCESS_PROOF_NOT_RUNTIME_FRESHNESS' };
   chain: {
     machineIdentity: OperationalTruthStep;

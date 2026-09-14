@@ -9,6 +9,7 @@ const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf
 const java = read('../android/app/src/main/java/com/agm/cockpit/DeviceHandoffIntents.java');
 const plugin = read('../android/app/src/main/java/com/agm/cockpit/AgmCapabilityPlugin.java');
 const manifest = read('../android/app/src/main/AndroidManifest.xml');
+const runtime = read('../src/premium-capabilities/device-assistant-handoff.runtime.ts');
 const gateway = read('../src/premium-capabilities/android-assistant.gateway.ts');
 
 for (const language of basicLanguageCodes) {
@@ -36,6 +37,8 @@ assert.match(java, /"UNAVAILABLE"/);
 assert.match(java, /"UNSUPPORTED"/);
 assert.match(java, /"INVALID_INPUT"/);
 assert.match(plugin, /performDeviceHandoff/);
+assert.match(runtime, /receipt\.result === 'AUTH_PERMISSION_FAILURE'/);
+assert.match(runtime, /driverActionMessage\('AUTH_PERMISSION_FAILURE'/);
 assert.match(gateway, /contextText\?\.trim\(\)\.slice\(0, 2000\)/);
 assert.match(manifest, /android\.intent\.action\.ASSIST/);
 assert.match(manifest, /android\.intent\.action\.SET_ALARM/);

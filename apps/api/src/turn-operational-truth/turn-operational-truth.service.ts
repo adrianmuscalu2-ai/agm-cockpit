@@ -110,7 +110,7 @@ export class TurnOperationalTruthService {
 
   async snapshot(now = new Date()) {
     const companyId = GITHUB_ACTIONS_PROVISIONING_CONTRACT.companyId;
-    const [accessAudit, heartbeat, mandate] = await Promise.all([
+    const [accessAudit, heartbeat, mandate, guardianEvents] = await Promise.all([
       this.prisma.authorityAuditJournal.findFirst({ where: { companyId, eventType: TURN_OPERATIONAL_TRUTH_CONTRACT.authenticatedReadEventType, outcome: 'PASS', actorType: 'MACHINE' }, orderBy: { occurredAt: 'desc' } }),
       this.prisma.componentHeartbeat.findUnique({ where: {
         companyId_componentId: { companyId, componentId: TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId },
@@ -122,8 +122,12 @@ export class TurnOperationalTruthService {
         revokedAt: null,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       }, orderBy: { issuedAt: 'desc' } }),
+      this.prisma.authorityAuditJournal.findMany({ where: {
+        companyId,
+        eventType: { in: ['PERMISSION_GUARDIAN_EVALUATION', 'PERMISSION_GUARDIAN_CONTROL_FINDING'] },
+      }, orderBy: { occurredAt: 'desc' }, take: 200 }),
     ]);
-    if (!accessAudit && !heartbeat && !mandate) return emptySnapshot(now);
+    if (!accessAudit && !heartbeat && !mandate && guardianEvents.length === 0) return emptySnapshot(now);
     const metadata = readMetadata(accessAudit?.safeMetadata);
     const [accessRuntimeEvent, runtimeEvent] = await Promise.all([
       metadata ? this.prisma.agentRuntimeEvent.findFirst({ where: {
@@ -226,6 +230,7 @@ export class TurnOperationalTruthService {
         statusSource: 'ACTIVE_MANDATE_AGENT_RUNTIME_EVENT_INDEPENDENT_VALIDATION_COMPONENT_HEARTBEAT',
         observedAt: runtimeEvent?.occurredAt.toISOString() ?? null,
       },
+      androidActionLayer: projectAndroidActionLayer(guardianEvents),
       accessProof: {
         status: !accessCorrelated ? 'MISSING' : accessFresh ? 'CURRENT' : 'STALE',
         observedAt: accessAudit?.occurredAt.toISOString() ?? null,
@@ -275,6 +280,7 @@ function emptySnapshot(now: Date) {
     authStatus: 'AUTH REQUIRED',
     telemetryStatus: 'NO TELEMETRY',
     authorityControlPlane: { canonicalId: TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId, status: 'NO_TELEMETRY' as const, statusSource: 'NONE', observedAt: null },
+    androidActionLayer: emptyAndroidActionLayer(),
     accessProof: { status: 'MISSING', observedAt: null, ageSeconds: null, freshnessWindowSeconds: Math.round(TURN_OPERATIONAL_TRUTH_CONTRACT.accessProofFreshnessWindowMs / 1_000), role: 'HISTORICAL_RELEASE_ACCESS_PROOF_NOT_RUNTIME_FRESHNESS' },
     chain: {
       machineIdentity: { status: 'MISSING', ref: null, source: 'NO_FALLBACK' },
@@ -288,6 +294,48 @@ function emptySnapshot(now: Date) {
       ui: { status: 'NO TELEMETRY', source: 'NO FALLBACK' },
     },
     latestEvent: null,
+  };
+}
+
+function emptyAndroidActionLayer() {
+  const item = (name: string) => ({ name, status: 'NOT_PROVEN', source: 'NO_GUARDIAN_TELEMETRY', evidenceId: null, observedAt: null });
+  return {
+    contractVersion: 'android-action-operational-truth.v1',
+    assistantHandoff: { name: 'Assistant Handoff', status: 'PASS', source: 'FROZEN_ACCEPTED_PRODUCTION_EVIDENCE', evidenceId: 'android-device-assistant/production-2026-09-13', observedAt: '2026-09-13T00:00:00.000Z' },
+    intentRouter: item('Intent Router'), navigation: item('Navigation'), dialer: item('Dialer'), calendar: item('Calendar'), share: item('Share'),
+    driverVoiceMode: item('Driver Voice Mode'), androidPermissions: item('Android Permissions'), gmailAuthorization: item('Gmail Authorization'), guardianPermissionControl: item('Guardian Permission Control'),
+  };
+}
+
+function projectAndroidActionLayer(events: Array<{ eventId: string; eventType: string; outcome: string; occurredAt: Date; safeMetadata: Prisma.JsonValue }>) {
+  const base = emptyAndroidActionLayer();
+  const observation = (capability: string, name: string, evidencePattern?: RegExp) => {
+    const event = events.find((candidate) => {
+      const metadata = jsonRecord(candidate.safeMetadata);
+      return candidate.eventType === 'PERMISSION_GUARDIAN_EVALUATION' && metadata.requestedCapability === capability && metadata.phase === 'OBSERVATION';
+    });
+    if (!event) return { name, status: 'NOT_PROVEN', source: 'NO_GUARDIAN_OBSERVATION', evidenceId: null, observedAt: null };
+    const metadata = jsonRecord(event.safeMetadata);
+    const evidence = typeof metadata.evidence === 'string' ? metadata.evidence : '';
+    const pass = event.outcome === 'APPROVED' && (!evidencePattern || evidencePattern.test(evidence));
+    return { name, status: pass ? 'PASS' : event.outcome === 'DENIED' ? 'FAIL' : 'NOT_PROVEN', source: 'PERSISTED_PERMISSION_GUARDIAN_EVALUATION', evidenceId: event.eventId, observedAt: event.occurredAt.toISOString() };
+  };
+  const denied = events.find((event) => event.eventType === 'PERMISSION_GUARDIAN_EVALUATION' && event.outcome === 'DENIED' && jsonRecord(event.safeMetadata).authorityGranted === false);
+  const finding = denied && events.find((event) => event.eventType === 'PERMISSION_GUARDIAN_CONTROL_FINDING' && jsonRecord(event.safeMetadata).evaluationEventId === denied.eventId);
+  const approved = events.find((event) => event.eventType === 'PERMISSION_GUARDIAN_EVALUATION' && event.outcome === 'APPROVED');
+  return {
+    ...base,
+    intentRouter: observation('INTENT_ROUTER', 'Intent Router', /route:RESOLVED:/),
+    navigation: observation('NAVIGATION', 'Navigation', /receipt:[^:]+:OPENED:/),
+    dialer: observation('DIALER', 'Dialer', /receipt:[^:]+:OPENED:/),
+    calendar: observation('CALENDAR_INSERT', 'Calendar', /receipt:[^:]+:OPENED:/),
+    share: observation('SHARE', 'Share', /receipt:[^:]+:OPENED:/),
+    driverVoiceMode: observation('DRIVER_VOICE_MODE', 'Driver Voice Mode', /driver:[^:]+:RESOLVED/),
+    androidPermissions: observation('ANDROID_PERMISSION_PROTOCOL', 'Android Permissions', /protocol-matrix:PASS/),
+    gmailAuthorization: observation('GMAIL_AUTHORIZATION_PROTOCOL', 'Gmail Authorization', /protocol-matrix:PASS/),
+    guardianPermissionControl: denied && finding && approved
+      ? { name: 'Guardian Permission Control', status: 'PASS', source: 'APPROVED_REQUEST_PLUS_DENIED_NEGATIVE_CONTROL', evidenceId: denied.eventId, observedAt: denied.occurredAt.toISOString() }
+      : { name: 'Guardian Permission Control', status: 'NOT_PROVEN', source: 'NEGATIVE_CONTROL_OR_APPROVED_BASELINE_MISSING', evidenceId: null, observedAt: null },
   };
 }
 

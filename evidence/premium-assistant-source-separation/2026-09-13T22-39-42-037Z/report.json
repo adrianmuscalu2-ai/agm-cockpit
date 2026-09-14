@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "runId": "2026-09-13T22-39-42-037Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "status": "PASS",
+  "browserGate": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS"
+  },
+  "checks": {
+    "naturalAnswerRendered": true,
+    "noCitationOrUrlInUserText": true,
+    "noEngineeringSourceUi": true,
+    "engineeringEndpointNotFetchedByUserRuntime": true,
+    "semanticAnswerPassedToTts": true
+  },
+  "target": "http://127.0.0.1:65067",
+  "detail": {
+    "responseText": "Mâine, în Heilbronn, dimineața va fi mai mult noros și sunt posibile câteva averse. După-amiaza se încălzește până la aproximativ 23°C, iar spre seară vremea devine mai senină.",
+    "sourceUiCount": 0,
+    "spokenText": "Mâine, în Heilbronn, dimineața va fi mai mult noros și sunt posibile câteva averse. După-amiaza se încălzește până la aproximativ 23 de grade Celsius, iar spre seară vremea devine mai senină."
+  },
+  "revision": "4c0b1f0b8ae894da23ecd03ffa4978fe5f099970",
+  "finishedAt": "2026-09-13T22:39:46.214Z"
+}

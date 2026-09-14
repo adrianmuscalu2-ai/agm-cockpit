@@ -34,6 +34,7 @@ export function renderPremiumAssistantView(language: BasicLanguageCode, escapeHt
           <span class="premium-device-assistant-kicker">AGM &rarr; Android Assistant</span>
           <h2>${escapeHtml(d.title)}</h2>
           <p>${escapeHtml(d.description)}</p>
+          <p><strong>${escapeHtml(d.driverMode)}</strong></p>
           <div class="premium-assistant-controls">
             <button type="button" data-device-assistant-open>${escapeHtml(d.open)}</button>
             <button type="button" data-device-assistant-context>${escapeHtml(d.sendContext)}</button>
@@ -46,6 +47,9 @@ export function renderPremiumAssistantView(language: BasicLanguageCode, escapeHt
               <option value="OPEN_APP">${escapeHtml(d.app)}</option>
               <option value="REMINDER">${escapeHtml(d.reminder)}</option>
               <option value="ALARM">${escapeHtml(d.alarm)}</option>
+              <option value="CALENDAR">${escapeHtml(d.calendar)}</option>
+              <option value="SHARE">${escapeHtml(d.share)}</option>
+              <option value="EMAIL_DRAFT">${escapeHtml(d.emailDraft)}</option>
             </select></label>
             <label><span>${escapeHtml(d.value)}</span><input data-device-handoff-value maxlength="500" autocomplete="off"></label>
             <label><span>${escapeHtml(d.time)}</span><input data-device-handoff-time type="time" hidden></label>

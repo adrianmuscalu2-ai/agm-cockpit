@@ -113,4 +113,34 @@ describe('Gmail provider OAuth continuity', () => {
 
     expect(providerFetch.mock.calls.filter(([url]) => String(url) === 'https://oauth2.googleapis.com/token')).toHaveLength(2);
   });
+
+  it('classifies a revoked refresh token as an authorization failure', async () => {
+    const config = new ConfigService({ GMAIL_FROM_ADDRESS:'agm@example.test',GMAIL_OAUTH_CLIENT_ID:'client-id',GMAIL_OAUTH_CLIENT_SECRET:'client-secret',GMAIL_OAUTH_REFRESH_TOKEN:'revoked-refresh-token' });
+    jest.spyOn(global,'fetch').mockResolvedValueOnce(new Response(JSON.stringify({error:'invalid_grant'}),{status:400}));
+    await expect(new GmailCommunicationProvider(config).searchInbox('',1)).rejects.toMatchObject({code:'AUTHORIZATION_FAILED',reason:'invalid_grant'});
+  });
+
+  it('recovers automatically after temporary network loss without Google reauthorization', async () => {
+    const config = new ConfigService({ GMAIL_FROM_ADDRESS:'agm@example.test',GMAIL_OAUTH_CLIENT_ID:'client-id',GMAIL_OAUTH_CLIENT_SECRET:'client-secret',GMAIL_OAUTH_REFRESH_TOKEN:'persistent-refresh-token' });
+    const provider = new GmailCommunicationProvider(config);
+    const providerFetch = jest.spyOn(global,'fetch')
+      .mockRejectedValueOnce(new TypeError('network offline'))
+      .mockResolvedValueOnce(new Response(JSON.stringify({access_token:'recovered-access',expires_in:3600}),{status:200}))
+      .mockResolvedValueOnce(new Response(JSON.stringify({messages:[]}),{status:200}));
+    await expect(provider.searchInbox('',1)).rejects.toMatchObject({code:'NETWORK_UNAVAILABLE'});
+    await expect(provider.searchInbox('',1)).resolves.toEqual([]);
+    expect(providerFetch).toHaveBeenCalledTimes(3);
+  });
+
+  it('refreshes proactively when the cached access token is inside the 60 second expiry window', async () => {
+    const config = new ConfigService({ GMAIL_FROM_ADDRESS:'agm@example.test',GMAIL_OAUTH_CLIENT_ID:'client-id',GMAIL_OAUTH_CLIENT_SECRET:'client-secret',GMAIL_OAUTH_REFRESH_TOKEN:'persistent-refresh-token' });
+    const providerFetch = jest.spyOn(global,'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({access_token:'short-access',expires_in:30}),{status:200}))
+      .mockResolvedValueOnce(new Response(JSON.stringify({messages:[]}),{status:200}))
+      .mockResolvedValueOnce(new Response(JSON.stringify({access_token:'fresh-access',expires_in:3600}),{status:200}))
+      .mockResolvedValueOnce(new Response(JSON.stringify({messages:[]}),{status:200}));
+    const provider = new GmailCommunicationProvider(config);
+    await provider.searchInbox('',1); await provider.searchInbox('',1);
+    expect(providerFetch.mock.calls.filter(([url])=>String(url)==='https://oauth2.googleapis.com/token')).toHaveLength(2);
+  });
 });

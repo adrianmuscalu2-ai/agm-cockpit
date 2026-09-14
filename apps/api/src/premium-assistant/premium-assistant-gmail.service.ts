@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { GmailCommunicationProvider, GmailProviderError, type GmailInboxMessage } from '../communications/providers/gmail.provider';
-import type { AssistantSourceReference } from './premium-assistant.contract';
+import type { AssistantSourceReference, GmailActionContext } from './premium-assistant.contract';
 
 export type GmailAssistantIntent = {
   operation: 'LIST_RECENT' | 'LIST_TODAY' | 'LATEST_FROM' | 'SEARCH_FROM' | 'SEARCH_TOPIC' | 'SUMMARIZE_RECENT';
@@ -13,6 +13,7 @@ export type GmailAssistantResult = {
   intent: GmailAssistantIntent;
   messages: GmailInboxMessage[];
   sources: AssistantSourceReference[];
+  actionContext?: Omit<GmailActionContext, 'traceId'> | null;
 };
 
 @Injectable()
@@ -28,8 +29,60 @@ export class PremiumAssistantGmailService {
     if (!intent) throw new Error('NOT_A_GMAIL_INTENT');
     const retrieved = await this.gmail.searchInbox(intent.gmailQuery, intent.maxMessages);
     const messages = intent.operation === 'LIST_TODAY' ? retrieved.filter((message) => isTodayInBerlin(message.occurredAt)) : retrieved;
-    return { intent, messages, sources: messages.map(gmailSourceReference) };
+    return { intent, messages, sources: messages.map(gmailSourceReference), actionContext: messages[0] ? extractGmailActionContext(messages[0]) : null };
   }
+}
+
+export function extractGmailActionContext(message: GmailInboxMessage): Omit<GmailActionContext, 'traceId'> {
+  const body = compactMessageBody(message.bodyText);
+  const lines = body.split(/\n+/).map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const destinationLines = lines.filter((line) => /\b(?:adresa|adres[ăa]|address|adresse|desc[ăa]rcare|unloading|entladung|delivery|livrare)\b/i.test(line));
+  const postalMatches = body.match(/(?:[A-ZĂÂÎȘȚÄÖÜ][^\n,;]{2,60}[, ]+)?\b\d{5}\s+[A-ZĂÂÎȘȚÄÖÜ][A-Za-zĂÂÎȘȚăâîșțÄÖÜäöüß .'-]{2,50}/g) ?? [];
+  const destinations = unique([...destinationLines.map((line) => line.replace(/^.*?[:=-]\s*/, '')), ...postalMatches])
+    .map((value) => cleanVisibleText(value, 240)).filter((value) => value.length >= 5).slice(0, 5);
+  const phoneNumbers = unique((body.match(/(?:\+|00)?\d[\d ()/.-]{6,}\d/g) ?? []).map((value) => value.trim())).slice(0, 5);
+  const dateTimes = extractDateTimes(body).slice(0, 5);
+  const senderEmail = message.from.match(/<?([^<>\s]+@[^<>\s]+)>?/)?.[1]?.toLowerCase() ?? null;
+  const messageRef = `GMAIL-${createHash('sha256').update(message.id).digest('hex').slice(0, 20)}`;
+  return {
+    contractVersion: 'gmail-action-context.v1',
+    messageRef,
+    senderEmail,
+    subject: cleanVisibleText(message.subject, 180),
+    receivedAt: message.occurredAt,
+    destinations,
+    phoneNumbers,
+    dateTimes,
+    shareText: cleanVisibleText(`${message.subject}\n${body}`, 2000),
+  };
+}
+
+function extractDateTimes(value: string) {
+  const output: string[] = [];
+  for (const match of value.matchAll(/\b(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})(?:\s+(?:la|at|um)?\s*(\d{1,2})[:.](\d{2}))?/g)) {
+    const [, day, month, year, hour = '0', minute = '0'] = match;
+    const date = berlinLocalDate(Number(year), Number(month), Number(day), Number(hour), Number(minute));
+    if (Number.isFinite(date.getTime())) output.push(date.toISOString());
+  }
+  return unique(output);
+}
+
+function berlinLocalDate(year: number, month: number, day: number, hour: number, minute: number) {
+  const localAsUtc = Date.UTC(year, month - 1, day, hour, minute);
+  const formatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  });
+  const parts = Object.fromEntries(formatter.formatToParts(new Date(localAsUtc)).map((part) => [part.type, part.value]));
+  const observedLocalAsUtc = Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day), Number(parts.hour), Number(parts.minute));
+  const resolved = new Date(localAsUtc - (observedLocalAsUtc - localAsUtc));
+  const resolvedParts = Object.fromEntries(formatter.formatToParts(resolved).map((part) => [part.type, part.value]));
+  const valid = Number(resolvedParts.year) === year && Number(resolvedParts.month) === month && Number(resolvedParts.day) === day
+    && Number(resolvedParts.hour) === hour && Number(resolvedParts.minute) === minute;
+  return valid ? resolved : new Date(Number.NaN);
+}
+
+function unique(values: readonly string[]) {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
 
 export function classifyGmailIntent(text: string): GmailAssistantIntent | null {
@@ -123,7 +176,7 @@ function extractAfter(value: string, prefix: RegExp) {
   const match = prefix.exec(value);
   if (!match) return '';
   return value.slice(match.index + match[0].length)
-    .split(/[?!.;,]|\b(?:azi|astazi|today|heute|acum|now|in gmail|din gmail)\b/)[0]!
+    .split(/[?!.;,]|\b(?:si\s+(?:deschide|navigheaza)|and\s+(?:open|navigate)|und\s+(?:offne|navigiere)|azi|astazi|today|heute|acum|now|in gmail|din gmail)\b/)[0]!
     .trim()
     .split(/\s+/)
     .slice(0, 5)

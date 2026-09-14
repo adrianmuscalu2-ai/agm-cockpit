@@ -10,6 +10,12 @@ import { premiumConversationMessages } from './premium-conversation.i18n';
 import { recordRoutingMetric, routeDeviceOperation } from '../device-capability-router/device-capability.runtime';
 import { normalizeSpeechText } from '../speech-semantics';
 import { bindDeviceAssistantHandoff, handleSpokenAndroidAssistantCommand } from '../premium-capabilities/device-assistant-handoff.runtime';
+import { rememberDriverContext } from '../android-action-layer/driver-context';
+import { resolveDriverVoiceCommand, driverActionMessage } from '../android-action-layer/driver-voice-mode';
+import { executeAndroidAction } from '../android-action-layer/android-action.executor';
+import type { AndroidActionResolution } from '../android-action-layer/android-action.contract';
+import { evaluatePermissionRequest } from '../android-action-layer/permission-guardian.client';
+import { routeRetrievedAndroidAction } from '../android-action-layer/android-action.router';
 
 type Recognition = { lang:string;interimResults:boolean;continuous:boolean;onresult:((event:any)=>void)|null;onerror:((event:any)=>void)|null;onend:(()=>void)|null;onspeechstart?:(()=>void)|null;onspeechend?:(()=>void)|null;start():void;stop():void;abort?():void };
 type RecognitionConstructor = new()=>Recognition;
@@ -48,7 +54,7 @@ export function bindPremiumAssistantRuntime(){
  const latency=root.querySelector<HTMLElement>('[data-assistant-latency]');const settings=root.querySelector<HTMLButtonElement>('[data-assistant-open-settings]');
  const retry=root.querySelector<HTMLButtonElement>('[data-assistant-retry]');let retryText='';
  const historyPanel=root.querySelector<HTMLElement>('[data-assistant-history-panel]')!;const historyList=root.querySelector<HTMLOListElement>('[data-assistant-history]')!;
- const actionPanel=root.querySelector<HTMLElement>('[data-assistant-action-panel]');const actionSummary=root.querySelector<HTMLElement>('[data-assistant-action-summary]');let pendingAction:PremiumConversationActionProposal|undefined;
+ const actionPanel=root.querySelector<HTMLElement>('[data-assistant-action-panel]');const actionSummary=root.querySelector<HTMLElement>('[data-assistant-action-summary]');let pendingAction:PremiumConversationActionProposal|undefined;let pendingAndroidAction:{text:string;resolution:AndroidActionResolution}|undefined;
  const env=(import.meta as ImportMeta&{env?:Record<string,string|boolean|undefined>}).env;const configured=typeof env?.VITE_AGM_API_BASE_URL==='string'?env.VITE_AGM_API_BASE_URL.trim():'';const apiBase=configured||(env?.DEV===true?'/api/v1':'');
  const client=createPremiumAssistantClient({apiBaseUrl:apiBase,fetch:window.fetch.bind(window),sessionStorage});const history=loadHistory();let answerText='';let activeRequest:AbortController|undefined;let requestSequence=0;let recognition:Recognition|undefined;let cancelRecognitionPromise:(()=>void)|undefined;let activeTurnId:string|undefined;let activeBrowserSpeech:{turnId:string;resolve:()=>void}|undefined;let lastAudioStopReceipt:RuntimeAudioStopReceipt|undefined;let disposed=false;const staleTurnEvents=new Set<string>();const nativeListenerHandles:Array<{remove:()=>Promise<void>}>=[];
  const session=new VoiceSessionController(renderState);renderHistory();renderState('OFF');
@@ -72,7 +78,7 @@ export function bindPremiumAssistantRuntime(){
  root.querySelector('[data-assistant-confirm]')?.addEventListener('click',()=>void submitNewUserTurn(transcript.value.trim()));
  root.querySelector('[data-assistant-replay]')?.addEventListener('click',()=>void replayAnswer());
  root.querySelector('[data-assistant-stop-playback]')?.addEventListener('click',()=>void cancelPlaybackOnly());
- root.querySelector('[data-assistant-action-confirm]')?.addEventListener('click',()=>confirmPendingAction());
+  root.querySelector('[data-assistant-action-confirm]')?.addEventListener('click',()=>void confirmPendingAction());
  root.querySelector('[data-assistant-action-reject]')?.addEventListener('click',()=>rejectPendingAction());
  retry?.addEventListener('click',()=>{const text=retryText||transcript.value.trim();if(text)void submitNewUserTurn(text);});
  settings?.addEventListener('click',()=>void NativeAudio.openAppSettings());
@@ -107,7 +113,7 @@ export function bindPremiumAssistantRuntime(){
   const cancellation=await enqueueVoiceCancellation(async()=>{
    const results=await Promise.allSettled([stopCapture(),stopSpeaking()]);const audio=results[1].status==='fulfilled'?results[1].value:undefined;if(audio)lastAudioStopReceipt=audio;return audio;
   });
-  if(isLeaseCurrent({token,sequence})){pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;retryText='';if(retry)retry.hidden=true;answerText='';response.textContent='';panel.hidden=true;}
+   if(isLeaseCurrent({token,sequence})){pendingAction=undefined;pendingAndroidAction=undefined;if(actionPanel)actionPanel.hidden=true;retryText='';if(retry)retry.hidden=true;answerText='';response.textContent='';panel.hidden=true;}
   const completedAt=performance.now();persistTelemetry({kind:'interrupt',reason,interruptedState,cancelledTurnId,sequence,cancelLatencyMs:Math.round(completedAt-startedAt),newTurnToOldAudioStopMs:Math.max(0,Math.round((cancellation?.stoppedAtMs??completedAt)-startedAt)),audioQueueFlushed:cancellation?.queueFlushed??true,at:Date.now()});
   return{token,sequence};
  }
@@ -120,9 +126,14 @@ export function bindPremiumAssistantRuntime(){
   session.settle();if(session.isEnabled())void conversationLoop(lease.token);
  }
 
- async function turnOn(expectedSequence?:number){
-  const sequence=expectedSequence??++requestSequence;
-  const permission=isNativeAudioAvailable()?await NativeAudio.requestMicrophonePermission():{state:'granted'};
+  async function turnOn(expectedSequence?:number){
+   const sequence=expectedSequence??++requestSequence;
+   if(isNativeAudioAvailable()){
+    const before=await NativeAudio.checkMicrophonePermission();const requestEvaluation=await evaluatePermissionRequest({phase:'REQUEST',requestedCapability:'MICROPHONE_STT',requestedPermissionOrScope:'android.permission.RECORD_AUDIO',requestor:'agm.premium-voice-shell',reason:'Start user-requested speech recognition',risk:'MEDIUM',currentAuthority:permissionAuthority(before.state),evidence:`microphone-before:${before.state}`});
+    if(!requestEvaluation?.authorityGranted){session.transition('ERROR');status.textContent=driverActionMessage('AUTH_PERMISSION_FAILURE',requestEvaluation?.reasonCode??'GUARDIAN_NOT_PROVEN',language);return;}
+   }
+   const permission=isNativeAudioAvailable()?await NativeAudio.requestMicrophonePermission():{state:'granted'};
+   if(isNativeAudioAvailable())void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'MICROPHONE_STT',requestedPermissionOrScope:'android.permission.RECORD_AUDIO',requestor:'agm.premium-voice-shell',reason:'Record microphone permission result',risk:'MEDIUM',currentAuthority:permissionAuthority(permission.state),evidence:`microphone-after:${permission.state}`});
   if(disposed||sequence!==requestSequence)return;
   if(permission.state!=='granted'){session.transition('ERROR');status.textContent=m.microphoneError;settings && (settings.hidden=!isNativeAudioAvailable());return;}
   if(settings)settings.hidden=true;
@@ -165,9 +176,23 @@ export function bindPremiumAssistantRuntime(){
   });
  }
  async function stopCapture(){const current=recognition;const cancel=cancelRecognitionPromise;recognition=undefined;cancelRecognitionPromise=undefined;cancel?.();try{if(isNativeAudioAvailable())await NativeAudio.stopListening();else if(current?.abort)current.abort();else current?.stop();}catch{}}
- async function processTranscript(confirmedText:string):Promise<boolean>{
-  if(!confirmedText){status.textContent=m.emptyTranscript;return false;}
-  if(await handleSpokenAndroidAssistantCommand(confirmedText,language,status))return true;
+  async function processTranscript(confirmedText:string):Promise<boolean>{
+   if(!confirmedText){status.textContent=m.emptyTranscript;return false;}
+   const driverCommand=resolveDriverVoiceCommand(confirmedVoiceText(confirmedText));
+   if(driverCommand.handled){
+    const resolution=driverCommand.resolution;
+    void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'INTENT_ROUTER',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.driver-voice-mode',reason:'Classify driver command',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`route:${resolution.status}:${resolution.action??'NONE'}:${resolution.reason}`});
+    void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'DRIVER_VOICE_MODE',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.driver-voice-mode',reason:'Resolve short voice command against active context',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`driver:${resolution.source}:${resolution.status}`});
+    if(resolution.status!=='RESOLVED'||!resolution.action){const key=resolution.status==='UNSUPPORTED'?'UNSUPPORTED':'CLARIFICATION_REQUIRED';const message=driverActionMessage(key,resolution.reason,language);response.textContent=message;panel.hidden=false;status.textContent=message;return true;}
+    if(resolution.action==='READ_CONTEXT'){
+     const text=resolution.payload?.contextText??'';if(!text){status.textContent=driverActionMessage('CLARIFICATION_REQUIRED',resolution.reason,language);return true;}
+     answerText=text;response.textContent=text;panel.hidden=false;const sequence=++requestSequence;const turnId=`driver-read:${sequence}:${Date.now()}`;activeTurnId=turnId;session.transition('PREPARING');session.markTtsRequest();await speak(text,sequence,turnId);activeTurnId=undefined;return true;
+    }
+    const result=await executeAndroidAction(confirmedText,resolution);
+    if(result.result==='CONFIRMATION_REQUIRED'){pendingAndroidAction={text:confirmedText,resolution};if(actionSummary)actionSummary.textContent=driverActionMessage('CONFIRMATION_REQUIRED',result.fallback??'',language);if(actionPanel)actionPanel.hidden=false;response.textContent=actionSummary?.textContent??'';panel.hidden=false;return true;}
+    const message=driverActionMessage(result.result,result.fallback??'',language);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return true;
+   }
+   if(await handleSpokenAndroidAssistantCommand(confirmedText,language,status))return true;
   if(!navigator.onLine){session.transition('ERROR');status.textContent=connectionText(language,false);return false;}
     if(detectPremiumConversationIntent(confirmedText)==='navigate-to-car-mover'){
     if(!isPremiumNavigationAllowed('carMover')){if(actionPanel)actionPanel.hidden=true;response.textContent='Accesul Car Mover nu este acordat. Deschid fluxul de acces.';panel.hidden=false;window.history.pushState({},'', '/access');window.dispatchEvent(new PopStateEvent('popstate'));return true;}
@@ -181,16 +206,17 @@ export function bindPremiumAssistantRuntime(){
    try{result=await client.respond({productId:'agm-cockpit',moduleId:context.situationId??'premium-cockpit',language,confirmedText,...context,history:history.slice(-4)},{signal:controller.signal});recordRoutingMetric({operation:'AGM_CONTEXT_REASONING',authority:'AGM_AI',executionMode:routing.executionMode,decisionLatencyMs:routing.decisionLatencyMs,executionLatencyMs:performance.now()-modelStartedAt,success:true,atEpochMs:Date.now()});}
    catch(error){recordRoutingMetric({operation:'AGM_CONTEXT_REASONING',authority:'AGM_AI',executionMode:routing.executionMode,decisionLatencyMs:routing.decisionLatencyMs,executionLatencyMs:performance.now()-modelStartedAt,success:false,atEpochMs:Date.now()});throw error;}
    if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'model-response');return false;}session.markEngineResponse(result.timing);
-   const groundedText=enforceVerifiedContactBoundary(confirmedText,result.text,language);history.push({role:'user',text:confirmedText},{role:'assistant',text:groundedText});while(history.length>20)history.shift();saveHistory(history);renderHistory();answerText=groundedText;response.textContent=groundedText;panel.hidden=false;
-   session.transition('PREPARING');session.markTtsRequest();renderLatency(session.snapshot());const spoken=await speak(groundedText,sequence,turnId);if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'tts-completion');return false;}activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;return spoken;
+     const groundedText=enforceVerifiedContactBoundary(confirmedText,result.text,language);let retrievedAction:AndroidActionResolution|null=null;if(result.actionContext){const activeContext=rememberDriverContext(result.actionContext,groundedText);retrievedAction=routeRetrievedAndroidAction(confirmedText,activeContext);void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'GMAIL_READONLY',requestedPermissionOrScope:'https://www.googleapis.com/auth/gmail.readonly',requestor:'agm.premium-assistant.gmail',reason:'Record authenticated Gmail retrieval used for driver context',risk:'MEDIUM',currentAuthority:result.toolTrace?.status==='SUCCESS'?'AUTHORIZED':'UNAVAILABLE',evidence:`gmail:${result.toolTrace?.status??'NONE'}:${result.sourceTrace.traceId}`});void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'GMAIL_AUTHORIZATION_PROTOCOL',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.premium-assistant.gmail',reason:'Record current Gmail authorization provider state',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`provider-snapshot:${result.toolTrace?.status??'NONE'}:${result.toolTrace?.errorCode??'NONE'}:${result.sourceTrace.traceId}`});}history.push({role:'user',text:confirmedText},{role:'assistant',text:groundedText});while(history.length>20)history.shift();saveHistory(history);renderHistory();answerText=groundedText;response.textContent=groundedText;panel.hidden=false;
+    session.transition('PREPARING');session.markTtsRequest();renderLatency(session.snapshot());const spoken=await speak(groundedText,sequence,turnId);if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'tts-completion');return false;}if(retrievedAction){void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'INTENT_ROUTER',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.gmail-action-router',reason:'Resolve requested Gmail follow-up action',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`gmail-route:${retrievedAction.status}:${retrievedAction.action??'NONE'}:${retrievedAction.reason}`});if(retrievedAction.status==='RESOLVED'){const actionResult=await executeAndroidAction(confirmedText,retrievedAction);status.textContent=driverActionMessage(actionResult.result,actionResult.fallback??'',language);if(actionResult.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));}else{status.textContent=driverActionMessage('CLARIFICATION_REQUIRED',retrievedAction.reason,language);}}activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;return spoken;
   }catch(error){if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'model-error');return false;}if(controller.signal.aborted&&!timedOut)return false;session.transition('ERROR');retryText=confirmedText;if(retry){retry.textContent=retryLabel(language);retry.hidden=false;}status.textContent=timedOut?timeoutText(language):error instanceof PremiumAssistantClientError&&error.reason==='network'?m.networkError:m.aiError;return false;}finally{window.clearTimeout(timeout);if(activeRequest===controller)activeRequest=undefined;if(sequence===requestSequence&&session.state()==='ERROR'){activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;}}
  }
- function confirmPendingAction(){
+  async function confirmPendingAction(){
+   if(pendingAndroidAction){const prepared=pendingAndroidAction;pendingAndroidAction=undefined;if(actionPanel)actionPanel.hidden=true;const result=await executeAndroidAction(prepared.text,prepared.resolution,{agmConfirmed:true});const message=driverActionMessage(result.result,result.fallback??'',language);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return;}
   if(!pendingAction)return;
   if(!isPremiumNavigationAllowed('carMover')){pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;response.textContent='Accesul Car Mover nu este acordat. Deschid fluxul de acces.';panel.hidden=false;window.history.pushState({},'', '/access');window.dispatchEvent(new PopStateEvent('popstate'));return;}
   pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;window.history.pushState({},'', '/car-mover');window.dispatchEvent(new PopStateEvent('popstate'));
  }
- function rejectPendingAction(){pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;response.textContent=premiumConversationMessages[language].actionRejected;panel.hidden=false;}
+  function rejectPendingAction(){pendingAction=undefined;pendingAndroidAction=undefined;if(actionPanel)actionPanel.hidden=true;response.textContent=premiumConversationMessages[language].actionRejected;panel.hidden=false;}
  async function replayAnswer(){if(!answerText)return;const text=answerText;const lease=await preemptCurrentTurn('replay');if(!isLeaseCurrent(lease))return;session.beginCycle();session.markTranscript({manualReplayMs:0});const sequence=++requestSequence;const turnId=`replay:${sequence}:${Date.now()}`;activeTurnId=turnId;runtimeRoot.dataset.activeVoiceTurn=turnId;session.transition('PREPARING');session.markTtsRequest();await speak(text,sequence,turnId);if(sequence!==requestSequence||!session.isGenerationCurrent(lease.token))return;activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;session.settle();if(session.isEnabled())void conversationLoop(lease.token);}
  async function cancelPlaybackOnly(){const lease=await preemptCurrentTurn('playback-stop');if(isLeaseCurrent(lease))session.settle();}
  async function speak(text:string,sequence:number,turnId:string){if(!text)return false;const speechText=normalizeSpeechText(text,language);try{if(isNativeAudioAvailable()){await NativeAudio.speak({text:speechText,language:basicLanguageRegistry[language].speechLocale,turnId});return sequence===requestSequence&&!disposed;}if(!window.speechSynthesis)throw new Error();await new Promise<void>((resolve,reject)=>{let settled=false;const finish=()=>{if(settled)return;settled=true;if(activeBrowserSpeech?.turnId===turnId)activeBrowserSpeech=undefined;resolve();};window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(speechText);utterance.lang=basicLanguageRegistry[language].speechLocale;utterance.onstart=()=>{if(sequence!==requestSequence||turnId!==activeTurnId){recordStaleEvent(turnId,'tts-start');finish();return;}markAudioStarted(turnId);};utterance.onend=()=>{if(sequence!==requestSequence)recordStaleEvent(turnId,'tts-end');finish();};utterance.onerror=()=>{if(sequence!==requestSequence){recordStaleEvent(turnId,'tts-error');finish();return;}reject(new Error('playback'));};activeBrowserSpeech={turnId,resolve:finish};window.speechSynthesis.speak(utterance);});return sequence===requestSequence&&!disposed;}catch{if(sequence===requestSequence&&!disposed)status.textContent=m.playbackError;return false;}}
@@ -207,6 +233,8 @@ function saveHistory(history:HistoryTurn[]){sessionStorage.setItem(HISTORY_KEY,J
 function persistTelemetry(value:unknown){if(!value)return;try{const rows=JSON.parse(sessionStorage.getItem(TELEMETRY_KEY)??'[]');const next=Array.isArray(rows)?rows:[];next.push(value);sessionStorage.setItem(TELEMETRY_KEY,JSON.stringify(next.slice(-50)));}catch{}}
 function readOperationalContext(){try{const value=JSON.parse(sessionStorage.getItem('agm.premium.trip-context.v1')??'null')??{};return{tripId:text(value.tripId),operationalCaseId:text(value.operationalCaseId),situationId:text(value.situationId)};}catch{return{};}}
 function text(value:unknown){return typeof value==='string'&&value.trim()?value.trim():undefined;}
+function confirmedVoiceText(value:string){return value.trim();}
+function permissionAuthority(value:string):'AUTHORIZED'|'DENIED'|'NOT_PROVEN'{return value==='granted'?'AUTHORIZED':value==='denied'?'DENIED':'NOT_PROVEN';}
 function connectionText(language:string,online:boolean){const copy:Record<string,[string,string]>={ro:['Conexiunea mobilă a revenit. Poți continua.','Nu există conexiune. Verifică datele mobile și încearcă din nou.'],de:['Die Verbindung ist wieder verfügbar. Sie können fortfahren.','Keine Verbindung. Prüfen Sie die mobilen Daten und versuchen Sie es erneut.'],en:['The connection is back. You can continue.','No connection. Check mobile data and try again.']};const [yes,no]=copy[language]??copy.en;return online?yes:no;}
 function timeoutText(language:string){return({ro:'Răspunsul durează prea mult. Verifică semnalul și încearcă din nou.',de:'Die Antwort dauert zu lange. Prüfen Sie das Signal und versuchen Sie es erneut.',en:'The response is taking too long. Check the signal and try again.'} as Record<string,string>)[language]??'The response is taking too long. Check the signal and try again.';}
 function retryLabel(language:string){return({ro:'↻ Încearcă din nou',de:'↻ Erneut versuchen',en:'↻ Try again'} as Record<string,string>)[language]??'↻ Retry';}

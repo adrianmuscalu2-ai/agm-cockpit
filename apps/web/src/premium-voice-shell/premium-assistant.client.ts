@@ -1,5 +1,6 @@
 import { USER_ACCESS_TOKEN_KEY } from '../premium-access/premium-access.client';
 import type { BasicLanguageCode } from '../language-registry';
+import type { GmailActionContext } from '../android-action-layer/android-action.contract';
 
 export type PremiumAssistantClientRequest = {
   productId: 'agm-cockpit';
@@ -22,6 +23,7 @@ export type PremiumAssistantClientResponse = {
   contextRefs: readonly string[];
   sourceTrace: Omit<AssistantSourceTrace, 'sources'>;
   toolTrace?: { tool: 'gmail-inbox'; status: 'SUCCESS' | 'UNAVAILABLE'; operation: string; resultCount: number; errorCode: string | null };
+  actionContext?: GmailActionContext;
   cache: { disposition: 'HIT' | 'MISS'; ttlSeconds: number };
   externalEffectPerformed: false;
   timing: {

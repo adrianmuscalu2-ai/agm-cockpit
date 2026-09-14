@@ -41,6 +41,11 @@ export function renderTurnAgentLiveState() {
     <header><div><span class="turn-kicker">MACHINE IDENTITY → CREDENTIAL → TOKEN → ACP → TELEMETRY → EVENTSTORE/API → TURN → UI</span><h3>Adevăr operațional autentificat</h3></div><div class="turn-live-actions"><strong data-live-connection>CONNECTING</strong><button type="button" data-live-refresh>Reîncarcă starea</button></div></header>
     <p data-live-current>Nicio dovadă M2M încărcată.</p>
     <ol data-live-events></ol>
+    <section class="turn-android-action-layer" data-android-action-layer>
+      <h4>ANDROID ACTION LAYER</h4>
+      <p>Stari independente; lipsa telemetry ramane NOT_PROVEN.</p>
+      <ol data-android-action-events></ol>
+    </section>
   </section>`;
 }
 
@@ -168,4 +173,12 @@ function renderOperationalTruth(root: HTMLElement, truth: TurnOperationalTruth) 
     const tone = ['PASS', 'VERIFIED', 'PERSISTED', 'EVIDENCE AVAILABLE', 'READY FOR LIVE RENDER'].includes(step.status) ? 'operational' : truth.overallStatus === 'DEGRADED' ? 'degraded' : 'failed';
     return `<li class="${tone}" data-operational-step="${escapeHtml(label.toLowerCase().replace(/\s+/g, '-'))}"><strong>${escapeHtml(step.status)}</strong><span>${escapeHtml(label)}</span><small>${escapeHtml(step.source ?? truth.reason)}</small><code>${escapeHtml(evidence)}</code></li>`;
   }).join('');
+  const actionList = root.querySelector<HTMLElement>('[data-android-action-events]');
+  if (actionList) {
+    const layer = truth.androidActionLayer;
+    actionList.innerHTML = layer ? [
+      layer.assistantHandoff, layer.intentRouter, layer.navigation, layer.dialer, layer.calendar,
+      layer.share, layer.driverVoiceMode, layer.androidPermissions, layer.gmailAuthorization, layer.guardianPermissionControl,
+    ].map((step) => `<li class="${step.status === 'PASS' ? 'operational' : step.status === 'FAIL' ? 'failed' : 'degraded'}"><strong>${escapeHtml(step.status)}</strong><span>${escapeHtml(step.name)}</span><small>${escapeHtml(step.source)}</small><code>${escapeHtml(step.evidenceId ?? 'NO LIVE EVIDENCE')}</code></li>`).join('') : '<li class="degraded"><strong>NOT_PROVEN</strong><span>ANDROID ACTION LAYER</span><small>NO API TELEMETRY</small><code>NO LIVE EVIDENCE</code></li>';
+  }
 }

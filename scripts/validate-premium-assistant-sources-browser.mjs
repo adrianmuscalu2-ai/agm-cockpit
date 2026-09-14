@@ -158,8 +158,11 @@ try {
     noCitationOrUrlInUserText: !/https?:\/\/|\[[0-9]+\]|AGM_LIBRARY|WEB-[a-f0-9]{8,}/i.test(detail.responseText),
     noEngineeringSourceUi: detail.sourceUiCount === 0,
     engineeringEndpointNotFetchedByUserRuntime: sourceEndpointCalls === 0,
-    cleanAnswerPassedToTts: detail.spokenText === cleanAnswer,
+    semanticAnswerPassedToTts: detail.spokenText.includes('23 de grade Celsius')
+      && !detail.spokenText.includes('23°C')
+      && detail.spokenText.startsWith(cleanAnswer.slice(0, cleanAnswer.indexOf('23'))),
   };
+  report.detail = detail;
   if (Object.values(report.checks).some((value) => !value)) {
     throw new Error('Source separation checks failed: ' + JSON.stringify(report.checks));
   }

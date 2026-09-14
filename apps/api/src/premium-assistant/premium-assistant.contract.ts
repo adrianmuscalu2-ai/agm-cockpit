@@ -37,6 +37,19 @@ export type AssistantSourceTrace = {
   sources: AssistantSourceReference[];
 };
 
+export type GmailActionContext = {
+  contractVersion: 'gmail-action-context.v1';
+  traceId: string;
+  messageRef: string;
+  senderEmail: string | null;
+  subject: string;
+  receivedAt: string;
+  destinations: readonly string[];
+  phoneNumbers: readonly string[];
+  dateTimes: readonly string[];
+  shareText: string;
+};
+
 export type PremiumAssistantResponse = {
   contractVersion: typeof PREMIUM_ASSISTANT_CONTRACT.version;
   kind: 'answer' | 'clarification';
@@ -47,6 +60,7 @@ export type PremiumAssistantResponse = {
   contextRefs: readonly string[];
   sourceTrace: Omit<AssistantSourceTrace, 'sources'>;
   toolTrace?: { tool: 'gmail-inbox'; status: 'SUCCESS' | 'UNAVAILABLE'; operation: string; resultCount: number; errorCode: string | null };
+  actionContext?: GmailActionContext;
   cache: { disposition: 'HIT' | 'MISS'; ttlSeconds: number };
   externalEffectPerformed: false;
   timing: { timeToFirstTokenMs: number; orchestratorMs: number; modelMs: number; answerCompleteMs: number; serverTotalMs: number; sourceResolutionMs: number };

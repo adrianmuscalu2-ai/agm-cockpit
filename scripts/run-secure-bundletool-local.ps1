@@ -1,5 +1,7 @@
 [CmdletBinding()]
-param()
+param(
+    [Security.SecureString]$Password
+)
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -14,7 +16,7 @@ $keystorePath = Join-Path $env:LOCALAPPDATA 'AGM\secrets\android\agm-release.p12
 $artifactRoot = Join-Path $env:LOCALAPPDATA 'AGM\artifacts\android-release-device'
 $classesRoot = Join-Path $env:LOCALAPPDATA 'AGM\tools\secure-bundletool\classes'
 $statusPath = Join-Path $env:LOCALAPPDATA 'AGM\state\secure-bundletool-status.json'
-$apksPath = Join-Path $artifactRoot 'agm-1.4.0-24-production.apks'
+$apksPath = Join-Path $artifactRoot 'agm-1.4.0-25-production.apks'
 $aapt2Path = Join-Path $env:LOCALAPPDATA 'Android\Sdk\build-tools\36.1.0\aapt2.exe'
 $expectedFingerprint = '6E:18:2B:67:BD:A9:E4:C4:F6:EE:93:D7:95:F6:19:AF:06:88:D3:96:7F:9B:74:B5:37:9A:42:FE:67:AC:C8:C1'
 $alias = 'agm-release'
@@ -61,7 +63,7 @@ $storePassword = $null
 $keyPassword = $null
 
 try {
-    $storeSecure = Read-Host 'AGM Production PKCS12 keystore/key password (same configured value)' -AsSecureString
+    $storeSecure = if ($Password) { $Password.Copy() } else { Read-Host 'AGM Production PKCS12 keystore/key password (same configured value)' -AsSecureString }
     $storeBstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($storeSecure)
     $storePassword = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($storeBstr)
     $keyPassword = $storePassword

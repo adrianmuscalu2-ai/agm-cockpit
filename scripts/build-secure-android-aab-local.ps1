@@ -8,6 +8,7 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 $keystorePath = Join-Path $env:LOCALAPPDATA 'AGM\secrets\android\agm-release.p12'
 $androidSdkPath = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
 $statusPath = Join-Path $env:LOCALAPPDATA 'AGM\state\secure-aab-build-status.json'
+$logPath = Join-Path $env:LOCALAPPDATA 'AGM\state\secure-aab-build-sanitized.log'
 $alias = 'agm-release'
 
 New-Item -ItemType Directory -Force -Path (Split-Path -Parent $statusPath) | Out-Null
@@ -36,8 +37,45 @@ try {
 
     Push-Location $repoRoot
     try {
-        & pnpm.cmd --filter '@agm/web' android:aab
-        if ($LASTEXITCODE -ne 0) { throw 'AGM_RELEASE_AAB_BUILD_FAILED' }
+        $previousErrorActionPreference = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        try {
+            $buildOutput = & pnpm.cmd --filter '@agm/web' android:aab 2>&1
+            $buildExitCode = $LASTEXITCODE
+        }
+        finally {
+            $ErrorActionPreference = $previousErrorActionPreference
+        }
+        $sanitizedOutput = $buildOutput | ForEach-Object {
+            $line = $_.ToString()
+            if ($password) { $line = $line.Replace($password, '[REDACTED]') }
+            $line
+        }
+        $sanitizedOutput | Set-Content -LiteralPath $logPath -Encoding UTF8
+        $sanitizedOutput | Write-Host
+        if ($buildExitCode -ne 0) { throw 'AGM_RELEASE_AAB_BUILD_FAILED' }
+        $previousErrorActionPreference = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        try {
+            # Drain Bundletool/Gradle output inside this process. When the secure
+            # build is launched from a detached console, forwarding Gradle's
+            # live console stream can fill the abandoned pipe after the signed
+            # APK set has already been produced and leave the parent status at
+            # AWAITING_LOCAL_SECRET_INPUT indefinitely.
+            $bundletoolOutput = & (Join-Path $PSScriptRoot 'run-secure-bundletool-local.ps1') -Password $securePassword 2>&1
+            $bundletoolExitCode = $LASTEXITCODE
+        }
+        finally {
+            $ErrorActionPreference = $previousErrorActionPreference
+        }
+        $sanitizedBundletoolOutput = $bundletoolOutput | ForEach-Object {
+            $line = $_.ToString()
+            if ($password) { $line = $line.Replace($password, '[REDACTED]') }
+            $line
+        }
+        $sanitizedBundletoolOutput | Add-Content -LiteralPath $logPath -Encoding UTF8
+        $sanitizedBundletoolOutput | Write-Host
+        if ($bundletoolExitCode -ne 0) { throw 'AGM_RELEASE_APK_SET_BUILD_FAILED' }
     }
     finally { Pop-Location }
 
