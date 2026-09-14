@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "runId": "2026-09-14T23-33-32-934Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "status": "PASS",
+  "browserGate": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS"
+  },
+  "checks": {
+    "naturalAnswerRendered": true,
+    "noCitationOrUrlInUserText": true,
+    "noEngineeringSourceUi": true,
+    "engineeringEndpointNotFetchedByUserRuntime": true,
+    "semanticAnswerPassedToTts": true,
+    "trustedGmailAnswerPreservedInUi": true,
+    "trustedGmailAnswerPreservedInTts": true
+  },
+  "target": "http://127.0.0.1:61216",
+  "detail": {
+    "weather": {
+      "responseText": "Mâine, în Heilbronn, dimineața va fi mai mult noros și sunt posibile câteva averse. După-amiaza se încălzește până la aproximativ 23°C, iar spre seară vremea devine mai senină.",
+      "sourceUiCount": 0,
+      "spokenText": "Mâine, în Heilbronn, dimineața va fi mai mult noros și sunt posibile câteva averse. După-amiaza se încălzește până la aproximativ 23 de grade Celsius, iar spre seară vremea devine mai senină."
+    },
+    "gmail": {
+      "responseText": "Nu am găsit în Gmail niciun mesaj de la dispecerat care să conțină o adresă de descărcare.",
+      "spokenText": "Nu am găsit în Gmail niciun mesaj de la dispecerat care să conțină o adresă de descărcare."
+    }
+  },
+  "revision": "af8657a8603ff0589d08061422dcb8f197d3a084",
+  "finishedAt": "2026-09-14T23:33:37.615Z"
+}

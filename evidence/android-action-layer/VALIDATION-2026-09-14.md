@@ -130,7 +130,7 @@ The physical query was:
 - Android Action Layer protocol test: PASS.
 - Device Assistant handoff suite: PASS (12 languages, six official actions, controlled fallback).
 - Web Production build and TypeScript: PASS.
-- Controlled Browser audit: `../premium-assistant-source-separation/2026-09-14T19-59-06-157Z/report.json`.
+- Controlled Browser audit: `../premium-assistant-source-separation/2026-09-14T23-33-32-934Z/report.json`, executed after code freeze and attributed to revision `af8657a8603ff0589d08061422dcb8f197d3a084`.
   - Browser Plugin Status: PASS
   - Integrated Browser Control Status: PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE
   - Browser Session Status: PASS
