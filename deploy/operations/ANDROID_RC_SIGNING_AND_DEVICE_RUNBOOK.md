@@ -26,6 +26,16 @@ Git for passwords. Run `pnpm --filter @agm/web android:release-preflight`; it
 prints only the keystore hash, alias-validation result, certificate validity,
 and SHA-1/SHA-256 fingerprints.
 
+For unattended builds on the same approved Windows account, the owner may
+authorize one-time DPAPI custody at
+`%LOCALAPPDATA%\AGM\secrets\android\agm-release-password.dpapi`.
+Run `scripts\build-secure-android-aab-local.ps1 -PersistDpapi`, enter the
+password once in the protected prompt, and persist it only after the complete
+signed AAB/APKS build succeeds. Later executions decrypt it only in memory for
+the current process and clear all plaintext variables/environment values in
+`finally`. If the DPAPI binding is missing or invalid, fail closed; never
+fall back to a guessed password or another signing identity.
+
 ## New keystore, only when Product Owner confirms none exists
 
 1. Create an access-controlled directory outside the repository, for example
