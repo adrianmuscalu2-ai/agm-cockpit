@@ -97,6 +97,8 @@ try {
   });
 
   const cleanAnswer = 'Mâine, în Heilbronn, dimineața va fi mai mult noros și sunt posibile câteva averse. După-amiaza se încălzește până la aproximativ 23°C, iar spre seară vremea devine mai senină.';
+  const gmailQuery = 'Citește ultimul mail de la dispecerat și deschide adresa de descărcare';
+  const gmailAnswer = 'Nu am găsit în Gmail niciun mesaj de la dispecerat care să conțină o adresă de descărcare.';
   await page.route('**/api/v1/**', async (route) => {
     const url = route.request().url();
     if (url.endsWith('/auth/login')) return route.fulfill({
@@ -109,13 +111,16 @@ try {
       contentType: 'application/json',
       body: JSON.stringify({ data: { subjectId: 'owner', tier: 'premium', status: 'active', capabilities: ['premium.command-center', 'premium.voice-assistant'], evaluatedAt: new Date().toISOString(), policyVersion: 'access-entitlements@1.0.0' } }),
     });
-    if (url.endsWith('/premium-assistant/respond')) return route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ data: {
+    if (url.endsWith('/premium-assistant/respond')) {
+      const request = route.request().postDataJSON();
+      const isGmailRequest = request?.confirmedText === gmailQuery;
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: {
         contractVersion: 'premium-assistant.v1',
         kind: 'answer',
-        text: cleanAnswer,
+        text: isGmailRequest ? gmailAnswer : cleanAnswer,
         provider: 'openai',
         productId: 'agm-cockpit',
         moduleId: 'premium-cockpit',
@@ -124,8 +129,10 @@ try {
         cache: { disposition: 'MISS', ttlSeconds: 60 },
         timing: { timeToFirstTokenMs: 180, orchestratorMs: 8, modelMs: 470, answerCompleteMs: 478, serverTotalMs: 485, sourceResolutionMs: 3 },
         externalEffectPerformed: false,
+        ...(isGmailRequest ? { toolTrace: { tool: 'gmail-inbox', status: 'SUCCESS', operation: 'SEARCH_MESSAGES', resultCount: 0, errorCode: null } } : {}),
       } }),
-    });
+      });
+    }
     if (url.includes('/premium-assistant/sources/')) {
       sourceEndpointCalls += 1;
       return route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: 'User runtime must not request engineering evidence' }) });
@@ -153,6 +160,18 @@ try {
     sourceUiCount: document.querySelectorAll('[data-assistant-sources], [data-assistant-sources-shell], [data-assistant-sources-list], .premium-assistant-sources').length,
     spokenText: window.__agmSourceSeparationProbe?.spokenText ?? '',
   }));
+  await page.evaluate(() => {
+    window.__agmSourceSeparationProbe.spokenText = '';
+    window.__agmSourceSeparationProbe.audioStarted = false;
+  });
+  await page.locator('[data-assistant-transcript]').fill(gmailQuery);
+  await page.locator('[data-assistant-confirm]').click();
+  await page.waitForFunction((expected) => document.querySelector('[data-assistant-response]')?.textContent === expected, gmailAnswer);
+  await page.waitForFunction(() => window.__agmSourceSeparationProbe?.audioStarted === true);
+  const gmailDetail = await page.evaluate(() => ({
+    responseText: document.querySelector('[data-assistant-response]')?.textContent ?? '',
+    spokenText: window.__agmSourceSeparationProbe?.spokenText ?? '',
+  }));
   report.checks = {
     naturalAnswerRendered: detail.responseText === cleanAnswer,
     noCitationOrUrlInUserText: !/https?:\/\/|\[[0-9]+\]|AGM_LIBRARY|WEB-[a-f0-9]{8,}/i.test(detail.responseText),
@@ -161,8 +180,10 @@ try {
     semanticAnswerPassedToTts: detail.spokenText.includes('23 de grade Celsius')
       && !detail.spokenText.includes('23°C')
       && detail.spokenText.startsWith(cleanAnswer.slice(0, cleanAnswer.indexOf('23'))),
+    trustedGmailAnswerPreservedInUi: gmailDetail.responseText === gmailAnswer,
+    trustedGmailAnswerPreservedInTts: gmailDetail.spokenText === gmailAnswer,
   };
-  report.detail = detail;
+  report.detail = { weather: detail, gmail: gmailDetail };
   if (Object.values(report.checks).some((value) => !value)) {
     throw new Error('Source separation checks failed: ' + JSON.stringify(report.checks));
   }

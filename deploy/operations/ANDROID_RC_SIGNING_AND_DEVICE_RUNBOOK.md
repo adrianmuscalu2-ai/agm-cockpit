@@ -7,7 +7,7 @@ deployment, commit, push, or replacement of an existing Play signing key.
 
 - application ID: `com.agm.cockpit`
 - version name: `1.4.0`
-- version code: `25`
+- version code: `26`
 - output: `apps/web/android/app/build/outputs/bundle/release/app-release.aab`
 
 ## Existing keystore
@@ -72,7 +72,7 @@ signer certificate fingerprint; never record passwords.
    `bundletool` release. Keep `bundletool`, `.apks`, and extracted APKs in the
    external release-artifact directory, not Git.
 4. Install as an upgrade without clearing application data; record package
-   `versionName=1.4.0` and `versionCode=25`.
+   `versionName=1.4.0` and `versionCode=26`.
 5. Execute and capture the RC matrix: launch, authentication/session, Basic,
    Premium, Car Mover, Copilot, microphone, camera, STT, TTS, stale-turn
    cancellation, assistant handoff, mobile data, Wi-Fi, offline/reconnect,

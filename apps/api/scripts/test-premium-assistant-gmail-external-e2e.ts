@@ -34,6 +34,8 @@ async function main() {
     assert.ok(!/gmail:message:|GMAIL-[A-Za-z0-9_-]+|https?:\/\//i.test(answer), 'PRIVATE_SOURCE_LEAKED_TO_USER_TEXT');
     assert.equal(summary.sources.every((source) => source.originType === 'GMAIL' && source.urlOrIdentifier?.startsWith('gmail:message:')), true);
 
+    const dispatchAction = await firstTool.retrieve('Citeste ultimul mail de la dispecerat si deschide adresa de descarcare');
+
     const restartTool = new PremiumAssistantGmailService(new GmailCommunicationProvider(new ConfigService(process.env)));
     const afterRestart = await restartTool.retrieve('Rezuma ultimul e-mail');
     assert.ok(afterRestart.messages.length === 1, 'RESTART_REFRESH_READ_FAILED');
@@ -52,6 +54,13 @@ async function main() {
       contextualAnswer: true,
       userVisibleSourcesAbsent: true,
       engineeringSourceTrace: summary.sources.length,
+      dispatchMessageFound: dispatchAction.messages.length === 1,
+      dispatchDestinationFound: Boolean(dispatchAction.actionContext?.destinations.length),
+      dispatchPhoneFound: Boolean(dispatchAction.actionContext?.phoneNumbers.length),
+      dispatchDateTimeFound: Boolean(dispatchAction.actionContext?.dateTimes.length),
+      latestDestinationFound: Boolean(afterRestart.actionContext?.destinations.length),
+      latestPhoneFound: Boolean(afterRestart.actionContext?.phoneNumbers.length),
+      latestDateTimeFound: Boolean(afterRestart.actionContext?.dateTimes.length),
       freshProcessRefreshAndRead: true,
       controlledAuthFailure: true,
       noWebFallback: true,

@@ -16,7 +16,8 @@ const refusal: Record<BasicLanguageCode,string> = {
   sv:'Jag kan ännu inte tillhandahålla en verifierad lokal kontakt eftersom AGM för närvarande saknar tillgång till en verifierad livekälla. Jag kommer inte att hitta på telefonnummer, företag eller adresser.',
 };
 
-export function enforceVerifiedContactBoundary(query:string,response:string,language:BasicLanguageCode){
+export function enforceVerifiedContactBoundary(query:string,response:string,language:BasicLanguageCode,options:{trustedToolResponse?:boolean}={}){
+  if(options.trustedToolResponse)return response;
   if(!contactRequest.test(query))return response;
   return refusal[language];
 }
