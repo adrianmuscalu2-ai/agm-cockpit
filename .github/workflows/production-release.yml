@@ -348,6 +348,13 @@ jobs:
       - name: Verify canonical M2M lifecycle in Production
         run: |
           set -euo pipefail
+          # The API has just been replaced by the preceding deploy step. Retry
+          # transient network/HTTP 5xx responses for this external lifecycle
+          # probe instead of converting a brief rollout edge into a false gate.
+          curl() {
+            command curl --retry 8 --retry-delay 3 --retry-max-time 90 \
+              --retry-all-errors --connect-timeout 10 --max-time 60 "$@"
+          }
           oidc_response=$(curl --fail --silent --show-error \
             -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=agm%3Aproduction-machine-provisioning")
