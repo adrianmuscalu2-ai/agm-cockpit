@@ -69,6 +69,7 @@ import {
   type GlobalCameraOcrOrigin,
 } from './global-camera-ocr/global-camera-ocr.service';
 import { nativeCameraCaptureRuntime } from './global-camera-ocr/native-camera-capture.runtime';
+import { evaluatePermissionRequest } from './android-action-layer/permission-guardian.client';
 import {
   captureFromDesktopWebcam,
   shouldUseDesktopWebcam,
@@ -2373,6 +2374,7 @@ function renderGlobalCameraOcrDialog() {
 }
 
 function globalCameraOcrFailureCopy(failure: GlobalCameraOcrFailure) {
+  if (failure === 'authorization-denied') return audioMessage('Camera nu a fost deschisă deoarece Permission Guardian nu a demonstrat autoritatea necesară.', 'Die Kamera wurde nicht geöffnet, weil Permission Guardian die erforderliche Berechtigung nicht nachgewiesen hat.', 'The camera was not opened because Permission Guardian did not prove the required authority.');
   if (failure === 'permission-denied') return audioMessage('Permisiunea camerei a fost refuzată. Acordați permisiunea în setările browserului sau Android.', 'Die Kameraberechtigung wurde verweigert. Erteilen Sie sie in den Browser- oder Android-Einstellungen.', 'Camera permission was denied. Grant it in browser or Android settings.');
   if (failure === 'camera-unavailable') return audioMessage('Camera fizică nu este disponibilă pe acest dispozitiv.', 'Die physische Kamera ist auf diesem Gerät nicht verfügbar.', 'The physical camera is unavailable on this device.');
   if (failure === 'ocr-unavailable') return audioMessage('Runtime-ul OCR local nu este disponibil. Imaginea nu a fost trimisă către un serviciu extern.', 'Die lokale OCR-Laufzeit ist nicht verfügbar. Das Bild wurde nicht an einen externen Dienst gesendet.', 'Local OCR is unavailable. The image was not sent to an external service.');
@@ -3799,7 +3801,29 @@ function bindOcrPage() {
     document.querySelector<HTMLInputElement>(selector)?.click();
   };
 
-  document.querySelector<HTMLButtonElement>('#ocrTakePhoto')?.addEventListener('click', () => openPicker('#ocrCameraInput'));
+  const openCamera = async () => {
+    if (!ensureLegalAcceptanceForCamera()) return;
+    if (nativeCameraCaptureRuntime.isNativeAndroid()) {
+      const result = await nativeCameraCaptureRuntime.capture();
+      if (result.status === 'captured') await processOcrImage(result.file);
+      else if (result.status !== 'cancelled') state.status = globalCameraOcrFailureCopy(result.status);
+      render();
+      return;
+    }
+    const guardian = await evaluatePermissionRequest({
+      phase: 'REQUEST', requestedCapability: 'CAMERA_CAPTURE', requestedPermissionOrScope: 'android.permission.CAMERA',
+      requestor: 'agm.ocr.camera-picker', reason: 'Open a user-requested camera capture', risk: 'MEDIUM',
+      currentAuthority: 'NOT_PROVEN', evidence: 'legacy-ocr-camera-requested',
+    });
+    if (!guardian?.authorityGranted) {
+      state.status = globalCameraOcrFailureCopy('authorization-denied');
+      render();
+      return;
+    }
+    openPicker('#ocrCameraInput');
+  };
+
+  document.querySelector<HTMLButtonElement>('#ocrTakePhoto')?.addEventListener('click', () => void openCamera());
   document.querySelector<HTMLButtonElement>('#ocrChooseImage')?.addEventListener('click', () => openPicker('#ocrFileInput'));
   document.querySelector<HTMLInputElement>('#dashboardWarningConsent')?.addEventListener('change', (event) => {
     dashboardWarningConsentGranted = (event.currentTarget as HTMLInputElement).checked;

@@ -12,9 +12,11 @@ import {
 } from './premium-assistant-knowledge.service';
 import type { PremiumAssistantRequestDto } from './dto/premium-assistant-request.dto';
 import { classifyGmailIntent, composeGmailAnswer, gmailFailureCode, PremiumAssistantGmailService } from './premium-assistant-gmail.service';
+import { PermissionGuardianService } from '../permission-guardian/permission-guardian.service';
 
 type OpenAiPayload = { output_text?: string; output?: Array<{ content?: Array<{ text?: string; annotations?: unknown[] }> }> };
 type ProviderResult = { text?: string; timeToFirstTokenMs: number; completedMs: number; citations: Array<{ url: string; title?: string }> };
+type GmailGuardianTrace = { decision: 'APPROVED' | 'DENIED' | 'NOT_PROVEN'; authorityGranted: boolean; evidenceId: string; correlationId: string; reasonCode: string };
 
 @Injectable()
 export class PremiumAssistantService {
@@ -25,6 +27,7 @@ export class PremiumAssistantService {
     @Optional() private readonly prisma?: PrismaService,
     @Optional() private readonly knowledge?: PremiumAssistantKnowledgeService,
     @Optional() private readonly gmail?: PremiumAssistantGmailService,
+    @Optional() private readonly guardian?: PermissionGuardianService,
   ) {}
 
   async respond(user: RequestContext, request: PremiumAssistantRequestDto): Promise<PremiumAssistantResponse> {
@@ -151,19 +154,33 @@ export class PremiumAssistantService {
       await this.recordGmailUsage(user, 'UNAVAILABLE', startedAt, 'NOT_CONFIGURED');
       return this.gmailResponse(user, request, contextRefs, startedAt, gmailUnavailableText(request.language, 'NOT_CONFIGURED'), operation, [], 'UNAVAILABLE', 'NOT_CONFIGURED', null);
     }
+    let guardian: GmailGuardianTrace | undefined;
+    try {
+      guardian = await this.guardian?.evaluate(user, {
+        phase: 'EXECUTION', requestedCapability: 'GMAIL_READONLY', requestedPermissionOrScope: 'https://www.googleapis.com/auth/gmail.readonly',
+        requestor: 'agm.premium-assistant.gmail', reason: `Authorize Gmail retrieval for ${operation}`, risk: 'MEDIUM',
+        currentAuthority: 'AUTHORIZED', evidence: `pre-retrieval:${request.moduleId}:${operation}`,
+      }) as GmailGuardianTrace | undefined;
+    } catch (error) {
+      this.logger.warn(`Premium Assistant Gmail Guardian evaluation failed: ${error instanceof Error ? error.message : 'UNKNOWN'}`);
+    }
+    if (!guardian?.authorityGranted) {
+      await this.recordGmailUsage(user, 'DENIED', startedAt, guardian?.reasonCode ?? 'GUARDIAN_NOT_PROVEN');
+      return this.gmailResponse(user, request, contextRefs, startedAt, gmailUnavailableText(request.language, 'GUARDIAN_DENIED'), operation, [], 'UNAVAILABLE', guardian?.reasonCode ?? 'GUARDIAN_NOT_PROVEN', null, guardian);
+    }
     try {
       const result = await this.gmail.retrieve(request.confirmedText);
       await this.recordGmailUsage(user, 'SUCCESS', startedAt);
-      return this.gmailResponse(user, request, contextRefs, startedAt, composeGmailAnswer(result, request.language), result.intent.operation, result.sources, 'SUCCESS', null, result.actionContext ?? null);
+      return this.gmailResponse(user, request, contextRefs, startedAt, composeGmailAnswer(result, request.language), result.intent.operation, result.sources, 'SUCCESS', null, result.actionContext ?? null, guardian);
     } catch (error) {
       const errorCode = gmailFailureCode(error);
       this.logger.warn(`Premium Assistant Gmail retrieval failed: ${errorCode}`);
       await this.recordGmailUsage(user, 'UNAVAILABLE', startedAt, errorCode);
-      return this.gmailResponse(user, request, contextRefs, startedAt, gmailUnavailableText(request.language, errorCode), operation, [], 'UNAVAILABLE', errorCode, null);
+      return this.gmailResponse(user, request, contextRefs, startedAt, gmailUnavailableText(request.language, errorCode), operation, [], 'UNAVAILABLE', errorCode, null, guardian);
     }
   }
 
-  private gmailResponse(user: RequestContext, request: PremiumAssistantRequestDto, contextRefs: string[], startedAt: number, text: string, operation: string, sources: AssistantSourceReference[], status: 'SUCCESS' | 'UNAVAILABLE', errorCode: string | null, actionContext: Omit<NonNullable<PremiumAssistantResponse['actionContext']>, 'traceId'> | null) {
+  private gmailResponse(user: RequestContext, request: PremiumAssistantRequestDto, contextRefs: string[], startedAt: number, text: string, operation: string, sources: AssistantSourceReference[], status: 'SUCCESS' | 'UNAVAILABLE', errorCode: string | null, actionContext: Omit<NonNullable<PremiumAssistantResponse['actionContext']>, 'traceId'> | null, guardian?: GmailGuardianTrace) {
     const observedAt = new Date();
     const traceStatus: AssistantSourceTrace['status'] = sources.length ? 'READY' : 'NO_VERIFIED_SOURCES';
     const trace = this.knowledge?.createTrace(sources, traceStatus, user.companyId, observedAt) ?? emptyTrace(sources, traceStatus, observedAt);
@@ -171,7 +188,10 @@ export class PremiumAssistantService {
     return responseValue({
       text, kind: 'answer', provider: 'agm', moduleId: request.moduleId, contextRefs, trace,
       cacheDisposition: 'MISS', cacheTtlSeconds: 0,
-      toolTrace: { tool: 'gmail-inbox', status, operation, resultCount: sources.length, errorCode },
+      toolTrace: {
+        tool: 'gmail-inbox', status, operation, resultCount: sources.length, errorCode,
+        ...(guardian ? { guardianDecision: guardian.decision, guardianEvidenceId: guardian.evidenceId, guardianCorrelationId: guardian.correlationId } : {}),
+      },
       actionContext: actionContext ? { ...actionContext, traceId: trace.traceId } : undefined,
       timing: { timeToFirstTokenMs: 0, orchestratorMs: elapsed, modelMs: 0, answerCompleteMs: elapsed, serverTotalMs: elapsed, sourceResolutionMs: elapsed },
     });
@@ -398,6 +418,14 @@ function responseValue(input: { text: string; kind: 'answer' | 'clarification'; 
 }
 
 function gmailUnavailableText(language: string, errorCode: string) {
+  if (errorCode === 'GUARDIAN_DENIED') {
+    const denied: Record<string, string> = {
+      ro: 'Accesul la Gmail nu a fost executat deoarece Permission Guardian nu a demonstrat autoritatea necesară.',
+      de: 'Der Gmail-Zugriff wurde nicht ausgeführt, weil Permission Guardian die erforderliche Berechtigung nicht nachgewiesen hat.',
+      en: 'Gmail access was not executed because Permission Guardian did not prove the required authority.',
+    };
+    return denied[language] ?? denied.en!;
+  }
   if (errorCode === 'AUTHORIZATION_FAILED') {
     const authorization: Record<string, string> = {
       ro: 'Gmail nu este disponibil. AUTH / PERMISSION FAILURE: autorizarea Gmail nu mai poate fi reînnoită automat. Nu am căutat pe web; reconectează contul Google.',

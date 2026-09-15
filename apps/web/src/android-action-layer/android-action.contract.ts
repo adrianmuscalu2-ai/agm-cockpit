@@ -1,5 +1,6 @@
 export const androidActionKinds = [
-  'READ_CONTEXT', 'ASSISTANT', 'NAVIGATION', 'DIAL', 'CALENDAR', 'SHARE', 'EMAIL_DRAFT',
+  'READ_CONTEXT', 'ASSISTANT', 'NAVIGATION', 'DIAL', 'OPEN_APP', 'CALENDAR', 'REMINDER', 'ALARM',
+  'SHARE', 'EMAIL_DRAFT', 'SETTINGS',
 ] as const;
 
 export type AndroidActionKind = typeof androidActionKinds[number];
@@ -28,6 +29,8 @@ export type AndroidActionPayload = {
   value?: string;
   contextText?: string;
   startEpochMs?: number;
+  hour?: number;
+  minute?: number;
   mimeType?: string;
   contentUri?: string;
   subject?: string;
@@ -50,5 +53,7 @@ export type AndroidActionReceipt = {
   target: string | null;
   result: 'OPENED' | 'READ' | 'UNAVAILABLE' | 'UNSUPPORTED' | 'CONFIRMATION_REQUIRED' | 'AUTH_PERMISSION_FAILURE';
   fallback: string | null;
+  guardianEvidenceId?: string;
+  guardianCorrelationId?: string;
   observedAt: string;
 };

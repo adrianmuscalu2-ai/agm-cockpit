@@ -6,11 +6,12 @@ import {
   type CameraPlugin,
 } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
+import { evaluatePermissionRequest, type GuardianAuthorityState } from '../android-action-layer/permission-guardian.client';
 
 export type NativeCameraCaptureResult =
   | { status: 'captured'; file: File }
   | { status: 'cancelled' }
-  | { status: 'permission-denied' | 'camera-unavailable' | 'processing-failed' };
+  | { status: 'authorization-denied' | 'permission-denied' | 'camera-unavailable' | 'processing-failed' };
 
 type CameraFacade = Pick<CameraPlugin, 'checkPermissions' | 'requestPermissions' | 'takePhoto'>;
 
@@ -20,6 +21,7 @@ export function createNativeCameraCaptureRuntime(dependencies: {
   fetchResource(input: string): Promise<Response>;
   convertFileSrc(uri: string): string;
   now(): number;
+  authorize(input: { phase: 'REQUEST' | 'EXECUTION'; currentAuthority: GuardianAuthorityState; evidence: string }): Promise<boolean>;
 }) {
   return {
     isNativeAndroid(): boolean {
@@ -28,12 +30,17 @@ export function createNativeCameraCaptureRuntime(dependencies: {
     async capture(): Promise<NativeCameraCaptureResult> {
       if (dependencies.platform() !== 'android') return { status: 'camera-unavailable' };
       try {
+        const requestAuthorized = await dependencies.authorize({ phase: 'REQUEST', currentAuthority: 'NOT_PROVEN', evidence: 'camera-capture-requested' });
+        if (!requestAuthorized) return { status: 'authorization-denied' };
         let permission = await dependencies.camera.checkPermissions();
         if (permission.camera !== 'granted') {
           if (permission.camera === 'denied') return { status: 'permission-denied' };
           permission = await dependencies.camera.requestPermissions({ permissions: ['camera'] });
           if (permission.camera !== 'granted') return { status: 'permission-denied' };
         }
+
+        const executionAuthorized = await dependencies.authorize({ phase: 'EXECUTION', currentAuthority: 'AUTHORIZED', evidence: 'camera-permission-granted' });
+        if (!executionAuthorized) return { status: 'authorization-denied' };
 
         const photo = await dependencies.camera.takePhoto({
           quality: 92,
@@ -90,4 +97,11 @@ export const nativeCameraCaptureRuntime = createNativeCameraCaptureRuntime({
   fetchResource: (input) => fetch(input),
   convertFileSrc: (uri) => Capacitor.convertFileSrc(uri),
   now: () => Date.now(),
+  authorize: async ({ phase, currentAuthority, evidence }) => {
+    const evaluation = await evaluatePermissionRequest({
+      phase, requestedCapability: 'CAMERA_CAPTURE', requestedPermissionOrScope: 'android.permission.CAMERA',
+      requestor: 'agm.global-camera-ocr', reason: 'Capture a user-requested document image', risk: 'MEDIUM', currentAuthority, evidence,
+    });
+    return evaluation?.authorityGranted === true;
+  },
 });

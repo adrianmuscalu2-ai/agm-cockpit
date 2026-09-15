@@ -33,6 +33,7 @@ export const GLOBAL_CAMERA_OCR_VIEWS = [
 
 export type GlobalCameraOcrOrigin = AppViewName;
 export type GlobalCameraOcrFailure =
+  | 'authorization-denied'
   | 'permission-denied'
   | 'camera-unavailable'
   | 'ocr-unavailable'

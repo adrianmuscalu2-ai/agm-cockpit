@@ -1,14 +1,12 @@
 import type { BasicLanguageCode } from '../language-registry';
 import {
-  getAndroidActionProtocolStatus, isAndroidAssistantAvailable, launchAndroidAssistant, openAndroidAssistantSettings,
-  performAndroidDeviceHandoff, type DeviceHandoffAction, type DeviceHandoffResult,
+  getAndroidActionProtocolStatus, isAndroidAssistantAvailable, type DeviceHandoffAction, type DeviceHandoffResult,
 } from './android-assistant.gateway';
 import { deviceAssistantCopy } from './device-assistant-handoff.i18n';
 import { executeAndroidAction } from '../android-action-layer/android-action.executor';
 import { confirmationFor } from '../android-action-layer/confirmation-policy';
 import type { AndroidActionKind, AndroidActionResolution } from '../android-action-layer/android-action.contract';
 import { evaluatePermissionRequest } from '../android-action-layer/permission-guardian.client';
-import { driverActionMessage } from '../android-action-layer/driver-voice-mode';
 
 const commandPatterns = [
   /\b(deschide|porneste|apeleaza)\s+(asistentul\s+)?(android|telefonului|telefon)\b/i,
@@ -25,8 +23,12 @@ export function detectAndroidAssistantCommand(text: string) {
 
 export async function handleSpokenAndroidAssistantCommand(text: string, language: BasicLanguageCode, status: HTMLElement) {
   if (!detectAndroidAssistantCommand(text) || !isAndroidAssistantAvailable()) return false;
-  const result = await launchAndroidAssistant({ moduleId: 'premium-voice-spoken-handoff', draft: text })
-    .catch((): DeviceHandoffResult => ({ status: 'UNAVAILABLE', reason: 'ANDROID_BRIDGE_ERROR' }));
+  const resolution: AndroidActionResolution = {
+    contractVersion:'android-action-resolution.v1',status:'RESOLVED',action:'ASSISTANT',reason:'SPOKEN_ASSISTANT_REQUEST',
+    source:'GENERAL_HANDOFF',confirmation:confirmationFor('ASSISTANT'),payload:{contextText:text},
+  };
+  const receipt = await executeAndroidAction(text, resolution);
+  const result = receiptToHandoff(receipt);
   status.textContent = resultMessage(result, language);
   if (result.status === 'OPENED') window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));
   return true;
@@ -52,6 +54,9 @@ export function bindDeviceAssistantHandoff(root: HTMLElement, language: BasicLan
     if (result.status === 'OPENED') window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));
   };
   const run = (task: Promise<DeviceHandoffResult>) => void task.then(show).catch(() => show({ status: 'UNAVAILABLE', reason: 'ANDROID_BRIDGE_ERROR' }));
+  const execute = (text: string, resolution: AndroidActionResolution, agmConfirmed = false) => run(
+    executeAndroidAction(text, resolution, { agmConfirmed }).then(receiptToHandoff),
+  );
   const observePermissionProtocol = () => void getAndroidActionProtocolStatus().then((snapshot) => {
     if (!snapshot) return;
     const targets = Object.entries(snapshot.targets).map(([name, available]) => `${name}=${available}`).join(',');
@@ -63,38 +68,39 @@ export function bindDeviceAssistantHandoff(root: HTMLElement, language: BasicLan
   }).catch(() => undefined);
   observePermissionProtocol();
   window.addEventListener('agm-native-resume', observePermissionProtocol);
-  on(panel.querySelector('[data-device-assistant-open]'), 'click', () => run(launchAndroidAssistant({ moduleId: 'premium-device-assistant' })));
+  on(panel.querySelector('[data-device-assistant-open]'), 'click', () => execute('Open Android assistant', {
+    contractVersion:'android-action-resolution.v1',status:'RESOLVED',action:'ASSISTANT',reason:'EXPLICIT_UI_REQUEST',source:'GENERAL_HANDOFF',confirmation:confirmationFor('ASSISTANT'),
+  }));
   on(panel.querySelector('[data-device-assistant-context]'), 'click', () => {
     const contextText = transcript?.value.trim() ?? '';
     if (!contextText) { status.textContent = copy.valueRequired; return; }
-    run(launchAndroidAssistant({ moduleId: 'premium-device-assistant-context', sensitivity: 'USER_TEXT', draftSelector: '[data-assistant-transcript]', draft: contextText, contextText }));
+    execute(contextText, { contractVersion:'android-action-resolution.v1',status:'RESOLVED',action:'ASSISTANT',reason:'EXPLICIT_CONTEXT_HANDOFF',source:'REQUEST',confirmation:confirmationFor('ASSISTANT'),payload:{contextText} });
   });
-  on(panel.querySelector('[data-device-assistant-settings]'), 'click', () => run(openAndroidAssistantSettings()));
+  on(panel.querySelector('[data-device-assistant-settings]'), 'click', () => execute('Open Android assistant settings', {
+    contractVersion:'android-action-resolution.v1',status:'RESOLVED',action:'SETTINGS',reason:'EXPLICIT_UI_REQUEST',source:'REQUEST',confirmation:confirmationFor('SETTINGS'),
+  }));
   on(action, 'change', () => { time.hidden = action.value !== 'ALARM'; });
   on(panel.querySelector('[data-device-handoff-execute]'), 'click', () => {
     const selected = action.value as DeviceHandoffAction;
     const input = value.value.trim();
     if (!input) { status.textContent = copy.valueRequired; return; }
     const [hour, minute] = time.value.split(':').map(Number);
-    if (['NAVIGATION','DIAL','CALENDAR','SHARE','EMAIL_DRAFT'].includes(selected)) {
-      const action = selected as AndroidActionKind;
-      const contextText = action === 'SHARE' || action === 'EMAIL_DRAFT' ? transcript?.value.trim() || input : undefined;
-      const resolution: AndroidActionResolution = {
-        contractVersion:'android-action-resolution.v1',status:'RESOLVED',action,reason:'EXPLICIT_UI_REQUEST',source:'REQUEST',confirmation:confirmationFor(action),
-        payload:{value:input,contextText,mimeType:action==='SHARE'?'text/plain':undefined},
-      };
-      void executeAndroidAction(input,resolution,{agmConfirmed:true}).then((receipt) => {
-        if (receipt.result === 'AUTH_PERMISSION_FAILURE') {
-          status.textContent = driverActionMessage('AUTH_PERMISSION_FAILURE', receipt.fallback ?? 'GUARDIAN_NOT_PROVEN', language);
-          return;
-        }
-        show({status:receipt.result==='OPENED'?'OPENED':receipt.result==='UNSUPPORTED'?'UNSUPPORTED':'UNAVAILABLE',reason:receipt.fallback??undefined,target:receipt.target??undefined});
-      });
-      return;
-    }
-    run(performAndroidDeviceHandoff({ action: selected, value: input, hour, minute }, {moduleId: `premium-device-${selected.toLowerCase()}`, draftSelector: '[data-device-handoff-value]', sensitivity: 'PUBLIC'}));
+    const androidAction = selected as AndroidActionKind;
+    const contextText = androidAction === 'SHARE' || androidAction === 'EMAIL_DRAFT' ? transcript?.value.trim() || input : undefined;
+    execute(input, {
+      contractVersion:'android-action-resolution.v1',status:'RESOLVED',action:androidAction,reason:'EXPLICIT_UI_REQUEST',source:'REQUEST',confirmation:confirmationFor(androidAction),
+      payload:{value:input,contextText,mimeType:androidAction==='SHARE'?'text/plain':undefined,hour,minute},
+    }, true);
   });
   return () => { listeners.forEach(([element, event, listener]) => element.removeEventListener(event, listener)); window.removeEventListener('agm-native-resume', observePermissionProtocol); };
+}
+
+function receiptToHandoff(receipt: Awaited<ReturnType<typeof executeAndroidAction>>): DeviceHandoffResult {
+  return {
+    status: receipt.result === 'OPENED' ? 'OPENED' : receipt.result === 'UNSUPPORTED' ? 'UNSUPPORTED' : 'UNAVAILABLE',
+    reason: receipt.fallback ?? undefined, target: receipt.target ?? undefined,
+    guardianEvidenceId: receipt.guardianEvidenceId, guardianCorrelationId: receipt.guardianCorrelationId,
+  };
 }
 
 function resultMessage(result: DeviceHandoffResult, language: BasicLanguageCode) {

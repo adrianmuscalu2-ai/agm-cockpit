@@ -25,6 +25,32 @@ async function main() {
     { expiresIn: '60s' },
   );
   const releaseRef = `${process.env.AGM_REVISION || 'unknown'}:${process.env.AGM_RELEASE_RUN_ID || 'manual'}`;
+  const allowResponse = await fetch(endpoint, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      phase: 'EXECUTION',
+      requestedCapability: 'NAVIGATION',
+      requestedPermissionOrScope: 'NOT_REQUIRED',
+      requestor: 'agm.production-release.allow-control',
+      reason: 'Prove pre-action approval for an allowlisted Android navigation handoff.',
+      risk: 'LOW',
+      currentAuthority: 'NOT_REQUIRED',
+      evidence: `controlled-production-allow:${releaseRef}`,
+    }),
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!allowResponse.ok) throw new Error(`GUARDIAN_ALLOW_HTTP_${allowResponse.status}`);
+  const allowEnvelope = await allowResponse.json();
+  const allowEvaluation = allowEnvelope?.data;
+  if (
+    allowEvaluation?.decision !== 'APPROVED'
+    || allowEvaluation?.authorityGranted !== true
+    || allowEvaluation?.reasonCode !== 'ALLOWLIST_AND_AUTHORITY_VERIFIED'
+    || typeof allowEvaluation?.evidenceId !== 'string'
+    || typeof allowEvaluation?.correlationId !== 'string'
+  ) throw new Error('GUARDIAN_ALLOW_CONTRACT_MISMATCH');
+
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -58,6 +84,14 @@ async function main() {
       outcome: 'DENIED',
     },
   });
+  const persistedAllowEvaluation = await prisma.authorityAuditJournal.findFirst({
+    where: {
+      companyId: user.companyId,
+      eventId: allowEvaluation.evidenceId,
+      eventType: 'PERMISSION_GUARDIAN_EVALUATION',
+      outcome: 'APPROVED',
+    },
+  });
   const findingCandidates = await prisma.authorityAuditJournal.findMany({
     where: {
       companyId: user.companyId,
@@ -69,18 +103,28 @@ async function main() {
     take: 10,
   });
   const finding = findingCandidates.find((event) => event.safeMetadata?.evaluationEventId === evaluation.evidenceId);
-  if (!persistedEvaluation || !finding || finding.safeMetadata?.authorityGranted !== false) {
+  if (!persistedAllowEvaluation || !persistedEvaluation || !finding || finding.safeMetadata?.authorityGranted !== false) {
     throw new Error('GUARDIAN_PRODUCTION_EVIDENCE_NOT_PERSISTED');
   }
 
   process.stdout.write(JSON.stringify({
-    contract: 'permission-guardian-production-negative-control.v1',
+    contract: 'permission-guardian-production-controls.v2',
     status: 'PASS',
-    decision: evaluation.decision,
-    authorityGranted: evaluation.authorityGranted,
-    reasonCode: evaluation.reasonCode,
-    evaluationEventId: evaluation.evidenceId,
-    findingEventId: finding.eventId,
+    allow: {
+      decision: allowEvaluation.decision,
+      authorityGranted: allowEvaluation.authorityGranted,
+      reasonCode: allowEvaluation.reasonCode,
+      evaluationEventId: allowEvaluation.evidenceId,
+      correlationId: allowEvaluation.correlationId,
+    },
+    deny: {
+      decision: evaluation.decision,
+      authorityGranted: evaluation.authorityGranted,
+      reasonCode: evaluation.reasonCode,
+      evaluationEventId: evaluation.evidenceId,
+      correlationId: evaluation.correlationId,
+      findingEventId: finding.eventId,
+    },
   }));
 }
 

@@ -49,6 +49,8 @@ export type HandoffReceipt = {
   handedOffAt: string;
   status: HandoffStatus;
   targetPackage?: string;
+  guardianEvidenceId?: string;
+  guardianCorrelationId?: string;
 };
 
 export type BrokerDecision =

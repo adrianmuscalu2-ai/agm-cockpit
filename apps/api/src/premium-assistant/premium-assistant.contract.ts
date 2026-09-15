@@ -59,7 +59,10 @@ export type PremiumAssistantResponse = {
   moduleId: string;
   contextRefs: readonly string[];
   sourceTrace: Omit<AssistantSourceTrace, 'sources'>;
-  toolTrace?: { tool: 'gmail-inbox'; status: 'SUCCESS' | 'UNAVAILABLE'; operation: string; resultCount: number; errorCode: string | null };
+  toolTrace?: {
+    tool: 'gmail-inbox'; status: 'SUCCESS' | 'UNAVAILABLE'; operation: string; resultCount: number; errorCode: string | null;
+    guardianDecision?: 'APPROVED' | 'DENIED' | 'NOT_PROVEN'; guardianEvidenceId?: string; guardianCorrelationId?: string;
+  };
   actionContext?: GmailActionContext;
   cache: { disposition: 'HIT' | 'MISS'; ttlSeconds: number };
   externalEffectPerformed: false;

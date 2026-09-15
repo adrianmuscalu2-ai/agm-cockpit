@@ -1,11 +1,12 @@
-import { launchAndroidAssistant, performAndroidDeviceHandoff, type DeviceHandoffAction } from '../premium-capabilities/android-assistant.gateway';
+import { launchAndroidAssistant, openAndroidAssistantSettings, performAndroidDeviceHandoff, type DeviceHandoffAction } from '../premium-capabilities/android-assistant.gateway';
 import type { AndroidActionReceipt, AndroidActionResolution } from './android-action.contract';
 import { evaluatePermissionRequest } from './permission-guardian.client';
 
 const RECEIPTS_KEY = 'agm.android-action.receipts.v1';
 const capabilityNames: Record<NonNullable<AndroidActionResolution['action']>, string> = {
   READ_CONTEXT: 'READ_CONTEXT', ASSISTANT: 'ANDROID_ASSISTANT', NAVIGATION: 'NAVIGATION', DIAL: 'DIALER',
-  CALENDAR: 'CALENDAR_INSERT', SHARE: 'SHARE', EMAIL_DRAFT: 'EMAIL_DRAFT',
+  OPEN_APP: 'OPEN_APP', CALENDAR: 'CALENDAR_INSERT', REMINDER: 'REMINDER', ALARM: 'ALARM',
+  SHARE: 'SHARE', EMAIL_DRAFT: 'EMAIL_DRAFT', SETTINGS: 'ANDROID_ASSISTANT_SETTINGS',
 };
 
 export async function executeAndroidAction(text: string, resolution: AndroidActionResolution, options: { agmConfirmed?: boolean } = {}): Promise<AndroidActionReceipt> {
@@ -14,22 +15,22 @@ export async function executeAndroidAction(text: string, resolution: AndroidActi
   if (resolution.confirmation === 'AGM_REQUIRED' && !options.agmConfirmed) return receipt(text, resolution, 'CONFIRMATION_REQUIRED', null, 'AGM_CONFIRMATION_REQUIRED');
 
   const capabilityName = capabilityNames[resolution.action];
-  const guardian = await evaluatePermissionRequest({
-    phase: 'EXECUTION', requestedCapability: capabilityName, requestedPermissionOrScope: 'NOT_REQUIRED',
-    requestor: 'agm.android-action-layer', reason: resolution.reason, risk: resolution.action === 'SHARE' ? 'MEDIUM' : 'LOW',
-    currentAuthority: 'NOT_REQUIRED', evidence: `resolution:${resolution.contractVersion}:${resolution.source}`,
-  });
-  if (!guardian?.authorityGranted) return receipt(text, resolution, 'AUTH_PERMISSION_FAILURE', null, guardian?.reasonCode ?? 'GUARDIAN_NOT_PROVEN');
-
   const payload = resolution.payload ?? {};
-  const sensitivity = resolution.source === 'ACTIVE_GMAIL_CONTEXT' || resolution.action === 'SHARE' || resolution.action === 'EMAIL_DRAFT'
+  const sensitivity = resolution.source === 'ACTIVE_GMAIL_CONTEXT' || Boolean(payload.contextText) || resolution.action === 'SHARE' || resolution.action === 'EMAIL_DRAFT'
     ? 'USER_TEXT' : 'PUBLIC';
-  const native = resolution.action === 'ASSISTANT'
+  const native = resolution.action === 'SETTINGS'
+    ? await openAndroidAssistantSettings()
+    : resolution.action === 'ASSISTANT'
     ? await launchAndroidAssistant({ moduleId: 'android-action-layer', sensitivity, contextText: payload.contextText })
     : await performAndroidDeviceHandoff({ action: resolution.action as DeviceHandoffAction, ...payload }, {
       moduleId: `android-action-${resolution.action.toLowerCase()}`, sensitivity,
     });
-  const value = receipt(text, resolution, native.status === 'OPENED' ? 'OPENED' : native.status === 'UNSUPPORTED' ? 'UNSUPPORTED' : 'UNAVAILABLE', native.target ?? null, native.status === 'OPENED' ? null : native.reason ?? 'NATIVE_HANDLER_UNAVAILABLE');
+  const value = receipt(
+    text, resolution,
+    native.status === 'OPENED' ? 'OPENED' : native.status === 'UNSUPPORTED' ? 'UNSUPPORTED' : native.reason?.startsWith('GUARDIAN_') ? 'AUTH_PERMISSION_FAILURE' : 'UNAVAILABLE',
+    native.target ?? null, native.status === 'OPENED' ? null : native.reason ?? 'NATIVE_HANDLER_UNAVAILABLE',
+    native.guardianEvidenceId, native.guardianCorrelationId,
+  );
   void evaluatePermissionRequest({
     phase: 'OBSERVATION', requestedCapability: capabilityName, requestedPermissionOrScope: 'NOT_REQUIRED',
     requestor: 'agm.android-action-layer', reason: 'Record native intent result', risk: 'LOW', currentAuthority: 'NOT_REQUIRED',
@@ -38,10 +39,12 @@ export async function executeAndroidAction(text: string, resolution: AndroidActi
   return value;
 }
 
-function receipt(text: string, resolution: AndroidActionResolution, result: AndroidActionReceipt['result'], target: string | null, fallback: string | null): AndroidActionReceipt {
+function receipt(text: string, resolution: AndroidActionResolution, result: AndroidActionReceipt['result'], target: string | null, fallback: string | null, guardianEvidenceId?: string, guardianCorrelationId?: string): AndroidActionReceipt {
   const value: AndroidActionReceipt = {
     contractVersion: 'android-action-receipt.v1', request: { text: text.slice(0, 500), action: resolution.action }, resolution,
     target, result, fallback, observedAt: new Date().toISOString(),
+    ...(guardianEvidenceId ? { guardianEvidenceId } : {}),
+    ...(guardianCorrelationId ? { guardianCorrelationId } : {}),
   };
   try {
     const existing = JSON.parse(sessionStorage.getItem(RECEIPTS_KEY) ?? '[]');

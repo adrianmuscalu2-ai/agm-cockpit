@@ -17,6 +17,7 @@ export type GuardianEvaluation = GuardianEvaluationRequest & {
   decision: 'APPROVED' | 'DENIED' | 'NOT_PROVEN';
   authorityGranted: boolean;
   evidenceId: string;
+  correlationId: string;
   reasonCode: string;
   timestamp: string;
 };

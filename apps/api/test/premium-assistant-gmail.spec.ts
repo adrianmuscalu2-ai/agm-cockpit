@@ -16,6 +16,12 @@ const source = {
   freshness: { status: 'CURRENT' as const, checkedAt: '2026-09-13T07:00:00.000Z', expiresAt: '2026-09-13T07:05:00.000Z', ttlSeconds: 300 },
   provenance: { canonicalPath: null, sha256: null, authorityType: 'AUTHENTICATED_PRIVATE_MAILBOX', reviewStatus: 'LIVE_PROVIDER_OBSERVATION' },
 };
+const approvedGuardian = () => ({
+  evaluate: jest.fn(async () => ({
+    decision: 'APPROVED', authorityGranted: true, reasonCode: 'ALLOWLIST_AND_AUTHORITY_VERIFIED',
+    evidenceId: 'guardian-allow-1', correlationId: 'guardian-correlation-1',
+  })),
+});
 
 describe('Premium Assistant Gmail capability', () => {
   afterEach(() => jest.restoreAllMocks());
@@ -44,12 +50,15 @@ describe('Premium Assistant Gmail capability', () => {
     const gmail = { configured: () => true, retrieve: jest.fn().mockResolvedValue({ intent: classifyGmailIntent(request.confirmedText)!, messages: [message], sources: [source] }) };
     let storedTrace: any;
     const knowledge = { createTrace: jest.fn().mockImplementation((sources, status, companyId) => (storedTrace = { traceId: 'gmail-trace', status, generatedAt: new Date().toISOString(), counts: { total: sources.length, library: 0, live: sources.length, cache: 0 }, sources, companyId })), trace: jest.fn().mockImplementation(() => storedTrace) };
-    const service = new PremiumAssistantService({ get: () => 'unused-openai-key' } as any, undefined, knowledge as any, gmail as any);
+    const guardian = approvedGuardian();
+    const service = new PremiumAssistantService({ get: () => 'unused-openai-key' } as any, undefined, knowledge as any, gmail as any, guardian as any);
 
     const result = await service.respond(user, request);
     const engineeringTrace = service.sourceTrace(user, result.sourceTrace.traceId);
 
     expect(result).toMatchObject({ provider: 'agm', toolTrace: { tool: 'gmail-inbox', status: 'SUCCESS', operation: 'LATEST_FROM', resultCount: 1, errorCode: null }, externalEffectPerformed: false });
+    expect(result.toolTrace).toMatchObject({ guardianDecision: 'APPROVED', guardianEvidenceId: 'guardian-allow-1', guardianCorrelationId: 'guardian-correlation-1' });
+    expect(guardian.evaluate.mock.invocationCallOrder[0]).toBeLessThan(gmail.retrieve.mock.invocationCallOrder[0]!);
     expect(result.text).toContain('Onlogist Dispatch');
     expect(result.text).toContain('transportul este confirmat');
     expect(result.text).not.toContain('gmail-message-private-id');
@@ -61,14 +70,30 @@ describe('Premium Assistant Gmail capability', () => {
   it('fails closed with an explicit Gmail response and never invokes model or web', async () => {
     const providerFetch = jest.spyOn(global, 'fetch');
     const gmail = { configured: () => true, retrieve: jest.fn().mockRejectedValue(new GmailProviderError('AUTHORIZATION_FAILED', 401)) };
-    const service = new PremiumAssistantService({ get: () => 'unused-openai-key' } as any, undefined, undefined, gmail as any);
+    const guardian = approvedGuardian();
+    const service = new PremiumAssistantService({ get: () => 'unused-openai-key' } as any, undefined, undefined, gmail as any, guardian as any);
 
     const result = await service.respond(user, request);
 
     expect(result.text).toContain('Gmail nu este disponibil');
     expect(result.text).toContain('Nu am căutat pe web');
-    expect(result.toolTrace).toEqual({ tool: 'gmail-inbox', status: 'UNAVAILABLE', operation: 'LATEST_FROM', resultCount: 0, errorCode: 'AUTHORIZATION_FAILED' });
+    expect(result.toolTrace).toMatchObject({ tool: 'gmail-inbox', status: 'UNAVAILABLE', operation: 'LATEST_FROM', resultCount: 0, errorCode: 'AUTHORIZATION_FAILED', guardianDecision: 'APPROVED' });
     expect(providerFetch).not.toHaveBeenCalled();
+  });
+
+  it('denies Gmail before retrieval when Guardian does not grant authority', async () => {
+    const gmail = { configured: () => true, retrieve: jest.fn() };
+    const guardian = { evaluate: jest.fn(async () => ({
+      decision: 'DENIED', authorityGranted: false, reasonCode: 'PERMISSION_OR_SCOPE_NOT_ALLOWLISTED',
+      evidenceId: 'guardian-deny-1', correlationId: 'guardian-correlation-deny-1',
+    })) };
+    const service = new PremiumAssistantService({ get: () => 'unused-openai-key' } as any, undefined, undefined, gmail as any, guardian as any);
+
+    const result = await service.respond(user, request);
+
+    expect(gmail.retrieve).not.toHaveBeenCalled();
+    expect(result.toolTrace).toMatchObject({ status: 'UNAVAILABLE', guardianDecision: 'DENIED', guardianEvidenceId: 'guardian-deny-1' });
+    expect(result.text).toContain('Permission Guardian');
   });
 
   it('synthesizes several messages without exposing source identifiers', () => {

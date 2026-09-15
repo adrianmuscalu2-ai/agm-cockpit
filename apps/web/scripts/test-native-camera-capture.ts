@@ -22,6 +22,7 @@ const runtime = createNativeCameraCaptureRuntime({
   fetchResource: async () => new Response(new Blob(['image'], { type: 'image/jpeg' })),
   convertFileSrc: (uri) => `converted:${uri}`,
   now: () => 12345,
+  authorize: async () => true,
 });
 
 assert.equal(runtime.isNativeAndroid(), true);
@@ -43,6 +44,7 @@ const denied = await createNativeCameraCaptureRuntime({
   fetchResource: async () => new Response(),
   convertFileSrc: (uri) => uri,
   now: Date.now,
+  authorize: async () => true,
 }).capture();
 assert.equal(denied.status, 'permission-denied');
 
@@ -56,7 +58,24 @@ const cancelled = await createNativeCameraCaptureRuntime({
   fetchResource: async () => new Response(),
   convertFileSrc: (uri) => uri,
   now: Date.now,
+  authorize: async () => true,
 }).capture();
 assert.equal(cancelled.status, 'cancelled');
+
+let deniedGuardianCameraChecks = 0;
+const guardianDenied = await createNativeCameraCaptureRuntime({
+  platform: () => 'android',
+  camera: {
+    checkPermissions: async () => { deniedGuardianCameraChecks += 1; return { camera: 'granted', photos: 'denied' }; },
+    requestPermissions: async () => ({ camera: 'granted', photos: 'denied' }),
+    takePhoto: async () => { throw new Error('must not open'); },
+  },
+  fetchResource: async () => new Response(),
+  convertFileSrc: (uri) => uri,
+  now: Date.now,
+  authorize: async () => false,
+}).capture();
+assert.equal(guardianDenied.status, 'authorization-denied');
+assert.equal(deniedGuardianCameraChecks, 0);
 
 console.log('NATIVE CAMERA CAPTURE RUNTIME: PASS');

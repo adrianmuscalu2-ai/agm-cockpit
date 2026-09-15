@@ -57,7 +57,7 @@ export class PermissionGuardianService {
         } });
       }
     });
-    return { ...metadata, evidenceId, reasonCode };
+    return { ...metadata, evidenceId, reasonCode, correlationId: ctx.correlationId };
   }
 
   async status(ctx: RequestContext) {

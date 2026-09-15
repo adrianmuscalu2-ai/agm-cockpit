@@ -11,6 +11,8 @@ const plugin = read('../android/app/src/main/java/com/agm/cockpit/AgmCapabilityP
 const manifest = read('../android/app/src/main/AndroidManifest.xml');
 const runtime = read('../src/premium-capabilities/device-assistant-handoff.runtime.ts');
 const gateway = read('../src/premium-capabilities/android-assistant.gateway.ts');
+const legacyGateway = read('../src/premium-capabilities/system-handoff.gateway.ts');
+const main = read('../src/main.ts');
 
 for (const language of basicLanguageCodes) {
   assert.ok(Object.values(deviceAssistantCopy[language]).every((value) => value.trim()));
@@ -37,11 +39,18 @@ assert.match(java, /"UNAVAILABLE"/);
 assert.match(java, /"UNSUPPORTED"/);
 assert.match(java, /"INVALID_INPUT"/);
 assert.match(plugin, /performDeviceHandoff/);
-assert.match(runtime, /receipt\.result === 'AUTH_PERMISSION_FAILURE'/);
-assert.match(runtime, /driverActionMessage\('AUTH_PERMISSION_FAILURE'/);
+assert.match(runtime, /executeAndroidAction/);
+assert.doesNotMatch(runtime, /run\(launchAndroidAssistant|run\(performAndroidDeviceHandoff/);
+assert.match(gateway, /phase: 'EXECUTION'/);
+assert.match(gateway, /guardianCapability/);
+assert.match(legacyGateway, /evaluatePermissionRequest/);
+assert.match(legacyGateway, /phase: 'EXECUTION'/);
+assert.ok(legacyGateway.indexOf('evaluatePermissionRequest') < legacyGateway.indexOf('nativePlugin.open'));
+assert.match(main, /legacy-ocr-camera-requested/);
+assert.match(main, /nativeCameraCaptureRuntime\.capture\(\)[\s\S]*openPicker\('#ocrCameraInput'\)/);
 assert.match(gateway, /contextText\?\.trim\(\)\.slice\(0, 2000\)/);
 assert.match(manifest, /android\.intent\.action\.ASSIST/);
 assert.match(manifest, /android\.intent\.action\.SET_ALARM/);
 assert.doesNotMatch(`${java}\n${plugin}\n${gateway}\n${manifest}`, /gemini|googlequicksearchbox|bixby|AccessibilityService/i);
 
-console.log('DEVICE ASSISTANT / ANDROID HANDOFF: PASS (12 languages, 6 official handoff actions, controlled fallback)');
+console.log('DEVICE ASSISTANT / ANDROID HANDOFF: PASS (12 languages, guarded official handoff actions, controlled fallback)');

@@ -1,12 +1,15 @@
 import { routeAndroidAction } from './android-action.router';
 import { readDriverContext } from './driver-context';
 
-const driverCommands = /\b(citeste l|read it|lies es|navigheaza|navigate|route|navigiere|suna|apeleaza|dial|call|anrufen|raspunde|reply|antworte|calendar|kalender|distribuie|partajeaza|share|teilen|asistent|assistant|assistent)\b/i;
+const driverCommands = /\b(citeste l|read it|lies es|navigheaza|navigate|route|navigiere|suna|apeleaza|dial|call|anrufen|raspunde|reply|antworte|calendar|kalender|distribuie|partajeaza|share|teilen|asistent|assistant|assistent)\b|\b(?:deschide|porneste|open|launch|offne|starte)\s+(?:google\s+)?(?:maps|gmail|camera|kamera)\b/i;
 
 export function resolveDriverVoiceCommand(text: string) {
   const normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   if (!driverCommands.test(normalized)) return { handled: false as const };
-  return { handled: true as const, resolution: routeAndroidAction(text, readDriverContext()) };
+  const context = readDriverContext();
+  const needsGmailContext = /\b(?:navigheaza|navigate|route|navigiere)\b.*\b(?:ultim(?:ul|a)?\s+(?:e-?mail|mail|mesaj)|latest\s+(?:e-?mail|message)|letzte[nrs]?\s+(?:e-?mail|nachricht))\b/i.test(normalized);
+  if (needsGmailContext && !context) return { handled: false as const };
+  return { handled: true as const, resolution: routeAndroidAction(text, context) };
 }
 
 export function driverActionMessage(result: string, reason: string, language: string) {

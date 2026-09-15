@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { routeAndroidAction, routeRetrievedAndroidAction } from '../src/android-action-layer/android-action.router';
+import { parseNaturalDateTime, routeAndroidAction, routeRetrievedAndroidAction } from '../src/android-action-layer/android-action.router';
 import { androidActionSafetyBoundary, confirmationFor } from '../src/android-action-layer/confirmation-policy';
 import type { ActiveDriverContext } from '../src/android-action-layer/android-action.contract';
 
@@ -20,6 +20,9 @@ const gmailNavigation = routeRetrievedAndroidAction('Citește ultimul mail de la
 assert.equal(gmailNavigation?.status, 'RESOLVED');
 assert.equal(gmailNavigation?.action, 'NAVIGATION');
 assert.equal(gmailNavigation?.payload?.value, context.destinations[0]);
+const spokenGmailNavigation = routeRetrievedAndroidAction('Navighează la adresa din ultimul email.', context);
+assert.equal(spokenGmailNavigation?.action, 'NAVIGATION');
+assert.equal(spokenGmailNavigation?.payload?.value, context.destinations[0]);
 
 const dial = routeAndroidAction('Sună numărul.', context);
 assert.equal(dial.action, 'DIAL');
@@ -34,6 +37,21 @@ assert.equal(reply.confirmation, 'ANDROID_TARGET');
 const calendar = routeAndroidAction('Adaugă asta în calendar.', context);
 assert.equal(calendar.action, 'CALENDAR');
 assert.equal(calendar.payload?.startEpochMs, Date.parse(context.dateTimes[0]!));
+const baseTime = new Date(2026, 8, 14, 8, 0, 0, 0);
+const tomorrowAtTen = new Date(parseNaturalDateTime('Pune în calendar mâine la 10.', baseTime)!);
+assert.equal(tomorrowAtTen.getDate(), 15);
+assert.equal(tomorrowAtTen.getHours(), 10);
+const friday = new Date(parseNaturalDateTime('Pune în calendar vineri la 14:30.', baseTime)!);
+assert.equal(friday.getDay(), 5);
+assert.equal(friday.getHours(), 14);
+assert.equal(friday.getMinutes(), 30);
+assert.equal(parseNaturalDateTime('Pune în calendar peste două ore.', baseTime), baseTime.getTime() + 2 * 3_600_000);
+
+for (const [command, label] of [['Deschide Maps.', 'Maps'], ['Deschide Gmail.', 'Gmail'], ['Deschide Camera.', 'Camera']] as const) {
+  const openApp = routeAndroidAction(command, context);
+  assert.equal(openApp.action, 'OPEN_APP');
+  assert.equal(openApp.payload?.value, label);
+}
 
 const missing = routeAndroidAction('Navighează acolo.', null);
 assert.equal(missing.status, 'CLARIFICATION_REQUIRED');
@@ -41,6 +59,7 @@ const unsupported = routeAndroidAction('Șterge toate fișierele.', context);
 assert.equal(unsupported.status, 'UNSUPPORTED');
 assert.equal(unsupported.reason, 'ACTION_NOT_ALLOWLISTED');
 assert.equal(confirmationFor('SHARE'), 'AGM_REQUIRED');
+assert.equal(confirmationFor('OPEN_APP'), 'USER_COMMAND');
 assert.deepEqual(androidActionSafetyBoundary, {
   autoSendEmail:false,directPhoneCall:false,directCalendarWrite:false,arbitraryUiAutomation:false,accessibilityService:false,finalExternalCommit:'ANDROID_TARGET_REQUIRES_USER_ACTION',
 });
@@ -49,6 +68,7 @@ const root = resolve(import.meta.dirname, '../../..');
 const native = readFileSync(resolve(root, 'apps/web/android/app/src/main/java/com/agm/cockpit/DeviceHandoffIntents.java'), 'utf8');
 const manifest = readFileSync(resolve(root, 'apps/web/android/app/src/main/AndroidManifest.xml'), 'utf8');
 const executor = readFileSync(resolve(root, 'apps/web/src/android-action-layer/android-action.executor.ts'), 'utf8');
+const gateway = readFileSync(resolve(root, 'apps/web/src/premium-capabilities/android-assistant.gateway.ts'), 'utf8');
 assert.match(native, /Intent\.ACTION_ASSIST/);
 assert.match(native, /Intent\.ACTION_DIAL/);
 assert.match(native, /CalendarContract\.Events\.CONTENT_URI/);
@@ -57,5 +77,7 @@ assert.match(native, /Intent\.ACTION_SENDTO/);
 assert.doesNotMatch(native, /ACTION_CALL|AccessibilityService|com\.google|com\.waze|com\.tomtom/);
 assert.doesNotMatch(manifest, /CALL_PHONE|READ_CALENDAR|WRITE_CALENDAR|READ_CONTACTS|QUERY_ALL_PACKAGES|BIND_ACCESSIBILITY_SERVICE/);
 assert.match(executor, /resolution\.source === 'ACTIVE_GMAIL_CONTEXT'[\s\S]*\? 'USER_TEXT' : 'PUBLIC'/);
+assert.match(gateway, /phase: 'EXECUTION'[\s\S]*pre-action:/);
+for (const capability of ['ANDROID_ASSISTANT','OPEN_APP','REMINDER','ALARM','ANDROID_ASSISTANT_SETTINGS']) assert.ok(gateway.includes(capability));
 
 console.log('ANDROID ACTION LAYER PROTOCOL: PASS');

@@ -5,9 +5,13 @@ const policy: Record<AndroidActionKind, AndroidActionResolution['confirmation']>
   ASSISTANT: 'USER_COMMAND',
   NAVIGATION: 'USER_COMMAND',
   DIAL: 'ANDROID_TARGET',
+  OPEN_APP: 'USER_COMMAND',
   CALENDAR: 'ANDROID_TARGET',
+  REMINDER: 'ANDROID_TARGET',
+  ALARM: 'ANDROID_TARGET',
   SHARE: 'AGM_REQUIRED',
   EMAIL_DRAFT: 'ANDROID_TARGET',
+  SETTINGS: 'USER_COMMAND',
 };
 
 export function confirmationFor(action: AndroidActionKind) {

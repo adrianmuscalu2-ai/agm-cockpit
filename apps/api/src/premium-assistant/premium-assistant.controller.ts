@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, UseGuards } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { CurrentUser } from '../common/current-user.decorator';
 import type { RequestContext } from '../common/request-context';
 import { responseEnvelope } from '../common/response';
@@ -6,13 +7,15 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PremiumAssistantRequestDto } from './dto/premium-assistant-request.dto';
 import { PremiumAssistantService } from './premium-assistant.service';
 import { SourceInvalidationDto } from './dto/source-invalidation.dto';
+import { requestIdFromHeader } from '../common/request-ids';
 
 @Controller('premium-assistant')
 @UseGuards(JwtAuthGuard)
 export class PremiumAssistantController {
   constructor(private readonly assistant: PremiumAssistantService) {}
-  @Post('respond') respond(@CurrentUser() user: RequestContext, @Body() request: PremiumAssistantRequestDto) {
-    return this.assistant.respond(user, request).then(responseEnvelope);
+  @Post('respond') respond(@CurrentUser() user: RequestContext, @Body() request: PremiumAssistantRequestDto, @Headers('x-request-id') requestId?: string) {
+    const context = { ...user, requestId: requestIdFromHeader(requestId), correlationId: randomUUID() };
+    return this.assistant.respond(context, request).then(responseEnvelope);
   }
   @Get('sources/stats') sourceStats(@CurrentUser() user: RequestContext) {
     return responseEnvelope(this.assistant.sourceStats(user));
