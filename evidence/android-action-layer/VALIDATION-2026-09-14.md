@@ -88,6 +88,7 @@ The signed APKS runner wrote `PASS`, but a detached Gradle console stream filled
 
 - Source revision used to build the signed artifact: `08708f7`.
 - Secure signing status: `PASS`; credential custody: `DPAPI_PROVISIONED`; secrets printed: `false`; keystore mutation: `NONE`; AAB mutation: `NONE`.
+- Post-process custody reuse probe: `CUSTODY_VALIDATED`; the DPAPI credential opened the PKCS#12, matched the Production fingerprint, displayed no secret, and materialized no plaintext.
 - `app-release.aab`: version `1.4.0` / code `26`, SHA-256 `8625C3FBB71F169C87844DCE941511488C246C363C8256A86EC62E25283C03EC`.
 - Production signer SHA-256: `6E:18:2B:67:BD:A9:E4:C4:F6:EE:93:D7:95:F6:19:AF:06:88:D3:96:7F:9B:74:B5:37:9A:42:FE:67:AC:C8:C1`.
 - In-place upgrade on Samsung SM-S931B: `PASS`; version code became `26`, `firstInstallTime` was preserved, and application data was not cleared.

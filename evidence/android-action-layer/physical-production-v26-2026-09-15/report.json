@@ -20,6 +20,8 @@
   "secureSigning": {
     "status": "PASS",
     "credentialCustody": "DPAPI_PROVISIONED",
+    "custodyReuseProbeStatus": "CUSTODY_VALIDATED",
+    "plaintextMaterializedByProbe": false,
     "secretsPrinted": false,
     "keystoreMutation": "NONE",
     "aabMutation": "NONE",

@@ -7,6 +7,7 @@ The Production-signed `com.agm.cockpit` v26 artifact was installed as an in-plac
 - Secure AAB/APKS build: **PASS**.
 - Production certificate fingerprint: **PASS**.
 - DPAPI signing custody: **PASS** (`DPAPI_PROVISIONED`, 492-byte encrypted blob; secret not read or printed in evidence).
+- Post-process DPAPI reuse probe: **PASS** (`CUSTODY_VALIDATED`); the encrypted credential reopened the PKCS#12 and matched the Production certificate without materializing plaintext.
 - Gmail deterministic no-result presentation on the physical app: **PASS**.
 - User-visible answer: `Nu am găsit în Gmail niciun mesaj care să corespundă cererii tale.`
 - Generic verified-contact refusal: **not observed**.
