@@ -23,6 +23,11 @@ const deploy = workflow.indexOf('- name: Deploy approved digest');
 const preflight = workflow.indexOf('- name: Publish current Production preflight');
 const cleanup = workflow.indexOf('- name: Remove ephemeral OpenSSH material');
 assert.ok(stage >= 0 && stage < deploy && deploy < preflight && preflight < cleanup, 'OpenSSH stage/deploy/preflight/cleanup order is invalid.');
+const remoteDeployMatch = workflow.match(/cat <<'AGM_REMOTE_DEPLOY'[\s\S]*?\r?\n\s*AGM_REMOTE_DEPLOY\r?\n/);
+assert.ok(remoteDeployMatch, 'The remote Production deployment body must be present.');
+const remoteDeploy = remoteDeployMatch[0];
+assert.match(remoteDeploy, /run-permission-guardian-production-negative\.cjs/);
+assert.equal(/\|\s*jq\b/.test(remoteDeploy), false, 'The remote Production host must not require optional jq for Guardian validation.');
 
 console.log(JSON.stringify({
   contract: 'agm-production-openssh-transport.v1',
