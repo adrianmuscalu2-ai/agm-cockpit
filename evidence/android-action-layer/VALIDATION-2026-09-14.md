@@ -84,6 +84,23 @@ The signed APKS runner wrote `PASS`, but a detached Gradle console stream filled
 - `DRIVER MODE = FAIL` (local implementation/tests PASS; required physical Production voice chain incomplete)
 - `FINAL PRODUCTION PASS = FAIL`
 
+## Signed v26 physical gate — 2026-09-15
+
+- Source revision used to build the signed artifact: `08708f7`.
+- Secure signing status: `PASS`; credential custody: `DPAPI_PROVISIONED`; secrets printed: `false`; keystore mutation: `NONE`; AAB mutation: `NONE`.
+- `app-release.aab`: version `1.4.0` / code `26`, SHA-256 `8625C3FBB71F169C87844DCE941511488C246C363C8256A86EC62E25283C03EC`.
+- Production signer SHA-256: `6E:18:2B:67:BD:A9:E4:C4:F6:EE:93:D7:95:F6:19:AF:06:88:D3:96:7F:9B:74:B5:37:9A:42:FE:67:AC:C8:C1`.
+- In-place upgrade on Samsung SM-S931B: `PASS`; version code became `26`, `firstInstallTime` was preserved, and application data was not cleared.
+- Physical Gmail query: `Citeste ultimul mail de la dispecerat si deschide adresa de descarcare`.
+- Physical user answer: `Nu am găsit în Gmail niciun mesaj care să corespundă cererii tale.`
+- Gmail deterministic response preservation: `PASS`; generic verified-contact refusal was not displayed.
+- User-visible sources/citations/technical identifiers: absent.
+- TTS start: `PASS`; the physical receipt reported `TTS→audio 827 ms` and `transcript→audio 1452 ms`.
+- Force-stop/relaunch session persistence on v26: `PASS`; the Premium dashboard reopened without a PIN/login prompt.
+- Detailed machine-readable evidence: `physical-production-v26-2026-09-15/report.json`.
+- `GMAIL → DISPATCH ADDRESS → NAVIGATION` remains `NOT RUN / SOURCE DATA ABSENT`; no destination was invented.
+- Push, canonical fast-forward, Production deploy, and Production Guardian negative control remain pending a new explicit approval.
+
 ## Rescue continuation (2026-09-15)
 
 - The first v26 Release compile failed because the Gradle child process did not inherit the installed Android SDK path. Classification: `DEFECT DE CONFIGURARE`; no dependency was missing.
@@ -154,7 +171,8 @@ The physical query was:
 - `ANDROID-SELECTED ASSISTANT HANDOFF = PASS`
 - `GMAIL OAUTH REFRESH + REAL READ = PASS`
 - `GMAIL → DISPATCH ADDRESS → NAVIGATION = FAIL / SOURCE DATA ABSENT`
-- `GMAIL PRESENTATION FIX = LOCAL PASS / PRODUCTION PENDING`
+- `SIGNED V26 ARTIFACT + IN-PLACE DEVICE UPGRADE = PASS`
+- `GMAIL PRESENTATION FIX = LOCAL + SIGNED V26 PHYSICAL PASS / PRODUCTION PENDING`
 - `GUARDIAN NEGATIVE CONTROL = LOCAL PASS / PRODUCTION PENDING`
 - `REBOOT + PERMISSION REVOKE/RECOVERY + AUTH REVOKE/RECOVERY MATRIX = PENDING`
 - `FINAL PRODUCTION PASS = FAIL`

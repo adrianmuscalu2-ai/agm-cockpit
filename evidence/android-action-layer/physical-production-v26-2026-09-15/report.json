@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "runId": "physical-production-v26-2026-09-15",
+  "executedAt": "2026-09-15T06:44:00+02:00",
+  "sourceRevision": "08708f7",
+  "device": {
+    "manufacturerModel": "Samsung SM-S931B",
+    "serial": "RFCY70WDHXK",
+    "androidApi": 36
+  },
+  "release": {
+    "applicationId": "com.agm.cockpit",
+    "versionName": "1.4.0",
+    "versionCode": 26,
+    "signerCertificateSha256": "6E:18:2B:67:BD:A9:E4:C4:F6:EE:93:D7:95:F6:19:AF:06:88:D3:96:7F:9B:74:B5:37:9A:42:FE:67:AC:C8:C1",
+    "aabSha256": "8625C3FBB71F169C87844DCE941511488C246C363C8256A86EC62E25283C03EC",
+    "apksSha256": "2CF8F95B0EFB487EB51C789E9BC209CD77065604C487020C8DF95FEB8FF1876E",
+    "universalApkSha256": "612E2A4E2AB5BC589E4455229F0F8EBEE6532C63F98461C25DE70630C3FAF0B7"
+  },
+  "secureSigning": {
+    "status": "PASS",
+    "credentialCustody": "DPAPI_PROVISIONED",
+    "secretsPrinted": false,
+    "keystoreMutation": "NONE",
+    "aabMutation": "NONE",
+    "dpapiBlobBytes": 492
+  },
+  "installation": {
+    "status": "PASS",
+    "mode": "ADB_IN_PLACE_UPGRADE_PRESERVE_DATA",
+    "firstInstallTime": "2026-08-31T01:37:10+02:00",
+    "lastUpdateTime": "2026-09-15T06:23:26+02:00"
+  },
+  "checks": [
+    {
+      "id": "signed-production-artifact-v26",
+      "status": "PASS",
+      "evidence": "AAB validator and apksigner verified versionCode 26, non-debug signing, and the expected Production certificate."
+    },
+    {
+      "id": "gmail-deterministic-no-result-presentation",
+      "status": "PASS",
+      "input": "Citeste ultimul mail de la dispecerat si deschide adresa de descarcare",
+      "userResponse": "Nu am găsit în Gmail niciun mesaj care să corespundă cererii tale.",
+      "forbiddenGenericContactRefusalObserved": false,
+      "userVisibleSourcesObserved": false,
+      "evidence": "03-gmail-final-result.png"
+    },
+    {
+      "id": "gmail-response-tts-start",
+      "status": "PASS",
+      "ttsToAudioMs": 827,
+      "transcriptToAudioMs": 1452,
+      "evidence": "The physical UI latency receipt reported TTS-to-audio and transcript-to-audio timings."
+    },
+    {
+      "id": "force-stop-relaunch-session-persistence",
+      "status": "PASS",
+      "premiumDashboardVisible": true,
+      "pinOrLoginPromptVisible": false,
+      "evidence": "05-force-stop-premium-session.png"
+    }
+  ],
+  "sourceDataLimitation": {
+    "id": "gmail-dispatch-address-to-navigation",
+    "status": "NOT_RUN_SOURCE_DATA_ABSENT",
+    "reason": "The real mailbox contains no matching dispatcher message with an extractable destination. No address was invented and no unrelated message was substituted."
+  },
+  "productionPromotion": {
+    "status": "PENDING_EXPLICIT_PUSH_AND_DEPLOY_APPROVAL",
+    "guardianNegativeControl": "LOCAL_PASS_PRODUCTION_PENDING"
+  },
+  "screenshots": [
+    {
+      "name": "01-post-upgrade-screen-state.png",
+      "sha256": "CA8C7D975E5540297AAC11CB2B653C7FC2BA9B802D4C9E0D1BBC9D2B0742A291"
+    },
+    {
+      "name": "02-gmail-query-correct.png",
+      "sha256": "768B07A17A68475CC4706A83F2AAC328C9FC04F40281A4E6638DF31BEC452810"
+    },
+    {
+      "name": "03-gmail-final-result.png",
+      "sha256": "987DD505845585547F510852BDCE59DE30DFDC486B6C5FA93449ED627D2F7F1A"
+    },
+    {
+      "name": "04-force-stop-relaunch.png",
+      "sha256": "47D47EA0A45C086039713D511B26EB1E71A7451CE76E728DF5C66CA0FC7AC201"
+    },
+    {
+      "name": "05-force-stop-premium-session.png",
+      "sha256": "8D8E9DB8BCEA2257493D3B60392C873F3035DDB675E675184661BD28099E5532"
+    }
+  ],
+  "status": "PASS_WITH_DECLARED_SOURCE_DATA_LIMITATION"
+}
