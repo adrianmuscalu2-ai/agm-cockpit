@@ -10,6 +10,7 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.provider.AlarmClock;
 import android.provider.CalendarContract;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.os.Bundle;
 import com.getcapacitor.JSObject;
@@ -138,11 +139,15 @@ final class DeviceHandoffIntents {
 
     private static JSObject openApp(Activity activity, String requestedLabel) {
         PackageManager manager = activity.getPackageManager();
+        String needle = requestedLabel.toLowerCase(Locale.ROOT);
+        if ("camera".equals(needle) || "kamera".equals(needle)) {
+            Intent camera = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+            return start(activity, camera, "CAMERA_APP_UNAVAILABLE");
+        }
         Intent launcherQuery = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> matches = manager.queryIntentActivities(launcherQuery, 0);
         ResolveInfo exact = null;
         ResolveInfo partial = null;
-        String needle = requestedLabel.toLowerCase(Locale.ROOT);
         for (ResolveInfo candidate : matches) {
             String label = String.valueOf(candidate.loadLabel(manager)).trim();
             if (label.toLowerCase(Locale.ROOT).equals(needle)) { exact = candidate; break; }

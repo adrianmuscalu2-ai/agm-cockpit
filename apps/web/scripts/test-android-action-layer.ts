@@ -74,6 +74,8 @@ assert.match(native, /Intent\.ACTION_DIAL/);
 assert.match(native, /CalendarContract\.Events\.CONTENT_URI/);
 assert.match(native, /Intent\.createChooser/);
 assert.match(native, /Intent\.ACTION_SENDTO/);
+assert.match(native, /MediaStore\.INTENT_ACTION_STILL_IMAGE_CAMERA/);
+assert.match(manifest, /android\.media\.action\.STILL_IMAGE_CAMERA/);
 assert.doesNotMatch(native, /ACTION_CALL|AccessibilityService|com\.google|com\.waze|com\.tomtom/);
 assert.doesNotMatch(manifest, /CALL_PHONE|READ_CALENDAR|WRITE_CALENDAR|READ_CONTACTS|QUERY_ALL_PACKAGES|BIND_ACCESSIBILITY_SERVICE/);
 assert.match(executor, /resolution\.source === 'ACTIVE_GMAIL_CONTEXT'[\s\S]*\? 'USER_TEXT' : 'PUBLIC'/);
