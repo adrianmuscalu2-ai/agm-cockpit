@@ -27,6 +27,8 @@ export type ActiveDriverContext = GmailActionContext & {
 
 export type AndroidActionPayload = {
   value?: string;
+  navigationApp?: 'MAPS' | 'WAZE' | 'TOMTOM';
+  contactName?: string;
   contextText?: string;
   startEpochMs?: number;
   hour?: number;
@@ -55,5 +57,7 @@ export type AndroidActionReceipt = {
   fallback: string | null;
   guardianEvidenceId?: string;
   guardianCorrelationId?: string;
+  contactGuardianEvidenceId?: string;
+  contactGuardianCorrelationId?: string;
   observedAt: string;
 };

@@ -4,21 +4,29 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.pm.ActivityInfo;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.AlarmClock;
 import android.provider.CalendarContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
-import android.os.Bundle;
 import com.getcapacitor.JSObject;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
 final class DeviceHandoffIntents {
+    private static final String[] MAPS_PACKAGES = { "com.google.android.apps.maps" };
+    private static final String[] WAZE_PACKAGES = { "com.waze" };
+    private static final String[] TOMTOM_PACKAGES = {
+        "com.tomtom.gplay.navapp",
+        "com.tomtom.speedcams.android.map",
+        "com.tomtom.gplay.navapp.gofleet",
+    };
+
     private DeviceHandoffIntents() {}
 
     static JSObject launchAssistant(Activity activity, String contextText) {
@@ -49,7 +57,8 @@ final class DeviceHandoffIntents {
         Long startEpochMs,
         String mimeType,
         String contentUri,
-        String subject
+        String subject,
+        String navigationApp
     ) {
         String normalizedAction = clean(action, 40).toUpperCase(Locale.ROOT);
         String normalizedValue = clean(value, 500);
@@ -59,8 +68,7 @@ final class DeviceHandoffIntents {
         Intent intent;
         switch (normalizedAction) {
             case "NAVIGATION":
-                intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + Uri.encode(normalizedValue)));
-                break;
+                return navigation(activity, normalizedValue, clean(navigationApp, 20));
             case "DIAL":
                 intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(normalizedValue)));
                 break;
@@ -104,11 +112,16 @@ final class DeviceHandoffIntents {
         boolean selectedAssistantAvailable = hasHandler(manager, assistantIntent)
             || (selectedAssistant != null && manager.getLaunchIntentForPackage(selectedAssistant) != null);
         targets.put("assistant", selectedAssistantAvailable);
-        targets.put("navigation", hasHandler(manager, new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=Heilbronn"))));
+        Intent navigationProbe = navigationIntent("Heilbronn");
+        targets.put("navigation", hasHandler(manager, navigationProbe));
         targets.put("dialer", hasHandler(manager, new Intent(Intent.ACTION_DIAL, Uri.parse("tel:000"))));
         targets.put("calendar", hasHandler(manager, new Intent(Intent.ACTION_INSERT).setData(CalendarContract.Events.CONTENT_URI)));
         targets.put("share", hasHandler(manager, new Intent(Intent.ACTION_SEND).setType("text/plain")));
         targets.put("emailDraft", hasHandler(manager, new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))));
+        JSObject navigationApps = new JSObject();
+        navigationApps.put("maps", hasPackagedHandler(manager, navigationProbe, MAPS_PACKAGES));
+        navigationApps.put("waze", hasPackagedHandler(manager, navigationProbe, WAZE_PACKAGES));
+        navigationApps.put("tomtom", hasPackagedHandler(manager, navigationProbe, TOMTOM_PACKAGES));
         JSObject permissions = new JSObject();
         permissions.put("assistant", "NOT_REQUIRED");
         permissions.put("navigation", "NOT_REQUIRED");
@@ -121,10 +134,12 @@ final class DeviceHandoffIntents {
         out.put("capturedAtEpochMs", System.currentTimeMillis());
         if (selectedAssistant != null) out.put("selectedAssistantPackage", selectedAssistant);
         out.put("targets", targets);
+        out.put("navigationApps", navigationApps);
         out.put("permissions", permissions);
         JSObject runtimePermissions = new JSObject();
         runtimePermissions.put("microphone", PermissionProtocol.status(activity, Manifest.permission.RECORD_AUDIO));
         runtimePermissions.put("camera", PermissionProtocol.status(activity, Manifest.permission.CAMERA));
+        runtimePermissions.put("contacts", PermissionProtocol.status(activity, Manifest.permission.READ_CONTACTS));
         out.put("runtimePermissions", runtimePermissions);
         return out;
     }
@@ -135,6 +150,45 @@ final class DeviceHandoffIntents {
             return start(activity, voiceSettings, "VOICE_SETTINGS_UNAVAILABLE");
         }
         return start(activity, new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS), "DEFAULT_APPS_SETTINGS_UNAVAILABLE");
+    }
+
+    private static JSObject navigation(Activity activity, String destination, String requestedApp) {
+        Intent baseIntent = navigationIntent(destination);
+        String provider = requestedApp.toUpperCase(Locale.ROOT);
+        String[] packages = navigationPackages(provider);
+        if (packages != null) {
+            for (String packageName : packages) {
+                Intent targeted = new Intent(baseIntent).setPackage(packageName);
+                if (hasHandler(activity.getPackageManager(), targeted)) {
+                    return start(activity, targeted, provider + "_NAVIGATION_UNAVAILABLE");
+                }
+            }
+        }
+
+        JSObject fallback = start(activity, baseIntent, "NO_COMPATIBLE_ANDROID_HANDLER");
+        if (packages != null && "OPENED".equals(fallback.optString("status"))) {
+            fallback.put("reason", "REQUESTED_NAVIGATION_APP_UNAVAILABLE_FALLBACK_OPENED");
+            fallback.put("fallback", "GENERIC_ANDROID_NAVIGATION");
+            fallback.put("requestedNavigationApp", provider);
+        } else if (packages != null) {
+            fallback.put("reason", "REQUESTED_NAVIGATION_APP_UNAVAILABLE");
+            fallback.put("fallback", "REQUESTED_NAVIGATION_APP_UNAVAILABLE");
+            fallback.put("requestedNavigationApp", provider);
+        }
+        return fallback;
+    }
+
+    private static Intent navigationIntent(String destination) {
+        return new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + Uri.encode(destination)));
+    }
+
+    private static String[] navigationPackages(String provider) {
+        switch (provider) {
+            case "MAPS": return MAPS_PACKAGES;
+            case "WAZE": return WAZE_PACKAGES;
+            case "TOMTOM": return TOMTOM_PACKAGES;
+            default: return null;
+        }
     }
 
     private static JSObject openApp(Activity activity, String requestedLabel) {
@@ -209,6 +263,13 @@ final class DeviceHandoffIntents {
 
     private static boolean hasHandler(PackageManager manager, Intent intent) {
         return intent.resolveActivityInfo(manager, PackageManager.MATCH_DEFAULT_ONLY) != null;
+    }
+
+    private static boolean hasPackagedHandler(PackageManager manager, Intent baseIntent, String[] packageNames) {
+        for (String packageName : packageNames) {
+            if (hasHandler(manager, new Intent(baseIntent).setPackage(packageName))) return true;
+        }
+        return false;
     }
 
     private static JSObject result(String status, String reason, String target) {

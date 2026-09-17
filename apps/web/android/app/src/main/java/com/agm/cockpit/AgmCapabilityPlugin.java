@@ -1,5 +1,6 @@
 package com.agm.cockpit;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,12 +14,18 @@ import android.speech.RecognitionService;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import com.getcapacitor.JSObject;
+import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+import com.getcapacitor.annotation.PermissionCallback;
 
-@CapacitorPlugin(name = "AgmCapability")
+@CapacitorPlugin(
+    name = "AgmCapability",
+    permissions = @Permission(alias = "contacts", strings = { Manifest.permission.READ_CONTACTS })
+)
 public class AgmCapabilityPlugin extends Plugin {
     @PluginMethod
     public void getCapabilities(PluginCall call) {
@@ -59,8 +66,45 @@ public class AgmCapabilityPlugin extends Plugin {
             call.getLong("startEpochMs"),
             call.getString("mimeType", ""),
             call.getString("contentUri", ""),
-            call.getString("subject", "")
+            call.getString("subject", ""),
+            call.getString("navigationApp", "")
         ));
+    }
+
+    @PluginMethod
+    public void checkContactsPermission(PluginCall call) {
+        String state = getPermissionState("contacts").toString();
+        PermissionProtocol.markObserved(getContext(), Manifest.permission.READ_CONTACTS, "granted".equals(state));
+        JSObject result = new JSObject();
+        result.put("state", state);
+        call.resolve(result);
+    }
+
+    @PluginMethod
+    public void requestContactsPermission(PluginCall call) {
+        PermissionProtocol.markRequested(getContext(), Manifest.permission.READ_CONTACTS);
+        requestPermissionForAlias("contacts", call, "contactsPermissionCallback");
+    }
+
+    @PermissionCallback
+    private void contactsPermissionCallback(PluginCall call) {
+        String state = getPermissionState("contacts").toString();
+        PermissionProtocol.markRequestResult(getContext(), Manifest.permission.READ_CONTACTS, "granted".equals(state));
+        JSObject result = new JSObject();
+        result.put("state", state);
+        call.resolve(result);
+    }
+
+    @PluginMethod
+    public void resolveContact(PluginCall call) {
+        if (getPermissionState("contacts") != PermissionState.GRANTED) {
+            JSObject result = new JSObject();
+            result.put("status", "PERMISSION_DENIED");
+            result.put("reason", "CONTACTS_PERMISSION_REQUIRED");
+            call.resolve(result);
+            return;
+        }
+        call.resolve(DeviceContactResolver.resolve(getActivity(), call.getString("name", "")));
     }
 
     @PluginMethod

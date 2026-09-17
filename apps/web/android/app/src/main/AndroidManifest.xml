@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <queries>
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.waze" />
+        <package android:name="com.tomtom.gplay.navapp" />
+        <package android:name="com.tomtom.speedcams.android.map" />
+        <package android:name="com.tomtom.gplay.navapp.gofleet" />
         <intent>
             <action android:name="android.speech.RecognitionService" />
         </intent>
@@ -93,4 +98,5 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 </manifest>

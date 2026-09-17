@@ -12,6 +12,12 @@ describe('PermissionGuardianService', () => {
     expect(approved.decision).toBe('APPROVED');
     expect(approved.authorityGranted).toBe(true);
 
+    const contactRequest = await service.evaluate(ctx, { phase:'REQUEST',requestedCapability:'CONTACT_LOOKUP',requestedPermissionOrScope:'android.permission.READ_CONTACTS',requestor:'test',reason:'contact lookup request',risk:'MEDIUM',currentAuthority:'NOT_PROVEN',evidence:'contacts-before:prompt' });
+    expect(contactRequest.decision).toBe('APPROVED');
+    const contactExecution = await service.evaluate(ctx, { phase:'EXECUTION',requestedCapability:'CONTACT_LOOKUP',requestedPermissionOrScope:'android.permission.READ_CONTACTS',requestor:'test',reason:'contact lookup execution',risk:'MEDIUM',currentAuthority:'AUTHORIZED',evidence:'contacts-after:granted' });
+    expect(contactExecution.decision).toBe('APPROVED');
+    expect(contactExecution.authorityGranted).toBe(true);
+
     const denied = await service.evaluate(ctx, { phase:'REQUEST',requestedCapability:'NAVIGATION',requestedPermissionOrScope:'android.permission.READ_SMS',requestor:'negative-control',reason:'controlled failure injection',risk:'HIGH',currentAuthority:'NOT_PROVEN',evidence:'negative-control-scope-injected' });
     expect(denied.decision).toBe('DENIED');
     expect(denied.authorityGranted).toBe(false);

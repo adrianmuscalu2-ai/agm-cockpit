@@ -17,6 +17,17 @@ assert.equal(navigate.action, 'NAVIGATION');
 assert.equal(navigate.source, 'ACTIVE_GMAIL_CONTEXT');
 assert.equal(navigate.payload?.value, context.destinations[0]);
 
+const wazeNavigation = routeAndroidAction('Deschide Waze și du-mă la adresa Strada Fabricii 10, Cluj.', context);
+assert.equal(wazeNavigation.action, 'NAVIGATION');
+assert.equal(wazeNavigation.payload?.navigationApp, 'WAZE');
+assert.equal(wazeNavigation.payload?.value, 'Strada Fabricii 10, Cluj');
+const mapsNavigation = routeAndroidAction('Deschide Maps și condu-mă la Piața Unirii 1, București.', context);
+assert.equal(mapsNavigation.payload?.navigationApp, 'MAPS');
+assert.equal(mapsNavigation.payload?.value, 'Piața Unirii 1, București');
+const tomtomNavigation = routeAndroidAction('Deschide TomTom și navighează la Hafenstraße 2, Hamburg.', context);
+assert.equal(tomtomNavigation.payload?.navigationApp, 'TOMTOM');
+assert.equal(tomtomNavigation.payload?.value, 'Hafenstraße 2, Hamburg');
+
 const gmailNavigation = routeRetrievedAndroidAction('Citește ultimul mail de la dispecerat și deschide adresa de descărcare.', context);
 assert.equal(gmailNavigation?.status, 'RESOLVED');
 assert.equal(gmailNavigation?.action, 'NAVIGATION');
@@ -28,6 +39,12 @@ assert.equal(spokenGmailNavigation?.payload?.value, context.destinations[0]);
 const dial = routeAndroidAction('Sună numărul.', context);
 assert.equal(dial.action, 'DIAL');
 assert.equal(dial.payload?.value, context.phoneNumbers[0]);
+const contactDial = routeAndroidAction('Formează numărul lui Andrei.', null);
+assert.equal(contactDial.action, 'DIAL');
+assert.equal(contactDial.payload?.contactName, 'Andrei');
+assert.equal(contactDial.payload?.value, undefined);
+const hyphenatedContactDial = routeAndroidAction('Sună-l pe Andrei Popescu.', null);
+assert.equal(hyphenatedContactDial.payload?.contactName, 'Andrei Popescu');
 
 const reply = routeAndroidAction('Răspunde că ajung în 30 de minute.', context);
 assert.equal(reply.action, 'EMAIL_DRAFT');
@@ -48,7 +65,10 @@ assert.equal(friday.getHours(), 14);
 assert.equal(friday.getMinutes(), 30);
 assert.equal(parseNaturalDateTime('Pune în calendar peste două ore.', baseTime), baseTime.getTime() + 2 * 3_600_000);
 
-for (const [command, label] of [['Deschide Maps.', 'Maps'], ['Deschide Gmail.', 'Gmail'], ['Deschide Camera.', 'Camera']] as const) {
+for (const [command, label] of [
+  ['Deschide Maps.', 'Maps'], ['Deschide Waze.', 'Waze'], ['Deschide TomTom.', 'TomTom'],
+  ['Deschide Gmail.', 'Gmail'], ['Deschide Camera.', 'Camera'],
+] as const) {
   const openApp = routeAndroidAction(command, context);
   assert.equal(openApp.action, 'OPEN_APP');
   assert.equal(openApp.payload?.value, label);
@@ -70,18 +90,38 @@ assert.deepEqual(androidActionSafetyBoundary, {
 
 const root = resolve(import.meta.dirname, '../../..');
 const native = readFileSync(resolve(root, 'apps/web/android/app/src/main/java/com/agm/cockpit/DeviceHandoffIntents.java'), 'utf8');
+const contactResolver = readFileSync(resolve(root, 'apps/web/android/app/src/main/java/com/agm/cockpit/DeviceContactResolver.java'), 'utf8');
+const nativePlugin = readFileSync(resolve(root, 'apps/web/android/app/src/main/java/com/agm/cockpit/AgmCapabilityPlugin.java'), 'utf8');
 const manifest = readFileSync(resolve(root, 'apps/web/android/app/src/main/AndroidManifest.xml'), 'utf8');
 const executor = readFileSync(resolve(root, 'apps/web/src/android-action-layer/android-action.executor.ts'), 'utf8');
 const gateway = readFileSync(resolve(root, 'apps/web/src/premium-capabilities/android-assistant.gateway.ts'), 'utf8');
+const guardianContract = readFileSync(resolve(root, 'apps/api/src/permission-guardian/permission-guardian.contract.ts'), 'utf8');
 assert.match(native, /Intent\.ACTION_ASSIST/);
 assert.match(native, /Intent\.ACTION_DIAL/);
 assert.match(native, /CalendarContract\.Events\.CONTENT_URI/);
 assert.match(native, /Intent\.createChooser/);
 assert.match(native, /Intent\.ACTION_SENDTO/);
 assert.match(native, /MediaStore\.INTENT_ACTION_STILL_IMAGE_CAMERA/);
+assert.match(native, /com\.google\.android\.apps\.maps/);
+assert.match(native, /com\.waze/);
+assert.match(native, /com\.tomtom\.gplay\.navapp/);
+assert.match(native, /REQUESTED_NAVIGATION_APP_UNAVAILABLE_FALLBACK_OPENED/);
 assert.match(manifest, /android\.media\.action\.STILL_IMAGE_CAMERA/);
-assert.doesNotMatch(native, /ACTION_CALL|AccessibilityService|com\.google|com\.waze|com\.tomtom/);
-assert.doesNotMatch(manifest, /CALL_PHONE|READ_CALENDAR|WRITE_CALENDAR|READ_CONTACTS|QUERY_ALL_PACKAGES|BIND_ACCESSIBILITY_SERVICE/);
+assert.match(manifest, /android\.permission\.READ_CONTACTS/);
+assert.match(manifest, /com\.google\.android\.apps\.maps/);
+assert.match(manifest, /com\.waze/);
+assert.match(manifest, /com\.tomtom/);
+assert.doesNotMatch(native, /ACTION_CALL|AccessibilityService/);
+assert.doesNotMatch(manifest, /CALL_PHONE|READ_CALENDAR|WRITE_CALENDAR|QUERY_ALL_PACKAGES|BIND_ACCESSIBILITY_SERVICE/);
+assert.match(contactResolver, /ContactsContract\.CommonDataKinds\.Phone\.CONTENT_URI/);
+assert.match(contactResolver, /CONTACT_AMBIGUOUS/);
+assert.match(nativePlugin, /requestPermissionForAlias\("contacts"/);
+assert.match(nativePlugin, /PermissionState\.GRANTED/);
+assert.match(executor, /resolveAndroidContactForDial/);
+assert.match(executor, /resolution\.action === 'DIAL'/);
+assert.match(gateway, /phase: 'REQUEST'[\s\S]*CONTACT_LOOKUP/);
+assert.match(gateway, /phase: 'EXECUTION'[\s\S]*CONTACT_LOOKUP/);
+assert.match(guardianContract, /CONTACT_LOOKUP: \['android\.permission\.READ_CONTACTS'\]/);
 assert.match(executor, /resolution\.source === 'ACTIVE_GMAIL_CONTEXT'[\s\S]*\? 'USER_TEXT' : 'PUBLIC'/);
 assert.match(gateway, /phase: 'EXECUTION'[\s\S]*pre-action:/);
 for (const capability of ['ANDROID_ASSISTANT','OPEN_APP','REMINDER','ALARM','ANDROID_ASSISTANT_SETTINGS']) assert.ok(gateway.includes(capability));

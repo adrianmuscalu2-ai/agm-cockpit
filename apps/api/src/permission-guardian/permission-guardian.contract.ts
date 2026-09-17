@@ -16,6 +16,7 @@ export const PERMISSION_GUARDIAN_CONTRACT = {
     EMAIL_DRAFT: ['NOT_REQUIRED'],
     MICROPHONE_STT: ['android.permission.RECORD_AUDIO'],
     CAMERA_CAPTURE: ['android.permission.CAMERA'],
+    CONTACT_LOOKUP: ['android.permission.READ_CONTACTS'],
     GMAIL_READONLY: ['https://www.googleapis.com/auth/gmail.readonly'],
     GMAIL_SEND: ['https://www.googleapis.com/auth/gmail.send'],
     AGM_SESSION_REFRESH: ['agm.auth.refresh'],

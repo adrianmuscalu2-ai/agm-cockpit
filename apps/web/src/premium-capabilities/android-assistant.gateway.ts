@@ -2,7 +2,7 @@ import { Capacitor, registerPlugin } from '@capacitor/core';
 import { routeDeviceOperation } from '../device-capability-router/device-capability.runtime';
 import { captureDeviceHandoffContext, installDeviceHandoffResumeListener } from '../device-capability-router/device-handoff.context';
 import type { DataSensitivity } from '../device-capability-router/device-capability.types';
-import { evaluatePermissionRequest, type GuardianEvaluation } from '../android-action-layer/permission-guardian.client';
+import { evaluatePermissionRequest, type GuardianAuthorityState, type GuardianEvaluation } from '../android-action-layer/permission-guardian.client';
 
 interface AgmCapabilityPlugin {
   launchAssistant(options?: { contextText?: string }): Promise<DeviceHandoffResult>;
@@ -10,6 +10,9 @@ interface AgmCapabilityPlugin {
   shareWithAi(options: { text: string; chooserTitle: string }): Promise<{ status: 'OPENED' }>;
   openAssistantSettings(): Promise<DeviceHandoffResult>;
   getAndroidActionProtocolStatus(): Promise<AndroidActionProtocolStatus>;
+  checkContactsPermission(): Promise<{ state: NativePermissionState }>;
+  requestContactsPermission(): Promise<{ state: NativePermissionState }>;
+  resolveContact(options: { name: string }): Promise<ContactLookupResult>;
 }
 
 export type DeviceHandoffAction = 'ASSISTANT' | 'NAVIGATION' | 'DIAL' | 'OPEN_APP' | 'CALENDAR' | 'REMINDER' | 'ALARM' | 'SHARE' | 'EMAIL_DRAFT';
@@ -30,6 +33,7 @@ export type DeviceHandoffResult = {
 export type DeviceHandoffRequest = {
   action: DeviceHandoffAction;
   value?: string;
+  navigationApp?: 'MAPS' | 'WAZE' | 'TOMTOM';
   contextText?: string;
   hour?: number;
   minute?: number;
@@ -39,6 +43,16 @@ export type DeviceHandoffRequest = {
   subject?: string;
 };
 
+type NativePermissionState = 'granted' | 'denied' | 'prompt' | 'prompt-with-rationale' | 'limited';
+export type ContactLookupResult = {
+  status: 'RESOLVED' | 'NOT_FOUND' | 'AMBIGUOUS' | 'PERMISSION_DENIED' | 'UNAVAILABLE' | 'INVALID_INPUT';
+  reason: string;
+  displayName?: string;
+  phoneNumber?: string;
+  guardianEvidenceId?: string;
+  guardianCorrelationId?: string;
+};
+
 export type AndroidPermissionStatus = 'AUTHORIZED' | 'DENIED' | 'DENIED_DONT_ASK_AGAIN' | 'REVOKED' | 'NOT_REQUIRED' | 'NOT_PROVEN' | 'UNAVAILABLE';
 export type AndroidActionProtocolStatus = {
   schemaVersion: 1;
@@ -46,7 +60,7 @@ export type AndroidActionProtocolStatus = {
   selectedAssistantPackage?: string;
   targets: Record<'assistant' | 'navigation' | 'dialer' | 'calendar' | 'share' | 'emailDraft', boolean>;
   permissions: Record<'assistant' | 'navigation' | 'dialer' | 'calendar' | 'share' | 'emailDraft', 'NOT_REQUIRED'>;
-  runtimePermissions: { microphone: AndroidPermissionStatus; camera: AndroidPermissionStatus };
+  runtimePermissions: { microphone: AndroidPermissionStatus; camera: AndroidPermissionStatus; contacts: AndroidPermissionStatus };
 };
 
 const capability = registerPlugin<AgmCapabilityPlugin>('AgmCapability');
@@ -76,8 +90,51 @@ function withGuardian(result: DeviceHandoffResult, evaluation: GuardianEvaluatio
   return { ...result, guardianEvidenceId: evaluation.evidenceId, guardianCorrelationId: evaluation.correlationId };
 }
 
+function permissionAuthority(state: NativePermissionState): GuardianAuthorityState {
+  if (state === 'granted') return 'AUTHORIZED';
+  if (state === 'denied' || state === 'prompt-with-rationale') return 'DENIED';
+  return 'NOT_PROVEN';
+}
+
 export function isAndroidAssistantAvailable() {
   return Capacitor.getPlatform() === 'android';
+}
+
+export async function resolveAndroidContactForDial(name: string): Promise<ContactLookupResult> {
+  const contactName = name.trim().slice(0, 120);
+  if (!contactName) return { status: 'INVALID_INPUT', reason: 'CONTACT_NAME_REQUIRED' };
+  if (!isAndroidAssistantAvailable()) return { status: 'UNAVAILABLE', reason: 'ANDROID_REQUIRED' };
+
+  const before = await capability.checkContactsPermission();
+  const requestEvaluation = await evaluatePermissionRequest({
+    phase: 'REQUEST', requestedCapability: 'CONTACT_LOOKUP', requestedPermissionOrScope: 'android.permission.READ_CONTACTS',
+    requestor: 'agm.android-contact-lookup', reason: 'Resolve a user-requested contact name locally before opening the dialer',
+    risk: 'MEDIUM', currentAuthority: permissionAuthority(before.state), evidence: `contacts-before:${before.state}`,
+  });
+  if (!requestEvaluation?.authorityGranted) return {
+    status: 'PERMISSION_DENIED', reason: requestEvaluation?.reasonCode ?? 'GUARDIAN_NOT_PROVEN',
+    ...(requestEvaluation?.evidenceId ? { guardianEvidenceId: requestEvaluation.evidenceId } : {}),
+    ...(requestEvaluation?.correlationId ? { guardianCorrelationId: requestEvaluation.correlationId } : {}),
+  };
+
+  const after = before.state === 'granted' ? before : await capability.requestContactsPermission();
+  const executionEvaluation = await evaluatePermissionRequest({
+    phase: 'EXECUTION', requestedCapability: 'CONTACT_LOOKUP', requestedPermissionOrScope: 'android.permission.READ_CONTACTS',
+    requestor: 'agm.android-contact-lookup', reason: 'Resolve a user-requested contact name locally before opening the dialer',
+    risk: 'MEDIUM', currentAuthority: permissionAuthority(after.state), evidence: `contacts-after:${after.state}`,
+  });
+  if (!executionEvaluation?.authorityGranted) return {
+    status: 'PERMISSION_DENIED', reason: executionEvaluation?.reasonCode ?? 'GUARDIAN_NOT_PROVEN',
+    ...(executionEvaluation?.evidenceId ? { guardianEvidenceId: executionEvaluation.evidenceId } : {}),
+    ...(executionEvaluation?.correlationId ? { guardianCorrelationId: executionEvaluation.correlationId } : {}),
+  };
+
+  const result = await capability.resolveContact({ name: contactName });
+  return {
+    ...result,
+    guardianEvidenceId: executionEvaluation.evidenceId,
+    guardianCorrelationId: executionEvaluation.correlationId,
+  };
 }
 
 export async function launchAndroidAssistant(options: {
