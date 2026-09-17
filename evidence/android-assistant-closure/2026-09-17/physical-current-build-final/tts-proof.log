@@ -1,0 +1,6 @@
+2026-09-17 21:27:40.482 +02:00 AGM-Audio TTS requested; language=ro-RO; characters=686
+2026-09-17 21:27:40.482 +02:00 AGM-Audio TTS authority granted; generation=3
+2026-09-17 21:27:40.590 +02:00 AGM-Audio Selected AGM adult TTS voice=ro-ro-x-vfv-local; locale=ro-RO
+2026-09-17 21:27:40.591 +02:00 AGM-Audio TTS audio focus granted=true
+2026-09-17 21:27:40.946 +02:00 AGM-Audio TTS playback started; generation=3
+2026-09-17 21:28:35.090 +02:00 AGM-Audio TTS playback completed; generation=3

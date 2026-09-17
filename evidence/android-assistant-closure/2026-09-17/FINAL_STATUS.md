@@ -1,7 +1,8 @@
-# AGM Android Assistant and Gmail presentation — closure status
+# AGM Android Assistant and Gmail presentation — final closure
 
 Date: 2026-09-17 (Europe/Berlin)
 Production implementation revision: `c62febf6ed6aaa0436e265a4b485808ddd8fb3a8`
+Validation revision before final evidence: `e1b152fadb8ac3bb9da1907a7aadc09417c16d9f`
 Production workflow: `35182898789`
 
 ## Preserved PASS evidence
@@ -34,19 +35,46 @@ Production workflow: `35182898789`
 - Universal APK SHA-256: `EE07BF64123AAA8B341D909A2F7D0A0DE10F77BD548C17168951601DB2B90C83`.
 - DPAPI signing custody: PASS; no secret was printed or persisted as evidence.
 
-## Physical-device blocker
+## Final physical-device closure
 
-After Production reached PASS, the previously attached Samsung SM-S931B was no
-longer present in `adb devices -l`, and Windows no longer exposed a present
-Samsung/Android ADB interface. A standard ADB server restart on port 5037
-completed successfully but returned no transport. This is a physical session
-attachment prerequisite, not an AGM application failure.
+The Samsung SM-S931B reattached legitimately as `RFCY70WDHXK device`. The
+verified current universal APK was installed in place successfully:
 
-The new universal APK therefore could not be installed after the final Gmail
-translation change, and no claim is made that the translated German-email
-response was audibly verified on that current build.
+- package/version: `com.agm.cockpit`, `1.4.0` (`26`);
+- `firstInstallTime=2026-08-31 01:37:10` remained unchanged;
+- `lastUpdateTime=2026-09-17 21:18:46` proves the current APK installation;
+- the retained AGM session opened Premium and AGM Copilot without login or PIN.
 
-## Truthful verdict
+Only the previously blocked scenario was rerun. AGM accepted the Romanian Gmail
+request, classified it as `COMMUNICATION`, completed the explicit Guardian
+confirmation, retrieved a real non-empty Production answer, and rendered a
+Romanian result. Mailbox content is deliberately excluded from evidence:
+
+- response length: 686 characters;
+- response SHA-256: `1866ECB20AAC2363E9C18ABE82A65F170C5EBCCEA8CCA4D97559945816BFCCA4`;
+- Romanian language markers: 11;
+- German surface markers after translation: 0;
+- URL/source-heading markers: 0;
+- no-results, unavailable, and error states: false.
+
+Native Android TTS executed the same 686-character answer with
+`language=ro-RO`, selected voice `ro-ro-x-vfv-local`, obtained audio focus,
+started playback, and emitted `TTS playback completed` at
+`2026-09-17 21:28:35.090 +02:00`.
+
+## Browser validation gate
+
+The mandatory preflight was executed before the visual evidence. Because the
+latest translation/TTS revision changed the visual signature, the targeted
+controlled audit was rerun once on the current revision:
+
+- Browser Plugin Status: PASS;
+- Integrated Browser Control Status: PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE;
+- Browser Session Status: PASS;
+- Target Page Status: PASS;
+- controlled report: `evidence/premium-assistant-source-separation/2026-09-17T19-32-10-727Z/report.json`.
+
+## Final verdict
 
 `IMPLEMENTATION + AUTOMATED VALIDATION = PASS`
 
@@ -56,10 +84,11 @@ response was audibly verified on that current build.
 
 `SIGNED CURRENT ANDROID ARTIFACT = PASS`
 
-`CURRENT-BUILD PHYSICAL GMAIL TRANSLATION/TTS = BLOCKED — DEVICE DETACHED`
+`CURRENT-BUILD PHYSICAL GMAIL TRANSLATION/TTS = PASS`
 
-`FINAL PHYSICAL ANDROID CLOSURE = NOT GRANTED`
+`FINAL PHYSICAL ANDROID CLOSURE = PASS`
 
-All earlier accepted physical PASS evidence remains preserved. The only
-required retest after reconnection is installation of the current signed APK
-and one Gmail German-to-Romanian response/TTS execution against Production.
+`AGM ANDROID ASSISTANT AND GMAIL PRESENTATION MANDATE = CLOSED / PASS`
+
+All earlier accepted PASS evidence remains preserved. No unrelated Android,
+Translator, Production, database, Cloudflare, DNS, or secret scope was reopened.

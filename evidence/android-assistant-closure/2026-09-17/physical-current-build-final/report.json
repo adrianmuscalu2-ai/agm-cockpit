@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "runId": "android-assistant-final-2026-09-17",
+  "status": "PASS",
+  "implementationRevision": "c62febf6ed6aaa0436e265a4b485808ddd8fb3a8",
+  "validationRevision": "e1b152fadb8ac3bb9da1907a7aadc09417c16d9f",
+  "device": {
+    "serial": "RFCY70WDHXK",
+    "model": "SM-S931B",
+    "adbState": "device",
+    "bootCompleted": true
+  },
+  "artifact": {
+    "package": "com.agm.cockpit",
+    "versionName": "1.4.0",
+    "versionCode": 26,
+    "sha256": "EE07BF64123AAA8B341D909A2F7D0A0DE10F77BD548C17168951601DB2B90C83",
+    "installMode": "IN_PLACE",
+    "firstInstallTimePreserved": true,
+    "lastUpdateTime": "2026-09-17 21:18:46"
+  },
+  "browserGate": {
+    "browserPluginStatus": "PASS",
+    "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "browserSessionStatus": "PASS",
+    "targetPageStatus": "PASS",
+    "controlledReport": "evidence/premium-assistant-source-separation/2026-09-17T19-32-10-727Z/report.json"
+  },
+  "physicalRetest": {
+    "scope": "CURRENT_BUILD_PRODUCTION_GMAIL_TO_ROMANIAN_TTS_ONLY",
+    "sessionPreserved": true,
+    "initialConfirmation": "PASS",
+    "guardianClassification": "COMMUNICATION",
+    "guardianConfirmation": "PASS",
+    "productionAnswer": {
+      "status": "PASS",
+      "nonEmpty": true,
+      "characterCount": 686,
+      "sha256": "1866ECB20AAC2363E9C18ABE82A65F170C5EBCCEA8CCA4D97559945816BFCCA4",
+      "romanianMarkerCount": 11,
+      "germanSurfaceMarkerCount": 0,
+      "forbiddenSourceMarkerCount": 0,
+      "noResults": false,
+      "unavailable": false,
+      "error": false,
+      "mailboxContentRetained": false
+    },
+    "tts": {
+      "status": "PASS",
+      "language": "ro-RO",
+      "voice": "ro-ro-x-vfv-local",
+      "characterCount": 686,
+      "audioFocusGranted": true,
+      "playbackStarted": true,
+      "playbackCompleted": true,
+      "completedAt": "2026-09-17T21:28:35.090+02:00"
+    }
+  },
+  "verdict": "FINAL_PHYSICAL_ANDROID_CLOSURE_PASS"
+}
