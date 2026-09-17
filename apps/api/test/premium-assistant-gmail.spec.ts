@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { GmailCommunicationProvider, GmailProviderError } from '../src/communications/providers/gmail.provider';
-import { classifyGmailIntent, composeGmailAnswer } from '../src/premium-assistant/premium-assistant-gmail.service';
+import { classifyGmailIntent, composeGmailAnswer, composeGmailAnswerForUser, detectGmailContentLanguage } from '../src/premium-assistant/premium-assistant-gmail.service';
 import { PremiumAssistantService } from '../src/premium-assistant/premium-assistant.service';
 
 const user = { userId: 'user-1', companyId: 'tenant-1', roles: ['PREMIUM_ACCESS'], requestId: 'request-1', correlationId: 'correlation-1' };
@@ -103,6 +103,43 @@ describe('Premium Assistant Gmail capability', () => {
     expect(result).toContain('Onlogist Dispatch');
     expect(result).toContain('DriveMe');
     expect(result).not.toContain('private-id');
+  });
+
+  it('translates a foreign Gmail summary into the active language with minimized private egress', async () => {
+    const german = {
+      ...message,
+      subject: 'Bestätigung für dispatch@example.test',
+      bodyText: 'Die Lieferung ist morgen; Telefon +49 711 1234567 und VIN WDB12345678901234 bleiben unverändert. Bitte halten Sie die Unterlagen bereit.',
+    };
+    const translation = {
+      translateText: jest.fn(async ({ text }: { text: string }) => ({
+        text: text.includes('Bestätigung')
+          ? 'Confirmarea pentru [AGM_PRIVATE_0]'
+          : 'Livrarea este mâine; telefon [AGM_PRIVATE_0] și VIN [AGM_PRIVATE_1] rămân neschimbate. Pregătiți documentele.',
+        available: true,
+        provider: 'openai' as const,
+      })),
+    };
+    const result = await composeGmailAnswerForUser({
+      intent: { operation: 'LATEST_FROM', gmailQuery: '', maxMessages: 1 }, messages: [german], sources: [],
+    }, 'ro', translation);
+
+    expect(detectGmailContentLanguage(`${german.subject}\n${german.bodyText}`, 'ro')).toBe('de');
+    expect(result.translation).toMatchObject({ status: 'SUCCESS', sourceLanguages: ['de'], targetLanguage: 'ro', provider: 'openai' });
+    expect(result.text).toContain('Confirmarea pentru dispatch@example.test');
+    expect(result.text).toContain('livrarea este mâine');
+    expect(result.text).toContain('dispatch@example.test');
+    expect(result.text).toContain('+49 711 1234567');
+    expect(result.text).toContain('WDB12345678901234');
+    expect(result.text).not.toContain('Die Lieferung');
+    expect(translation.translateText).toHaveBeenCalledTimes(2);
+    for (const [{ text }] of translation.translateText.mock.calls) {
+      expect(text.length).toBeLessThanOrEqual(420);
+      expect(text).not.toMatch(/https?:\/\/|gmail:message:|GMAIL-/i);
+      expect(text).not.toContain('dispatch@example.test');
+      expect(text).not.toContain('+49 711 1234567');
+      expect(text).not.toContain('WDB12345678901234');
+    }
   });
 });
 

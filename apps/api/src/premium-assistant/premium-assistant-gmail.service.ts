@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { GmailCommunicationProvider, GmailProviderError, type GmailInboxMessage } from '../communications/providers/gmail.provider';
 import type { AssistantSourceReference, GmailActionContext } from './premium-assistant.contract';
+import type { TranslationLanguage } from '../translation/dto/translate-text.dto';
 
 export type GmailAssistantIntent = {
   operation: 'LIST_RECENT' | 'LIST_TODAY' | 'LATEST_FROM' | 'SEARCH_FROM' | 'SEARCH_TOPIC' | 'SUMMARIZE_RECENT';
@@ -14,6 +15,19 @@ export type GmailAssistantResult = {
   messages: GmailInboxMessage[];
   sources: AssistantSourceReference[];
   actionContext?: Omit<GmailActionContext, 'traceId'> | null;
+};
+
+export type GmailAnswerTranslationTrace = {
+  status: 'NOT_REQUIRED' | 'SUCCESS' | 'UNAVAILABLE';
+  sourceLanguages: TranslationLanguage[];
+  targetLanguage: TranslationLanguage;
+  provider: 'openai' | 'unavailable' | 'none';
+};
+
+type TranslationGateway = {
+  translateText(input: { text: string; sourceLanguage: TranslationLanguage; targetLanguage: TranslationLanguage }): Promise<{
+    text: string; available: boolean; provider: 'openai' | 'unavailable';
+  }>;
 };
 
 @Injectable()
@@ -125,25 +139,145 @@ export function gmailContext(messages: readonly GmailInboxMessage[]) {
 }
 
 export function composeGmailAnswer(result: GmailAssistantResult, language: string) {
-  const messages = result.messages;
-  if (!messages.length) return localized(language, 'noResults', 0);
-  const summaries = messages.map((message) => ({
+  return renderGmailAnswer(result, language, visibleMessages(result.messages));
+}
+
+export async function composeGmailAnswerForUser(result: GmailAssistantResult, language: string, translation?: TranslationGateway) {
+  const targetLanguage = translationLanguage(language);
+  const summaries = visibleMessages(result.messages);
+  if (!summaries.length) {
+    return {
+      text: renderGmailAnswer(result, language, summaries),
+      translation: { status: 'NOT_REQUIRED', sourceLanguages: [], targetLanguage, provider: 'none' } satisfies GmailAnswerTranslationTrace,
+    };
+  }
+
+  const sourceLanguages = summaries.map((message) => detectGmailContentLanguage(`${message.subject}\n${message.summary}`, targetLanguage));
+  const requiresTranslation = sourceLanguages.some((sourceLanguage) => sourceLanguage !== targetLanguage);
+  if (!requiresTranslation) {
+    return {
+      text: renderGmailAnswer(result, language, summaries),
+      translation: { status: 'NOT_REQUIRED', sourceLanguages: uniqueLanguages(sourceLanguages), targetLanguage, provider: 'none' } satisfies GmailAnswerTranslationTrace,
+    };
+  }
+  if (!translation) {
+    return {
+      text: renderGmailAnswer(result, language, summaries),
+      translation: { status: 'UNAVAILABLE', sourceLanguages: uniqueLanguages(sourceLanguages), targetLanguage, provider: 'unavailable' } satisfies GmailAnswerTranslationTrace,
+    };
+  }
+
+  let unavailable = false;
+  const localizedMessages = await Promise.all(summaries.map(async (message, index) => {
+    const sourceLanguage = sourceLanguages[index]!;
+    if (sourceLanguage === targetLanguage) return message;
+    const [subject, summary] = await Promise.all([
+      translateField(message.subject, sourceLanguage, targetLanguage, translation, 180),
+      translateField(message.summary, sourceLanguage, targetLanguage, translation, 420),
+    ]);
+    unavailable ||= !subject.available || !summary.available;
+    return { ...message, subject: subject.text, summary: summary.text };
+  }));
+
+  return {
+    text: renderGmailAnswer(result, language, localizedMessages),
+    translation: {
+      status: unavailable ? 'UNAVAILABLE' : 'SUCCESS',
+      sourceLanguages: uniqueLanguages(sourceLanguages),
+      targetLanguage,
+      provider: unavailable ? 'unavailable' : 'openai',
+    } satisfies GmailAnswerTranslationTrace,
+  };
+}
+
+function visibleMessages(messages: readonly GmailInboxMessage[]): VisibleMessage[] {
+  return messages.map((message) => ({
     sender: displaySender(message.from),
     subject: cleanVisibleText(message.subject, 180),
     summary: messageSummary(message.bodyText),
-    when: localizedDate(message.occurredAt, language),
+    when: message.occurredAt,
   }));
-  const first = summaries[0]!;
+}
+
+function renderGmailAnswer(result: GmailAssistantResult, language: string, summaries: VisibleMessage[]) {
+  const messages = result.messages;
+  if (!messages.length) return localized(language, 'noResults', 0);
+  const localizedSummaries = summaries.map((message) => ({ ...message, when: localizedDate(message.when, language) }));
+  const first = localizedSummaries[0]!;
   if (result.intent.operation === 'LATEST_FROM') {
     return localized(language, 'latest', messages.length, first);
   }
   if (result.intent.operation === 'SEARCH_FROM' || result.intent.operation === 'SEARCH_TOPIC') {
-    return localized(language, 'matches', messages.length, first, summaries.slice(1, 3));
+    return localized(language, 'matches', messages.length, first, localizedSummaries.slice(1, 3));
   }
   if (result.intent.operation === 'SUMMARIZE_RECENT') {
-    return localized(language, 'summary', messages.length, first, summaries.slice(1, 3));
+    return localized(language, 'summary', messages.length, first, localizedSummaries.slice(1, 3));
   }
-  return localized(language, result.intent.operation === 'LIST_TODAY' ? 'today' : 'recent', messages.length, first, summaries.slice(1, 3));
+  return localized(language, result.intent.operation === 'LIST_TODAY' ? 'today' : 'recent', messages.length, first, localizedSummaries.slice(1, 3));
+}
+
+async function translateField(value: string, sourceLanguage: TranslationLanguage, targetLanguage: TranslationLanguage, translation: TranslationGateway, maximum: number) {
+  if (!value.trim()) return { text: value, available: true };
+  const protectedValue = protectPrivateTranslationValues(value.slice(0, maximum));
+  const result = await translation.translateText({ text: protectedValue.text, sourceLanguage, targetLanguage });
+  const restored = result.available ? restorePrivateTranslationValues(result.text, protectedValue.values) : null;
+  return restored?.trim()
+    ? { text: cleanVisibleText(restored, maximum), available: true }
+    : { text: value, available: false };
+}
+
+function protectPrivateTranslationValues(value: string) {
+  const values: string[] = [];
+  const text = value.replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b|(?:\+|00)?\d[\d ()/.-]{6,}\d|\b[A-HJ-NPR-Z0-9]{17}\b/gi, (match) => {
+    const token = `[AGM_PRIVATE_${values.length}]`;
+    values.push(match);
+    return token;
+  });
+  return { text, values };
+}
+
+function restorePrivateTranslationValues(value: string, values: string[]) {
+  let restored = value;
+  for (const [index, original] of values.entries()) {
+    const token = new RegExp(`\\[AGM_PRIVATE_${index}\\]`, 'gi');
+    if (!token.test(restored)) return null;
+    restored = restored.replace(token, original);
+  }
+  return restored;
+}
+
+function translationLanguage(language: string): TranslationLanguage {
+  return ['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv'].includes(language) ? language as TranslationLanguage : 'en';
+}
+
+export function detectGmailContentLanguage(text: string, fallback: TranslationLanguage): TranslationLanguage {
+  if (/[А-Яа-яЁё]/u.test(text)) return 'ru';
+  const normalized = normalize(text);
+  const patterns: Record<TranslationLanguage, RegExp> = {
+    ro: /\b(sunt|este|mesaj|adresa|incarcare|descarcare|vehicul|transportul|documentele|multumesc|maine)\b/g,
+    de: /\b(ich|sie|ist|sind|der|die|das|und|nicht|bitte|danke|nachricht|adresse|fahrzeug|lieferung|abholung|morgen)\b/g,
+    en: /\b(i|you|is|are|the|and|not|please|thank|message|address|vehicle|delivery|pickup|tomorrow)\b/g,
+    fr: /\b(je|vous|est|sont|le|la|les|et|pas|merci|message|adresse|vehicule|livraison|demain)\b/g,
+    nl: /\b(ik|u|is|zijn|de|het|en|niet|bedankt|bericht|adres|voertuig|levering|morgen)\b/g,
+    pl: /\b(jest|sa|nie|prosze|dziekuje|wiadomosc|adres|pojazd|dostawa|odbior|jutro)\b/g,
+    tr: /\b(ben|siz|bir|ve|degil|lutfen|tesekkur|mesaj|adres|arac|teslimat|yarin)\b/g,
+    sq: /\b(une|ju|eshte|jane|dhe|nuk|faleminderit|mesazh|adrese|automjet|neser)\b/g,
+    it: /\b(io|lei|sono|il|la|non|grazie|messaggio|indirizzo|veicolo|consegna|domani)\b/g,
+    es: /\b(yo|usted|es|son|el|la|no|gracias|mensaje|direccion|vehiculo|entrega|manana)\b/g,
+    sv: /\b(jag|du|ar|och|inte|tack|meddelande|adress|fordon|leverans|imorgon)\b/g,
+    ru: /$^/g,
+  };
+  let detected = fallback;
+  let bestScore = 0;
+  for (const [candidate, pattern] of Object.entries(patterns) as Array<[TranslationLanguage, RegExp]>) {
+    const score = normalized.match(pattern)?.length ?? 0;
+    if (score > bestScore) { bestScore = score; detected = candidate; }
+  }
+  return bestScore >= 2 ? detected : fallback;
+}
+
+function uniqueLanguages(values: TranslationLanguage[]) {
+  return [...new Set(values)];
 }
 
 function gmailSourceReference(message: GmailInboxMessage): AssistantSourceReference {

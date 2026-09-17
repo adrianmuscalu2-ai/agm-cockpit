@@ -11,8 +11,9 @@ import {
   PremiumAssistantKnowledgeService,
 } from './premium-assistant-knowledge.service';
 import type { PremiumAssistantRequestDto } from './dto/premium-assistant-request.dto';
-import { classifyGmailIntent, composeGmailAnswer, gmailFailureCode, PremiumAssistantGmailService } from './premium-assistant-gmail.service';
+import { classifyGmailIntent, composeGmailAnswerForUser, gmailFailureCode, type GmailAnswerTranslationTrace, PremiumAssistantGmailService } from './premium-assistant-gmail.service';
 import { PermissionGuardianService } from '../permission-guardian/permission-guardian.service';
+import { TranslationService } from '../translation/translation.service';
 
 type OpenAiPayload = { output_text?: string; output?: Array<{ content?: Array<{ text?: string; annotations?: unknown[] }> }> };
 type ProviderResult = { text?: string; timeToFirstTokenMs: number; completedMs: number; citations: Array<{ url: string; title?: string }> };
@@ -28,6 +29,7 @@ export class PremiumAssistantService {
     @Optional() private readonly knowledge?: PremiumAssistantKnowledgeService,
     @Optional() private readonly gmail?: PremiumAssistantGmailService,
     @Optional() private readonly guardian?: PermissionGuardianService,
+    @Optional() private readonly translation?: TranslationService,
   ) {}
 
   async respond(user: RequestContext, request: PremiumAssistantRequestDto): Promise<PremiumAssistantResponse> {
@@ -170,8 +172,9 @@ export class PremiumAssistantService {
     }
     try {
       const result = await this.gmail.retrieve(request.confirmedText);
+      const answer = await composeGmailAnswerForUser(result, request.language, this.translation);
       await this.recordGmailUsage(user, 'SUCCESS', startedAt);
-      return this.gmailResponse(user, request, contextRefs, startedAt, composeGmailAnswer(result, request.language), result.intent.operation, result.sources, 'SUCCESS', null, result.actionContext ?? null, guardian);
+      return this.gmailResponse(user, request, contextRefs, startedAt, answer.text, result.intent.operation, result.sources, 'SUCCESS', null, result.actionContext ?? null, guardian, answer.translation);
     } catch (error) {
       const errorCode = gmailFailureCode(error);
       this.logger.warn(`Premium Assistant Gmail retrieval failed: ${errorCode}`);
@@ -180,7 +183,7 @@ export class PremiumAssistantService {
     }
   }
 
-  private gmailResponse(user: RequestContext, request: PremiumAssistantRequestDto, contextRefs: string[], startedAt: number, text: string, operation: string, sources: AssistantSourceReference[], status: 'SUCCESS' | 'UNAVAILABLE', errorCode: string | null, actionContext: Omit<NonNullable<PremiumAssistantResponse['actionContext']>, 'traceId'> | null, guardian?: GmailGuardianTrace) {
+  private gmailResponse(user: RequestContext, request: PremiumAssistantRequestDto, contextRefs: string[], startedAt: number, text: string, operation: string, sources: AssistantSourceReference[], status: 'SUCCESS' | 'UNAVAILABLE', errorCode: string | null, actionContext: Omit<NonNullable<PremiumAssistantResponse['actionContext']>, 'traceId'> | null, guardian?: GmailGuardianTrace, translation?: GmailAnswerTranslationTrace) {
     const observedAt = new Date();
     const traceStatus: AssistantSourceTrace['status'] = sources.length ? 'READY' : 'NO_VERIFIED_SOURCES';
     const trace = this.knowledge?.createTrace(sources, traceStatus, user.companyId, observedAt) ?? emptyTrace(sources, traceStatus, observedAt);
@@ -191,6 +194,7 @@ export class PremiumAssistantService {
       toolTrace: {
         tool: 'gmail-inbox', status, operation, resultCount: sources.length, errorCode,
         ...(guardian ? { guardianDecision: guardian.decision, guardianEvidenceId: guardian.evidenceId, guardianCorrelationId: guardian.correlationId } : {}),
+        ...(translation ? { translationStatus: translation.status, translationSourceLanguages: translation.sourceLanguages, translationTargetLanguage: translation.targetLanguage, translationProvider: translation.provider } : {}),
       },
       actionContext: actionContext ? { ...actionContext, traceId: trace.traceId } : undefined,
       timing: { timeToFirstTokenMs: 0, orchestratorMs: elapsed, modelMs: 0, answerCompleteMs: elapsed, serverTotalMs: elapsed, sourceResolutionMs: elapsed },

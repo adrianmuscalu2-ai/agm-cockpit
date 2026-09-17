@@ -43,6 +43,7 @@ describe('API-003 Translation & AI Provider', () => {
     expect(fetchMock).toHaveBeenCalledWith(TRANSLATION_CONTRACT.endpoint, expect.objectContaining({ method: 'POST' }));
     expect(JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body))).toMatchObject({
       model: TRANSLATION_CONTRACT.defaultModel,
+      store: false,
       temperature: 0,
     });
   });

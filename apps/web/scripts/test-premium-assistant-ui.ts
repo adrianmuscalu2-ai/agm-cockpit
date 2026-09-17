@@ -38,7 +38,9 @@ assert.match(runtime,/\['LISTENING','SPEECH_DETECTED','TRANSCRIBING','UNDERSTAND
 assert.match(runtime,/transcript\.addEventListener\('input',\(\)=>void interruptForNewQuestion\(\)\)/, 'Typing a new question must interrupt the old request or playback');
 assert.match(runtime,/session\.markEngineResponse\(result\.timing\)/, 'Premium latency telemetry must separate server and network response time');
 assert.match(runtime,/const spoken=await speak\(groundedText,sequence,turnId\)/, 'Clean user answer must flow directly to TTS');
-assert.match(runtime,/const speechText=normalizeSpeechText\(text,language\)/, 'Visible answer and semantically normalized TTS text must remain separate');
+assert.match(runtime,/const speechLanguage=detectMessageLanguage\(text,language\)/, 'TTS must select the language of the spoken answer instead of forcing the UI language');
+assert.match(runtime,/const speechText=normalizeSpeechText\(text,speechLanguage\)/, 'Visible answer and semantically normalized TTS text must remain separate');
+assert.match(runtime,/NativeAudio\.speak\(\{text:speechText,language:speechLocale,turnId\}\)/, 'Native TTS must receive the detected answer locale');
 assert.match(runtime,/new SpeechSynthesisUtterance\(speechText\)/, 'Browser TTS must receive semantic speech text');
 assert.doesNotMatch(runtime,/client\.sources\(|presentSources|data-assistant-sources/, 'Engineering source trace must not be fetched or rendered by the user runtime');
 assert.match(runtime,/Promise\.allSettled\(\[stopCapture\(\),stopSpeaking\(\)\]\)/, 'A new turn must stop capture and playback atomically');

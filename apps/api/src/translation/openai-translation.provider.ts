@@ -67,6 +67,7 @@ export class OpenAiTranslationProvider implements TranslationProvider {
               content: `Translate from ${languageNames[request.sourceLanguage]} to ${languageNames[request.targetLanguage]}:\n\n${request.text}`,
             },
           ],
+          store: false,
           temperature: 0,
         }),
         signal: AbortSignal.timeout(timeoutMs),

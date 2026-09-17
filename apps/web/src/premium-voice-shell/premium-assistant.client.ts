@@ -25,6 +25,8 @@ export type PremiumAssistantClientResponse = {
   toolTrace?: {
     tool: 'gmail-inbox'; status: 'SUCCESS' | 'UNAVAILABLE'; operation: string; resultCount: number; errorCode: string | null;
     guardianDecision?: 'APPROVED' | 'DENIED' | 'NOT_PROVEN'; guardianEvidenceId?: string; guardianCorrelationId?: string;
+    translationStatus?: 'NOT_REQUIRED' | 'SUCCESS' | 'UNAVAILABLE'; translationSourceLanguages?: readonly string[];
+    translationTargetLanguage?: string; translationProvider?: 'openai' | 'unavailable' | 'none';
   };
   actionContext?: GmailActionContext;
   cache: { disposition: 'HIT' | 'MISS'; ttlSeconds: number };

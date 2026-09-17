@@ -51,7 +51,7 @@ export type AndroidActionReceipt = {
   request: { text: string; action?: AndroidActionKind };
   resolution: AndroidActionResolution;
   target: string | null;
-  result: 'OPENED' | 'READ' | 'UNAVAILABLE' | 'UNSUPPORTED' | 'CONFIRMATION_REQUIRED' | 'AUTH_PERMISSION_FAILURE';
+  result: 'OPENED' | 'READ' | 'UNAVAILABLE' | 'UNSUPPORTED' | 'CLARIFICATION_REQUIRED' | 'CONFIRMATION_REQUIRED' | 'AUTH_PERMISSION_FAILURE';
   fallback: string | null;
   guardianEvidenceId?: string;
   guardianCorrelationId?: string;

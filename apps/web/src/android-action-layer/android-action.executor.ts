@@ -10,7 +10,10 @@ const capabilityNames: Record<NonNullable<AndroidActionResolution['action']>, st
 };
 
 export async function executeAndroidAction(text: string, resolution: AndroidActionResolution, options: { agmConfirmed?: boolean } = {}): Promise<AndroidActionReceipt> {
-  if (resolution.status !== 'RESOLVED' || !resolution.action) return receipt(text, resolution, resolution.status === 'UNSUPPORTED' ? 'UNSUPPORTED' : 'UNAVAILABLE', null, resolution.reason);
+  if (resolution.status !== 'RESOLVED' || !resolution.action) {
+    const result = resolution.status === 'UNSUPPORTED' ? 'UNSUPPORTED' : 'CLARIFICATION_REQUIRED';
+    return receipt(text, resolution, result, null, resolution.reason);
+  }
   if (resolution.action === 'READ_CONTEXT') return receipt(text, resolution, 'READ', null, null);
   if (resolution.confirmation === 'AGM_REQUIRED' && !options.agmConfirmed) return receipt(text, resolution, 'CONFIRMATION_REQUIRED', null, 'AGM_CONFIRMATION_REQUIRED');
 

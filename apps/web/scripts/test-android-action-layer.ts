@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseNaturalDateTime, routeAndroidAction, routeRetrievedAndroidAction } from '../src/android-action-layer/android-action.router';
+import { executeAndroidAction } from '../src/android-action-layer/android-action.executor';
 import { androidActionSafetyBoundary, confirmationFor } from '../src/android-action-layer/confirmation-policy';
 import type { ActiveDriverContext } from '../src/android-action-layer/android-action.contract';
 
@@ -55,6 +56,9 @@ for (const [command, label] of [['Deschide Maps.', 'Maps'], ['Deschide Gmail.', 
 
 const missing = routeAndroidAction('Navighează acolo.', null);
 assert.equal(missing.status, 'CLARIFICATION_REQUIRED');
+const missingReceipt = await executeAndroidAction('Navigate to the missing destination.', missing);
+assert.equal(missingReceipt.result, 'CLARIFICATION_REQUIRED');
+assert.equal(missingReceipt.fallback, 'DESTINATION_REQUIRED');
 const unsupported = routeAndroidAction('Șterge toate fișierele.', context);
 assert.equal(unsupported.status, 'UNSUPPORTED');
 assert.equal(unsupported.reason, 'ACTION_NOT_ALLOWLISTED');
