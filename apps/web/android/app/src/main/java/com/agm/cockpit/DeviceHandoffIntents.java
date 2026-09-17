@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 final class DeviceHandoffIntents {
+    private static final String MESSENGER_PACKAGE = "com.facebook.orca";
     private static final String[] MAPS_PACKAGES = { "com.google.android.apps.maps" };
     private static final String[] WAZE_PACKAGES = { "com.waze" };
     private static final String[] TOMTOM_PACKAGES = {
@@ -97,6 +98,8 @@ final class DeviceHandoffIntents {
                 return share(activity, normalizedValue, clean(contextText, 2000), clean(mimeType, 120), clean(contentUri, 2000));
             case "EMAIL_DRAFT":
                 return emailDraft(activity, normalizedValue, clean(subject, 180), clean(contextText, 4000));
+            case "MESSENGER_CHAT":
+                return messengerChat(activity, normalizedValue);
             default:
                 return result("UNSUPPORTED", "ACTION_NOT_ALLOWLISTED", null);
         }
@@ -118,6 +121,7 @@ final class DeviceHandoffIntents {
         targets.put("calendar", hasHandler(manager, new Intent(Intent.ACTION_INSERT).setData(CalendarContract.Events.CONTENT_URI)));
         targets.put("share", hasHandler(manager, new Intent(Intent.ACTION_SEND).setType("text/plain")));
         targets.put("emailDraft", hasHandler(manager, new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))));
+        targets.put("messenger", hasHandler(manager, new Intent(Intent.ACTION_VIEW, Uri.parse("https://m.me/messenger")).setPackage(MESSENGER_PACKAGE)));
         JSObject navigationApps = new JSObject();
         navigationApps.put("maps", hasPackagedHandler(manager, navigationProbe, MAPS_PACKAGES));
         navigationApps.put("waze", hasPackagedHandler(manager, navigationProbe, WAZE_PACKAGES));
@@ -129,6 +133,7 @@ final class DeviceHandoffIntents {
         permissions.put("calendar", "NOT_REQUIRED");
         permissions.put("share", "NOT_REQUIRED");
         permissions.put("emailDraft", "NOT_REQUIRED");
+        permissions.put("messenger", "NOT_REQUIRED");
         JSObject out = new JSObject();
         out.put("schemaVersion", 1);
         out.put("capturedAtEpochMs", System.currentTimeMillis());
@@ -240,6 +245,36 @@ final class DeviceHandoffIntents {
         if (!subject.isEmpty()) draft.putExtra(Intent.EXTRA_SUBJECT, subject);
         if (!body.isEmpty()) draft.putExtra(Intent.EXTRA_TEXT, body);
         return start(activity, draft, "EMAIL_CLIENT_UNAVAILABLE");
+    }
+
+    private static JSObject messengerChat(Activity activity, String value) {
+        String identifier = clean(value, 200);
+        Uri uri;
+        if (identifier.matches("(?i)^[a-z0-9._-]{2,80}$")) {
+            uri = Uri.parse("https://m.me/" + Uri.encode(identifier));
+        } else {
+            Uri candidate = Uri.parse(identifier);
+            String host = candidate.getHost();
+            String path = candidate.getPath();
+            if (!"https".equalsIgnoreCase(candidate.getScheme()) || host == null
+                || !("m.me".equalsIgnoreCase(host) || "www.m.me".equalsIgnoreCase(host))
+                || path == null || path.replace("/", "").trim().isEmpty()) {
+                return result("INVALID_INPUT", "VALID_MESSENGER_CONTACT_REQUIRED", null);
+            }
+            uri = candidate;
+        }
+
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, uri);
+        Intent appIntent = new Intent(webIntent).setPackage(MESSENGER_PACKAGE);
+        if (hasHandler(activity.getPackageManager(), appIntent)) {
+            return start(activity, appIntent, "MESSENGER_APP_UNAVAILABLE");
+        }
+        JSObject fallback = start(activity, webIntent, "MESSENGER_APP_AND_WEB_UNAVAILABLE");
+        if ("OPENED".equals(fallback.optString("status"))) {
+            fallback.put("reason", "MESSENGER_APP_UNAVAILABLE_WEB_FALLBACK_OPENED");
+            fallback.put("fallback", "MESSENGER_WEB");
+        }
+        return fallback;
     }
 
     private static String selectedAssistantPackage(Activity activity) {

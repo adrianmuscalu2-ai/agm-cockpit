@@ -89,7 +89,7 @@ export function createContactManagerController(dependencies: {
       contacts.contactEditingId = contact.id;
       contacts.contactDraft = {
         name: contact.name, company: contact.company, email: contact.email,
-        phone: contact.phone, whatsapp: contact.whatsapp, address: contact.address,
+        phone: contact.phone, whatsapp: contact.whatsapp, messenger: contact.messenger, address: contact.address,
         notes: contact.notes, categories: contact.categories, favorite: contact.favorite,
       };
       contacts.contactErrors = [];

@@ -32,6 +32,20 @@ export function routeAndroidAction(text: string, context: ActiveDriverContext | 
     const labels: Record<string, string> = { maps:'Maps','google maps':'Maps',waze:'Waze','tom tom':'TomTom',tomtom:'TomTom',gmail:'Gmail',camera:'Camera',kamera:'Camera' };
     return resolved('OPEN_APP', 'APP_LABEL_RESOLVED', 'REQUEST', { value: labels[openApp[1]!] ?? openApp[1] });
   }
+  const messengerContact = /(?:deschide|open|offne)\s+(?:(?:chatul|conversatia|chat)\s+)?messenger(?:\s+(?:pentru|cu|lui|for|with|fur|mit))?\s+(.+)/i.exec(raw);
+  if (messengerContact) {
+    const contactName = cleanContactName(messengerContact[1] ?? '');
+    return contactName
+      ? resolved('MESSENGER_CHAT', 'MESSENGER_CONTACT_RESOLUTION_REQUIRED', 'REQUEST', { contactName })
+      : unresolved('CLARIFICATION_REQUIRED', 'MESSENGER_CONTACT_REQUIRED');
+  }
+  const emailContact = /(?:trimite|scrie|compune|send|write|compose|sende|schreibe)\s+(?:un\s+)?(?:e-?mail|email)(?:\s+(?:lui|catre|c[Äƒa]tre|to|an))?\s+(.+)/i.exec(raw);
+  if (emailContact) {
+    const contactName = cleanContactName(emailContact[1] ?? '');
+    return contactName
+      ? resolved('EMAIL_DRAFT', 'EMAIL_CONTACT_RESOLUTION_REQUIRED', 'REQUEST', { contactName })
+      : unresolved('CLARIFICATION_REQUIRED', 'EMAIL_CONTACT_REQUIRED');
+  }
   if (/\b(suna|apeleaza|formeaza|dial|call|anrufen|ruf)\b/.test(value)) {
     const explicitPhone = raw.match(/\+?[0-9][0-9 ()\/-]{5,}[0-9]/)?.[0]?.trim();
     if (explicitPhone) return resolved('DIAL', 'PHONE_RESOLVED', 'REQUEST', { value: explicitPhone });
@@ -115,6 +129,10 @@ function extractContactName(value: string) {
   if (!normalized || /^(?:numarul|numar|number|telefon|phone)$/.test(normalized)) return '';
   if (/^\+?[0-9][0-9 ()\/-]{5,}[0-9]$/.test(candidate)) return '';
   return candidate;
+}
+
+function cleanContactName(value: string) {
+  return value.replace(/[.!?,;:]+$/g, '').trim().slice(0, 120);
 }
 
 function directValue(value: string, prefix: RegExp) { const match = prefix.exec(value); return match ? value.slice(match.index + match[0].length).trim().replace(/[.!?]+$/, '').slice(0, 500) : ''; }

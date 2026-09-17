@@ -14,6 +14,7 @@ export interface AgmContact {
   email: string;
   phone: string;
   whatsapp: string;
+  messenger: string;
   address: string;
   notes: string;
   categories: ContactCategory[];

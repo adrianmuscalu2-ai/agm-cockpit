@@ -61,6 +61,7 @@ import { contactCategories, normalizeContactCategory } from './contact-manager/c
 import { contactStorageKey, readContacts, saveContacts, emptyContactDraft } from './contact-manager/contact-manager.storage';
 import { searchContacts } from './contact-manager/contact-manager.service';
 import { createContactManagerController } from './contact-manager/contact-manager.controller';
+import { quickContactCounts } from './contact-manager/quick-contact';
 import { createOcrController } from './ocr/ocr.controller';
 import {
   createGlobalCameraOcrService,
@@ -1817,7 +1818,7 @@ function renderContactManager() {
                           <article class="contact-row ${state.contactEditingId === contact.id ? 'active' : ''}">
                             <div>
                               <strong>${escapeHtml(contactDisplayNameForLanguage(contact, language))}</strong>
-                              <span>${escapeHtml(contact.email || contact.phone || contact.whatsapp || '-')}</span>
+                              <span>${escapeHtml(contact.email || contact.phone || contact.whatsapp || contact.messenger || '-')}</span>
                               <small>${escapeHtml(contactCategoryLabelsForLanguage(contact, language))}</small>
                             </div>
                             <div class="contact-row-actions">
@@ -1857,6 +1858,10 @@ function renderContactManager() {
             <label>
               <span>${escapeHtml(t(language, 'contact.whatsapp'))}</span>
               <input id="contactWhatsapp" type="tel" value="${escapeHtml(state.contactDraft.whatsapp)}" />
+            </label>
+            <label>
+              <span>${escapeHtml(t(language, 'contact.messenger'))}</span>
+              <input id="contactMessenger" type="text" inputmode="url" value="${escapeHtml(state.contactDraft.messenger)}" placeholder="username or https://m.me/username" />
             </label>
             <label>
               <span>${escapeHtml(t(language, 'contact.address'))}</span>
@@ -1918,6 +1923,7 @@ function senderPreviewLines() {
 
 function renderProfile() {
   const language = uiLanguage();
+  const quickCounts = quickContactCounts(state.contacts);
 
   return `
     <form class="profile-panel" aria-label="${escapeHtml(t(language, 'profile.ariaLabel'))}">
@@ -2011,6 +2017,20 @@ function renderProfile() {
             ? `<img class="drawn-signature-preview" src="${escapeHtml(state.profile.drawnSignatureDataUrl)}" alt="${escapeHtml(t(language, 'profile.drawnSignatureAlt'))}" />`
             : `<p class="muted-note">${escapeHtml(t(language, 'profile.noDrawnSignature'))}</p>`
         }
+        </section>
+      </details>
+
+      <details class="module-section" data-quick-contacts>
+        <summary>${escapeHtml(t(language, 'profile.quickContactsTitle'))}</summary>
+        <section class="compliance-note">
+          <strong>${escapeHtml(t(language, 'profile.quickContactsTitle'))}</strong>
+          <p>${escapeHtml(t(language, 'profile.quickContactsDescription'))}</p>
+          <div class="quick-contact-counts" aria-label="${escapeHtml(t(language, 'profile.quickContactsTitle'))}">
+            <span>${escapeHtml(t(language, 'profile.quickContactsEmailCount', { count: quickCounts.email }))}</span>
+            <span>${escapeHtml(t(language, 'profile.quickContactsPhoneCount', { count: quickCounts.phone }))}</span>
+            <span>${escapeHtml(t(language, 'profile.quickContactsMessengerCount', { count: quickCounts.messenger }))}</span>
+          </div>
+          <button id="openQuickContacts" type="button">${escapeHtml(t(language, 'profile.quickContactsManage'))}</button>
         </section>
       </details>
 
@@ -3671,6 +3691,10 @@ function bindContactManager() {
 }
 
 function bindProfile() {
+  document.querySelector<HTMLButtonElement>('#openQuickContacts')?.addEventListener('click', () => {
+    openContactManager();
+  });
+
   document.querySelector<HTMLButtonElement>('#openAndroidVoiceSettings')?.addEventListener('click', async () => {
     const language = uiLanguage();
     const feedback = document.querySelector<HTMLElement>('[data-android-voice-settings-status]');
@@ -5342,6 +5366,7 @@ function readContactDraftFromForm(): ContactDraft {
     email: document.querySelector<HTMLInputElement>('#contactEmail')?.value.trim() ?? '',
     phone: document.querySelector<HTMLInputElement>('#contactPhone')?.value.trim() ?? '',
     whatsapp: document.querySelector<HTMLInputElement>('#contactWhatsapp')?.value.trim() ?? '',
+    messenger: document.querySelector<HTMLInputElement>('#contactMessenger')?.value.trim() ?? '',
     address: document.querySelector<HTMLInputElement>('#contactAddress')?.value.trim() ?? '',
     notes: document.querySelector<HTMLTextAreaElement>('#contactNotes')?.value.trim() ?? '',
     categories,
@@ -5354,7 +5379,7 @@ function contactDraftHasCategory(category: ContactCategory) {
 }
 
 function contactDisplayNameForLanguage(contact: AgmContact, language: LanguageCode) {
-  return contact.name || contact.company || contact.email || contact.phone || contact.whatsapp || t(language, 'contact.noName');
+  return contact.name || contact.company || contact.email || contact.phone || contact.whatsapp || contact.messenger || t(language, 'contact.noName');
 }
 
 function contactCategoryLabel(category: ContactCategory, language: LanguageCode) {

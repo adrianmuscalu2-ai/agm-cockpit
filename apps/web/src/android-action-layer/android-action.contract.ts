@@ -1,6 +1,6 @@
 export const androidActionKinds = [
   'READ_CONTEXT', 'ASSISTANT', 'NAVIGATION', 'DIAL', 'OPEN_APP', 'CALENDAR', 'REMINDER', 'ALARM',
-  'SHARE', 'EMAIL_DRAFT', 'SETTINGS',
+  'SHARE', 'EMAIL_DRAFT', 'MESSENGER_CHAT', 'SETTINGS',
 ] as const;
 
 export type AndroidActionKind = typeof androidActionKinds[number];

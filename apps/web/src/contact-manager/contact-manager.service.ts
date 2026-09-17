@@ -1,9 +1,10 @@
 import { validateContactDraft } from './contact-manager.validation';
 import { createContact, saveContacts, updateContact } from './contact-manager.storage';
 import { type AgmContact, type ContactDraft, type ContactValidationResult } from './contact-manager.types';
+import { validateQuickContactCapacity } from './quick-contact';
 
 export function addContact(contacts: AgmContact[], draft: ContactDraft): { contacts: AgmContact[]; result: ContactValidationResult } {
-  const result = validateContactDraft(draft);
+  const result = validateContact(contacts, draft);
 
   if (!result.valid) {
     return { contacts, result };
@@ -20,7 +21,7 @@ export function editContact(
   contactId: string,
   draft: ContactDraft,
 ): { contacts: AgmContact[]; result: ContactValidationResult } {
-  const result = validateContactDraft(draft);
+  const result = validateContact(contacts, draft, contactId);
 
   if (!result.valid) {
     return { contacts, result };
@@ -44,7 +45,7 @@ export function searchContacts(contacts: AgmContact[], query: string): AgmContac
   }
 
   return contacts.filter((contact) =>
-    [contact.name, contact.company, contact.email, contact.phone, contact.whatsapp, contact.address, contact.notes]
+    [contact.name, contact.company, contact.email, contact.phone, contact.whatsapp, contact.messenger, contact.address, contact.notes]
       .join(' ')
       .toLocaleLowerCase()
       .includes(normalizedQuery),
@@ -53,4 +54,13 @@ export function searchContacts(contacts: AgmContact[], query: string): AgmContac
 
 export function persistContactList(storage: Storage, contacts: AgmContact[]) {
   saveContacts(storage, contacts);
+}
+
+function validateContact(contacts: AgmContact[], draft: ContactDraft, editingId = ''): ContactValidationResult {
+  const content = validateContactDraft(draft);
+  const capacity = validateQuickContactCapacity(contacts, draft, editingId);
+  return {
+    valid: content.valid && capacity.valid,
+    messages: [...content.messages, ...capacity.messages],
+  };
 }

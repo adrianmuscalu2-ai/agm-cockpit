@@ -1,7 +1,7 @@
 import { routeAndroidAction } from './android-action.router';
 import { readDriverContext } from './driver-context';
 
-const driverCommands = /\b(citeste l|read it|lies es|navigheaza|navigate|route|navigiere|du[ -]ma|condu[ -]ma|suna|apeleaza|formeaza|dial|call|anrufen|raspunde|reply|antworte|calendar|kalender|distribuie|partajeaza|share|teilen|asistent|assistant|assistent)\b|\b(?:deschide|porneste|open|launch|offne|starte)\s+(?:google\s+)?(?:maps|waze|tom\s*tom|gmail|camera|kamera)\b/i;
+const driverCommands = /\b(citeste l|read it|lies es|navigheaza|navigate|route|navigiere|du[ -]ma|condu[ -]ma|suna|apeleaza|formeaza|dial|call|anrufen|raspunde|reply|antworte|calendar|kalender|distribuie|partajeaza|share|teilen|trimite|scrie|compune|send|write|compose|sende|schreibe|asistent|assistant|assistent)\b|\b(?:deschide|porneste|open|launch|offne|starte)\s+(?:google\s+)?(?:maps|waze|tom\s*tom|gmail|camera|kamera|messenger)\b/i;
 
 export function resolveDriverVoiceCommand(text: string) {
   const normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();

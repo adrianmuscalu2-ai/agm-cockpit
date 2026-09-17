@@ -11,6 +11,7 @@ const policy: Record<AndroidActionKind, AndroidActionResolution['confirmation']>
   ALARM: 'ANDROID_TARGET',
   SHARE: 'AGM_REQUIRED',
   EMAIL_DRAFT: 'ANDROID_TARGET',
+  MESSENGER_CHAT: 'ANDROID_TARGET',
   SETTINGS: 'USER_COMMAND',
 };
 

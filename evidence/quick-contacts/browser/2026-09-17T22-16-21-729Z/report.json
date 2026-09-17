@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-17T22-16-21-729Z",
+  "startedAt": "2026-09-17T22:16:21.730Z",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "checks": [
+    {
+      "name": "TARGET HTTP 200",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:58893/ status=200"
+    },
+    {
+      "name": "CONTROLLED NAVIGATION",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:58893/"
+    },
+    {
+      "name": "BROWSER SESSION",
+      "status": "PASS",
+      "detail": "AGM Website"
+    },
+    {
+      "name": "TARGET PAGE",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:58893/profile"
+    },
+    {
+      "name": "PROFILE QUICK CONTACTS SECTION",
+      "status": "PASS",
+      "detail": "count=1"
+    },
+    {
+      "name": "THREE CHANNEL COUNTERS",
+      "status": "PASS",
+      "detail": "Emailuri: 0/20 | Telefoane: 0/20 | Messenger: 0/20"
+    },
+    {
+      "name": "CONTACT MANAGER OPENED",
+      "status": "PASS",
+      "detail": "modal visible"
+    },
+    {
+      "name": "MESSENGER FIELD VISIBLE",
+      "status": "PASS",
+      "detail": "contactMessenger"
+    },
+    {
+      "name": "LOCAL CONTACT PERSISTENCE",
+      "status": "PASS",
+      "detail": "one isolated session contact with all three channels"
+    },
+    {
+      "name": "COUNTERS UPDATED",
+      "status": "PASS",
+      "detail": "Emailuri: 1/20 | Telefoane: 1/20 | Messenger: 1/20"
+    },
+    {
+      "name": "MOBILE NO OVERFLOW",
+      "status": "PASS",
+      "detail": "{\"client\":390,\"scroll\":390}"
+    },
+    {
+      "name": "NO RUNTIME ERRORS",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "BROWSER REAL VALIDATION",
+      "status": "PASS",
+      "detail": "profile, modal, 20/20/20 counters, local storage and responsive capture"
+    }
+  ],
+  "evidenceDir": "C:\\tmp\\agm_android_assistant_pass_20260915\\evidence\\quick-contacts\\browser\\2026-09-17T22-16-21-729Z",
+  "finishedAt": "2026-09-17T22:16:38.746Z",
+  "status": "PASS"
+}

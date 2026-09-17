@@ -55,6 +55,7 @@
     "test:device-capability-router": "tsx scripts/test-device-capability-router.ts",
     "test:device-assistant-handoff": "tsx scripts/test-device-assistant-handoff.ts",
     "test:android-action-layer": "tsx scripts/test-android-action-layer.ts",
+    "test:quick-contacts": "tsx scripts/test-quick-contacts.ts",
     "test:turn-live-state": "tsx scripts/test-turn-live-state-reconciliation.ts",
     "test:turn-operational-truth": "tsx scripts/test-turn-operational-truth.ts",
     "test:turn-functional-overview": "tsx scripts/test-turn-functional-overview.ts",

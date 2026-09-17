@@ -7,12 +7,14 @@ import {
 } from '../premium-capabilities/android-assistant.gateway';
 import type { AndroidActionReceipt, AndroidActionResolution } from './android-action.contract';
 import { evaluatePermissionRequest } from './permission-guardian.client';
+import { readContacts } from '../contact-manager/contact-manager.storage';
+import { resolveQuickContactAction } from '../contact-manager/quick-contact';
 
 const RECEIPTS_KEY = 'agm.android-action.receipts.v1';
 const capabilityNames: Record<NonNullable<AndroidActionResolution['action']>, string> = {
   READ_CONTEXT: 'READ_CONTEXT', ASSISTANT: 'ANDROID_ASSISTANT', NAVIGATION: 'NAVIGATION', DIAL: 'DIALER',
   OPEN_APP: 'OPEN_APP', CALENDAR: 'CALENDAR_INSERT', REMINDER: 'REMINDER', ALARM: 'ALARM',
-  SHARE: 'SHARE', EMAIL_DRAFT: 'EMAIL_DRAFT', SETTINGS: 'ANDROID_ASSISTANT_SETTINGS',
+  SHARE: 'SHARE', EMAIL_DRAFT: 'EMAIL_DRAFT', MESSENGER_CHAT: 'MESSENGER_CHAT', SETTINGS: 'ANDROID_ASSISTANT_SETTINGS',
 };
 
 type GuardianLink = { evidenceId?: string; correlationId?: string };
@@ -22,15 +24,18 @@ export async function executeAndroidAction(text: string, resolution: AndroidActi
     const result = resolution.status === 'UNSUPPORTED' ? 'UNSUPPORTED' : 'CLARIFICATION_REQUIRED';
     return receipt(text, resolution, result, null, resolution.reason);
   }
-  if (resolution.action === 'READ_CONTEXT') return receipt(text, resolution, 'READ', null, null);
-  if (resolution.confirmation === 'AGM_REQUIRED' && !options.agmConfirmed) return receipt(text, resolution, 'CONFIRMATION_REQUIRED', null, 'AGM_CONFIRMATION_REQUIRED');
+  let effectiveResolution = resolveStoredQuickContact(resolution);
+  if (effectiveResolution.status !== 'RESOLVED' || !effectiveResolution.action) {
+    return receipt(text, effectiveResolution, 'CLARIFICATION_REQUIRED', null, effectiveResolution.reason);
+  }
+  if (effectiveResolution.action === 'READ_CONTEXT') return receipt(text, effectiveResolution, 'READ', null, null);
+  if (effectiveResolution.confirmation === 'AGM_REQUIRED' && !options.agmConfirmed) return receipt(text, effectiveResolution, 'CONFIRMATION_REQUIRED', null, 'AGM_CONFIRMATION_REQUIRED');
 
-  const capabilityName = capabilityNames[resolution.action];
-  let effectiveResolution = resolution;
-  let payload = resolution.payload ?? {};
+  const capabilityName = capabilityNames[effectiveResolution.action];
+  let payload = effectiveResolution.payload ?? {};
   let contactGuardian: GuardianLink | undefined;
 
-  if (resolution.action === 'DIAL' && payload.contactName && !payload.value) {
+  if (effectiveResolution.action === 'DIAL' && payload.contactName && !payload.value) {
     const contact = await resolveAndroidContactForDial(payload.contactName);
     contactGuardian = { evidenceId: contact.guardianEvidenceId, correlationId: contact.guardianCorrelationId };
     if (contact.status !== 'RESOLVED' || !contact.phoneNumber) {
@@ -39,21 +44,22 @@ export async function executeAndroidAction(text: string, resolution: AndroidActi
         : contact.status === 'NOT_FOUND' || contact.status === 'AMBIGUOUS' || contact.status === 'INVALID_INPUT'
           ? 'CLARIFICATION_REQUIRED'
           : 'UNAVAILABLE';
-      return receipt(text, resolution, result, null, contact.reason, undefined, undefined, contactGuardian);
+      return receipt(text, effectiveResolution, result, null, contact.reason, undefined, undefined, contactGuardian);
     }
     payload = { ...payload, value: contact.phoneNumber };
-    effectiveResolution = { ...resolution, reason: 'CONTACT_PHONE_RESOLVED', payload };
+    effectiveResolution = { ...effectiveResolution, reason: 'CONTACT_PHONE_RESOLVED', payload };
   }
 
-  const sensitivity = resolution.source === 'ACTIVE_GMAIL_CONTEXT' || Boolean(payload.contextText) || Boolean(payload.contactName)
-    || resolution.action === 'SHARE' || resolution.action === 'EMAIL_DRAFT' || resolution.action === 'DIAL'
+  const sensitivity = effectiveResolution.source === 'ACTIVE_GMAIL_CONTEXT' || Boolean(payload.contextText) || Boolean(payload.contactName)
+    || effectiveResolution.action === 'SHARE' || effectiveResolution.action === 'EMAIL_DRAFT'
+    || effectiveResolution.action === 'MESSENGER_CHAT' || effectiveResolution.action === 'DIAL'
     ? 'USER_TEXT' : 'PUBLIC';
-  const native = resolution.action === 'SETTINGS'
+  const native = effectiveResolution.action === 'SETTINGS'
     ? await openAndroidAssistantSettings()
-    : resolution.action === 'ASSISTANT'
+    : effectiveResolution.action === 'ASSISTANT'
       ? await launchAndroidAssistant({ moduleId: 'android-action-layer', sensitivity, contextText: payload.contextText })
-      : await performAndroidDeviceHandoff({ action: resolution.action as DeviceHandoffAction, ...payload }, {
-        moduleId: `android-action-${resolution.action.toLowerCase()}`, sensitivity,
+      : await performAndroidDeviceHandoff({ action: effectiveResolution.action as DeviceHandoffAction, ...payload }, {
+        moduleId: `android-action-${effectiveResolution.action!.toLowerCase()}`, sensitivity,
       });
   const value = receipt(
     text, effectiveResolution,
@@ -99,4 +105,12 @@ function receipt(
 
 export function readAndroidActionReceipts(): AndroidActionReceipt[] {
   try { const value = JSON.parse(sessionStorage.getItem(RECEIPTS_KEY) ?? '[]'); return Array.isArray(value) ? value : []; } catch { return []; }
+}
+
+function resolveStoredQuickContact(resolution: AndroidActionResolution): AndroidActionResolution {
+  try {
+    return resolveQuickContactAction(resolution, readContacts(sessionStorage));
+  } catch {
+    return resolution;
+  }
 }

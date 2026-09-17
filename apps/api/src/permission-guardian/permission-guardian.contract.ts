@@ -14,6 +14,7 @@ export const PERMISSION_GUARDIAN_CONTRACT = {
     ALARM: ['NOT_REQUIRED'],
     SHARE: ['NOT_REQUIRED'],
     EMAIL_DRAFT: ['NOT_REQUIRED'],
+    MESSENGER_CHAT: ['NOT_REQUIRED'],
     MICROPHONE_STT: ['android.permission.RECORD_AUDIO'],
     CAMERA_CAPTURE: ['android.permission.CAMERA'],
     CONTACT_LOOKUP: ['android.permission.READ_CONTACTS'],

@@ -7,6 +7,7 @@
         <package android:name="com.tomtom.gplay.navapp" />
         <package android:name="com.tomtom.speedcams.android.map" />
         <package android:name="com.tomtom.gplay.navapp.gofleet" />
+        <package android:name="com.facebook.orca" />
         <intent>
             <action android:name="android.speech.RecognitionService" />
         </intent>
@@ -39,6 +40,10 @@
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="geo" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" android:host="m.me" />
         </intent>
         <intent>
             <action android:name="android.intent.action.SET_ALARM" />

@@ -15,7 +15,7 @@ interface AgmCapabilityPlugin {
   resolveContact(options: { name: string }): Promise<ContactLookupResult>;
 }
 
-export type DeviceHandoffAction = 'ASSISTANT' | 'NAVIGATION' | 'DIAL' | 'OPEN_APP' | 'CALENDAR' | 'REMINDER' | 'ALARM' | 'SHARE' | 'EMAIL_DRAFT';
+export type DeviceHandoffAction = 'ASSISTANT' | 'NAVIGATION' | 'DIAL' | 'OPEN_APP' | 'CALENDAR' | 'REMINDER' | 'ALARM' | 'SHARE' | 'EMAIL_DRAFT' | 'MESSENGER_CHAT';
 export type DeviceHandoffStatus = 'OPENED' | 'UNAVAILABLE' | 'UNSUPPORTED' | 'INVALID_INPUT';
 export type DeviceHandoffResult = {
   protocolVersion?: 'android-action-protocol.v1';
@@ -58,8 +58,8 @@ export type AndroidActionProtocolStatus = {
   schemaVersion: 1;
   capturedAtEpochMs: number;
   selectedAssistantPackage?: string;
-  targets: Record<'assistant' | 'navigation' | 'dialer' | 'calendar' | 'share' | 'emailDraft', boolean>;
-  permissions: Record<'assistant' | 'navigation' | 'dialer' | 'calendar' | 'share' | 'emailDraft', 'NOT_REQUIRED'>;
+  targets: Record<'assistant' | 'navigation' | 'dialer' | 'calendar' | 'share' | 'emailDraft' | 'messenger', boolean>;
+  permissions: Record<'assistant' | 'navigation' | 'dialer' | 'calendar' | 'share' | 'emailDraft' | 'messenger', 'NOT_REQUIRED'>;
   runtimePermissions: { microphone: AndroidPermissionStatus; camera: AndroidPermissionStatus; contacts: AndroidPermissionStatus };
 };
 
@@ -69,6 +69,7 @@ installDeviceHandoffResumeListener();
 const guardianCapability: Record<DeviceHandoffAction, string> = {
   ASSISTANT: 'ANDROID_ASSISTANT', NAVIGATION: 'NAVIGATION', DIAL: 'DIALER', OPEN_APP: 'OPEN_APP',
   CALENDAR: 'CALENDAR_INSERT', REMINDER: 'REMINDER', ALARM: 'ALARM', SHARE: 'SHARE', EMAIL_DRAFT: 'EMAIL_DRAFT',
+  MESSENGER_CHAT: 'MESSENGER_CHAT',
 };
 
 async function authorize(capabilityId: string, requestor: string, reason: string, risk: 'LOW' | 'MEDIUM' = 'LOW') {
@@ -174,7 +175,8 @@ export async function performAndroidDeviceHandoff(request: DeviceHandoffRequest,
   }
   const guardian = await authorize(
     guardianCapability[request.action], options.moduleId ?? `android-device-${request.action.toLowerCase()}`,
-    `Execute allowlisted Android ${request.action} handoff`, request.action === 'SHARE' || request.action === 'EMAIL_DRAFT' ? 'MEDIUM' : 'LOW',
+    `Execute allowlisted Android ${request.action} handoff`,
+    request.action === 'SHARE' || request.action === 'EMAIL_DRAFT' || request.action === 'MESSENGER_CHAT' ? 'MEDIUM' : 'LOW',
   );
   if (!guardian?.authorityGranted) return denied(guardian);
   if (request.action === 'SHARE') {

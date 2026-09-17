@@ -1,7 +1,7 @@
 import { type AgmContact } from './contact-manager.types';
 
 export function contactDisplayName(contact: AgmContact): string {
-  return contact.name || contact.company || contact.email || contact.phone || contact.whatsapp || '';
+  return contact.name || contact.company || contact.email || contact.phone || contact.whatsapp || contact.messenger || '';
 }
 
 export function contactCategoryLabels(contact: AgmContact): string {

@@ -2,11 +2,12 @@ import { type AgmContact, type ContactDraft, type ContactValidationResult } from
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const phonePattern = /^[+()\d\s.-]{6,}$/;
+const messengerPattern = /^(?:(?:https?:\/\/)?(?:www\.)?m\.me\/[a-z0-9._-]{2,80}\/?|[a-z0-9._-]{2,80})$/i;
 
 export function validateContactDraft(contact: ContactDraft | AgmContact): ContactValidationResult {
   const messages: string[] = [];
   const hasUsefulIdentifier = Boolean(
-    contact.name.trim() || contact.email.trim() || contact.phone.trim() || contact.whatsapp.trim(),
+    contact.name.trim() || contact.email.trim() || contact.phone.trim() || contact.whatsapp.trim() || contact.messenger.trim(),
   );
 
   if (!hasUsefulIdentifier) {
@@ -23,6 +24,10 @@ export function validateContactDraft(contact: ContactDraft | AgmContact): Contac
 
   if (contact.whatsapp.trim() && !phonePattern.test(contact.whatsapp.trim())) {
     messages.push('contact.validation.whatsapp');
+  }
+
+  if (contact.messenger.trim() && !messengerPattern.test(contact.messenger.trim())) {
+    messages.push('contact.validation.messenger');
   }
 
   return {
