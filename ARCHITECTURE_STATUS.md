@@ -1,6 +1,6 @@
 # AGM Cockpit — Architecture Status
 
-**Data reconcilierii curente:** 7 septembrie 2026
+**Data reconcilierii curente:** 18 septembrie 2026
 
 **Statut document:** sursa canonică pentru starea arhitecturii și a implementării
 
@@ -8,9 +8,9 @@
 
 **Current Stable Release:** AGM Cockpit 1.3.0 / Android versionCode 21
 
-**Current Source Line:** AGM Cockpit 1.4.0
+**Current Source Line:** AGM Cockpit 1.5.0
 
-**Current Release Candidate:** 1.4.0 / Android versionCode 22; statutul publicării se stabilește exclusiv din workflow și runtime
+**Current Release Candidate:** 1.5.0 / Android versionCode 27; publicat pe GitHub pentru validarea suplimentară din 18 septembrie 2026; statutul Production se stabilește exclusiv din workflow și runtime
 
 **Production snapshot la începutul reconcilierii:** revision `1fd434f2621b3b2225cc23ffab5ad2922a26bb5b`; workflow `34040489949`; Web bundle `assets/main-CJ9re3-m.js`
 
@@ -59,12 +59,12 @@ dispozitiv real din 27 august 2026.
 
 ### 2.3 Current Source Line
 
-Manifestele root și Web declară 1.4.0. Aceasta este linia de sursă curentă și nu
+Manifestele root și Web declară 1.5.0. Aceasta este linia de sursă curentă și nu
 este promovată automat la stable release sau Production identity.
 
 ### 2.4 Current Release Candidate
 
-Linia de sursă conține candidatul 1.4.0 / Android `versionCode 22`. Statutul său
+Linia de sursă conține candidatul 1.5.0 / Android `versionCode 27`. Statutul său
 de publicare nu este dedus din acest document; îl stabilesc numai workflow-ul de
 release și validarea runtime a artifactului promovat.
 

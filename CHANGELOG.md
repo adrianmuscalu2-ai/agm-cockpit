@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.5.0 - 2026-09-18 - GitHub release candidate
+
+### Added
+
+- Added guarded Android handoffs for Maps, Waze, TomTom, the system dialer, email drafts, and Messenger chats.
+- Added Premium Quick Contacts in Profile with independent limits of 20 email, 20 phone, and 20 Messenger contacts.
+- Added voice contact resolution for dialer, email draft, and Messenger commands without automatic calls or sends.
+
+### Validated
+
+- Web and API builds, TypeScript, Guardian contracts, Android Java release compilation, contact limits, and voice routing passed locally.
+- Controlled Browser validation passed for desktop and 390 px mobile layouts; IAB remained optional platform evidence.
+- Maps, Waze, TomTom, and dialer handoffs retain the previously recorded physical-device PASS evidence.
+
+### Release boundary
+
+- This GitHub release does not claim completion of the additional physical-device Messenger validation scheduled for the next test session.
+- No automatic call, email send, Messenger send, or Production deployment is part of this release publication.
+
 ## 2026-08-27 - Production publication audit remediation
 
 ### Fixed

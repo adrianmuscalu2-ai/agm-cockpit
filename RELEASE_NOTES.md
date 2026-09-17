@@ -1,5 +1,14 @@
 # Release Notes
 
+## v1.5.0 - Quick contacts and Android assistant handoffs
+
+- Profile now includes Premium Quick Contacts with 20 email, 20 phone, and 20 Messenger entries per channel.
+- Voice commands can resolve a saved contact and open the Android dialer, an email draft, or a Messenger chat.
+- Navigation handoff supports Maps, Waze, and TomTom through allowlisted Android intents.
+- Guardian authorization and user-action boundaries remain enforced: AGM never places a call or sends a message automatically.
+- Local build and controlled Browser evidence are PASS. Additional physical-device Messenger validation remains scheduled for the next test session.
+- GitHub release publication does not promote this commit to Production automatically.
+
 ## v1.3.0 — Release candidate remediation (not frozen)
 
 - Canonical Routing/Toll and Legislation/Safety authority libraries are loaded and enforced at runtime with SourceId traceability, jurisdiction, scope confirmation, temporal validity, freshness, and authority-class boundaries.

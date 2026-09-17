@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
 const root = new URL('../', import.meta.url);
-const pwaRelease = 'agm-cockpit-1.4.0-logo-restoration-v1-20260910';
+const pwaRelease = 'agm-cockpit-1.5.0-quick-contacts-v1-20260918';
 const read = relative => readFileSync(new URL(relative, root), 'utf8');
 const approvedLogo = readFileSync(new URL('public/images/images/logo1.png', root));
 

@@ -238,7 +238,7 @@ type ViewName =
 type EmailComposeMode = 'general' | 'manual';
 type ServiceAvailability = 'checking' | 'online' | 'offline';
 
-const APP_VERSION = 'A.G.M. Cockpit 1.4.0';
+const APP_VERSION = 'A.G.M. Cockpit 1.5.0';
 const APP_BRAND_RELATION: Record<BasicLanguageCode, string> = {
   ro: 'A.G.M. Cockpit — parte din ecosistemul AGM Transporte.',
   de: 'A.G.M. Cockpit — Teil des AGM-Transporte-Ökosystems.',
@@ -660,7 +660,7 @@ function renderHomeHeader() {
     <header class="home-topbar">
       <button class="home-brand" data-module="home" data-admin-trigger type="button" aria-label="${escapeHtml(t(language, 'home.title'))}">
         <strong>A.G.M.</strong>
-        <span>Cockpit 1.4.0</span>
+        <span>Cockpit 1.5.0</span>
       </button>
       <div class="home-profile-control">
         <div class="home-language-control" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
@@ -3807,7 +3807,7 @@ function registerServiceWorker() {
   }
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js?v=agm-cockpit-1.4.0-logo-restoration-v1-20260910', { updateViaCache: 'none' }).catch(() => {
+    navigator.serviceWorker.register('/sw.js?v=agm-cockpit-1.5.0-quick-contacts-v1-20260918', { updateViaCache: 'none' }).catch(() => {
       state.status = t(uiLanguage(), 'status.pwaUnavailable');
     });
   });
