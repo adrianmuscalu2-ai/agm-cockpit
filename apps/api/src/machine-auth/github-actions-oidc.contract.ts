@@ -16,7 +16,7 @@ export const GITHUB_ACTIONS_PROVISIONING_CONTRACT = {
       environment: 'Production',
       ref: 'refs/heads/agm-canonical-20260820',
       workflowRef: 'adrianmuscalu2-ai/agm-cockpit/.github/workflows/production-release.yml@refs/heads/agm-canonical-20260820',
-      eventNames: ['push'],
+      eventNames: ['push', 'workflow_dispatch'],
       role: 'DEPLOYMENT_PROVISIONER',
     },
     {
