@@ -86,7 +86,7 @@ export const app009StorageRegistry = [
   })),
   entry('profile', 'agm.profile.settings', 'APP-007', 'session', 'personal', true),
   entry('profileLanguage', 'agm.profile.preferredLanguage', 'APP-007', 'local', 'standard', true),
-  entry('contacts', 'agm.contact-manager.contacts', 'APP-005', 'session', 'personal', true),
+  entry('contacts', 'agm.contact-manager.contacts', 'APP-005', 'local', 'personal', true),
   entry('messageLibrary', 'agm.message-library.preferences.v1', 'APP-003', 'local', 'standard', true),
   entry('incidentJournal', 'agm.turn.incident-journal.v1', 'OPS-003', 'session', 'operational', true),
   entry('legalAcceptance', 'agm.legal.acceptance.{privacy}.{terms}', 'APP-014', 'local', 'standard', true),

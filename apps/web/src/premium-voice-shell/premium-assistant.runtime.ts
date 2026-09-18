@@ -11,7 +11,7 @@ import { recordRoutingMetric, routeDeviceOperation } from '../device-capability-
 import { normalizeSpeechText } from '../speech-semantics';
 import { bindDeviceAssistantHandoff, handleSpokenAndroidAssistantCommand } from '../premium-capabilities/device-assistant-handoff.runtime';
 import { rememberDriverContext } from '../android-action-layer/driver-context';
-import { resolveDriverVoiceCommand, driverActionMessage } from '../android-action-layer/driver-voice-mode';
+import { resolveDriverVoiceCommand, driverActionMessage, driverDialConfirmationSummary } from '../android-action-layer/driver-voice-mode';
 import { executeAndroidAction } from '../android-action-layer/android-action.executor';
 import type { AndroidActionResolution } from '../android-action-layer/android-action.contract';
 import { evaluatePermissionRequest } from '../android-action-layer/permission-guardian.client';
@@ -56,6 +56,7 @@ export function bindPremiumAssistantRuntime(){
  const retry=root.querySelector<HTMLButtonElement>('[data-assistant-retry]');let retryText='';
  const historyPanel=root.querySelector<HTMLElement>('[data-assistant-history-panel]')!;const historyList=root.querySelector<HTMLOListElement>('[data-assistant-history]')!;
  const actionPanel=root.querySelector<HTMLElement>('[data-assistant-action-panel]');const actionSummary=root.querySelector<HTMLElement>('[data-assistant-action-summary]');let pendingAction:PremiumConversationActionProposal|undefined;let pendingAndroidAction:{text:string;resolution:AndroidActionResolution}|undefined;
+ if(actionSummary)actionSummary.style.whiteSpace='pre-line';
  const env=(import.meta as ImportMeta&{env?:Record<string,string|boolean|undefined>}).env;const configured=typeof env?.VITE_AGM_API_BASE_URL==='string'?env.VITE_AGM_API_BASE_URL.trim():'';const apiBase=configured||(env?.DEV===true?'/api/v1':'');
  const client=createPremiumAssistantClient({apiBaseUrl:apiBase,fetch:window.fetch.bind(window),sessionStorage});const history=loadHistory();let answerText='';let activeRequest:AbortController|undefined;let requestSequence=0;let recognition:Recognition|undefined;let cancelRecognitionPromise:(()=>void)|undefined;let activeTurnId:string|undefined;let activeBrowserSpeech:{turnId:string;resolve:()=>void}|undefined;let lastAudioStopReceipt:RuntimeAudioStopReceipt|undefined;let disposed=false;const staleTurnEvents=new Set<string>();const nativeListenerHandles:Array<{remove:()=>Promise<void>}>=[];
  const session=new VoiceSessionController(renderState);renderHistory();renderState('OFF');
@@ -184,14 +185,14 @@ export function bindPremiumAssistantRuntime(){
     const resolution=driverCommand.resolution;
     void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'INTENT_ROUTER',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.driver-voice-mode',reason:'Classify driver command',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`route:${resolution.status}:${resolution.action??'NONE'}:${resolution.reason}`});
     void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'DRIVER_VOICE_MODE',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.driver-voice-mode',reason:'Resolve short voice command against active context',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`driver:${resolution.source}:${resolution.status}`});
-    if(resolution.status!=='RESOLVED'||!resolution.action){const key=resolution.status==='UNSUPPORTED'?'UNSUPPORTED':'CLARIFICATION_REQUIRED';const message=driverActionMessage(key,resolution.reason,language);response.textContent=message;panel.hidden=false;status.textContent=message;return true;}
+    if(resolution.status!=='RESOLVED'||!resolution.action){const key=resolution.status==='UNSUPPORTED'?'UNSUPPORTED':'CLARIFICATION_REQUIRED';const message=driverActionMessage(key,resolution.reason,language,resolution);response.textContent=message;panel.hidden=false;status.textContent=message;return true;}
     if(resolution.action==='READ_CONTEXT'){
      const text=resolution.payload?.contextText??'';if(!text){status.textContent=driverActionMessage('CLARIFICATION_REQUIRED',resolution.reason,language);return true;}
      answerText=text;response.textContent=text;panel.hidden=false;const sequence=++requestSequence;const turnId=`driver-read:${sequence}:${Date.now()}`;activeTurnId=turnId;session.transition('PREPARING');session.markTtsRequest();await speak(text,sequence,turnId);activeTurnId=undefined;return true;
     }
     const result=await executeAndroidAction(confirmedText,resolution);
-    if(result.result==='CONFIRMATION_REQUIRED'){pendingAndroidAction={text:confirmedText,resolution};if(actionSummary)actionSummary.textContent=driverActionMessage('CONFIRMATION_REQUIRED',result.fallback??'',language);if(actionPanel)actionPanel.hidden=false;response.textContent=actionSummary?.textContent??'';panel.hidden=false;return true;}
-    const message=driverActionMessage(result.result,result.fallback??'',language);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return true;
+    if(result.result==='CONFIRMATION_REQUIRED'){pendingAndroidAction={text:confirmedText,resolution:result.resolution};if(actionSummary)actionSummary.textContent=driverDialConfirmationSummary(result.resolution,language);if(actionPanel)actionPanel.hidden=false;response.textContent=actionSummary?.textContent??'';panel.hidden=false;return true;}
+    const message=driverActionMessage(result.result,result.fallback??'',language,result.resolution);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return true;
    }
    if(await handleSpokenAndroidAssistantCommand(confirmedText,language,status))return true;
   if(!navigator.onLine){session.transition('ERROR');status.textContent=connectionText(language,false);return false;}
@@ -212,7 +213,7 @@ export function bindPremiumAssistantRuntime(){
   }catch(error){if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'model-error');return false;}if(controller.signal.aborted&&!timedOut)return false;session.transition('ERROR');retryText=confirmedText;if(retry){retry.textContent=retryLabel(language);retry.hidden=false;}status.textContent=timedOut?timeoutText(language):error instanceof PremiumAssistantClientError&&error.reason==='network'?m.networkError:m.aiError;return false;}finally{window.clearTimeout(timeout);if(activeRequest===controller)activeRequest=undefined;if(sequence===requestSequence&&session.state()==='ERROR'){activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;}}
  }
   async function confirmPendingAction(){
-   if(pendingAndroidAction){const prepared=pendingAndroidAction;pendingAndroidAction=undefined;if(actionPanel)actionPanel.hidden=true;const result=await executeAndroidAction(prepared.text,prepared.resolution,{agmConfirmed:true});const message=driverActionMessage(result.result,result.fallback??'',language);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return;}
+   if(pendingAndroidAction){const prepared=pendingAndroidAction;pendingAndroidAction=undefined;if(actionPanel)actionPanel.hidden=true;const result=await executeAndroidAction(prepared.text,prepared.resolution,{agmConfirmed:true});const message=driverActionMessage(result.result,result.fallback??'',language,result.resolution);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return;}
   if(!pendingAction)return;
   if(!isPremiumNavigationAllowed('carMover')){pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;response.textContent='Accesul Car Mover nu este acordat. Deschid fluxul de acces.';panel.hidden=false;window.history.pushState({},'', '/access');window.dispatchEvent(new PopStateEvent('popstate'));return;}
   pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;window.history.pushState({},'', '/car-mover');window.dispatchEvent(new PopStateEvent('popstate'));

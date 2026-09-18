@@ -6,7 +6,7 @@ const root = process.cwd();
 const runId = new Date().toISOString().replace(/[:.]/g, '-');
 const output = path.join(root, 'evidence', 'phase2-technical-closure', 'browser', runId);
 const sensitiveKeys = [
-  'agm.auth.rememberedEmail', 'agm.profile.settings', 'agm.contact-manager.contacts',
+  'agm.auth.rememberedEmail', 'agm.profile.settings',
   'agm.ocr.history.v1', 'agm.turn.incident-journal.v1', 'agm.e6.pre-departure.session.v1',
   'agm.pre-departure.outbox.v1', 'agm.pre-departure.sync-ack.v1', 'agm.pre-departure.sync-meta.v1',
   'agm.poc02.after-departure.session.v1', 'agm.premium.trip-context.v1',
@@ -17,6 +17,7 @@ const sensitiveKeys = [
   'agm.premium.single-copilot.state.v1', 'agm.premium.voice.telemetry.v1',
   'agm.wave2b.communication-ledger.v1', 'agm.wave2d.conversational-routing.v1',
 ];
+const persistentUserKeys = ['agm.contact-manager.contacts'];
 
 await mkdir(output, { recursive: true });
 let browser;
@@ -25,19 +26,23 @@ const results = [];
 try {
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-  await context.addInitScript((keys) => {
-    for (const key of keys) localStorage.setItem(key, JSON.stringify({ synthetic: true }));
-  }, sensitiveKeys);
+  await context.addInitScript(({ cleanupKeys, persistentKeys }) => {
+    for (const key of [...cleanupKeys, ...persistentKeys]) localStorage.setItem(key, JSON.stringify({ synthetic: true }));
+  }, { cleanupKeys: sensitiveKeys, persistentKeys: persistentUserKeys });
   const page = await context.newPage();
   await page.goto('http://127.0.0.1:5174/', { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.waitForTimeout(750);
-  const state = await page.evaluate((keys) => ({
-    remainingSensitiveLocalKeys: keys.filter((key) => localStorage.getItem(key) !== null),
+  const state = await page.evaluate(({ cleanupKeys, persistentKeys }) => ({
+    remainingSensitiveLocalKeys: cleanupKeys.filter((key) => localStorage.getItem(key) !== null),
+    missingPersistentUserKeys: persistentKeys.filter((key) => localStorage.getItem(key) === null),
     localKeys: Object.keys(localStorage),
     sessionKeys: Object.keys(sessionStorage),
-  }), sensitiveKeys);
+  }), { cleanupKeys: sensitiveKeys, persistentKeys: persistentUserKeys });
   if (state.remainingSensitiveLocalKeys.length) {
     throw new Error(`SENSITIVE_LOCAL_KEYS_REMAIN:${state.remainingSensitiveLocalKeys.join(',')}`);
+  }
+  if (state.missingPersistentUserKeys.length) {
+    throw new Error(`PERSISTENT_USER_KEYS_REMOVED:${state.missingPersistentUserKeys.join(',')}`);
   }
   const screenshot = path.join(output, 'agm-sensitive-storage-cleanup.png');
   await page.screenshot({ path: screenshot, fullPage: false });

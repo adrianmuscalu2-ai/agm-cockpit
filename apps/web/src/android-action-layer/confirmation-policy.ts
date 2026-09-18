@@ -4,7 +4,7 @@ const policy: Record<AndroidActionKind, AndroidActionResolution['confirmation']>
   READ_CONTEXT: 'NONE',
   ASSISTANT: 'USER_COMMAND',
   NAVIGATION: 'USER_COMMAND',
-  DIAL: 'ANDROID_TARGET',
+  DIAL: 'AGM_REQUIRED',
   OPEN_APP: 'USER_COMMAND',
   CALENDAR: 'ANDROID_TARGET',
   REMINDER: 'ANDROID_TARGET',

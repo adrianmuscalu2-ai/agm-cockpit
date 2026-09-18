@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "runner": "Physical Samsung WebView + controlled CDP entitlement fixture",
+  "startedAt": "2026-09-18T17:52:09.132Z",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "DEVICE PROCESS",
+      "status": "PASS",
+      "detail": "pid=5134"
+    },
+    {
+      "name": "WEBVIEW SESSION",
+      "status": "PASS",
+      "detail": "https://localhost/"
+    },
+    {
+      "name": "DUPLICATES PERSISTED AFTER FORCE-STOP",
+      "status": "PASS",
+      "detail": "[{\"id\":\"7fc364e8-5714-402f-88c1-cf025ecb528a\",\"name\":\"Mona Vodafone\",\"company\":\"Vodafone\",\"email\":\"mona.vodafone@example.com\",\"phone\":\"0700123456\",\"whatsapp\":\"\",\"messenger\":\"mona.vodafone\",\"address\":\"\",\"notes\":\"\",\"categories\":[\"clients\"],\"favorite\":false,\"createdAt\":\"2026-09-18T09:21:49.668Z\",\"updatedAt\":\"2026-09-18T16:36:32.676Z\"},{\"id\":\"b2a77fdc-f674-40a9-97c4-b7922c7e2dc7\",\"name\":\"Mona Vodafone\",\"company\":\"Duplicate test\",\"email\":\"mona.duplicate@example.com\",\"phone\":\"0700999999\",\"whatsapp\":\"\",\"messenger\":\"mona.duplicate\",\"address\":\"\",\"notes\":\"\",\"categories\":[\"clients\"],\"favorite\":false,\"createdAt\":\"2026-09-18T17:19:46.331Z\",\"updatedAt\":\"2026-09-18T17:19:46.331Z\"}]"
+    },
+    {
+      "name": "EXPLICIT DUPLICATE CLARIFICATION",
+      "status": "PASS",
+      "detail": "Am găsit mai multe contacte cu numele Mona Vodafone. Pe care vrei să îl apelezi?"
+    },
+    {
+      "name": "NO CONFIRMATION OR EXTERNAL ACTION FOR AMBIGUITY",
+      "status": "PASS",
+      "detail": "{\"before\":0,\"message\":\"Am găsit mai multe contacte cu numele Mona Vodafone. Pe care vrei să îl apelezi?\",\"actionHidden\":true,\"receipts\":1,\"lastReceipt\":{\"contractVersion\":\"android-action-receipt.v1\",\"request\":{\"text\":\"Apelează contactul Mona Vodafone\",\"action\":\"DIAL\"},\"resolution\":{\"contractVersion\":\"android-action-resolution.v1\",\"status\":\"CLARIFICATION_REQUIRED\",\"action\":\"DIAL\",\"reason\":\"AGM_PERSONAL_CONTACT_AMBIGUOUS\",\"source\":\"NONE\",\"payload\":{\"contactName\":\"Mona Vodafone\",\"requestedChannel\":\"PHONE\"},\"confirmation\":\"NONE\"},\"target\":null,\"result\":\"CLARIFICATION_REQUIRED\",\"fallback\":\"AGM_PERSONAL_CONTACT_AMBIGUOUS\",\"observedAt\":\"2026-09-18T17:52:10.522Z\"},\"path\":\"/premium/voice\"}"
+    },
+    {
+      "name": "AGM REMAINS FOCUSED",
+      "status": "PASS",
+      "detail": "mCurrentFocus=Window{6e221db u0 com.agm.cockpit/com.agm.cockpit.MainActivity} | mFocusedApp=ActivityRecord{183612429 u0 com.agm.cockpit/.MainActivity t12705}"
+    },
+    {
+      "name": "CALL STATE IDLE",
+      "status": "PASS",
+      "detail": "mCallState=0 | mCallState=0"
+    },
+    {
+      "name": "TEST DUPLICATE CLEANED",
+      "status": "PASS",
+      "detail": "[{\"id\":\"7fc364e8-5714-402f-88c1-cf025ecb528a\",\"name\":\"Mona Vodafone\",\"company\":\"Vodafone\",\"email\":\"mona.vodafone@example.com\",\"phone\":\"0700123456\",\"whatsapp\":\"\",\"messenger\":\"mona.vodafone\",\"address\":\"\",\"notes\":\"\",\"categories\":[\"clients\"],\"favorite\":false,\"createdAt\":\"2026-09-18T09:21:49.668Z\",\"updatedAt\":\"2026-09-18T16:36:32.676Z\"}]"
+    }
+  ],
+  "activity": [
+    "mCurrentFocus=Window{6e221db u0 com.agm.cockpit/com.agm.cockpit.MainActivity}",
+    "mFocusedApp=ActivityRecord{183612429 u0 com.agm.cockpit/.MainActivity t12705}"
+  ],
+  "telephony": [
+    "mCallState=0",
+    "mCallState=0"
+  ],
+  "finishedAt": "2026-09-18T17:52:12.897Z"
+}

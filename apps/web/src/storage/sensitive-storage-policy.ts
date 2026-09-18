@@ -1,7 +1,6 @@
 export const sensitiveLegacyLocalKeys = [
   'agm.auth.rememberedEmail',
   'agm.profile.settings',
-  'agm.contact-manager.contacts',
   'agm.ocr.history.v1',
   'agm.turn.incident-journal.v1',
   'agm.e6.pre-departure.session.v1',

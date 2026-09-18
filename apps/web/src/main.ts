@@ -61,7 +61,7 @@ import { contactCategories, normalizeContactCategory } from './contact-manager/c
 import { contactStorageKey, readContacts, saveContacts, emptyContactDraft } from './contact-manager/contact-manager.storage';
 import { searchContacts } from './contact-manager/contact-manager.service';
 import { createContactManagerController } from './contact-manager/contact-manager.controller';
-import { quickContactCounts } from './contact-manager/quick-contact';
+import { personalContactCounts } from './contact-manager/personal-contact';
 import { createOcrController } from './ocr/ocr.controller';
 import {
   createGlobalCameraOcrService,
@@ -265,7 +265,7 @@ const ocrHistoryRepository = createOcrHistoryRepository(window.sessionStorage);
 const ocrArchiveRepository = createOcrArchiveRepository(createEphemeralOcrArchiveStore());
 const tutorialRepository = createTutorialRepository(window.localStorage);
 const initialProfile = readProfile(window.sessionStorage);
-const initialContacts = readContacts(window.sessionStorage);
+const initialContacts = readContacts(window.localStorage);
 const initialOcrHistory = ocrHistoryRepository.read();
 const initialMessageLibraryPreferences = readMessageLibraryPreferences(window.sessionStorage);
 const initialIncidentJournal = readIncidentJournal(window.sessionStorage);
@@ -464,7 +464,7 @@ function persistIncidentState() {
 }
 
 function persistContactState() {
-  saveContacts(window.sessionStorage, state.contacts);
+  saveContacts(window.localStorage, state.contacts);
 }
 
 function mailToneLabel(language: LanguageCode, tone: MailTone) {
@@ -1798,6 +1798,7 @@ function renderContactManager() {
           <div>
             <h2 id="contact-manager-title">${escapeHtml(t(language, 'contact.managerTitle'))}</h2>
             <p>${escapeHtml(t(language, 'contact.managerDescription'))}</p>
+            <p class="muted-note" data-personal-contact-authority>${escapeHtml(t(language, 'contact.internalSourceNotice'))}</p>
           </div>
           <button id="closeContactManager" type="button" aria-label="${escapeHtml(t(language, 'contact.closeAgenda'))}">${escapeHtml(t(language, 'common.close'))}</button>
         </header>
@@ -1855,14 +1856,18 @@ function renderContactManager() {
               <span>${escapeHtml(t(language, 'contact.phone'))}</span>
               <input id="contactPhone" type="tel" value="${escapeHtml(state.contactDraft.phone)}" />
             </label>
-            <label>
-              <span>${escapeHtml(t(language, 'contact.whatsapp'))}</span>
-              <input id="contactWhatsapp" type="tel" value="${escapeHtml(state.contactDraft.whatsapp)}" />
-            </label>
-            <label>
-              <span>${escapeHtml(t(language, 'contact.messenger'))}</span>
-              <input id="contactMessenger" type="text" inputmode="url" value="${escapeHtml(state.contactDraft.messenger)}" placeholder="username or https://m.me/username" />
-            </label>
+            <fieldset class="contact-channel-group" data-contact-additional-channels>
+              <legend>${escapeHtml(t(language, 'contact.additionalChannels'))}</legend>
+              <p class="muted-note">${escapeHtml(t(language, 'contact.additionalChannelsDescription'))}</p>
+              <label>
+                <span>${escapeHtml(t(language, 'contact.whatsapp'))}</span>
+                <input id="contactWhatsapp" type="tel" value="${escapeHtml(state.contactDraft.whatsapp)}" />
+              </label>
+              <label>
+                <span>${escapeHtml(t(language, 'contact.messenger'))}</span>
+                <input id="contactMessenger" type="text" inputmode="url" value="${escapeHtml(state.contactDraft.messenger)}" placeholder="username or https://m.me/username" />
+              </label>
+            </fieldset>
             <label>
               <span>${escapeHtml(t(language, 'contact.address'))}</span>
               <input id="contactAddress" type="text" value="${escapeHtml(state.contactDraft.address)}" />
@@ -1923,7 +1928,7 @@ function senderPreviewLines() {
 
 function renderProfile() {
   const language = uiLanguage();
-  const quickCounts = quickContactCounts(state.contacts);
+  const personalCounts = personalContactCounts(state.contacts);
 
   return `
     <form class="profile-panel" aria-label="${escapeHtml(t(language, 'profile.ariaLabel'))}">
@@ -2020,17 +2025,18 @@ function renderProfile() {
         </section>
       </details>
 
-      <details class="module-section" data-quick-contacts>
-        <summary>${escapeHtml(t(language, 'profile.quickContactsTitle'))}</summary>
+      <details class="module-section" data-personal-contacts>
+        <summary>${escapeHtml(t(language, 'profile.personalContactsTitle'))}</summary>
         <section class="compliance-note">
-          <strong>${escapeHtml(t(language, 'profile.quickContactsTitle'))}</strong>
-          <p>${escapeHtml(t(language, 'profile.quickContactsDescription'))}</p>
-          <div class="quick-contact-counts" aria-label="${escapeHtml(t(language, 'profile.quickContactsTitle'))}">
-            <span>${escapeHtml(t(language, 'profile.quickContactsEmailCount', { count: quickCounts.email }))}</span>
-            <span>${escapeHtml(t(language, 'profile.quickContactsPhoneCount', { count: quickCounts.phone }))}</span>
-            <span>${escapeHtml(t(language, 'profile.quickContactsMessengerCount', { count: quickCounts.messenger }))}</span>
+          <strong>${escapeHtml(t(language, 'profile.personalContactsTitle'))}</strong>
+          <p>${escapeHtml(t(language, 'profile.personalContactsDescription'))}</p>
+          <div class="personal-contact-counts" aria-label="${escapeHtml(t(language, 'profile.personalContactsTitle'))}">
+            <span>${escapeHtml(t(language, 'profile.personalContactsPersonCount', { count: personalCounts.people }))}</span>
+            <span>${escapeHtml(t(language, 'profile.personalContactsEmailCount', { count: personalCounts.email }))}</span>
+            <span>${escapeHtml(t(language, 'profile.personalContactsPhoneCount', { count: personalCounts.phone }))}</span>
+            <span>${escapeHtml(t(language, 'profile.personalContactsMessengerCount', { count: personalCounts.messenger }))}</span>
           </div>
-          <button id="openQuickContacts" type="button">${escapeHtml(t(language, 'profile.quickContactsManage'))}</button>
+          <button id="openPersonalContacts" type="button">${escapeHtml(t(language, 'profile.personalContactsManage'))}</button>
         </section>
       </details>
 
@@ -3691,7 +3697,7 @@ function bindContactManager() {
 }
 
 function bindProfile() {
-  document.querySelector<HTMLButtonElement>('#openQuickContacts')?.addEventListener('click', () => {
+  document.querySelector<HTMLButtonElement>('#openPersonalContacts')?.addEventListener('click', () => {
     openContactManager();
   });
 
@@ -3807,7 +3813,7 @@ function registerServiceWorker() {
   }
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js?v=agm-cockpit-1.5.0-quick-contacts-v1-20260918', { updateViaCache: 'none' }).catch(() => {
+    navigator.serviceWorker.register('/sw.js?v=agm-cockpit-1.5.0-personal-contacts-v3-20260918', { updateViaCache: 'none' }).catch(() => {
       state.status = t(uiLanguage(), 'status.pwaUnavailable');
     });
   });

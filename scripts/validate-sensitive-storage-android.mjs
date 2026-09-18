@@ -12,7 +12,7 @@ const shell = (...args) => execFileSync(adb, ['-s', serial, ...args], { encoding
 const runId = new Date().toISOString().replace(/[:.]/g, '-');
 const output = path.join(root, 'evidence', 'phase2-technical-closure', 'android', runId);
 const keys = [
-  'agm.auth.rememberedEmail', 'agm.profile.settings', 'agm.contact-manager.contacts',
+  'agm.auth.rememberedEmail', 'agm.profile.settings',
   'agm.ocr.history.v1', 'agm.turn.incident-journal.v1', 'agm.e6.pre-departure.session.v1',
   'agm.pre-departure.outbox.v1', 'agm.pre-departure.sync-ack.v1', 'agm.pre-departure.sync-meta.v1',
   'agm.poc02.after-departure.session.v1', 'agm.premium.trip-context.v1',
@@ -23,6 +23,7 @@ const keys = [
   'agm.premium.single-copilot.state.v1', 'agm.premium.voice.telemetry.v1',
   'agm.wave2b.communication-ledger.v1', 'agm.wave2d.conversational-routing.v1',
 ];
+const persistentUserKeys = ['agm.contact-manager.contacts'];
 
 await mkdir(output, { recursive: true });
 let browser;
@@ -38,17 +39,18 @@ try {
   browser = await chromium.connectOverCDP('http://127.0.0.1:9222');
   const page = browser.contexts().flatMap((context) => context.pages()).find((candidate) => !candidate.url().includes('sw.js'));
   if (!page) throw new Error('ANDROID_WEBVIEW_PAGE_UNAVAILABLE');
-  await page.evaluate((sensitiveKeys) => {
-    for (const key of sensitiveKeys) localStorage.setItem(key, JSON.stringify({ synthetic: true }));
+  await page.evaluate(({ sensitiveKeys, persistentKeys }) => {
+    for (const key of [...sensitiveKeys, ...persistentKeys]) localStorage.setItem(key, JSON.stringify({ synthetic: true }));
     sessionStorage.setItem('agm.profile.settings', JSON.stringify({ synthetic: true }));
-  }, keys);
+  }, { sensitiveKeys: keys, persistentKeys: persistentUserKeys });
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(750);
-  const state = await page.evaluate((sensitiveKeys) => ({
+  const state = await page.evaluate(({ sensitiveKeys, persistentKeys }) => ({
     remainingSensitiveLocalKeys: sensitiveKeys.filter((key) => localStorage.getItem(key) !== null),
+    missingPersistentUserKeys: persistentKeys.filter((key) => localStorage.getItem(key) === null),
     remainingSyntheticSessionValue: sessionStorage.getItem('agm.profile.settings'),
-  }), keys);
-  if (state.remainingSensitiveLocalKeys.length || state.remainingSyntheticSessionValue !== null) {
+  }), { sensitiveKeys: keys, persistentKeys: persistentUserKeys });
+  if (state.remainingSensitiveLocalKeys.length || state.missingPersistentUserKeys.length || state.remainingSyntheticSessionValue !== null) {
     throw new Error(`ANDROID_STORAGE_CLEANUP_FAILED:${JSON.stringify(state)}`);
   }
   const screenshot = path.join(output, 'android-sensitive-storage-cleanup.png');

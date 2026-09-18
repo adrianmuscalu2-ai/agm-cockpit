@@ -774,14 +774,14 @@ dd {
   color: #b8c9dc;
 }
 
-.quick-contact-counts {
+.personal-contact-counts {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin: 0.75rem 0;
 }
 
-.quick-contact-counts span {
+.personal-contact-counts span {
   border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.35));
   border-radius: 999px;
   padding: 0.35rem 0.65rem;

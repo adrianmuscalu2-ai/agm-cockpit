@@ -32,14 +32,21 @@ export function routeAndroidAction(text: string, context: ActiveDriverContext | 
     const labels: Record<string, string> = { maps:'Maps','google maps':'Maps',waze:'Waze','tom tom':'TomTom',tomtom:'TomTom',gmail:'Gmail',camera:'Camera',kamera:'Camera' };
     return resolved('OPEN_APP', 'APP_LABEL_RESOLVED', 'REQUEST', { value: labels[openApp[1]!] ?? openApp[1] });
   }
-  const messengerContact = /(?:deschide|open|offne)\s+(?:(?:chatul|conversatia|chat)\s+)?messenger(?:\s+(?:pentru|cu|lui|for|with|fur|mit))?\s+(.+)/i.exec(raw);
+  const messengerCall = /(?:apeleaza|suna|call)\s+(.+?)\s+(?:pe|prin|cu|on|via)\s+messenger[.!?]*$/i.exec(value);
+  if (messengerCall) {
+    const contactName = cleanContactName(messengerCall[1] ?? '');
+    return contactName
+      ? resolved('MESSENGER_CHAT', 'MESSENGER_CONTACT_RESOLUTION_REQUIRED', 'REQUEST', { contactName })
+      : unresolved('CLARIFICATION_REQUIRED', 'MESSENGER_CONTACT_REQUIRED');
+  }
+  const messengerContact = /(?:deschide|open|offne)\s+(?:(?:chatul|conversatia|chat)\s+)?messenger(?:\s+(?:pentru|cu|lui|la|for|with|fur|mit|at))?\s+(.+)/i.exec(value);
   if (messengerContact) {
     const contactName = cleanContactName(messengerContact[1] ?? '');
     return contactName
       ? resolved('MESSENGER_CHAT', 'MESSENGER_CONTACT_RESOLUTION_REQUIRED', 'REQUEST', { contactName })
       : unresolved('CLARIFICATION_REQUIRED', 'MESSENGER_CONTACT_REQUIRED');
   }
-  const emailContact = /(?:trimite|scrie|compune|send|write|compose|sende|schreibe)\s+(?:un\s+)?(?:e-?mail|email)(?:\s+(?:lui|catre|c[Äƒa]tre|to|an))?\s+(.+)/i.exec(raw);
+  const emailContact = /(?:trimite|scrie|compune|send|write|compose|sende|schreibe)\s+(?:un\s+)?(?:gmail|e-?mail|email|mail)(?:\s+(?:lui|catre|to|an))?\s+(.+)/i.exec(value);
   if (emailContact) {
     const contactName = cleanContactName(emailContact[1] ?? '');
     return contactName
@@ -124,7 +131,11 @@ function extractNavigationDestination(value: string) {
 function extractContactName(value: string) {
   const match = /(?:formeaz[ăa](?:\s+num[ăa]rul)?(?:\s+lui)?|sun[ăa](?:-l)?(?:\s+pe)?|apeleaz[ăa](?:-l)?(?:\s+pe)?|dial(?:\s+number)?(?:\s+for)?|call|anrufen|ruf)\s+(.+)/i.exec(value);
   if (!match) return '';
-  const candidate = match[1]!.replace(/^(?:num[ăa]rul(?:\s+lui)?|num[ăa]r|lui|pe)\s+/i, '').replace(/[.!?,;:]+$/g, '').trim().slice(0, 120);
+  const candidate = match[1]!
+    .replace(/^(?:(?:contact(?:ul)?|persoana|num[ăa]rul(?:\s+lui)?|num[ăa]r|lui|pe)\s+)+/i, '')
+    .replace(/[.!?,;:]+$/g, '')
+    .trim()
+    .slice(0, 120);
   const normalized = normalize(candidate);
   if (!normalized || /^(?:numarul|numar|number|telefon|phone)$/.test(normalized)) return '';
   if (/^\+?[0-9][0-9 ()\/-]{5,}[0-9]$/.test(candidate)) return '';
@@ -132,7 +143,11 @@ function extractContactName(value: string) {
 }
 
 function cleanContactName(value: string) {
-  return value.replace(/[.!?,;:]+$/g, '').trim().slice(0, 120);
+  return value
+    .replace(/[.!?,;:]+$/g, '')
+    .replace(/^(?:(?:contact(?:ul)?|persoana|lui|pe)\s+)+/i, '')
+    .trim()
+    .slice(0, 120);
 }
 
 function directValue(value: string, prefix: RegExp) { const match = prefix.exec(value); return match ? value.slice(match.index + match[0].length).trim().replace(/[.!?]+$/, '').slice(0, 500) : ''; }

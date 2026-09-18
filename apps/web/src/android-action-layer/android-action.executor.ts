@@ -8,7 +8,7 @@ import {
 import type { AndroidActionReceipt, AndroidActionResolution } from './android-action.contract';
 import { evaluatePermissionRequest } from './permission-guardian.client';
 import { readContacts } from '../contact-manager/contact-manager.storage';
-import { resolveQuickContactAction } from '../contact-manager/quick-contact';
+import { resolvePersonalContactAction } from '../contact-manager/personal-contact';
 
 const RECEIPTS_KEY = 'agm.android-action.receipts.v1';
 const capabilityNames: Record<NonNullable<AndroidActionResolution['action']>, string> = {
@@ -24,7 +24,7 @@ export async function executeAndroidAction(text: string, resolution: AndroidActi
     const result = resolution.status === 'UNSUPPORTED' ? 'UNSUPPORTED' : 'CLARIFICATION_REQUIRED';
     return receipt(text, resolution, result, null, resolution.reason);
   }
-  let effectiveResolution = resolveStoredQuickContact(resolution);
+  let effectiveResolution = resolveStoredPersonalContact(resolution);
   if (effectiveResolution.status !== 'RESOLVED' || !effectiveResolution.action) {
     return receipt(text, effectiveResolution, 'CLARIFICATION_REQUIRED', null, effectiveResolution.reason);
   }
@@ -46,7 +46,12 @@ export async function executeAndroidAction(text: string, resolution: AndroidActi
           : 'UNAVAILABLE';
       return receipt(text, effectiveResolution, result, null, contact.reason, undefined, undefined, contactGuardian);
     }
-    payload = { ...payload, value: contact.phoneNumber };
+    payload = {
+      ...payload,
+      contactName: contact.displayName?.trim() || payload.contactName,
+      contactSource: 'ANDROID_CONTACTS',
+      value: contact.phoneNumber,
+    };
     effectiveResolution = { ...effectiveResolution, reason: 'CONTACT_PHONE_RESOLVED', payload };
   }
 
@@ -107,9 +112,9 @@ export function readAndroidActionReceipts(): AndroidActionReceipt[] {
   try { const value = JSON.parse(sessionStorage.getItem(RECEIPTS_KEY) ?? '[]'); return Array.isArray(value) ? value : []; } catch { return []; }
 }
 
-function resolveStoredQuickContact(resolution: AndroidActionResolution): AndroidActionResolution {
+function resolveStoredPersonalContact(resolution: AndroidActionResolution): AndroidActionResolution {
   try {
-    return resolveQuickContactAction(resolution, readContacts(sessionStorage));
+    return resolvePersonalContactAction(resolution, readContacts(localStorage));
   } catch {
     return resolution;
   }

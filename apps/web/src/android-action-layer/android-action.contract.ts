@@ -28,7 +28,10 @@ export type ActiveDriverContext = GmailActionContext & {
 export type AndroidActionPayload = {
   value?: string;
   navigationApp?: 'MAPS' | 'WAZE' | 'TOMTOM';
+  contactId?: string;
   contactName?: string;
+  contactSource?: 'AGM_PERSONAL_CONTACTS' | 'ANDROID_CONTACTS';
+  requestedChannel?: 'PHONE' | 'EMAIL' | 'MESSENGER';
   contextText?: string;
   startEpochMs?: number;
   hour?: number;

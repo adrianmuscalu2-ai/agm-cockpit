@@ -1,7 +1,7 @@
 import { validateContactDraft } from './contact-manager.validation';
 import { createContact, saveContacts, updateContact } from './contact-manager.storage';
 import { type AgmContact, type ContactDraft, type ContactValidationResult } from './contact-manager.types';
-import { validateQuickContactCapacity } from './quick-contact';
+import { validatePersonalContactCollection } from './personal-contact';
 
 export function addContact(contacts: AgmContact[], draft: ContactDraft): { contacts: AgmContact[]; result: ContactValidationResult } {
   const result = validateContact(contacts, draft);
@@ -58,9 +58,9 @@ export function persistContactList(storage: Storage, contacts: AgmContact[]) {
 
 function validateContact(contacts: AgmContact[], draft: ContactDraft, editingId = ''): ContactValidationResult {
   const content = validateContactDraft(draft);
-  const capacity = validateQuickContactCapacity(contacts, draft, editingId);
+  const collection = validatePersonalContactCollection(contacts, draft, editingId);
   return {
-    valid: content.valid && capacity.valid,
-    messages: [...content.messages, ...capacity.messages],
+    valid: content.valid && collection.valid,
+    messages: [...content.messages, ...collection.messages],
   };
 }

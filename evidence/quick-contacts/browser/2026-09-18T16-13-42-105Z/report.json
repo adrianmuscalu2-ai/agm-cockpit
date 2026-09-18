@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-18T16-13-42-105Z",
+  "startedAt": "2026-09-18T16:13:42.105Z",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "checks": [
+    {
+      "name": "TARGET HTTP 200",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:53127/ status=200"
+    },
+    {
+      "name": "CONTROLLED NAVIGATION",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:53127/"
+    },
+    {
+      "name": "BROWSER SESSION",
+      "status": "PASS",
+      "detail": "AGM Website"
+    },
+    {
+      "name": "TARGET PAGE",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:53127/profile"
+    },
+    {
+      "name": "PROFILE AGM PERSONAL CONTACTS SECTION",
+      "status": "PASS",
+      "detail": "count=1"
+    },
+    {
+      "name": "PERSON AND CHANNEL COUNTERS",
+      "status": "PASS",
+      "detail": "Persoane: 0/20 | Gmail / e-mail: 0 | Telefon: 0 | Messenger: 0"
+    },
+    {
+      "name": "AGM PERSONAL CONTACT MANAGER OPENED",
+      "status": "PASS",
+      "detail": "modal visible"
+    },
+    {
+      "name": "INTERNAL AUTHORIZED SOURCE NOTICE",
+      "status": "PASS",
+      "detail": "no READ_CONTACTS required for profile data"
+    },
+    {
+      "name": "EXTENSIBLE CHANNEL GROUP VISIBLE",
+      "status": "PASS",
+      "detail": "Messenger and WhatsApp grouped as extensible channels"
+    },
+    {
+      "name": "MESSENGER FIELD VISIBLE",
+      "status": "PASS",
+      "detail": "contactMessenger"
+    },
+    {
+      "name": "LOCAL CONTACT PERSISTENCE",
+      "status": "PASS",
+      "detail": "Mona Vodafone stored with the controlled quick-contact number"
+    },
+    {
+      "name": "COUNTERS UPDATED",
+      "status": "PASS",
+      "detail": "Persoane: 1/20 | Gmail / e-mail: 1 | Telefon: 1 | Messenger: 1"
+    },
+    {
+      "name": "MOBILE NO OVERFLOW",
+      "status": "PASS",
+      "detail": "{\"client\":390,\"scroll\":390}"
+    },
+    {
+      "name": "EXACT COMMAND ACCEPTED",
+      "status": "PASS",
+      "detail": "Contact selectat: Mona Vodafone\nNumăr: +40 700 123 456\nSursă: Contacte personale AGM\nConfirmă pentru a deschide dialerul Android. Apelul nu va fi inițiat automat."
+    },
+    {
+      "name": "SELECTED PHONE DISPLAYED",
+      "status": "PASS",
+      "detail": "Contact selectat: Mona Vodafone\nNumăr: +40 700 123 456\nSursă: Contacte personale AGM\nConfirmă pentru a deschide dialerul Android. Apelul nu va fi inițiat automat."
+    },
+    {
+      "name": "AGM PERSONAL CONTACT SOURCE DISPLAYED",
+      "status": "PASS",
+      "detail": "Contact selectat: Mona Vodafone\nNumăr: +40 700 123 456\nSursă: Contacte personale AGM\nConfirmă pentru a deschide dialerul Android. Apelul nu va fi inițiat automat."
+    },
+    {
+      "name": "NO AUTOMATIC CALL DISCLOSURE",
+      "status": "PASS",
+      "detail": "Contact selectat: Mona Vodafone\nNumăr: +40 700 123 456\nSursă: Contacte personale AGM\nConfirmă pentru a deschide dialerul Android. Apelul nu va fi inițiat automat."
+    },
+    {
+      "name": "DIALER BLOCKED BEFORE AGM CONFIRMATION",
+      "status": "PASS",
+      "detail": "no Android handoff event before explicit confirmation"
+    },
+    {
+      "name": "GMAIL RESOLVED FROM AGM PROFILE",
+      "status": "PASS",
+      "detail": "{\"contractVersion\":\"android-action-receipt.v1\",\"request\":{\"text\":\"Trimite un Gmail lui Mona Vodafone.\",\"action\":\"EMAIL_DRAFT\"},\"resolution\":{\"contractVersion\":\"android-action-resolution.v1\",\"status\":\"RESOLVED\",\"action\":\"EMAIL_DRAFT\",\"reason\":\"AGM_PERSONAL_CONTACT_EMAIL_RESOLVED\",\"source\":\"REQUEST\",\"payload\":{\"contactName\":\"Mona Vodafone\",\"contactId\":\"b190c800-15c2-46ba-868e-a0e6ffb748f6\",\"contactSource\":\"AGM_PERSONAL_CONTACTS\",\"requestedChannel\":\"EMAIL\",\"value\":\"mona@example.invalid\"},\"confirmation\":\"ANDROID_TARGET\"},\"target\":null,\"result\":\"UNAVAILABLE\",\"fallback\":\"ANDROID_REQUIRED\",\"observedAt\":\"2026-09-18T16:13:59.328Z\"}"
+    },
+    {
+      "name": "GMAIL NEEDS NO EXTRA AGM CONFIRMATION",
+      "status": "PASS",
+      "detail": "UNAVAILABLE"
+    },
+    {
+      "name": "GMAIL AUTHORIZATION FLOW UNCHANGED",
+      "status": "PASS",
+      "detail": "existing draft handoff only; no Gmail reauthorization added"
+    },
+    {
+      "name": "MESSENGER RESOLVED FROM AGM PROFILE",
+      "status": "PASS",
+      "detail": "{\"contractVersion\":\"android-action-receipt.v1\",\"request\":{\"text\":\"Deschide Messenger la Mona.\",\"action\":\"MESSENGER_CHAT\"},\"resolution\":{\"contractVersion\":\"android-action-resolution.v1\",\"status\":\"RESOLVED\",\"action\":\"MESSENGER_CHAT\",\"reason\":\"AGM_PERSONAL_CONTACT_MESSENGER_RESOLVED\",\"source\":\"REQUEST\",\"payload\":{\"contactName\":\"Mona Vodafone\",\"contactId\":\"b190c800-15c2-46ba-868e-a0e6ffb748f6\",\"contactSource\":\"AGM_PERSONAL_CONTACTS\",\"requestedChannel\":\"MESSENGER\",\"value\":\"mona.vodafone\"},\"confirmation\":\"ANDROID_TARGET\"},\"target\":null,\"result\":\"UNAVAILABLE\",\"fallback\":\"ANDROID_REQUIRED\",\"observedAt\":\"2026-09-18T16:13:59.568Z\"}"
+    },
+    {
+      "name": "MESSENGER NEEDS NO EXTRA AGM CONFIRMATION",
+      "status": "PASS",
+      "detail": "UNAVAILABLE"
+    },
+    {
+      "name": "MESSENGER CALL WORDING OPENS CHAT TARGET",
+      "status": "PASS",
+      "detail": "{\"contractVersion\":\"android-action-receipt.v1\",\"request\":{\"text\":\"Apelează Mona pe Messenger.\",\"action\":\"MESSENGER_CHAT\"},\"resolution\":{\"contractVersion\":\"android-action-resolution.v1\",\"status\":\"RESOLVED\",\"action\":\"MESSENGER_CHAT\",\"reason\":\"AGM_PERSONAL_CONTACT_MESSENGER_RESOLVED\",\"source\":\"REQUEST\",\"payload\":{\"contactName\":\"Mona Vodafone\",\"contactId\":\"b190c800-15c2-46ba-868e-a0e6ffb748f6\",\"contactSource\":\"AGM_PERSONAL_CONTACTS\",\"requestedChannel\":\"MESSENGER\",\"value\":\"mona.vodafone\"},\"confirmation\":\"ANDROID_TARGET\"},\"target\":null,\"result\":\"UNAVAILABLE\",\"fallback\":\"ANDROID_REQUIRED\",\"observedAt\":\"2026-09-18T16:13:59.855Z\"}"
+    },
+    {
+      "name": "NO PHONE CONFIRMATION FOR MESSENGER CHAT",
+      "status": "PASS",
+      "detail": "UNAVAILABLE"
+    },
+    {
+      "name": "DUPLICATE CLARIFICATION EXPLICIT",
+      "status": "PASS",
+      "detail": "Am găsit mai multe contacte cu numele Mona Vodafone. Pe care vrei să îl apelezi?"
+    },
+    {
+      "name": "DUPLICATE DOES NOT OPEN DIALER",
+      "status": "PASS",
+      "detail": "no Android handoff event for ambiguous contact"
+    },
+    {
+      "name": "DUPLICATE HAS NO CONFIRMATION PANEL",
+      "status": "PASS",
+      "detail": "confirmation panel remains hidden"
+    },
+    {
+      "name": "NO RUNTIME ERRORS",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "BROWSER REAL VALIDATION",
+      "status": "PASS",
+      "detail": "personal profile, persistence, phone confirmation, Gmail, Messenger, duplicate clarification and responsive capture"
+    }
+  ],
+  "evidenceDir": "C:\\Users\\adria\\Documents\\AGM\\.tmp\\quick-contacts-v150\\evidence\\quick-contacts\\browser\\2026-09-18T16-13-42-105Z",
+  "finishedAt": "2026-09-18T16:14:01.166Z",
+  "status": "PASS"
+}
