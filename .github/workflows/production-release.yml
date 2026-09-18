@@ -453,7 +453,15 @@ jobs:
             sleep 5
           done
           test "$runtime_ready" = true
-          accountability=$(curl --fail --silent --show-error -X POST https://api.agmcockpit.com/api/v1/auth/deploy/machines/inspector-failover/exercise -H "Authorization: Bearer $PROVISIONING_TOKEN" -H 'Content-Type: application/json')
+          accountability_file=$(mktemp)
+          accountability_status=$(curl --silent --show-error --output "$accountability_file" --write-out '%{http_code}' -X POST https://api.agmcockpit.com/api/v1/auth/deploy/machines/inspector-failover/exercise -H "Authorization: Bearer $PROVISIONING_TOKEN" -H 'Content-Type: application/json')
+          accountability=$(<"$accountability_file")
+          rm -f "$accountability_file"
+          if [ "$accountability_status" != '200' ] && [ "$accountability_status" != '201' ]; then
+            echo "INSPECTOR_FAILOVER_EXERCISE_HTTP_STATUS=$accountability_status"
+            jq -c '.' <<<"$accountability" || printf '%s\n' "$accountability"
+            exit 1
+          fi
           operational_truth=$(curl --fail --silent --show-error \
             https://api.agmcockpit.com/api/v1/operations/turn/operational-truth)
           jq -e --arg identity "$identity_ref" --arg credential "$credential_ref" '
