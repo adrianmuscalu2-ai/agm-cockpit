@@ -7,9 +7,13 @@ import path from 'node:path';
 const root = process.cwd();
 const target = process.env.AGM_VISUAL_TARGET ?? 'http://127.0.0.1:5174';
 const productionTarget = new URL(target).hostname === 'app.agmcockpit.com';
+const expectedProductionRevision = process.env.AGM_EXPECTED_PRODUCTION_REVISION?.trim() ?? '';
+if (productionTarget && !/^[a-f0-9]{40}$/.test(expectedProductionRevision)) {
+  throw new Error('AGM_EXPECTED_PRODUCTION_REVISION must be the approved 40-character Production SHA');
+}
 const apkTarget = process.env.AGM_ANDROID_APK_URL ?? (productionTarget
-  ? 'https://api.agmcockpit.com/downloads/AGM-Cockpit-Android-1.3.0.apk'
-  : `${target}/downloads/AGM-Cockpit-Android-1.3.0.apk`);
+  ? 'https://api.agmcockpit.com/downloads/AGM-Cockpit-Android-1.5.0.apk'
+  : `${target}/downloads/AGM-Cockpit-Android-1.5.0.apk`);
 const runId = new Date().toISOString().replace(/[:.]/g, '-');
 const out = path.join(root, 'evidence', 'ai-assistant-glass', productionTarget ? 'production' : '', runId);
 const results = [];
@@ -149,7 +153,7 @@ try {
   const liveApkResponse = await fetch(apkTarget, { cache: 'no-store' });
   if (!liveApkResponse.ok) throw new Error(`Live Android APK HTTP ${liveApkResponse.status}`);
   const liveApkSha256 = createHash('sha256').update(Buffer.from(await liveApkResponse.arrayBuffer())).digest('hex').toUpperCase();
-  if (liveApkSha256 !== 'A26AA71EF93034C968D272861F86BA0FF5D57A1A0E581184FEC80F55CBFCF329') throw new Error(`Live Android APK hash mismatch: ${liveApkSha256}`);
+  if (liveApkSha256 !== '357F45C89E908CE69B02D54CA7A2CF75B094280AC96B795AA4EB2CD0523D6EA6') throw new Error(`Live Android APK hash mismatch: ${liveApkSha256}`);
   browser = await chromium.launch({ headless: true });
   const scenarios = [
     { id: 'desktop-copilot', route: '/premium/copilot', root: '.premium-copilot-view', panel: '.copilot-core', mic: '.copilot-mic', viewport: { width: 1440, height: 1000 } },
@@ -203,9 +207,9 @@ try {
       source: 'User-supplied ChatGPT visual reference',
     },
     productionDistribution: productionTarget ? {
-      revision: '4b5871ad26e2032cec70f6c4b25ebe209e14cb15',
+      revision: expectedProductionRevision,
       apkUrl: apkTarget,
-      apkSha256: 'A26AA71EF93034C968D272861F86BA0FF5D57A1A0E581184FEC80F55CBFCF329',
+      apkSha256: '357F45C89E908CE69B02D54CA7A2CF75B094280AC96B795AA4EB2CD0523D6EA6',
     } : undefined,
     results,
     fatal,

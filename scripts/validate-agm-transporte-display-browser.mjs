@@ -27,7 +27,7 @@ try {
     relationship: await page.locator('.about-brand-relation').textContent(),
     version: await page.locator('.about-app .profile-heading > span').textContent(),
   };
-  if (state.http !== 200 || state.title !== 'AGM Transporte' || state.relationship !== 'A.G.M. Cockpit — parte din ecosistemul AGM Transporte.' || state.version !== 'A.G.M. Cockpit 1.3.0') {
+  if (state.http !== 200 || state.title !== 'AGM Transporte' || state.relationship !== 'A.G.M. Cockpit — parte din ecosistemul AGM Transporte.' || state.version !== 'A.G.M. Cockpit 1.5.0') {
     throw new Error(`Display contract mismatch: ${JSON.stringify(state)}`);
   }
   const screenshot = path.join(output, 'about-desktop.png');

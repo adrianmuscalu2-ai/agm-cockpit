@@ -19,8 +19,8 @@ for (const plugin of ['AgmAudioPlugin', 'AgmEmailPlugin', 'AgmDiagnosticsPlugin'
 
 assert.ok(gradle.includes('namespace = "com.agm.cockpit"'));
 assert.ok(gradle.includes('applicationId "com.agm.cockpit"'));
-assert.ok(gradle.includes('versionCode 21'));
-assert.ok(gradle.includes('versionName "1.3.0"'));
+assert.ok(gradle.includes('versionCode 27'));
+assert.ok(gradle.includes('versionName "1.5.0"'));
 assert.ok(gradle.includes('usesCleartextTraffic: "false"'));
 assert.ok(gradle.includes('usesCleartextTraffic: "true"'));
 

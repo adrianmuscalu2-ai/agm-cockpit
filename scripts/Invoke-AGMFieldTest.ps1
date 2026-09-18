@@ -1,7 +1,7 @@
 param(
   [ValidateSet('Prepare','Start','Capture','Complete')][string]$Action='Prepare',
   [string]$SessionId='',
-  [string]$Device='Android AGM Cockpit 1.3.0',
+  [string]$Device='Android AGM Cockpit 1.5.0',
   [ValidateSet('MOBILE','WIFI','DEGRADED','OFFLINE','OPERATOR_NOT_RECORDED')][string]$Connectivity='OPERATOR_NOT_RECORDED',
   [string]$ObservationPath='',
   [switch]$SafetyConfirmed

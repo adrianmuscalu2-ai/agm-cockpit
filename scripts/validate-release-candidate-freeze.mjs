@@ -72,9 +72,9 @@ check('freshness-persistence-schema', ['SourceFreshnessRuntimeState', 'SourceFre
 const androidBuild = readFileSync(resolve(root, 'apps/web/android/app/build.gradle'), 'utf8');
 check('android-release-identity',
   /applicationId\s+["']com\.agm\.cockpit["']/.test(androidBuild)
-    && /versionName\s+["']1\.3\.0["']/.test(androidBuild)
-    && /versionCode\s+21\b/.test(androidBuild),
-  { applicationId: 'com.agm.cockpit', versionName: '1.3.0', versionCode: 21 },
+    && /versionName\s+["']1\.5\.0["']/.test(androidBuild)
+    && /versionCode\s+27\b/.test(androidBuild),
+  { applicationId: 'com.agm.cockpit', versionName: '1.5.0', versionCode: 27 },
 );
 
 const signingNames = ['AGM_ANDROID_RELEASE_KEYSTORE', 'AGM_ANDROID_RELEASE_STORE_PASSWORD', 'AGM_ANDROID_RELEASE_KEY_ALIAS', 'AGM_ANDROID_RELEASE_KEY_PASSWORD'];
@@ -110,11 +110,11 @@ if (adb && existsSync(adb)) {
     physicalDevices = [];
   }
 }
-check('android-current-physical-device', physicalDevices.length === 1 && installedVersion === '1.3.0', {
+check('android-current-physical-device', physicalDevices.length === 1 && installedVersion === '1.5.0', {
   adbPresent: Boolean(adb && existsSync(adb)),
   authorizedPhysicalDevices: physicalDevices.length,
   installedVersion,
-  expectedVersion: '1.3.0',
+  expectedVersion: '1.5.0',
 });
 
 const websiteLanguage = readFileSync(resolve(root, 'agmcockpit-website/src/data/language-capability.ts'), 'utf8');

@@ -4,7 +4,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { basename, resolve } from 'node:path';
 import { createServer } from 'node:http';
 
-const apkPath = resolve(process.argv[2] ?? 'artifacts/field-test/AGM-Transporte-1.3.0-field-test.apk');
+const apkPath = resolve(process.argv[2] ?? 'artifacts/field-test/AGM-Transporte-1.5.0-field-test.apk');
 const port = Number(process.argv[3] ?? 8765);
 const apkName = basename(apkPath);
 
@@ -33,7 +33,7 @@ const server = createServer(async (request, response) => {
 <html lang="ro"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AGM Transporte — APK test local</title>
 <style>body{font-family:system-ui;background:#050d16;color:#eef8ff;max-width:760px;margin:0 auto;padding:32px}a{display:inline-block;background:#ff8a24;color:#071018;text-decoration:none;font-weight:800;padding:16px 22px;border-radius:14px}code{overflow-wrap:anywhere;color:#75d8ff}.card{background:#0c2030cc;border:1px solid #2b779d;padding:24px;border-radius:18px}</style>
-<div class="card"><h1>AGM Transporte 1.3.0</h1><p>APK debug pentru testare locală în teren.</p><p><a href="${downloadPath}">Descarcă APK (${(apkStat.size / 1024 / 1024).toFixed(1)} MB)</a></p><p>Package: <code>com.agm.cockpit</code></p><p>SHA-256: <code>${apkHash}</code></p><p>Instalați numai pe telefoanele AGM autorizate pentru test.</p></div></html>`;
+<div class="card"><h1>AGM Transporte 1.5.0</h1><p>APK debug pentru testare locală în teren.</p><p><a href="${downloadPath}">Descarcă APK (${(apkStat.size / 1024 / 1024).toFixed(1)} MB)</a></p><p>Package: <code>com.agm.cockpit</code></p><p>SHA-256: <code>${apkHash}</code></p><p>Instalați numai pe telefoanele AGM autorizate pentru test.</p></div></html>`;
     response.writeHead(200, {
       'content-type': 'text/html; charset=utf-8',
       'content-length': Buffer.byteLength(html),
