@@ -47,7 +47,11 @@
     "test:surface-sync": "node scripts/validate-product-surface.mjs",
     "test:browser-validation-flow": "tsx scripts/test-browser-validation-flow.ts",
     "test:physical-owner-session-isolation": "node scripts/test-physical-owner-session-isolation.mjs",
-    "release:freeze-check": "node scripts/validate-release-candidate-freeze.mjs"
+    "release:freeze-check": "node scripts/validate-release-candidate-freeze.mjs",
+    "security:evidence:check": "node scripts/evidence-sanitizer.mjs --check-repository",
+    "security:evidence:staged": "node scripts/evidence-sanitizer.mjs --check-staged",
+    "security:evidence:test": "node scripts/test-evidence-sanitizer.mjs",
+    "security:hooks:install": "git config core.hooksPath .githooks"
   },
   "prisma": {
     "seed": "tsx prisma/seed/seed.ts"

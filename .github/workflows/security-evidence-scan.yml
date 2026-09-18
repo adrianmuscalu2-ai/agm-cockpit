@@ -1,0 +1,25 @@
+name: Security evidence secret scan
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          package-manager-cache: false
+      - name: Scan tracked repository and evidence
+        run: node scripts/evidence-sanitizer.mjs --check-repository
+      - name: Scan reachable Git history
+        run: node scripts/evidence-sanitizer.mjs --check-history
+      - name: Test sanitizer redaction and pre-disk capture
+        run: node scripts/test-evidence-sanitizer.mjs
