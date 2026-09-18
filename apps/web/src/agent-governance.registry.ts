@@ -159,7 +159,7 @@ export const agentGovernanceRegistry: AgentGovernanceRecord[] = [
     reliabilityKey: 'agentRegistry.reliability.validated',
     displayName: 'Italian Language Agent',
     displayRole: 'Autoritate lingvistică operațională IT',
-    displayResponsibilities: 'Validează exclusiv pachetul italian în APP, Premium și Car Mover; publică heartbeat din auditul determinist al celor 1.699 de resurse.',
+    displayResponsibilities: 'Validează exclusiv pachetul italian în APP, Premium și Car Mover; publică heartbeat din auditul determinist al celor 1.713 de resurse.',
   },
   {
     id: 'premium-linguist-es',
@@ -174,7 +174,7 @@ export const agentGovernanceRegistry: AgentGovernanceRecord[] = [
     reliabilityKey: 'agentRegistry.reliability.validated',
     displayName: 'Spanish Language Agent',
     displayRole: 'Autoritate lingvistică operațională ES',
-    displayResponsibilities: 'Validează exclusiv pachetul spaniol în APP, Premium și Car Mover; publică heartbeat din auditul determinist al celor 1.699 de resurse.',
+    displayResponsibilities: 'Validează exclusiv pachetul spaniol în APP, Premium și Car Mover; publică heartbeat din auditul determinist al celor 1.713 de resurse.',
   },
   {
     id: 'premium-linguist-sv',
@@ -189,7 +189,7 @@ export const agentGovernanceRegistry: AgentGovernanceRecord[] = [
     reliabilityKey: 'agentRegistry.reliability.validated',
     displayName: 'Swedish Language Agent',
     displayRole: 'Autoritate lingvistică operațională SV',
-    displayResponsibilities: 'Validează exclusiv pachetul suedez în APP, Premium și Car Mover; publică heartbeat din auditul determinist al celor 1.699 de resurse.',
+    displayResponsibilities: 'Validează exclusiv pachetul suedez în APP, Premium și Car Mover; publică heartbeat din auditul determinist al celor 1.713 de resurse.',
   },
   {
     id: 'agent-linguistic-librarian',

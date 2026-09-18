@@ -12,7 +12,7 @@ import {
 import { panelAgentSources } from '../src/turn-agent-panel.integration';
 import { turnOrganizationAgents } from '../src/turn-organization-chart';
 
-const expectedCounts = { app: 1155, operational: 308, carMover: 37, premium: 199, total: 1699 };
+const expectedCounts = { app: 1169, operational: 308, carMover: 37, premium: 199, total: 1713 };
 const verdicts: Record<string, string> = {};
 
 assert.equal(new Set(premiumLinguisticAgents.map((agent) => agent.id)).size, premiumLinguisticAgents.length, 'linguistic registry IDs must be unique');

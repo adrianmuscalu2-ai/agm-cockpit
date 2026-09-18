@@ -50,11 +50,11 @@ export type LinguisticAgentHeartbeat = {
 };
 
 const expectedCounts: LinguisticAgentResourceCounts = {
-  app: 1155,
+  app: 1169,
   operational: 308,
   carMover: 37,
   premium: 199,
-  total: 1699,
+  total: 1713,
 };
 const heartbeatIntervalMs = 60_000;
 const heartbeatJournalLimit = 50;

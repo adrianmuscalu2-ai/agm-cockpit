@@ -109,7 +109,7 @@ try {
     for (const id of agents) {
       const heartbeat = heartbeatStore.get(id);
       if (heartbeat?.payload.status !== 'ONLINE') throw new Error(`${viewportName}/${id}: heartbeat is not ONLINE`);
-      if (!String(heartbeat?.payload.detail).includes('total=1699;errors=0')) throw new Error(`${viewportName}/${id}: resource evidence missing`);
+      if (!String(heartbeat?.payload.detail).includes('total=1713;errors=0')) throw new Error(`${viewportName}/${id}: resource evidence missing`);
       const governance = await page.locator(`[data-agent-row-id="${id}"]`).count();
       if (governance !== 1) throw new Error(`${viewportName}/${id}: governance row missing or duplicated`);
       const organization = await page.locator(`[data-turn-org-agent="${id}"]`).count();
