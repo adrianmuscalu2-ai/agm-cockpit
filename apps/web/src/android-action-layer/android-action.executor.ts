@@ -113,6 +113,7 @@ export function readAndroidActionReceipts(): AndroidActionReceipt[] {
 }
 
 function resolveStoredPersonalContact(resolution: AndroidActionResolution): AndroidActionResolution {
+  if (resolution.payload?.contactSource === 'AGM_PERSONAL_CONTACTS' && resolution.payload.value) return resolution;
   try {
     return resolvePersonalContactAction(resolution, readContacts(localStorage));
   } catch {

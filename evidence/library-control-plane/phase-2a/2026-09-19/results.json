@@ -1,0 +1,24 @@
+{
+  "contractVersion": "agm-library-control-plane.phase1.v1",
+  "date": "2026-09-19",
+  "parentSha": "59868bd7b3ba2fb5388c7344c8fdb7849a24e197",
+  "phase": "2A",
+  "verdict": "PASS",
+  "source": "PROFILE_CONTACTS",
+  "canonicalOwner": "AGM_PROFILE_USER_DATA",
+  "gates": {
+    "globalAuthorityRouting": "PASS",
+    "domainMandates": ["BASIC", "PREMIUM", "PROFILE", "CAR_MOVER"],
+    "authorizationBeforeProfileRead": "PASS",
+    "minimalAuthorizedPayload": "PASS",
+    "browserResolverContract": "PASS",
+    "androidResolverContract": "PASS",
+    "aliasResolution": "PASS",
+    "duplicateClarification": "PASS",
+    "verifiedNoDataBoundary": "PASS",
+    "actionDialSafety": "PASS"
+  },
+  "androidBrowserSharedStorage": "NOT_CLAIMED_PHASE_2C",
+  "productionDeployTriggered": false,
+  "phase2bStarted": false
+}

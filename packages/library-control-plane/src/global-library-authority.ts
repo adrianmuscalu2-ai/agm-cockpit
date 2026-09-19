@@ -85,6 +85,13 @@ export class AgmGlobalLibraryAuthority {
 
     const ambiguous = records.filter((record) => record.status === 'AMBIGUOUS' || record.ambiguity.ambiguous);
     const found = records.filter((record) => record.status === 'FOUND');
+    const clarifications = ambiguous.map((record) => ({
+      domain: record.domain,
+      resolverId: record.resolverId,
+      prompt: record.ambiguity.clarificationPrompt ?? 'CLARIFICATION_REQUIRED',
+      candidateIds: record.ambiguity.candidateIds,
+      minimalAuthorizedPayload: record.minimalAuthorizedPayload,
+    }));
     const { contexts, conflicts } = packageContexts(found);
     const allEligibleCompleted = eligibleCount > 0
       && records.length + authorizationDenials.length === eligibleCount
@@ -107,6 +114,7 @@ export class AgmGlobalLibraryAuthority {
       domains,
       mandates,
       contexts,
+      clarifications,
       conflicts,
       authorizationDenials,
       failures,

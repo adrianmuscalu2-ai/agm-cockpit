@@ -92,10 +92,11 @@ const ambiguousNameFirstAction = ambiguousNameFirst.handled && ambiguousNameFirs
 assert.equal(ambiguousNameFirstAction?.status, 'CLARIFICATION_REQUIRED');
 assert.equal(ambiguousNameFirstAction?.confirmation, 'NONE');
 const runtimeSource = readFileSync(new URL('../src/premium-voice-shell/premium-assistant.runtime.ts', import.meta.url), 'utf8');
-const nameFirstCall = runtimeSource.indexOf('resolvePersonalContactVoiceRequest(confirmedVoiceText');
+const nameFirstCall = runtimeSource.indexOf('resolveProfilePersonalContactThroughAuthority({text:confirmedVoiceText');
 assert.ok(nameFirstCall > 0);
 assert.ok(nameFirstCall < runtimeSource.indexOf('resolveDriverVoiceCommand(confirmedVoiceText'));
 assert.ok(nameFirstCall < runtimeSource.indexOf('client.respond({productId'));
+assert.doesNotMatch(runtimeSource, /resolvePersonalContactVoiceRequest\(confirmedVoiceText/);
 const withContactNoun = resolvePersonalContactAction(routeAndroidAction('Apelează contactul Mona Vodafone', null), monaContacts);
 const withoutContactNoun = resolvePersonalContactAction(routeAndroidAction('Apelează Mona Vodafone', null), monaContacts);
 const withCallContactNoun = resolvePersonalContactAction(routeAndroidAction('Sună contactul Mona Vodafone', null), monaContacts);

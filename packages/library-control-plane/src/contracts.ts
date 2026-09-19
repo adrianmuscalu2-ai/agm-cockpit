@@ -186,6 +186,13 @@ export type ResolvedContextPackage = {
   domains: readonly AgmLibraryDomain[];
   mandates: readonly LibraryMandate[];
   contexts: readonly ResolvedContextItem[];
+  clarifications: readonly {
+    domain: AgmLibraryDomain;
+    resolverId: string;
+    prompt: string;
+    candidateIds: readonly string[];
+    minimalAuthorizedPayload: Readonly<Record<string, unknown>>;
+  }[];
   conflicts: readonly { deduplicationKey: string; selectedResolverId: string; rejectedResolverIds: readonly string[] }[];
   authorizationDenials: readonly { domain: AgmLibraryDomain; resolverId: string; reasonCode: string; evidenceRef: string }[];
   failures: readonly { domain: AgmLibraryDomain; resolverId: string; reasonCode: string }[];

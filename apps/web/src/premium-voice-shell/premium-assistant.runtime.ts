@@ -17,9 +17,8 @@ import type { AndroidActionResolution } from '../android-action-layer/android-ac
 import { evaluatePermissionRequest } from '../android-action-layer/permission-guardian.client';
 import { routeRetrievedAndroidAction } from '../android-action-layer/android-action.router';
 import { detectMessageLanguage } from '../emailLanguage';
-import { readContacts } from '../contact-manager/contact-manager.storage';
-import { resolvePersonalContactVoiceRequest } from '../contact-manager/personal-contact-voice';
 import { personalContactVoiceMessage } from '../contact-manager/personal-contact-voice.i18n';
+import { resolveProfilePersonalContactThroughAuthority } from '../library-control-plane/profile-personal-contacts.resolver';
 
 type Recognition = { lang:string;interimResults:boolean;continuous:boolean;onresult:((event:any)=>void)|null;onerror:((event:any)=>void)|null;onend:(()=>void)|null;onspeechstart?:(()=>void)|null;onspeechend?:(()=>void)|null;start():void;stop():void;abort?():void };
 type RecognitionConstructor = new()=>Recognition;
@@ -183,9 +182,14 @@ export function bindPremiumAssistantRuntime(){
  async function stopCapture(){const current=recognition;const cancel=cancelRecognitionPromise;recognition=undefined;cancelRecognitionPromise=undefined;cancel?.();try{if(isNativeAudioAvailable())await NativeAudio.stopListening();else if(current?.abort)current.abort();else current?.stop();}catch{}}
  async function processTranscript(confirmedText:string):Promise<boolean>{
    if(!confirmedText){status.textContent=m.emptyTranscript;return false;}
-   const contactCommand=resolvePersonalContactVoiceRequest(confirmedVoiceText(confirmedText),readContacts(localStorage));
+   const contactLibrary=await resolveProfilePersonalContactThroughAuthority({text:confirmedVoiceText(confirmedText),language,storage:localStorage,surface:isNativeAudioAvailable()?'ANDROID':'BROWSER',domain:'PREMIUM'});
+   const contactCommand=contactLibrary.command;
+   if(!contactCommand.handled&&contactLibrary.package.status!=='VERIFIED_NO_DATA'){
+    const message=language==='ro'?'Biblioteca personală AGM nu a putut finaliza rezoluția. Nu am trimis cererea către Assistant-ul generic.':language==='de'?'Die persönliche AGM-Bibliothek konnte die Auflösung nicht abschließen. Die Anfrage wurde nicht an den generischen Assistenten weitergeleitet.':'AGM Personal Library could not complete resolution. The request was not sent to the generic Assistant.';
+    response.textContent=message;panel.hidden=false;status.textContent=message;return true;
+   }
    if(contactCommand.handled){
-    void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'INTENT_ROUTER',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.personal-contact-name-first',reason:'Resolve a known personal-contact name before generic Assistant fallback',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`personal-contact:${contactCommand.intent}:${contactCommand.mode}:${contactCommand.reason}`});
+    void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'INTENT_ROUTER',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.global-library-authority.profile-contacts',reason:'Resolve an authorized Profile contact before generic Assistant fallback',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`library-contact:${contactLibrary.package.status}:${contactCommand.intent}:${contactCommand.mode}:${contactCommand.reason}`});
     if(!contactCommand.resolution){
      const message=personalContactVoiceMessage(contactCommand,language);history.push({role:'user',text:confirmedText},{role:'assistant',text:message});while(history.length>20)history.shift();saveHistory(history);renderHistory();answerText=message;response.textContent=message;panel.hidden=false;status.textContent=message;
      const sequence=++requestSequence;const turnId=`personal-contact:${sequence}:${Date.now()}`;activeTurnId=turnId;runtimeRoot.dataset.activeVoiceTurn=turnId;session.transition('PREPARING');session.markTtsRequest();await speak(message,sequence,turnId);if(sequence===requestSequence&&!disposed){activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;}return true;
