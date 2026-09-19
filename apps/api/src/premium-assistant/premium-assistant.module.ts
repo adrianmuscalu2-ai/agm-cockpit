@@ -7,7 +7,8 @@ import { CommunicationModule } from '../communications/communication.module';
 import { PremiumAssistantGmailService } from './premium-assistant-gmail.service';
 import { PermissionGuardianModule } from '../permission-guardian/permission-guardian.module';
 import { TranslationModule } from '../translation/translation.module';
+import { SharedArchiveModule } from '../shared-archive/shared-archive.module';
 
-@Module({ imports: [CanonicalAuthorityModule, CommunicationModule, PermissionGuardianModule, TranslationModule], controllers: [PremiumAssistantController], providers: [PremiumAssistantService, PremiumAssistantKnowledgeService, PremiumAssistantGmailService] })
+@Module({ imports: [CanonicalAuthorityModule, CommunicationModule, PermissionGuardianModule, TranslationModule, SharedArchiveModule], controllers: [PremiumAssistantController], providers: [PremiumAssistantService, PremiumAssistantKnowledgeService, PremiumAssistantGmailService] })
 export class PremiumAssistantModule {}
 

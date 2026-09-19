@@ -86,6 +86,7 @@ import { type AgmContact, type ContactCategory, type ContactDraft } from './cont
 import { t, uiLanguageFromProfile } from './i18n/app-i18n';
 import { dashboardWarningContainmentCopy, dashboardWarningVisionEnabled } from './dashboard-warning-vision.feature';
 import { USER_ACCESS_TOKEN_KEY } from './premium-access/premium-access.client';
+import { createSharedArchiveClient, surfaceForRuntime } from './shared-archive/shared-archive.client';
 import { clearOriginalEvidence } from './premium-situation-router/required-document.evidence-store';
 import { recognizeTextFromImage } from './ocr-translator';
 import { getDeviceCapabilitySnapshot } from './device-capability-router/device-capability.runtime';
@@ -263,6 +264,7 @@ void clearOriginalEvidence();
 await restorePremiumAccessForNavigation();
 const ocrHistoryRepository = createOcrHistoryRepository(window.sessionStorage);
 const ocrArchiveRepository = createOcrArchiveRepository(createEphemeralOcrArchiveStore());
+const sharedArchiveClient = createSharedArchiveClient({ surface: surfaceForRuntime(Capacitor.isNativePlatform()) });
 const tutorialRepository = createTutorialRepository(window.localStorage);
 const initialProfile = readProfile(window.sessionStorage);
 const initialContacts = readContacts(window.localStorage);
@@ -1069,6 +1071,7 @@ function commandPanelForView(view: ViewName) {
       { id: 'translator-email', label: t(uiLanguage(), 'translator.command.email'), description: t(uiLanguage(), 'translator.command.emailDesc') },
       { id: 'translator-listen', label: t(uiLanguage(), 'translator.command.listen'), description: speakerCommandDescription() },
       { id: 'translator-copy', label: t(uiLanguage(), 'translator.command.copy'), description: t(uiLanguage(), 'translator.command.copyDesc') },
+      { id: 'translator-archive', label: sharedArchiveUiCopy().archiveTranslation, description: sharedArchiveUiCopy().archiveTranslationDescription },
       { id: 'translator-clear', label: t(uiLanguage(), 'translator.command.clear'), description: t(uiLanguage(), 'translator.command.clearDesc') },
     ],
   };
@@ -2980,6 +2983,7 @@ function bindCommandPanel() {
       if (command === 'translator-email') createEmailFromTranslation();
       if (command === 'translator-listen') speakTranslation();
       if (command === 'translator-copy') void copyTranslatorResult();
+      if (command === 'translator-archive') void archiveCurrentTranslation();
       if (command === 'translator-clear') clearTranslator();
       if (command === 'email-improve') void improveText();
       if (command === 'email-translate') void translateEmailOnly();
@@ -4219,13 +4223,37 @@ async function saveCurrentOcrDocument() {
       pinned: false,
     });
     state.ocrHistory = await legacyItemsFromArchive(await ocrArchiveRepository.list({ limit: 100 }));
+    try {
+      await sharedArchiveClient.create({
+        ...(isUuid(id) ? { recordId: id } : {}),
+        category: 'OCR',
+        namespace: 'agm.ocr.user-approved',
+        title: `OCR ${new Date(createdAt).toLocaleString(uiLanguage())}`,
+        payload: {
+          localDocumentId: id,
+          extractedText,
+          sourceLanguage,
+          targetLanguage: state.translatorTargetLanguage,
+          ...(legacyItem.translatedText ? { translatedText: legacyItem.translatedText } : {}),
+        },
+        searchText: `${extractedText}\n${legacyItem.translatedText}`,
+        syncPolicy: 'SYNC_ALLOWED',
+        persistence: 'USER_APPROVED_PERSISTENT',
+        userApprovedAt: createdAt,
+        approvalEvidence: 'OCR_SAVE_TO_ARCHIVE_BUTTON',
+        observedAt: createdAt,
+      });
+      state.status = sharedArchiveUiCopy().ocrSavedShared;
+    } catch {
+      state.status = sharedArchiveUiCopy().ocrSavedLocal;
+    }
   } catch {
     // Safe compatibility fallback; v1 is used only when v2 persistence failed.
     state.ocrHistory = [legacyItem, ...state.ocrHistory].slice(0, 8);
     ocrHistoryRepository.save(state.ocrHistory);
     window.localStorage.removeItem(OCR_ARCHIVE_V2_MIGRATION_MARKER);
   }
-  state.status = ocrPageCopy().save;
+  if (!state.status) state.status = ocrPageCopy().save;
   render();
 }
 
@@ -4238,6 +4266,7 @@ async function deleteOcrDocument(id: string) {
     state.ocrHistory = state.ocrHistory.filter((item) => item.id !== id);
     ocrHistoryRepository.save(state.ocrHistory);
   }
+  if (isUuid(id)) await sharedArchiveClient.delete(id).catch(() => undefined);
   render();
 }
 
@@ -5654,6 +5683,41 @@ async function copyTranslatorResult() {
   await translatorController.copyResult();
 }
 
+async function archiveCurrentTranslation() {
+  const sourceText = state.translatorText.trim();
+  const translatedText = state.translatorResult.trim();
+  if (!sourceText || !translatedText) {
+    state.status = sharedArchiveUiCopy().translationMissing;
+    render();
+    return;
+  }
+  const approvedAt = new Date().toISOString();
+  try {
+    await sharedArchiveClient.create({
+      recordId: createLocalId(),
+      category: 'TRANSLATION',
+      namespace: 'agm.translation.user-approved',
+      title: `Traducere ${new Date(approvedAt).toLocaleString(uiLanguage())}`,
+      payload: {
+        sourceText,
+        translatedText,
+        sourceLanguage: detectMessageLanguage(sourceText, state.profile.preferredLanguage),
+        targetLanguage: state.translatorTargetLanguage,
+      },
+      searchText: `${sourceText}\n${translatedText}`,
+      syncPolicy: 'SYNC_ALLOWED',
+      persistence: 'USER_APPROVED_PERSISTENT',
+      userApprovedAt: approvedAt,
+      approvalEvidence: 'TRANSLATOR_ARCHIVE_BUTTON',
+      observedAt: approvedAt,
+    });
+    state.status = sharedArchiveUiCopy().translationSaved;
+  } catch {
+    state.status = sharedArchiveUiCopy().translationFailed;
+  }
+  render();
+}
+
 async function clearOcrHistory() {
   try {
     await ocrArchiveRepository.clear();
@@ -5727,6 +5791,41 @@ function createLocalId() {
   }
 
   return `local-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function sharedArchiveUiCopy() {
+  const language = uiLanguage();
+  if (language === 'ro') return {
+    archiveTranslation: 'Arhivează traducerea',
+    archiveTranslationDescription: 'Salvează explicit traducerea în biblioteca personală AGM.',
+    translationMissing: 'Nu există încă o traducere completă de arhivat.',
+    translationSaved: 'Traducerea a fost arhivată în biblioteca personală AGM.',
+    translationFailed: 'Traducerea nu a fost arhivată. Verifică autentificarea și conexiunea.',
+    ocrSavedShared: 'Documentul OCR a fost salvat local și în arhiva personală AGM.',
+    ocrSavedLocal: 'Documentul OCR a fost salvat numai local; sincronizarea nu a fost disponibilă.',
+  };
+  if (language === 'de') return {
+    archiveTranslation: 'Übersetzung archivieren',
+    archiveTranslationDescription: 'Übersetzung ausdrücklich im persönlichen AGM-Archiv speichern.',
+    translationMissing: 'Es gibt noch keine vollständige Übersetzung zum Archivieren.',
+    translationSaved: 'Die Übersetzung wurde im persönlichen AGM-Archiv gespeichert.',
+    translationFailed: 'Die Übersetzung wurde nicht archiviert. Anmeldung und Verbindung prüfen.',
+    ocrSavedShared: 'Das OCR-Dokument wurde lokal und im persönlichen AGM-Archiv gespeichert.',
+    ocrSavedLocal: 'Das OCR-Dokument wurde nur lokal gespeichert; Synchronisierung war nicht verfügbar.',
+  };
+  return {
+    archiveTranslation: 'Archive translation',
+    archiveTranslationDescription: 'Explicitly save the translation in the personal AGM archive.',
+    translationMissing: 'There is no complete translation to archive yet.',
+    translationSaved: 'The translation was saved in the personal AGM archive.',
+    translationFailed: 'The translation was not archived. Check authentication and connectivity.',
+    ocrSavedShared: 'The OCR document was saved locally and in the personal AGM archive.',
+    ocrSavedLocal: 'The OCR document was saved locally only; sync was unavailable.',
+  };
 }
 
 function deleteProfileData() {

@@ -20,6 +20,8 @@ import {
   gmailFailureCode,
   type PremiumAssistantGmailService,
 } from './premium-assistant-gmail.service';
+import type { SharedArchiveService } from '../shared-archive/shared-archive.service';
+import { createPhase2cArchiveResolvers } from './shared-archive-library.resolver';
 
 export const GMAIL_LIBRARY_RESOLVER_ID = 'premium.gmail.inbox.v1';
 export const HISTORY_LIBRARY_RESOLVER_ID = 'agm.conversation-history.v1';
@@ -44,6 +46,7 @@ export class PremiumAssistantLibraryService {
     private readonly guardian?: PermissionGuardianService,
     private readonly translation?: TranslationService,
     private readonly now = () => new Date(),
+    private readonly archive?: SharedArchiveService,
   ) {}
 
   async resolve(user: RequestContext, request: PremiumAssistantRequestDto): Promise<ResolvedContextPackage> {
@@ -56,6 +59,10 @@ export class PremiumAssistantLibraryService {
     orchestrators[0].register(historyResolver);
     orchestrators[1].register(gmailResolver);
     orchestrators[1].register(historyResolver);
+    for (const resolver of createPhase2cArchiveResolvers(this.archive, this.now)) {
+      orchestrators[0].register(resolver);
+      orchestrators[1].register(resolver);
+    }
     const authority = new AgmGlobalLibraryAuthority(
       orchestrators,
       new PremiumAssistantLibraryAuthorization(user, request, this.gmail, this.guardian),
@@ -195,7 +202,12 @@ class PremiumAssistantLibraryAuthorization implements LibraryAuthorizationPort {
     if (!this.user.roles.includes('PREMIUM_ACCESS')) return denied('PREMIUM_ENTITLEMENT_REQUIRED');
     if (input.source.source === 'CONVERSATION_HISTORY') return {
       decision: 'GRANTED', authorityGranted: true, reasonCode: 'SESSION_OWNER_AND_PREMIUM_AUTHORIZED',
-      evidenceRef: `history:${this.user.requestId}`, allowedPayloadFields: ['answerText', 'turns', 'sources'],
+      evidenceRef: `history:${this.user.requestId}`, allowedPayloadFields: ['answerText', 'turns', 'records', 'sources'],
+    };
+    if (['PREVIOUS_TRANSLATIONS', 'OCR_ARCHIVE', 'AGM_SHARED_ARCHIVE'].includes(input.source.source)) return {
+      decision: 'GRANTED', authorityGranted: true, reasonCode: 'ARCHIVE_OWNER_AND_PREMIUM_AUTHORIZED',
+      evidenceRef: `shared-archive:${this.user.requestId}:${input.source.source}`,
+      allowedPayloadFields: ['answerText', 'records', 'sources'],
     };
     if (input.source.source !== 'GMAIL') return denied('SOURCE_NOT_AUTHORIZED');
     if (!this.gmail?.configured()) return denied('GMAIL_NOT_CONFIGURED');

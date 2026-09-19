@@ -33,6 +33,7 @@ model Company {
   carMoverFinancialEntries   CarMoverFinancialEntry[]
   carMoverInvoices           CarMoverInvoice[]
   carMoverPlatformOffers     CarMoverPlatformOffer[]
+  sharedArchiveRecords       AgmSharedArchiveRecord[]
 }
 
 model User {
@@ -54,6 +55,7 @@ model User {
   roles                UserRole[]
   authSessions         AuthSession[]
   preDepartureSessions PreDepartureSession[]
+  sharedArchiveRecords AgmSharedArchiveRecord[]
 
   @@unique([companyId, email])
 }
@@ -1390,4 +1392,33 @@ model SourceFreshnessReviewQueue {
   updatedAt       DateTime @updatedAt
 
   @@index([reviewState, status, lastDetectedAt])
+}
+
+model AgmSharedArchiveRecord {
+  id                 String   @id @default(uuid()) @db.Uuid
+  companyId          String   @db.Uuid
+  ownerUserId        String   @db.Uuid
+  category           String   @db.VarChar(32)
+  namespace          String   @db.VarChar(120)
+  title              String   @db.VarChar(180)
+  payload            Json?
+  searchText         String   @db.Text
+  syncPolicy         String   @db.VarChar(24)
+  persistence        String   @db.VarChar(40)
+  sourceSurface      String   @db.VarChar(16)
+  userApprovedAt     DateTime
+  approvalEvidence   String   @db.VarChar(240)
+  observedAt         DateTime
+  revokedAt          DateTime?
+  revocationReason   String?  @db.VarChar(240)
+  deletedAt          DateTime?
+  contractVersion    String   @db.VarChar(80)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  company            Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  owner              User     @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, ownerUserId, category, observedAt])
+  @@index([companyId, ownerUserId, revokedAt, deletedAt])
+  @@index([namespace, observedAt])
 }

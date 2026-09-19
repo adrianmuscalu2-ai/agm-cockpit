@@ -23,6 +23,14 @@ import {
   PremiumAssistantLibraryService,
 } from './premium-assistant-library.service';
 import type { ResolvedContextPackage } from '@agm/library-control-plane';
+import { SharedArchiveService } from '../shared-archive/shared-archive.service';
+import {
+  archiveNoDataText,
+  OCR_ARCHIVE_RESOLVER_ID,
+  PERSISTENT_HISTORY_RESOLVER_ID,
+  SHARED_ARCHIVE_RESOLVER_ID,
+  TRANSLATION_ARCHIVE_RESOLVER_ID,
+} from './shared-archive-library.resolver';
 
 type OpenAiPayload = { output_text?: string; output?: Array<{ content?: Array<{ text?: string; annotations?: unknown[] }> }> };
 type ProviderResult = { text?: string; timeToFirstTokenMs: number; completedMs: number; citations: Array<{ url: string; title?: string }> };
@@ -39,12 +47,13 @@ export class PremiumAssistantService {
     @Optional() private readonly gmail?: PremiumAssistantGmailService,
     @Optional() private readonly guardian?: PermissionGuardianService,
     @Optional() private readonly translation?: TranslationService,
+    @Optional() private readonly archive?: SharedArchiveService,
   ) {}
 
   async respond(user: RequestContext, request: PremiumAssistantRequestDto): Promise<PremiumAssistantResponse> {
     const serverStartedAt = Date.now();
     if (!user.roles.includes(PREMIUM_ASSISTANT_CONTRACT.requiredRole)) throw new ForbiddenException('Premium entitlement required.');
-    const libraryPackage = await new PremiumAssistantLibraryService(this.gmail, this.guardian, this.translation).resolve(user, request);
+    const libraryPackage = await new PremiumAssistantLibraryService(this.gmail, this.guardian, this.translation, undefined, this.archive).resolve(user, request);
     const libraryResponse = await this.respondFromLibraries(user, request, serverStartedAt, libraryPackage);
     if (libraryResponse) return libraryResponse;
     const apiKey = this.config.get<string>('OPENAI_API_KEY');
@@ -165,12 +174,19 @@ export class PremiumAssistantService {
     const gmailIntent = classifyGmailIntent(request.confirmedText);
     const gmailContext = resolved.contexts.find((context) => context.contributingSources.includes('GMAIL'));
     const historyContext = resolved.contexts.find((context) => context.contributingSources.includes('CONVERSATION_HISTORY'));
+    const archiveContexts = resolved.contexts.filter((context) => context.contributingSources.some((source) =>
+      source === 'OCR_ARCHIVE' || source === 'PREVIOUS_TRANSLATIONS' || source === 'AGM_SHARED_ARCHIVE'
+      || (source === 'CONVERSATION_HISTORY' && context.minimalAuthorizedPayload.records),
+    ));
     const gmailAttempted = Boolean(gmailIntent)
       || resolved.authorizationDenials.some((denial) => denial.resolverId === GMAIL_LIBRARY_RESOLVER_ID)
       || resolved.failures.some((failure) => failure.resolverId === GMAIL_LIBRARY_RESOLVER_ID)
       || resolved.verifiedNoData.some((outcome) => outcome.resolverId === GMAIL_LIBRARY_RESOLVER_ID);
     const historyAttempted = resolved.mandates.some((mandate) => mandate.authorizedResolvers.some((resolver) => resolver.resolverId === HISTORY_LIBRARY_RESOLVER_ID))
       || resolved.verifiedNoData.some((outcome) => outcome.resolverId === HISTORY_LIBRARY_RESOLVER_ID);
+    const archiveResolverIds = new Set([OCR_ARCHIVE_RESOLVER_ID, TRANSLATION_ARCHIVE_RESOLVER_ID, PERSISTENT_HISTORY_RESOLVER_ID, SHARED_ARCHIVE_RESOLVER_ID]);
+    const archiveAttempted = resolved.mandates.some((mandate) => mandate.authorizedResolvers.some((resolver) => archiveResolverIds.has(resolver.resolverId)))
+      || resolved.verifiedNoData.some((outcome) => archiveResolverIds.has(outcome.resolverId));
     if (resolved.status === 'CLARIFICATION_REQUIRED') {
       return this.libraryResponse(user, request, contextRefs, startedAt, resolved.clarifications[0]?.prompt ?? 'Este necesară o clarificare.', [], 'clarification');
     }
@@ -190,8 +206,8 @@ export class PremiumAssistantService {
       return this.libraryResponse(user, request, contextRefs, startedAt, libraryUnavailableText(request.language), [], 'answer');
     }
     if (resolved.status === 'VERIFIED_NO_DATA') {
-      if (!gmailAttempted && !historyAttempted) return null;
-      const text = [historyAttempted ? historyNoDataText(request.language) : '', gmailAttempted ? gmailNoDataText(request.language) : ''].filter(Boolean).join(' ');
+      if (!gmailAttempted && !historyAttempted && !archiveAttempted) return null;
+      const text = [historyAttempted ? historyNoDataText(request.language) : '', archiveAttempted ? archiveNoDataText(request.language) : '', gmailAttempted ? gmailNoDataText(request.language) : ''].filter(Boolean).join(' ');
       if (gmailAttempted) {
         await this.recordGmailUsage(user, 'SUCCESS', startedAt);
         return this.gmailResponse(user, request, contextRefs, startedAt, text, gmailIntent?.operation ?? 'GMAIL_RETRIEVAL', [], 'SUCCESS', null, null, guardianTraceFromPackage(resolved));
@@ -204,10 +220,17 @@ export class PremiumAssistantService {
     const historyText = payloadText(historyPayload, 'answerText');
     const gmailSources = payloadSources(gmailPayload?.sources);
     const historySources = payloadSources(historyPayload?.sources);
-    const sources = [...historySources, ...gmailSources];
+    const archiveTexts = archiveContexts.map((context) => payloadText(context.minimalAuthorizedPayload, 'answerText')).filter(Boolean);
+    const archiveSources = archiveContexts.flatMap((context) => payloadSources(context.minimalAuthorizedPayload.sources));
+    const sources = uniqueSourceReferences([...historySources, ...archiveSources, ...gmailSources]);
     const gmailVerifiedNoData = resolved.verifiedNoData.some((outcome) => outcome.resolverId === GMAIL_LIBRARY_RESOLVER_ID);
     const historyVerifiedNoData = resolved.verifiedNoData.some((outcome) => outcome.resolverId === HISTORY_LIBRARY_RESOLVER_ID);
-    const text = [historyText || (historyVerifiedNoData ? historyNoDataText(request.language) : ''), gmailText || (gmailVerifiedNoData ? gmailNoDataText(request.language) : '')].filter(Boolean).join(' ');
+    const text = uniqueTextParts([
+      historyText || (historyVerifiedNoData ? historyNoDataText(request.language) : ''),
+      ...archiveTexts,
+      archiveAttempted && !archiveTexts.length ? archiveNoDataText(request.language) : '',
+      gmailText || (gmailVerifiedNoData ? gmailNoDataText(request.language) : ''),
+    ]).join(' ');
     if (gmailContext || gmailVerifiedNoData) {
       await this.recordGmailUsage(user, 'SUCCESS', startedAt);
       return this.gmailResponse(
@@ -216,7 +239,7 @@ export class PremiumAssistantService {
         payloadActionContext(gmailPayload?.actionContext), guardianTraceFromPackage(resolved), payloadTranslation(gmailPayload?.translation), gmailSources.length,
       );
     }
-    if (historyContext) return this.libraryResponse(user, request, contextRefs, startedAt, text, historySources, 'answer');
+    if (historyContext || archiveContexts.length) return this.libraryResponse(user, request, contextRefs, startedAt, text, uniqueSourceReferences([...historySources, ...archiveSources]), 'answer');
     return null;
   }
 
@@ -481,6 +504,19 @@ function payloadSources(value: unknown): AssistantSourceReference[] {
     && typeof (item as AssistantSourceReference).sourceId === 'string'
     && typeof (item as AssistantSourceReference).originType === 'string'
     && typeof (item as AssistantSourceReference).retrievalType === 'string');
+}
+
+function uniqueSourceReferences(values: readonly AssistantSourceReference[]) {
+  const seen = new Set<string>();
+  return values.filter((value) => seen.has(value.sourceId) ? false : (seen.add(value.sourceId), true));
+}
+
+function uniqueTextParts(values: readonly string[]) {
+  const seen = new Set<string>();
+  return values.map((value) => value.trim()).filter((value) => {
+    const key = value.toLocaleLowerCase();
+    return value.length > 0 && (seen.has(key) ? false : (seen.add(key), true));
+  });
 }
 
 function payloadActionContext(value: unknown): Omit<NonNullable<PremiumAssistantResponse['actionContext']>, 'traceId'> | null {

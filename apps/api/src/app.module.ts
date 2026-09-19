@@ -37,6 +37,7 @@ import { MachineAuthModule } from './machine-auth/machine-auth.module';
 import { TurnOperationalTruthModule } from './turn-operational-truth/turn-operational-truth.module';
 import { DashboardWarningAnalysisModule } from './dashboard-warning-analysis/dashboard-warning-analysis.module';
 import { PermissionGuardianModule } from './permission-guardian/permission-guardian.module';
+import { SharedArchiveModule } from './shared-archive/shared-archive.module';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { PermissionGuardianModule } from './permission-guardian/permission-guard
     TurnOperationalTruthModule,
     DashboardWarningAnalysisModule,
     PermissionGuardianModule,
+    SharedArchiveModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
