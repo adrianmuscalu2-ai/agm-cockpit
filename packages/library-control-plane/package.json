@@ -2,14 +2,20 @@
   "name": "@agm/library-control-plane",
   "version": "0.1.0-phase1",
   "private": true,
-  "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "pretest:phase1": "pnpm build",
     "test:phase1": "tsx scripts/test-phase1.ts"
   },
   "devDependencies": {

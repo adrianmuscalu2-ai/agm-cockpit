@@ -49,6 +49,7 @@ export type LibraryRequest = {
     intentHints?: readonly string[];
     subjectHints?: readonly string[];
   };
+  sourceInputs?: Readonly<Partial<Record<AgmLibrarySourceId, unknown>>>;
 };
 
 export type LibrarySourceDescriptor = {
@@ -73,6 +74,7 @@ export type LibraryAuthorizationDecision = {
   reasonCode: string;
   evidenceRef: string;
   allowedPayloadFields: readonly string[];
+  metadata?: Readonly<Record<string, string>>;
 };
 
 export type LibraryMandate = {
@@ -186,6 +188,14 @@ export type ResolvedContextPackage = {
   domains: readonly AgmLibraryDomain[];
   mandates: readonly LibraryMandate[];
   contexts: readonly ResolvedContextItem[];
+  verifiedNoData: readonly {
+    domain: AgmLibraryDomain;
+    resolverId: string;
+    source: AgmLibrarySourceId;
+    summary: string;
+    confidence: number;
+    provenance: LibraryProvenance;
+  }[];
   clarifications: readonly {
     domain: AgmLibraryDomain;
     resolverId: string;
@@ -194,7 +204,7 @@ export type ResolvedContextPackage = {
     minimalAuthorizedPayload: Readonly<Record<string, unknown>>;
   }[];
   conflicts: readonly { deduplicationKey: string; selectedResolverId: string; rejectedResolverIds: readonly string[] }[];
-  authorizationDenials: readonly { domain: AgmLibraryDomain; resolverId: string; reasonCode: string; evidenceRef: string }[];
+  authorizationDenials: readonly { domain: AgmLibraryDomain; resolverId: string; reasonCode: string; evidenceRef: string; metadata?: Readonly<Record<string, string>> }[];
   failures: readonly { domain: AgmLibraryDomain; resolverId: string; reasonCode: string }[];
   dispatch: {
     assistantAllowed: boolean;

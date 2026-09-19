@@ -7,10 +7,11 @@ export type PremiumAssistantClientRequest = {
   moduleId: string;
   language: BasicLanguageCode;
   confirmedText: string;
+  surface?: 'ANDROID' | 'BROWSER';
   tripId?: string;
   operationalCaseId?: string;
   situationId?: string;
-  history: readonly { role: 'user' | 'assistant'; text: string }[];
+  history: readonly { role: 'user' | 'assistant'; text: string; occurredAt?: string }[];
 };
 
 export type PremiumAssistantClientResponse = {

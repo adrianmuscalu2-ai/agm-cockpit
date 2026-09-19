@@ -101,18 +101,28 @@ function unique(values: readonly string[]) {
 
 export function classifyGmailIntent(text: string): GmailAssistantIntent | null {
   const normalized = normalize(text);
-  const explicitGmail = /\bgmail\b/.test(normalized);
-  const emailNoun = /\b(?:e-?mail(?:uri|s)?|mail(?:s)?|inbox|mesaj(?:e|ul)?|message(?:s)?|nachricht(?:en)?|correo(?:s)?|courriel(?:s)?|posta|post|wiadomosc(?:i)?|eposta|emaili|mejl)\b/.test(normalized);
-  const inboxAction = /\b(?:primit|primesc|received|receive|got|latest|last|read|search|find|summari[sz]e|inbox|citesc|citeste|cauta|gaseste|rezuma|ultim(?:ul|ele|a)?|erhalten|bekommen|letzte|lesen|suche|finden|zusammenfassen|recu|recus|dernier|lire|chercher|resumer|ontvangen|laatste|lezen|zoeken|samenvatten|recibido|recibi|ultimo|leer|buscar|resumir|ricevuto|ultimo|leggi|cerca|riassumi|otrzymal|ostatni|czytaj|szukaj|podsumuj|gelen|son|oku|ara|ozetle|marr|fundit|lexo|kerko|permbledh)\b/.test(normalized);
-  const implicitReceivedFrom = /\b(?:am primit(?: ceva)? de la|received (?:anything|something) from|etwas von .+ bekommen|recu quelque chose de|iets ontvangen van|recibi algo de|ricevuto qualcosa da)\b/.test(normalized);
-  if (!(explicitGmail || (emailNoun && inboxAction) || implicitReceivedFrom)) return null;
+  const words = new Set(normalized.match(/[a-z0-9]+/g) ?? []);
+  const hasAny = (values: readonly string[]) => values.some((value) => words.has(value));
+  const explicitGmail = words.has('gmail') || words.has('inbox');
+  const emailNoun = hasAny(['email', 'emailuri', 'emailurile', 'mail', 'mailuri', 'mailurile', 'mails', 'mesaj', 'mesaje', 'mesajele', 'message', 'messages', 'nachricht', 'nachrichten', 'correo', 'correos', 'courriel', 'courriels', 'posta', 'post', 'wiadomosc', 'wiadomosci', 'eposta', 'emaili', 'mejl']);
+  const inboxAction = hasAny(['primit', 'primesc', 'received', 'receive', 'got', 'latest', 'last', 'read', 'search', 'find', 'summarize', 'summarise', 'citesc', 'citeste', 'cauta', 'gaseste', 'rezuma', 'ultimul', 'ultima', 'ultimele', 'erhalten', 'bekommen', 'letzte', 'lesen', 'suche', 'finden', 'zusammenfassen', 'recu', 'recus', 'dernier', 'lire', 'chercher', 'resumer', 'ontvangen', 'laatste', 'lezen', 'zoeken', 'samenvatten', 'recibido', 'recibi', 'ultimo', 'leer', 'buscar', 'resumir', 'ricevuto', 'leggi', 'cerca', 'riassumi', 'otrzymal', 'ostatni', 'czytaj', 'szukaj', 'podsumuj', 'gelen', 'son', 'oku', 'ara', 'ozetle', 'marr', 'fundit', 'lexo', 'kerko', 'permbledh', 'verifica']);
+  const replySignal = hasAny(['scris', 'raspuns', 'replied', 'wrote', 'answered', 'geantwortet', 'geschrieben']);
+  const fromSignal = /\b(?:de la|from|von|van|da|od|nga)\b/.test(normalized);
+  const newFromSignal = hasAny(['nou', 'noi', 'new', 'neues', 'recent']) && fromSignal;
+  const receivedFromSignal = hasAny(['primit', 'received', 'got', 'erhalten', 'bekommen', 'recu', 'ontvangen', 'recibido', 'ricevuto']) && fromSignal;
+  const outbound = hasAny(['trimite', 'trimiti', 'expediaza', 'compune', 'send', 'compose', 'schicke', 'sende'])
+    || (hasAny(['scrie', 'write']) && !replySignal);
+  if (outbound && (emailNoun || explicitGmail)) return null;
+  if (!(explicitGmail || (emailNoun && inboxAction) || replySignal || newFromSignal || receivedFromSignal)) return null;
 
   const maxMessages = requestedMessageCount(normalized);
-  const sender = extractAfter(normalized, /\b(?:de la|from|von|van|da|od|nga)\s+/);
-  const topic = extractAfter(normalized, /\b(?:despre|about|uber|over|sur|sobre|riguardo|dotyczace|hakkinda|rreth)\s+/);
+  const topic = cleanSemanticEntity(extractAfter(normalized, /\b(?:despre|about|uber|over|sur|sobre|riguardo|dotyczace|hakkinda|rreth)\s+/));
+  const senderFromPreposition = cleanSemanticEntity(extractAfter(normalized, /\b(?:de la|from|von|van|da|od|nga)\s+/));
+  const senderFromReply = cleanSemanticEntity(extractAfter(normalized, /\b(?:scris|raspuns|replied|wrote|answered|geantwortet|geschrieben)\s+/));
+  const sender = senderFromPreposition || senderFromReply || (replySignal ? topic : '');
   const today = /\b(?:azi|astazi|today|heute|aujourd'hui|vandaag|hoy|oggi|dzis|bugun|sot)\b/.test(normalized);
   const summarize = /\b(?:rezuma|summari[sz]e|zusammenfassen|resumer|samenvatten|resumir|riassumi|podsumuj|ozetle|permbledh)\b/.test(normalized);
-  const latest = /\b(?:ultim(?:ul|a)?|latest|last|letzte|dernier|laatste|ultimo|ostatni|son|fundit)\b/.test(normalized);
+  const latest = replySignal || /\b(?:ultim(?:ul|a)?|latest|last|letzte|dernier|laatste|ultimo|ostatni|son|fundit)\b/.test(normalized);
 
   if (sender) return {
     operation: latest ? 'LATEST_FROM' : 'SEARCH_FROM',
@@ -123,6 +133,14 @@ export function classifyGmailIntent(text: string): GmailAssistantIntent | null {
   if (today) return { operation: 'LIST_TODAY', gmailQuery: 'newer_than:1d', maxMessages };
   if (summarize) return { operation: 'SUMMARIZE_RECENT', gmailQuery: '', maxMessages: latest ? 1 : maxMessages };
   return { operation: 'LIST_RECENT', gmailQuery: '', maxMessages: latest ? 1 : maxMessages };
+}
+
+function cleanSemanticEntity(value: string) {
+  return value
+    .replace(/\b(?:si|iar|and|und)\s+(?:verifica|check|prufe|cauta|search).*$/i, '')
+    .replace(/\b(?:intre timp|between now|meanwhile)$/i, '')
+    .replace(/\b(?:azi|astazi|today|heute|acum|now)$/i, '')
+    .trim();
 }
 
 export function gmailContext(messages: readonly GmailInboxMessage[]) {

@@ -1,9 +1,10 @@
-import { ArrayMaxSize, IsArray, IsIn, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsIn, IsISO8601, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class ConversationTurnDto {
   @IsIn(['user', 'assistant']) role!: 'user' | 'assistant';
   @IsString() @IsNotEmpty() @MaxLength(4_000) text!: string;
+  @IsOptional() @IsISO8601() occurredAt?: string;
 }
 
 export class PremiumAssistantRequestDto {
@@ -11,6 +12,7 @@ export class PremiumAssistantRequestDto {
   @IsString() @IsNotEmpty() @MaxLength(80) moduleId!: string;
   @IsIn(['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv']) language!: string;
   @IsString() @IsNotEmpty() @MaxLength(2_000) confirmedText!: string;
+  @IsOptional() @IsIn(['ANDROID', 'BROWSER']) surface?: 'ANDROID' | 'BROWSER';
   @IsOptional() @IsString() @MaxLength(120) tripId?: string;
   @IsOptional() @IsString() @MaxLength(120) operationalCaseId?: string;
   @IsOptional() @IsString() @MaxLength(120) situationId?: string;

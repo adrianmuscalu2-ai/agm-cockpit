@@ -11,9 +11,18 @@ import {
   PremiumAssistantKnowledgeService,
 } from './premium-assistant-knowledge.service';
 import type { PremiumAssistantRequestDto } from './dto/premium-assistant-request.dto';
-import { classifyGmailIntent, composeGmailAnswerForUser, gmailFailureCode, type GmailAnswerTranslationTrace, PremiumAssistantGmailService } from './premium-assistant-gmail.service';
+import { classifyGmailIntent, type GmailAnswerTranslationTrace, PremiumAssistantGmailService } from './premium-assistant-gmail.service';
 import { PermissionGuardianService } from '../permission-guardian/permission-guardian.service';
 import { TranslationService } from '../translation/translation.service';
+import {
+  GMAIL_LIBRARY_RESOLVER_ID,
+  gmailNoDataText,
+  guardianTraceFromPackage,
+  HISTORY_LIBRARY_RESOLVER_ID,
+  historyNoDataText,
+  PremiumAssistantLibraryService,
+} from './premium-assistant-library.service';
+import type { ResolvedContextPackage } from '@agm/library-control-plane';
 
 type OpenAiPayload = { output_text?: string; output?: Array<{ content?: Array<{ text?: string; annotations?: unknown[] }> }> };
 type ProviderResult = { text?: string; timeToFirstTokenMs: number; completedMs: number; citations: Array<{ url: string; title?: string }> };
@@ -35,8 +44,9 @@ export class PremiumAssistantService {
   async respond(user: RequestContext, request: PremiumAssistantRequestDto): Promise<PremiumAssistantResponse> {
     const serverStartedAt = Date.now();
     if (!user.roles.includes(PREMIUM_ASSISTANT_CONTRACT.requiredRole)) throw new ForbiddenException('Premium entitlement required.');
-    const gmailIntent = classifyGmailIntent(request.confirmedText);
-    if (gmailIntent) return this.respondFromGmail(user, request, serverStartedAt, gmailIntent.operation);
+    const libraryPackage = await new PremiumAssistantLibraryService(this.gmail, this.guardian, this.translation).resolve(user, request);
+    const libraryResponse = await this.respondFromLibraries(user, request, serverStartedAt, libraryPackage);
+    if (libraryResponse) return libraryResponse;
     const apiKey = this.config.get<string>('OPENAI_API_KEY');
     if (!apiKey) {
       await this.recordUsage(user, 'CONFIGURATION_MISSING', serverStartedAt, 'OPENAI_API_KEY_MISSING');
@@ -150,40 +160,67 @@ export class PremiumAssistantService {
     return result;
   }
 
-  private async respondFromGmail(user: RequestContext, request: PremiumAssistantRequestDto, startedAt: number, operation: string): Promise<PremiumAssistantResponse> {
+  private async respondFromLibraries(user: RequestContext, request: PremiumAssistantRequestDto, startedAt: number, resolved: ResolvedContextPackage): Promise<PremiumAssistantResponse | null> {
     const contextRefs = [request.tripId && `trip:${request.tripId}`, request.operationalCaseId && `case:${request.operationalCaseId}`, request.situationId && `situation:${request.situationId}`].filter((value): value is string => Boolean(value));
-    if (!this.gmail?.configured()) {
-      await this.recordGmailUsage(user, 'UNAVAILABLE', startedAt, 'NOT_CONFIGURED');
-      return this.gmailResponse(user, request, contextRefs, startedAt, gmailUnavailableText(request.language, 'NOT_CONFIGURED'), operation, [], 'UNAVAILABLE', 'NOT_CONFIGURED', null);
+    const gmailIntent = classifyGmailIntent(request.confirmedText);
+    const gmailContext = resolved.contexts.find((context) => context.contributingSources.includes('GMAIL'));
+    const historyContext = resolved.contexts.find((context) => context.contributingSources.includes('CONVERSATION_HISTORY'));
+    const gmailAttempted = Boolean(gmailIntent)
+      || resolved.authorizationDenials.some((denial) => denial.resolverId === GMAIL_LIBRARY_RESOLVER_ID)
+      || resolved.failures.some((failure) => failure.resolverId === GMAIL_LIBRARY_RESOLVER_ID)
+      || resolved.verifiedNoData.some((outcome) => outcome.resolverId === GMAIL_LIBRARY_RESOLVER_ID);
+    const historyAttempted = resolved.mandates.some((mandate) => mandate.authorizedResolvers.some((resolver) => resolver.resolverId === HISTORY_LIBRARY_RESOLVER_ID))
+      || resolved.verifiedNoData.some((outcome) => outcome.resolverId === HISTORY_LIBRARY_RESOLVER_ID);
+    if (resolved.status === 'CLARIFICATION_REQUIRED') {
+      return this.libraryResponse(user, request, contextRefs, startedAt, resolved.clarifications[0]?.prompt ?? 'Este necesară o clarificare.', [], 'clarification');
     }
-    let guardian: GmailGuardianTrace | undefined;
-    try {
-      guardian = await this.guardian?.evaluate(user, {
-        phase: 'EXECUTION', requestedCapability: 'GMAIL_READONLY', requestedPermissionOrScope: 'https://www.googleapis.com/auth/gmail.readonly',
-        requestor: 'agm.premium-assistant.gmail', reason: `Authorize Gmail retrieval for ${operation}`, risk: 'MEDIUM',
-        currentAuthority: 'AUTHORIZED', evidence: `pre-retrieval:${request.moduleId}:${operation}`,
-      }) as GmailGuardianTrace | undefined;
-    } catch (error) {
-      this.logger.warn(`Premium Assistant Gmail Guardian evaluation failed: ${error instanceof Error ? error.message : 'UNKNOWN'}`);
+    if (resolved.status === 'BLOCKED') {
+      if (gmailAttempted) {
+        const denial = resolved.authorizationDenials.find((item) => item.resolverId === GMAIL_LIBRARY_RESOLVER_ID);
+        const failure = resolved.failures.find((item) => item.resolverId === GMAIL_LIBRARY_RESOLVER_ID);
+        const code = denial?.reasonCode ?? failure?.reasonCode ?? 'RESOLUTION_INCOMPLETE';
+        const guardian = guardianTraceFromPackage(resolved);
+        const historyText = payloadText(historyContext?.minimalAuthorizedPayload, 'answerText');
+        const historySources = payloadSources(historyContext?.minimalAuthorizedPayload.sources);
+        const visibleErrorCode = code === 'GMAIL_NOT_CONFIGURED' ? 'NOT_CONFIGURED' : denial ? 'GUARDIAN_DENIED' : code;
+        const failureText = gmailUnavailableText(request.language, visibleErrorCode);
+        await this.recordGmailUsage(user, denial ? 'DENIED' : 'UNAVAILABLE', startedAt, code);
+        return this.gmailResponse(user, request, contextRefs, startedAt, [historyText, failureText].filter(Boolean).join(' '), gmailIntent?.operation ?? 'GMAIL_RETRIEVAL', historySources, 'UNAVAILABLE', code, null, guardian, undefined, 0);
+      }
+      return this.libraryResponse(user, request, contextRefs, startedAt, libraryUnavailableText(request.language), [], 'answer');
     }
-    if (!guardian?.authorityGranted) {
-      await this.recordGmailUsage(user, 'DENIED', startedAt, guardian?.reasonCode ?? 'GUARDIAN_NOT_PROVEN');
-      return this.gmailResponse(user, request, contextRefs, startedAt, gmailUnavailableText(request.language, 'GUARDIAN_DENIED'), operation, [], 'UNAVAILABLE', guardian?.reasonCode ?? 'GUARDIAN_NOT_PROVEN', null, guardian);
+    if (resolved.status === 'VERIFIED_NO_DATA') {
+      if (!gmailAttempted && !historyAttempted) return null;
+      const text = [historyAttempted ? historyNoDataText(request.language) : '', gmailAttempted ? gmailNoDataText(request.language) : ''].filter(Boolean).join(' ');
+      if (gmailAttempted) {
+        await this.recordGmailUsage(user, 'SUCCESS', startedAt);
+        return this.gmailResponse(user, request, contextRefs, startedAt, text, gmailIntent?.operation ?? 'GMAIL_RETRIEVAL', [], 'SUCCESS', null, null, guardianTraceFromPackage(resolved));
+      }
+      return this.libraryResponse(user, request, contextRefs, startedAt, text, [], 'answer');
     }
-    try {
-      const result = await this.gmail.retrieve(request.confirmedText);
-      const answer = await composeGmailAnswerForUser(result, request.language, this.translation);
+    const gmailPayload = gmailContext?.minimalAuthorizedPayload;
+    const historyPayload = historyContext?.minimalAuthorizedPayload;
+    const gmailText = payloadText(gmailPayload, 'answerText');
+    const historyText = payloadText(historyPayload, 'answerText');
+    const gmailSources = payloadSources(gmailPayload?.sources);
+    const historySources = payloadSources(historyPayload?.sources);
+    const sources = [...historySources, ...gmailSources];
+    const gmailVerifiedNoData = resolved.verifiedNoData.some((outcome) => outcome.resolverId === GMAIL_LIBRARY_RESOLVER_ID);
+    const historyVerifiedNoData = resolved.verifiedNoData.some((outcome) => outcome.resolverId === HISTORY_LIBRARY_RESOLVER_ID);
+    const text = [historyText || (historyVerifiedNoData ? historyNoDataText(request.language) : ''), gmailText || (gmailVerifiedNoData ? gmailNoDataText(request.language) : '')].filter(Boolean).join(' ');
+    if (gmailContext || gmailVerifiedNoData) {
       await this.recordGmailUsage(user, 'SUCCESS', startedAt);
-      return this.gmailResponse(user, request, contextRefs, startedAt, answer.text, result.intent.operation, result.sources, 'SUCCESS', null, result.actionContext ?? null, guardian, answer.translation);
-    } catch (error) {
-      const errorCode = gmailFailureCode(error);
-      this.logger.warn(`Premium Assistant Gmail retrieval failed: ${errorCode}`);
-      await this.recordGmailUsage(user, 'UNAVAILABLE', startedAt, errorCode);
-      return this.gmailResponse(user, request, contextRefs, startedAt, gmailUnavailableText(request.language, errorCode), operation, [], 'UNAVAILABLE', errorCode, null, guardian);
+      return this.gmailResponse(
+        user, request, contextRefs, startedAt, text || gmailNoDataText(request.language),
+        payloadText(gmailPayload, 'operation') || gmailIntent?.operation || 'GMAIL_RETRIEVAL', sources, 'SUCCESS', null,
+        payloadActionContext(gmailPayload?.actionContext), guardianTraceFromPackage(resolved), payloadTranslation(gmailPayload?.translation), gmailSources.length,
+      );
     }
+    if (historyContext) return this.libraryResponse(user, request, contextRefs, startedAt, text, historySources, 'answer');
+    return null;
   }
 
-  private gmailResponse(user: RequestContext, request: PremiumAssistantRequestDto, contextRefs: string[], startedAt: number, text: string, operation: string, sources: AssistantSourceReference[], status: 'SUCCESS' | 'UNAVAILABLE', errorCode: string | null, actionContext: Omit<NonNullable<PremiumAssistantResponse['actionContext']>, 'traceId'> | null, guardian?: GmailGuardianTrace, translation?: GmailAnswerTranslationTrace) {
+  private gmailResponse(user: RequestContext, request: PremiumAssistantRequestDto, contextRefs: string[], startedAt: number, text: string, operation: string, sources: AssistantSourceReference[], status: 'SUCCESS' | 'UNAVAILABLE', errorCode: string | null, actionContext: Omit<NonNullable<PremiumAssistantResponse['actionContext']>, 'traceId'> | null, guardian?: GmailGuardianTrace, translation?: GmailAnswerTranslationTrace, gmailResultCount = sources.filter((source) => source.originType === 'GMAIL').length) {
     const observedAt = new Date();
     const traceStatus: AssistantSourceTrace['status'] = sources.length ? 'READY' : 'NO_VERIFIED_SOURCES';
     const trace = this.knowledge?.createTrace(sources, traceStatus, user.companyId, observedAt) ?? emptyTrace(sources, traceStatus, observedAt);
@@ -192,11 +229,23 @@ export class PremiumAssistantService {
       text, kind: 'answer', provider: 'agm', moduleId: request.moduleId, contextRefs, trace,
       cacheDisposition: 'MISS', cacheTtlSeconds: 0,
       toolTrace: {
-        tool: 'gmail-inbox', status, operation, resultCount: sources.length, errorCode,
+        tool: 'gmail-inbox', status, operation, resultCount: gmailResultCount, errorCode,
         ...(guardian ? { guardianDecision: guardian.decision, guardianEvidenceId: guardian.evidenceId, guardianCorrelationId: guardian.correlationId } : {}),
         ...(translation ? { translationStatus: translation.status, translationSourceLanguages: translation.sourceLanguages, translationTargetLanguage: translation.targetLanguage, translationProvider: translation.provider } : {}),
       },
       actionContext: actionContext ? { ...actionContext, traceId: trace.traceId } : undefined,
+      timing: { timeToFirstTokenMs: 0, orchestratorMs: elapsed, modelMs: 0, answerCompleteMs: elapsed, serverTotalMs: elapsed, sourceResolutionMs: elapsed },
+    });
+  }
+
+  private libraryResponse(user: RequestContext, request: PremiumAssistantRequestDto, contextRefs: string[], startedAt: number, text: string, sources: AssistantSourceReference[], kind: PremiumAssistantResponse['kind']) {
+    const observedAt = new Date();
+    const traceStatus: AssistantSourceTrace['status'] = sources.length ? 'LIBRARY_ONLY' : 'NO_VERIFIED_SOURCES';
+    const trace = this.knowledge?.createTrace(sources, traceStatus, user.companyId, observedAt) ?? emptyTrace(sources, traceStatus, observedAt);
+    const elapsed = Date.now() - startedAt;
+    return responseValue({
+      text, kind, provider: 'agm', moduleId: request.moduleId, contextRefs, trace,
+      cacheDisposition: 'MISS', cacheTtlSeconds: 0,
       timing: { timeToFirstTokenMs: 0, orchestratorMs: elapsed, modelMs: 0, answerCompleteMs: elapsed, serverTotalMs: elapsed, sourceResolutionMs: elapsed },
     });
   }
@@ -419,6 +468,42 @@ function responseValue(input: { text: string; kind: 'answer' | 'clarification'; 
     externalEffectPerformed: false,
     timing: input.timing,
   };
+}
+
+function payloadText(payload: Readonly<Record<string, unknown>> | undefined, field: string) {
+  const value = payload?.[field];
+  return typeof value === 'string' ? value : '';
+}
+
+function payloadSources(value: unknown): AssistantSourceReference[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is AssistantSourceReference => Boolean(item) && typeof item === 'object'
+    && typeof (item as AssistantSourceReference).sourceId === 'string'
+    && typeof (item as AssistantSourceReference).originType === 'string'
+    && typeof (item as AssistantSourceReference).retrievalType === 'string');
+}
+
+function payloadActionContext(value: unknown): Omit<NonNullable<PremiumAssistantResponse['actionContext']>, 'traceId'> | null {
+  if (!value || typeof value !== 'object') return null;
+  const context = value as Record<string, unknown>;
+  if (context.contractVersion !== 'gmail-action-context.v1' || typeof context.messageRef !== 'string' || typeof context.subject !== 'string') return null;
+  return value as Omit<NonNullable<PremiumAssistantResponse['actionContext']>, 'traceId'>;
+}
+
+function payloadTranslation(value: unknown): GmailAnswerTranslationTrace | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const translation = value as Record<string, unknown>;
+  if (!['NOT_REQUIRED', 'SUCCESS', 'UNAVAILABLE'].includes(String(translation.status))) return undefined;
+  return value as GmailAnswerTranslationTrace;
+}
+
+function libraryUnavailableText(language: string) {
+  const messages: Record<string, string> = {
+    ro: 'Biblioteca AGM nu a putut finaliza rezoluția autorizată. Cererea nu a fost trimisă către Assistant-ul generic.',
+    de: 'Die AGM-Bibliothek konnte die autorisierte Auflösung nicht abschließen. Die Anfrage wurde nicht an den generischen Assistenten weitergeleitet.',
+    en: 'The AGM library could not complete authorized resolution. The request was not sent to the generic Assistant.',
+  };
+  return messages[language] ?? messages.en!;
 }
 
 function gmailUnavailableText(language: string, errorCode: string) {

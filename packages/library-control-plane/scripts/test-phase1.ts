@@ -12,6 +12,7 @@ import {
   type LibraryResolverResult,
 } from '../src';
 
+async function main() {
 const NOW = '2026-09-19T12:00:00.000Z';
 const request = (overrides: Partial<LibraryRequest> = {}): LibraryRequest => ({
   requestId: 'phase1-request',
@@ -46,6 +47,7 @@ function resolver(input: {
   payload?: Record<string, unknown>;
   onResolve?: () => void;
   confidence?: number;
+  eligible?: boolean;
 }): LibraryResolver {
   return {
     descriptor: {
@@ -56,7 +58,7 @@ function resolver(input: {
       sensitivity: 'PERSONAL',
       authorizationAction: `library:read:${input.source.toLowerCase()}`,
     },
-    match: () => ({ eligible: true, confidence: input.confidence ?? 0.9, intent: 'TEST_LOOKUP', subject: 'fixture' }),
+    match: () => ({ eligible: input.eligible ?? true, confidence: input.confidence ?? 0.9, intent: 'TEST_LOOKUP', subject: 'fixture' }),
     resolve: async () => {
       input.onResolve?.();
       return result(input.status ?? 'FOUND', input.payload ?? { name: 'Mona Vodafone' });
@@ -171,9 +173,26 @@ function authorityFor(rules: ConstructorParameters<typeof ExplicitLibraryAuthori
   assert.equal(noRegisteredResolver.dispatch.genericFallbackAllowed, false);
 }
 
+{
+  const authority = authorityFor([], ([, premium]) => premium.register(resolver({
+    resolverId: 'premium.not-relevant', source: 'GMAIL', domains: ['PREMIUM'], eligible: false,
+  })));
+  const incompleteCrossDomain = await authority.resolve(request({
+    surface: 'ANDROID', activeDomain: 'PREMIUM', requestedDomains: ['PREMIUM', 'CAR_MOVER'],
+  }));
+  assert.equal(incompleteCrossDomain.status, 'BLOCKED');
+  assert.equal(incompleteCrossDomain.dispatch.genericFallbackAllowed, false);
+}
+
 console.log('GLOBAL LIBRARY AUTHORITY = IMPLEMENTED');
 console.log('4 DOMAIN ORCHESTRATORS = REGISTERED');
 console.log('COMMON RESOLVER CONTRACT = PASS');
 console.log('AUTHORIZATION BEFORE RETRIEVAL = PASS');
 console.log('CROSS-DOMAIN MANDATES + DEDUPLICATION = PASS');
 console.log('NO GENERIC ASSISTANT FALLBACK BEFORE LIBRARY RESOLUTION = PASS');
+}
+
+void main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

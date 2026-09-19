@@ -15,6 +15,7 @@ export interface LibraryDomainOrchestrator {
   readonly domain: AgmLibraryDomain;
   readonly eligibleSources: ReadonlySet<AgmLibrarySourceId>;
   register(resolver: LibraryResolver): void;
+  registeredResolverCount(): number;
   plan(request: LibraryRequest): readonly PlannedResolver[];
   execute(request: LibraryRequest, mandate: LibraryMandate): Promise<readonly AuthorizedResolutionRecord[]>;
 }
@@ -34,6 +35,8 @@ abstract class BaseLibraryOrchestrator implements LibraryDomainOrchestrator {
     if (this.#resolvers.has(resolver.descriptor.resolverId)) throw new Error(`DUPLICATE_RESOLVER:${resolver.descriptor.resolverId}`);
     this.#resolvers.set(resolver.descriptor.resolverId, resolver);
   }
+
+  registeredResolverCount() { return this.#resolvers.size; }
 
   plan(request: LibraryRequest) {
     return [...this.#resolvers.values()]

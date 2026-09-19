@@ -1,0 +1,56 @@
+PHASE 2B GATE RESULTS
+DATE = 2026-09-19
+PRODUCTION DEPLOY = NOT TRIGGERED
+PUSH = NOT PERFORMED
+
+PRISMA CLIENT ALIGNMENT
+pnpm db:generate
+RESULT = PASS
+providerUsageEvent client property blocker = CLEARED LOCALLY
+source/schema commit required = NO
+
+TECHNICAL PREREQUISITE
+canonical freshness is recalculated at the explicit resolution time
+SHA = 3f8b8c93a4a03fe82ab22ff65685deb3b637c6bd
+premium-assistant-knowledge.spec.ts = 13/13 PASS
+
+COMMON CONTRACT REGRESSION
+pnpm --filter @agm/library-control-plane test:phase1
+RESULT = PASS
+Phase 1 assertions = 6 PASS markers
+
+PHASE 2A REGRESSION
+pnpm --filter @agm/web test:library:phase2a
+RESULT = PASS
+Phase 2A assertions = 6 PASS markers
+
+PHASE 2B DEDICATED GATE
+pnpm --filter @agm/api test:library:phase2b
+RESULT = PASS
+Test suites = 1 passed
+Tests = 21 passed, 0 failed
+
+PREMIUM ASSISTANT COMPLETE SUITES
+pnpm --filter @agm/api test -- --runInBand --testPathPattern=premium-assistant
+RESULT = PASS
+Test suites = 5 passed
+Tests = 64 passed, 0 failed
+
+WEB SESSION REGRESSIONS
+premium-assistant-client = PASS
+premium-conversation-foundation = PASS
+premium-voice-session = PASS
+
+STATIC / BUILD GATES
+API lint = PASS
+API build = PASS
+Web build = PASS
+Global semantic speech normalization = 12/12 PASS
+
+SECURITY AND FINAL TREE CHECKS
+evidence sanitizer self-test = PASS
+repository/evidence secret scan = PASS
+scanned files = 3648
+findings = 0
+staged-tree secret scan = PASS
+staged files = 21

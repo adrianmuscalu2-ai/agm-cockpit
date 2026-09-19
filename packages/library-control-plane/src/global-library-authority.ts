@@ -51,6 +51,8 @@ export class AgmGlobalLibraryAuthority {
     const authorizationDenials: ResolvedContextPackage['authorizationDenials'][number][] = [];
     const failures: ResolvedContextPackage['failures'][number][] = [];
     let eligibleCount = 0;
+    let registeredResolverCount = 0;
+    let domainsWithoutRegisteredResolvers = 0;
 
     for (const domain of domains) {
       const orchestrator = this.#orchestrators.get(domain);
@@ -58,6 +60,9 @@ export class AgmGlobalLibraryAuthority {
         failures.push({ domain, resolverId: 'UNREGISTERED', reasonCode: 'DOMAIN_ORCHESTRATOR_NOT_REGISTERED' });
         continue;
       }
+      const domainResolverCount = orchestrator.registeredResolverCount();
+      registeredResolverCount += domainResolverCount;
+      if (domainResolverCount === 0) domainsWithoutRegisteredResolvers += 1;
       const plan = orchestrator.plan(request);
       eligibleCount += plan.length;
       plan.forEach(({ resolver }) => emit({ stage: 'RESOLVER_ELIGIBLE', domain, resolverId: resolver.descriptor.resolverId, outcome: resolver.descriptor.source }));
@@ -85,6 +90,19 @@ export class AgmGlobalLibraryAuthority {
 
     const ambiguous = records.filter((record) => record.status === 'AMBIGUOUS' || record.ambiguity.ambiguous);
     const found = records.filter((record) => record.status === 'FOUND');
+    const verifiedNoData = records.filter((record) => record.status === 'NO_DATA').map((record) => ({
+      domain: record.domain,
+      resolverId: record.resolverId,
+      source: record.source,
+      summary: record.result.summary,
+      confidence: record.confidence,
+      provenance: record.provenance,
+    }));
+    records.filter((record) => record.status === 'UNAVAILABLE').forEach((record) => failures.push({
+      domain: record.domain,
+      resolverId: record.resolverId,
+      reasonCode: record.result.summary || 'SOURCE_UNAVAILABLE',
+    }));
     const clarifications = ambiguous.map((record) => ({
       domain: record.domain,
       resolverId: record.resolverId,
@@ -96,11 +114,18 @@ export class AgmGlobalLibraryAuthority {
     const allEligibleCompleted = eligibleCount > 0
       && records.length + authorizationDenials.length === eligibleCount
       && failures.length === 0;
+    const allRegisteredResolversDeclined = eligibleCount === 0
+      && registeredResolverCount > 0
+      && domainsWithoutRegisteredResolvers === 0
+      && failures.length === 0;
+    const resolutionIncomplete = authorizationDenials.length > 0 || failures.length > 0;
     const status: ResolvedContextPackage['status'] = ambiguous.length
       ? 'CLARIFICATION_REQUIRED'
-      : contexts.length
+      : resolutionIncomplete
+        ? 'BLOCKED'
+        : contexts.length
         ? 'CONTEXT_READY'
-        : allEligibleCompleted && authorizationDenials.length === 0 && records.every((record) => record.status === 'NO_DATA')
+        : (allEligibleCompleted && authorizationDenials.length === 0 && records.every((record) => record.status === 'NO_DATA')) || allRegisteredResolversDeclined
           ? 'VERIFIED_NO_DATA'
           : 'BLOCKED';
     const dispatch = dispatchFor(status);
@@ -114,6 +139,7 @@ export class AgmGlobalLibraryAuthority {
       domains,
       mandates,
       contexts,
+      verifiedNoData,
       clarifications,
       conflicts,
       authorizationDenials,
@@ -135,7 +161,7 @@ export class AgmGlobalLibraryAuthority {
       const decision = await this.authorization.authorize({ request, domain, source: item.resolver.descriptor, match: item.match });
       emit({ stage: 'AUTHORIZATION_EVALUATED', domain, resolverId: item.resolver.descriptor.resolverId, outcome: decision.decision });
       if (!decision.authorityGranted || decision.decision !== 'GRANTED') {
-        denials.push({ domain, resolverId: item.resolver.descriptor.resolverId, reasonCode: decision.reasonCode, evidenceRef: decision.evidenceRef });
+        denials.push({ domain, resolverId: item.resolver.descriptor.resolverId, reasonCode: decision.reasonCode, evidenceRef: decision.evidenceRef, ...(decision.metadata ? { metadata: decision.metadata } : {}) });
         continue;
       }
       authorized.push({ resolverId: item.resolver.descriptor.resolverId, source: item.resolver.descriptor.source, authorization: decision, match: item.match });
