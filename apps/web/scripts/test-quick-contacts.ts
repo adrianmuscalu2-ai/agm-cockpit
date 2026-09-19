@@ -190,4 +190,9 @@ const editing = editContact(contacts, contacts[0]!.id, {
 });
 assert.equal(editing.result.valid, true);
 assert.equal(editing.contacts.length, PERSONAL_CONTACT_LIMIT);
+const copilotViewSource = readFileSync(new URL('../src/premium-copilot/copilot.view.ts', import.meta.url), 'utf8');
+assert.match(copilotViewSource, /data-assistant-action-panel/);
+assert.match(copilotViewSource, /data-assistant-action-summary/);
+assert.match(copilotViewSource, /data-assistant-action-confirm/);
+assert.match(copilotViewSource, /data-assistant-action-reject/);
 console.log('AGM PERSONAL CONTACTS 20 PEOPLE + PHONE/GMAIL/MESSENGER RESOLUTION: PASS');

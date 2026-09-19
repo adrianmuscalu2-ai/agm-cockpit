@@ -1,6 +1,7 @@
 import type { BasicLanguageCode } from '../language-registry';
 import { renderPremiumShell } from '../premium-shell';
 import { copilotText as t } from './copilot.i18n';
+import { premiumConversationMessages } from '../premium-voice-shell/premium-conversation.i18n';
 
 export function renderCopilot(l: BasicLanguageCode, e: (value: string) => string) {
   return renderPremiumShell({
@@ -24,6 +25,7 @@ export function renderCopilot(l: BasicLanguageCode, e: (value: string) => string
       <section class="copilot-active" data-copilot-active hidden><h2>${e(t(l, 'interpreted'))}</h2><p data-copilot-intent></p><div data-copilot-safety hidden><strong>${e(t(l, 'safeQuestion'))}</strong><button data-safe="true">${e(t(l, 'safeYes'))}</button><button data-safe="false">${e(t(l, 'safeNo'))}</button><p role="alert" data-copilot-safe-stop hidden>${e(t(l, 'safeStop'))}</p></div><button data-assistant-confirm hidden>${e(t(l, 'confirm'))}</button></section>
       <section class="copilot-action-preview" data-capability-preview hidden><h2 data-capability-title></h2><p data-capability-summary></p><div><button type="button" data-capability-cancel></button><button type="button" data-capability-confirm></button></div><p role="status" data-capability-receipt></p></section>
       <section class="premium-module" data-assistant-response-panel hidden><div class="premium-module-content"><h2>AGM</h2><p data-assistant-response aria-live="polite"></p><small data-assistant-latency hidden></small><button type="button" data-assistant-stop-playback>${e(t(l, 'cancel'))}</button></div></section>
+      <section class="premium-module" data-assistant-action-panel hidden><div class="premium-module-content"><p data-assistant-action-summary aria-live="polite"></p><div class="premium-assistant-controls"><button type="button" data-assistant-action-confirm>${e(premiumConversationMessages[l].confirmAction)}</button><button type="button" data-assistant-action-reject>${e(premiumConversationMessages[l].rejectAction)}</button></div></div></section>
       <section data-assistant-history-panel hidden><ol data-assistant-history></ol></section>
       <details class="copilot-diagnostics"><summary>${e(t(l, 'diagnostics'))}</summary><p data-copilot-diagnostic></p></details>
     </main>`,
