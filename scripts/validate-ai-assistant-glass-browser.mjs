@@ -153,7 +153,7 @@ try {
   const liveApkResponse = await fetch(apkTarget, { cache: 'no-store' });
   if (!liveApkResponse.ok) throw new Error(`Live Android APK HTTP ${liveApkResponse.status}`);
   const liveApkSha256 = createHash('sha256').update(Buffer.from(await liveApkResponse.arrayBuffer())).digest('hex').toUpperCase();
-  if (liveApkSha256 !== '357F45C89E908CE69B02D54CA7A2CF75B094280AC96B795AA4EB2CD0523D6EA6') throw new Error(`Live Android APK hash mismatch: ${liveApkSha256}`);
+  if (liveApkSha256 !== '73D6D839DA97A43AF990FABEE2638AEAE4C491B677AD56A8009A34342EEA0393') throw new Error(`Live Android APK hash mismatch: ${liveApkSha256}`);
   browser = await chromium.launch({ headless: true });
   const scenarios = [
     { id: 'desktop-copilot', route: '/premium/copilot', root: '.premium-copilot-view', panel: '.copilot-core', mic: '.copilot-mic', viewport: { width: 1440, height: 1000 } },
@@ -209,7 +209,7 @@ try {
     productionDistribution: productionTarget ? {
       revision: expectedProductionRevision,
       apkUrl: apkTarget,
-      apkSha256: '357F45C89E908CE69B02D54CA7A2CF75B094280AC96B795AA4EB2CD0523D6EA6',
+      apkSha256: '73D6D839DA97A43AF990FABEE2638AEAE4C491B677AD56A8009A34342EEA0393',
     } : undefined,
     results,
     fatal,

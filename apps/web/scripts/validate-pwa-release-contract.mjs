@@ -3,7 +3,8 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
 const root = new URL('../', import.meta.url);
-const pwaRelease = 'agm-cockpit-1.5.0-personal-contacts-v3-20260918';
+const pwaRelease = 'agm-cockpit-1.5.0-name-first-v4-20260919';
+const supersededPwaRelease = 'agm-cockpit-1.5.0-personal-contacts-v3-20260918';
 const read = relative => readFileSync(new URL(relative, root), 'utf8');
 const approvedLogo = readFileSync(new URL('public/images/images/logo1.png', root));
 
@@ -22,6 +23,8 @@ const manifest = JSON.parse(read('public/manifest.webmanifest'));
 
 assert.match(serviceWorker, new RegExp(`const CACHE_NAME = '${pwaRelease}'`));
 assert.match(main, new RegExp(`/sw\\.js\\?v=${pwaRelease}`));
+assert.doesNotMatch(serviceWorker, new RegExp(supersededPwaRelease));
+assert.doesNotMatch(main, new RegExp(supersededPwaRelease));
 assert.match(main, /updateViaCache:\s*'none'/);
 assert.match(serviceWorker, /keys\.filter\(\(key\) => key !== CACHE_NAME\)\.map\(\(key\) => caches\.delete\(key\)\)/);
 assert.match(serviceWorker, /self\.skipWaiting\(\)/);

@@ -1,4 +1,7 @@
-const CACHE_NAME = 'agm-cockpit-1.5.0-personal-contacts-v3-20260918';
+// This revision must change whenever the embedded Android web runtime changes.
+// A new worker script lets an installed v1.5.0 replace an older cached shell
+// without clearing user data (including AGM personal contacts).
+const CACHE_NAME = 'agm-cockpit-1.5.0-name-first-v4-20260919';
 const APP_SHELL = ['/', '/manifest.webmanifest', '/icons/agm-app-icon-192.png', '/images/images/logo1.png'];
 
 function isCacheableResponse(request, response) {
