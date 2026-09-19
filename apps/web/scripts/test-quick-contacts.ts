@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { emptyContactDraft, saveContacts } from '../src/contact-manager/contact-manager.storage';
 import { addContact, editContact } from '../src/contact-manager/contact-manager.service';
 import { PERSONAL_CONTACT_LIMIT, personalContactCounts, resolvePersonalContactAction } from '../src/contact-manager/personal-contact';
 import { routeAndroidAction } from '../src/android-action-layer/android-action.router';
 import { driverActionMessage, driverDialConfirmationSummary } from '../src/android-action-layer/driver-voice-mode';
 import { executeAndroidAction } from '../src/android-action-layer/android-action.executor';
+import { resolvePersonalContactVoiceRequest } from '../src/contact-manager/personal-contact-voice';
+import { personalContactVoiceMessage } from '../src/contact-manager/personal-contact-voice.i18n';
 
 let contacts = [] as ReturnType<typeof addContact>['contacts'];
 for (let index = 0; index < PERSONAL_CONTACT_LIMIT; index += 1) {
@@ -30,8 +33,69 @@ const mona = addContact([], {
   phone: '+40 700 123 456',
   email: 'mona.vodafone@gmail.com',
   messenger: 'mona.vodafone',
+  whatsapp: '+40 700 123 456',
 }).contacts[0]!;
 const monaContacts = [mona];
+
+const voiceCases = [
+  ['Apelează contactul Mona Vodafone', 'CALL', 'ACTION', 'DIAL'],
+  ['Apelează Mona Vodafone', 'CALL', 'ACTION', 'DIAL'],
+  ['accesează în bibliotecă contactul Mona Vodafone', 'LOOKUP', 'LOOKUP', undefined],
+  ['numărul de telefon Mona Vodafone', 'PHONE', 'LOOKUP', undefined],
+  ['poți să trimiți un mail contactului Mona Vodafone', 'EMAIL', 'ACTION', 'EMAIL_DRAFT'],
+  ['Mona Vodafone', 'LOOKUP', 'CLARIFICATION', undefined],
+  ['telefon Mona Vodafone', 'PHONE', 'LOOKUP', undefined],
+  ['numărul Monei Vodafone', 'PHONE', 'LOOKUP', undefined],
+  ['dă-mi telefonul Monei', 'PHONE', 'LOOKUP', undefined],
+  ['sun-o pe Mona', 'CALL', 'ACTION', 'DIAL'],
+  ['mail Mona Vodafone', 'EMAIL', 'LOOKUP', undefined],
+  ['dă-mi emailul Monei', 'EMAIL', 'LOOKUP', undefined],
+  ['poți să-i trimiți un mail Monei?', 'EMAIL', 'ACTION', 'EMAIL_DRAFT'],
+  ['scrie-i Monei', 'EMAIL', 'ACTION', 'EMAIL_DRAFT'],
+  ['contactul Mona Vodafone', 'LOOKUP', 'LOOKUP', undefined],
+  ['Mona Vodafone acceseaza in biblioteca', 'LOOKUP', 'LOOKUP', undefined],
+  ['NUMARUL MONEI', 'PHONE', 'LOOKUP', undefined],
+  ['Messenger Mona', 'MESSENGER', 'LOOKUP', undefined],
+  ['deschide Messenger la Mona', 'MESSENGER', 'ACTION', 'MESSENGER_CHAT'],
+  ['WhatsApp Mona', 'WHATSAPP', 'LOOKUP', undefined],
+] as const;
+for (const [text, intent, mode, action] of voiceCases) {
+  const result = resolvePersonalContactVoiceRequest(text, monaContacts);
+  assert.equal(result.handled, true, `known contact must be handled locally: ${text}`);
+  if (!result.handled) continue;
+  assert.equal(result.intent, intent, `intent mismatch: ${text}`);
+  assert.equal(result.mode, mode, `mode mismatch: ${text}`);
+  assert.equal(result.resolution?.action, action, `action mismatch: ${text}`);
+}
+const phoneLookup = resolvePersonalContactVoiceRequest('numărul de telefon Mona Vodafone', monaContacts);
+assert.equal(phoneLookup.handled, true);
+if (phoneLookup.handled) {
+  assert.match(personalContactVoiceMessage(phoneLookup, 'ro'), /Contact selectat: Mona Vodafone/);
+  assert.match(personalContactVoiceMessage(phoneLookup, 'ro'), /Sursă: Contacte personale AGM/);
+}
+for (const text of ['trimite un mail', 'telefon Vodafone', 'Monalisa este aici', 'apelează numărul 0700123456']) {
+  assert.equal(resolvePersonalContactVoiceRequest(text, monaContacts).handled, false, `negative control: ${text}`);
+}
+const negated = resolvePersonalContactVoiceRequest('nu o suna pe Mona', monaContacts);
+assert.equal(negated.handled, true);
+if (negated.handled) {
+  assert.equal(negated.reason, 'AGM_PERSONAL_CONTACT_NEGATED_ACTION');
+  assert.equal(negated.resolution, undefined);
+}
+const partialDuplicate = { ...mona, id: 'mona-orange', name: 'Mona Orange' };
+const ambiguousNameFirst = resolvePersonalContactVoiceRequest('sun-o pe Mona', [mona, partialDuplicate]);
+assert.equal(ambiguousNameFirst.handled, true);
+assert.equal(ambiguousNameFirst.handled && ambiguousNameFirst.resolution?.payload?.contactName, 'Mona');
+const ambiguousNameFirstAction = ambiguousNameFirst.handled && ambiguousNameFirst.resolution
+  ? resolvePersonalContactAction(ambiguousNameFirst.resolution, [mona, partialDuplicate])
+  : undefined;
+assert.equal(ambiguousNameFirstAction?.status, 'CLARIFICATION_REQUIRED');
+assert.equal(ambiguousNameFirstAction?.confirmation, 'NONE');
+const runtimeSource = readFileSync(new URL('../src/premium-voice-shell/premium-assistant.runtime.ts', import.meta.url), 'utf8');
+const nameFirstCall = runtimeSource.indexOf('resolvePersonalContactVoiceRequest(confirmedVoiceText');
+assert.ok(nameFirstCall > 0);
+assert.ok(nameFirstCall < runtimeSource.indexOf('resolveDriverVoiceCommand(confirmedVoiceText'));
+assert.ok(nameFirstCall < runtimeSource.indexOf('client.respond({productId'));
 const withContactNoun = resolvePersonalContactAction(routeAndroidAction('Apelează contactul Mona Vodafone', null), monaContacts);
 const withoutContactNoun = resolvePersonalContactAction(routeAndroidAction('Apelează Mona Vodafone', null), monaContacts);
 const withCallContactNoun = resolvePersonalContactAction(routeAndroidAction('Sună contactul Mona Vodafone', null), monaContacts);
