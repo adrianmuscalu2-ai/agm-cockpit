@@ -38,7 +38,7 @@ export class PremiumAssistantKnowledgeService {
       .filter((item) => item.score > 0)
       .sort((left, right) => right.score - left.score || left.entry.source.sourceId.localeCompare(right.entry.source.sourceId))
       .slice(0, MAX_EGRESS_SOURCES);
-    const ranked = rankedEntries.map((item) => refreshReference(item.entry.reference, now));
+    const ranked = rankedEntries.map((item) => referenceAt(item.entry, now));
     const allCurrent = ranked.length > 0 && ranked.every((source) => source.freshness.status === 'CURRENT');
     const alwaysLive = /(?:^|[^a-z0-9])(weather|wetter|meteo|vreme|traffic|verkehr|trafic|price|preis|pret|opening|geoffnet|deschis)/i.test(normalize(question));
     const expiredMatch = ranked.some((source) => ['STALE', 'EXPIRED', 'INVALIDATED'].includes(source.freshness.status));
@@ -121,7 +121,7 @@ export class PremiumAssistantKnowledgeService {
     const index = this.index.findIndex((entry) => entry.source.sourceId === sourceId);
     if (index >= 0) this.index[index] = next; else this.index.push(next);
     this.invalidated.delete(sourceId);
-    return { sourceId, status: refreshReference(next.reference, now).freshness.status, refreshedAt: now.toISOString() };
+    return { sourceId, status: referenceAt(next, now).freshness.status, refreshedAt: now.toISOString() };
   }
 
   stats() {
@@ -197,10 +197,9 @@ export function liveSourceReference(input: { url: string; title?: string; observ
   };
 }
 
-function refreshReference(reference: AssistantSourceReference, now: Date): AssistantSourceReference {
-  const expiresAtMs = Date.parse(reference.freshness.expiresAt ?? '');
-  if (reference.freshness.status === 'INVALIDATED' || !Number.isFinite(expiresAtMs) || expiresAtMs > now.getTime()) return reference;
-  return { ...reference, freshness: { ...reference.freshness, status: 'EXPIRED', ttlSeconds: 0 } };
+function referenceAt(entry: IndexedSource, now: Date): AssistantSourceReference {
+  if (entry.reference.freshness.status === 'INVALIDATED') return entry.reference;
+  return { ...entry.reference, freshness: sourceFreshness(entry.source, entry.reference.originType, now) };
 }
 
 function sourceFreshness(source: CanonicalSource, originType: AssistantSourceReference['originType'], now: Date): AssistantSourceReference['freshness'] {
