@@ -39,7 +39,7 @@ export class ComponentTelemetryService {
         reportedStatus: input.status,
         lastSeenAt: now,
         ...(input.status === 'ONLINE'
-          ? { lastSuccessAt: now }
+          ? { lastSuccessAt: now, lastFailureReason: null }
           : { lastFailureAt: now, lastFailureReason: reason }),
         lastDetail: detail,
       },

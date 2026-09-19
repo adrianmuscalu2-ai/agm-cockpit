@@ -51,4 +51,30 @@ describe('ComponentTelemetryService', () => {
     }
     await expect(service.health('unregistered-component', ctx)).rejects.toBeInstanceOf(BadRequestException);
   });
+
+  it('clears the active failure reason when a degraded component recovers online', async () => {
+    const upsert = jest.fn(async (input) => ({
+      componentId: input.where.companyId_componentId.componentId,
+      reportedStatus: input.update.reportedStatus,
+      lastSeenAt: input.update.lastSeenAt,
+      lastSuccessAt: input.update.lastSuccessAt,
+      lastFailureAt: new Date('2026-09-19T03:33:26.000Z'),
+      lastFailureReason: input.update.lastFailureReason,
+      lastDetail: input.update.lastDetail,
+    }));
+    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert } } as unknown as PrismaService);
+
+    const result = await service.heartbeat('premium-linguist-it', {
+      status: 'ONLINE',
+      reason: 'I18N_RESOURCES_VALIDATED',
+      detail: 'language=it;total=1713;errors=0',
+    }, ctx);
+
+    expect(upsert.mock.calls[0][0].update).toMatchObject({
+      reportedStatus: 'ONLINE',
+      lastFailureReason: null,
+    });
+    expect(result.status).toBe('ONLINE');
+    expect(result.lastFailureReason).toBeNull();
+  });
 });
