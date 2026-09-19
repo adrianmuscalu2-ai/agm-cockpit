@@ -119,7 +119,7 @@ async function auditSurface(page, scenario) {
     visualDominant: detail.visual.size !== 'auto' && Number(detail.visual.opacity) >= 0.8,
     microphoneCentral: detail.mic.visible && microphoneOffset <= detail.viewport.width * 0.08,
     microphoneReadable: detail.mic.icon === '\u{1F3A4}' && Number.parseFloat(detail.mic.iconFontSize) >= 36 && Number.parseFloat(detail.mic.labelFontSize) <= 18,
-    translucentPanel: Math.abs(alpha - 0.22) <= 0.005,
+    translucentPanel: Math.abs(alpha - 0.03) <= 0.005,
     glassEffect: detail.panel.backdropFilter.includes('blur(9px)'),
     readable: detail.panel.color !== 'rgba(0, 0, 0, 0)' && detail.panel.borderColor !== 'rgba(0, 0, 0, 0)',
     noHorizontalOverflow: detail.documentWidth <= detail.viewport.width + 1,
