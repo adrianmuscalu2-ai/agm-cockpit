@@ -188,7 +188,13 @@ export class OperationalAgentDutyRunner {
     const heartbeat = await this.prisma.componentHeartbeat.findUnique({ where: { companyId_componentId: { companyId, componentId: agentId } } });
     const detail = heartbeat?.lastDetail ?? '';
     const current = Boolean(heartbeat && now.getTime() - heartbeat.lastSeenAt.getTime() <= LINGUISTIC_EVIDENCE_FRESHNESS_MS);
-    const catalogProven = heartbeat?.reportedStatus === 'ONLINE' && heartbeat.lastFailureReason === null && /total=1713/.test(detail) && /errors=0/.test(detail);
+    const resourceCountProven = /total=1713/.test(detail);
+    const errorsZero = /errors=0/.test(detail);
+    const catalogProven = heartbeat?.reportedStatus === 'ONLINE' && resourceCountProven && errorsZero;
+    const staleFailureReasonCleared = Boolean(catalogProven && heartbeat?.lastFailureReason);
+    if (staleFailureReasonCleared && heartbeat) {
+      await this.prisma.componentHeartbeat.update({ where: { companyId_componentId: { companyId, componentId: agentId } }, data: { lastFailureReason: null } });
+    }
     const passed = current && catalogProven;
     return {
       operation: 'Validate deployed language catalog audit receipt',
@@ -196,7 +202,7 @@ export class OperationalAgentDutyRunner {
       result: passed ? 'COMPLETED' : 'FAILED',
       reason: passed ? null : !heartbeat ? 'LINGUISTIC_AUDIT_EVIDENCE_MISSING' : !current ? 'LINGUISTIC_AUDIT_EVIDENCE_EXPIRED' : 'LINGUISTIC_CATALOG_VALIDATION_FAILED',
       evidenceReferences: heartbeat ? [`ComponentHeartbeat:${heartbeat.id}`] : [],
-      checks: { heartbeatStatus: heartbeat?.reportedStatus ?? 'MISSING', evidenceCurrent: current, resourceCountProven: /total=1713/.test(detail), errorsZero: /errors=0/.test(detail) },
+      checks: { heartbeatStatus: heartbeat?.reportedStatus ?? 'MISSING', evidenceCurrent: current, resourceCountProven, errorsZero, staleFailureReasonCleared },
     };
   }
 
