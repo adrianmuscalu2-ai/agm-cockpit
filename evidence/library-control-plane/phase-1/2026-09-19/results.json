@@ -1,0 +1,20 @@
+{
+  "contractVersion": "agm-library-control-plane.phase1.v1",
+  "date": "2026-09-19",
+  "parentSha": "dbfc6e4b7ed763fedde2675c7f5bbcbc51e3d0b8",
+  "phase": 1,
+  "verdict": "PASS",
+  "gates": {
+    "globalLibraryAuthority": "IMPLEMENTED",
+    "domainOrchestratorsRegistered": 4,
+    "commonResolverContract": "PASS",
+    "authorizationBeforeRetrieval": "PASS",
+    "crossDomainMandates": "PASS",
+    "deduplicationAndConflictRecording": "PASS",
+    "minimalAuthorizedPayload": "PASS",
+    "genericFallbackBeforeLibraryResolution": "DENIED"
+  },
+  "realSourceMigration": "NOT_STARTED",
+  "productionDeployTriggered": false,
+  "prismaProviderUsageEventChanged": false
+}
