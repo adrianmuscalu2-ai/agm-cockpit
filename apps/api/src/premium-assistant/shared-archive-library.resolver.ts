@@ -41,7 +41,12 @@ export class SharedArchiveLibraryResolver implements LibraryResolver {
   }
 
   match(request: LibraryRequest) {
-    return this.definition.intent(request.query.text);
+    const match = this.definition.intent(request.query.text);
+    const hinted = request.query.intentHints?.includes(this.definition.source)
+      || (this.definition.source === 'AGM_SHARED_ARCHIVE' && request.query.intentHints?.includes('AGM_SHARED_ARCHIVE'));
+    return !match.eligible && hinted
+      ? { eligible: true, confidence: 0.82, intent: `${this.definition.source}_HINTED_SEARCH`, subject: match.subject }
+      : match;
   }
 
   async resolve(input: Parameters<LibraryResolver['resolve']>[0]): Promise<LibraryResolverResult> {

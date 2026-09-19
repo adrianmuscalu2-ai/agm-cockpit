@@ -14,6 +14,8 @@
     "test:library:phase2b": "jest --runInBand test/premium-assistant-library-phase2b.spec.ts",
     "pretest:library:phase2c": "pnpm --filter @agm/library-control-plane build",
     "test:library:phase2c": "jest --runInBand test/shared-archive-phase2c.spec.ts",
+    "pretest:library:phase2d": "pnpm --filter @agm/library-control-plane build",
+    "test:library:phase2d": "jest --runInBand test/car-mover-library-phase2d.spec.ts",
     "test:p1-event-store": "ts-node scripts/test-p1-operational-event-store.ts",
     "test:p1-event-store-db": "ts-node scripts/test-p1-operational-event-store-db.ts",
     "test:communications": "ts-node scripts/test-bidirectional-communications.ts",

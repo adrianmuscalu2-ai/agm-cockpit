@@ -156,6 +156,9 @@ export class ConversationHistoryLibraryResolver implements LibraryResolver {
 
   match(request: LibraryRequest) {
     const match = classifyConversationHistoryIntent(request.query.text);
+    if (!match.eligible && request.query.intentHints?.includes('CONVERSATION_HISTORY')) {
+      return { eligible: true, confidence: 0.82, intent: 'HISTORY_RELEVANCE_SEARCH', subject: match.subject };
+    }
     return { eligible: match.eligible, confidence: match.confidence, intent: match.intent, subject: match.subject };
   }
 

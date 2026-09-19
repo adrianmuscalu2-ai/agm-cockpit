@@ -110,10 +110,12 @@ export function classifyGmailIntent(text: string): GmailAssistantIntent | null {
   const fromSignal = /\b(?:de la|from|von|van|da|od|nga)\b/.test(normalized);
   const newFromSignal = hasAny(['nou', 'noi', 'new', 'neues', 'recent']) && fromSignal;
   const receivedFromSignal = hasAny(['primit', 'received', 'got', 'erhalten', 'bekommen', 'recu', 'ontvangen', 'recibido', 'ricevuto']) && fromSignal;
+  const availabilitySignal = hasAny(['avem', 'exista', 'este', 'ai', 'have', 'has', 'any', 'gibt', 'haben'])
+    && fromSignal;
   const outbound = hasAny(['trimite', 'trimiti', 'expediaza', 'compune', 'send', 'compose', 'schicke', 'sende'])
     || (hasAny(['scrie', 'write']) && !replySignal);
   if (outbound && (emailNoun || explicitGmail)) return null;
-  if (!(explicitGmail || (emailNoun && inboxAction) || replySignal || newFromSignal || receivedFromSignal)) return null;
+  if (!(explicitGmail || (emailNoun && (inboxAction || availabilitySignal)) || replySignal || newFromSignal || receivedFromSignal)) return null;
 
   const maxMessages = requestedMessageCount(normalized);
   const topic = cleanSemanticEntity(extractAfter(normalized, /\b(?:despre|about|uber|over|sur|sobre|riguardo|dotyczace|hakkinda|rreth)\s+/));
@@ -137,6 +139,7 @@ export function classifyGmailIntent(text: string): GmailAssistantIntent | null {
 
 function cleanSemanticEntity(value: string) {
   return value
+    .replace(/\b(?:despre|about|uber|over|sur|sobre|riguardo|dotyczace|hakkinda|rreth)\b.*$/i, '')
     .replace(/\b(?:si|iar|and|und)\s+(?:verifica|check|prufe|cauta|search).*$/i, '')
     .replace(/\b(?:intre timp|between now|meanwhile)$/i, '')
     .replace(/\b(?:azi|astazi|today|heute|acum|now)$/i, '')
