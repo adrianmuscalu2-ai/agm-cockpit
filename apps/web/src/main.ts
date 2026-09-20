@@ -2445,6 +2445,7 @@ function bindShared() {
       bindPremiumGovernanceRuntime(true);
     }
   }, useTurnAdminHeartbeat ? {
+    authority: 'turn-admin-session',
     fetcher: turnAdminAuthenticatedFetch,
     route: (agentId) => `/operations/turn/components/${agentId}/heartbeat`,
   } : undefined);

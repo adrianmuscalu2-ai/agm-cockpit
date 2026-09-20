@@ -48,11 +48,13 @@ export type LinguisticAgentHeartbeat = {
   journalStatus: 'PERSISTED' | 'USER_SESSION_UNAVAILABLE' | 'REQUEST_FAILED';
 };
 export type LinguisticHeartbeatTransport = {
+  authority: 'user-session' | 'turn-admin-session';
   fetcher: typeof authenticatedApiFetch;
   route: (agentId: FinalLanguageAgentId) => string;
 };
 
 const userHeartbeatTransport: LinguisticHeartbeatTransport = {
+  authority: 'user-session',
   fetcher: authenticatedApiFetch,
   route: (agentId) => `/operations/components/${agentId}/heartbeat`,
 };
@@ -72,6 +74,7 @@ let heartbeatBound = false;
 let heartbeatTimer: number | undefined;
 let lastPublishStartedAt = 0;
 let currentPublish: Promise<LinguisticAgentHeartbeat[]> | undefined;
+let activeHeartbeatTransport = userHeartbeatTransport;
 
 function flatten(value: unknown, path = '', result: Record<string, string> = {}) {
   if (typeof value === 'string') result[path] = value;
@@ -209,19 +212,25 @@ export async function publishPremiumLinguisticAgentHeartbeats(transport = userHe
 }
 
 export function bindPremiumLinguisticAgentHeartbeats(onHeartbeat?: (heartbeats: LinguisticAgentHeartbeat[]) => void, transport = userHeartbeatTransport) {
+  const authorityChanged = activeHeartbeatTransport.authority !== transport.authority;
+  activeHeartbeatTransport = transport;
   const latest = finalLanguageAgentTargets.map((target) => [...heartbeatJournal].reverse().find((entry) => entry.agentId === target.id)).filter((entry): entry is LinguisticAgentHeartbeat => Boolean(entry));
   const latestIsCurrent = latest.length === finalLanguageAgentTargets.length && latest.every((entry) => entry.apiJournaled) && Date.now() - lastPublishStartedAt < heartbeatIntervalMs;
   const publish = () => {
     if (currentPublish) return currentPublish;
     lastPublishStartedAt = Date.now();
-    currentPublish = publishPremiumLinguisticAgentHeartbeats(transport)
+    currentPublish = publishPremiumLinguisticAgentHeartbeats(activeHeartbeatTransport)
       .then((heartbeats) => { onHeartbeat?.(heartbeats); return heartbeats; })
       .finally(() => { currentPublish = undefined; });
     return currentPublish;
   };
-  const initial = latestIsCurrent
-    ? Promise.resolve(latest)
-    : publish();
+  const initial = authorityChanged && currentPublish
+    ? currentPublish.then(() => publish())
+    : authorityChanged
+      ? publish()
+      : latestIsCurrent
+        ? Promise.resolve(latest)
+        : publish();
   if (!heartbeatBound) {
     heartbeatBound = true;
     heartbeatTimer = window.setInterval(() => { void publish(); }, heartbeatIntervalMs);
@@ -242,5 +251,6 @@ export function stopPremiumLinguisticAgentHeartbeatsForTest() {
   heartbeatBound = false;
   lastPublishStartedAt = 0;
   currentPublish = undefined;
+  activeHeartbeatTransport = userHeartbeatTransport;
   heartbeatJournal.length = 0;
 }
