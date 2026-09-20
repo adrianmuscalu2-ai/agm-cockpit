@@ -12,7 +12,7 @@ export class SharedArchiveService {
   constructor(private readonly prisma: ArchivePrisma) {}
 
   async create(ctx: RequestContext, dto: CreateSharedArchiveRecordDto) {
-    this.authorizeIdentity(ctx, 'WRITE');
+    this.authorizeIdentity(ctx);
     try {
       assertSharedArchiveWritePolicy(dto);
       assertSafePayload(dto.payload);
@@ -40,7 +40,7 @@ export class SharedArchiveService {
   }
 
   async query(ctx: RequestContext, dto: QuerySharedArchiveDto) {
-    this.authorizeIdentity(ctx, 'READ');
+    this.authorizeIdentity(ctx);
     const terms = significantTerms(dto.query);
     const records = await this.prisma.agmSharedArchiveRecord.findMany({
       where: {
@@ -63,7 +63,7 @@ export class SharedArchiveService {
   }
 
   async revoke(ctx: RequestContext, id: string, reason: string) {
-    this.authorizeIdentity(ctx, 'WRITE');
+    this.authorizeIdentity(ctx);
     const record = await this.ownedActive(ctx, id);
     return this.prisma.agmSharedArchiveRecord.update({
       where: { id: record.id },
@@ -72,7 +72,7 @@ export class SharedArchiveService {
   }
 
   async delete(ctx: RequestContext, id: string) {
-    this.authorizeIdentity(ctx, 'WRITE');
+    this.authorizeIdentity(ctx);
     const record = await this.ownedActive(ctx, id);
     return this.prisma.agmSharedArchiveRecord.update({
       where: { id: record.id },
@@ -80,7 +80,7 @@ export class SharedArchiveService {
     }).then(minimalRecord);
   }
 
-  private authorizeIdentity(ctx: RequestContext, _operation: 'READ' | 'WRITE') {
+  private authorizeIdentity(ctx: RequestContext) {
     if (!ctx.companyId?.trim() || !ctx.userId?.trim()) throw new ForbiddenException('ARCHIVE_IDENTITY_NOT_PROVEN');
   }
 

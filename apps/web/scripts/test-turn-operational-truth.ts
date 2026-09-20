@@ -159,7 +159,9 @@ assert.match(operationsHealthSource, /if \(healthCyclePromise\) return healthCyc
 assert.match(operationsHealthSource, /source\.evaluator === 'guardian' \? turnAdminAuthenticatedFetch/);
 assert.match(operationsHealthSource, /markAuthenticationFailure\(source\)/);
 assert.match(linguisticRuntimeSource, /USER_SESSION_UNAVAILABLE/);
-assert.match(linguisticRuntimeSource, /sessionStorage\?\.getItem\(USER_ACCESS_TOKEN_KEY\)/);
+assert.doesNotMatch(linguisticRuntimeSource, /USER_ACCESS_TOKEN_KEY|userSessionAvailable/);
+assert.match(linguisticRuntimeSource, /route: \(agentId\) => `\/operations\/components\/\$\{agentId\}\/heartbeat`/);
+assert.match(linguisticRuntimeSource, /transport\.fetcher\(transport\.route\(target\.id\)/);
 assert.match(linguisticRuntimeSource, /const latestIsCurrent/);
 assert.doesNotMatch(commandCenterSource, /turn-agent-panel\/index\.html/);
 assert.doesNotMatch(commandCenterSource, /renderRealStatusBoard/);
