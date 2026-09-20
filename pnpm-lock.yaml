@@ -73,6 +73,9 @@ importers:
       '@agm/library-control-plane':
         specifier: workspace:*
         version: link:../../packages/library-control-plane
+      '@agm/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@nestjs/common':
         specifier: ^11.2.1
         version: 11.2.1(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -188,6 +191,9 @@ importers:
       '@agm/library-control-plane':
         specifier: workspace:*
         version: link:../../packages/library-control-plane
+      '@agm/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@capacitor/camera':
         specifier: 8.2.4
         version: 8.2.4(@capacitor/core@8.4.1)
@@ -235,7 +241,11 @@ importers:
         specifier: ^5.6.3
         version: 5.9.3
 
-  packages/shared: {}
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
 
 packages:
 

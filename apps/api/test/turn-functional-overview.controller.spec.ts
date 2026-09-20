@@ -1,3 +1,7 @@
+import {
+  canonicalLinguisticResourceCounts,
+  formatLinguisticResourceEvidence,
+} from '@agm/shared';
 import { UnauthorizedException } from '@nestjs/common';
 import { TurnOperationalTruthController } from '../src/turn-operational-truth/turn-operational-truth.controller';
 
@@ -34,7 +38,12 @@ describe('TurnOperationalTruthController functional overview', () => {
     await expect(controller.recordLinguisticHeartbeat('Bearer owner', 'premium-linguist-it', {
       status: 'ONLINE',
       reason: 'I18N_RESOURCES_VALIDATED',
-      detail: 'language=it;total=1713;errors=0',
+      detail: formatLinguisticResourceEvidence({
+        language: 'it',
+        counts: canonicalLinguisticResourceCounts(),
+        errors: 0,
+        journalStatus: 'PERSISTED',
+      }),
     })).resolves.toMatchObject({ data: { status: 'ONLINE' } });
 
     expect(admin.requireOperationalAccess).toHaveBeenCalledWith('Bearer owner');

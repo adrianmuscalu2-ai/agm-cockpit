@@ -1,0 +1,191 @@
+[
+  {
+    "identity": "agm.guardian.secrets",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "agm.authority.control-plane",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.architecture-inspector",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.release-inspector",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.orchestrator",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.recovery-executor",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.car-mover.intake-dedup",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.car-mover.opportunity-normalizer",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.car-mover.route-mobility",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.car-mover.cost-risk",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.car-mover.opportunity-planner",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.car-mover.opportunity-judge",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.copilot-gateway",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.adapters.geocoding",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.adapters.routing",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.adapters.traffic",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.adapters.toll",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.adapters.transit",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.adapters.platform-feed",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.car-mover.job-service",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.car-mover.incident-service",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.car-mover.evidence-service",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.car-mover.primary-accounting",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium.car-mover.archive-retention",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium-linguist-it",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium-linguist-es",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  },
+  {
+    "identity": "premium-linguist-sv",
+    "lastResult": "COMPLETED",
+    "validation": "PROVEN",
+    "freshness": "CURRENT",
+    "status": "ACTIVE"
+  }
+]

@@ -330,6 +330,26 @@ jobs:
           AGM_REMOTE_DEPLOY
           } | ssh -i "$AGM_SSH_KEY_FILE" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
             "$PRODUCTION_USER@$PRODUCTION_HOST" 'bash -se'
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install controlled heartbeat publisher dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build shared linguistic contract for release validation
+        run: pnpm --filter @agm/shared build
+      - name: Install controlled release Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Browser preflight for candidate heartbeat publication
+        run: pnpm rescue:browser-preflight
+      - name: Publish versioned Web candidate linguistic heartbeats
+        env:
+          AGM_LINGUISTIC_RELEASE_URL: https://app.agmcockpit.com/turn
+          AGM_TURN_ADMIN_PIN: ${{ secrets.PRODUCTION_TURN_ADMIN_PIN }}
+          AGM_EXPECTED_REVISION: ${{ github.sha }}
+          AGM_LINGUISTIC_RELEASE_EVIDENCE: evidence/agent-accountability/production/linguistic-heartbeat-publication.json
+        run: node scripts/publish-production-linguistic-heartbeats-browser.mjs
       - name: Provision approved Car Mover entitlement
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_car_mover }}
         env:
@@ -508,6 +528,10 @@ jobs:
               and ([.agents[] | select(.kind == "HUMAN_AUTHORITY")] | length == 0)
               and ([.agents[] | select(.status == "ACTIVE" and (.executable != "YES" or .mandate != "PROVEN" or .validation != "PROVEN" or .executionEvidenceRef == null))] | length == 0)
               and (.agents | length == 27)
+              and ([.agents[] | select(.identity == "premium-linguist-it" or .identity == "premium-linguist-es" or .identity == "premium-linguist-sv")
+                | select(.lastResult == "COMPLETED" and .validation == "PROVEN" and .freshness == "CURRENT" and .status == "ACTIVE")] | length == 3)
+              and ([.agents[] | select(.identity != "premium-linguist-it" and .identity != "premium-linguist-es" and .identity != "premium-linguist-sv")
+                | select(.lastResult == "COMPLETED" and .validation == "PROVEN" and .freshness == "CURRENT" and .status == "ACTIVE")] | length == 24)
               and ([.agents[] | .declaredOperational == true and .operationalDeclaration == "ACTIVE_AUTHORITY_MANDATE" and .executable == "YES" and .mandate == "PROVEN" and .lastResult == "COMPLETED" and .validation == "PROVEN" and .freshness == "CURRENT" and .status == "ACTIVE" and (.executionEvidenceRef | type == "string") and (.outputRef | type == "string")] | all)
               and ([.agents[] | select(.status == "DEGRADED" and (.reason | length == 0))] | length == 0)
               and .operationalFleet.total == 27

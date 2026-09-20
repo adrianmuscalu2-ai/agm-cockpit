@@ -1,0 +1,112 @@
+{
+  "contract": "agm-production-linguistic-release-sequencing-simulation.v1",
+  "startedAt": "2026-09-20T17:38:04.857Z",
+  "status": "PASS",
+  "sequence": [
+    "WEB_CANDIDATE_PUBLISHED_AVAILABLE",
+    "VERSIONED_HEARTBEATS_ACCEPTED",
+    "LINGUISTIC_DUTIES_COMPLETED",
+    "INDEPENDENT_VALIDATION_PASS",
+    "PERSISTENT_RUNTIME_PROJECTION_REOPENED",
+    "GATE_27_OF_27_FINAL_PASS"
+  ],
+  "workflowOrder": {
+    "deployBeforeHeartbeatPublication": true,
+    "heartbeatPublicationBeforeGate": true
+  },
+  "publication": {
+    "contract": "agm-linguistic-release-heartbeat-publication.v1",
+    "startedAt": "2026-09-20T17:38:05.926Z",
+    "target": "http://127.0.0.1:62845/turn",
+    "expectedRevision": "local-release-candidate",
+    "expectedContractVersion": "agm.linguistic-resource-counts.v1",
+    "expectedContractDigest": "sha256:8c2207d91a261c69af17eca9746867c14c603dcc0edc061d74c88330ceb721b1",
+    "candidateAvailable": true,
+    "sessionAuthority": "TURN_ADMIN_EXISTING_CONTRACT",
+    "agents": [
+      {
+        "agentId": "premium-linguist-it",
+        "httpStatus": 201,
+        "status": "ONLINE",
+        "reason": "I18N_RESOURCES_VALIDATED",
+        "contractVersionMatches": true,
+        "contractDigestMatches": true,
+        "componentsMatch": true,
+        "totalMatchesComponents": true,
+        "errorsZero": true,
+        "accepted": true
+      },
+      {
+        "agentId": "premium-linguist-es",
+        "httpStatus": 201,
+        "status": "ONLINE",
+        "reason": "I18N_RESOURCES_VALIDATED",
+        "contractVersionMatches": true,
+        "contractDigestMatches": true,
+        "componentsMatch": true,
+        "totalMatchesComponents": true,
+        "errorsZero": true,
+        "accepted": true
+      },
+      {
+        "agentId": "premium-linguist-sv",
+        "httpStatus": 201,
+        "status": "ONLINE",
+        "reason": "I18N_RESOURCES_VALIDATED",
+        "contractVersionMatches": true,
+        "contractDigestMatches": true,
+        "componentsMatch": true,
+        "totalMatchesComponents": true,
+        "errorsZero": true,
+        "accepted": true
+      }
+    ],
+    "status": "PASS",
+    "finishedAt": "2026-09-20T17:38:14.520Z"
+  },
+  "linguisticDuties": [
+    {
+      "agentId": "premium-linguist-it",
+      "result": "COMPLETED",
+      "passed": true
+    },
+    {
+      "agentId": "premium-linguist-es",
+      "result": "COMPLETED",
+      "passed": true
+    },
+    {
+      "agentId": "premium-linguist-sv",
+      "result": "COMPLETED",
+      "passed": true
+    }
+  ],
+  "independentValidation": {
+    "status": "PASS",
+    "agents": [
+      "premium-linguist-it",
+      "premium-linguist-es",
+      "premium-linguist-sv"
+    ]
+  },
+  "persistentRuntimeProjection": {
+    "total": 27,
+    "active": 27,
+    "redNodes": 0,
+    "reopened": true,
+    "final": "PASS"
+  },
+  "preservedBaseline": {
+    "agents": 24,
+    "digestBefore": "78ec361fe19febbf6401359b660fecedf1ee3e3cfe8bf9be2ff2fe1696d781ee",
+    "digestAfter": "78ec361fe19febbf6401359b660fecedf1ee3e3cfe8bf9be2ff2fe1696d781ee",
+    "regressions": 0
+  },
+  "negativeControl": {
+    "status": "DENIED",
+    "dutyResult": "FAILED",
+    "reason": "LINGUISTIC_CATALOG_VALIDATION_FAILED",
+    "independentValidations": 0
+  },
+  "finishedAt": "2026-09-20T17:38:14.559Z"
+}

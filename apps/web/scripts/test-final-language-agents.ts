@@ -1,3 +1,4 @@
+import { canonicalLinguisticResourceCounts } from '@agm/shared';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
@@ -13,7 +14,7 @@ import {
 import { panelAgentSources } from '../src/turn-agent-panel.integration';
 import { turnOrganizationAgents } from '../src/turn-organization-chart';
 
-const expectedCounts = { app: 1182, operational: 308, carMover: 37, premium: 199, total: 1726 };
+const expectedCounts = canonicalLinguisticResourceCounts();
 const runtimeSource = readFileSync(new URL('../src/premium-linguistic-agents/premium-linguistic-agents.runtime.ts', import.meta.url), 'utf8');
 
 assert.doesNotMatch(runtimeSource, /USER_ACCESS_TOKEN_KEY|userSessionAvailable/, 'linguistic heartbeat must not bypass authenticatedApiFetch auto-refresh');

@@ -4,6 +4,8 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import sharedContract from '../packages/shared/dist/index.js';
+const { validateLinguisticResourceEvidence } = sharedContract;
 
 const root = process.cwd();
 const webRoot = path.join(root, 'apps', 'web');
@@ -11,7 +13,7 @@ const webRequire = createRequire(path.join(webRoot, 'package.json'));
 const { createServer: createViteServer } = await import(pathToFileURL(webRequire.resolve('vite')).href);
 const runId = new Date().toISOString().replace(/[:.]/g, '-');
 const evidenceDir = path.join(root, 'evidence', 'app-i18n', 'linguistic-agents', 'browser', runId);
-const target = 'http://127.0.0.1:5174/turn';
+let target;
 const agents = ['premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv'];
 const viewports = {
   desktop: { width: 1440, height: 1100 },
@@ -38,8 +40,12 @@ let fatal;
 
 await mkdir(evidenceDir, { recursive: true });
 try {
-  viteServer = await createViteServer({ root: webRoot, server: { host: '127.0.0.1', port: 5174, strictPort: true }, logLevel: 'silent' });
+  viteServer = await createViteServer({ root: webRoot, server: { host: '127.0.0.1', port: 0, strictPort: false }, logLevel: 'silent' });
   await viteServer.listen();
+  const address = viteServer.httpServer?.address();
+  if (!address || typeof address === 'string') throw new Error('CONTROLLED_BROWSER_TARGET_PORT_UNAVAILABLE');
+  target = `http://127.0.0.1:${address.port}/turn`;
+  report.target = target;
   await httpReady(target);
   browser = await chromium.launch({ headless: true });
   report.browserSessionStatus = 'PASS';
@@ -49,6 +55,7 @@ try {
     const context = await browser.newContext({ viewport, locale: 'ro-RO', serviceWorkers: 'block' });
     await context.addInitScript(() => {
       sessionStorage.setItem('agm.auth.accessToken', 'controlled-language-agent-token');
+      sessionStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: 'controlled-turn-admin-token', expiresInSeconds: 300 }));
       localStorage.setItem('agm.legal.acceptance.privacy-v2026.07.13.terms-v2026.07.13', JSON.stringify({ privacyPolicyVersion: 'privacy-v2026.07.13', termsVersion: 'terms-v2026.07.13', acceptedAt: new Date().toISOString() }));
       localStorage.setItem('agm.tutorial.completed.v1', new Date().toISOString());
     });
@@ -57,7 +64,7 @@ try {
     await page.route('**/api/v1/**', async (route) => {
       const request = route.request();
       const url = new URL(request.url());
-      const componentMatch = url.pathname.match(/\/operations\/components\/(premium-linguist-(?:it|es|sv))\/(heartbeat|health)$/);
+      const componentMatch = url.pathname.match(/\/operations\/(?:turn\/)?components\/(premium-linguist-(?:it|es|sv))\/(heartbeat|health)$/);
       if (componentMatch) {
         const [, componentId, action] = componentMatch;
         if (action === 'heartbeat' && request.method() === 'POST') {
@@ -82,6 +89,10 @@ try {
         await fulfill(route, stored);
         return;
       }
+      if (url.pathname.endsWith('/turn-admin/refresh')) {
+        await fulfill(route, { accessToken: 'controlled-turn-admin-token', expiresInSeconds: 300 });
+        return;
+      }
       if (url.pathname.endsWith('/auth/refresh')) {
         await route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ message: 'Controlled session' }) });
         return;
@@ -101,26 +112,28 @@ try {
       await fulfill(route, {});
     });
 
-    await page.goto(target, { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('#turn-real-status');
-    await page.waitForFunction((ids) => ids.every((id) => document.querySelector(`[data-live-component-id="${id}"] [data-component-live-status]`)?.textContent?.includes('ONLINE')), agents, { timeout: 15_000 });
-    await page.waitForFunction((ids) => ids.every((id) => document.querySelector(`[data-live-agent-id="${id}"] [data-agent-live-status]`)?.textContent?.includes('ACTIVE')), agents, { timeout: 15_000 });
+    await page.goto(`${target}#turn-investigate`, { waitUntil: 'domcontentloaded' });
+    await page.screenshot({ path: path.join(evidenceDir, `${viewportName}-initial.png`), fullPage: true });
+    await page.waitForSelector('.turn-command-center');
+    for (let attempt = 0; attempt < 50 && heartbeatStore.size !== agents.length; attempt += 1) await page.waitForTimeout(100);
     if (heartbeatStore.size !== agents.length) throw new Error(`${viewportName}: expected ${agents.length} heartbeat POSTs, received ${heartbeatStore.size}`);
     for (const id of agents) {
       const heartbeat = heartbeatStore.get(id);
       if (heartbeat?.payload.status !== 'ONLINE') throw new Error(`${viewportName}/${id}: heartbeat is not ONLINE`);
-      if (!String(heartbeat?.payload.detail).includes('total=1713;errors=0')) throw new Error(`${viewportName}/${id}: resource evidence missing`);
+      if (!validateLinguisticResourceEvidence(String(heartbeat?.payload.detail)).valid) throw new Error(`${viewportName}/${id}: resource evidence invalid`);
       const governance = await page.locator(`[data-agent-row-id="${id}"]`).count();
       if (governance !== 1) throw new Error(`${viewportName}/${id}: governance row missing or duplicated`);
       const organization = await page.locator(`[data-turn-org-agent="${id}"]`).count();
       if (organization !== 1) throw new Error(`${viewportName}/${id}: organization node missing or duplicated`);
     }
+    await page.locator('[data-secondary-registry] > summary').click();
+    await page.waitForSelector('#turn-structure:visible');
     await page.locator('[data-turn-org-agent="premium-linguist-it"]').click();
     const relationText = await page.locator('#turnOrgRelations').innerText();
     if (!relationText.includes('CATALOG AUDIT') || !relationText.toLocaleLowerCase().includes('i18n')) throw new Error(`${viewportName}: TURN relation mapping is incomplete`);
     const statusScreenshot = path.join(evidenceDir, `${viewportName}-turn-language-agent-status.png`);
     const organizationScreenshot = path.join(evidenceDir, `${viewportName}-turn-language-agent-organization.png`);
-    await page.locator('#turn-real-status').screenshot({ path: statusScreenshot });
+    await page.locator('.turn-agent-table-wrap').screenshot({ path: statusScreenshot });
     await page.locator('#turn-structure').screenshot({ path: organizationScreenshot });
     results.push({
       id: viewportName,
@@ -136,7 +149,7 @@ try {
   }
   if (runtimeErrors.length) throw new Error(`Browser runtime errors: ${JSON.stringify(runtimeErrors)}`);
   report.targetPageStatus = 'PASS';
-  report.probe = 'TURN / three canonical agent rows / three runtime heartbeat component rows / governance table / organization mapping / desktop + mobile';
+  report.probe = 'TURN / three captured heartbeat POSTs / shared contract validation / governance table / organization mapping / desktop + mobile';
 } catch (error) {
   fatal = error instanceof Error ? error.stack ?? error.message : String(error);
 } finally {

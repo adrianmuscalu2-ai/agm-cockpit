@@ -7,7 +7,7 @@ const buildDefinition = createWebBuildDefinition();
 export default defineConfig({
   ...buildDefinition,
   optimizeDeps: {
-    include: ['@agm/library-control-plane'],
+    include: ['@agm/library-control-plane', '@agm/shared'],
   },
   plugins: [...(buildDefinition.plugins ?? []), androidTelemetryPlugin()],
   server: {

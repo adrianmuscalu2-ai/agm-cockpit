@@ -1,3 +1,4 @@
+import { validateLinguisticResourceEvidence } from '@agm/shared';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { Prisma } from '@prisma/client';
@@ -188,9 +189,9 @@ export class OperationalAgentDutyRunner {
     const heartbeat = await this.prisma.componentHeartbeat.findUnique({ where: { companyId_componentId: { companyId, componentId: agentId } } });
     const detail = heartbeat?.lastDetail ?? '';
     const current = Boolean(heartbeat && now.getTime() - heartbeat.lastSeenAt.getTime() <= LINGUISTIC_EVIDENCE_FRESHNESS_MS);
-    const resourceCountProven = /total=1713/.test(detail);
-    const errorsZero = /errors=0/.test(detail);
-    const catalogProven = heartbeat?.reportedStatus === 'ONLINE' && resourceCountProven && errorsZero;
+    const validation = validateLinguisticResourceEvidence(detail);
+    const { counts: resourceCounts, resourceCountProven, errorsZero } = validation;
+    const catalogProven = heartbeat?.reportedStatus === 'ONLINE' && validation.valid;
     const staleFailureReasonCleared = Boolean(catalogProven && heartbeat?.lastFailureReason);
     if (staleFailureReasonCleared && heartbeat) {
       await this.prisma.componentHeartbeat.update({ where: { companyId_componentId: { companyId, componentId: agentId } }, data: { lastFailureReason: null } });
@@ -202,7 +203,18 @@ export class OperationalAgentDutyRunner {
       result: passed ? 'COMPLETED' : 'FAILED',
       reason: passed ? null : !heartbeat ? 'LINGUISTIC_AUDIT_EVIDENCE_MISSING' : !current ? 'LINGUISTIC_AUDIT_EVIDENCE_EXPIRED' : 'LINGUISTIC_CATALOG_VALIDATION_FAILED',
       evidenceReferences: heartbeat ? [`ComponentHeartbeat:${heartbeat.id}`] : [],
-      checks: { heartbeatStatus: heartbeat?.reportedStatus ?? 'MISSING', evidenceCurrent: current, resourceCountProven, errorsZero, staleFailureReasonCleared },
+      checks: {
+        heartbeatStatus: heartbeat?.reportedStatus ?? 'MISSING',
+        evidenceCurrent: current,
+        resourceCountProven,
+        resourceCounts,
+        errorsZero,
+        contractVersionMatches: validation.contractVersionMatches,
+        contractDigestMatches: validation.contractDigestMatches,
+        componentsMatchCanonical: validation.componentsMatchCanonical,
+        totalMatchesComponents: validation.totalMatchesComponents,
+        staleFailureReasonCleared,
+      },
     };
   }
 

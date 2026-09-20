@@ -1,3 +1,7 @@
+import {
+  canonicalLinguisticResourceCounts,
+  formatLinguisticResourceEvidence,
+} from '@agm/shared';
 import { BadRequestException } from '@nestjs/common';
 import { ComponentTelemetryService } from '../src/component-telemetry/component-telemetry.service';
 import type { PrismaService } from '../src/prisma/prisma.service';
@@ -67,7 +71,12 @@ describe('ComponentTelemetryService', () => {
     const result = await service.heartbeat('premium-linguist-it', {
       status: 'ONLINE',
       reason: 'I18N_RESOURCES_VALIDATED',
-      detail: 'language=it;total=1713;errors=0',
+      detail: formatLinguisticResourceEvidence({
+        language: 'it',
+        counts: canonicalLinguisticResourceCounts(),
+        errors: 0,
+        journalStatus: 'PERSISTED',
+      }),
     }, ctx);
 
     expect(upsert.mock.calls[0][0].update).toMatchObject({

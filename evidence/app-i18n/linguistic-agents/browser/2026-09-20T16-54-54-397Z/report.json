@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-20T16-54-54-397Z",
+  "startedAt": "2026-09-20T16:54:54.398Z",
+  "target": "http://127.0.0.1:61215/turn",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "FAIL",
+  "results": [],
+  "status": "FAIL",
+  "fatal": "page.waitForSelector: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.turn-real-status-board') to be visible\u001b[22m\n\n    at C:\\Users\\adria\\Documents\\AGM\\workspace-linguist-runtime-rebind\\scripts\\validate-final-language-agents-browser.mjs:118:16",
+  "runtimeErrors": [],
+  "finishedAt": "2026-09-20T16:55:36.221Z",
+  "revision": "586926eeb2eb3b9e8c5b492dcb20f98309a4c084"
+}

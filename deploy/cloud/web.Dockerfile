@@ -8,15 +8,18 @@ RUN corepack enable
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+COPY packages/shared/package.json packages/shared/package.json
 COPY packages/library-control-plane/package.json packages/library-control-plane/package.json
 COPY apps/web/package.json apps/web/package.json
 
 RUN pnpm install --frozen-lockfile
 
 COPY config/operations-health.json config/operations-health.json
+COPY packages/shared packages/shared
 COPY packages/library-control-plane packages/library-control-plane
 COPY apps/web apps/web
 
+RUN pnpm --filter @agm/shared build
 RUN pnpm --filter @agm/library-control-plane build
 RUN pnpm --filter @agm/web build
 

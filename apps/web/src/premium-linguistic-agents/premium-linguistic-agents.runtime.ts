@@ -1,3 +1,8 @@
+import {
+  canonicalLinguisticResourceCounts,
+  linguisticResourceCounts,
+  type LinguisticResourceCounts,
+} from '@agm/shared';
 import { authenticatedApiFetch } from '../authenticated-api';
 import { carMoverI18nKeys, carMoverText } from '../car-mover/car-mover.i18n';
 import { emailTemplates } from '../emailTemplates';
@@ -18,6 +23,7 @@ import { preDepartureCopy } from '../pre-departure/pre-departure.i18n';
 import { recordRuntimeOperationSnapshot } from '../operations-health';
 import { premiumLinguisticCapabilities } from './premium-linguistic-agents.contract';
 import { premiumLinguisticAgents } from './premium-linguistic-agents.registry';
+import { createPremiumLinguisticHeartbeatDetail } from './premium-linguistic-heartbeat.evidence';
 
 export const finalLanguageAgentTargets = [
   { id: 'premium-linguist-it', language: 'it' },
@@ -28,13 +34,7 @@ export const finalLanguageAgentTargets = [
 export type FinalLanguageAgentId = (typeof finalLanguageAgentTargets)[number]['id'];
 export type FinalLanguageAgentCode = (typeof finalLanguageAgentTargets)[number]['language'];
 
-export type LinguisticAgentResourceCounts = {
-  app: number;
-  operational: number;
-  carMover: number;
-  premium: number;
-  total: number;
-};
+export type LinguisticAgentResourceCounts = LinguisticResourceCounts;
 
 export type LinguisticAgentHeartbeat = {
   agentId: FinalLanguageAgentId;
@@ -60,13 +60,7 @@ const userHeartbeatTransport: LinguisticHeartbeatTransport = {
 };
 
 
-const expectedCounts: LinguisticAgentResourceCounts = {
-  app: 1182,
-  operational: 308,
-  carMover: 37,
-  premium: 199,
-  total: 1726,
-};
+const expectedCounts = canonicalLinguisticResourceCounts();
 const heartbeatIntervalMs = 60_000;
 const heartbeatJournalLimit = 50;
 const heartbeatJournal: LinguisticAgentHeartbeat[] = [];
@@ -156,13 +150,12 @@ export function auditPremiumLinguisticAgent(
   const carMover = carMoverI18nKeys.filter((key) => carMoverText(target.language, key)?.trim()).length;
   if (carMover !== carMoverI18nKeys.length) errors.push('carMover:MISSING');
   const premium = directPremiumCount(target.language, errors);
-  const counts = {
+  const counts = linguisticResourceCounts({
     app: Object.keys(translatedApp).length,
     operational: Object.keys(translatedOperational).length,
     carMover,
     premium,
-    total: Object.keys(translatedApp).length + Object.keys(translatedOperational).length + carMover + premium,
-  };
+  });
   if (Object.entries(expectedCounts).some(([key, expected]) => counts[key as keyof LinguisticAgentResourceCounts] !== expected)) {
     errors.push('RESOURCE_COUNT_MISMATCH');
   }
@@ -180,8 +173,7 @@ export function auditPremiumLinguisticAgent(
 }
 
 function heartbeatDetail(heartbeat: LinguisticAgentHeartbeat) {
-  const { app, operational, carMover, premium, total } = heartbeat.counts;
-  return `language=${heartbeat.language};app=${app};operational=${operational};carMover=${carMover};premium=${premium};total=${total};errors=${heartbeat.errors.length};journal=${heartbeat.journalStatus}`;
+  return createPremiumLinguisticHeartbeatDetail(heartbeat);
 }
 
 async function publishHeartbeat(target: (typeof finalLanguageAgentTargets)[number], transport: LinguisticHeartbeatTransport) {
