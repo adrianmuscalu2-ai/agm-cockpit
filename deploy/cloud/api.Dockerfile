@@ -12,18 +12,21 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY apps/api/package.json apps/api/package.json
+COPY packages/library-control-plane/package.json packages/library-control-plane/package.json
 COPY packages/copilot-control-plane/package.json packages/copilot-control-plane/package.json
 COPY prisma prisma
 
 RUN pnpm install --frozen-lockfile
 
 COPY apps/api apps/api
+COPY packages/library-control-plane packages/library-control-plane
 COPY packages/copilot-control-plane packages/copilot-control-plane
 COPY AGM_LIBRARY/REGISTRY/canonical-sources.json AGM_LIBRARY/REGISTRY/canonical-sources.json
 COPY AGM_LIBRARY/VIEWS/routing-toll.view.json AGM_LIBRARY/VIEWS/routing-toll.view.json
 COPY AGM_LIBRARY/VIEWS/legislation-safety.view.json AGM_LIBRARY/VIEWS/legislation-safety.view.json
 
 RUN pnpm exec prisma generate
+RUN pnpm --filter @agm/library-control-plane build
 RUN pnpm --filter @agm/copilot-control-plane build
 RUN pnpm --filter @agm/api build
 
