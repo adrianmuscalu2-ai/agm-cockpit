@@ -86,8 +86,9 @@ async function main() {
     }));
   } finally {
     server.closeAllConnections();
-    server.close();
-    await once(server, 'close');
+    await new Promise((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    });
   }
 }
 
