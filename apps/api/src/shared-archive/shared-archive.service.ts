@@ -5,11 +5,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import type { CreateSharedArchiveRecordDto, QuerySharedArchiveDto } from './shared-archive.dto';
 import { assertSharedArchiveWritePolicy, SHARED_ARCHIVE_CONTRACT_VERSION, type SharedArchiveCategory } from './shared-archive.policy';
 
-type ArchivePrisma = Pick<PrismaService, 'agmSharedArchiveRecord'>;
-
 @Injectable()
 export class SharedArchiveService {
-  constructor(private readonly prisma: ArchivePrisma) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(ctx: RequestContext, dto: CreateSharedArchiveRecordDto) {
     this.authorizeIdentity(ctx);
