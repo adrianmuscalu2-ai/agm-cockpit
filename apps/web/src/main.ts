@@ -2436,10 +2436,9 @@ function globalCameraOcrFailureCopy(failure: GlobalCameraOcrFailure) {
 }
 
 // Global OCR is bound with the shared shell.
-function bindShared() {
-  bindAndroidComponentHeartbeat();
+function bindPremiumLinguisticHeartbeatsForCurrentAuthority() {
   const useTurnAdminHeartbeat = state.adminAccessVerified;
-  void bindPremiumLinguisticAgentHeartbeats((heartbeats) => {
+  return bindPremiumLinguisticAgentHeartbeats((heartbeats) => {
     publishPanelAgentModel();
     if (useTurnAdminHeartbeat && heartbeats.every((heartbeat) => heartbeat.apiJournaled && heartbeat.status === 'ONLINE')) {
       bindPremiumGovernanceRuntime(true);
@@ -2449,6 +2448,11 @@ function bindShared() {
     fetcher: turnAdminAuthenticatedFetch,
     route: (agentId) => `/operations/turn/components/${agentId}/heartbeat`,
   } : undefined);
+}
+
+function bindShared() {
+  bindAndroidComponentHeartbeat();
+  void bindPremiumLinguisticHeartbeatsForCurrentAuthority();
   bindPremiumAccessRuntime(uiLanguage());
   bindCommunicationRuntime();
     bindPremiumAssistantRuntime();
@@ -4852,6 +4856,9 @@ async function restoreAdministratorAccess() {
     state.adminSessionFailure = null;
     if (adminSessionRetryTimer !== undefined) window.clearTimeout(adminSessionRetryTimer);
     adminSessionRetryTimer = undefined;
+    if (state.adminAccessVerified) {
+      void bindPremiumLinguisticHeartbeatsForCurrentAuthority();
+    }
   } catch (error) {
     state.adminAccessVerified = false;
     state.adminSessionFailure = isTurnAdminSessionError(error)

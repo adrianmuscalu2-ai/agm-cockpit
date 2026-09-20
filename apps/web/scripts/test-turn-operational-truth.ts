@@ -118,6 +118,14 @@ const operationsHealthSource = await readFile(new URL('../src/operations-health.
 const linguisticRuntimeSource = await readFile(new URL('../src/premium-linguistic-agents/premium-linguistic-agents.runtime.ts', import.meta.url), 'utf8');
 const authorityControlPlaneCss = await readFile(new URL('../src/premium-governance/turn-authority-control-plane.css', import.meta.url), 'utf8');
 const mainSource = await readFile(new URL('../src/main.ts', import.meta.url), 'utf8');
+const restoreStart = mainSource.indexOf('async function restoreAdministratorAccess()');
+const restoreEnd = mainSource.indexOf('function showMicrophonePermissionDenied', restoreStart);
+const restoreAdministratorAccessSource = mainSource.slice(restoreStart, restoreEnd);
+assert.match(
+  restoreAdministratorAccessSource,
+  /state\.adminAccessVerified = state\.adminSession !== null;[\s\S]*?void bindPremiumLinguisticHeartbeatsForCurrentAuthority\(\);[\s\S]*?if \(state\.view === 'turn'\) render\(\);/,
+  'Owner session restore must rebind the TURN heartbeat transport before its conditional render.',
+);
 assert.match(commandCenterSource, /REGISTRY ONLY · fără afirmație runtime/);
 assert.match(commandCenterSource, /data-secondary-registry/);
 assert.match(commandCenterSource, /data-turn-page="basic"/);
@@ -169,7 +177,7 @@ const premiumPanelPosition = commandCenterSource.indexOf('${renderTurnAuthorityC
 const registryPosition = commandCenterSource.indexOf('${renderApprovedTurnDashboard(language)}');
 assert(premiumPanelPosition >= 0 && registryPosition > premiumPanelPosition, 'Premium operational panel must precede the secondary registry.');
 assert.match(authorityControlPlaneCss, /\.turn-secondary-registry:not\(\[open\]\)\s*>\s*:not\(summary\)\s*{\s*display:\s*none;/);
-assert.match(mainSource, /void bindPremiumLinguisticAgentHeartbeats/);
+assert.match(mainSource, /void bindPremiumLinguisticHeartbeatsForCurrentAuthority/);
 assert.match(mainSource, /bindPremiumGovernanceRuntime\(state\.adminAccessVerified\)/);
 assert.match(mainSource, /lastRenderedProductionPreflightSignature/);
 assert.doesNotMatch(mainSource, /lastRenderedProductionPreflightAt/);
