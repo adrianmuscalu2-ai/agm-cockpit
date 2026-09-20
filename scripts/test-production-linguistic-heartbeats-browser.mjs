@@ -70,7 +70,7 @@ async function main() {
   try {
     const report = await publishProductionLinguisticHeartbeats({
       target: `http://127.0.0.1:${address.port}/turn`,
-      apiBaseUrl: `http://127.0.0.1:${address.port}/custom-api`,
+      apiBaseUrl: `http://127.0.0.1:${address.port}/custom-api//`,
       pin: 'controlled-owner-pin',
     });
     assert.equal(report.status, 'PASS');

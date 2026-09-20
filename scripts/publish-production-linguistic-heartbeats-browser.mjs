@@ -169,7 +169,7 @@ async function runCli() {
 }
 
 function normalizeApiBaseUrl(value) {
-  const normalized = value?.trim().replace(/\/$/, '');
+  const normalized = value?.trim().replace(/\/+$/, '');
   if (!normalized) throw new Error('AGM_LINGUISTIC_RELEASE_API_URL_REQUIRED');
   return normalized;
 }
