@@ -1,0 +1,34 @@
+{
+  "contract": "agm-linguistic-heartbeat-rebind-regression.v1",
+  "phase": "BEFORE_FIX",
+  "baseSha": "558f5c067fb9d13a9b07a8a6e709369702daf2b2",
+  "runtimeTest": {
+    "command": "pnpm.cmd --filter @agm/web exec tsx scripts/test-linguistic-heartbeat-authority-rebind.ts",
+    "status": "FAIL",
+    "assertion": "Owner Access must not wait for the stale user transport to settle",
+    "expectedTurnAdminRequests": 3,
+    "observedTurnAdminRequests": 0
+  },
+  "productionBuildBrowserTest": {
+    "command": "pnpm.cmd exec tsx scripts/simulate-production-linguistic-release-sequencing.ts",
+    "status": "FAIL",
+    "error": "LINGUISTIC_HEARTBEATS_INCOMPLETE_0_OF_3",
+    "candidateAvailable": true,
+    "sessionAtDeadline": {
+      "readyState": "complete",
+      "visibilityState": "visible",
+      "sessionStored": true,
+      "adminLoginPresent": false,
+      "turnCommandCenterPresent": true
+    },
+    "turnAdminHeartbeatRequests": 0,
+    "staleUserHeartbeatRequests": 3,
+    "pageErrors": []
+  },
+  "rootCause": {
+    "file": "apps/web/src/premium-linguistic-agents/premium-linguistic-agents.runtime.ts",
+    "function": "bindPremiumLinguisticAgentHeartbeats",
+    "ordering": "authorityChanged && currentPublish -> currentPublish.then(() => publish())",
+    "effect": "The restored TURN authority is ready, but its heartbeat emission waits for the stale user-session publication to settle."
+  }
+}

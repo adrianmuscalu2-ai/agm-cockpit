@@ -1,0 +1,25 @@
+{
+  "contract": "agm-production-release-phase-separation.v1",
+  "status": "PASS",
+  "jobs": [
+    { "id": "deploy", "truth": "DEPLOYMENT", "needs": ["publish", "publish-web"] },
+    { "id": "deployment-health", "truth": "DEPLOYMENT_HEALTH", "needs": ["deploy"] },
+    { "id": "post-deploy-certification", "truth": "CERTIFICATION", "needs": ["deployment-health"] },
+    { "id": "production-agent-runtime-browser", "truth": "BROWSER_CERTIFICATION", "needs": ["deployment-health", "post-deploy-certification"], "runsAfterCertificationFailure": true }
+  ],
+  "certificationOrder": [
+    "LINGUISTIC_HEARTBEATS",
+    "TURN_OPERATIONAL_TRUTH",
+    "M2M_SESSION_ROTATION",
+    "FAILOVER",
+    "RUNTIME_ACCOUNTABILITY",
+    "PRODUCTION_BROWSER_VALIDATION",
+    "FINAL_PASS"
+  ],
+  "truthStates": [
+    "DEPLOYMENT=PASS CERTIFICATION=FAIL",
+    "DEPLOYMENT=PASS CERTIFICATION=PASS"
+  ],
+  "yamlSyntax": "PASS",
+  "structuralTest": "PASS"
+}

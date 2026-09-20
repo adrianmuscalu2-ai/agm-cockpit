@@ -1,0 +1,78 @@
+{
+  "contract": "agm-linguistic-release-heartbeat-publication.v1",
+  "startedAt": "2026-09-20T21:51:32.720Z",
+  "target": "http://127.0.0.1:55540/turn",
+  "expectedRevision": "local-release-candidate",
+  "expectedContractVersion": "agm.linguistic-resource-counts.v1",
+  "expectedContractDigest": "sha256:8c2207d91a261c69af17eca9746867c14c603dcc0edc061d74c88330ceb721b1",
+  "candidateAvailable": true,
+  "sessionAuthority": "TURN_ADMIN_EXISTING_CONTRACT",
+  "sessionRestore": {
+    "states": [
+      {
+        "phase": "RELOAD_DOM_CONTENT_LOADED",
+        "readyState": "complete",
+        "visibilityState": "visible",
+        "sessionStored": false,
+        "adminLoginPresent": false,
+        "turnCommandCenterPresent": false
+      },
+      {
+        "phase": "RELOAD_PLUS_1_SECOND",
+        "readyState": "complete",
+        "visibilityState": "visible",
+        "sessionStored": true,
+        "adminLoginPresent": false,
+        "turnCommandCenterPresent": true
+      },
+      {
+        "phase": "HEARTBEAT_DEADLINE",
+        "readyState": "complete",
+        "visibilityState": "visible",
+        "sessionStored": true,
+        "adminLoginPresent": false,
+        "turnCommandCenterPresent": true
+      }
+    ]
+  },
+  "agents": [
+    {
+      "agentId": "premium-linguist-it",
+      "httpStatus": 201,
+      "status": "ONLINE",
+      "reason": "I18N_RESOURCES_VALIDATED",
+      "contractVersionMatches": true,
+      "contractDigestMatches": true,
+      "componentsMatch": true,
+      "totalMatchesComponents": true,
+      "errorsZero": true,
+      "accepted": true
+    },
+    {
+      "agentId": "premium-linguist-es",
+      "httpStatus": 201,
+      "status": "ONLINE",
+      "reason": "I18N_RESOURCES_VALIDATED",
+      "contractVersionMatches": true,
+      "contractDigestMatches": true,
+      "componentsMatch": true,
+      "totalMatchesComponents": true,
+      "errorsZero": true,
+      "accepted": true
+    },
+    {
+      "agentId": "premium-linguist-sv",
+      "httpStatus": 201,
+      "status": "ONLINE",
+      "reason": "I18N_RESOURCES_VALIDATED",
+      "contractVersionMatches": true,
+      "contractDigestMatches": true,
+      "componentsMatch": true,
+      "totalMatchesComponents": true,
+      "errorsZero": true,
+      "accepted": true
+    }
+  ],
+  "status": "PASS",
+  "finishedAt": "2026-09-20T21:51:36.623Z"
+}

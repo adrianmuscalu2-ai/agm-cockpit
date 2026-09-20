@@ -25,6 +25,7 @@ export async function publishProductionLinguisticHeartbeats(options) {
     expectedRevision = '',
     configurePage,
     apiBaseUrl,
+    heartbeatTimeoutMs = 30_000,
   } = options;
   if (!target) throw new Error('AGM_LINGUISTIC_RELEASE_URL_REQUIRED');
   if (!pin?.trim()) throw new Error('AGM_TURN_ADMIN_PIN_REQUIRED');
@@ -39,6 +40,7 @@ export async function publishProductionLinguisticHeartbeats(options) {
     expectedContractDigest: LINGUISTIC_RESOURCE_CONTRACT_DIGEST,
     candidateAvailable: false,
     sessionAuthority: 'TURN_ADMIN_EXISTING_CONTRACT',
+    sessionRestore: { states: [] },
     agents: [],
     status: 'FAIL',
   };
@@ -90,9 +92,13 @@ export async function publishProductionLinguisticHeartbeats(options) {
       sessionStorage.setItem('agm.admin.session', JSON.stringify(value));
     }, session);
     await page.reload({ waitUntil: 'domcontentloaded' });
+    report.sessionRestore.states.push(await sessionRestoreSnapshot(page, 'RELOAD_DOM_CONTENT_LOADED'));
+    await page.waitForTimeout(1_000);
+    report.sessionRestore.states.push(await sessionRestoreSnapshot(page, 'RELOAD_PLUS_1_SECOND'));
 
-    const deadline = Date.now() + 30_000;
+    const deadline = Date.now() + heartbeatTimeoutMs;
     while (received.size < agentIds.length && Date.now() < deadline) await page.waitForTimeout(100);
+    report.sessionRestore.states.push(await sessionRestoreSnapshot(page, 'HEARTBEAT_DEADLINE'));
     if (received.size !== agentIds.length) throw new Error(`LINGUISTIC_HEARTBEATS_INCOMPLETE_${received.size}_OF_${agentIds.length}`);
 
     for (const agentId of agentIds) {
@@ -172,4 +178,15 @@ function normalizeApiBaseUrl(value) {
   const normalized = value?.trim().replace(/\/+$/, '');
   if (!normalized) throw new Error('AGM_LINGUISTIC_RELEASE_API_URL_REQUIRED');
   return normalized;
+}
+
+async function sessionRestoreSnapshot(page, phase) {
+  return page.evaluate((currentPhase) => ({
+    phase: currentPhase,
+    readyState: document.readyState,
+    visibilityState: document.visibilityState,
+    sessionStored: Boolean(sessionStorage.getItem('agm.admin.session')),
+    adminLoginPresent: Boolean(document.querySelector('#adminLoginForm')),
+    turnCommandCenterPresent: Boolean(document.querySelector('.turn-command-center')),
+  }), phase);
 }

@@ -1,0 +1,37 @@
+{
+  "contract": "agm-linguistic-heartbeat-rebind-regression.v1",
+  "phase": "AFTER_FIX",
+  "baseSha": "558f5c067fb9d13a9b07a8a6e709369702daf2b2",
+  "runtimeTest": {
+    "status": "PASS",
+    "immediateTurnAdminRequests": 3,
+    "nextTurnAdminCycleRequests": 3,
+    "staleTransportReused": false
+  },
+  "productionBuildBrowserTest": {
+    "status": "PASS",
+    "candidateAvailable": true,
+    "sessionAtDeadline": {
+      "readyState": "complete",
+      "visibilityState": "visible",
+      "sessionStored": true,
+      "adminLoginPresent": false,
+      "turnCommandCenterPresent": true
+    },
+    "agents": [
+      { "agentId": "premium-linguist-it", "httpStatus": 201, "status": "ONLINE", "sharedContractValid": true, "errorsZero": true },
+      { "agentId": "premium-linguist-es", "httpStatus": 201, "status": "ONLINE", "sharedContractValid": true, "errorsZero": true },
+      { "agentId": "premium-linguist-sv", "httpStatus": 201, "status": "ONLINE", "sharedContractValid": true, "errorsZero": true }
+    ],
+    "dutiesCompleted": 3,
+    "independentValidation": "PASS",
+    "persistentRuntimeProjection": { "total": 27, "active": 27, "redNodes": 0, "final": "PASS" },
+    "preservedBaseline": { "agents": 24, "regressions": 0 },
+    "negativeControl": { "status": "DENIED", "dutyResult": "FAILED", "independentValidations": 0 }
+  },
+  "minimalCorrection": {
+    "file": "apps/web/src/premium-linguistic-agents/premium-linguistic-agents.runtime.ts",
+    "function": "bindPremiumLinguisticAgentHeartbeats",
+    "behavior": "An authority change replaces an in-flight stale publication immediately, snapshots the new transport, and fences stale completion from clearing the new publication."
+  }
+}

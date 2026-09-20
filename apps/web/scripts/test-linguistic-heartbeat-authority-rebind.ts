@@ -34,6 +34,8 @@ try {
   await new Promise<void>((resolve) => setTimeout(resolve, 0));
   assert.equal(userCalls.length, 3);
   const rebound = bindPremiumLinguisticAgentHeartbeats(undefined, adminTransport);
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  assert.equal(adminCalls.length, 3, 'Owner Access must not wait for the stale user transport to settle');
   releaseUser.splice(0).forEach((release) => release());
   await Promise.all([first, rebound]);
   assert.equal(adminCalls.length, 3, 'Owner Access must immediately republish all three heartbeats');

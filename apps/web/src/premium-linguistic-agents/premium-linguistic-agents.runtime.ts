@@ -208,18 +208,21 @@ export function bindPremiumLinguisticAgentHeartbeats(onHeartbeat?: (heartbeats: 
   activeHeartbeatTransport = transport;
   const latest = finalLanguageAgentTargets.map((target) => [...heartbeatJournal].reverse().find((entry) => entry.agentId === target.id)).filter((entry): entry is LinguisticAgentHeartbeat => Boolean(entry));
   const latestIsCurrent = latest.length === finalLanguageAgentTargets.length && latest.every((entry) => entry.apiJournaled) && Date.now() - lastPublishStartedAt < heartbeatIntervalMs;
-  const publish = () => {
-    if (currentPublish) return currentPublish;
+  const publish = (replaceInFlight = false) => {
+    if (currentPublish && !replaceInFlight) return currentPublish;
+    const transportSnapshot = activeHeartbeatTransport;
     lastPublishStartedAt = Date.now();
-    currentPublish = publishPremiumLinguisticAgentHeartbeats(activeHeartbeatTransport)
+    let nextPublish: Promise<LinguisticAgentHeartbeat[]>;
+    nextPublish = publishPremiumLinguisticAgentHeartbeats(transportSnapshot)
       .then((heartbeats) => { onHeartbeat?.(heartbeats); return heartbeats; })
-      .finally(() => { currentPublish = undefined; });
-    return currentPublish;
+      .finally(() => {
+        if (currentPublish === nextPublish) currentPublish = undefined;
+      });
+    currentPublish = nextPublish;
+    return nextPublish;
   };
-  const initial = authorityChanged && currentPublish
-    ? currentPublish.then(() => publish())
-    : authorityChanged
-      ? publish()
+  const initial = authorityChanged
+      ? publish(true)
       : latestIsCurrent
         ? Promise.resolve(latest)
         : publish();

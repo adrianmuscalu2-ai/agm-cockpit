@@ -1,6 +1,6 @@
 {
   "contract": "agm-production-linguistic-release-sequencing-simulation.v1",
-  "startedAt": "2026-09-20T17:38:04.857Z",
+  "startedAt": "2026-09-20T21:51:31.561Z",
   "status": "PASS",
   "sequence": [
     "WEB_CANDIDATE_PUBLISHED_AVAILABLE",
@@ -16,13 +16,41 @@
   },
   "publication": {
     "contract": "agm-linguistic-release-heartbeat-publication.v1",
-    "startedAt": "2026-09-20T17:38:05.926Z",
-    "target": "http://127.0.0.1:62845/turn",
+    "startedAt": "2026-09-20T21:51:32.720Z",
+    "target": "http://127.0.0.1:55540/turn",
     "expectedRevision": "local-release-candidate",
     "expectedContractVersion": "agm.linguistic-resource-counts.v1",
     "expectedContractDigest": "sha256:8c2207d91a261c69af17eca9746867c14c603dcc0edc061d74c88330ceb721b1",
     "candidateAvailable": true,
     "sessionAuthority": "TURN_ADMIN_EXISTING_CONTRACT",
+    "sessionRestore": {
+      "states": [
+        {
+          "phase": "RELOAD_DOM_CONTENT_LOADED",
+          "readyState": "complete",
+          "visibilityState": "visible",
+          "sessionStored": false,
+          "adminLoginPresent": false,
+          "turnCommandCenterPresent": false
+        },
+        {
+          "phase": "RELOAD_PLUS_1_SECOND",
+          "readyState": "complete",
+          "visibilityState": "visible",
+          "sessionStored": true,
+          "adminLoginPresent": false,
+          "turnCommandCenterPresent": true
+        },
+        {
+          "phase": "HEARTBEAT_DEADLINE",
+          "readyState": "complete",
+          "visibilityState": "visible",
+          "sessionStored": true,
+          "adminLoginPresent": false,
+          "turnCommandCenterPresent": true
+        }
+      ]
+    },
     "agents": [
       {
         "agentId": "premium-linguist-it",
@@ -62,7 +90,7 @@
       }
     ],
     "status": "PASS",
-    "finishedAt": "2026-09-20T17:38:14.520Z"
+    "finishedAt": "2026-09-20T21:51:36.623Z"
   },
   "linguisticDuties": [
     {
@@ -108,5 +136,419 @@
     "reason": "LINGUISTIC_CATALOG_VALIDATION_FAILED",
     "independentValidations": 0
   },
-  "finishedAt": "2026-09-20T17:38:14.559Z"
+  "browserTrace": {
+    "requests": [
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/auth/entitlements"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/turn-admin/unlock"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/live"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/turn-admin/refresh"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/components/android/health"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/incidents"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/components/premium-linguist-it/heartbeat"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/components/premium-linguist-es/heartbeat"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/components/premium-linguist-sv/heartbeat"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/live?_agm_probe=1789941094112"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/ready?_agm_probe=1789941094113"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/translation/health"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/security/secrets/health"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/components/premium-linguist-it/heartbeat"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/components/premium-linguist-es/heartbeat"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/components/premium-linguist-sv/heartbeat"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/security/secrets/health"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/production-preflight"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/functional-overview"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/agent-accountability"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/auth/entitlements"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/live"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/turn-admin/refresh"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/components/android/health"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/incidents"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/components/premium-linguist-it/heartbeat"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/components/premium-linguist-es/heartbeat"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/components/premium-linguist-sv/heartbeat"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/security/secrets/health"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/components/premium-linguist-it/heartbeat"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/components/premium-linguist-es/heartbeat"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/components/premium-linguist-sv/heartbeat"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/security/secrets/health"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/production-preflight"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/functional-overview"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/agent-accountability"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/live?_agm_probe=1789941095678"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/health/ready?_agm_probe=1789941095679"
+      },
+      {
+        "method": "GET",
+        "url": "https://api.agmcockpit.com/api/v1/translation/health"
+      },
+      {
+        "method": "POST",
+        "url": "https://api.agmcockpit.com/api/v1/turn-admin/logout"
+      }
+    ],
+    "responses": [
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/auth/entitlements"
+      },
+      {
+        "status": 201,
+        "url": "https://api.agmcockpit.com/api/v1/turn-admin/unlock"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/live"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/turn-admin/refresh"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/operations/components/android/health"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/incidents"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/live?_agm_probe=1789941094112"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/ready?_agm_probe=1789941094113"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/translation/health"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/security/secrets/health"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/auth/entitlements"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/live"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/ready"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/turn-admin/refresh"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/operations/components/android/health"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/incidents"
+      },
+      {
+        "status": 201,
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/components/premium-linguist-it/heartbeat"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/security/secrets/health"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-dashboard"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/security/secrets/health"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/operations/production-preflight"
+      },
+      {
+        "status": 201,
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/components/premium-linguist-es/heartbeat"
+      },
+      {
+        "status": 201,
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/components/premium-linguist-sv/heartbeat"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/operational-truth"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/functional-overview"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/operations/turn/agent-accountability"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/live?_agm_probe=1789941095678"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/health/ready?_agm_probe=1789941095679"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/translation/health"
+      },
+      {
+        "status": 200,
+        "url": "https://api.agmcockpit.com/api/v1/turn-admin/logout"
+      }
+    ],
+    "requestFailures": [],
+    "console": [
+      {
+        "type": "warning",
+        "text": "Capacitor plugin \"AgmCapability\" already registered. Cannot register plugins twice."
+      },
+      {
+        "type": "warning",
+        "text": "Capacitor plugin \"AgmCapability\" already registered. Cannot register plugins twice."
+      },
+      {
+        "type": "error",
+        "text": "Access to fetch at 'https://agm-cockpit-website.pages.dev/.well-known/agm-website-health.json' from origin 'http://127.0.0.1:55540' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://app.agmcockpit.com' that is not equal to the supplied origin. Have the server send the header with a valid value."
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_FAILED"
+      },
+      {
+        "type": "warning",
+        "text": "Capacitor plugin \"AgmCapability\" already registered. Cannot register plugins twice."
+      },
+      {
+        "type": "warning",
+        "text": "Capacitor plugin \"AgmCapability\" already registered. Cannot register plugins twice."
+      },
+      {
+        "type": "error",
+        "text": "Access to fetch at 'https://agm-cockpit-website.pages.dev/.well-known/agm-website-health.json' from origin 'http://127.0.0.1:55540' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://app.agmcockpit.com' that is not equal to the supplied origin. Have the server send the header with a valid value."
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_FAILED"
+      }
+    ],
+    "pageErrors": []
+  },
+  "finishedAt": "2026-09-20T21:51:36.641Z"
 }

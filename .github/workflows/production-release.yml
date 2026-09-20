@@ -47,6 +47,7 @@ jobs:
       - run: pnpm --filter @agm/web test:turn-functional-overview
       - run: pnpm --filter @agm/web test:agent-accountability
       - run: pnpm audit:canonical-route
+      - run: node scripts/test-production-release-phase-separation.mjs
       - run: node scripts/validate-production-ssh-transport.mjs
       - run: node scripts/validate-premium-assistant-source-refresh.mjs
       - run: pnpm exec playwright install --with-deps chromium
@@ -104,6 +105,7 @@ jobs:
         run: echo "digest=${{ steps.image.outputs.digest }}" >> "$GITHUB_OUTPUT"
 
   deploy:
+    name: Deployment
     needs: [publish, publish-web]
     runs-on: ubuntu-latest
     environment: Production
@@ -330,6 +332,65 @@ jobs:
           AGM_REMOTE_DEPLOY
           } | ssh -i "$AGM_SSH_KEY_FILE" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
             "$PRODUCTION_USER@$PRODUCTION_HOST" 'bash -se'
+      - name: Remove deployment OpenSSH material
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${AGM_SSH_KEY_FILE:-}" ]; then rm -f -- "$AGM_SSH_KEY_FILE"; fi
+          if [ -n "${AGM_SSH_KNOWN_HOSTS_FILE:-}" ]; then rm -f -- "$AGM_SSH_KNOWN_HOSTS_FILE"; fi
+      - name: Record immutable deployment result
+        run: |
+          echo 'DEPLOYMENT=PASS'
+          echo 'CERTIFICATION=PENDING'
+          echo 'DEPLOYED_REVISION=${{ github.sha }}'
+          echo 'DEPLOYED_API_DIGEST=${{ needs.publish.outputs.digest }}'
+          echo 'DEPLOYED_WEB_DIGEST=${{ needs.publish-web.outputs.digest }}'
+
+  deployment-health:
+    name: Deployment health
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Verify public deployment health
+        run: node scripts/validate-production-deployment-health.mjs
+
+  post-deploy-certification:
+    name: Post-deploy certification
+    needs: deployment-health
+    runs-on: ubuntu-latest
+    environment: Production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Prepare isolated OpenSSH transport for certification evidence
+        shell: bash
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+          PRODUCTION_SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          command -v ssh >/dev/null
+          command -v ssh-keyscan >/dev/null
+          test -n "$PRODUCTION_HOST"
+          test -n "$PRODUCTION_USER"
+          test -n "$PRODUCTION_SSH_KEY"
+          ssh_key_file="$RUNNER_TEMP/agm-production-certification-ssh-key"
+          known_hosts_file="$RUNNER_TEMP/agm-production-certification-known-hosts"
+          umask 077
+          printf '%s\n' "$PRODUCTION_SSH_KEY" > "$ssh_key_file"
+          chmod 0600 "$ssh_key_file"
+          ssh-keyscan -T 15 -H "$PRODUCTION_HOST" > "$known_hosts_file"
+          test -s "$known_hosts_file"
+          printf 'AGM_SSH_KEY_FILE=%s\nAGM_SSH_KNOWN_HOSTS_FILE=%s\n' "$ssh_key_file" "$known_hosts_file" >> "$GITHUB_ENV"
+          ssh -i "$ssh_key_file" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$known_hosts_file" \
+            "$PRODUCTION_USER@$PRODUCTION_HOST" 'true'
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v5
         with:
@@ -351,6 +412,26 @@ jobs:
           AGM_EXPECTED_REVISION: ${{ github.sha }}
           AGM_LINGUISTIC_RELEASE_EVIDENCE: evidence/agent-accountability/production/linguistic-heartbeat-publication.json
         run: node scripts/publish-production-linguistic-heartbeats-browser.mjs
+      - name: Verify TURN operational truth after linguistic heartbeats
+        shell: bash
+        run: |
+          set -euo pipefail
+          turn_truth_ready=false
+          for attempt in $(seq 1 36); do
+            turn_truth=$(curl --fail --silent --show-error https://api.agmcockpit.com/api/v1/operations/turn/operational-truth)
+            if jq -e '
+              .data.contractVersion == "turn-operational-truth.v2"
+                and .data.overallStatus == "PASS"
+                and .data.authorityControlPlane.status == "PASS"
+                and .data.latestEvent.lifecycle == "COMPLETED"
+            ' <<<"$turn_truth" >/dev/null; then
+              turn_truth_ready=true
+              break
+            fi
+            sleep 5
+          done
+          test "$turn_truth_ready" = true
+          echo 'TURN_OPERATIONAL_TRUTH_AFTER_LINGUISTIC_HEARTBEATS=PASS'
       - name: Provision approved Car Mover entitlement
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_car_mover }}
         env:
@@ -718,6 +799,10 @@ jobs:
           AGM_REMOTE_PREFLIGHT
           } | ssh -i "$AGM_SSH_KEY_FILE" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
             "$PRODUCTION_USER@$PRODUCTION_HOST" 'bash -se'
+      - name: Record post-deploy certification result
+        run: |
+          echo 'DEPLOYMENT=PASS'
+          echo 'CERTIFICATION=PASS'
       - name: Remove ephemeral OpenSSH material
         if: ${{ always() }}
         shell: bash
@@ -727,7 +812,9 @@ jobs:
           if [ -n "${AGM_SSH_KNOWN_HOSTS_FILE:-}" ]; then rm -f -- "$AGM_SSH_KNOWN_HOSTS_FILE"; fi
 
   production-agent-runtime-browser:
-    needs: deploy
+    name: Production Browser certification
+    needs: [deployment-health, post-deploy-certification]
+    if: ${{ always() && needs.deployment-health.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -740,30 +827,47 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
-      - uses: actions/download-artifact@v4
+      - name: Browser preflight for Production accountability
+        id: operational_truth_preflight
+        continue-on-error: true
+        run: pnpm rescue:browser-preflight
+      - name: Validate live Production operational truth after soak
+        id: operational_truth_browser
+        continue-on-error: true
+        run: node scripts/validate-turn-operational-truth-browser.mjs
+      - name: Download certification accountability evidence
+        id: accountability_evidence
+        continue-on-error: true
+        uses: actions/download-artifact@v4
         with:
           name: agent-runtime-production-${{ github.run_id }}-${{ github.run_attempt }}
           path: production-agent-runtime-evidence
-      - name: Browser preflight for Production accountability
-        run: pnpm rescue:browser-preflight
-      - name: Validate live Production operational truth after soak
-        run: node scripts/validate-turn-operational-truth-browser.mjs
       - name: Browser preflight for Production accountability UI
+        id: accountability_preflight
+        continue-on-error: true
         run: pnpm rescue:browser-preflight
       - name: Validate Production TURN with real Production snapshot
+        id: accountability_browser
+        if: ${{ steps.accountability_evidence.outcome == 'success' }}
+        continue-on-error: true
         env:
           AGM_AGENT_ACCOUNTABILITY_URL: https://app.agmcockpit.com/turn
           AGM_AGENT_ACCOUNTABILITY_SNAPSHOT: ${{ github.workspace }}/production-agent-runtime-evidence/agent-runtime-accountability.json
         run: node scripts/validate-agent-accountability-browser.mjs
       - name: Browser preflight for Production responsive and branding validation
+        id: responsive_preflight
+        continue-on-error: true
         run: pnpm rescue:browser-preflight
       - name: Validate Production TURN responsive matrix and canonical branding
+        id: responsive_browser
+        if: ${{ steps.accountability_evidence.outcome == 'success' }}
+        continue-on-error: true
         env:
           AGM_TURN_RESPONSIVE_URL: https://app.agmcockpit.com/turn
           AGM_AGENT_ACCOUNTABILITY_SNAPSHOT: ${{ github.workspace }}/production-agent-runtime-evidence/agent-runtime-accountability.json
         run: node scripts/validate-turn-responsive-brand-browser.mjs
       - name: Persist Production TURN Browser evidence
-        if: always()
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: agent-runtime-production-browser-${{ github.run_id }}-${{ github.run_attempt }}
@@ -771,5 +875,33 @@ jobs:
             evidence/turn-operational-reconciliation/browser
             evidence/agent-accountability/browser
             evidence/turn-responsive-brand/browser
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
+      - name: Report complete post-deploy certification truth
+        if: ${{ always() }}
+        shell: bash
+        env:
+          CERTIFICATION_JOB: ${{ needs.post-deploy-certification.result }}
+          OPERATIONAL_TRUTH_PREFLIGHT: ${{ steps.operational_truth_preflight.outcome }}
+          OPERATIONAL_TRUTH_BROWSER: ${{ steps.operational_truth_browser.outcome }}
+          ACCOUNTABILITY_EVIDENCE: ${{ steps.accountability_evidence.outcome }}
+          ACCOUNTABILITY_PREFLIGHT: ${{ steps.accountability_preflight.outcome }}
+          ACCOUNTABILITY_BROWSER: ${{ steps.accountability_browser.outcome }}
+          RESPONSIVE_PREFLIGHT: ${{ steps.responsive_preflight.outcome }}
+          RESPONSIVE_BROWSER: ${{ steps.responsive_browser.outcome }}
+        run: |
+          set -euo pipefail
+          echo "DEPLOYMENT=PASS"
+          echo "CERTIFICATION=$CERTIFICATION_JOB"
+          echo "BROWSER_OPERATIONAL_TRUTH=$OPERATIONAL_TRUTH_BROWSER"
+          echo "BROWSER_ACCOUNTABILITY=$ACCOUNTABILITY_BROWSER"
+          echo "BROWSER_RESPONSIVE=$RESPONSIVE_BROWSER"
+          test "$CERTIFICATION_JOB" = 'success'
+          test "$OPERATIONAL_TRUTH_PREFLIGHT" = 'success'
+          test "$OPERATIONAL_TRUTH_BROWSER" = 'success'
+          test "$ACCOUNTABILITY_EVIDENCE" = 'success'
+          test "$ACCOUNTABILITY_PREFLIGHT" = 'success'
+          test "$ACCOUNTABILITY_BROWSER" = 'success'
+          test "$RESPONSIVE_PREFLIGHT" = 'success'
+          test "$RESPONSIVE_BROWSER" = 'success'
+          echo 'FINAL_PRODUCTION_PASS=PASS'
