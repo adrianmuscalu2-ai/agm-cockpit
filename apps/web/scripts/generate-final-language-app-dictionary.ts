@@ -12,6 +12,69 @@ const cachePath = resolve('../../evidence/app-i18n/final-language-translation-ca
 const runFile = promisify(execFile);
 const tokenPattern = /\r?\n|\{[a-zA-Z0-9_]+\}|https?:\/\/\S+|\b(?:AGM|OCR|VIN|GPS|PDF|WhatsApp|Car Mover)\b/g;
 
+const auditedOverrides: Record<typeof targets[number], Record<string, string>> = {
+  it: {
+    'premium.loadSafety.title': 'Assistente alla sicurezza del carico',
+    'premium.loadSafety.status.ready': 'L’assistente alla sicurezza del carico è pronto.',
+    'premium.loadSafety.status.endpoint': 'Il backend AGM non contiene ancora l’endpoint aggiornato per la sicurezza del carico.',
+    'contact.emails': 'Indirizzi e-mail',
+    'contact.emailsDescription': 'Aggiungi indirizzi etichettati. Un indirizzo può essere contrassegnato come predefinito.',
+    'contact.emailLabel': 'Etichetta / tipo',
+    'contact.emailValue': 'Indirizzo',
+    'contact.emailDefault': 'Indirizzo predefinito',
+    'contact.emailNoDefault': 'Nessun indirizzo predefinito',
+    'contact.emailPersonal': 'personale',
+    'contact.emailWork': 'lavoro',
+    'contact.emailCustom': 'etichetta personalizzata',
+    'contact.emailAdd': 'Aggiungi indirizzo',
+    'contact.emailRemove': 'Rimuovi',
+    'contact.status.emailChoiceRequired': 'Il contatto ha più indirizzi. Impostane uno come predefinito o scegli l’indirizzo desiderato.',
+    'contact.validation.emailLabelUnique': 'Ogni indirizzo deve avere un’etichetta univoca.',
+  },
+  es: {
+    'premium.loadSafety.title': 'Asistente de sujeción de carga',
+    'premium.loadSafety.status.endpoint': 'El backend de AGM aún no contiene el endpoint actualizado para la sujeción de carga.',
+    'contact.emails': 'Direcciones de correo electrónico',
+    'contact.emailsDescription': 'Añade direcciones etiquetadas. Puedes marcar una dirección como predeterminada.',
+    'contact.emailLabel': 'Etiqueta / tipo',
+    'contact.emailValue': 'Dirección',
+    'contact.emailDefault': 'Dirección predeterminada',
+    'contact.emailNoDefault': 'Sin dirección predeterminada',
+    'contact.emailPersonal': 'privado',
+    'contact.emailWork': 'trabajo',
+    'contact.emailCustom': 'etiqueta personalizada',
+    'contact.emailAdd': 'Añadir dirección',
+    'contact.emailRemove': 'Eliminar',
+    'contact.status.emailChoiceRequired': 'El contacto tiene varias direcciones. Marca una como predeterminada o elige la dirección deseada.',
+    'contact.validation.emailLabelUnique': 'Cada dirección debe tener una etiqueta única.',
+  },
+  sv: {
+    'premium.loadSafety.title': 'Assistent för lastsäkring',
+    'premium.loadSafety.status.ready': 'Assistenten för lastsäkring är redo.',
+    'premium.loadSafety.status.endpoint': 'AGM-backend innehåller ännu inte den uppdaterade slutpunkten för lastsäkring.',
+    'premium.team.eyebrow': 'AGM PREMIUM · TEAMET',
+    'turn.department.releaseOps': 'Lansering och drift',
+    'turn.agent.release': 'Lansering',
+    'turn.module.legal': 'Juridiskt center',
+    'agentRegistry.chronicler.role': 'Chef för operativt minne.',
+    'mail.manual': 'Manuell',
+    'contact.category.partners': 'Partner',
+    'contact.emails': 'E-postadresser',
+    'contact.emailsDescription': 'Lägg till märkta adresser. En adress kan markeras som standard.',
+    'contact.emailLabel': 'Etikett / typ',
+    'contact.emailValue': 'Adress',
+    'contact.emailDefault': 'Standardadress',
+    'contact.emailNoDefault': 'Ingen standardadress',
+    'contact.emailPersonal': 'personlig',
+    'contact.emailWork': 'arbete',
+    'contact.emailCustom': 'anpassad etikett',
+    'contact.emailAdd': 'Lägg till adress',
+    'contact.emailRemove': 'Ta bort',
+    'contact.status.emailChoiceRequired': 'Kontakten har flera adresser. Markera en som standard eller välj önskad adress.',
+    'contact.validation.emailLabelUnique': 'Varje adress måste ha en unik etikett.',
+  },
+};
+
 function protect(value: string) {
   const tokens: string[] = [];
   const text = value.replace(tokenPattern, (token) => {
@@ -77,7 +140,9 @@ async function translateBatch(values: string[], target: (typeof targets)[number]
 }
 
 async function translateLanguage(target: (typeof targets)[number], cache: Record<string, Record<string, string>>) {
-  const unique = [...new Set(Object.values(source))];
+  const unique = [...new Set(Object.entries(source)
+    .filter(([key]) => !(key in auditedOverrides[target]))
+    .map(([, value]) => value))];
   const translations = new Map<string, string>(Object.entries(cache[target] ?? {}));
   let cursor = 0;
 
@@ -101,7 +166,7 @@ async function translateLanguage(target: (typeof targets)[number], cache: Record
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 750));
   }
   process.stdout.write(`${targetNames[target]} ${unique.length}/${unique.length}\n`);
-  return Object.fromEntries(Object.entries(source).map(([key, value]) => [key, translations.get(value)!]));
+  return Object.fromEntries(Object.entries(source).map(([key, value]) => [key, auditedOverrides[target][key] ?? translations.get(value)!]));
 }
 
 await mkdir(resolve('../../evidence/app-i18n'), { recursive: true });
@@ -109,31 +174,6 @@ const cachedPayload = await readFile(cachePath, 'utf8').then((value) => JSON.par
 const cache = (cachedPayload.__parserVersion === 2 ? cachedPayload : { __parserVersion: 2 }) as Record<string, Record<string, string>>;
 const result: Record<string, Record<string, string>> = {};
 for (const target of targets) result[target] = await translateLanguage(target, cache);
-
-const auditedOverrides: Record<typeof targets[number], Record<string, string>> = {
-  it: {
-    'premium.loadSafety.title': 'Assistente alla sicurezza del carico',
-    'premium.loadSafety.status.ready': 'L’assistente alla sicurezza del carico è pronto.',
-    'premium.loadSafety.status.endpoint': 'Il backend AGM non contiene ancora l’endpoint aggiornato per la sicurezza del carico.',
-  },
-  es: {
-    'premium.loadSafety.title': 'Asistente de sujeción de carga',
-    'premium.loadSafety.status.endpoint': 'El backend de AGM aún no contiene el endpoint actualizado para la sujeción de carga.',
-  },
-  sv: {
-    'premium.loadSafety.title': 'Assistent för lastsäkring',
-    'premium.loadSafety.status.ready': 'Assistenten för lastsäkring är redo.',
-    'premium.loadSafety.status.endpoint': 'AGM-backend innehåller ännu inte den uppdaterade slutpunkten för lastsäkring.',
-    'premium.team.eyebrow': 'AGM PREMIUM · TEAMET',
-    'turn.department.releaseOps': 'Lansering och drift',
-    'turn.agent.release': 'Lansering',
-    'turn.module.legal': 'Juridiskt center',
-    'agentRegistry.chronicler.role': 'Chef för operativt minne.',
-    'mail.manual': 'Manuell',
-    'contact.category.partners': 'Partner',
-  },
-};
-for (const target of targets) Object.assign(result[target], auditedOverrides[target]);
 
 const file = `// Generated from the canonical English application catalog.\n` +
   `// Source language: en. Targets: it, es, sv. Do not edit individual keys manually.\n` +

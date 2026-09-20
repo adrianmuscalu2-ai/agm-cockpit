@@ -7,9 +7,10 @@ import { TurnOperationalTruthController } from './turn-operational-truth.control
 import { TurnOperationalTruthInterceptor } from './turn-operational-truth.interceptor';
 import { TurnOperationalTruthService } from './turn-operational-truth.service';
 import { AuthorityControlPlaneModule } from '../authority-control-plane/authority-control-plane.module';
+import { ComponentTelemetryModule } from '../component-telemetry/component-telemetry.module';
 
 @Module({
-  imports: [TurnAdminModule, TranslationModule, AuthorityControlPlaneModule],
+  imports: [TurnAdminModule, TranslationModule, AuthorityControlPlaneModule, ComponentTelemetryModule],
   controllers: [TurnOperationalTruthController],
   providers: [
     TurnFunctionalOverviewService,

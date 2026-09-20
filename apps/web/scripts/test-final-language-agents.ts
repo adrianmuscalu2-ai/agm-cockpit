@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import { COMPONENT_TELEMETRY_CONTRACT } from '../../api/src/component-telemetry/component-telemetry.contract';
 import { premiumNetworkSeed } from '../../api/src/authority-control-plane/premium-network.seed';
@@ -12,7 +13,13 @@ import {
 import { panelAgentSources } from '../src/turn-agent-panel.integration';
 import { turnOrganizationAgents } from '../src/turn-organization-chart';
 
-const expectedCounts = { app: 1169, operational: 308, carMover: 37, premium: 199, total: 1713 };
+const expectedCounts = { app: 1182, operational: 308, carMover: 37, premium: 199, total: 1726 };
+const runtimeSource = readFileSync(new URL('../src/premium-linguistic-agents/premium-linguistic-agents.runtime.ts', import.meta.url), 'utf8');
+
+assert.doesNotMatch(runtimeSource, /USER_ACCESS_TOKEN_KEY|userSessionAvailable/, 'linguistic heartbeat must not bypass authenticatedApiFetch auto-refresh');
+assert.match(runtimeSource, /route: \(agentId\) => `\/operations\/components\/\$\{agentId\}\/heartbeat`/, 'user heartbeat route must remain available');
+assert.match(runtimeSource, /document\.visibilityState === 'visible'[\s\S]*transport\.fetcher\(transport\.route\(target\.id\)/, 'visible runtime must use the authorized heartbeat transport');
+assert.match(runtimeSource, /latest\.every\(\(entry\) => entry\.apiJournaled\)/, 'a failed journal write must be retried after authorization changes');
 const verdicts: Record<string, string> = {};
 
 assert.equal(new Set(premiumLinguisticAgents.map((agent) => agent.id)).size, premiumLinguisticAgents.length, 'linguistic registry IDs must be unique');

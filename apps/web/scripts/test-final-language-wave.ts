@@ -76,7 +76,7 @@ for (const catalog of i18nCatalogRegistry) {
 }
 
 const englishApp = appI18nDictionary.en! as Record<string,string>;
-assert(Object.keys(englishApp).length === 1169, `canonical app key count changed: ${Object.keys(englishApp).length}`);
+assert(Object.keys(englishApp).length === 1182, `canonical app key count changed: ${Object.keys(englishApp).length}`);
 for (const language of targets) assertCatalog(`app.${language}`, englishApp, appI18nDictionary[language]! as Record<string,string>);
 
 const canonicalOperational = {
@@ -96,7 +96,7 @@ for (const language of targets) {
 assert(JSON.stringify(preDepartureLanguages) === JSON.stringify(expectedLanguages), 'Pre-departure languages are incomplete');
 assert(JSON.stringify(afterDepartureLanguages) === JSON.stringify(expectedLanguages), 'After-departure languages are incomplete');
 for (const language of targets) {
-  assert(Object.keys(appI18nDictionary[language]!).length === 1169, `${language}: app key count mismatch`);
+  assert(Object.keys(appI18nDictionary[language]!).length === 1182, `${language}: app key count mismatch`);
   assert(carMoverI18nKeys.every((key) => carMoverText(language,key)?.trim()), `${language}: Car Mover key missing`);
   assert(capabilityTextKeys.every((key) => capabilityText(language,key)?.trim()), `${language}: capability key missing`);
   assert(copilotKeys.every((key) => copilotText(language,key)?.trim()), `${language}: Copilot key missing`);
@@ -125,8 +125,8 @@ const directPremiumKeysPerLanguage = capabilityTextKeys.length + copilotKeys.len
 assert(directPremiumKeysPerLanguage === 199, `direct Premium key count changed: ${directPremiumKeysPerLanguage}`);
 
 console.log(JSON.stringify({
-  status:'PASS', languages:[...targets], appKeysPerLanguage:1169, operationalLeavesPerLanguage:308,
+  status:'PASS', languages:[...targets], appKeysPerLanguage:1182, operationalLeavesPerLanguage:308,
   carMoverKeysPerLanguage:carMoverI18nKeys.length, directPremiumKeysPerLanguage,
-  totalValidatedPerLanguage:1169+308+carMoverI18nKeys.length+directPremiumKeysPerLanguage,
+  totalValidatedPerLanguage:1182+308+carMoverI18nKeys.length+directPremiumKeysPerLanguage,
   missingKeys:0, wrongFallbacks:0, unresolvedTokens:0,
 }, null, 2));

@@ -1,5 +1,4 @@
 import { authenticatedApiFetch } from '../authenticated-api';
-import { USER_ACCESS_TOKEN_KEY } from '../premium-access/premium-access.client';
 import { carMoverI18nKeys, carMoverText } from '../car-mover/car-mover.i18n';
 import { emailTemplates } from '../emailTemplates';
 import { appI18nDictionary } from '../i18n/app-i18n.dictionary';
@@ -48,13 +47,23 @@ export type LinguisticAgentHeartbeat = {
   apiJournaled: boolean;
   journalStatus: 'PERSISTED' | 'USER_SESSION_UNAVAILABLE' | 'REQUEST_FAILED';
 };
+export type LinguisticHeartbeatTransport = {
+  fetcher: typeof authenticatedApiFetch;
+  route: (agentId: FinalLanguageAgentId) => string;
+};
+
+const userHeartbeatTransport: LinguisticHeartbeatTransport = {
+  fetcher: authenticatedApiFetch,
+  route: (agentId) => `/operations/components/${agentId}/heartbeat`,
+};
+
 
 const expectedCounts: LinguisticAgentResourceCounts = {
-  app: 1169,
+  app: 1182,
   operational: 308,
   carMover: 37,
   premium: 199,
-  total: 1713,
+  total: 1726,
 };
 const heartbeatIntervalMs = 60_000;
 const heartbeatJournalLimit = 50;
@@ -172,12 +181,11 @@ function heartbeatDetail(heartbeat: LinguisticAgentHeartbeat) {
   return `language=${heartbeat.language};app=${app};operational=${operational};carMover=${carMover};premium=${premium};total=${total};errors=${heartbeat.errors.length};journal=${heartbeat.journalStatus}`;
 }
 
-async function publishHeartbeat(target: (typeof finalLanguageAgentTargets)[number]) {
+async function publishHeartbeat(target: (typeof finalLanguageAgentTargets)[number], transport: LinguisticHeartbeatTransport) {
   const heartbeat = auditPremiumLinguisticAgent(target);
-  const userSessionAvailable = Boolean(globalThis.sessionStorage?.getItem(USER_ACCESS_TOKEN_KEY));
-  if (document.visibilityState === 'visible' && userSessionAvailable) {
+  if (document.visibilityState === 'visible') {
     try {
-      const response = await authenticatedApiFetch(`/operations/components/${target.id}/heartbeat`, {
+      const response = await transport.fetcher(transport.route(target.id), {
         method: 'POST',
         cache: 'no-store',
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -196,17 +204,17 @@ async function publishHeartbeat(target: (typeof finalLanguageAgentTargets)[numbe
   return heartbeat;
 }
 
-export async function publishPremiumLinguisticAgentHeartbeats() {
-  return Promise.all(finalLanguageAgentTargets.map(publishHeartbeat));
+export async function publishPremiumLinguisticAgentHeartbeats(transport = userHeartbeatTransport) {
+  return Promise.all(finalLanguageAgentTargets.map((target) => publishHeartbeat(target, transport)));
 }
 
-export function bindPremiumLinguisticAgentHeartbeats(onHeartbeat?: (heartbeats: LinguisticAgentHeartbeat[]) => void) {
+export function bindPremiumLinguisticAgentHeartbeats(onHeartbeat?: (heartbeats: LinguisticAgentHeartbeat[]) => void, transport = userHeartbeatTransport) {
   const latest = finalLanguageAgentTargets.map((target) => [...heartbeatJournal].reverse().find((entry) => entry.agentId === target.id)).filter((entry): entry is LinguisticAgentHeartbeat => Boolean(entry));
-  const latestIsCurrent = latest.length === finalLanguageAgentTargets.length && Date.now() - lastPublishStartedAt < heartbeatIntervalMs;
+  const latestIsCurrent = latest.length === finalLanguageAgentTargets.length && latest.every((entry) => entry.apiJournaled) && Date.now() - lastPublishStartedAt < heartbeatIntervalMs;
   const publish = () => {
     if (currentPublish) return currentPublish;
     lastPublishStartedAt = Date.now();
-    currentPublish = publishPremiumLinguisticAgentHeartbeats()
+    currentPublish = publishPremiumLinguisticAgentHeartbeats(transport)
       .then((heartbeats) => { onHeartbeat?.(heartbeats); return heartbeats; })
       .finally(() => { currentPublish = undefined; });
     return currentPublish;

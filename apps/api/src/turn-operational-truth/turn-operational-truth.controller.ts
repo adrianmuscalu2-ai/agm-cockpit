@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Post, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Headers, Param, Post, Res, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { responseEnvelope } from '../common/response';
@@ -12,6 +12,8 @@ import { RecordTurnFeatureTelemetryDto } from './turn-feature-telemetry.dto';
 import { AuthorityControlPlaneService } from '../authority-control-plane/authority-control-plane.service';
 import { GITHUB_ACTIONS_PROVISIONING_CONTRACT } from '../machine-auth/github-actions-oidc.contract';
 import { randomUUID } from 'node:crypto';
+import { ComponentTelemetryService } from '../component-telemetry/component-telemetry.service';
+import { RecordComponentHeartbeatDto } from '../component-telemetry/dto/record-component-heartbeat.dto';
 
 @Controller('operations/turn')
 export class TurnOperationalTruthController {
@@ -20,6 +22,7 @@ export class TurnOperationalTruthController {
     private readonly functionalOverview: TurnFunctionalOverviewService,
     private readonly turnAdmin: TurnAdminService,
     private readonly authority: AuthorityControlPlaneService,
+    private readonly componentTelemetry: ComponentTelemetryService,
   ) {}
 
   @Get('operational-truth')
@@ -54,6 +57,17 @@ export class TurnOperationalTruthController {
     return responseEnvelope(await this.functionalOverview.recordBasicFeature(dto, user));
   }
 
+  @Post('components/:componentId/heartbeat')
+  @Throttle({ default: { limit: 12, ttl: 60_000, blockDuration: 60_000 } })
+  async recordLinguisticHeartbeat(@Headers('authorization') authorization: string | undefined, @Param('componentId') componentId: string, @Body() dto: RecordComponentHeartbeatDto) {
+    await this.turnAdmin.requireOperationalAccess(authorization);
+    const normalizedId = componentId.trim().toLowerCase();
+    if (!LINGUISTIC_COMPONENT_IDS.has(normalizedId)) {
+      throw new BadRequestException('TURN_LINGUISTIC_HEARTBEAT_ONLY');
+    }
+    return responseEnvelope(await this.componentTelemetry.heartbeat(normalizedId, dto, ownerContext()));
+  }
+
   @Get('operational-dashboard')
   @Throttle({ default: { limit: 20, ttl: 60_000, blockDuration: 60_000 } })
   async operationalDashboard(@Headers('authorization') authorization: string | undefined, @Res({ passthrough: true }) response: Response) {
@@ -74,3 +88,8 @@ export class TurnOperationalTruthController {
 function ownerContext(): RequestContext {
   return { companyId: GITHUB_ACTIONS_PROVISIONING_CONTRACT.companyId, userId: '00000000-0000-0000-0000-000000000001', roles: ['PRODUCT_OWNER'], requestId: randomUUID(), correlationId: randomUUID() };
 }
+const LINGUISTIC_COMPONENT_IDS = new Set([
+  'premium-linguist-it',
+  'premium-linguist-es',
+  'premium-linguist-sv',
+]);

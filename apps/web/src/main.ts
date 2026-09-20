@@ -140,7 +140,7 @@ import {
   type IncidentStatus,
 } from './incident-journal';
 import { isNativeAudioAvailable, NativeAudio, type MicrophonePermissionState } from './native-audio';
-import { changeAdministratorPin, isTurnAdminSessionError, readAdministratorSession, restoreAdministratorSession, unlockAdministrator, validateAdministrator } from './admin-auth';
+import { changeAdministratorPin, isTurnAdminSessionError, readAdministratorSession, restoreAdministratorSession, turnAdminAuthenticatedFetch, unlockAdministrator, validateAdministrator } from './admin-auth';
 import { premiumStatusKey, renderPremiumView, usesPremiumLayout } from './premium-app';
 import { renderPremiumAccessView } from './premium-access/premium-access.view';
 import { bindPremiumAccessRuntime } from './premium-access/premium-access.runtime';
@@ -2438,7 +2438,16 @@ function globalCameraOcrFailureCopy(failure: GlobalCameraOcrFailure) {
 // Global OCR is bound with the shared shell.
 function bindShared() {
   bindAndroidComponentHeartbeat();
-  void bindPremiumLinguisticAgentHeartbeats(() => publishPanelAgentModel());
+  const useTurnAdminHeartbeat = state.adminAccessVerified;
+  void bindPremiumLinguisticAgentHeartbeats((heartbeats) => {
+    publishPanelAgentModel();
+    if (useTurnAdminHeartbeat && heartbeats.every((heartbeat) => heartbeat.apiJournaled && heartbeat.status === 'ONLINE')) {
+      bindPremiumGovernanceRuntime(true);
+    }
+  }, useTurnAdminHeartbeat ? {
+    fetcher: turnAdminAuthenticatedFetch,
+    route: (agentId) => `/operations/turn/components/${agentId}/heartbeat`,
+  } : undefined);
   bindPremiumAccessRuntime(uiLanguage());
   bindCommunicationRuntime();
     bindPremiumAssistantRuntime();
