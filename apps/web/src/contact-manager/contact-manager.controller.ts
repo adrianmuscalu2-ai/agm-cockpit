@@ -1,6 +1,7 @@
 import { addContact, editContact, removeContact } from './contact-manager.service';
 import type { ContactsState } from '../app-shell/app-state.contract';
 import type { AgmContact, ContactDraft } from './contact-manager.types';
+import { selectContactEmail } from './contact-email';
 
 export type ContactControllerState = {
   contacts: AgmContact[];
@@ -65,12 +66,15 @@ export function createContactManagerController(dependencies: {
     },
     selectForMail(contactId: string): void {
       const contact = contacts.contacts.find((item) => item.id === contactId);
+      const selectedEmail = contact ? selectContactEmail(contact) : undefined;
       if (!contact) {
         state.status = dependencies.message('contact.status.missing');
-      } else if (!contact.email.trim()) {
+      } else if (selectedEmail?.status === 'MISSING') {
         state.status = dependencies.message('contact.status.missingEmail');
+      } else if (selectedEmail?.status !== 'RESOLVED') {
+        state.status = dependencies.message('contact.status.emailChoiceRequired');
       } else {
-        state.recipient = contact.email;
+        state.recipient = selectedEmail.email.value;
         contacts.contactManagerOpen = false;
         dependencies.markMailDraftChanged();
         state.status = dependencies.message('status.recipientSelected', {
@@ -88,7 +92,7 @@ export function createContactManagerController(dependencies: {
       }
       contacts.contactEditingId = contact.id;
       contacts.contactDraft = {
-        name: contact.name, company: contact.company, email: contact.email,
+        name: contact.name, company: contact.company, email: contact.email, emails: contact.emails.map((entry) => ({ ...entry })),
         phone: contact.phone, whatsapp: contact.whatsapp, messenger: contact.messenger, address: contact.address,
         notes: contact.notes, categories: contact.categories, favorite: contact.favorite,
       };

@@ -23,7 +23,7 @@ const PROFILE_OWNER_ROLE = 'AGM_PROFILE_OWNER';
 const PROFILE_CONTACT_PAYLOAD = 'contactCommand';
 const CONTACT_DOMAINS: readonly AgmLibraryDomain[] = ['BASIC', 'PREMIUM', 'PROFILE', 'CAR_MOVER'];
 
-type SafeContact = Pick<AgmContact, 'id' | 'name' | 'email' | 'phone' | 'whatsapp' | 'messenger' | 'updatedAt'>;
+type SafeContact = Pick<AgmContact, 'id' | 'name' | 'email' | 'emails' | 'phone' | 'whatsapp' | 'messenger' | 'updatedAt'>;
 
 export type ProfileContactCommand = {
   intent: PersonalContactVoiceIntent;
@@ -31,6 +31,9 @@ export type ProfileContactCommand = {
   reason: Extract<PersonalContactVoiceResolution, { handled: true }>['reason'];
   requestedName: string;
   requestedChannel?: 'PHONE' | 'EMAIL' | 'MESSENGER' | 'WHATSAPP';
+  requestedEmailLabel?: string;
+  selectedEmail?: Extract<PersonalContactVoiceResolution, { handled: true }>['selectedEmail'];
+  availableEmailLabels?: string[];
   contact?: SafeContact;
   resolution?: AndroidActionResolution;
 };
@@ -73,6 +76,9 @@ export class ProfilePersonalContactsResolver implements LibraryResolver {
       reason: voice.reason,
       requestedName: voice.requestedName,
       ...(voice.requestedChannel ? { requestedChannel: voice.requestedChannel } : {}),
+      ...(voice.requestedEmailLabel ? { requestedEmailLabel: voice.requestedEmailLabel } : {}),
+      ...(voice.selectedEmail ? { selectedEmail: voice.selectedEmail } : {}),
+      ...(voice.availableEmailLabels ? { availableEmailLabels: voice.availableEmailLabels } : {}),
       ...(voice.contact ? { contact: safeContact(voice.contact) } : {}),
       ...(effectiveResolution ? { resolution: effectiveResolution } : {}),
     };
@@ -154,7 +160,7 @@ function noDataResult(text: string, observedAt: string): LibraryResolverResult {
 }
 
 function safeContact(contact: AgmContact): SafeContact {
-  return { id: contact.id, name: contact.name, email: contact.email, phone: contact.phone, whatsapp: contact.whatsapp, messenger: contact.messenger, updatedAt: contact.updatedAt };
+  return { id: contact.id, name: contact.name, email: contact.email, emails: contact.emails.map((entry) => ({ ...entry })), phone: contact.phone, whatsapp: contact.whatsapp, messenger: contact.messenger, updatedAt: contact.updatedAt };
 }
 
 function restoreVoiceCommand(command: ProfileContactCommand): PersonalContactVoiceResolution {
@@ -169,6 +175,9 @@ function restoreVoiceCommand(command: ProfileContactCommand): PersonalContactVoi
     reason: command.reason,
     requestedName: command.requestedName,
     ...(command.requestedChannel ? { requestedChannel: command.requestedChannel } : {}),
+    ...(command.requestedEmailLabel ? { requestedEmailLabel: command.requestedEmailLabel } : {}),
+    ...(command.selectedEmail ? { selectedEmail: command.selectedEmail } : {}),
+    ...(command.availableEmailLabels ? { availableEmailLabels: command.availableEmailLabels } : {}),
     ...(contact ? { contact } : {}),
     ...(command.resolution ? { resolution: command.resolution } : {}),
   };

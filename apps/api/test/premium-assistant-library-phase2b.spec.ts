@@ -51,6 +51,14 @@ function request(confirmedText: string, requestHistory = history) {
 }
 
 describe('Phase 2B semantic Gmail resolution', () => {
+  it('maps the exact physical Samsung phrase to the latest two Gmail messages', () => {
+    expect(classifyGmailIntent('Redă-mi te rog ultimele două emailuri.')).toMatchObject({
+      operation: 'LIST_RECENT',
+      gmailQuery: '',
+      maxMessages: 2,
+    });
+  });
+
   it.each([
     'Citește ultimul email de la Clicktrans.',
     'Ce mi-a scris Clicktrans?',

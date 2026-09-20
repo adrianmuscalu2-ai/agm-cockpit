@@ -32,6 +32,9 @@ export type AndroidActionPayload = {
   contactName?: string;
   contactSource?: 'AGM_PERSONAL_CONTACTS' | 'ANDROID_CONTACTS';
   requestedChannel?: 'PHONE' | 'EMAIL' | 'MESSENGER';
+  requestedEmailLabel?: string;
+  selectedEmailLabel?: string;
+  availableEmailLabels?: string[];
   contextText?: string;
   startEpochMs?: number;
   hour?: number;

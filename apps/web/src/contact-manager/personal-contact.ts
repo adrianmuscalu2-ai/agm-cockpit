@@ -1,5 +1,6 @@
 import type { AgmContact, ContactDraft, ContactValidationResult } from './contact-manager.types';
 import type { AndroidActionResolution } from '../android-action-layer/android-action.contract';
+import { normalizeContactEmails, selectContactEmail } from './contact-email';
 
 export const PERSONAL_CONTACT_LIMIT = 20;
 
@@ -10,7 +11,7 @@ export type PersonalContactCounts = Record<PersonalContactChannel, number> & { p
 export function personalContactCounts(contacts: AgmContact[]): PersonalContactCounts {
   return {
     people: contacts.length,
-    email: contacts.filter((contact) => Boolean(contact.email.trim())).length,
+    email: contacts.filter((contact) => normalizeContactEmails(contact.emails, contact.email).length > 0).length,
     phone: contacts.filter((contact) => Boolean(contact.phone.trim())).length,
     messenger: contacts.filter((contact) => Boolean(contact.messenger.trim())).length,
   };
@@ -53,6 +54,47 @@ export function resolvePersonalContactAction(
   }
   if (matches.length === 1) {
     const contact = matches[0]!;
+    if (channel === 'email') {
+      const requestedEmailLabel = resolution.payload?.requestedEmailLabel;
+      const selected = selectContactEmail(contact, requestedEmailLabel);
+      if (selected.status !== 'RESOLVED') {
+        const reason = selected.status === 'AMBIGUOUS'
+          ? 'AGM_PERSONAL_CONTACT_EMAIL_AMBIGUOUS'
+          : selected.status === 'LABEL_NOT_FOUND'
+            ? 'AGM_PERSONAL_CONTACT_EMAIL_LABEL_NOT_FOUND'
+            : 'AGM_PERSONAL_CONTACT_CHANNEL_MISSING';
+        return {
+          ...resolution,
+          status: 'CLARIFICATION_REQUIRED',
+          reason,
+          source: 'NONE',
+          confirmation: 'NONE',
+          payload: {
+            ...resolution.payload,
+            contactId: contact.id,
+            contactName: contact.name.trim(),
+            requestedChannel,
+            ...(requestedEmailLabel ? { requestedEmailLabel } : {}),
+            availableEmailLabels: selected.availableLabels,
+          },
+        };
+      }
+      return {
+        ...resolution,
+        reason: 'AGM_PERSONAL_CONTACT_EMAIL_RESOLVED',
+        payload: {
+          ...resolution.payload,
+          contactId: contact.id,
+          contactName: contact.name.trim(),
+          contactSource: 'AGM_PERSONAL_CONTACTS',
+          requestedChannel,
+          requestedEmailLabel: selected.email.label,
+          selectedEmailLabel: selected.email.label,
+          availableEmailLabels: selected.availableLabels,
+          value: selected.email.value,
+        },
+      };
+    }
     const value = contact[channel].trim();
     if (!value) {
       return {
@@ -108,9 +150,15 @@ function findNamedContacts(contacts: AgmContact[], requestedName: string) {
 function isSameStoredPerson(contact: AgmContact, draft: ContactDraft) {
   const name = normalizeName(draft.name);
   if (!name || normalizeName(contact.name) !== name) return false;
-  const channels = ['email', 'phone', 'whatsapp', 'messenger'] as const;
-  const draftIdentifiers = channels.map((channel) => normalizeIdentifier(draft[channel])).filter(Boolean);
-  const existingIdentifiers = channels.map((channel) => normalizeIdentifier(contact[channel])).filter(Boolean);
+  const channels = ['phone', 'whatsapp', 'messenger'] as const;
+  const draftIdentifiers = [
+    ...channels.map((channel) => normalizeIdentifier(draft[channel])),
+    ...normalizeContactEmails(draft.emails, draft.email).map((entry) => normalizeIdentifier(entry.value)),
+  ].filter(Boolean);
+  const existingIdentifiers = [
+    ...channels.map((channel) => normalizeIdentifier(contact[channel])),
+    ...normalizeContactEmails(contact.emails, contact.email).map((entry) => normalizeIdentifier(entry.value)),
+  ].filter(Boolean);
   if (draftIdentifiers.length === 0 && existingIdentifiers.length === 0) return true;
   return draftIdentifiers.some((identifier) => existingIdentifiers.includes(identifier));
 }

@@ -83,6 +83,7 @@ import { attachContactsLegacyFacade, createContactsState } from './app-shell/con
 import { attachOcrLegacyFacade, createOcrState } from './app-shell/ocr-state.store';
 import { attachIncidentsLegacyFacade, createIncidentsState } from './app-shell/incidents-state.store';
 import { type AgmContact, type ContactCategory, type ContactDraft } from './contact-manager/contact-manager.types';
+import { newContactEmailRow, normalizeContactEmails, primaryContactEmail } from './contact-manager/contact-email';
 import { t, uiLanguageFromProfile } from './i18n/app-i18n';
 import { dashboardWarningContainmentCopy, dashboardWarningVisionEnabled } from './dashboard-warning-vision.feature';
 import { USER_ACCESS_TOKEN_KEY } from './premium-access/premium-access.client';
@@ -1822,7 +1823,7 @@ function renderContactManager() {
                           <article class="contact-row ${state.contactEditingId === contact.id ? 'active' : ''}">
                             <div>
                               <strong>${escapeHtml(contactDisplayNameForLanguage(contact, language))}</strong>
-                              <span>${escapeHtml(contact.email || contact.phone || contact.whatsapp || contact.messenger || '-')}</span>
+                              <span>${escapeHtml(primaryContactEmail(contact) || contact.phone || contact.whatsapp || contact.messenger || '-')}</span>
                               <small>${escapeHtml(contactCategoryLabelsForLanguage(contact, language))}</small>
                             </div>
                             <div class="contact-row-actions">
@@ -1851,10 +1852,32 @@ function renderContactManager() {
               <span>${escapeHtml(t(language, 'contact.company'))}</span>
               <input id="contactCompany" type="text" value="${escapeHtml(state.contactDraft.company)}" />
             </label>
-            <label>
-              <span>${escapeHtml(t(language, 'contact.email'))}</span>
-              <input id="contactEmail" type="email" value="${escapeHtml(state.contactDraft.email)}" />
-            </label>
+            <fieldset class="contact-email-group" data-contact-email-addresses>
+              <legend>${escapeHtml(t(language, 'contact.emails'))}</legend>
+              <p class="muted-note">${escapeHtml(t(language, 'contact.emailsDescription'))}</p>
+              ${state.contactDraft.emails.map((entry, index) => `
+                <div class="contact-email-row" data-contact-email-row data-email-id="${escapeHtml(entry.id)}">
+                  <label>
+                    <span>${escapeHtml(t(language, 'contact.emailLabel'))}</span>
+                    <input type="text" data-contact-email-label value="${escapeHtml(entry.label)}" placeholder="${escapeHtml(index === 0 ? t(language, 'contact.emailPersonal') : index === 1 ? t(language, 'contact.emailWork') : t(language, 'contact.emailCustom'))}" />
+                  </label>
+                  <label>
+                    <span>${escapeHtml(t(language, 'contact.emailValue'))}</span>
+                    <input type="email" data-contact-email-value value="${escapeHtml(entry.value)}" />
+                  </label>
+                  <label class="toggle contact-email-default">
+                    <input type="radio" name="contactEmailDefault" data-contact-email-default ${entry.isDefault ? 'checked' : ''} />
+                    <span>${escapeHtml(t(language, 'contact.emailDefault'))}</span>
+                  </label>
+                  <button type="button" data-contact-email-remove="${escapeHtml(entry.id)}">${escapeHtml(t(language, 'contact.emailRemove'))}</button>
+                </div>
+              `).join('')}
+              <label class="toggle contact-email-no-default">
+                <input type="radio" name="contactEmailDefault" ${state.contactDraft.emails.some((entry) => entry.isDefault) ? '' : 'checked'} />
+                <span>${escapeHtml(t(language, 'contact.emailNoDefault'))}</span>
+              </label>
+              <button id="addContactEmail" type="button">${escapeHtml(t(language, 'contact.emailAdd'))}</button>
+            </fieldset>
             <label>
               <span>${escapeHtml(t(language, 'contact.phone'))}</span>
               <input id="contactPhone" type="tel" value="${escapeHtml(state.contactDraft.phone)}" />
@@ -3681,6 +3704,21 @@ function bindContactManager() {
     saveContactFromManager();
   });
 
+  document.querySelector<HTMLButtonElement>('#addContactEmail')?.addEventListener('click', () => {
+    state.contactDraft = readContactDraftFromForm();
+    state.contactDraft.emails.push(newContactEmailRow());
+    render();
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-contact-email-remove]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.contactDraft = readContactDraftFromForm();
+      state.contactDraft.emails = state.contactDraft.emails.filter((entry) => entry.id !== button.dataset.contactEmailRemove);
+      if (!state.contactDraft.emails.length) state.contactDraft.emails = [newContactEmailRow('personal', true)];
+      render();
+    });
+  });
+
   document.querySelectorAll<HTMLButtonElement>('[data-contact-select]').forEach((button) => {
     button.addEventListener('click', () => {
       selectContactForMail(button.dataset.contactSelect || '');
@@ -5324,11 +5362,10 @@ function normalizeMailFrameLine(line: string) {
 
 function contactRecipientOptions() {
   const managedContacts = state.contacts
-    .filter((contact) => contact.email.trim())
-    .map((contact) => ({
-      email: contact.email,
-      label: contactDisplayNameForLanguage(contact, uiLanguage()),
-    }));
+    .flatMap((contact) => normalizeContactEmails(contact.emails, contact.email).map((entry) => ({
+      email: entry.value,
+      label: `${contactDisplayNameForLanguage(contact, uiLanguage())} · ${entry.label}`,
+    })));
   const legacyContacts = emailContacts.map((contact) => ({
     email: contact.email,
     label: t(uiLanguage(), `contact.legacy.${contact.id}`),
@@ -5347,7 +5384,8 @@ function contactRecipientOptions() {
 }
 
 function mailRecipientContext() {
-  const matchingContact = state.contacts.find((contact) => contact.email.trim().toLocaleLowerCase() === state.recipient.trim().toLocaleLowerCase());
+  const matchingContact = state.contacts.find((contact) => normalizeContactEmails(contact.emails, contact.email)
+    .some((entry) => entry.value.toLocaleLowerCase() === state.recipient.trim().toLocaleLowerCase()));
 
   return {
     name: matchingContact?.name.trim() || '',
@@ -5382,10 +5420,12 @@ function deleteContactFromManager(contactId: string) {
 }
 
 function recipientContactDraft(): ContactDraft {
+  const email = state.recipient.trim();
   return {
     ...emptyContactDraft(),
     name: recipientNameFromAddress(state.recipient),
-    email: state.recipient.trim(),
+    email,
+    emails: email ? [newContactEmailRow('email', true, email)] : emptyContactDraft().emails,
     categories: ['clients'],
   };
 }
@@ -5394,11 +5434,19 @@ function readContactDraftFromForm(): ContactDraft {
   const categories = Array.from(document.querySelectorAll<HTMLInputElement>('[data-contact-category]:checked'))
     .map((input) => normalizeContactCategory(input.dataset.contactCategory))
     .filter((category): category is ContactCategory => Boolean(category));
+  const emails = Array.from(document.querySelectorAll<HTMLElement>('[data-contact-email-row]')).map((row) => ({
+    id: row.dataset.emailId || newContactEmailRow().id,
+    label: row.querySelector<HTMLInputElement>('[data-contact-email-label]')?.value.trim() ?? '',
+    value: row.querySelector<HTMLInputElement>('[data-contact-email-value]')?.value.trim() ?? '',
+    isDefault: Boolean(row.querySelector<HTMLInputElement>('[data-contact-email-default]')?.checked),
+  }));
+  const projectedEmail = (emails.find((entry) => entry.isDefault) ?? emails.find((entry) => entry.value.trim()))?.value.trim() ?? '';
 
   return {
     name: document.querySelector<HTMLInputElement>('#contactName')?.value.trim() ?? '',
     company: document.querySelector<HTMLInputElement>('#contactCompany')?.value.trim() ?? '',
-    email: document.querySelector<HTMLInputElement>('#contactEmail')?.value.trim() ?? '',
+    email: projectedEmail,
+    emails,
     phone: document.querySelector<HTMLInputElement>('#contactPhone')?.value.trim() ?? '',
     whatsapp: document.querySelector<HTMLInputElement>('#contactWhatsapp')?.value.trim() ?? '',
     messenger: document.querySelector<HTMLInputElement>('#contactMessenger')?.value.trim() ?? '',
@@ -5414,7 +5462,7 @@ function contactDraftHasCategory(category: ContactCategory) {
 }
 
 function contactDisplayNameForLanguage(contact: AgmContact, language: LanguageCode) {
-  return contact.name || contact.company || contact.email || contact.phone || contact.whatsapp || contact.messenger || t(language, 'contact.noName');
+  return contact.name || contact.company || primaryContactEmail(contact) || contact.phone || contact.whatsapp || contact.messenger || t(language, 'contact.noName');
 }
 
 function contactCategoryLabel(category: ContactCategory, language: LanguageCode) {

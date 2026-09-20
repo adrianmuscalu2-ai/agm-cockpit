@@ -7,11 +7,20 @@ export type ContactCategory =
   | 'favorites'
   | 'personal';
 
+export interface ContactEmailAddress {
+  id: string;
+  label: string;
+  value: string;
+  isDefault: boolean;
+}
+
 export interface AgmContact {
   id: string;
   name: string;
   company: string;
+  /** Compatibility projection of the default or first labelled address. */
   email: string;
+  emails: ContactEmailAddress[];
   phone: string;
   whatsapp: string;
   messenger: string;

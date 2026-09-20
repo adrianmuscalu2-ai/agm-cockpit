@@ -26,6 +26,13 @@ const approvedGuardian = () => ({
 describe('Premium Assistant Gmail capability', () => {
   afterEach(() => jest.restoreAllMocks());
 
+  it('preserves the requested count from the exact physical Samsung utterance', () => {
+    expect(classifyGmailIntent('Redă-mi te rog ultimele două emailuri.')).toMatchObject({
+      operation: 'LIST_RECENT',
+      maxMessages: 2,
+    });
+  });
+
   it.each([
     ['Ce e-mailuri am primit azi?', 'LIST_TODAY'],
     ['Citește ultimul mesaj de la Onlogist', 'LATEST_FROM'],

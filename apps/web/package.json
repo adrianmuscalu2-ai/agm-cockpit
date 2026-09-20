@@ -59,6 +59,8 @@
     "test:quick-contacts": "tsx scripts/test-quick-contacts.ts",
     "pretest:library:phase2a": "pnpm --filter @agm/library-control-plane build",
     "test:library:phase2a": "tsx scripts/test-library-phase2a-profile-contacts.ts",
+    "test:voice-action-confirmation": "tsx scripts/test-voice-action-confirmation.ts",
+    "test:contact-email-labels": "tsx scripts/test-contact-email-labels.ts",
     "test:turn-live-state": "tsx scripts/test-turn-live-state-reconciliation.ts",
     "test:turn-operational-truth": "tsx scripts/test-turn-operational-truth.ts",
     "test:turn-functional-overview": "tsx scripts/test-turn-functional-overview.ts",

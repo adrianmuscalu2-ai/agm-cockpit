@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createPremiumAssistantClient, PremiumAssistantClientError } from '../src/premium-voice-shell/premium-assistant.client';
+import { premiumAssistantFailureMessage } from '../src/premium-voice-shell/premium-assistant-failure';
 
 const request = { productId:'agm-cockpit' as const, moduleId:'required-document', language:'ro' as const, confirmedText:'Ce verific?', history:[] };
 let missingRefreshCalls = 0;
@@ -62,6 +63,33 @@ assert.deepEqual(renewalRequests.map(item=>item.url),[
 assert.equal(renewalRequests[0]?.authorization,'Bearer expired-token');
 assert.equal(renewalRequests[2]?.authorization,'Bearer renewed-token');
 assert.equal(renewalMemory.get('agm.auth.accessToken'),'renewed-token');
+
+const coldSessionMemory = new Map<string, string>();
+const coldSessionRequests: string[] = [];
+const coldSessionClient = createPremiumAssistantClient({
+  apiBaseUrl:'https://api.example/api/v1',
+  sessionStorage:{
+    getItem:key=>coldSessionMemory.get(key)??null,
+    setItem:(key,value)=>void coldSessionMemory.set(key,value),
+    removeItem:key=>void coldSessionMemory.delete(key),
+  },
+  fetch:(async (url) => {
+    coldSessionRequests.push(String(url));
+    if(String(url).endsWith('/auth/refresh')) return new Response(JSON.stringify({data:{accessToken:'cold-session-renewed-token'}}),{status:200});
+    return new Response(JSON.stringify({data:answer}),{status:200});
+  }) as typeof fetch,
+});
+await assert.doesNotReject(()=>coldSessionClient.respond(request));
+assert.deepEqual(coldSessionRequests,[
+  'https://api.example/api/v1/auth/refresh',
+  'https://api.example/api/v1/premium-assistant/respond',
+]);
+assert.equal(coldSessionMemory.get('agm.auth.accessToken'),'cold-session-renewed-token');
+
+assert.match(premiumAssistantFailureMessage('authentication-required','ro'),/Sesiunea AGM/);
+assert.match(premiumAssistantFailureMessage('authentication-required','ro'),/Datele personale nu au fost consultate/);
+assert.match(premiumAssistantFailureMessage('provider-unavailable','ro'),/resolverul autorizat/);
+assert.doesNotMatch(premiumAssistantFailureMessage('provider-unavailable','ro'),/nu poate răspunde momentan/i);
 
 const unsafe = createPremiumAssistantClient({ apiBaseUrl:'/api/v1', sessionStorage:{getItem:()=> 'token'}, fetch:(async()=>new Response(JSON.stringify({data:{...answer,externalEffectPerformed:true}}),{status:200})) as typeof fetch });
 await assert.rejects(() => unsafe.respond(request), (error) => error instanceof PremiumAssistantClientError && error.reason === 'invalid-response');

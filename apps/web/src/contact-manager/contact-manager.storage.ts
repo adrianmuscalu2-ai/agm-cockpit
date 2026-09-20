@@ -1,4 +1,5 @@
 import { normalizeContactCategory } from './contact-manager.categories';
+import { emptyContactEmailRows, normalizeContactEmails, primaryContactEmail } from './contact-email';
 import { validateContactDraft } from './contact-manager.validation';
 import { type AgmContact, type ContactDraft, type ContactStorage } from './contact-manager.types';
 
@@ -9,6 +10,7 @@ export function emptyContactDraft(): ContactDraft {
     name: '',
     company: '',
     email: '',
+    emails: emptyContactEmailRows(),
     phone: '',
     whatsapp: '',
     messenger: '',
@@ -63,11 +65,13 @@ function normalizeContact(contact: Partial<AgmContact>): AgmContact {
     ? contact.categories.map(normalizeContactCategory).filter((category): category is AgmContact['categories'][number] => Boolean(category))
     : [];
 
-  return {
+  const emails = normalizeContactEmails(contact.emails, String(contact.email || ''));
+  const normalized = {
     id: String(contact.id || cryptoSafeId()),
     name: String(contact.name || '').trim(),
     company: String(contact.company || '').trim(),
-    email: String(contact.email || '').trim(),
+    email: '',
+    emails,
     phone: String(contact.phone || '').trim(),
     whatsapp: String(contact.whatsapp || '').trim(),
     messenger: String(contact.messenger || '').trim(),
@@ -77,7 +81,9 @@ function normalizeContact(contact: Partial<AgmContact>): AgmContact {
     favorite: Boolean(contact.favorite || categories.includes('favorites')),
     createdAt: String(contact.createdAt || new Date().toISOString()),
     updatedAt: String(contact.updatedAt || new Date().toISOString()),
-  };
+  } satisfies AgmContact;
+  normalized.email = primaryContactEmail(normalized);
+  return normalized;
 }
 
 function cryptoSafeId() {

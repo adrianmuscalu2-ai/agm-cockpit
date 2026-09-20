@@ -2,6 +2,7 @@ import { validateContactDraft } from './contact-manager.validation';
 import { createContact, saveContacts, updateContact } from './contact-manager.storage';
 import { type AgmContact, type ContactDraft, type ContactValidationResult } from './contact-manager.types';
 import { validatePersonalContactCollection } from './personal-contact';
+import { normalizeContactEmails } from './contact-email';
 
 export function addContact(contacts: AgmContact[], draft: ContactDraft): { contacts: AgmContact[]; result: ContactValidationResult } {
   const result = validateContact(contacts, draft);
@@ -45,7 +46,7 @@ export function searchContacts(contacts: AgmContact[], query: string): AgmContac
   }
 
   return contacts.filter((contact) =>
-    [contact.name, contact.company, contact.email, contact.phone, contact.whatsapp, contact.messenger, contact.address, contact.notes]
+    [contact.name, contact.company, ...normalizeContactEmails(contact.emails, contact.email).flatMap((entry) => [entry.label, entry.value]), contact.phone, contact.whatsapp, contact.messenger, contact.address, contact.notes]
       .join(' ')
       .toLocaleLowerCase()
       .includes(normalizedQuery),

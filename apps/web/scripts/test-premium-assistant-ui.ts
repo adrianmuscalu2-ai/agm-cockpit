@@ -31,7 +31,7 @@ assert.doesNotMatch(css,/premium-assistant-sources|data-assistant-sources/, 'Use
 const runtime=readFileSync(new URL('../src/premium-voice-shell/premium-assistant.runtime.ts',import.meta.url),'utf8');
 assert.match(runtime,/agm\.premium\.assistant\.history\.v1/);
 assert.match(runtime,/while\(history\.length>20\)history\.shift\(\)/);
-assert.match(runtime,/history:history\.slice\(-4\)/, 'Premium request context must stay bounded for mobile latency');
+assert.match(runtime,/history:history\.slice\(-20\)/, 'Premium request context must stay bounded while preserving the Phase 2B history resolver window');
 assert.match(runtime,/sessionStorage\.setItem/);
 assert.match(runtime,/async function interruptAndListen\(\)\{const lease=await preemptCurrentTurn\('microphone-restart'\);if\(!isLeaseCurrent\(lease\)\)return;void conversationLoop\(lease\.token\);\}/);
 assert.match(runtime,/\['LISTENING','SPEECH_DETECTED','TRANSCRIBING','UNDERSTANDING','PREPARING','SPEAKING'\]\.includes\(session\.state\(\)\)/);

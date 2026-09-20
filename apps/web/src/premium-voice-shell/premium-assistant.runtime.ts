@@ -19,6 +19,16 @@ import { routeRetrievedAndroidAction } from '../android-action-layer/android-act
 import { detectMessageLanguage } from '../emailLanguage';
 import { personalContactVoiceMessage } from '../contact-manager/personal-contact-voice.i18n';
 import { resolveProfilePersonalContactThroughAuthority } from '../library-control-plane/profile-personal-contacts.resolver';
+import { requestedContactEmailLabel } from '../contact-manager/contact-email';
+import { confirmationFor } from '../android-action-layer/confirmation-policy';
+import { premiumAssistantFailureMessage } from './premium-assistant-failure';
+import {
+ VoiceActionConfirmationGate,
+ voiceActionCancelledMessage,
+ voiceActionConfirmationPrompt,
+ voiceActionExecutionAnnouncement,
+ voiceActionRepeatPrompt,
+} from './voice-action-confirmation';
 
 type Recognition = { lang:string;interimResults:boolean;continuous:boolean;onresult:((event:any)=>void)|null;onerror:((event:any)=>void)|null;onend:(()=>void)|null;onspeechstart?:(()=>void)|null;onspeechend?:(()=>void)|null;start():void;stop():void;abort?():void };
 type RecognitionConstructor = new()=>Recognition;
@@ -57,7 +67,7 @@ export function bindPremiumAssistantRuntime(){
  const latency=root.querySelector<HTMLElement>('[data-assistant-latency]');const settings=root.querySelector<HTMLButtonElement>('[data-assistant-open-settings]');
  const retry=root.querySelector<HTMLButtonElement>('[data-assistant-retry]');let retryText='';
  const historyPanel=root.querySelector<HTMLElement>('[data-assistant-history-panel]')!;const historyList=root.querySelector<HTMLOListElement>('[data-assistant-history]')!;
- const actionPanel=root.querySelector<HTMLElement>('[data-assistant-action-panel]');const actionSummary=root.querySelector<HTMLElement>('[data-assistant-action-summary]');let pendingAction:PremiumConversationActionProposal|undefined;let pendingAndroidAction:{text:string;resolution:AndroidActionResolution}|undefined;
+ const actionPanel=root.querySelector<HTMLElement>('[data-assistant-action-panel]');const actionSummary=root.querySelector<HTMLElement>('[data-assistant-action-summary]');let pendingAction:PremiumConversationActionProposal|undefined;let pendingEmailAction:AndroidActionResolution|undefined;const androidConfirmation=new VoiceActionConfirmationGate<{text:string;resolution:AndroidActionResolution}>();
  if(actionSummary)actionSummary.style.whiteSpace='pre-line';
  const env=(import.meta as ImportMeta&{env?:Record<string,string|boolean|undefined>}).env;const configured=typeof env?.VITE_AGM_API_BASE_URL==='string'?env.VITE_AGM_API_BASE_URL.trim():'';const apiBase=configured||(env?.DEV===true?'/api/v1':'');
  const client=createPremiumAssistantClient({apiBaseUrl:apiBase,fetch:window.fetch.bind(window),sessionStorage});const history=loadHistory();let answerText='';let activeRequest:AbortController|undefined;let requestSequence=0;let recognition:Recognition|undefined;let cancelRecognitionPromise:(()=>void)|undefined;let activeTurnId:string|undefined;let activeBrowserSpeech:{turnId:string;resolve:()=>void}|undefined;let lastAudioStopReceipt:RuntimeAudioStopReceipt|undefined;let disposed=false;const staleTurnEvents=new Set<string>();const nativeListenerHandles:Array<{remove:()=>Promise<void>}>=[];
@@ -68,7 +78,7 @@ export function bindPremiumAssistantRuntime(){
  const onlineHandler=()=>{if(session.state()==='OFF'||session.state()==='STANDBY')status.textContent=connectionText(language,true);};
  const handoffHandler=()=>void turnOff();
  disposeActivePremiumAssistantRuntime=()=>{
-  if(disposed)return;disposed=true;session.off();requestSequence+=1;activeRequest?.abort();activeRequest=undefined;activeTurnId=undefined;
+  if(disposed)return;disposed=true;androidConfirmation.clear();pendingEmailAction=undefined;session.off();requestSequence+=1;activeRequest?.abort();activeRequest=undefined;activeTurnId=undefined;
   delete runtimeRoot.dataset.activeVoiceTurn;
   disposeDeviceAssistantHandoff();
   window.removeEventListener('agm-android-assistant-handoff',handoffHandler);window.removeEventListener('offline',offlineHandler);window.removeEventListener('online',onlineHandler);
@@ -117,7 +127,7 @@ export function bindPremiumAssistantRuntime(){
   const cancellation=await enqueueVoiceCancellation(async()=>{
    const results=await Promise.allSettled([stopCapture(),stopSpeaking()]);const audio=results[1].status==='fulfilled'?results[1].value:undefined;if(audio)lastAudioStopReceipt=audio;return audio;
   });
-   if(isLeaseCurrent({token,sequence})){pendingAction=undefined;pendingAndroidAction=undefined;if(actionPanel)actionPanel.hidden=true;retryText='';if(retry)retry.hidden=true;answerText='';response.textContent='';panel.hidden=true;}
+   if(isLeaseCurrent({token,sequence})){pendingAction=undefined;if(!androidConfirmation.hasPending()&&actionPanel)actionPanel.hidden=true;retryText='';if(retry)retry.hidden=true;answerText='';response.textContent='';panel.hidden=true;}
   const completedAt=performance.now();persistTelemetry({kind:'interrupt',reason,interruptedState,cancelledTurnId,sequence,cancelLatencyMs:Math.round(completedAt-startedAt),newTurnToOldAudioStopMs:Math.max(0,Math.round((cancellation?.stoppedAtMs??completedAt)-startedAt)),audioQueueFlushed:cancellation?.queueFlushed??true,at:Date.now()});
   return{token,sequence};
  }
@@ -143,7 +153,7 @@ export function bindPremiumAssistantRuntime(){
   if(settings)settings.hidden=true;
   const token=session.on();toggle.setAttribute('aria-pressed','true');void conversationLoop(token);
  }
- async function turnOff(){session.off();toggle.setAttribute('aria-pressed','false');requestSequence+=1;activeRequest?.abort();activeRequest=undefined;activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;await enqueueVoiceCancellation(async()=>{const results=await Promise.allSettled([stopCapture(),stopSpeaking()]);if(results[1].status==='fulfilled')lastAudioStopReceipt=results[1].value;});}
+ async function turnOff(){androidConfirmation.clear();pendingEmailAction=undefined;pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;session.off();toggle.setAttribute('aria-pressed','false');requestSequence+=1;activeRequest?.abort();activeRequest=undefined;activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;await enqueueVoiceCancellation(async()=>{const results=await Promise.allSettled([stopCapture(),stopSpeaking()]);if(results[1].status==='fulfilled')lastAudioStopReceipt=results[1].value;});}
  async function conversationLoop(token:number){
   while(!disposed&&session.isCurrent(token)){
    try{
@@ -180,8 +190,30 @@ export function bindPremiumAssistantRuntime(){
   });
  }
  async function stopCapture(){const current=recognition;const cancel=cancelRecognitionPromise;recognition=undefined;cancelRecognitionPromise=undefined;cancel?.();try{if(isNativeAudioAvailable())await NativeAudio.stopListening();else if(current?.abort)current.abort();else current?.stop();}catch{}}
- async function processTranscript(confirmedText:string):Promise<boolean>{
-   if(!confirmedText){status.textContent=m.emptyTranscript;return false;}
+  async function processTranscript(confirmedText:string):Promise<boolean>{
+    if(!confirmedText){status.textContent=m.emptyTranscript;return false;}
+    if(pendingEmailAction){
+     const labels=pendingEmailAction.payload?.availableEmailLabels??[];const selectedLabel=requestedContactEmailLabel(confirmedText,labels);
+     if(!selectedLabel){const repeat=driverActionMessage('CLARIFICATION_REQUIRED','AGM_PERSONAL_CONTACT_EMAIL_AMBIGUOUS',language,pendingEmailAction);recordConversation(confirmedText,repeat);await speakRuntimeMessage(repeat,'contact-email-choice-repeat');return true;}
+     const prepared:AndroidActionResolution={...pendingEmailAction,status:'RESOLVED',reason:'AGM_PERSONAL_CONTACT_EMAIL_CHOICE_PROVIDED',source:'REQUEST',confirmation:confirmationFor('EMAIL_DRAFT'),payload:{...pendingEmailAction.payload,requestedEmailLabel:selectedLabel}};pendingEmailAction=undefined;
+     const contactName=prepared.payload?.contactName??'';const announcement=language==='ro'?`Folosesc adresa ${selectedLabel} pentru ${contactName}. Deschid mesajul e-mail.`:language==='de'?`Ich verwende die Adresse ${selectedLabel} für ${contactName}. Ich öffne den E-Mail-Entwurf.`:`Using the ${selectedLabel} address for ${contactName}. Opening the email draft.`;
+     recordConversation(confirmedText,announcement);const announced=await speakRuntimeMessage(announcement,'contact-email-choice-accepted');if(!announced)return true;
+     const result=await executeAndroidAction(confirmedText,prepared);const message=driverActionMessage(result.result,result.fallback??'',language,result.resolution);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return true;
+    }
+    const confirmation=androidConfirmation.respond(confirmedText,language);
+    if(confirmation.status!=='NO_PENDING'){
+     if(confirmation.status==='REPEAT'){
+      const message=voiceActionRepeatPrompt(confirmation.pending.resolution,language);recordConversation(confirmedText,message);await speakRuntimeMessage(message,'voice-confirmation-repeat');return true;
+     }
+     if(actionPanel)actionPanel.hidden=true;
+     if(confirmation.status==='REJECTED'){
+      const message=voiceActionCancelledMessage(language);recordConversation(confirmedText,message);await speakRuntimeMessage(message,'voice-confirmation-rejected');return true;
+     }
+     const announcement=voiceActionExecutionAnnouncement(confirmation.pending.resolution,language);recordConversation(confirmedText,announcement);
+     const announced=await speakRuntimeMessage(announcement,'voice-confirmation-accepted');
+     if(!announced){status.textContent=m.playbackError;return true;}
+     const result=await executeAndroidAction(confirmation.pending.text,confirmation.pending.resolution,{agmConfirmed:true});const message=driverActionMessage(result.result,result.fallback??'',language,result.resolution);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return true;
+    }
    const contactLibrary=await resolveProfilePersonalContactThroughAuthority({text:confirmedVoiceText(confirmedText),language,storage:localStorage,surface:isNativeAudioAvailable()?'ANDROID':'BROWSER',domain:'PREMIUM'});
    const contactCommand=contactLibrary.command;
    if(!contactCommand.handled&&contactLibrary.package.status!=='VERIFIED_NO_DATA'){
@@ -200,13 +232,13 @@ export function bindPremiumAssistantRuntime(){
     const resolution=driverCommand.resolution;
     void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'INTENT_ROUTER',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.driver-voice-mode',reason:'Classify driver command',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`route:${resolution.status}:${resolution.action??'NONE'}:${resolution.reason}`});
     void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'DRIVER_VOICE_MODE',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.driver-voice-mode',reason:'Resolve short voice command against active context',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`driver:${resolution.source}:${resolution.status}`});
-    if(resolution.status!=='RESOLVED'||!resolution.action){const key=resolution.status==='UNSUPPORTED'?'UNSUPPORTED':'CLARIFICATION_REQUIRED';const message=driverActionMessage(key,resolution.reason,language,resolution);response.textContent=message;panel.hidden=false;status.textContent=message;return true;}
+    if(resolution.status!=='RESOLVED'||!resolution.action){const key=resolution.status==='UNSUPPORTED'?'UNSUPPORTED':'CLARIFICATION_REQUIRED';const message=driverActionMessage(key,resolution.reason,language,resolution);response.textContent=message;panel.hidden=false;status.textContent=message;if(resolution.reason==='AGM_PERSONAL_CONTACT_EMAIL_AMBIGUOUS'){pendingEmailAction=resolution;recordConversation(confirmedText,message);await speakRuntimeMessage(message,'contact-email-choice-request');}return true;}
     if(resolution.action==='READ_CONTEXT'){
      const text=resolution.payload?.contextText??'';if(!text){status.textContent=driverActionMessage('CLARIFICATION_REQUIRED',resolution.reason,language);return true;}
      answerText=text;response.textContent=text;panel.hidden=false;const sequence=++requestSequence;const turnId=`driver-read:${sequence}:${Date.now()}`;activeTurnId=turnId;session.transition('PREPARING');session.markTtsRequest();await speak(text,sequence,turnId);activeTurnId=undefined;return true;
     }
     const result=await executeAndroidAction(confirmedText,resolution);
-    if(result.result==='CONFIRMATION_REQUIRED'){pendingAndroidAction={text:confirmedText,resolution:result.resolution};if(actionSummary)actionSummary.textContent=driverDialConfirmationSummary(result.resolution,language);if(actionPanel)actionPanel.hidden=false;response.textContent=actionSummary?.textContent??'';panel.hidden=false;return true;}
+     if(result.result==='CONFIRMATION_REQUIRED'){androidConfirmation.prepare({text:confirmedText,resolution:result.resolution});const summary=driverDialConfirmationSummary(result.resolution,language);const prompt=voiceActionConfirmationPrompt(result.resolution,language);if(actionSummary)actionSummary.textContent=`${summary}\n${prompt}`;if(actionPanel)actionPanel.hidden=false;recordConversation(confirmedText,prompt);await speakRuntimeMessage(prompt,'voice-confirmation-request');response.textContent=`${summary}\n${prompt}`;panel.hidden=false;status.textContent=prompt;return true;}
     const message=driverActionMessage(result.result,result.fallback??'',language,result.resolution);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return true;
    }
    if(await handleSpokenAndroidAssistantCommand(confirmedText,language,status))return true;
@@ -225,15 +257,17 @@ export function bindPremiumAssistantRuntime(){
    if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'model-response');return false;}session.markEngineResponse(result.timing);
      const groundedText=enforceVerifiedContactBoundary(confirmedText,result.text,language,{trustedToolResponse:result.toolTrace?.tool==='gmail-inbox'});let retrievedAction:AndroidActionResolution|null=null;if(result.actionContext){const activeContext=rememberDriverContext(result.actionContext,groundedText);retrievedAction=routeRetrievedAndroidAction(confirmedText,activeContext);void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'GMAIL_READONLY',requestedPermissionOrScope:'https://www.googleapis.com/auth/gmail.readonly',requestor:'agm.premium-assistant.gmail',reason:'Record authenticated Gmail retrieval used for driver context',risk:'MEDIUM',currentAuthority:result.toolTrace?.status==='SUCCESS'?'AUTHORIZED':'UNAVAILABLE',evidence:`gmail:${result.toolTrace?.status??'NONE'}:${result.sourceTrace.traceId}`});void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'GMAIL_AUTHORIZATION_PROTOCOL',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.premium-assistant.gmail',reason:'Record current Gmail authorization provider state',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`provider-snapshot:${result.toolTrace?.status??'NONE'}:${result.toolTrace?.errorCode??'NONE'}:${result.sourceTrace.traceId}`});}history.push(historyTurn('user',confirmedText),historyTurn('assistant',groundedText));while(history.length>20)history.shift();saveHistory(history);renderHistory();answerText=groundedText;response.textContent=groundedText;panel.hidden=false;
     session.transition('PREPARING');session.markTtsRequest();renderLatency(session.snapshot());const spoken=await speak(groundedText,sequence,turnId);if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'tts-completion');return false;}if(retrievedAction){void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'INTENT_ROUTER',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.gmail-action-router',reason:'Resolve requested Gmail follow-up action',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`gmail-route:${retrievedAction.status}:${retrievedAction.action??'NONE'}:${retrievedAction.reason}`});if(retrievedAction.status==='RESOLVED'){const actionResult=await executeAndroidAction(confirmedText,retrievedAction);status.textContent=driverActionMessage(actionResult.result,actionResult.fallback??'',language);if(actionResult.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));}else{status.textContent=driverActionMessage('CLARIFICATION_REQUIRED',retrievedAction.reason,language);}}activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;return spoken;
-  }catch(error){if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'model-error');return false;}if(controller.signal.aborted&&!timedOut)return false;session.transition('ERROR');retryText=confirmedText;if(retry){retry.textContent=retryLabel(language);retry.hidden=false;}status.textContent=timedOut?timeoutText(language):error instanceof PremiumAssistantClientError&&error.reason==='network'?m.networkError:m.aiError;return false;}finally{window.clearTimeout(timeout);if(activeRequest===controller)activeRequest=undefined;if(sequence===requestSequence&&session.state()==='ERROR'){activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;}}
+  }catch(error){if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'model-error');return false;}if(controller.signal.aborted&&!timedOut)return false;retryText=confirmedText;if(retry){retry.textContent=retryLabel(language);retry.hidden=false;}const failureText=timedOut?timeoutText(language):error instanceof PremiumAssistantClientError?premiumAssistantFailureMessage(error.reason,language):m.aiError;response.textContent=failureText;panel.hidden=false;status.textContent=failureText;session.transition('PREPARING');session.markTtsRequest();await speak(failureText,sequence,turnId);if(sequence===requestSequence&&!disposed){session.transition('ERROR');activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;}return false;}finally{window.clearTimeout(timeout);if(activeRequest===controller)activeRequest=undefined;if(sequence===requestSequence&&session.state()==='ERROR'){activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;}}
  }
   async function confirmPendingAction(){
-   if(pendingAndroidAction){const prepared=pendingAndroidAction;pendingAndroidAction=undefined;if(actionPanel)actionPanel.hidden=true;const result=await executeAndroidAction(prepared.text,prepared.resolution,{agmConfirmed:true});const message=driverActionMessage(result.result,result.fallback??'',language,result.resolution);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return;}
+    const prepared=androidConfirmation.consume();if(prepared){if(actionPanel)actionPanel.hidden=true;const result=await executeAndroidAction(prepared.text,prepared.resolution,{agmConfirmed:true});const message=driverActionMessage(result.result,result.fallback??'',language,result.resolution);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return;}
   if(!pendingAction)return;
   if(!isPremiumNavigationAllowed('carMover')){pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;response.textContent='Accesul Car Mover nu este acordat. Deschid fluxul de acces.';panel.hidden=false;window.history.pushState({},'', '/access');window.dispatchEvent(new PopStateEvent('popstate'));return;}
   pendingAction=undefined;if(actionPanel)actionPanel.hidden=true;window.history.pushState({},'', '/car-mover');window.dispatchEvent(new PopStateEvent('popstate'));
  }
-  function rejectPendingAction(){pendingAction=undefined;pendingAndroidAction=undefined;if(actionPanel)actionPanel.hidden=true;response.textContent=premiumConversationMessages[language].actionRejected;panel.hidden=false;}
+   function rejectPendingAction(){pendingAction=undefined;androidConfirmation.clear();if(actionPanel)actionPanel.hidden=true;response.textContent=premiumConversationMessages[language].actionRejected;panel.hidden=false;}
+  function recordConversation(userText:string,assistantText:string){history.push(historyTurn('user',userText),historyTurn('assistant',assistantText));while(history.length>20)history.shift();saveHistory(history);renderHistory();answerText=assistantText;}
+  async function speakRuntimeMessage(message:string,prefix:string){answerText=message;response.textContent=message;panel.hidden=false;status.textContent=message;const sequence=++requestSequence;const turnId=`${prefix}:${sequence}:${Date.now()}`;activeTurnId=turnId;runtimeRoot.dataset.activeVoiceTurn=turnId;session.transition('PREPARING');session.markTtsRequest();const spoken=await speak(message,sequence,turnId);if(sequence===requestSequence&&!disposed){activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;}return spoken;}
  async function replayAnswer(){if(!answerText)return;const text=answerText;const lease=await preemptCurrentTurn('replay');if(!isLeaseCurrent(lease))return;session.beginCycle();session.markTranscript({manualReplayMs:0});const sequence=++requestSequence;const turnId=`replay:${sequence}:${Date.now()}`;activeTurnId=turnId;runtimeRoot.dataset.activeVoiceTurn=turnId;session.transition('PREPARING');session.markTtsRequest();await speak(text,sequence,turnId);if(sequence!==requestSequence||!session.isGenerationCurrent(lease.token))return;activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;session.settle();if(session.isEnabled())void conversationLoop(lease.token);}
  async function cancelPlaybackOnly(){const lease=await preemptCurrentTurn('playback-stop');if(isLeaseCurrent(lease))session.settle();}
  async function speak(text:string,sequence:number,turnId:string){if(!text)return false;const speechLanguage=detectMessageLanguage(text,language);const speechLocale=basicLanguageRegistry[speechLanguage].speechLocale;const speechText=normalizeSpeechText(text,speechLanguage);try{if(isNativeAudioAvailable()){await NativeAudio.speak({text:speechText,language:speechLocale,turnId});return sequence===requestSequence&&!disposed;}if(!window.speechSynthesis)throw new Error();await new Promise<void>((resolve,reject)=>{let settled=false;const finish=()=>{if(settled)return;settled=true;if(activeBrowserSpeech?.turnId===turnId)activeBrowserSpeech=undefined;resolve();};window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(speechText);utterance.lang=speechLocale;utterance.onstart=()=>{if(sequence!==requestSequence||turnId!==activeTurnId){recordStaleEvent(turnId,'tts-start');finish();return;}markAudioStarted(turnId);};utterance.onend=()=>{if(sequence!==requestSequence)recordStaleEvent(turnId,'tts-end');finish();};utterance.onerror=()=>{if(sequence!==requestSequence){recordStaleEvent(turnId,'tts-error');finish();return;}reject(new Error('playback'));};activeBrowserSpeech={turnId,resolve:finish};window.speechSynthesis.speak(utterance);});return sequence===requestSequence&&!disposed;}catch{if(sequence===requestSequence&&!disposed)status.textContent=m.playbackError;return false;}}

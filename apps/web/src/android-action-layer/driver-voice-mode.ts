@@ -15,6 +15,19 @@ export function resolveDriverVoiceCommand(text: string) {
 
 export function driverActionMessage(result: string, reason: string, language: string, resolution?: AndroidActionResolution) {
   const contactName = resolution?.payload?.contactName?.trim();
+  if (result === 'CLARIFICATION_REQUIRED' && reason === 'AGM_PERSONAL_CONTACT_EMAIL_AMBIGUOUS' && contactName) {
+    const labels = (resolution?.payload?.availableEmailLabels?.length ? resolution.payload.availableEmailLabels : ['personal', 'work'])
+      .map((label) => localizedEmailLabel(label, language));
+    const choices = language === 'ro' && labels.length === 2 ? labels.join(' sau ') : labels.join(', ');
+    if (language === 'ro') return `Am găsit mai multe adrese pentru ${contactName}. Pe adresa ${choices}?`;
+    if (language === 'de') return `Ich habe mehrere Adressen für ${contactName} gefunden. Welche soll ich verwenden: ${choices}?`;
+    return `I found multiple addresses for ${contactName}. Which should I use: ${choices}?`;
+  }
+  if (result === 'CLARIFICATION_REQUIRED' && reason === 'AGM_PERSONAL_CONTACT_EMAIL_LABEL_NOT_FOUND' && contactName) {
+    if (language === 'ro') return `${contactName} nu are adresa de e-mail cerută. Spune una dintre etichetele disponibile.`;
+    if (language === 'de') return `${contactName} hat die gewünschte E-Mail-Adresse nicht. Nennen Sie eines der verfügbaren Labels.`;
+    return `${contactName} does not have the requested email address. Say one of the available labels.`;
+  }
   if (result === 'CLARIFICATION_REQUIRED' && (reason === 'AGM_PERSONAL_CONTACT_AMBIGUOUS' || reason === 'QUICK_CONTACT_AMBIGUOUS') && contactName) {
     if (resolution?.action === 'EMAIL_DRAFT') {
       if (language === 'ro') return `Am găsit mai multe persoane cu numele ${contactName}. Căreia vrei să îi pregătesc mesajul Gmail?`;
@@ -44,6 +57,13 @@ export function driverActionMessage(result: string, reason: string, language: st
     en: { OPENED:'The action is prepared in the Android app. Review and confirm the final step there.',CONFIRMATION_REQUIRED:'The action is ready. Confirm before the information is transferred.',AUTH_PERMISSION_FAILURE:'AUTH / PERMISSION FAILURE: Guardian did not prove authority for this action.',UNAVAILABLE:'The required Android app is unavailable. No action was performed.',UNSUPPORTED:'Android Action Layer does not support this action.',CLARIFICATION_REQUIRED:reason === 'CONTACT_AMBIGUOUS' ? 'I found multiple contacts with that name. Say the full name.' : reason === 'CONTACT_NOT_FOUND' ? 'I could not find that contact. Say the full name or phone number.' : 'I need the missing information before preparing the action.' },
   };
   return (values[language] ?? values.en!)[result] ?? (values[language] ?? values.en!).UNAVAILABLE ?? reason;
+}
+
+function localizedEmailLabel(label: string, language: string) {
+  const key = label.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
+  if (language === 'ro') return key === 'personal' ? 'personală' : key === 'work' ? 'de serviciu' : label;
+  if (language === 'de') return key === 'personal' ? 'privat' : key === 'work' ? 'geschäftlich' : label;
+  return key === 'personal' ? 'personal' : key === 'work' ? 'work' : label;
 }
 
 export function driverDialConfirmationSummary(resolution: AndroidActionResolution, language: string) {

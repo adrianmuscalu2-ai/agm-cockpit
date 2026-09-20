@@ -847,6 +847,35 @@ dd {
   margin: 0;
 }
 
+.contact-email-group {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #243547;
+  border-radius: 8px;
+}
+
+.contact-email-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.7fr) minmax(180px, 1.3fr) auto auto;
+  gap: 10px;
+  align-items: end;
+  padding: 10px;
+  border: 1px solid rgba(104, 211, 255, 0.22);
+  border-radius: 8px;
+}
+
+.contact-email-default {
+  align-self: center;
+}
+
+@media (max-width: 720px) {
+  .contact-email-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+}
+
 .contact-categories {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
