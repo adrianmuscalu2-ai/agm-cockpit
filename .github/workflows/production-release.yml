@@ -346,6 +346,7 @@ jobs:
       - name: Publish versioned Web candidate linguistic heartbeats
         env:
           AGM_LINGUISTIC_RELEASE_URL: https://app.agmcockpit.com/turn
+          AGM_LINGUISTIC_RELEASE_API_URL: https://api.agmcockpit.com/api/v1
           AGM_TURN_ADMIN_PIN: ${{ secrets.PRODUCTION_TURN_ADMIN_PIN }}
           AGM_EXPECTED_REVISION: ${{ github.sha }}
           AGM_LINGUISTIC_RELEASE_EVIDENCE: evidence/agent-accountability/production/linguistic-heartbeat-publication.json

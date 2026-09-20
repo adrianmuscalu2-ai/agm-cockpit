@@ -18,9 +18,17 @@ const agentIds = [
 ];
 
 export async function publishProductionLinguisticHeartbeats(options) {
-  const { target, pin, evidencePath, expectedRevision = '', configurePage } = options;
+  const {
+    target,
+    pin,
+    evidencePath,
+    expectedRevision = '',
+    configurePage,
+    apiBaseUrl,
+  } = options;
   if (!target) throw new Error('AGM_LINGUISTIC_RELEASE_URL_REQUIRED');
   if (!pin?.trim()) throw new Error('AGM_TURN_ADMIN_PIN_REQUIRED');
+  const turnAdminApiBaseUrl = normalizeApiBaseUrl(apiBaseUrl ?? new URL('/api/v1', target).href);
 
   const report = {
     contract: 'agm-linguistic-release-heartbeat-publication.v1',
@@ -66,15 +74,15 @@ export async function publishProductionLinguisticHeartbeats(options) {
 
     const navigation = await page.goto(target, { waitUntil: 'domcontentloaded' });
     if (!navigation?.ok()) throw new Error(`WEB_CANDIDATE_NAVIGATION_HTTP_${navigation?.status() ?? 0}`);
-    const unlock = await page.evaluate(async (ownerPin) => {
-      const response = await fetch('/api/v1/turn-admin/unlock', {
+    const unlock = await page.evaluate(async ({ ownerPin, turnAdminApiBaseUrl: runtimeApiBaseUrl }) => {
+      const response = await fetch(`${runtimeApiBaseUrl}/turn-admin/unlock`, {
         method: 'POST',
         credentials: 'include',
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin: ownerPin }),
       });
       return { status: response.status, body: await response.json().catch(() => null) };
-    }, pin);
+    }, { ownerPin: pin, turnAdminApiBaseUrl });
     if (unlock.status !== 200 && unlock.status !== 201) throw new Error(`TURN_ADMIN_UNLOCK_HTTP_${unlock.status}`);
     session = unlock.body?.data;
     if (!session?.accessToken || !Number.isFinite(session.expiresInSeconds)) throw new Error('TURN_ADMIN_SESSION_INVALID');
@@ -112,13 +120,13 @@ export async function publishProductionLinguisticHeartbeats(options) {
     throw error;
   } finally {
     if (page && session?.accessToken) {
-      await page.evaluate(async (accessToken) => {
-        await fetch('/api/v1/turn-admin/logout', {
+      await page.evaluate(async ({ accessToken, turnAdminApiBaseUrl: runtimeApiBaseUrl }) => {
+        await fetch(`${runtimeApiBaseUrl}/turn-admin/logout`, {
           method: 'POST',
           credentials: 'include',
           headers: { Authorization: `Bearer ${accessToken}` },
         }).catch(() => undefined);
-      }, session.accessToken).catch(() => undefined);
+      }, { accessToken: session.accessToken, turnAdminApiBaseUrl }).catch(() => undefined);
     }
     await context?.close();
     await browser?.close();
@@ -150,6 +158,7 @@ async function runCli() {
     pin: process.env.AGM_TURN_ADMIN_PIN,
     evidencePath,
     expectedRevision: process.env.AGM_EXPECTED_REVISION ?? '',
+    apiBaseUrl: process.env.AGM_LINGUISTIC_RELEASE_API_URL,
   });
   console.log(JSON.stringify({
     status: report.status,
@@ -157,4 +166,10 @@ async function runCli() {
     agents: report.agents.map(({ agentId, httpStatus, accepted }) => ({ agentId, httpStatus, accepted })),
     evidencePath,
   }));
+}
+
+function normalizeApiBaseUrl(value) {
+  const normalized = value?.trim().replace(/\/$/, '');
+  if (!normalized) throw new Error('AGM_LINGUISTIC_RELEASE_API_URL_REQUIRED');
+  return normalized;
 }
