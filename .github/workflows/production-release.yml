@@ -412,6 +412,14 @@ jobs:
           AGM_EXPECTED_REVISION: ${{ github.sha }}
           AGM_LINGUISTIC_RELEASE_EVIDENCE: evidence/agent-accountability/production/linguistic-heartbeat-publication.json
         run: node scripts/publish-production-linguistic-heartbeats-browser.mjs
+      - name: Upload candidate linguistic heartbeat diagnostic evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: linguistic-heartbeat-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/agent-accountability/production/linguistic-heartbeat-publication.json
+          if-no-files-found: error
+          retention-days: 14
       - name: Verify TURN operational truth after linguistic heartbeats
         shell: bash
         run: |
