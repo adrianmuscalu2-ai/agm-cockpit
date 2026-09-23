@@ -8,6 +8,9 @@ import { createHash } from 'node:crypto';
 import { deterministicOperationalLinguistAudit, createPublicationEvidence } from '../../../scripts/operational-linguists-v1-publisher';
 import { assessOperationalLinguistV1QualityCandidate, operationalLinguistV1QualityCategories, operationalLinguistV1QualityFixtures } from '../src/premium-linguistic-agents/operational-linguist-v1.quality-fixtures';
 import { premiumLinguisticAgents } from '../src/premium-linguistic-agents/premium-linguistic-agents.registry';
+import { TurnAdminSessionError, turnAdminAuthenticatedFetch } from '../src/admin-auth';
+import { observeOperationalLinguistV1 } from '../src/premium-linguistic-agents/operational-linguist-v1.observer';
+import { recordRuntimeOperationSnapshot } from '../src/operations-health';
 
 const first = deterministicOperationalLinguistAudit();
 const second = deterministicOperationalLinguistAudit();
@@ -44,6 +47,31 @@ for (const language of protectedOriginalNine) {
     id: `premium-linguist-${language}`, enabled: false, status: 'preparing', capabilities: [],
   });
 }
+
+const observedSnapshots: Parameters<typeof recordRuntimeOperationSnapshot>[] = [];
+const successfulFetcher = (async () => new Response(JSON.stringify({
+  data: { components: [{ componentId: 'premium-linguist-it', operationalState: 'ONLINE', current: true, observedAt: '2026-09-23T12:00:00.000Z' }] },
+}), { status: 200, headers: { 'Content-Type': 'application/json' } })) as typeof turnAdminAuthenticatedFetch;
+await observeOperationalLinguistV1(successfulFetcher, (...args) => { observedSnapshots.push(args); });
+assert.deepEqual(observedSnapshots, [[
+  'premium-linguist-it',
+  'ONLINE',
+  'V1_CANONICAL_STATE_OBSERVED',
+  'API persisted V1 state observed at 2026-09-23T12:00:00.000Z',
+]]);
+
+const expiredSessionFetcher = (async () => {
+  throw new TurnAdminSessionError('expired-or-revoked', 401);
+}) as typeof turnAdminAuthenticatedFetch;
+await assert.doesNotReject(() => observeOperationalLinguistV1(expiredSessionFetcher, () => undefined));
+
+const unexpectedFailureFetcher = (async () => {
+  throw new Error('UNEXPECTED_OBSERVER_FAILURE');
+}) as typeof turnAdminAuthenticatedFetch;
+await assert.rejects(
+  () => observeOperationalLinguistV1(unexpectedFailureFetcher, () => undefined),
+  /UNEXPECTED_OBSERVER_FAILURE/,
+);
 
 console.log(JSON.stringify({
   status: 'PASS',

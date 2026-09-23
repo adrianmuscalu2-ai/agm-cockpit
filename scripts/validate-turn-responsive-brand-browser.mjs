@@ -19,6 +19,7 @@ let target = process.env.AGM_TURN_RESPONSIVE_URL;
 let snapshot = null;
 let server;
 let browser;
+let browserContext;
 const checks = [];
 const pageErrors = [];
 
@@ -113,7 +114,8 @@ try {
   await startTarget();
   check('target-http-200', (await fetch(target)).status === 200, { target });
   browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage({ viewport: viewports[0], locale: 'ro-RO' });
+  browserContext = await browser.newContext({ viewport: viewports[0], locale: 'ro-RO', serviceWorkers: 'block' });
+  const page = await browserContext.newPage();
   page.on('pageerror', (error) => pageErrors.push(error.stack ?? String(error)));
   await page.addInitScript(() => {
     sessionStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: 'controlled-responsive-token', expiresInSeconds: 600 }));
@@ -176,6 +178,7 @@ try {
   await page.screenshot({ path: path.join(output, 'home-phone-pwa-390x844.png'), fullPage: true });
   check('no-page-errors', pageErrors.length === 0, pageErrors);
 } finally {
+  if (browserContext) await browserContext.close();
   if (browser) await browser.close();
   if (server) server.kill();
 }

@@ -4,6 +4,7 @@ import { chromium } from 'playwright';
 
 const targetUrl = process.env.AGM_TURN_OPERATIONAL_TRUTH_URL || 'https://app.agmcockpit.com/turn';
 const apiUrl = process.env.AGM_TURN_OPERATIONAL_TRUTH_API_URL || 'https://api.agmcockpit.com/api/v1/operations/turn/operational-truth';
+const controlledOwnerToken = 'controlled-browser-audit-session';
 const evidenceScope = targetUrl === 'https://app.agmcockpit.com/turn'
   && apiUrl === 'https://api.agmcockpit.com/api/v1/operations/turn/operational-truth'
   ? 'PRODUCTION_LIVE'
@@ -62,27 +63,42 @@ try {
   }
 
   browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({ viewport: { width: 1600, height: 1000 }, locale: 'ro-RO' });
+  const context = await browser.newContext({ viewport: { width: 1600, height: 1000 }, locale: 'ro-RO', serviceWorkers: 'block' });
   if (canonicalProduction) {
-    await context.addInitScript(() => {
-      sessionStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: 'controlled-browser-audit-session', expiresInSeconds: 300 }));
+    await context.addInitScript((accessToken) => {
+      sessionStorage.setItem('agm.admin.session', JSON.stringify({ accessToken, expiresInSeconds: 300 }));
       localStorage.removeItem('agm.admin.session');
-    });
-    await context.route('**/api/v1/turn-admin/refresh', async (route) => {
-      await route.fulfill({
+    }, controlledOwnerToken);
+    const apiOrigin = new URL(apiUrl).origin;
+    const apiPathname = new URL(apiUrl).pathname;
+    const controlledOwnerRequests = [];
+    const controlledOwnerViolations = [];
+    await context.route('**/*', async (route) => {
+      const request = route.request();
+      const requestUrl = new URL(request.url());
+      const pathname = requestUrl.pathname;
+      const authorization = request.headers().authorization;
+      const json = (data) => route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ data: { accessToken: 'controlled-browser-audit-session', expiresInSeconds: 300 }, requestId: 'controlled-turn-operational-truth-audit' }),
+        body: JSON.stringify({ data, requestId: 'controlled-turn-operational-truth-audit' }),
       });
+      if (pathname.endsWith('/api/v1/turn-admin/refresh')) {
+        return json({ accessToken: controlledOwnerToken, expiresInSeconds: 300 });
+      }
+      if (pathname.endsWith('/api/v1/turn-admin/validate')) return json({ valid: true });
+      if (authorization === `Bearer ${controlledOwnerToken}`) {
+        const entry = { method: request.method(), url: request.url() };
+        if (requestUrl.origin !== apiOrigin || pathname === apiPathname) {
+          controlledOwnerViolations.push(entry);
+          return route.abort('blockedbyclient');
+        }
+        controlledOwnerRequests.push(entry);
+        return json([]);
+      }
+      return route.continue();
     });
-
-    await context.route('**/api/v1/turn-admin/validate', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ data: { valid: true }, requestId: 'controlled-turn-operational-truth-audit' }),
-      });
-    });
+    report.checks.controlledOwnerSession = { controlledOwnerRequests, controlledOwnerViolations };
     report.checks.turnAdminAccess = 'CONTROLLED_SESSION_VALIDATION_STUB; PRODUCTION PIN NOT READ OR MODIFIED';
   } else {
     report.checks.turnAdminAccess = 'LOCAL_DEVELOPMENT_BYPASS';
@@ -184,6 +200,11 @@ try {
   assert(ui.unjustifiedStatuses.length === 0, `Unjustified displayed statuses: ${JSON.stringify(ui.unjustifiedStatuses)}`);
   assert(ui.staticGreenCount === 0, `Static registry green count is ${ui.staticGreenCount}`);
   assert(report.network.some((entry) => entry.status === 200), 'UI did not receive operational truth HTTP 200');
+  if (canonicalProduction) {
+    const controlledOwnerSession = report.checks.controlledOwnerSession;
+    assert(controlledOwnerSession.controlledOwnerViolations.length === 0, `Controlled Owner bearer escaped its permitted audit boundary: ${JSON.stringify(controlledOwnerSession.controlledOwnerViolations)}`);
+    assert(controlledOwnerSession.controlledOwnerRequests.some((entry) => new URL(entry.url).pathname.endsWith('/operations/turn/operational-linguists/state')), 'Controlled operational-linguist observer request was not isolated');
+  }
   assert(report.pageErrors.length === 0, `Page errors: ${report.pageErrors.join(' | ')}`);
 
   if (canonicalProduction) {
