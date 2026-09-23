@@ -2,7 +2,7 @@ import {
   canonicalLinguisticResourceCounts,
   formatLinguisticResourceEvidence,
 } from '@agm/shared';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 import { ComponentTelemetryService } from '../src/component-telemetry/component-telemetry.service';
 import type { PrismaService } from '../src/prisma/prisma.service';
 
@@ -47,7 +47,7 @@ describe('ComponentTelemetryService', () => {
       lastFailureReason: input.create.lastFailureReason,
       lastDetail: input.create.lastDetail,
     }));
-    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert } } as unknown as PrismaService);
+    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert }, operationalLinguistBaseline: { findUnique: jest.fn(async () => null) } } as unknown as PrismaService);
     for (const componentId of ['android', 'premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv']) {
       const result = await service.heartbeat(componentId, { status: 'ONLINE', reason: 'HEARTBEAT_RECEIVED' }, ctx);
       expect(result.status).toBe('ONLINE');
@@ -66,7 +66,7 @@ describe('ComponentTelemetryService', () => {
       lastFailureReason: input.update.lastFailureReason,
       lastDetail: input.update.lastDetail,
     }));
-    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert } } as unknown as PrismaService);
+    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert }, operationalLinguistBaseline: { findUnique: jest.fn(async () => null) } } as unknown as PrismaService);
 
     const result = await service.heartbeat('premium-linguist-it', {
       status: 'ONLINE',
@@ -85,5 +85,14 @@ describe('ComponentTelemetryService', () => {
     });
     expect(result.status).toBe('ONLINE');
     expect(result.lastFailureReason).toBeNull();
+  });
+
+  it('fences only legacy IT ES SV heartbeats after V1 activation and leaves canonical state untouched', async () => {
+    const upsert = jest.fn();
+    const findUnique = jest.fn(async () => ({ status: 'ACTIVE' }));
+    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert }, operationalLinguistBaseline: { findUnique } } as unknown as PrismaService);
+
+    await expect(service.heartbeat('premium-linguist-it', { status: 'ONLINE' }, ctx)).rejects.toBeInstanceOf(ConflictException);
+    expect(upsert).not.toHaveBeenCalled();
   });
 });

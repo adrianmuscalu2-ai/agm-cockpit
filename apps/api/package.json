@@ -27,6 +27,7 @@
     "test:opportunity-intelligence-db": "ts-node scripts/test-opportunity-intelligence-db.ts",
     "test:live-adapters-db": "ts-node scripts/test-live-adapters-db.ts",
     "test:machine-auth-db": "ts-node scripts/validate-machine-auth-db.ts",
+    "test:operational-linguists-v1-db": "ts-node scripts/test-operational-linguists-v1-db.ts",
     "pilot:seed": "ts-node scripts/seed-provider-pilot.ts",
     "pilot:report": "ts-node scripts/report-provider-pilot.ts"
   },

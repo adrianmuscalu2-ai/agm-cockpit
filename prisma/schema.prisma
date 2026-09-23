@@ -26,6 +26,11 @@ model Company {
   operationalEvents          OperationalEvent[]
   agentRuntimeEvents         AgentRuntimeEvent[]
   componentHeartbeats        ComponentHeartbeat[]
+  operationalLinguistBaselines OperationalLinguistBaseline[]
+  operationalLinguistPublishers OperationalLinguistPublisher[]
+  operationalLinguistStates OperationalLinguistState[]
+  operationalLinguistEvidence OperationalLinguistEvidence[]
+  operationalLinguistReceipts OperationalLinguistReceipt[]
   communicationConversations CommunicationConversation[]
   communicationMessages      CommunicationMessage[]
   carMoverVehicleSubjects    CarMoverVehicleSubject[]
@@ -566,6 +571,141 @@ model ComponentHeartbeat {
 
   @@unique([companyId, componentId])
   @@index([companyId, reportedStatus, lastSeenAt])
+}
+
+model OperationalLinguistBaseline {
+  id             String                         @id @default(uuid()) @db.Uuid
+  companyId      String                         @db.Uuid
+  company        Company                        @relation(fields: [companyId], references: [id])
+  version        String                         @db.VarChar(80)
+  digest         String                         @db.VarChar(80)
+  status         String                         @default("PREPARED") @db.VarChar(16)
+  authorityEpoch Int                            @default(0)
+  activatedAt    DateTime?
+  createdAt      DateTime                       @default(now())
+  updatedAt      DateTime                       @updatedAt
+  publishers     OperationalLinguistPublisher[]
+  states         OperationalLinguistState[]
+  evidence       OperationalLinguistEvidence[]
+  receipts       OperationalLinguistReceipt[]
+
+  @@unique([companyId, version])
+  @@index([companyId, status])
+}
+
+model OperationalLinguistPublisher {
+  id             String                         @id @default(uuid()) @db.Uuid
+  companyId      String                         @db.Uuid
+  company        Company                        @relation(fields: [companyId], references: [id])
+  baselineId     String                         @db.Uuid
+  baseline       OperationalLinguistBaseline    @relation(fields: [baselineId], references: [id])
+  authorityEpoch Int
+  writerId       String                         @db.VarChar(100)
+  writerVersion  String                         @db.VarChar(32)
+  buildRevision  String                         @db.VarChar(40)
+  workflowRef    String                         @db.VarChar(240)
+  runId          String                         @db.VarChar(32)
+  runAttempt     String                         @db.VarChar(16)
+  authorityRole  String                         @db.VarChar(48)
+  issuedAt       DateTime                       @default(now())
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  evidence       OperationalLinguistEvidence[]
+
+  @@unique([baselineId, authorityEpoch])
+  @@index([companyId, expiresAt, revokedAt])
+}
+
+model OperationalLinguistEvidence {
+  id                 String                         @id @default(uuid()) @db.Uuid
+  companyId          String                         @db.Uuid
+  company            Company                        @relation(fields: [companyId], references: [id])
+  baselineId         String                         @db.Uuid
+  baseline           OperationalLinguistBaseline    @relation(fields: [baselineId], references: [id])
+  publisherId        String                         @db.Uuid
+  publisher          OperationalLinguistPublisher   @relation(fields: [publisherId], references: [id])
+  componentId        String                         @db.VarChar(80)
+  language           String                         @db.VarChar(2)
+  authorityScope     String                         @db.VarChar(180)
+  mandateId          String                         @db.Uuid
+  mandateVersion     Int
+  schemaVersion      String                         @db.VarChar(80)
+  baselineVersion    String                         @db.VarChar(80)
+  baselineDigest     String                         @db.VarChar(80)
+  operationalState   String                         @db.VarChar(16)
+  observedAt         DateTime
+  acceptedAt         DateTime                       @default(now())
+  authorityEpoch     Int
+  sequence           Int
+  contractVersion    String                         @db.VarChar(80)
+  contractDigest     String                         @db.VarChar(80)
+  catalogDigest      String                         @db.VarChar(80)
+  appCount           Int
+  operationalCount   Int
+  carMoverCount      Int
+  premiumCount       Int
+  totalCount         Int
+  errorCount         Int
+  errorCodes         Json
+  payloadHash        String                         @db.VarChar(64)
+  currentForStates   OperationalLinguistState[]      @relation("OperationalLinguistCurrentEvidence")
+  receipts           OperationalLinguistReceipt[]
+
+  @@unique([publisherId, componentId, sequence])
+  @@index([companyId, componentId, acceptedAt])
+  @@index([baselineId, authorityEpoch, componentId, sequence])
+}
+
+model OperationalLinguistState {
+  id                 String                         @id @default(uuid()) @db.Uuid
+  companyId          String                         @db.Uuid
+  company            Company                        @relation(fields: [companyId], references: [id])
+  baselineId         String                         @db.Uuid
+  baseline           OperationalLinguistBaseline    @relation(fields: [baselineId], references: [id])
+  componentId        String                         @db.VarChar(80)
+  language           String                         @db.VarChar(2)
+  authorityScope     String                         @db.VarChar(180)
+  mandateId          String                         @db.Uuid
+  mandateVersion     Int
+  currentEvidenceId  String                         @unique @db.Uuid
+  currentEvidence    OperationalLinguistEvidence    @relation("OperationalLinguistCurrentEvidence", fields: [currentEvidenceId], references: [id], onDelete: Restrict)
+  operationalState   String                         @db.VarChar(16)
+  observedAt         DateTime
+  acceptedAt         DateTime
+  authorityEpoch     Int
+  sequence           Int
+  revision           Int                            @default(1)
+  contractVersion    String                         @db.VarChar(80)
+  contractDigest     String                         @db.VarChar(80)
+  catalogDigest      String                         @db.VarChar(80)
+  appCount           Int
+  operationalCount   Int
+  carMoverCount      Int
+  premiumCount       Int
+  totalCount         Int
+  errorCount         Int
+  updatedAt          DateTime                       @updatedAt
+
+  @@unique([companyId, componentId])
+  @@index([baselineId, operationalState, observedAt])
+}
+
+model OperationalLinguistReceipt {
+  id             String                         @id @default(uuid()) @db.Uuid
+  companyId      String                         @db.Uuid
+  company        Company                        @relation(fields: [companyId], references: [id])
+  baselineId     String                         @db.Uuid
+  baseline       OperationalLinguistBaseline    @relation(fields: [baselineId], references: [id])
+  evidenceId     String                         @db.Uuid
+  evidence       OperationalLinguistEvidence    @relation(fields: [evidenceId], references: [id])
+  componentId    String                         @db.VarChar(80)
+  outcome        String                         @db.VarChar(16)
+  reasonCode     String                         @db.VarChar(80)
+  payloadHash    String                         @db.VarChar(64)
+  acceptedAt     DateTime                       @default(now())
+
+  @@unique([evidenceId])
+  @@index([companyId, componentId, acceptedAt])
 }
 
 model CarMoverVehicleSubject {

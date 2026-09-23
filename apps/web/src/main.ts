@@ -172,7 +172,7 @@ import { bindP9TurnProjection } from './p9-turn-projection';
 import { bindTurnAgentLiveState } from './turn-agent-live-state';
 import { bindTurnFunctionalOverview } from './turn-functional-overview';
 import { bindAndroidComponentHeartbeat } from './component-heartbeat';
-import { bindPremiumLinguisticAgentHeartbeats } from './premium-linguistic-agents/premium-linguistic-agents.runtime';
+import { bindOperationalLinguistV1Observer } from './premium-linguistic-agents/operational-linguist-v1.observer';
 import { bindAgentAccountabilityView, recordMonitoringDuty } from './agent-accountability';
 import { bindAgentRuntimeAccountability } from './agent-runtime-accountability';
 import { bindIncidentTruthMonitor } from './incident-truth';
@@ -2436,23 +2436,9 @@ function globalCameraOcrFailureCopy(failure: GlobalCameraOcrFailure) {
 }
 
 // Global OCR is bound with the shared shell.
-function bindPremiumLinguisticHeartbeatsForCurrentAuthority() {
-  const useTurnAdminHeartbeat = state.adminAccessVerified;
-  return bindPremiumLinguisticAgentHeartbeats((heartbeats) => {
-    publishPanelAgentModel();
-    if (useTurnAdminHeartbeat && heartbeats.every((heartbeat) => heartbeat.apiJournaled && heartbeat.status === 'ONLINE')) {
-      bindPremiumGovernanceRuntime(true);
-    }
-  }, useTurnAdminHeartbeat ? {
-    authority: 'turn-admin-session',
-    fetcher: turnAdminAuthenticatedFetch,
-    route: (agentId) => `/operations/turn/components/${agentId}/heartbeat`,
-  } : undefined);
-}
-
 function bindShared() {
   bindAndroidComponentHeartbeat();
-  void bindPremiumLinguisticHeartbeatsForCurrentAuthority();
+  if (state.adminAccessVerified) bindOperationalLinguistV1Observer();
   bindPremiumAccessRuntime(uiLanguage());
   bindCommunicationRuntime();
     bindPremiumAssistantRuntime();
@@ -4857,7 +4843,7 @@ async function restoreAdministratorAccess() {
     if (adminSessionRetryTimer !== undefined) window.clearTimeout(adminSessionRetryTimer);
     adminSessionRetryTimer = undefined;
     if (state.adminAccessVerified) {
-      void bindPremiumLinguisticHeartbeatsForCurrentAuthority();
+      bindOperationalLinguistV1Observer();
     }
   } catch (error) {
     state.adminAccessVerified = false;

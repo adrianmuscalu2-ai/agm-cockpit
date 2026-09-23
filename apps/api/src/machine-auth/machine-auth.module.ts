@@ -29,6 +29,6 @@ import { MachineJwtStrategy } from './machine-jwt.strategy';
   ],
   controllers: [MachineProvisioningController, DeploymentMachineProvisioningController, MachineTokenController, MachineAuthorityController],
   providers: [MachineAuthService, MachineJwtStrategy, MachineJwtAuthGuard, GitHubActionsOidcService, GitHubActionsOidcGuard],
-  exports: [MachineAuthService],
+  exports: [MachineAuthService, GitHubActionsOidcService, GitHubActionsOidcGuard],
 })
 export class MachineAuthModule {}

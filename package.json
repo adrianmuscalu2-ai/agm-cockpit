@@ -51,6 +51,10 @@
     "security:evidence:check": "node scripts/evidence-sanitizer.mjs --check-repository",
     "security:evidence:staged": "node scripts/evidence-sanitizer.mjs --check-staged",
     "security:evidence:test": "node scripts/test-evidence-sanitizer.mjs",
+    "audit:operational-linguists-v1": "tsx scripts/operational-linguists-v1-publisher.ts audit",
+    "audit:operational-linguists-v1-browser": "node scripts/validate-operational-linguists-v1-browser.mjs",
+    "publish:operational-linguists-v1:activate": "tsx scripts/operational-linguists-v1-publisher.ts activate",
+    "publish:operational-linguists-v1:heartbeat": "tsx scripts/operational-linguists-v1-publisher.ts heartbeat",
     "security:hooks:install": "git config core.hooksPath .githooks"
   },
   "prisma": {

@@ -396,31 +396,24 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - name: Install controlled heartbeat publisher dependencies
+      - name: Install canonical operational linguist publisher dependencies
         run: pnpm install --frozen-lockfile
       - name: Build shared linguistic contract for release validation
         run: pnpm --filter @agm/shared build
-      - name: Install controlled release Chromium
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Browser preflight for candidate heartbeat publication
-        run: pnpm rescue:browser-preflight
-      - name: Publish versioned Web candidate linguistic heartbeats
+      - name: Activate Operational Linguistic Baseline V1 atomically
         env:
-          AGM_LINGUISTIC_RELEASE_URL: https://app.agmcockpit.com/turn
-          AGM_LINGUISTIC_RELEASE_API_URL: https://api.agmcockpit.com/api/v1
-          AGM_TURN_ADMIN_PIN: ${{ secrets.PRODUCTION_TURN_ADMIN_PIN }}
-          AGM_EXPECTED_REVISION: ${{ github.sha }}
-          AGM_LINGUISTIC_RELEASE_EVIDENCE: evidence/agent-accountability/production/linguistic-heartbeat-publication.json
-        run: node scripts/publish-production-linguistic-heartbeats-browser.mjs
-      - name: Upload candidate linguistic heartbeat diagnostic evidence
+          AGM_API_ORIGIN: https://api.agmcockpit.com
+          AGM_OPERATIONAL_LINGUIST_EVIDENCE_PATH: evidence/agent-accountability/production/operational-linguist-v1-activation.json
+        run: pnpm publish:operational-linguists-v1:activate
+      - name: Upload canonical operational linguist activation evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: linguistic-heartbeat-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
-          path: evidence/agent-accountability/production/linguistic-heartbeat-publication.json
+          name: operational-linguist-v1-activation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/agent-accountability/production/operational-linguist-v1-activation.json
           if-no-files-found: error
           retention-days: 14
-      - name: Verify TURN operational truth after linguistic heartbeats
+      - name: Verify TURN operational truth after canonical activation
         shell: bash
         run: |
           set -euo pipefail
@@ -439,7 +432,7 @@ jobs:
             sleep 5
           done
           test "$turn_truth_ready" = true
-          echo 'TURN_OPERATIONAL_TRUTH_AFTER_LINGUISTIC_HEARTBEATS=PASS'
+          echo 'TURN_OPERATIONAL_TRUTH_AFTER_OPERATIONAL_LINGUIST_V1_ACTIVATION=PASS'
       - name: Provision approved Car Mover entitlement
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.provision_car_mover }}
         env:

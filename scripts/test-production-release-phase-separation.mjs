@@ -32,7 +32,7 @@ assert.match(deploy, /needs: \[publish, publish-web\]/);
 assert.match(deploy, /environment: Production/);
 assert.match(deploy, /DEPLOYMENT=PASS/);
 assert.match(deploy, /CERTIFICATION=PENDING/);
-assert.doesNotMatch(deploy, /Publish versioned Web candidate linguistic heartbeats/);
+assert.doesNotMatch(deploy, /Activate Operational Linguistic Baseline V1 atomically/);
 assert.doesNotMatch(deploy, /Verify canonical M2M lifecycle in Production/);
 assert.doesNotMatch(deploy, /FINAL_PRODUCTION_PASS/);
 
@@ -42,14 +42,17 @@ assert.match(deploymentHealth, /validate-production-deployment-health\.mjs/);
 assert.match(certification, /needs: deployment-health/);
 assert.match(certification, /environment: Production/);
 ordered(certification, [
-  'Publish versioned Web candidate linguistic heartbeats',
-  'Verify TURN operational truth after linguistic heartbeats',
+  'Activate Operational Linguistic Baseline V1 atomically',
+  'Verify TURN operational truth after canonical activation',
   'Verify canonical M2M lifecycle in Production',
   'Persist Production agent runtime evidence',
   'Publish current Production preflight automatically',
   'Record post-deploy certification result',
 ]);
-assert.match(certification, /AGM_LINGUISTIC_RELEASE_API_URL: https:\/\/api\.agmcockpit\.com\/api\/v1/);
+assert.match(certification, /id-token: write/);
+assert.match(certification, /AGM_API_ORIGIN: https:\/\/api\.agmcockpit\.com/);
+assert.match(certification, /publish:operational-linguists-v1:activate/);
+assert.doesNotMatch(certification, /PRODUCTION_TURN_ADMIN_PIN/);
 assert.match(certification, /CERTIFICATION=PASS/);
 
 assert.match(browser, /needs: \[deployment-health, post-deploy-certification\]/);

@@ -38,6 +38,7 @@ import { TurnOperationalTruthModule } from './turn-operational-truth/turn-operat
 import { DashboardWarningAnalysisModule } from './dashboard-warning-analysis/dashboard-warning-analysis.module';
 import { PermissionGuardianModule } from './permission-guardian/permission-guardian.module';
 import { SharedArchiveModule } from './shared-archive/shared-archive.module';
+import { OperationalLinguistsV1Module } from './operational-linguists-v1/operational-linguists-v1.module';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { SharedArchiveModule } from './shared-archive/shared-archive.module';
     DashboardWarningAnalysisModule,
     PermissionGuardianModule,
     SharedArchiveModule,
+    OperationalLinguistsV1Module,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

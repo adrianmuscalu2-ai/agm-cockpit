@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { OPERATIONAL_LINGUIST_V1_BASELINE_VERSION, OPERATIONAL_LINGUIST_V1_COMPONENT_IDS } from '@agm/shared';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import type { RequestContext } from '../common/request-context';
 import { PrismaService } from '../prisma/prisma.service';
 import { COMPONENT_TELEMETRY_CONTRACT, type ComponentHealthSnapshot } from './component-telemetry.contract';
@@ -20,6 +21,13 @@ export class ComponentTelemetryService {
 
   async heartbeat(componentId: string, input: RecordComponentHeartbeatDto, ctx: RequestContext) {
     this.assertSupported(componentId);
+    if ((OPERATIONAL_LINGUIST_V1_COMPONENT_IDS as readonly string[]).includes(componentId)) {
+      const baseline = await this.prisma.operationalLinguistBaseline.findUnique({
+        where: { companyId_version: { companyId: ctx.companyId, version: OPERATIONAL_LINGUIST_V1_BASELINE_VERSION } },
+        select: { status: true },
+      });
+      if (baseline?.status === 'ACTIVE') throw new ConflictException('LEGACY_OPERATIONAL_LINGUIST_HEARTBEAT_FENCED');
+    }
     const now = new Date();
     const reason = input.reason?.trim() || (input.status === 'ONLINE' ? 'HEARTBEAT_RECEIVED' : 'COMPONENT_REPORTED_DEGRADED');
     const detail = input.detail?.trim() || null;

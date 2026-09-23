@@ -1,4 +1,9 @@
-import { validateLinguisticResourceEvidence } from '@agm/shared';
+import {
+  createCanonicalOperationalLinguist,
+  OPERATIONAL_LINGUIST_V1_BASELINE_VERSION,
+  OPERATIONAL_LINGUIST_V1_COMPONENT_IDS,
+  validateLinguisticResourceEvidence,
+} from '@agm/shared';
 import { Injectable } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import { Prisma } from '@prisma/client';
@@ -186,6 +191,12 @@ export class OperationalAgentDutyRunner {
   }
 
   private async linguisticDuty(agentId: string, companyId: string, now: Date): Promise<DutyOutcome> {
+    if ((OPERATIONAL_LINGUIST_V1_COMPONENT_IDS as readonly string[]).includes(agentId)) {
+      const baseline = await this.prisma.operationalLinguistBaseline.findUnique({
+        where: { companyId_version: { companyId, version: OPERATIONAL_LINGUIST_V1_BASELINE_VERSION } },
+      });
+      if (baseline?.status === 'ACTIVE') return this.operationalLinguistV1Duty(agentId, companyId, baseline.id, now);
+    }
     const heartbeat = await this.prisma.componentHeartbeat.findUnique({ where: { companyId_componentId: { companyId, componentId: agentId } } });
     const detail = heartbeat?.lastDetail ?? '';
     const current = Boolean(heartbeat && now.getTime() - heartbeat.lastSeenAt.getTime() <= LINGUISTIC_EVIDENCE_FRESHNESS_MS);
@@ -214,6 +225,68 @@ export class OperationalAgentDutyRunner {
         componentsMatchCanonical: validation.componentsMatchCanonical,
         totalMatchesComponents: validation.totalMatchesComponents,
         staleFailureReasonCleared,
+      },
+    };
+  }
+
+  private async operationalLinguistV1Duty(agentId: string, companyId: string, baselineId: string, now: Date): Promise<DutyOutcome> {
+    const state = await this.prisma.operationalLinguistState.findUnique({
+      where: { companyId_componentId: { companyId, componentId: agentId } },
+      include: { currentEvidence: { include: { publisher: true } } },
+    });
+    const language = agentId.slice(-2) as 'it' | 'es' | 'sv';
+    const definition = createCanonicalOperationalLinguist(language);
+    const current = Boolean(state && now.getTime() - state.observedAt.getTime() <= LINGUISTIC_EVIDENCE_FRESHNESS_MS);
+    const canonical = Boolean(
+      state
+      && state.baselineId === baselineId
+      && state.componentId === definition.componentId
+      && state.language === definition.language
+      && state.authorityScope === definition.authorityScope
+      && Boolean(state.mandateId)
+      && state.mandateVersion > 0
+      && state.operationalState === 'ONLINE'
+      && state.contractVersion === definition.resourceContractVersion
+      && state.contractDigest === definition.resourceContractDigest
+      && state.catalogDigest === definition.resourceCatalogDigest
+      && state.appCount === definition.resourceCounts.app
+      && state.operationalCount === definition.resourceCounts.operational
+      && state.carMoverCount === definition.resourceCounts.carMover
+      && state.premiumCount === definition.resourceCounts.premium
+      && state.totalCount === definition.resourceCounts.total
+      && state.errorCount === 0
+    );
+    const receipt = state ? await this.prisma.operationalLinguistReceipt.findUnique({ where: { evidenceId: state.currentEvidenceId } }) : null;
+    const receiptAccepted = receipt?.outcome === 'ACCEPTED' && receipt.reasonCode === 'CANONICAL_EVIDENCE_PERSISTED';
+    const passed = current && canonical && receiptAccepted;
+    return {
+      operation: 'Validate typed Operational Linguistic Baseline V1 evidence and server receipt',
+      passed,
+      result: passed ? 'COMPLETED' : 'FAILED',
+      reason: passed ? null : !state ? 'LINGUISTIC_V1_EVIDENCE_MISSING' : !current ? 'LINGUISTIC_V1_EVIDENCE_EXPIRED' : !canonical ? 'LINGUISTIC_V1_CANONICAL_STATE_INVALID' : 'LINGUISTIC_V1_RECEIPT_INVALID',
+      evidenceReferences: state ? [
+        `OperationalLinguistEvidence:${state.currentEvidenceId}`,
+        ...(receipt ? [`OperationalLinguistReceipt:${receipt.id}`] : []),
+      ] : [],
+      checks: {
+        persistence: 'OPERATIONAL_LINGUIST_V1',
+        evidenceCurrent: current,
+        resourceCountProven: canonical,
+        resourceCounts: state ? { app: state.appCount, operational: state.operationalCount, carMover: state.carMoverCount, premium: state.premiumCount, total: state.totalCount } : null,
+        errorsZero: state?.errorCount === 0,
+        contractVersionMatches: state?.contractVersion === definition.resourceContractVersion,
+        contractDigestMatches: state?.contractDigest === definition.resourceContractDigest,
+        catalogDigestMatches: state?.catalogDigest === definition.resourceCatalogDigest,
+        componentsMatchCanonical: canonical,
+        totalMatchesComponents: Boolean(state && state.totalCount === state.appCount + state.operationalCount + state.carMoverCount + state.premiumCount),
+        receiptAccepted,
+        authorityScopeMatches: state?.authorityScope === definition.authorityScope,
+        mandateRef: state ? `AuthorityMandate:${state.mandateId}:v${state.mandateVersion}` : null,
+        authorityEpoch: state?.authorityEpoch ?? null,
+        sequence: state?.sequence ?? null,
+        writerId: state?.currentEvidence.publisher.writerId ?? null,
+        writerVersion: state?.currentEvidence.publisher.writerVersion ?? null,
+        buildRevision: state?.currentEvidence.publisher.buildRevision ?? null,
       },
     };
   }

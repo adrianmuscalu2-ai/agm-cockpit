@@ -2,9 +2,9 @@ import {
   canonicalLinguisticResourceCounts,
   LINGUISTIC_RESOURCE_CONTRACT_CANONICAL,
   LINGUISTIC_RESOURCE_CONTRACT_DIGEST,
+  formatLinguisticResourceEvidence,
 } from '@agm/shared';
 import { createHash } from 'node:crypto';
-import { createPremiumLinguisticHeartbeatDetail } from '../../web/src/premium-linguistic-agents/premium-linguistic-heartbeat.evidence';
 import { AuthorityControlPlaneService } from '../src/authority-control-plane/authority-control-plane.service';
 import {
   OperationalAgentDutyRunner,
@@ -39,6 +39,7 @@ function runtimeHarness(details: ReadonlyMap<string, string>) {
   const authorityAuditJournalCreate = jest.fn(async ({ data }) => ({ ...data }));
   const agentRuntimeEventCreate = jest.fn(async ({ data }) => ({ ...data }));
   const prisma = {
+    operationalLinguistBaseline: { findUnique: jest.fn(async () => null) },
     componentHeartbeat: {
       findUnique: jest.fn(async ({ where }) => {
         const agentId = where.companyId_componentId.componentId;
@@ -74,7 +75,7 @@ describe('canonical linguistic Web to API contract', () => {
     const counts = canonicalLinguisticResourceCounts();
     const details = new Map(targets.map(({ agentId, language }) => [
       agentId,
-      createPremiumLinguisticHeartbeatDetail({ language, counts, errors: [], journalStatus: 'PERSISTED' }),
+      formatLinguisticResourceEvidence({ language, counts, errors: 0, journalStatus: 'PERSISTED' }),
     ]));
     const harness = runtimeHarness(details);
     const mandates = targets.map(({ agentId }) => ({ id: `mandate-${agentId}`, agentId }));
@@ -109,10 +110,10 @@ describe('canonical linguistic Web to API contract', () => {
 
   it('rejects an intentionally corrupted Web payload and omits independent validation', async () => {
     const counts = canonicalLinguisticResourceCounts();
-    const validDetail = createPremiumLinguisticHeartbeatDetail({
+    const validDetail = formatLinguisticResourceEvidence({
       language: 'it',
       counts,
-      errors: [],
+      errors: 0,
       journalStatus: 'PERSISTED',
     });
     const invalidDetail = validDetail.replace(`total=${counts.total}`, `total=${counts.total - 1}`);

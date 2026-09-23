@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-23T06-20-34-914Z",
+  "status": "PASS",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "target": "http://127.0.0.1:56736/turn",
+  "probe": "TURN -> Owner/session restore -> V1 state observation -> close/reopen -> Premium navigation -> capture",
+  "browserAuthority": "NONE",
+  "observerRequests": [
+    {
+      "method": "GET",
+      "pathname": "/api/v1/operations/turn/operational-linguists/state",
+      "authenticated": true
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/v1/operations/turn/operational-linguists/state",
+      "authenticated": true
+    }
+  ],
+  "legacyAttempts": [],
+  "pageErrors": [],
+  "fatal": null,
+  "finishedAt": "2026-09-23T06:20:55.014Z"
+}
