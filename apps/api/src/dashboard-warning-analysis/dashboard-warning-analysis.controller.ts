@@ -6,6 +6,15 @@ import { responseEnvelope } from '../common/response';
 import { validateVisionConsent, type VisionConsentEvidence } from '../common/image-security/vision-request-security';
 import { DashboardWarningAnalysisService } from './dashboard-warning-analysis.service';
 
+const dashboardWarningMultipartLimits = {
+  fileSize: 8 * 1024 * 1024,
+  files: 1,
+  fields: 1,
+  parts: 2,
+  fieldNestingDepth: 0,
+  fieldArrayIndexLimit: 0,
+};
+
 @Controller('dashboard-warning-analysis')
 @UseGuards(JwtAuthGuard)
 export class DashboardWarningAnalysisController {
@@ -13,7 +22,7 @@ export class DashboardWarningAnalysisController {
   @Post()
   @HttpCode(200)
   @Throttle({ default: { limit: 6, ttl: 60_000, blockDuration: 60_000 } })
-  @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 8 * 1024 * 1024, files: 1 } }))
+  @UseInterceptors(FileInterceptor('image', { limits: dashboardWarningMultipartLimits }))
   async analyze(@UploadedFile() image: { buffer: Buffer; mimetype: string } | undefined, @Body('request') rawRequest?: string) {
     if (!image) throw new BadRequestException('IMAGE_REQUIRED');
     try { const request = JSON.parse(rawRequest ?? '{}') as { consent?: VisionConsentEvidence }; validateVisionConsent(request.consent); }

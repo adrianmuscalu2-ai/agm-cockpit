@@ -33,6 +33,7 @@ import { finalizeFieldReport, parseFieldInput, parseFieldRoles } from './field-t
 
 const acceptedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const maxImageBytes = 8 * 1024 * 1024;
+const flatMultipartLimits = { fieldNestingDepth: 0, fieldArrayIndexLimit: 0 };
 
 @Controller('premium')
 @UseGuards(JwtAuthGuard, PremiumCapabilityGuard)
@@ -51,7 +52,7 @@ export class PremiumLoadSafetyController {
   @Throttle({ default: { limit: 10, ttl: 60_000, blockDuration: 60_000 } })
   @UseInterceptors(
     FileInterceptor('image', {
-      limits: { fileSize: maxImageBytes, files: 1 },
+      limits: { fileSize: maxImageBytes, files: 1, fields: 2, parts: 3, ...flatMultipartLimits },
     }),
   )
   async analyze(
@@ -79,7 +80,7 @@ export class PremiumLoadSafetyController {
   @Throttle({ default: { limit: 10, ttl: 60_000, blockDuration: 60_000 } })
   @UseInterceptors(
     FileInterceptor('image', {
-      limits: { fileSize: maxImageBytes, files: 1 },
+      limits: { fileSize: maxImageBytes, files: 1, fields: 4, parts: 5, ...flatMultipartLimits },
     }),
   )
   async recommend(
@@ -119,7 +120,7 @@ export class PremiumLoadSafetyController {
   @Throttle({ default: { limit: 6, ttl: 60_000, blockDuration: 60_000 } })
   @UseInterceptors(
     FilesInterceptor('photos', 7, {
-      limits: { fileSize: maxImageBytes, files: 7 },
+      limits: { fileSize: maxImageBytes, files: 7, fields: 4, parts: 11, ...flatMultipartLimits },
     }),
   )
   async fieldTest(
