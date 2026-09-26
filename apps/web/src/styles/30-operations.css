@@ -562,3 +562,16 @@
 @media(max-width:900px){.turn-command-header,.turn-spatial-page>header,.turn-incident-page>header,.turn-operational-entry-points>header{display:block}.turn-command-header>strong{display:inline-block;margin-top:12px}.turn-page-navigation{grid-template-columns:repeat(2,1fr)}.turn-spatial-stage,.turn-premium-stage{min-height:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px}.turn-spatial-links,.turn-spatial-core{display:none}.turn-spatial-node,.turn-spatial-node.premium{position:relative;left:auto;top:auto;transform:none;width:auto;min-height:64px}.turn-spatial-selection dl{grid-template-columns:1fr}.turn-operational-entry-points nav{grid-template-columns:repeat(2,minmax(0,1fr))}.turn-approved-orbital-panel>header{grid-template-columns:1fr}.turn-approved-orbital-stage{min-height:560px}.turn-approved-orbital-selection dl{grid-template-columns:1fr}.turn-orbital-criteria{grid-template-columns:repeat(3,minmax(0,1fr))}.turn-orbital-criterion-maps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.turn-operational-entry-points nav{grid-template-columns:1fr}.turn-approved-orbital-panel>header{padding:18px 16px}.turn-approved-orbital-stage{min-height:480px}.turn-approved-orbital-node{width:58px}.turn-approved-orbital-node .turn-planet{width:23px}.turn-approved-orbital-node small{display:none}.turn-approved-orbital-node.is-core{width:92px}.turn-approved-orbital-node.is-core .turn-planet{width:58px}.turn-approved-orbital-node.is-core small{display:block;font-size:.52rem}.turn-approved-orbital-core{width:100px}.turn-orbital-legend{font-size:.76rem}.turn-orbital-criteria,.turn-orbital-criterion-maps{grid-template-columns:repeat(2,minmax(0,1fr))}.turn-orbital-criterion-map>div{height:130px}}
 @media(max-width:900px){.turn-command-header-actions{justify-items:start;margin-top:12px}}
+
+.turn-basic-spatial-page:not([hidden]){display:flex;flex-direction:column}
+.turn-basic-spatial-page>header{order:0}
+.turn-basic-spatial-page>.basic-agent-system{order:1}
+.turn-basic-spatial-page>[data-basic-operational-orbit]{order:2}
+.turn-basic-spatial-page>[data-basic-spatial-summary]{order:3}
+.turn-basic-spatial-page>[data-basic-spatial-stage]{order:4}
+.turn-basic-spatial-page>[data-basic-spatial-selection]{order:5}
+.turn-basic-spatial-page>.turn-operational-entry-points{order:6}
+.turn-basic-spatial-page>[data-functional-generated-at]{order:7}
+
+.turn-page-navigation{grid-template-columns:repeat(5,1fr)}
+@media(max-width:900px){.turn-page-navigation{grid-template-columns:repeat(2,1fr)}}

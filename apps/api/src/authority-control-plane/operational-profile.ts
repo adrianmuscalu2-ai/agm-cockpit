@@ -1,7 +1,7 @@
 import type { PremiumNetworkSeed } from './premium-network.seed';
 
 export type RuntimeMode = 'HUMAN' | 'CONTINUOUS_COMPONENT' | 'REQUEST_DRIVEN' | 'EVENT_DRIVEN' | 'CAPABILITY_NOT_IMPLEMENTED';
-export type TelemetrySource = 'NOT_APPLICABLE' | 'COMPONENT_HEARTBEAT' | 'SECRET_TELEMETRY' | 'LIVE_ADAPTER' | 'OPPORTUNITY_TELEMETRY' | 'RUNTIME_EVENT' | 'AUTHORITY_JOURNAL' | 'DOMAIN_EVENT_STORE' | 'NONE';
+export type TelemetrySource = 'NOT_APPLICABLE' | 'OPERATIONAL_LINGUIST_V1' | 'COMPONENT_HEARTBEAT' | 'SECRET_TELEMETRY' | 'LIVE_ADAPTER' | 'OPPORTUNITY_TELEMETRY' | 'RUNTIME_EVENT' | 'AUTHORITY_JOURNAL' | 'DOMAIN_EVENT_STORE' | 'NONE';
 
 export type OperationalProfile = {
   runtimeMode: RuntimeMode;
@@ -18,7 +18,7 @@ const COMPONENT_FRESHNESS_MS = 90 * 1000;
 export function operationalProfile(node: Pick<PremiumNetworkSeed, 'canonicalId' | 'kind' | 'capabilities'>): OperationalProfile {
   if (node.kind === 'HUMAN_AUTHORITY') return profile('HUMAN', 'NOT_APPLICABLE', null, 'Human approval and authority decisions; no process heartbeat is expected.');
   if (node.canonicalId === 'agm.authority.control-plane') return profile('CONTINUOUS_COMPONENT', 'COMPONENT_HEARTBEAT', COMPONENT_FRESHNESS_MS, 'Authority leases, fencing, conflicts and command-chain evaluation.');
-  if (node.canonicalId.startsWith('premium-linguist-')) return profile('EVENT_DRIVEN', 'COMPONENT_HEARTBEAT', REQUEST_FRESHNESS_MS, 'Deterministic language-catalog audit.');
+  if (node.canonicalId.startsWith('premium-linguist-')) return profile('EVENT_DRIVEN', 'OPERATIONAL_LINGUIST_V1', REQUEST_FRESHNESS_MS, 'Typed Operational Linguistic Baseline V1 catalog audit.');
   if (node.canonicalId.startsWith('premium.adapters.')) return profile('REQUEST_DRIVEN', 'LIVE_ADAPTER', REQUEST_FRESHNESS_MS, node.capabilities.join(', '));
   if ([
     'premium.car-mover.intake-dedup', 'premium.car-mover.opportunity-normalizer',

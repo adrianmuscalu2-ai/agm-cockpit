@@ -1,5 +1,5 @@
 export type CanonicalVisualStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
-export type CanonicalStateSource = 'LIVE_ADAPTER' | 'OPPORTUNITY_TELEMETRY' | 'COMPONENT_HEARTBEAT' | 'SECRET_TELEMETRY' | 'RUNTIME_EVENT' | 'DOMAIN_EVENT_STORE' | 'AUTHORITY_LEASE' | 'REGISTRY';
+export type CanonicalStateSource = 'LIVE_ADAPTER' | 'OPPORTUNITY_TELEMETRY' | 'OPERATIONAL_LINGUIST_V1' | 'COMPONENT_HEARTBEAT' | 'SECRET_TELEMETRY' | 'RUNTIME_EVENT' | 'DOMAIN_EVENT_STORE' | 'AUTHORITY_LEASE' | 'REGISTRY';
 
 export type CanonicalNodeState = {
   status: CanonicalVisualStatus;
@@ -14,6 +14,7 @@ export function resolveCanonicalNodeState(input: {
   registryLifecycleStatus: string;
   liveAdapter?: TimedStatus;
   opportunityTelemetry?: TimedStatus & { freshnessStatus?: string };
+  operationalLinguist?: TimedStatus;
   heartbeat?: TimedStatus;
   secretTelemetry?: TimedStatus;
   runtimeEvent?: TimedStatus;
@@ -28,6 +29,12 @@ export function resolveCanonicalNodeState(input: {
       return { status: 'DEGRADED', label: 'STALE', source: 'OPPORTUNITY_TELEMETRY', observedAt: input.opportunityTelemetry.observedAt };
     }
     return mapped(input.opportunityTelemetry.status, 'OPPORTUNITY_TELEMETRY', input.opportunityTelemetry.observedAt);
+  }
+  if (input.operationalLinguist) {
+    if (now.getTime() - input.operationalLinguist.observedAt.getTime() > (input.operationalLinguist.staleAfterMs ?? 24 * 60 * 60 * 1000)) {
+      return { status: 'FAIL', label: 'STALE', source: 'OPERATIONAL_LINGUIST_V1', observedAt: input.operationalLinguist.observedAt };
+    }
+    return mapped(input.operationalLinguist.status, 'OPERATIONAL_LINGUIST_V1', input.operationalLinguist.observedAt);
   }
   if (input.heartbeat) {
     if (now.getTime() - input.heartbeat.observedAt.getTime() > (input.heartbeat.staleAfterMs ?? 90_000)) {

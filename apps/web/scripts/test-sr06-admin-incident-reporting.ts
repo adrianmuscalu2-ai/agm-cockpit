@@ -67,9 +67,10 @@ assert.match(message, /AI: offline · stale/);
 assert.doesNotMatch(message, /private-value|admin@example\.com|abc\.def\.ghi|hunter2/);
 
 const main = readFileSync(new URL('../src/main.ts', import.meta.url), 'utf8');
+const adminAuth = readFileSync(new URL('../src/admin-auth.ts', import.meta.url), 'utf8');
 assert.match(main, /if \(!\(await authorizeAdminIncidentAccess\(\)\)\) return;/);
 assert.match(main, /state\.adminAccessVerified = false;/);
-assert.match(main, /window\.sessionStorage\.removeItem\(ADMIN_SESSION_KEY\)/);
+assert.match(adminAuth, /globalThis\.sessionStorage\?\.removeItem\(ADMIN_SESSION_KEY\)/);
 assert.match(main, /navigateToModule\('turn'\)/);
 assert.match(main, /adminReportDescription/);
 assert.match(main, /Descrierea incidentului este obligatorie/);

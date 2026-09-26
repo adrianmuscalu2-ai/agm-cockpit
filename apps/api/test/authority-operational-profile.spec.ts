@@ -17,6 +17,9 @@ describe('Premium operational telemetry coverage', () => {
     expect(operationalProfile(premiumNetworkSeed.find((node) => node.canonicalId === 'premium.adapters.routing')!).expectedSource).toBe('LIVE_ADAPTER');
     expect(operationalProfile(premiumNetworkSeed.find((node) => node.canonicalId === 'premium.car-mover.job-service')!).expectedSource).toBe('DOMAIN_EVENT_STORE');
     expect(operationalProfile(premiumNetworkSeed.find((node) => node.canonicalId === 'agm.authority.control-plane')!).expectedSource).toBe('COMPONENT_HEARTBEAT');
+    for (const id of ['premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv']) {
+      expect(operationalProfile(premiumNetworkSeed.find((node) => node.canonicalId === id)!).expectedSource).toBe('OPERATIONAL_LINGUIST_V1');
+    }
   });
 
   it('binds Guardian, inspectors and orchestrator to implemented evaluators or lifecycle events', () => {

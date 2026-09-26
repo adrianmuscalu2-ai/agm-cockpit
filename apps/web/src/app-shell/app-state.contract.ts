@@ -125,6 +125,7 @@ export type VoiceState = {
 export type AdminState = {
   adminSession: AdminSession | null;
   adminAccessVerified: boolean;
+  adminSessionFailure: string | null;
   adminChangePinOpen: boolean;
   adminMenuOpen: boolean;
   adminReportActive: boolean;
@@ -245,6 +246,7 @@ export const appStateFieldOwnership = {
   admin: [
     'adminSession',
     'adminAccessVerified',
+    'adminSessionFailure',
     'adminChangePinOpen',
     'adminMenuOpen',
     'adminReportActive',

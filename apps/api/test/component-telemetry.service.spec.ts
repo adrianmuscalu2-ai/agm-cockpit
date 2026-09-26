@@ -1,7 +1,3 @@
-import {
-  canonicalLinguisticResourceCounts,
-  formatLinguisticResourceEvidence,
-} from '@agm/shared';
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import { ComponentTelemetryService } from '../src/component-telemetry/component-telemetry.service';
 import type { PrismaService } from '../src/prisma/prisma.service';
@@ -37,7 +33,7 @@ describe('ComponentTelemetryService', () => {
     expect(service.snapshotFrom(null, checkedAt, 'android').status).toBe('UNKNOWN');
   });
 
-  it('persists tenant-bound Android and linguistic-agent heartbeats and rejects unsupported components', async () => {
+  it('persists the Android heartbeat, fences legacy linguistic heartbeats, and rejects unsupported components', async () => {
     const upsert = jest.fn(async (input) => ({
       componentId: input.create.componentId,
       reportedStatus: input.create.reportedStatus,
@@ -47,11 +43,12 @@ describe('ComponentTelemetryService', () => {
       lastFailureReason: input.create.lastFailureReason,
       lastDetail: input.create.lastDetail,
     }));
-    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert }, operationalLinguistBaseline: { findUnique: jest.fn(async () => null) } } as unknown as PrismaService);
-    for (const componentId of ['android', 'premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv']) {
-      const result = await service.heartbeat(componentId, { status: 'ONLINE', reason: 'HEARTBEAT_RECEIVED' }, ctx);
-      expect(result.status).toBe('ONLINE');
-      expect(upsert.mock.calls.at(-1)?.[0].where.companyId_componentId).toEqual({ companyId: ctx.companyId, componentId });
+    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert } } as unknown as PrismaService);
+    const result = await service.heartbeat('android', { status: 'ONLINE', reason: 'HEARTBEAT_RECEIVED' }, ctx);
+    expect(result.status).toBe('ONLINE');
+    expect(upsert.mock.calls.at(-1)?.[0].where.companyId_componentId).toEqual({ companyId: ctx.companyId, componentId: 'android' });
+    for (const componentId of ['premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv']) {
+      await expect(service.heartbeat(componentId, { status: 'ONLINE' }, ctx)).rejects.toBeInstanceOf(ConflictException);
     }
     await expect(service.health('unregistered-component', ctx)).rejects.toBeInstanceOf(BadRequestException);
   });
@@ -66,17 +63,12 @@ describe('ComponentTelemetryService', () => {
       lastFailureReason: input.update.lastFailureReason,
       lastDetail: input.update.lastDetail,
     }));
-    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert }, operationalLinguistBaseline: { findUnique: jest.fn(async () => null) } } as unknown as PrismaService);
+    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert } } as unknown as PrismaService);
 
-    const result = await service.heartbeat('premium-linguist-it', {
+    const result = await service.heartbeat('android', {
       status: 'ONLINE',
-      reason: 'I18N_RESOURCES_VALIDATED',
-      detail: formatLinguisticResourceEvidence({
-        language: 'it',
-        counts: canonicalLinguisticResourceCounts(),
-        errors: 0,
-        journalStatus: 'PERSISTED',
-      }),
+      reason: 'ANDROID_RECOVERED',
+      detail: 'foreground',
     }, ctx);
 
     expect(upsert.mock.calls[0][0].update).toMatchObject({
@@ -87,10 +79,9 @@ describe('ComponentTelemetryService', () => {
     expect(result.lastFailureReason).toBeNull();
   });
 
-  it('fences only legacy IT ES SV heartbeats after V1 activation and leaves canonical state untouched', async () => {
+  it('fences legacy IT ES SV heartbeats regardless of baseline activation state', async () => {
     const upsert = jest.fn();
-    const findUnique = jest.fn(async () => ({ status: 'ACTIVE' }));
-    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert }, operationalLinguistBaseline: { findUnique } } as unknown as PrismaService);
+    const service = new ComponentTelemetryService({ componentHeartbeat: { upsert } } as unknown as PrismaService);
 
     await expect(service.heartbeat('premium-linguist-it', { status: 'ONLINE' }, ctx)).rejects.toBeInstanceOf(ConflictException);
     expect(upsert).not.toHaveBeenCalled();

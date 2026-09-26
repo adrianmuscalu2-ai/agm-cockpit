@@ -18,7 +18,7 @@ const expectedStateFields = [
   'ocrExtractedText', 'ocrConfidence', 'ocrHistory', 'isOcrProcessing',
   'correctorText', 'correctorResult', 'correctorMode', 'correctorSourceModule',
   'isListening', 'voiceInputState', 'voicePlaybackState', 'adminSession',
-  'adminAccessVerified', 'adminChangePinOpen', 'adminMenuOpen',
+  'adminAccessVerified', 'adminSessionFailure', 'adminChangePinOpen', 'adminMenuOpen',
   'adminReportActive', 'adminReportModule', 'lastTechnicalError',
   'translatorEnabled', 'mailTranslationState', 'useProfileDetails',
   'signatureEditorOpen', 'signaturePadOpen', 'mailReviewOpen',
@@ -55,7 +55,7 @@ actualStateFields.push(
 );
 
 assert.deepEqual(actualStateFields.sort(), [...expectedStateFields].sort());
-assert.equal(actualStateFields.length, 65);
+assert.equal(actualStateFields.length, 66);
 
 for (const marker of [
   'function renderCurrentView()',

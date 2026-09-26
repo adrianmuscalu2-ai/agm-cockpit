@@ -1,5 +1,6 @@
 import { isTurnAdminSessionError, turnAdminAuthenticatedFetch } from '../admin-auth';
 import { ingestBasicAgentOperationalDashboard, type BasicAgentTelemetryInventory } from '../turn-agent-panel.integration';
+import { createTurnProtectedResourceLoader, turnProtectedResourceError } from '../turn-protected-resource';
 
 type NodeStatus = 'PASS' | 'DEGRADED' | 'FAIL' | 'NO_TELEMETRY' | 'STANDBY';
 const orbitalCriteria = ['operational', 'telemetry', 'procedural', 'component', 'incidents', 'freshness'] as const;
@@ -37,9 +38,9 @@ type Dashboard = {
 };
 type Envelope = { data?: Dashboard; message?: string | string[] };
 
-let dashboardRequest: Promise<Dashboard> | undefined;
+const dashboardLoader = createTurnProtectedResourceLoader<Dashboard>({ ttlMs: 60_000 });
 
-export function bindPremiumGovernanceRuntime(administratorAccessVerified = false) {
+export function bindPremiumGovernanceRuntime(administratorAccessVerified = false, forceRefresh = false) {
   const hero = document.querySelector<HTMLElement>('[data-authority-dashboard]');
   const detail = document.querySelector<HTMLElement>('[data-agent-network-detail]');
   if (!hero && !detail) return;
@@ -53,7 +54,7 @@ export function bindPremiumGovernanceRuntime(administratorAccessVerified = false
   inspectionButton?.addEventListener('click', () => {
     inspectionButton.disabled = true;
     inspectionButton.textContent = 'Inspectorii rulează…';
-    void runInspections().then(() => load()).then((data) => {
+    void runInspections().then(() => load(true)).then((data) => {
       ingestBasicAgentOperationalDashboard(data);
       const currentHero = document.querySelector<HTMLElement>('[data-authority-dashboard]');
       const currentDetail = document.querySelector<HTMLElement>('[data-agent-network-detail]');
@@ -68,7 +69,7 @@ export function bindPremiumGovernanceRuntime(administratorAccessVerified = false
       inspectionButton.textContent = 'Rulează inspectorii reali';
     });
   });
-  void load().then((data) => {
+  void load(forceRefresh).then((data) => {
     ingestBasicAgentOperationalDashboard(data);
     const currentHero = document.querySelector<HTMLElement>('[data-authority-dashboard]');
     const currentDetail = document.querySelector<HTMLElement>('[data-agent-network-detail]');
@@ -84,19 +85,13 @@ export function bindPremiumGovernanceRuntime(administratorAccessVerified = false
   });
 }
 
-async function load() {
-  if (!dashboardRequest) {
-    const pending = (async () => {
-      const response = await turnAdminAuthenticatedFetch('/operations/turn/operational-dashboard', { cache: 'no-store' });
-      const envelope = await response.json().catch(() => ({})) as Envelope;
-      if (!response.ok || !envelope.data) throw new Error('Datele operaționale ACP nu sunt disponibile; nu se afișează fallback.');
-      return envelope.data;
-    })().finally(() => {
-      if (dashboardRequest === pending) dashboardRequest = undefined;
-    });
-    dashboardRequest = pending;
-  }
-  return dashboardRequest;
+async function load(force = false) {
+  return dashboardLoader.read(async () => {
+    const response = await turnAdminAuthenticatedFetch('/operations/turn/operational-dashboard', { cache: 'no-store' });
+    const envelope = await response.json().catch(() => ({})) as Envelope;
+    if (!response.ok || !envelope.data) throw turnProtectedResourceError(response, 'Datele operaționale ACP nu sunt disponibile; nu se afișează fallback.');
+    return envelope.data;
+  }, force);
 }
 
 async function runInspections() {
@@ -153,7 +148,7 @@ function renderRuntimeFailure(root: HTMLElement, error: unknown) {
 }
 
 function renderHero(root: HTMLElement, data: Dashboard) {
-  const agentNodes = data.nodes.filter((node) => node.kind !== 'HUMAN_AUTHORITY');
+  const agentNodes = data.nodes.filter((node) => node.kind === 'AGENT');
   const runtimeObserved = agentNodes.filter((node) => node.runtimePresence === 'OBSERVED').length;
   const runtimeAbsentOrUnseen = agentNodes.filter((node) => ['ABSENT', 'NOT_OBSERVED'].includes(node.runtimePresence)).length;
   const healthy = agentNodes.filter((node) => node.health === 'HEALTHY').length;
@@ -181,40 +176,40 @@ function renderHero(root: HTMLElement, data: Dashboard) {
     <section><h3>Authority defects</h3><p>${data.controlPlane.conflicts.length ? `${data.controlPlane.conflicts.length} conflicte active — acțiune obligatorie.` : '0 conflicte active evaluate.'} ${data.controlPlane.invalidOrStaleAuthority.length ? `${data.controlPlane.invalidOrStaleAuthority.length} lease-uri cu stare activă dar TTL expirat.` : '0 lease-uri active expirate.'}</p></section>
     <section><h3>Opportunity Intelligence</h3><p><strong>${escapeHtml(data.opportunityIntelligence.gate)}</strong> · ${escapeHtml(data.opportunityIntelligence.reason)}</p><p>${escapeHtml(data.opportunityIntelligence.requiredAction ?? 'Nicio acțiune necesară din evaluarea curentă.')}</p><small>Sursă: OpportunityAgentTelemetry (${data.opportunityIntelligence.sources.length}) · evaluat ${formatDate(data.opportunityIntelligence.evaluatedAt)}</small></section>
     <section><h3>Capability gaps</h3><p>${data.capabilityGaps.length ? `${data.capabilityGaps.length} identități înregistrate nu au implementare executabilă; sunt marcate FAILED mai jos.` : 'Nicio capabilitate executabilă lipsă.'}</p></section>`;
-  renderPremiumSpatialModel(root, data);
+  renderPremiumSpatialModel(root, data, agentNodes);
   root.setAttribute('aria-busy', 'false');
 }
 
-function renderPremiumSpatialModel(root: HTMLElement, data: Dashboard) {
+function renderPremiumSpatialModel(root: HTMLElement, data: Dashboard, nodes: NetworkNode[]) {
   root.querySelector<HTMLElement>('[data-premium-operational-orbit]')?.setAttribute('data-orbital-source', data.contractVersion);
   const stage = root.querySelector<HTMLElement>('[data-premium-spatial-stage]');
   const orbitalStage = root.querySelector<HTMLElement>('[data-premium-orbital-stage]');
   const selection = root.querySelector<HTMLElement>('[data-premium-spatial-selection]');
   const orbitalSelection = root.querySelector<HTMLElement>('[data-premium-orbital-selection]');
   if (!stage) return;
-  const positions = networkPositions(data.nodes);
-  const byId = new Map(data.nodes.map((node) => [node.canonicalId, node]));
-  const criteriaById = new Map(data.nodes.map((node) => [node.canonicalId, evaluateOrbitalCriteria(node)]));
-  const links = data.nodes.flatMap((node) => {
+  const positions = networkPositions(nodes);
+  const byId = new Map(nodes.map((node) => [node.canonicalId, node]));
+  const criteriaById = new Map(nodes.map((node) => [node.canonicalId, evaluateOrbitalCriteria(node)]));
+  const links = nodes.flatMap((node) => {
     const from = positions.get(node.canonicalId);
     const targetId = node.supervisorId && byId.has(node.supervisorId) ? node.supervisorId : 'agm.authority.control-plane';
     const to = positions.get(targetId);
     return from && to && node.canonicalId !== targetId ? [`<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" data-premium-spatial-link="${escapeHtml(node.canonicalId)}" />`] : [];
   }).join('');
-  stage.innerHTML = `<svg class="turn-spatial-links" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="18"></circle><circle cx="50" cy="50" r="31"></circle><circle cx="50" cy="50" r="43"></circle>${links}</svg>${data.nodes.map((node) => {
+  stage.innerHTML = `<svg class="turn-spatial-links" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="18"></circle><circle cx="50" cy="50" r="31"></circle><circle cx="50" cy="50" r="43"></circle>${links}</svg>${nodes.map((node) => {
     const position = positions.get(node.canonicalId)!;
     return `<button type="button" class="turn-spatial-node premium status-${statusClass(node.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%" data-premium-spatial-node="${escapeHtml(node.canonicalId)}" data-canonical-status="${escapeHtml(node.status)}" data-runtime-presence="${escapeHtml(node.runtimePresence)}" data-status-source="${escapeHtml(node.statusSource)}"><span aria-hidden="true"></span><strong>${escapeHtml(shortNodeName(node.canonicalId))}</strong><small>${escapeHtml(node.status)}</small></button>`;
   }).join('')}`;
   stage.setAttribute('aria-busy', 'false');
   if (orbitalStage) {
-    orbitalStage.innerHTML = `${renderPremiumOrbitalRings()}${data.nodes.map((node, index) => {
+    orbitalStage.innerHTML = `${renderPremiumOrbitalRings()}${nodes.map((node, index) => {
       const position = positions.get(node.canonicalId)!;
       return renderPremiumOrbitalPlanet(node, position, index, criteriaById.get(node.canonicalId)!);
     }).join('')}`;
     orbitalStage.setAttribute('aria-busy', 'false');
   }
   const criterionMaps = root.querySelector<HTMLElement>('[data-premium-orbital-criterion-maps]');
-  if (criterionMaps) criterionMaps.innerHTML = renderPremiumCriterionMaps(data.nodes, positions, criteriaById);
+  if (criterionMaps) criterionMaps.innerHTML = renderPremiumCriterionMaps(nodes, positions, criteriaById);
   const select = (node: NetworkNode) => {
     stage.querySelectorAll<HTMLElement>('[data-premium-spatial-node]').forEach((element) => element.classList.toggle('selected', element.dataset.premiumSpatialNode === node.canonicalId));
     orbitalStage?.querySelectorAll<HTMLElement>('[data-premium-orbital-node]').forEach((element) => element.classList.toggle('selected', element.dataset.premiumOrbitalNode === node.canonicalId));
@@ -231,10 +226,10 @@ function renderPremiumSpatialModel(root: HTMLElement, data: Dashboard) {
   }));
   root.querySelectorAll<HTMLButtonElement>('[data-premium-orbital-criterion]').forEach((button) => button.addEventListener('click', () => {
     const criterion = button.dataset.premiumOrbitalCriterion as OrbitalCriterion;
-    if (orbitalCriteria.includes(criterion)) applyPremiumOrbitalCriterion(root, data.nodes, criteriaById, criterion);
+    if (orbitalCriteria.includes(criterion)) applyPremiumOrbitalCriterion(root, nodes, criteriaById, criterion);
   }));
-  applyPremiumOrbitalCriterion(root, data.nodes, criteriaById, 'operational');
-  const initial = byId.get('agm.authority.control-plane') ?? data.nodes[0];
+  applyPremiumOrbitalCriterion(root, nodes, criteriaById, 'operational');
+  const initial = nodes[0];
   if (initial) select(initial);
 }
 
@@ -377,6 +372,8 @@ function renderIncidentUnavailable(reason: string) {
 }
 
 function shortNodeName(id: string) {
+  const linguisticLanguage = /^premium-linguist-(it|es|sv)$/.exec(id)?.[1];
+  if (linguisticLanguage) return `Linguist ${linguisticLanguage.toUpperCase()}`;
   return id.replace(/^premium\./, '').replace(/^agm\./, '').split('.').slice(-2).join('·');
 }
 

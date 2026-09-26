@@ -13,6 +13,7 @@ const cssModules = [
   '20-domain-tools.css',
   '30-operations.css',
   '40-turn-responsive.css',
+  '45-turn-final-remediation.css',
   '50-roadmap-responsive.css',
 ] as const;
 const manifest = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
@@ -25,7 +26,7 @@ const reconstructedCss = cssModules
   .reduce((output, content) => Buffer.concat([output, content]), Buffer.alloc(0));
 assert.equal(
   createHash('sha256').update(reconstructedCss).digest('hex').toUpperCase(),
-  '3E8702CD7B8D033F80F88126B3AE11A08ABDEE65E33949D8377FD64342037A7D',
+  'B2D5C9FC410E83B21B49A85F8E072579B7A5132584FC838D639F693A29C499F6',
   'The modular CSS must reconstruct the approved Access/Premium and Android Wave 1 cascade.',
 );
 

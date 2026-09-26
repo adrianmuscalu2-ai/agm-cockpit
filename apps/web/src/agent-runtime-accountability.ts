@@ -1,5 +1,4 @@
 import { isTurnAdminSessionError, turnAdminAuthenticatedFetch } from './admin-auth';
-import { ingestBasicAgentRuntimeAccountability, markBasicAgentRuntimeAccountabilityUnavailable } from './turn-agent-panel.integration';
 
 export type RuntimeAgentAccountability = {
   identity: string;
@@ -129,12 +128,10 @@ export async function bindAgentRuntimeAccountability(fetcher: typeof fetch = tur
       const snapshot = await fetchAgentRuntimeAccountability(fetcher);
       const currentTarget = document.querySelector<HTMLElement>('[data-agent-runtime-state]');
       if (currentTarget) currentTarget.innerHTML = renderAgentRuntimeSnapshot(snapshot);
-      ingestBasicAgentRuntimeAccountability(snapshot);
     } catch (error) {
       const authRequired = isTurnAdminSessionError(error);
       const currentTarget = document.querySelector<HTMLElement>('[data-agent-runtime-state]');
       if (currentTarget) currentTarget.innerHTML = `<div class="agent-runtime-unavailable" data-tone="fail"><strong>UNKNOWN / NO TELEMETRY</strong><p>${authRequired ? 'Administrator validation is required to read protected operational evidence.' : 'The operational evidence endpoint is unavailable; no ACTIVE or PASS state is inferred.'}</p></div>`;
-      markBasicAgentRuntimeAccountabilityUnavailable(authRequired ? 'ADMIN_SESSION_REQUIRED' : 'ACCOUNTABILITY_ENDPOINT_UNAVAILABLE');
     } finally {
       inFlight = false;
     }

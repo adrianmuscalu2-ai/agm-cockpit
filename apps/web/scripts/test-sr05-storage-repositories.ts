@@ -67,9 +67,10 @@ assert.deepEqual(ocr.read(), []);
 storage.setItem(storageKeys.ocrHistory, JSON.stringify({ not: 'an array' }));
 assert.deepEqual(ocr.read(), []);
 
+const recentBase = Date.now() - 10_000;
 const items = Array.from({ length: 10 }, (_, index): OcrHistoryItem => ({
   id: `ocr-${index}`,
-  createdAt: `2026-07-29T08:00:${String(index).padStart(2, '0')}.000Z`,
+  createdAt: new Date(recentBase + index * 1_000).toISOString(),
   sourceLanguage: 'ro',
   targetLanguage: 'de',
   imageDataUrl: `data:image/jpeg;base64,${index}`,
@@ -139,10 +140,10 @@ for (const removedLocalDefinition of [
 
 for (const protectedStorageBoundary of [
   'function readLegalAcceptance(storage: Storage)',
-  'saveProfile(window.localStorage, state.profile)',
+  'saveProfile(window.sessionStorage, state.profile)',
   'saveContacts(window.localStorage, state.contacts)',
-  'saveMessageLibraryPreferences(window.localStorage, {',
-  'saveIncidentJournal(window.localStorage, state.incidents)',
+  'saveMessageLibraryPreferences(window.sessionStorage, {',
+  'saveIncidentJournal(window.sessionStorage, state.incidents)',
 ]) {
   assert.ok(main.includes(protectedStorageBoundary), `Out-of-scope storage moved: ${protectedStorageBoundary}`);
 }

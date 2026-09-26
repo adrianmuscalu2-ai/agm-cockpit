@@ -1,4 +1,4 @@
-const TURN_PAGES = ['basic', 'premium', 'incidents', 'investigate'] as const;
+const TURN_PAGES = ['basic', 'premium', 'orchestrators', 'incidents', 'investigate'] as const;
 type TurnPage = (typeof TURN_PAGES)[number];
 
 export function bindTurnCommandNavigation() {

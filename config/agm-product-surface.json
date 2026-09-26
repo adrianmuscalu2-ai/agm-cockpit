@@ -3,12 +3,12 @@
   "product": "AGM Cockpit",
   "latestHistoricalBaseline": "1.2.9",
   "historicalBaselines": ["1.2.6", "1.2.9"],
-  "appVersionLabel": "A.G.M. Cockpit 1.5.0",
+  "appVersionLabel": "A.G.M. Cockpit 1.6.0",
   "browserApplicationAvailability": "not-open",
   "apiUrl": "https://api.agmcockpit.com/api/v1",
-  "androidDownloadPath": "/downloads/AGM-Cockpit-Android-1.5.0.apk",
+  "androidDownloadPath": "/downloads/AGM-Cockpit-Android-1.6.0.apk",
   "accessPremiumCandidate": "f448a16",
-  "currentDevelopmentVersion": "1.5.0",
+  "currentDevelopmentVersion": "1.6.0",
   "publicReleaseStatus": "not-open",
   "websiteStatus": "local-only"
 }

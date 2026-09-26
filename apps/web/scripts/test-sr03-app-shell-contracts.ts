@@ -40,9 +40,9 @@ const ownedFields = appStateSliceNames
   .flatMap((slice) => appStateFieldOwnership[slice])
   .sort();
 
-assert.equal(currentFields.length, 65);
-assert.equal(ownedFields.length, 65);
-assert.equal(new Set(ownedFields).size, 65, 'Every state field must have one owner');
+assert.equal(currentFields.length, 66);
+assert.equal(ownedFields.length, 66);
+assert.equal(new Set(ownedFields).size, 66, 'Every state field must have one owner');
 assert.deepEqual(ownedFields, currentFields);
 
 assert.deepEqual(appStateSliceNames, [

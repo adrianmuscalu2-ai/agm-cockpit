@@ -21,8 +21,9 @@ for (const id of ['website-content-visual-guardian', 'website-runtime-release-gu
 for (const id of ['premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv']) {
   const agent = model.find((entry) => entry.turnAgentId === id);
   assert.ok(agent && agent.mappingStatus === 'MAPPED', `${id} must be registered in TURN`);
-  assert.equal(agent.sourceId, id, `${id} must use its canonical heartbeat source`);
-  assert.match(agent.telemetrySource ?? '', /Component heartbeat v1/);
+  assert.equal(agent.sourceId, id, `${id} must use its canonical V1 state source`);
+  assert.match(agent.telemetrySource ?? '', /Operational Linguistic Baseline V1 · typed API state · 1\.726 resurse/);
+  assert.doesNotMatch(agent.telemetrySource ?? '', /Component heartbeat/);
 }
 assert.ok(model.some((agent) => agent.mappingStatus === 'MAPPED' && agent.turnAgentId === 'monitor-api' && agent.registryName === 'Agent Monitorizare API'), 'API monitor must be mapped from registry');
 assert.ok(model.some((agent) => agent.mappingStatus === 'MAPPED' && agent.turnAgentId === 'atlas-operations' && agent.registrySource === 'turn-organization-chart'), 'Atlas must be mapped from official Turn registry');

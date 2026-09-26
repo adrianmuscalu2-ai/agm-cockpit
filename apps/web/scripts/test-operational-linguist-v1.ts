@@ -5,6 +5,7 @@ import {
 } from '@agm/shared';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
 import { deterministicOperationalLinguistAudit, createPublicationEvidence } from '../../../scripts/operational-linguists-v1-publisher';
 import { assessOperationalLinguistV1QualityCandidate, operationalLinguistV1QualityCategories, operationalLinguistV1QualityFixtures } from '../src/premium-linguistic-agents/operational-linguist-v1.quality-fixtures';
 import { premiumLinguisticAgents } from '../src/premium-linguistic-agents/premium-linguistic-agents.registry';
@@ -73,6 +74,34 @@ await assert.rejects(
   /UNEXPECTED_OBSERVER_FAILURE/,
 );
 
+const governanceRuntimeSource = readFileSync(new URL('../src/premium-governance/premium-governance.runtime.ts', import.meta.url), 'utf8');
+assert.match(governanceRuntimeSource, /\^premium-linguist-\(it\|es\|sv\)\$/);
+assert.match(governanceRuntimeSource, /return `Linguist \$\{linguisticLanguage\.toUpperCase\(\)\}`/);
+
+const panelRuntimeSource = readFileSync(new URL('../src/turn-agent-panel.integration.ts', import.meta.url), 'utf8');
+assert.equal((panelRuntimeSource.match(/Operational Linguistic Baseline V1 · typed API state · 1\.726 resurse/g) ?? []).length, 3);
+assert.doesNotMatch(panelRuntimeSource, /Component heartbeat v1 · audit runtime/);
+assert.equal(existsSync(new URL('../src/premium-linguistic-agents/premium-linguistic-agents.runtime.ts', import.meta.url)), false, 'legacy Browser publisher runtime must remain deleted');
+assert.equal(existsSync(new URL('../src/premium-linguistic-agents/premium-linguistic-heartbeat.evidence.ts', import.meta.url)), false, 'legacy heartbeat evidence module must remain deleted');
+assert.equal(existsSync(new URL('../../../scripts/publish-production-linguistic-heartbeats-browser.mjs', import.meta.url)), false, 'legacy Browser publication script must remain deleted');
+assert.equal(existsSync(new URL('../../../scripts/test-production-linguistic-heartbeats-browser.mjs', import.meta.url)), false, 'legacy Browser publication test must remain deleted');
+assert.equal(existsSync(new URL('../../../scripts/simulate-production-linguistic-release-sequencing.ts', import.meta.url)), false, 'legacy release simulation must remain deleted');
+assert.equal(existsSync(new URL('../../../.github/workflows/production-linguistic-heartbeat-diagnostic.yml', import.meta.url)), false, 'legacy diagnostic publication workflow must remain deleted');
+
+const operationalProfileSource = readFileSync(new URL('../../api/src/authority-control-plane/operational-profile.ts', import.meta.url), 'utf8');
+const controlPlaneSource = readFileSync(new URL('../../api/src/authority-control-plane/authority-control-plane.service.ts', import.meta.url), 'utf8');
+const telemetryServiceSource = readFileSync(new URL('../../api/src/component-telemetry/component-telemetry.service.ts', import.meta.url), 'utf8');
+assert.match(operationalProfileSource, /startsWith\('premium-linguist-'\).*'OPERATIONAL_LINGUIST_V1'/);
+assert.match(controlPlaneSource, /operationalLinguistStateById/);
+assert.match(controlPlaneSource, /OperationalLinguistState:/);
+assert.match(telemetryServiceSource, /LEGACY_OPERATIONAL_LINGUIST_HEARTBEAT_FENCED/);
+
+const operationsHealth = JSON.parse(readFileSync(new URL('../../../config/operations-health.json', import.meta.url), 'utf8')) as { operationsServices: Array<{ id: string; kind: string; url?: string; evaluator?: string }> };
+for (const id of ['premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv']) {
+  const source = operationsHealth.operationsServices.find((item) => item.id === id);
+  assert.deepEqual(source && { kind: source.kind, url: source.url, evaluator: source.evaluator }, { kind: 'runtime', url: undefined, evaluator: undefined }, `${id}: Browser must not retain a legacy component-health probe`);
+}
+
 console.log(JSON.stringify({
   status: 'PASS',
   determinism: 'PASS',
@@ -80,5 +109,8 @@ console.log(JSON.stringify({
   immutableQualityFixtures: `${operationalLinguistV1QualityFixtures.length} categories/cases PASS`,
   unapprovedQualityOutput: 'REVIEW_REQUIRED',
   originalNineReferenceBaseline: 'UNCHANGED',
+  generation: 'OPERATIONAL_LINGUIST_V1_ONLY',
+  legacyBrowserPublisher: 'ABSENT',
+  legacyComponentHeartbeat: 'FENCED',
   browserAuthority: 'NONE',
 }, null, 2));

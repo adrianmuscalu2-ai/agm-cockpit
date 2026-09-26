@@ -15,6 +15,7 @@ import { optionalExternalProviders } from '../car-mover/car-mover-routing.policy
 import { OPERATIONAL_INCIDENT_CONTRACT, operationalIncidentTransition, qualifyOperationalIncident, type OperationalIncidentQualification } from './operational-incident-evaluator';
 import { AGENT_ACCOUNTABILITY_CONTRACT, INSPECTOR_FAILOVER_CONTRACT, evaluateAgentAccountability, evaluateAgentRuntimeVerdict, evaluateInspectorFailover, falseActiveCount, selectLatestAccountableExecution, type AccountabilitySignal } from './agent-runtime-accountability.engine';
 import { OperationalAgentDutyRunner, type OperationalAgentDutyResult } from './operational-agent-duty.runner';
+import { OPERATIONAL_LINGUIST_V1_BASELINE_VERSION } from '@agm/shared';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
 const AUTHORITY_ADMIN_ROLES = new Set(['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN']);
@@ -148,7 +149,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
   async dashboard(ctx: RequestContext) {
     const now = new Date();
     const secretSnapshot = this.secretTelemetry.snapshot();
-    const [registry, heartbeats, runtimeEvents, opportunityTelemetry, liveAdapterTelemetry, allLeases, failover, operationalIncidentJournals, domainValidationJournals, mandates, decisions, recovery, domainActivity, opportunityCount] = await Promise.all([
+    const [registry, heartbeats, runtimeEvents, opportunityTelemetry, liveAdapterTelemetry, allLeases, failover, operationalIncidentJournals, domainValidationJournals, mandates, decisions, recovery, domainActivity, opportunityCount, operationalLinguistBaseline, operationalLinguistStates] = await Promise.all([
       this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId: ctx.companyId }, orderBy: [{ module: 'asc' }, { canonicalId: 'asc' }] }),
       this.prisma.componentHeartbeat.findMany({ where: { companyId: ctx.companyId } }),
       this.prisma.agentRuntimeEvent.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: ACCOUNTABILITY_EVIDENCE_LOOKBACK_LIMIT }),
@@ -163,9 +164,18 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       this.prisma.recoveryExecution.findFirst({ where: { companyId: ctx.companyId }, orderBy: { startedAt: 'desc' } }),
       this.domainActivity(ctx.companyId),
       this.prisma.normalizedOpportunity.count({ where: { companyId: ctx.companyId } }),
+      this.prisma.operationalLinguistBaseline?.findUnique({ where: { companyId_version: { companyId: ctx.companyId, version: OPERATIONAL_LINGUIST_V1_BASELINE_VERSION } } }) ?? Promise.resolve(null),
+      this.prisma.operationalLinguistState?.findMany({ where: { companyId: ctx.companyId } }) ?? Promise.resolve([]),
     ]);
     const leases = allLeases.filter((lease) => ACTIVE_LEASE_STATES.includes(lease.state) && lease.expiresAt > now);
     const heartbeatById = new Map(heartbeats.map((item) => [item.componentId, item]));
+    const operationalLinguistStateById = new Map(
+      operationalLinguistBaseline?.status === 'ACTIVE'
+        ? operationalLinguistStates
+          .filter((item) => item.baselineId === operationalLinguistBaseline.id)
+          .map((item) => [item.componentId, item] as const)
+        : [],
+    );
     const opportunityTelemetryById = new Map(opportunityTelemetry.map((item) => [item.agentId, item]));
     const liveTelemetryById = new Map<string, (typeof liveAdapterTelemetry)[number]>();
     for (const item of liveAdapterTelemetry) if (!liveTelemetryById.has(adapterRegistryId(item.category))) liveTelemetryById.set(adapterRegistryId(item.category), item);
@@ -188,6 +198,9 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       const registryPresence = persisted ? 'PRESENT' : 'MISSING';
       const profile = operationalProfile({ canonicalId: item.canonicalId, kind: item.kind, capabilities: stringArray(item.capabilities) });
       const heartbeat = heartbeatById.get(item.canonicalId);
+      const operationalLinguistState = profile.expectedSource === 'OPERATIONAL_LINGUIST_V1'
+        ? operationalLinguistStateById.get(item.canonicalId)
+        : undefined;
       const opportunityRun = opportunityTelemetryById.get(item.canonicalId);
       const liveRun = liveTelemetryById.get(item.canonicalId);
       const lastRun = lastRunByAgent.get(item.canonicalId);
@@ -204,6 +217,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         registryLifecycleStatus: item.lifecycleStatus,
         ...(profile.expectedSource === 'LIVE_ADAPTER' && liveRun ? { liveAdapter: { status: adapterHealth(liveRun.status), observedAt: liveRun.lastAttemptAt } } : {}),
         ...(profile.expectedSource === 'OPPORTUNITY_TELEMETRY' && opportunityRun ? { opportunityTelemetry: { status: opportunityRun.health, freshnessStatus: opportunityRun.freshnessStatus, observedAt: opportunityRun.lastRunAt } } : {}),
+        ...(profile.expectedSource === 'OPERATIONAL_LINGUIST_V1' && operationalLinguistState ? { operationalLinguist: { status: operationalLinguistState.operationalState === 'ONLINE' && operationalLinguistState.errorCount === 0 ? 'ONLINE' : 'DEGRADED', observedAt: operationalLinguistState.observedAt, staleAfterMs: profile.freshnessWindowMs ?? undefined } } : {}),
         ...(profile.expectedSource === 'COMPONENT_HEARTBEAT' && heartbeat ? { heartbeat: { status: heartbeat.reportedStatus, observedAt: heartbeat.lastSeenAt, staleAfterMs: profile.freshnessWindowMs ?? undefined } } : {}),
         ...(profile.expectedSource === 'SECRET_TELEMETRY' && secretRun ? { secretTelemetry: { status: secretRun.overallStatus === 'CONFIGURED' ? 'PASS' : 'DEGRADED', observedAt: new Date(secretRun.checkedAt) } } : {}),
         ...(profile.expectedSource === 'RUNTIME_EVENT' && lastRun ? { runtimeEvent: { status: lastRun.lifecycle, observedAt: lastRun.occurredAt } } : {}),
@@ -211,17 +225,22 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       });
       const activityObservedAt = runtimeActivityProven ? lastRun!.occurredAt : domainValidation?.occurredAt ?? canonicalState.observedAt;
       const activityStale = Boolean(activityObservedAt && profile.freshnessWindowMs && now.getTime() - activityObservedAt.getTime() > profile.freshnessWindowMs);
-      const runtimeObservedAt = secretRun ? new Date(secretRun.checkedAt) : heartbeat?.lastSeenAt ?? null;
-      const runtimeStaleAfterMs = profile.expectedSource === 'COMPONENT_HEARTBEAT' ? profile.freshnessWindowMs : COMPONENT_RUNTIME_PROBE_STALE_AFTER_MS;
+      const runtimeObservedAt = operationalLinguistState?.observedAt ?? (secretRun ? new Date(secretRun.checkedAt) : heartbeat?.lastSeenAt ?? null);
+      const runtimeStaleAfterMs = ['COMPONENT_HEARTBEAT', 'OPERATIONAL_LINGUIST_V1'].includes(profile.expectedSource) ? profile.freshnessWindowMs : COMPONENT_RUNTIME_PROBE_STALE_AFTER_MS;
       const runtimeStale = Boolean(runtimeObservedAt && runtimeStaleAfterMs && now.getTime() - runtimeObservedAt.getTime() > runtimeStaleAfterMs);
       const runtimeCapabilityMissing = Boolean(heartbeat?.lastFailureReason?.startsWith('RUNTIME_PROVIDER_NOT_LOADED') || heartbeat?.lastFailureReason?.startsWith('RUNTIME_METHOD_NOT_LOADED'));
       const runtimePresence = profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' || runtimeCapabilityMissing ? 'ABSENT' : runtimeObservedAt ? 'OBSERVED' : 'NOT_OBSERVED';
       const activityStatus = profile.runtimeMode === 'HUMAN' ? 'STANDBY' : profile.runtimeMode === 'CAPABILITY_NOT_IMPLEMENTED' ? 'FAIL' : runtimeActivityProven ? 'PASS' : canonicalState.status;
-      const probeDegraded = heartbeat?.reportedStatus === 'DEGRADED' || (secretRun ? secretRun.overallStatus !== 'CONFIGURED' : false);
+      const probeDegraded = Boolean(
+        (operationalLinguistState && (operationalLinguistState.operationalState !== 'ONLINE' || operationalLinguistState.errorCount !== 0))
+        || heartbeat?.reportedStatus === 'DEGRADED'
+        || (secretRun ? secretRun.overallStatus !== 'CONFIGURED' : false),
+      );
       const sourceStatus = runtimePresence === 'ABSENT' || runtimeStale ? 'FAIL' : runtimePresence === 'NOT_OBSERVED' ? 'NO_TELEMETRY' : probeDegraded ? 'DEGRADED' : activityStatus === 'FAIL' ? 'FAIL' : activityStatus === 'DEGRADED' ? 'DEGRADED' : activityStale ? 'DEGRADED' : activityStatus;
       const effectiveStatus = persisted ? sourceStatus : 'FAIL';
       const secretIssue = secretRun?.secrets.filter((secret) => secret.status !== 'CONFIGURED').map((secret) => `${secret.id}:${secret.status}`).join(', ') || null;
       const sourceFailureReason = secretIssue
+        ?? (operationalLinguistState && (operationalLinguistState.operationalState !== 'ONLINE' || operationalLinguistState.errorCount !== 0) ? `OperationalLinguistState status=${operationalLinguistState.operationalState}; errors=${operationalLinguistState.errorCount}` : null)
         ?? (heartbeat && !['PASS', 'ONLINE', 'HEALTHY'].includes(heartbeat.reportedStatus) ? `ComponentHeartbeat status=${heartbeat.reportedStatus}${heartbeat.lastFailureReason ? `; ${heartbeat.lastFailureReason}` : ''}` : null)
         ?? (liveRun && liveRun.status !== 'HEALTHY' ? `LiveAdapterTelemetry status=${liveRun.status}${liveRun.lastErrorCode ? `; error=${liveRun.lastErrorCode}` : ''}; rateLimit=${liveRun.rateLimitState}` : null)
         ?? (opportunityRun && (!['PASS', 'HEALTHY'].includes(opportunityRun.health) || !['PASS', 'HEALTHY'].includes(opportunityRun.dependencyHealth) || opportunityRun.freshnessStatus === 'STALE' || opportunityRun.backlog > 0) ? `OpportunityAgentTelemetry health=${opportunityRun.health}; dependency=${opportunityRun.dependencyHealth}; freshness=${opportunityRun.freshnessStatus}; backlog=${opportunityRun.backlog}; output=${opportunityRun.outputReference ?? 'NONE'}` : null)
@@ -232,7 +251,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         : profile.runtimeMode === 'HUMAN' ? 'Human authority is not a process; runtime heartbeat is not applicable.'
           : profile.missingCapability
           ?? (runtimePresence === 'ABSENT' ? heartbeat?.lastFailureReason ?? 'Executable runtime capability is absent.'
-            : runtimePresence === 'NOT_OBSERVED' ? `No runtime heartbeat or capability probe exists for ${item.canonicalId}.`
+            : runtimePresence === 'NOT_OBSERVED' ? `No ${profile.expectedSource} runtime observation exists for ${item.canonicalId}.`
             : runtimeStale ? `Runtime observation exceeds ${Math.round((runtimeStaleAfterMs ?? 0) / 60000)} minutes.`
               : effectiveStatus === 'STANDBY' ? `Runtime capability probe passed; no current execution is active. Last ${profile.expectedSource} activity is ${activityObservedAt ? activityStale ? 'stale' : 'completed' : 'not yet observed'}.`
                 : sourceFailureReason);
@@ -245,8 +264,10 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
               : effectiveStatus === 'FAIL' || effectiveStatus === 'DEGRADED' ? 'Inspect the cited evidence and restore the failed dependency or execution path.' : null);
       const nodeDependencyFailures = dependencyFailures(liveRun, opportunityRun, heartbeat, secretRun?.secrets.filter((secret) => secret.status !== 'CONFIGURED').map((secret) => `${secret.id}:${secret.status}`));
       const statusUsesRuntimeEvidence = profile.runtimeMode !== 'HUMAN' && (effectiveStatus === 'STANDBY' || effectiveStatus === 'NO_TELEMETRY' || runtimePresence === 'ABSENT' || runtimeStale || probeDegraded);
-      const runtimeStatusSource = secretRun ? 'SECRET_TELEMETRY' : profile.expectedSource === 'COMPONENT_HEARTBEAT' ? 'COMPONENT_HEARTBEAT' : 'RUNTIME_CAPABILITY_PROBE';
-      const runtimeRecordReference = secretRun?.contract ?? (heartbeat ? `ComponentHeartbeat:${heartbeat.id}` : null);
+      const runtimeStatusSource = operationalLinguistState ? 'OPERATIONAL_LINGUIST_V1' : secretRun ? 'SECRET_TELEMETRY' : profile.expectedSource === 'COMPONENT_HEARTBEAT' ? 'COMPONENT_HEARTBEAT' : 'RUNTIME_CAPABILITY_PROBE';
+      const runtimeRecordReference = operationalLinguistState
+        ? `OperationalLinguistState:${operationalLinguistState.id};OperationalLinguistEvidence:${operationalLinguistState.currentEvidenceId}`
+        : secretRun?.contract ?? (heartbeat ? `ComponentHeartbeat:${heartbeat.id}` : null);
       const activityEvidenceSource = runtimeActivityProven ? 'RUNTIME_EVENT' : domainValidation ? 'DOMAIN_VALIDATION_EVENT_STORE' : profile.expectedSource;
       const activityRecordReference = runtimeActivityProven ? `AgentRuntimeEvent:${lastRun!.eventId}` : domainValidation ? `AuthorityAuditJournal:${domainValidation.eventId}` : evidenceReference(item.canonicalId, liveRun?.id, opportunityRun?.id, profile.expectedSource === 'COMPONENT_HEARTBEAT' ? heartbeat?.id : null, lastRun?.eventId, domainRun?.recordId);
       const workloadState = runtimeEventExecuting ? 'ACTIVE' : runtimeDutyCompleted ? 'VALIDATED' : domainValidation ? 'VALIDATED' : (opportunityRun?.backlog ?? 0) > 0 ? 'BACKLOG' : domainRun ? 'LAST_DOMAIN_STATE' : 'IDLE';
@@ -275,8 +296,8 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         evidence: { source: profile.runtimeMode === 'HUMAN' ? 'HUMAN_AUTHORITY' : statusUsesRuntimeEvidence ? runtimeStatusSource : activityEvidenceSource, observedAt: statusUsesRuntimeEvidence ? runtimeObservedAt : activityObservedAt, recordReference: statusUsesRuntimeEvidence ? runtimeRecordReference : activityRecordReference },
         runtimeEvidence: { source: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : runtimeObservedAt ? runtimeStatusSource : 'NONE', observedAt: runtimeObservedAt, recordReference: runtimeRecordReference },
         activityEvidence: { source: activityEvidenceSource, observedAt: activityObservedAt, recordReference: activityRecordReference },
-        telemetry: secretRun ? { reportedStatus: secretRun.overallStatus, lastSeenAt: secretRun.checkedAt, lastSuccessAt: secretRun.overallStatus === 'CONFIGURED' ? secretRun.checkedAt : null, lastFailureAt: secretRun.overallStatus === 'ATTENTION' ? secretRun.checkedAt : null, detail: { contract: secretRun.contract, checkedSecrets: secretRun.secrets.length, valuesExposed: false } } : liveRun ? { reportedStatus: liveRun.status, lastSeenAt: liveRun.lastAttemptAt, lastSuccessAt: liveRun.lastSuccessAt, lastFailureAt: liveRun.lastErrorCode ? liveRun.lastAttemptAt : null, detail: { latencyMs: liveRun.latencyMs, errorRateBps: liveRun.errorRateBps, rateLimitState: liveRun.rateLimitState, fallbackActivation: liveRun.fallbackActivation, cacheAgeSeconds: liveRun.cacheAgeSeconds, providerId: liveRun.providerId, contractVersion: liveRun.contractVersion } } : opportunityRun ? { reportedStatus: opportunityRun.health, lastSeenAt: opportunityRun.lastRunAt, lastSuccessAt: opportunityRun.health === 'PASS' ? opportunityRun.lastRunAt : null, lastFailureAt: opportunityRun.health === 'FAIL' ? opportunityRun.lastRunAt : null, detail: { durationMs: opportunityRun.durationMs, freshnessStatus: opportunityRun.freshnessStatus, backlog: opportunityRun.backlog, dependencyHealth: opportunityRun.dependencyHealth, confidence: opportunityRun.confidence, outputReference: opportunityRun.outputReference, providerId: opportunityRun.providerId, contractVersion: opportunityRun.contractVersion } } : heartbeat ? { reportedStatus: heartbeat.reportedStatus, lastSeenAt: heartbeat.lastSeenAt, lastSuccessAt: heartbeat.lastSuccessAt, lastFailureAt: heartbeat.lastFailureAt, detail: heartbeat.lastDetail } : null,
-        dependencyState: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : secretRun ? secretRun.overallStatus : heartbeat?.lastFailureReason ? 'DEGRADED' : liveRun ? adapterHealth(liveRun.status) : opportunityRun ? opportunityRun.dependencyHealth : domainValidation ? 'PASS' : domainRun?.dependencyState ?? (runtimeObservedAt ? 'PASS' : 'UNKNOWN'),
+        telemetry: operationalLinguistState ? { reportedStatus: operationalLinguistState.operationalState, lastSeenAt: operationalLinguistState.observedAt, lastSuccessAt: operationalLinguistState.operationalState === 'ONLINE' && operationalLinguistState.errorCount === 0 ? operationalLinguistState.observedAt : null, lastFailureAt: operationalLinguistState.errorCount > 0 ? operationalLinguistState.observedAt : null, detail: { persistence: 'OperationalLinguistState', baselineVersion: OPERATIONAL_LINGUIST_V1_BASELINE_VERSION, contractVersion: operationalLinguistState.contractVersion, catalogDigest: operationalLinguistState.catalogDigest, evidenceRef: `OperationalLinguistEvidence:${operationalLinguistState.currentEvidenceId}`, errors: operationalLinguistState.errorCount } } : secretRun ? { reportedStatus: secretRun.overallStatus, lastSeenAt: secretRun.checkedAt, lastSuccessAt: secretRun.overallStatus === 'CONFIGURED' ? secretRun.checkedAt : null, lastFailureAt: secretRun.overallStatus === 'ATTENTION' ? secretRun.checkedAt : null, detail: { contract: secretRun.contract, checkedSecrets: secretRun.secrets.length, valuesExposed: false } } : liveRun ? { reportedStatus: liveRun.status, lastSeenAt: liveRun.lastAttemptAt, lastSuccessAt: liveRun.lastSuccessAt, lastFailureAt: liveRun.lastErrorCode ? liveRun.lastAttemptAt : null, detail: { latencyMs: liveRun.latencyMs, errorRateBps: liveRun.errorRateBps, rateLimitState: liveRun.rateLimitState, fallbackActivation: liveRun.fallbackActivation, cacheAgeSeconds: liveRun.cacheAgeSeconds, providerId: liveRun.providerId, contractVersion: liveRun.contractVersion } } : opportunityRun ? { reportedStatus: opportunityRun.health, lastSeenAt: opportunityRun.lastRunAt, lastSuccessAt: opportunityRun.health === 'PASS' ? opportunityRun.lastRunAt : null, lastFailureAt: opportunityRun.health === 'FAIL' ? opportunityRun.lastRunAt : null, detail: { durationMs: opportunityRun.durationMs, freshnessStatus: opportunityRun.freshnessStatus, backlog: opportunityRun.backlog, dependencyHealth: opportunityRun.dependencyHealth, confidence: opportunityRun.confidence, outputReference: opportunityRun.outputReference, providerId: opportunityRun.providerId, contractVersion: opportunityRun.contractVersion } } : heartbeat ? { reportedStatus: heartbeat.reportedStatus, lastSeenAt: heartbeat.lastSeenAt, lastSuccessAt: heartbeat.lastSuccessAt, lastFailureAt: heartbeat.lastFailureAt, detail: heartbeat.lastDetail } : null,
+        dependencyState: profile.runtimeMode === 'HUMAN' ? 'NOT_APPLICABLE' : operationalLinguistState ? (operationalLinguistState.operationalState === 'ONLINE' && operationalLinguistState.errorCount === 0 ? 'PASS' : 'DEGRADED') : secretRun ? secretRun.overallStatus : heartbeat?.lastFailureReason ? 'DEGRADED' : liveRun ? adapterHealth(liveRun.status) : opportunityRun ? opportunityRun.dependencyHealth : domainValidation ? 'PASS' : domainRun?.dependencyState ?? (runtimeObservedAt ? 'PASS' : 'UNKNOWN'),
         dependencyFailures: nodeDependencyFailures,
         incidents: [],
         authorityState: lease ? { state: lease.state, epoch: lease.epoch, fencingToken: lease.fencingToken, providerId: lease.providerId, expiresAt: lease.expiresAt } : { state: item.writePermissions ? 'STANDBY' : 'ADVISORY' },

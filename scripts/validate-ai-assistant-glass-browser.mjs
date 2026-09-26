@@ -12,8 +12,8 @@ if (productionTarget && !/^[a-f0-9]{40}$/.test(expectedProductionRevision)) {
   throw new Error('AGM_EXPECTED_PRODUCTION_REVISION must be the approved 40-character Production SHA');
 }
 const apkTarget = process.env.AGM_ANDROID_APK_URL ?? (productionTarget
-  ? 'https://api.agmcockpit.com/downloads/AGM-Cockpit-Android-1.5.0.apk'
-  : `${target}/downloads/AGM-Cockpit-Android-1.5.0.apk`);
+  ? 'https://api.agmcockpit.com/downloads/AGM-Cockpit-Android-1.6.0.apk'
+  : `${target}/downloads/AGM-Cockpit-Android-1.6.0.apk`);
 const runId = new Date().toISOString().replace(/[:.]/g, '-');
 const out = path.join(root, 'evidence', 'ai-assistant-glass', productionTarget ? 'production' : '', runId);
 const results = [];

@@ -141,7 +141,7 @@ try {
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
-    for (const turnPage of ['basic', 'premium']) {
+    for (const turnPage of ['basic', 'premium', 'orchestrators']) {
       await page.locator(`[data-turn-page-target="${turnPage}"]`).click();
       await page.waitForSelector(`[data-turn-page="${turnPage}"]:not([hidden])`);
       const metrics = await page.evaluate(layoutMetrics);
@@ -153,11 +153,27 @@ try {
       await page.screenshot({ path: screenshot, fullPage: true });
     }
   }
+  await page.locator('[data-turn-page-target="premium"]').click();
+  await page.waitForSelector('[data-turn-page="premium"]:not([hidden])');
   check('basic-premium-separate', await page.evaluate(() => {
     const basic = document.querySelector('[data-turn-page="basic"]');
     const premium = document.querySelector('[data-turn-page="premium"]');
     return Boolean(basic && premium && basic !== premium && basic.hasAttribute('hidden') && !premium.hasAttribute('hidden'));
   }), { target });
+
+  await page.locator('[data-turn-page-target="orchestrators"]').click();
+  await page.waitForSelector('[data-turn-page="orchestrators"]:not([hidden])');
+  const orchestratorIds = await page.locator('[data-turn-page="orchestrators"] [data-orchestrator-id]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-orchestrator-id')));
+  const expectedOrchestratorIds = [
+    'premium.orchestrator',
+    'agm.library.basic',
+    'agm.library.premium',
+    'agm.library.profile',
+    'agm.library.car-mover',
+  ];
+  check('canonical-orchestrators-visible', JSON.stringify(orchestratorIds) === JSON.stringify(expectedOrchestratorIds), { orchestratorIds, expectedOrchestratorIds });
+  check('orchestrators-explicitly-separated-from-agents', await page.locator('[data-turn-page="orchestrators"]').getByText('Orchestratori canonici · separați de agenți').isVisible(), { target });
+  check('coherent-version-visible', (await page.locator('body').innerText()).includes('Cockpit 1.6.0'), { expected: 'Cockpit 1.6.0' });
 
   const origin = new URL(target).origin;
   await page.setViewportSize({ width: 1920, height: 1080 });

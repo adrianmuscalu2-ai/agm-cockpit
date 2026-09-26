@@ -18,6 +18,7 @@ import { dutyState, latestDutyReceipt, renderAgentAccountabilityView } from './a
 import { renderIncidentTruthDetails } from './incident-truth';
 import { renderTurnAgentLiveState } from './turn-agent-live-state';
 import { renderAgentRuntimeAccountability } from './agent-runtime-accountability';
+import { createDomainOrchestrators } from '@agm/library-control-plane';
 import {
   type TurnCommandItem,
   type TurnHealthStatus,
@@ -79,17 +80,21 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       <nav class="turn-page-navigation" data-turn-page-navigation aria-label="Pagini TURN">
         <button type="button" data-turn-page-target="basic" aria-selected="true">1 · BASIC</button>
         <button type="button" data-turn-page-target="premium" aria-selected="false">2 · PREMIUM</button>
-        <button type="button" data-turn-page-target="incidents" aria-selected="false">3 · INCIDENTE</button>
-        <button type="button" data-turn-page-target="investigate" aria-selected="false">4 · DRILL-DOWN</button>
+        <button type="button" data-turn-page-target="orchestrators" aria-selected="false">3 · ORCHESTRATORI</button>
+        <button type="button" data-turn-page-target="incidents" aria-selected="false">4 · INCIDENTE</button>
+        <button type="button" data-turn-page-target="investigate" aria-selected="false">5 · DRILL-DOWN</button>
       </nav>
 
       ${renderFunctionalOverview()}
 
       ${renderTurnAuthorityControlPlane()}
-      ${renderTurnAgentLiveState()}
-      ${renderAgentRuntimeAccountability()}
+      ${renderTurnOrchestrationControlPlane()}
 
-      ${renderAgentAccountabilityView()}
+      <section class="turn-investigation-runtime" data-turn-page="investigate" hidden aria-label="TURN runtime și accountability drill-down">
+        ${renderTurnAgentLiveState()}
+        ${renderAgentRuntimeAccountability()}
+        ${renderAgentAccountabilityView()}
+      </section>
 
 
       <section class="turn-incident-page" data-turn-page="incidents" hidden aria-labelledby="turn-incident-page-title">
@@ -212,10 +217,10 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
 function renderFunctionalOverview() {
   return `<div id="turn-functional-overview" data-turn-functional-overview aria-live="polite" aria-busy="true">
     <section class="turn-spatial-page turn-basic-spatial-page" data-turn-page="basic" aria-labelledby="turn-functional-overview-title">
-      <header><div><span class="turn-kicker">PAGINA 1 · BASIC · LIVE FUNCTIONAL VALUE</span><h2 id="turn-functional-overview-title">BASIC operational space</h2><p>Fiecare zonă este proiectată din EventStore/API și evaluatorul funcțional. Click pe un nod pentru sursă, lipsă și acțiune.</p></div><strong data-functional-verdict>SE ÎNCARCĂ</strong></header>
+      <header><div><span class="turn-kicker">PAGINA 1 · BASIC · GOVERNANCE + TELEMETRY</span><h2 id="turn-functional-overview-title">AGM BASIC AGENT GOVERNANCE MAP</h2><p>Identitățile Basic canonice sunt proiectate în modelul spațial cu stare, sursă, telemetrie și criterii verificabile. Agenții Premium sunt excluși.</p></div><strong data-functional-verdict>SE ÎNCARCĂ</strong></header>
       <section class="turn-approved-orbital-panel basic" data-basic-operational-orbit data-orbital-source="PENDING_REAL_SOURCE" aria-labelledby="turn-basic-orbit-title">
         <header>
-          <div><span class="turn-kicker">TURN · APPROVED VISUAL SOURCE</span><h3 id="turn-basic-orbit-title">AGM TURN BASIC AGENT / CAPABILITY CONTROL PANEL</h3><p>Fiecare planetă reprezintă o capabilitate sau un agent Basic și este alimentată exclusiv de evaluatorul funcțional real.</p></div>
+          <div><span class="turn-kicker">TURN · BASIC CAPABILITY MODEL</span><h3 id="turn-basic-orbit-title">Capabilități funcționale Basic</h3><p>Model secundar al capabilităților, alimentat exclusiv de evaluatorul funcțional real; nu reprezintă registrul agenților.</p></div>
           <p class="turn-orbital-legend"><strong>Criteriu vizual:</strong> verde = operațional/observat, galben = atenție, roșu = failed/capability missing, albastru = fără activitate/referință statică, gri = UNKNOWN legitim. Culoarea nu este derivată din registry.</p>
         </header>
         <nav class="turn-orbital-criteria" data-basic-orbital-criteria aria-label="Criteriul de colorare Basic">
@@ -233,20 +238,20 @@ function renderFunctionalOverview() {
       </section>
       <section class="turn-approved-orbital-panel basic-agent-system" id="turn-basic-agent-system" data-basic-agent-planetary-panel data-orbital-source="PENDING_REAL_SOURCE" aria-labelledby="turn-basic-agent-system-title">
         <header>
-          <div><span class="turn-kicker">TURN · LIVE AGENT RUNTIME</span><h3 id="turn-basic-agent-system-title">AGM AGENT RUNTIME MAP</h3><p>Exact aceiași agenți non-umani, aceleași execuții persistente și același validator care alimentează panoul Agent Runtime & Inspector Failover. Reîncărcare automată la 15 secunde.</p></div>
-          <p class="turn-orbital-legend"><strong>SURSĂ UNICĂ:</strong> identity + active mandate + execution + evidence + validation + freshness. Registry/catalog/config nu furnizează status și nu este fallback.</p>
+          <div><span class="turn-kicker">TURN · BASIC LIVE AGENT NETWORK</span><h3 id="turn-basic-agent-system-title">AGM BASIC AGENT GOVERNANCE MAP</h3><p>Starea generală BASIC este în centru, iar toate identitățile-agent BASIC sunt pe orbite. Premium nu este proiectat în acest panou.</p></div>
+          <p class="turn-orbital-legend"><strong>BASIC la BASIC:</strong> fiecare culoare și stare provine exclusiv din evaluatorul BASIC, runtime, EventStore sau API. Registry-ul nu produce stare operațională.</p>
         </header>
         <nav class="turn-orbital-criteria" data-basic-agent-planetary-criteria aria-label="Factorul de stare al sistemului planetar BASIC">
           <button type="button" data-basic-agent-planetary-criterion="operational" aria-selected="true">Stare operațională</button>
           <button type="button" data-basic-agent-planetary-criterion="telemetry" aria-selected="false">Telemetrie</button>
           <button type="button" data-basic-agent-planetary-criterion="procedural" aria-selected="false">Procedural</button>
-          <button type="button" data-basic-agent-planetary-criterion="component" aria-selected="false">Componentă / sursă</button>
+          <button type="button" data-basic-agent-planetary-criterion="component" aria-selected="false">Țintă / sursă</button>
           <button type="button" data-basic-agent-planetary-criterion="incidents" aria-selected="false">Incidente</button>
           <button type="button" data-basic-agent-planetary-criterion="freshness" aria-selected="false">Freshness</button>
         </nav>
-        <p class="turn-orbital-criterion-message" data-basic-agent-planetary-message>Se citește proiecția persistentă Agent Runtime Accountability…</p>
-        <div class="turn-approved-orbital-stage" data-basic-agent-planetary-stage aria-busy="true"><p>Se citesc mandatul, execuția, evidence-ul, validarea și freshness-ul fiecărui agent…</p></div>
-        <aside class="turn-approved-orbital-selection" data-basic-agent-planetary-selection><p>Selectează un agent pentru identitate, runtime, sursă, motiv și acțiune.</p></aside>
+        <p class="turn-orbital-criterion-message" data-basic-agent-planetary-message>Se încarcă stările reale BASIC…</p>
+        <div class="turn-approved-orbital-stage" data-basic-agent-planetary-stage aria-busy="true"><p>Se citește turn-functional-overview.v2…</p></div>
+        <aside class="turn-approved-orbital-selection" data-basic-agent-planetary-selection><p>Selectează un agent BASIC pentru sursă, motiv și acțiune.</p></aside>
       </section>
       <div class="turn-spatial-summary" data-basic-spatial-summary><span>Se citesc sursele reale autorizate…</span></div>
       <div class="turn-spatial-stage turn-basic-stage" data-basic-spatial-stage aria-busy="true"></div>
@@ -260,6 +265,31 @@ function renderFunctionalOverview() {
       <div data-functional-zones><p>Se citesc exclusiv sursele reale autorizate…</p></div>
     </section>
   </div>`;
+}
+
+function renderTurnOrchestrationControlPlane() {
+  const orchestrators = [
+    {
+      id: 'premium.orchestrator',
+      domain: 'PREMIUM OPERATIONS',
+      source: 'authority-control-plane/premium-network.seed',
+      scope: ['bounded-dispatch', 'work.dispatch'],
+    },
+    ...createDomainOrchestrators().map((orchestrator) => ({
+      id: orchestrator.id,
+      domain: `${orchestrator.domain} LIBRARY`,
+      source: 'GLOBAL LIBRARY AUTHORITY · DOMAIN ORCHESTRATOR CONTRACT',
+      scope: [...orchestrator.eligibleSources],
+    })),
+  ];
+  return `<section class="turn-spatial-page turn-orchestrator-page" data-turn-page="orchestrators" hidden aria-labelledby="turn-orchestrator-page-title">
+    <header><div><span class="turn-kicker">TURN · ORCHESTRATION CONTROL PLANE</span><h2 id="turn-orchestrator-page-title">Orchestratori canonici · separați de agenți</h2><p>Orchestratorii coordonează mandate și rutare. Nu sunt reclasificați ca agenți Basic sau Premium și această pagină nu inventează stare runtime.</p></div><strong data-orchestrator-count="${orchestrators.length}">${orchestrators.length} ORCHESTRATORI</strong></header>
+    <div class="turn-functional-grid" data-turn-orchestrator-grid>${orchestrators.map((orchestrator) => `<article class="turn-functional-zone status-static-reference" data-orchestrator-id="${escapeHtml(orchestrator.id)}" data-orchestrator-domain="${escapeHtml(orchestrator.domain)}">
+      <header><div><small>ORCHESTRATOR · NOT AGENT</small><h3>${escapeHtml(orchestrator.id)}</h3></div><strong>CANONICAL CONTRACT</strong></header>
+      <p>${escapeHtml(orchestrator.domain)}</p>
+      <dl><div><dt>Sursă</dt><dd>${escapeHtml(orchestrator.source)}</dd></div><div><dt>Mandat / surse eligibile</dt><dd>${escapeHtml(orchestrator.scope.join(' · '))}</dd></div><div><dt>Boundary</dt><dd>Separat de registrul și agregatul agenților Basic/Premium.</dd></div></dl>
+    </article>`).join('')}</div>
+  </section>`;
 }
 
 function renderBasicOperationalEntries() {

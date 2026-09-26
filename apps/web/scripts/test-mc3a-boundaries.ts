@@ -10,14 +10,32 @@ const operationalContextImports = importsUnder(join(sourceRoot, 'premium-operati
 
 assert.deepEqual(
   preDepartureImports.filter((item) => item.specifier.startsWith('../')),
-  [{
-    file: 'pre-departure/pre-departure.facade.ts',
-    specifier: '../premium-operational-context/pre-departure.integration',
-  }],
+  [
+    {
+      file: 'pre-departure/pre-departure.entry.ts',
+      specifier: '../storage/sensitive-storage-policy',
+    },
+    {
+      file: 'pre-departure/pre-departure.facade.ts',
+      specifier: '../premium-operational-context/pre-departure.integration',
+    },
+    {
+      file: 'pre-departure/pre-departure.i18n.ts',
+      specifier: '../i18n/final-language-operational.dictionary',
+    },
+  ],
 );
 assert.deepEqual(
   afterDepartureImports.filter((item) => item.specifier.startsWith('../')),
   [
+    {
+      file: 'poc02-after-departure/after-departure.entry.ts',
+      specifier: '../storage/sensitive-storage-policy',
+    },
+    {
+      file: 'poc02-after-departure/after-departure.i18n.ts',
+      specifier: '../i18n/final-language-operational.dictionary',
+    },
     {
       file: 'poc02-after-departure/after-departure.journey-adapter.ts',
       specifier: '../outbox',
@@ -25,6 +43,10 @@ assert.deepEqual(
     {
       file: 'poc02-after-departure/after-departure.journey-adapter.ts',
       specifier: '../premium-operational-context',
+    },
+    {
+      file: 'poc02-after-departure/after-departure.operational-i18n.ts',
+      specifier: '../i18n/final-language-operational.dictionary',
     },
   ],
 );

@@ -1,8 +1,8 @@
 import {
   canonicalLinguisticResourceCounts,
+  createCanonicalOperationalLinguist,
   LINGUISTIC_RESOURCE_CONTRACT_CANONICAL,
   LINGUISTIC_RESOURCE_CONTRACT_DIGEST,
-  formatLinguisticResourceEvidence,
 } from '@agm/shared';
 import { createHash } from 'node:crypto';
 import { AuthorityControlPlaneService } from '../src/authority-control-plane/authority-control-plane.service';
@@ -35,25 +35,36 @@ type IndependentValidator = {
   ): Promise<Array<{ agentId: string; validationEventId: string }>>;
 };
 
-function runtimeHarness(details: ReadonlyMap<string, string>) {
+type V1State = ReturnType<typeof v1State>;
+
+function v1State(language: 'it' | 'es' | 'sv', overrides: Partial<Record<string, unknown>> = {}) {
+  const definition = createCanonicalOperationalLinguist(language);
+  return {
+    id: `state-${definition.componentId}`,
+    baselineId: 'baseline-v1', componentId: definition.componentId, language, operationalState: 'ONLINE',
+    authorityScope: definition.authorityScope, mandateId: `mandate-${definition.componentId}`, mandateVersion: 1,
+    currentEvidenceId: `evidence-${definition.componentId}`, observedAt: new Date(), authorityEpoch: 3, sequence: 7,
+    contractVersion: definition.resourceContractVersion, contractDigest: definition.resourceContractDigest,
+    catalogDigest: definition.resourceCatalogDigest,
+    appCount: definition.resourceCounts.app, operationalCount: definition.resourceCounts.operational,
+    carMoverCount: definition.resourceCounts.carMover, premiumCount: definition.resourceCounts.premium,
+    totalCount: definition.resourceCounts.total, errorCount: 0,
+    currentEvidence: { publisher: { writerId: 'agm.operational-linguist.workflow-auditor', writerVersion: '1.0.0', buildRevision: 'a'.repeat(40) } },
+    ...overrides,
+  };
+}
+
+function runtimeHarness(states: ReadonlyMap<string, V1State>) {
   const authorityAuditJournalCreate = jest.fn(async ({ data }) => ({ ...data }));
   const agentRuntimeEventCreate = jest.fn(async ({ data }) => ({ ...data }));
+  const legacyHeartbeatFind = jest.fn();
   const prisma = {
-    operationalLinguistBaseline: { findUnique: jest.fn(async () => null) },
-    componentHeartbeat: {
-      findUnique: jest.fn(async ({ where }) => {
-        const agentId = where.companyId_componentId.componentId;
-        const detail = details.get(agentId);
-        return detail ? {
-          id: `heartbeat-${agentId}`,
-          reportedStatus: 'ONLINE',
-          lastFailureReason: null,
-          lastDetail: detail,
-          lastSeenAt: new Date(),
-        } : null;
-      }),
-      update: jest.fn(),
+    operationalLinguistBaseline: { findUnique: jest.fn(async () => ({ id: 'baseline-v1', status: 'ACTIVE' })) },
+    operationalLinguistState: {
+      findUnique: jest.fn(async ({ where }) => states.get(where.companyId_componentId.componentId) ?? null),
     },
+    operationalLinguistReceipt: { findUnique: jest.fn(async ({ where }) => ({ id: `receipt-${where.evidenceId}`, outcome: 'ACCEPTED', reasonCode: 'CANONICAL_EVIDENCE_PERSISTED' })) },
+    componentHeartbeat: { findUnique: legacyHeartbeatFind, update: jest.fn() },
     authorityAuditJournal: { create: authorityAuditJournalCreate },
     agentRuntimeEvent: { create: agentRuntimeEventCreate },
   };
@@ -64,6 +75,7 @@ function runtimeHarness(details: ReadonlyMap<string, string>) {
     validator: service as unknown as IndependentValidator,
     authorityAuditJournalCreate,
     agentRuntimeEventCreate,
+    legacyHeartbeatFind,
   };
 }
 
@@ -72,12 +84,8 @@ describe('canonical linguistic Web to API contract', () => {
     const expectedDigest = `sha256:${createHash('sha256').update(LINGUISTIC_RESOURCE_CONTRACT_CANONICAL).digest('hex')}`;
     expect(LINGUISTIC_RESOURCE_CONTRACT_DIGEST).toBe(expectedDigest);
 
-    const counts = canonicalLinguisticResourceCounts();
-    const details = new Map(targets.map(({ agentId, language }) => [
-      agentId,
-      formatLinguisticResourceEvidence({ language, counts, errors: 0, journalStatus: 'PERSISTED' }),
-    ]));
-    const harness = runtimeHarness(details);
+    const states = new Map(targets.map(({ agentId, language }) => [agentId, v1State(language)]));
+    const harness = runtimeHarness(states);
     const mandates = targets.map(({ agentId }) => ({ id: `mandate-${agentId}`, agentId }));
 
     const executions = await harness.runner.execute(
@@ -106,18 +114,12 @@ describe('canonical linguistic Web to API contract', () => {
     expect(validationReceipts).toHaveLength(targets.length);
     expect(validationReceipts.every((receipt) => receipt.outcome === 'PASS')).toBe(true);
     expect(harness.agentRuntimeEventCreate.mock.calls.every(([input]) => input.data.lifecycle === 'COMPLETED')).toBe(true);
+    expect(harness.legacyHeartbeatFind).not.toHaveBeenCalled();
   });
 
-  it('rejects an intentionally corrupted Web payload and omits independent validation', async () => {
+  it('rejects intentionally corrupted persisted V1 state and omits independent validation', async () => {
     const counts = canonicalLinguisticResourceCounts();
-    const validDetail = formatLinguisticResourceEvidence({
-      language: 'it',
-      counts,
-      errors: 0,
-      journalStatus: 'PERSISTED',
-    });
-    const invalidDetail = validDetail.replace(`total=${counts.total}`, `total=${counts.total - 1}`);
-    const harness = runtimeHarness(new Map([['premium-linguist-it', invalidDetail]]));
+    const harness = runtimeHarness(new Map([['premium-linguist-it', v1State('it', { totalCount: counts.total - 1 })]]));
     const executions = await harness.runner.execute(
       ctx,
       [{ id: 'mandate-premium-linguist-it', agentId: 'premium-linguist-it' }],
@@ -134,13 +136,14 @@ describe('canonical linguistic Web to API contract', () => {
     expect(executions).toMatchObject([{
       passed: false,
       result: 'FAILED',
-      reason: 'LINGUISTIC_CATALOG_VALIDATION_FAILED',
-      checks: { resourceCountProven: false, totalMatchesComponents: false, errorsZero: true },
+      reason: 'LINGUISTIC_V1_CANONICAL_STATE_INVALID',
+      checks: { persistence: 'OPERATIONAL_LINGUIST_V1', resourceCountProven: false, totalMatchesComponents: false, errorsZero: true },
     }]);
     expect(validations).toEqual([]);
     expect(harness.authorityAuditJournalCreate.mock.calls.map(([input]) => input.data.eventType)).toEqual([
       'AGENT_OPERATIONAL_DUTY_FAILED',
     ]);
     expect(harness.agentRuntimeEventCreate.mock.calls[0][0].data.lifecycle).toBe('FAILED');
+    expect(harness.legacyHeartbeatFind).not.toHaveBeenCalled();
   });
 });

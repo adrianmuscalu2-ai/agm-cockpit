@@ -196,6 +196,14 @@ export class OperationalAgentDutyRunner {
         where: { companyId_version: { companyId, version: OPERATIONAL_LINGUIST_V1_BASELINE_VERSION } },
       });
       if (baseline?.status === 'ACTIVE') return this.operationalLinguistV1Duty(agentId, companyId, baseline.id, now);
+      return {
+        operation: 'Require Operational Linguistic Baseline V1 before executing linguistic duty',
+        passed: false,
+        result: 'FAILED',
+        reason: 'LINGUISTIC_V1_BASELINE_NOT_ACTIVE',
+        evidenceReferences: [],
+        checks: { persistence: 'OPERATIONAL_LINGUIST_V1', baselineStatus: baseline?.status ?? 'MISSING', legacyHeartbeatFallback: 'FENCED' },
+      };
     }
     const heartbeat = await this.prisma.componentHeartbeat.findUnique({ where: { companyId_componentId: { companyId, componentId: agentId } } });
     const detail = heartbeat?.lastDetail ?? '';

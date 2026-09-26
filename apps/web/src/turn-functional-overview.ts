@@ -46,8 +46,10 @@ export type TurnFunctionalOverview = {
 };
 
 import { isTurnAdminSessionError, turnAdminAuthenticatedFetch } from './admin-auth';
+import { createTurnProtectedResourceLoader, isTurnRateLimitError, turnProtectedResourceError } from './turn-protected-resource';
 
-let functionalOverviewRequest: Promise<TurnFunctionalOverview> | undefined;
+const functionalOverviewLoader = createTurnProtectedResourceLoader<TurnFunctionalOverview>({ ttlMs: 60_000 });
+let functionalOverviewRetryTimer: ReturnType<typeof setTimeout> | undefined;
 
 export async function fetchTurnFunctionalOverview(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
   const response = await fetcher('/operations/turn/functional-overview', {
@@ -55,28 +57,56 @@ export async function fetchTurnFunctionalOverview(fetcher: typeof fetch = turnAd
     headers: { Accept: 'application/json' },
   });
   const payload = await response.json().catch(() => ({})) as { data?: TurnFunctionalOverview; message?: string };
-  if (!response.ok || !payload.data) throw new Error(payload.message || `TURN_FUNCTIONAL_OVERVIEW_HTTP_${response.status}`);
+  if (!response.ok || !payload.data) throw turnProtectedResourceError(response, payload.message || `TURN_FUNCTIONAL_OVERVIEW_HTTP_${response.status}`);
   return payload.data;
 }
 
-export async function bindTurnFunctionalOverview(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
+export async function bindTurnFunctionalOverview(
+  fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch,
+  administratorAccessVerified = true,
+) {
   if (!document.querySelector('[data-turn-functional-overview]')) return;
+  if (!administratorAccessVerified) {
+    const root = document.querySelector<HTMLElement>('[data-turn-functional-overview]');
+    if (root) renderUnavailable(root, 'AUTH/SESSION FAILURE · Sursa protejată nu este interogată înainte de autorizare.');
+    return;
+  }
   try {
-    if (!functionalOverviewRequest) {
-      const pending = fetchTurnFunctionalOverview(fetcher).finally(() => {
-        if (functionalOverviewRequest === pending) functionalOverviewRequest = undefined;
-      });
-      functionalOverviewRequest = pending;
-    }
-    const overview = await functionalOverviewRequest;
+    const overview = await functionalOverviewLoader.read(() => fetchTurnFunctionalOverview(fetcher));
     const root = document.querySelector<HTMLElement>('[data-turn-functional-overview]');
     if (!root) return;
     renderOverview(root, overview);
+    const snapshot = functionalOverviewLoader.snapshot();
+    root.dataset.functionalFreshness = snapshot.state;
+    if (snapshot.state === 'STALE_CACHE') {
+      markStaleProjection(root, snapshot.retryAfterMs);
+      scheduleFunctionalOverviewRetry(fetcher, snapshot.retryAfterMs);
+    }
   } catch (error) {
     const root = document.querySelector<HTMLElement>('[data-turn-functional-overview]');
     if (!root) return;
     renderUnavailable(root, isTurnAdminSessionError(error) ? 'AUTH/SESSION FAILURE · Nu se modifică starea agenților.' : error instanceof Error ? error.message : 'Sursa funcțională nu este disponibilă.');
+    if (isTurnRateLimitError(error)) scheduleFunctionalOverviewRetry(fetcher, error.retryAfterMs);
   }
+}
+
+function scheduleFunctionalOverviewRetry(fetcher: typeof fetch, retryAfterMs: number) {
+  if (functionalOverviewRetryTimer !== undefined) return;
+  functionalOverviewRetryTimer = setTimeout(() => {
+    functionalOverviewRetryTimer = undefined;
+    void bindTurnFunctionalOverview(fetcher, true);
+  }, Math.max(1_000, retryAfterMs));
+}
+
+function markStaleProjection(root: HTMLElement, retryAfterMs: number) {
+  const timestamp = root.querySelector<HTMLElement>('[data-functional-generated-at]');
+  if (timestamp) timestamp.textContent = `${timestamp.textContent ?? ''} · ULTIMA PROIECȚIE LIVE PĂSTRATĂ · reîncercare în ${Math.ceil(retryAfterMs / 1_000)}s`;
+}
+
+export function resetTurnFunctionalOverviewCacheForTest() {
+  functionalOverviewLoader.reset();
+  if (functionalOverviewRetryTimer !== undefined) clearTimeout(functionalOverviewRetryTimer);
+  functionalOverviewRetryTimer = undefined;
 }
 
 function renderOverview(root: HTMLElement, overview: TurnFunctionalOverview) {
@@ -162,6 +192,87 @@ function renderBasicSpatialModel(root: HTMLElement, basicZones: TurnFunctionalZo
   }));
   applyBasicOrbitalCriterion(root, basicZones, criteriaById, 'functional');
   if (basicZones[0]) select(basicZones[0]);
+}
+
+function renderBasicAgentPlanetarySystem(root: HTMLElement, basicZones: TurnFunctionalZone[], overview: TurnFunctionalOverview) {
+  const panel = root.querySelector<HTMLElement>('[data-basic-agent-planetary-panel]');
+  const stage = panel?.querySelector<HTMLElement>('[data-basic-agent-planetary-stage]');
+  const selection = panel?.querySelector<HTMLElement>('[data-basic-agent-planetary-selection]');
+  if (!panel || !stage) return;
+  panel.dataset.orbitalSource = overview.contractVersion;
+  const positions = orbitalPositions(basicZones.length);
+  const positionsById = new Map(basicZones.map((zone, index) => [zone.id, positions[index]]));
+  const criteriaById = new Map(basicZones.map((zone) => [zone.id, evaluateBasicOrbitalCriteria(zone, overview)]));
+  stage.innerHTML = `${renderOrbitalRings()}
+    <div class="turn-approved-orbital-core status-no-telemetry" data-basic-agent-planetary-core data-basic-agent-core-source="${escapeHtml(overview.contractVersion)}">
+      <small data-basic-agent-core-criterion>STARE GENERALĂ BASIC</small>
+      <strong data-basic-agent-core-status>SE EVALUEAZĂ</strong>
+      <span data-basic-agent-core-counts>${basicZones.length} AGENȚI BASIC</span>
+    </div>
+    ${basicZones.map((zone, index) => renderBasicAgentPlanet(zone, positionsById.get(zone.id)!, index, criteriaById.get(zone.id)!)).join('')}`;
+  const select = (zone: TurnFunctionalZone) => {
+    stage.querySelectorAll<HTMLElement>('[data-basic-agent-planetary-node]').forEach((element) => element.classList.toggle('selected', element.dataset.basicAgentPlanetaryNode === zone.id));
+    if (selection) selection.innerHTML = renderSpatialZoneSelection(zone);
+  };
+  stage.querySelectorAll<HTMLButtonElement>('[data-basic-agent-planetary-node]').forEach((button) => button.addEventListener('click', () => {
+    const zone = basicZones.find((candidate) => candidate.id === button.dataset.basicAgentPlanetaryNode);
+    if (zone) select(zone);
+  }));
+  panel.querySelectorAll<HTMLButtonElement>('[data-basic-agent-planetary-criterion]').forEach((button) => button.addEventListener('click', () => {
+    const criterion = button.dataset.basicAgentPlanetaryCriterion as BasicOrbitalCriterion;
+    if (basicOrbitalCriteria.includes(criterion)) applyBasicAgentPlanetaryCriterion(panel, basicZones, overview, criteriaById, criterion);
+  }));
+  applyBasicAgentPlanetaryCriterion(panel, basicZones, overview, criteriaById, 'functional');
+  if (basicZones[0]) select(basicZones[0]);
+  stage.setAttribute('aria-busy', 'false');
+}
+
+function renderBasicAgentPlanet(zone: TurnFunctionalZone, position: { x: number; y: number }, index: number, criteria: BasicOrbitalEvaluation) {
+  const observedAt = zone.source.observedAt ?? 'NO_REAL_OBSERVATION';
+  const criterionAttributes = basicOrbitalCriteria.map((criterion) => `data-basic-agent-${criterion}-status="${criteria[criterion].status}" data-basic-agent-${criterion}-source="${escapeHtml(criteria[criterion].source)}"`).join(' ');
+  return `<button type="button" class="turn-approved-orbital-node status-${statusClass(criteria.functional.status)}" style="--node-x:${position.x}%;--node-y:${position.y}%;--node-order:${index}" data-basic-agent-planetary-node="${escapeHtml(zone.id)}" data-basic-agent-status="${criteria.functional.status}" data-basic-agent-evidence-source="${escapeHtml(zone.source.kind)}" data-basic-agent-observed-at="${escapeHtml(observedAt)}" ${criterionAttributes} title="${escapeHtml(`${zone.title} · ${zone.status} · ${zone.source.kind} · ${zone.source.label}`)}"><span class="turn-planet" aria-hidden="true"></span><small>${escapeHtml(zone.title)}</small></button>`;
+}
+
+function applyBasicAgentPlanetaryCriterion(panel: HTMLElement, zones: TurnFunctionalZone[], overview: TurnFunctionalOverview, criteriaById: Map<string, BasicOrbitalEvaluation>, criterion: BasicOrbitalCriterion) {
+  const stage = panel.querySelector<HTMLElement>('[data-basic-agent-planetary-stage]');
+  if (stage) stage.dataset.activeCriterion = criterion;
+  panel.querySelectorAll<HTMLElement>('[data-basic-agent-planetary-criterion]').forEach((control) => control.setAttribute('aria-selected', String(control.dataset.basicAgentPlanetaryCriterion === criterion)));
+  panel.querySelectorAll<HTMLElement>('[data-basic-agent-planetary-node]').forEach((planet) => {
+    const zone = zones.find((candidate) => candidate.id === planet.dataset.basicAgentPlanetaryNode);
+    if (!zone) return;
+    const evaluation = criteriaById.get(zone.id)![criterion];
+    planet.classList.remove(...basicOrbitalStatusClasses);
+    planet.classList.add(`status-${statusClass(evaluation.status)}`);
+    planet.dataset.basicAgentStatus = evaluation.status;
+    planet.dataset.basicAgentActiveSource = evaluation.source;
+    planet.title = `${zone.title} · ${basicOrbitalLabels[criterion]} · ${evaluation.status} · ${evaluation.reason} · ${evaluation.source}`;
+  });
+  const counts = countBasicCriterionStatuses(zones, criteriaById, criterion);
+  const aggregate = aggregateBasicAgentStatus(counts);
+  const core = panel.querySelector<HTMLElement>('[data-basic-agent-planetary-core]');
+  if (core) {
+    core.classList.remove(...basicOrbitalStatusClasses);
+    core.classList.add(`status-${statusClass(aggregate)}`);
+    core.dataset.basicAgentCoreStatus = aggregate;
+    core.dataset.basicAgentCoreSource = `${overview.contractVersion} · ${overview.generatedAt}`;
+  }
+  setBasicAgentText(panel, '[data-basic-agent-core-criterion]', basicOrbitalLabels[criterion]);
+  setBasicAgentText(panel, '[data-basic-agent-core-status]', aggregate);
+  setBasicAgentText(panel, '[data-basic-agent-core-counts]', `${counts.PASS} PASS · ${counts.DEGRADED} DEG · ${counts.FAIL} FAIL · ${counts.NO_TELEMETRY} NO DATA · ${counts.STANDBY} STANDBY`);
+  setBasicAgentText(panel, '[data-basic-agent-planetary-message]', `${basicOrbitalLabels[criterion]} · stare generală BASIC ${aggregate} · ${zones.length} agenți BASIC evaluați · sursă ${overview.contractVersion} · ${new Date(overview.generatedAt).toLocaleString('ro-RO')}`);
+}
+
+function aggregateBasicAgentStatus(counts: Record<BasicOrbitalStatus, number>): BasicOrbitalStatus {
+  if (counts.FAIL) return 'FAIL';
+  if (counts.DEGRADED) return 'DEGRADED';
+  if (counts.NO_TELEMETRY) return 'NO_TELEMETRY';
+  if (counts.PASS) return 'PASS';
+  return 'STANDBY';
+}
+
+function setBasicAgentText(root: HTMLElement, selector: string, value: string) {
+  const element = root.querySelector<HTMLElement>(selector);
+  if (element) element.textContent = value;
 }
 
 function renderBasicOrbitalPlanet(zone: TurnFunctionalZone, position: { x: number; y: number }, index: number, criteria: BasicOrbitalEvaluation) {
