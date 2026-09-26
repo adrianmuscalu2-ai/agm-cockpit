@@ -115,6 +115,7 @@ try {
   const navigation = await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60_000 });
   assert(navigation?.status() === 200, `TURN target HTTP ${navigation?.status()}`);
   const legalAcceptance = page.locator('#acceptLegalNotice');
+  await legalAcceptance.waitFor({ state: 'visible', timeout: 2_500 }).catch(() => undefined);
   if (await legalAcceptance.isVisible().catch(() => false)) {
     await legalAcceptance.click();
     await page.waitForSelector('.legal-acceptance-overlay', { state: 'detached', timeout: 15_000 });
@@ -130,12 +131,9 @@ try {
   } else {
     report.checks.firstRunTutorial = 'ALREADY_COMPLETED';
   }
+  await page.locator('[data-turn-page-target="investigate"]').click();
+  await page.waitForSelector('[data-turn-page="investigate"]:not([hidden])', { timeout: 45_000 });
   await page.waitForSelector('[data-turn-agent-live="pass"]', { timeout: 45_000 });
-  if (await legalAcceptance.isVisible().catch(() => false)) {
-    await legalAcceptance.click();
-    await page.waitForSelector('.legal-acceptance-overlay', { state: 'detached', timeout: 15_000 });
-    report.checks.legalAcceptance = 'ACCEPTED_AFTER_ADMIN_SESSION_RESTORE';
-  }
   if (await skipTutorial.isVisible().catch(() => false)) {
     await skipTutorial.click();
     await page.waitForSelector('.tutorial-overlay', { state: 'detached', timeout: 15_000 });
@@ -211,6 +209,14 @@ try {
     const initialRuntimeEventId = truth.latestEvent.eventId;
     await page.waitForTimeout(70_000);
     await page.reload({ waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await legalAcceptance.waitFor({ state: 'visible', timeout: 2_500 }).catch(() => undefined);
+    if (await legalAcceptance.isVisible().catch(() => false)) {
+      await legalAcceptance.click();
+      await page.waitForSelector('.legal-acceptance-overlay', { state: 'detached', timeout: 15_000 });
+      report.checks.legalAcceptanceAfterReload = 'ACCEPTED';
+    }
+    await page.locator('[data-turn-page-target="investigate"]').click();
+    await page.waitForSelector('[data-turn-page="investigate"]:not([hidden])', { timeout: 45_000 });
     await page.waitForSelector('[data-turn-agent-live="pass"]', { timeout: 45_000 });
     const continuedResponse = await fetch(apiUrl, { headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' } });
     const continuedTruth = (await continuedResponse.json())?.data;

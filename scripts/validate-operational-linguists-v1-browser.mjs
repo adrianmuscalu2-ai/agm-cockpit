@@ -13,7 +13,7 @@ const pageErrors = [];
 let alignment = null;
 let server;
 let browser;
-let target = '';
+let target = process.env.AGM_OPERATIONAL_LINGUIST_URL?.trim() ?? '';
 let fatal = null;
 
 const components = ['it', 'es', 'sv'].map((language) => ({
@@ -77,15 +77,20 @@ const operationalDashboard = {
 
 await mkdir(output, { recursive: true });
 try {
-  const port = await freePort();
-  const vite = path.join(root, 'apps', 'web', 'node_modules', 'vite', 'bin', 'vite.js');
-  server = spawn(process.execPath, [vite, '--host', '127.0.0.1', '--port', String(port), '--strictPort'], {
-    cwd: path.join(root, 'apps', 'web'),
-    windowsHide: true,
-    stdio: 'ignore',
-  });
-  target = `http://127.0.0.1:${port}/turn`;
-  await waitForTarget(target);
+  if (!target) {
+    const port = await freePort();
+    const vite = path.join(root, 'apps', 'web', 'node_modules', 'vite', 'bin', 'vite.js');
+    server = spawn(process.execPath, [vite, '--host', '127.0.0.1', '--port', String(port), '--strictPort'], {
+      cwd: path.join(root, 'apps', 'web'),
+      windowsHide: true,
+      stdio: 'ignore',
+    });
+    target = `http://127.0.0.1:${port}/turn`;
+    await waitForTarget(target);
+  } else {
+    const response = await fetch(target, { signal: AbortSignal.timeout(15_000) });
+    assert(response.status === 200, `Production target HTTP ${response.status}`);
+  }
 
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1600, height: 1000 }, locale: 'ro-RO', serviceWorkers: 'block' });

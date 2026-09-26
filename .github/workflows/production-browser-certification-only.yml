@@ -1,0 +1,163 @@
+name: AGM Production Browser Certification Only
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  deployments: read
+
+concurrency:
+  group: agm-production-browser-certification-only-4d7b09e
+  cancel-in-progress: false
+
+env:
+  EXPECTED_PRODUCTION_SHA: 4d7b09e4830e8606bfed3ac112f1602930a1d4e4
+  EXPECTED_API_DIGEST: sha256:c94eb68dd2d92e19454d9da04a99a30a55a45d5a1e7d31e8a764ad11d65a6a7d
+  EXPECTED_WEB_DIGEST: sha256:56a24a0fc863ca32ebceea01cc751369b08ad48f1c0aba1842eb2059c757588d
+  SOURCE_RELEASE_RUN_ID: '36249757968'
+  SOURCE_RELEASE_RUN_ATTEMPT: '1'
+  SOURCE_DEPLOYMENT_ID: '6680342907'
+  PRODUCTION_TURN_URL: https://app.agmcockpit.com/turn
+
+jobs:
+  certify-existing-production:
+    name: Certify existing Production read-only
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: Enforce certification-only static boundary
+        run: node scripts/test-production-browser-certification-only.mjs
+
+      - name: Prove certification commit contains no functional application change
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -z "$(git diff --name-only "$EXPECTED_PRODUCTION_SHA"...HEAD -- apps packages deploy)"
+
+      - name: Verify immutable Production deployment provenance
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          latest_deployment="$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=Production&per_page=1")"
+          test "$(jq -r '.[0].id' <<<"$latest_deployment")" = "$SOURCE_DEPLOYMENT_ID"
+          test "$(jq -r '.[0].sha' <<<"$latest_deployment")" = "$EXPECTED_PRODUCTION_SHA"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/deployments/$SOURCE_DEPLOYMENT_ID/statuses" --jq '.[0].state')" = 'success'
+
+          source_run="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RELEASE_RUN_ID")"
+          test "$(jq -r '.head_sha' <<<"$source_run")" = "$EXPECTED_PRODUCTION_SHA"
+          test "$(jq -r '.run_attempt' <<<"$source_run")" = "$SOURCE_RELEASE_RUN_ATTEMPT"
+          jobs="$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RELEASE_RUN_ID/jobs?per_page=100")"
+          test "$(jq -r '.jobs[] | select(.name == "Deployment") | .conclusion' <<<"$jobs")" = 'success'
+          test "$(jq -r '.jobs[] | select(.name == "Deployment health") | .conclusion' <<<"$jobs")" = 'success'
+          test "$(jq -r '.jobs[] | select(.name == "Post-deploy certification") | .conclusion' <<<"$jobs")" = 'success'
+
+          logs_zip="$RUNNER_TEMP/source-release-logs.zip"
+          logs_dir="$RUNNER_TEMP/source-release-logs"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RELEASE_RUN_ID/logs" > "$logs_zip"
+          mkdir -p "$logs_dir"
+          unzip -q "$logs_zip" -d "$logs_dir"
+          grep -R -F "DEPLOYED_API_DIGEST=$EXPECTED_API_DIGEST" "$logs_dir"
+          grep -R -F "DEPLOYED_WEB_DIGEST=$EXPECTED_WEB_DIGEST" "$logs_dir"
+
+      - name: Verify public Production health with GET only
+        run: node scripts/validate-production-deployment-health.mjs
+
+      - name: Download immutable accountability snapshot from deployed SHA
+        uses: actions/download-artifact@v4
+        with:
+          name: agent-runtime-production-${{ env.SOURCE_RELEASE_RUN_ID }}-${{ env.SOURCE_RELEASE_RUN_ATTEMPT }}
+          path: production-agent-runtime-evidence
+          github-token: ${{ github.token }}
+          run-id: ${{ env.SOURCE_RELEASE_RUN_ID }}
+
+      - name: Verify accountability snapshot checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="$(cut -d ' ' -f 1 agent-runtime-accountability.json.sha256)"
+          printf '%s  %s\n' "$expected" agent-runtime-accountability.json | sha256sum --check --strict
+        working-directory: production-agent-runtime-evidence
+
+      - name: Verify immutable Operational Linguist V1 activation evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          jq -e --arg revision "$EXPECTED_PRODUCTION_SHA" '
+            .mode == "activate"
+            and .publisher.buildRevision == $revision
+            and .publisher.baselineStatus == "ACTIVE"
+            and ([.audit[].componentId] | sort) == ["premium-linguist-es", "premium-linguist-it", "premium-linguist-sv"]
+            and ([.audit[].operationalState] | all(. == "ONLINE"))
+            and (.receipts | length > 0)
+            and ([.receipts[].baselineVersion] | all(. == "agm.operational-linguist.v1"))
+            and ([.receipts[].components[].componentId] | unique | sort) == ["premium-linguist-es", "premium-linguist-it", "premium-linguist-sv"]
+            and ([.receipts[].components[].outcome] | all(. == "ACCEPTED"))
+            and ([.receipts[].components[].reasonCode] | all(. == "CANONICAL_EVIDENCE_PERSISTED"))
+          ' operational-linguist-v1-activation.json
+        working-directory: production-agent-runtime-evidence
+
+      - name: Browser preflight for operational truth
+        run: pnpm rescue:browser-preflight
+      - name: Certify Production operational truth and legal flow
+        run: node scripts/validate-turn-operational-truth-browser.mjs
+
+      - name: Browser preflight for accountability
+        run: pnpm rescue:browser-preflight
+      - name: Certify Production accountability and BASIC registry
+        env:
+          AGM_AGENT_ACCOUNTABILITY_URL: ${{ env.PRODUCTION_TURN_URL }}
+          AGM_AGENT_ACCOUNTABILITY_SNAPSHOT: ${{ github.workspace }}/production-agent-runtime-evidence/agent-runtime-accountability.json
+        run: node scripts/validate-agent-accountability-browser.mjs
+
+      - name: Browser preflight for Premium Linguists V1
+        run: pnpm rescue:browser-preflight
+      - name: Certify Production BASIC and Premium Linguists V1
+        env:
+          AGM_OPERATIONAL_LINGUIST_URL: ${{ env.PRODUCTION_TURN_URL }}
+        run: node scripts/validate-operational-linguists-v1-browser.mjs
+
+      - name: Browser preflight for responsive matrix
+        run: pnpm rescue:browser-preflight
+      - name: Certify Production responsive matrix and branding
+        env:
+          AGM_TURN_RESPONSIVE_URL: ${{ env.PRODUCTION_TURN_URL }}
+          AGM_AGENT_ACCOUNTABILITY_SNAPSHOT: ${{ github.workspace }}/production-agent-runtime-evidence/agent-runtime-accountability.json
+        run: node scripts/validate-turn-responsive-brand-browser.mjs
+
+      - name: Persist read-only certification evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-browser-certification-only-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            evidence/turn-operational-reconciliation/browser
+            evidence/agent-accountability/browser
+            evidence/operational-linguist-v1/browser
+            evidence/turn-responsive-brand/browser
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Report read-only certification boundary
+        run: |
+          echo 'PRODUCTION_BROWSER_CERTIFICATION=PASS'
+          echo "PRODUCTION_SHA=$EXPECTED_PRODUCTION_SHA"
+          echo "API_DIGEST=$EXPECTED_API_DIGEST"
+          echo "WEB_DIGEST=$EXPECTED_WEB_DIGEST"
+          echo 'NO BUILD'
+          echo 'NO PUBLISH'
+          echo 'NO DEPLOY'
+          echo 'NO RESTART'
+          echo 'NO PRODUCTION MUTATION'
