@@ -1,0 +1,2 @@
+95b30f8089d90223105d2e2ddc107d95a8fe52dc24e6274446b111d62aee8473  payload/scripts/validate-car-mover-browser-parity.mjs
+3a65c8e8204d48425b7b583244856c3659233dc7738e929f31c27e41b7d050d4  payload/scripts/validate-car-mover-entry-physical-android.mjs
