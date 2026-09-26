@@ -16,6 +16,15 @@ let browserContext;
 let fatal = null;
 let incidentMode = 'OMITTED';
 let runtimeRequestCount = 0;
+const canonicalBasicAgentIds = [
+  'monitor-server-primary', 'monitor-server-backup', 'monitor-api', 'monitor-browser', 'monitor-android', 'monitor-ai',
+  'monitor-database', 'monitor-cloudflare', 'monitor-ui-live', 'monitor-incidents', 'monitor-telemetry', 'monitor-security',
+  'p9-copilot-control-plane', 'secret-credentials-guardian', 'version-guardian', 'architecture-guardian', 'release-operations',
+  'frontend-experience', 'website-content-visual-guardian', 'website-runtime-release-guardian', 'backend-infrastructure',
+  'i18n-localization', 'documentation', 'agent-codex', 'agent-inspector', 'infrastructure-reuse-coordinator', 'agent-mentor',
+  'agent-legal', 'agent-linguistic-ro-de', 'agent-linguistic-ro-en', 'agent-linguistic-de-en', 'agent-linguistic-librarian',
+  'director-turn-operations', 'agent-agm-chronicler',
+];
 let runtimeSnapshot = {
   contractVersion: 'agent-runtime-accountability.v2', generatedAt: new Date().toISOString(),
   agents: [
@@ -125,32 +134,41 @@ try {
   });
 
   await page.goto(target, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('#turn-agent-accountability');
+  await page.locator('[data-turn-page-target="investigate"]').click();
+  await page.waitForSelector('[data-turn-page="investigate"]:not([hidden])');
+  await page.waitForSelector('#turn-agent-accountability', { state: 'visible' });
   await page.waitForSelector('[data-inspector-failover="PASS"]');
-  await page.waitForFunction((count) => document.querySelectorAll('[data-basic-agent-planetary-node]').length === count, runtimeSnapshot.agents.length);
+  await page.waitForFunction((count) => document.querySelectorAll('[data-basic-agent-planetary-node]').length === count, canonicalBasicAgentIds.length);
   const runtime = await page.evaluate(() => ({
-    agents: document.querySelectorAll('[data-runtime-agent]').length,
-    primary: document.querySelector('[data-runtime-agent="premium.release-inspector"]')?.getAttribute('data-runtime-status'),
-    secondary: document.querySelector('[data-runtime-agent="premium.architecture-inspector"]')?.getAttribute('data-runtime-status'),
+    agents: [...document.querySelectorAll('[data-runtime-agent]')].map((node) => ({
+      identity: node.getAttribute('data-runtime-agent'),
+      status: node.getAttribute('data-runtime-status'),
+    })).sort((left, right) => String(left.identity).localeCompare(String(right.identity))),
     text: document.querySelector('#turn-agent-runtime-accountability')?.textContent ?? '',
   }));
-  check('runtime-chain-visible', runtime.agents === runtimeSnapshot.agents.length && runtime.primary === runtimeSnapshot.agents.find((agent) => agent.identity === 'premium.release-inspector')?.status && runtime.secondary === runtimeSnapshot.agents.find((agent) => agent.identity === 'premium.architecture-inspector')?.status, runtime);
-  const runtimeMap = await page.evaluate(() => ({
+  const expectedRuntimeAgents = runtimeSnapshot.agents.map(({ identity, status }) => ({ identity, status }))
+    .sort((left, right) => left.identity.localeCompare(right.identity));
+  check('runtime-chain-visible', JSON.stringify(runtime.agents) === JSON.stringify(expectedRuntimeAgents), runtime);
+  const basicRegistry = await page.evaluate(() => ({
     ids: [...document.querySelectorAll('[data-basic-agent-planetary-node]')].map((node) => node.getAttribute('data-basic-agent-planetary-node')).sort(),
     statuses: Object.fromEntries([...document.querySelectorAll('[data-basic-agent-planetary-node]')].map((node) => [node.getAttribute('data-basic-agent-planetary-node'), node.getAttribute('data-basic-agent-status')])),
-    sources: [...document.querySelectorAll('[data-basic-agent-planetary-node]')].map((node) => node.getAttribute('data-basic-agent-runtime-source')),
     core: document.querySelector('[data-basic-agent-planetary-core]')?.getAttribute('data-basic-agent-core-status'),
     contract: document.querySelector('[data-basic-agent-planetary-panel]')?.getAttribute('data-orbital-source'),
-    generatedAt: document.querySelector('[data-basic-agent-planetary-panel]')?.getAttribute('data-accountability-generated-at'),
   }));
-  const expectedMapIds = runtimeSnapshot.agents.map((agent) => agent.identity).sort();
-  const expectedMapStatuses = Object.fromEntries(runtimeSnapshot.agents.map((agent) => [agent.identity, agent.status === 'ACTIVE' ? 'PASS' : agent.status === 'DEGRADED' || agent.status === 'STALE' ? 'DEGRADED' : agent.status === 'UNKNOWN / NO TELEMETRY' ? 'NO_TELEMETRY' : agent.status === 'MANDATE NOT ASSIGNED' ? 'STANDBY' : 'FAIL']));
-  check('runtime-map-same-identities-and-status-engine', JSON.stringify(runtimeMap.ids) === JSON.stringify(expectedMapIds) && JSON.stringify(runtimeMap.statuses) === JSON.stringify(expectedMapStatuses) && runtimeMap.sources.every((source) => source === 'AGENT_RUNTIME_ACCOUNTABILITY') && runtimeMap.core === runtimeSnapshot.verdict.finalAgentRuntimePass && runtimeMap.contract === 'AGM-BASIC-AGENT-RUNTIME-MAP-V3', runtimeMap);
-  const firstGeneratedAt = runtimeMap.generatedAt;
+  const expectedBasicIds = [...canonicalBasicAgentIds].sort();
+  const validBasicStatuses = new Set(['PASS', 'DEGRADED', 'FAIL', 'NO_TELEMETRY', 'STANDBY']);
+  check('basic-registry-canonical-34', JSON.stringify(basicRegistry.ids) === JSON.stringify(expectedBasicIds)
+    && basicRegistry.ids.length === 34
+    && basicRegistry.ids.every((identity) => !identity?.startsWith('premium-'))
+    && Object.values(basicRegistry.statuses).every((status) => validBasicStatuses.has(status))
+    && validBasicStatuses.has(basicRegistry.core)
+    && basicRegistry.contract === 'AGM-BASIC-AGENT-NETWORK-V2', basicRegistry);
+  const firstRuntimeGeneratedText = await page.locator('.agent-runtime-generated').textContent();
   const requestsBeforePollingProof = runtimeRequestCount;
   runtimeSnapshot = { ...runtimeSnapshot, generatedAt: new Date(Date.parse(runtimeSnapshot.generatedAt) + 1_000).toISOString() };
-  await page.waitForFunction((expected) => document.querySelector('[data-basic-agent-planetary-panel]')?.getAttribute('data-accountability-generated-at') === expected, runtimeSnapshot.generatedAt, { timeout: 20_000 });
-  check('runtime-map-polls-same-persistent-projection', runtimeRequestCount > requestsBeforePollingProof && firstGeneratedAt !== runtimeSnapshot.generatedAt, { requestsBeforePollingProof, runtimeRequestCount, firstGeneratedAt, currentGeneratedAt: runtimeSnapshot.generatedAt });
+  await page.waitForFunction((previous) => document.querySelector('.agent-runtime-generated')?.textContent !== previous, firstRuntimeGeneratedText, { timeout: 20_000 });
+  const currentRuntimeGeneratedText = await page.locator('.agent-runtime-generated').textContent();
+  check('runtime-accountability-polls-same-persistent-projection', runtimeRequestCount > requestsBeforePollingProof && firstRuntimeGeneratedText !== currentRuntimeGeneratedText, { requestsBeforePollingProof, runtimeRequestCount, firstRuntimeGeneratedText, currentRuntimeGeneratedText });
   const requiredVerdictText = [
     `OVERALL OPERATIONAL STATE${runtimeSnapshot.verdict.overallOperationalState}`,
     `CONTROL SYSTEM${runtimeSnapshot.verdict.controlSystem}`,
@@ -219,8 +237,6 @@ try {
   });
   check('complete-zero-source-proves-no-active-incidents', complete.truth === 'NO ACTIVE INCIDENTS' && complete.receipt?.coverage === 'COMPLETE' && complete.receipt?.result === 'PASS' && complete.duty === 'DUTY VERIFIED', complete);
 
-  await page.locator('[data-turn-page-target="investigate"]').click();
-  await page.waitForSelector('[data-turn-page="investigate"]:not([hidden])');
   incidentMode = 'UNAVAILABLE';
   await page.locator('[data-incident-truth-recheck]:visible').click();
   await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'INCIDENT DATA UNAVAILABLE');
@@ -250,7 +266,9 @@ try {
 
   incidentMode = 'OMITTED';
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('#turn-agent-accountability');
+  await page.locator('[data-turn-page-target="investigate"]').click();
+  await page.waitForSelector('[data-turn-page="investigate"]:not([hidden])');
+  await page.waitForSelector('#turn-agent-accountability', { state: 'visible' });
   await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'UNKNOWN / NOT CHECKED');
   const reload = await page.evaluate((mandateId) => {
     const receipts = JSON.parse(localStorage.getItem('agm.turn.duty-receipts.v1.1') ?? '[]');
