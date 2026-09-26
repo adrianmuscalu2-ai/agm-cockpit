@@ -42,6 +42,13 @@ describe('image sanitizer security contract', () => {
     );
   });
 
+  it.each([
+    ['HEIF', Buffer.from('0000001866747970686569630000000068656963', 'hex'), 'image/heic'],
+    ['AVIF', Buffer.from('0000001866747970617669660000000061766966', 'hex'), 'image/avif'],
+  ])('rejects %s before the libheif decoder can be reached', async (_format, input, mimetype) => {
+    await expectSecurityCode(sanitizeImageForVision(input, mimetype), 'IMAGE_UNSUPPORTED');
+  });
+
   it('rejects a PNG polyglot with trailing ZIP payload', async () => {
     const png = await sharp({
       create: { width: 2, height: 2, channels: 3, background: '#ffffff' },
