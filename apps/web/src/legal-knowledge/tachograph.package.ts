@@ -1,7 +1,7 @@
 import type { KnowledgeItem, KnowledgePackage } from './knowledge.contract';
 
-const verifiedAt = '2026-08-02';
-const reviewDueAt = '2026-11-02';
+const verifiedAt = '2026-09-12';
+const reviewDueAt = '2026-12-12';
 const jurisdiction = 'Uniunea Europeană; aplicabilitatea AETR, excluderile și derogările se verifică separat';
 
 type SourceReference = KnowledgeItem['sourceReferences'][number];
@@ -29,13 +29,14 @@ export const tachographKnowledgePackage: KnowledgePackage = {
   jurisdiction,
   verifiedAt,
   reviewDueAt,
-  version: '0.1.1',
+  version: '0.2.0',
   status: 'published',
   sources: [
     { id: 'EU-TACH-001', title: 'Regulamentul (UE) nr. 165/2014 — consolidat la 31.12.2024', url: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02014R0165-20241231', official: true, reachable: true, checkedAt: verifiedAt, reviewDueAt },
     { id: 'EU-TACH-002', title: 'Comisia Europeană — Tachograph provisions Q&A', url: 'https://transport.ec.europa.eu/transport-modes/road/mobility-package-i/tachographs/questions-and-answers-tachograph-provisions-mobility-package-1_en', official: true, reachable: true, checkedAt: verifiedAt, reviewDueAt },
     { id: 'EU-TACH-003', title: 'Regulamentul (CE) nr. 561/2006 — consolidat la 31.12.2024', url: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006R0561-20241231', official: true, reachable: true, checkedAt: verifiedAt, reviewDueAt },
     { id: 'EU-TACH-004', title: 'Regulamentul de punere în aplicare (UE) 2016/799 — consolidat la 21.08.2023', url: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02016R0799-20230821', official: true, reachable: true, checkedAt: verifiedAt, reviewDueAt },
+    { id: 'EU-TACH-005', title: 'Comisia Europeană — Tahograful în transportul rutier', url: 'https://transport.ec.europa.eu/transport-modes/road/tachograph_en', official: true, reachable: true, checkedAt: verifiedAt, reviewDueAt },
   ],
   items: [
     item('TACH-000', 'Domeniul de aplicare', 'Regulamentul se aplică tahografelor vehiculelor înmatriculate într-un stat membru, folosite la transport rutier supus Regulamentului 561/2006, cu excepțiile și regulile permise.', 'Verifică vehiculul, masa maximă permisă, operațiunea, înmatricularea și ruta înaintea concluziei.', ['O dată de retrofit nu se aplică automat unei operațiuni din afara domeniului.'], ['Ignorarea excluderilor, derogărilor sau regimului AETR.'], [ref('EU-TACH-001', 'art. 3'), ref('EU-TACH-003', 'art. 2–3')]),
@@ -49,22 +50,27 @@ export const tachographKnowledgePackage: KnowledgePackage = {
     item('TACH-008', 'Defecțiunea aparatului', 'Repararea se face cât mai curând; dacă vehiculul nu poate reveni la sediu în cel mult o săptămână, repararea se face pe traseu.', 'Până la reparare, șoferul consemnează identificarea și perioadele neînregistrate corect.', ['Atelier aprobat pe traseu când revenirea în termen nu este posibilă.'], ['Continuarea peste o săptămână fără reparare pe traseu.'], [ref('EU-TACH-001', 'art. 37')]),
     item('TACH-009', 'Inspecții și consumabile', 'Inspecția are loc cel puțin la doi ani; sigiliile se controlează, iar operatorul asigură foi și hârtie compatibile suficiente.', 'Verificarea consumabilelor și a sigiliilor face parte din pregătirea operațională.', ['Hârtie compatibilă de rezervă disponibilă.'], ['Plecarea fără hârtie ori intervenția neautorizată asupra sigiliilor.'], [ref('EU-TACH-001', 'art. 22–23, art. 33')]),
     item('TACH-010', 'Smart tachograph v2', 'În domeniul Regulamentului 165/2014, noile înmatriculări folosesc v2 din 21.08.2023; pentru operare în alt stat membru, retrofitul non-smart a avut termen 31.12.2024, iar smart v1 18.08.2025.', 'De la 01.07.2026, obligația relevantă acoperă și ansamblurile de peste 2,5 t în transport internațional sau cabotaj, sub rezerva excluderilor și derogărilor; termenele de retrofit sunt deja operative.', ['Se verifică aparatul, înmatricularea, masa ansamblului, ruta și tipul operațiunii.'], ['Aplicarea datelor tuturor vehiculelor indiferent de domeniu.'], [ref('EU-TACH-001', 'art. 3'), ref('EU-TACH-002', 'Q&A: smart tachograph v2 and retrofit'), ref('EU-TACH-003', 'art. 2–3'), ref('EU-TACH-004', 'Annex IC')]),
+    item('TACH-011', 'Conducere în echipaj', 'În conducerea în echipaj, fiecare șofer se asigură că propriul card este introdus în slotul corect al tahografului.', 'Înainte ca vehiculul să se miște și după fiecare schimb de șofer, verifică numele/cardul și poziția slotului 1 sau 2.', ['Șoferul care conduce folosește slotul 1; colegul aflat în disponibilitate folosește slotul 2, conform situației reale.'], ['Carduri inversate după schimbarea șoferului sau plecarea cu al doilea card neintrodus.'], [ref('EU-TACH-001', 'art. 34(4)')]),
+    item('TACH-012', 'Feribot și tren', 'Pe un vehicul transportat cu feribotul sau trenul, șoferul poate folosi semnul specific feribot/tren împreună cu repausul numai în condițiile prevăzute de Regulamentul 561/2006.', 'Selectează feribot/tren doar pentru traversarea reală și păstrează înregistrarea activității efective; nu transforma automat întreaga așteptare în repaus.', ['La îmbarcare se selectează situația corectă, iar întreruperile și accesul la cușetă/cabină se verifică după regula de repaus aplicabilă.'], ['Folosirea simbolului feribot/tren în parcare, la coadă sau fără verificarea condițiilor repausului.'], [ref('EU-TACH-001', 'art. 34(5)(b)(v)'), ref('EU-TACH-003', 'art. 9')]),
+    item('TACH-013', 'Responsabilitatea firmei și păstrarea datelor', 'Firma de transport instruiește șoferii, verifică periodic utilizarea corectă și nu încurajează abuzul. Foile și printurile se păstrează cel puțin un an; șoferii primesc la cerere copiile prevăzute de regulament, inclusiv ale datelor descărcate de pe card.', 'O verificare internă regulată trebuie să găsească din timp golurile, modurile greșite, erorile de card și lipsa descărcărilor.', ['Firma planifică descărcările, verifică rapoartele și poate prezenta ori tipări datele la control.'], ['Transferarea întregii responsabilități către șofer sau păstrarea datelor numai pe card.'], [ref('EU-TACH-001', 'art. 33(1)–(2)')]),
+    item('TACH-014', 'Control rapid înainte de plecare', 'Regulile privind folosirea corectă, cardul, activitățile și printurile trebuie respectate de la preluarea vehiculului; lista de mai jos este un control practic, nu un formular juridic separat.', 'În 60 de secunde verifică: cardul personal și valabil, lipsa erorilor, ora și țara, modul activității, intrările manuale lipsă și hârtia de rezervă.', ['Confirmă numele afișat, slotul corect, ora locală/UTC conform aparatului și activitatea curentă înainte de mișcare.'], ['Plecarea înainte de finalizarea citirii cardului sau acceptarea automată a tuturor golurilor ca repaus.'], [ref('EU-TACH-001', 'art. 32, art. 34–35'), ref('EU-TACH-005', 'Driver card and recorded activities overview')]),
   ],
   history: [
     { version: '0.1.0', changedAt: verifiedAt, author: 'Documentation Owner', summary: 'Pachet Tahograf inițial; validarea și publicarea sunt blocate.' },
     { version: '0.1.1', changedAt: verifiedAt, author: 'Documentation Owner', summary: 'Corecții Domain, Legal și QA: domeniu, card, surse consolidate, trasabilitate și paritate editorială.' },
     { version: '0.1.1', changedAt: verifiedAt, author: 'Publication Gate', summary: 'Domain, Legal și QA PASS înregistrate; publicare controlată autorizată.' },
+    { version: '0.2.0', changedAt: verifiedAt, author: 'AGM Knowledge', summary: 'Extindere pentru echipaj, feribot/tren, responsabilitatea firmei și controlul rapid înainte de plecare; sursele oficiale au fost reverificate.' },
   ],
   validation: {
     domainReviewed: true,
     legalReviewed: true,
     qaReviewed: true,
-    domainValidator: 'Domain Owner — Transport rutier și tahograf',
-    legalValidator: 'Agent Legal — SVC-019 Legal/Compliance',
-    qaValidator: 'QA editorial independent — AGM Knowledge',
-    domainReviewedAt: '2026-08-02',
-    legalReviewedAt: '2026-08-02',
-    qaReviewedAt: '2026-08-02',
+    domainValidator: 'AGM Knowledge — verificare operațională tahograf',
+    legalValidator: 'AGM Knowledge — verificare surse oficiale primare',
+    qaValidator: 'Teste automate și Browser controlat — desktop/mobil',
+    domainReviewedAt: '2026-09-12',
+    legalReviewedAt: '2026-09-12',
+    qaReviewedAt: '2026-09-12',
     holdReasons: [],
     contradictions: [],
   },

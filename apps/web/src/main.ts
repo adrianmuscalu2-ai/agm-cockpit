@@ -125,6 +125,7 @@ import {
 } from './text-corrector/text-corrector.types';
 import { renderTurnCommandCenter } from './turn-command-center.view';
 import { publishedLegalKnowledge } from './legal-knowledge/legal-knowledge.registry';
+import type { KnowledgeItem, KnowledgePackage } from './legal-knowledge/knowledge.contract';
 import { basicKnowledgeDestinationFromRoute, packagesForBasicKnowledgeDestination } from './legal-knowledge/knowledge-navigation.registry';
 import {
   createIncident,
@@ -2133,6 +2134,44 @@ function renderLegalAcceptanceNotice() {
   `;
 }
 
+function renderKnowledgeList(title: string, values: readonly string[]) {
+  if (values.length === 0) return '';
+  return `<section><h3>${escapeHtml(title)}</h3><ul>${values.map((value) => `<li>${escapeHtml(value)}</li>`).join('')}</ul></section>`;
+}
+
+function renderKnowledgeSources(entry: KnowledgeItem, knowledgePackage: KnowledgePackage) {
+  const links = entry.sourceReferences.map((reference) => {
+    const source = knowledgePackage.sources.find((candidate) => candidate.id === reference.sourceId);
+    if (!source) return '';
+    return `<li><a href='${escapeHtml(source.url)}' target='_blank' rel='noopener noreferrer'>${escapeHtml(source.title)}</a><small>${escapeHtml(reference.locator)}</small></li>`;
+  }).filter(Boolean).join('');
+  return links ? `<ul class='knowledge-source-list'>${links}</ul>` : '';
+}
+
+function renderKnowledgeItem(entry: KnowledgeItem, knowledgePackage: KnowledgePackage) {
+  const operational = entry as KnowledgeItem & { recommendedAction?: string; vehicleVariation?: string };
+  const explanationLabel = operational.recommendedAction ? 'Ce înseamnă:' : 'Ce faci:';
+  return `
+    <details class='knowledge-entry'>
+      <summary>${escapeHtml(entry.topic)}</summary>
+      <div class='knowledge-entry-body'>
+        <p class='knowledge-driver-action'><strong>${explanationLabel}</strong> ${escapeHtml(entry.practicalExplanation)}</p>
+        ${operational.recommendedAction ? `<p class='knowledge-immediate-action'><strong>Ce faci acum:</strong> ${escapeHtml(operational.recommendedAction)}</p>` : ''}
+        <div class='knowledge-guidance-grid'>
+          ${renderKnowledgeList('Verifică', entry.examples)}
+          ${renderKnowledgeList('Evită', entry.commonMistakes)}
+        </div>
+        ${operational.vehicleVariation ? `<p class='knowledge-vehicle-variation'><strong>Poate varia:</strong> ${escapeHtml(operational.vehicleVariation)}</p>` : ''}
+        <details class='knowledge-legal-detail'>
+          <summary>Vezi regula și sursele oficiale</summary>
+          <p>${escapeHtml(entry.legalRule)}</p>
+          ${renderKnowledgeSources(entry, knowledgePackage)}
+        </details>
+      </div>
+    </details>
+  `;
+}
+
 function renderLegalCenter() {
   const language = uiLanguage();
   const publishedKnowledge = publishedLegalKnowledge();
@@ -2185,17 +2224,8 @@ function renderLegalCenter() {
           ${visibleKnowledge.map((knowledgePackage) => `
             <article class="legal-card">
               <h2>${escapeHtml(knowledgePackage.title)}</h2>
-              <p class="knowledge-package-meta">Validat · versiunea ${escapeHtml(knowledgePackage.version)}</p>
-              ${knowledgePackage.items.map((entry) => `
-                <details>
-                  <summary>${escapeHtml(entry.topic)}</summary>
-                  <p class="knowledge-driver-action"><strong>Ce faci:</strong> ${escapeHtml(entry.practicalExplanation)}</p>
-                  <details class="knowledge-legal-detail">
-                    <summary>Vezi regula juridică</summary>
-                    <p>${escapeHtml(entry.legalRule)}</p>
-                  </details>
-                </details>
-              `).join('')}
+              <p class="knowledge-package-meta">Validat ${escapeHtml(knowledgePackage.verifiedAt)} · versiunea ${escapeHtml(knowledgePackage.version)} · ${knowledgePackage.items.length} informații</p>
+              ${knowledgePackage.items.map((entry) => renderKnowledgeItem(entry, knowledgePackage)).join('')}
             </article>
           `).join('')}
         </section>

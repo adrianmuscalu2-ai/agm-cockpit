@@ -18,7 +18,7 @@ const expected = [
 ] as const;
 
 assert.equal(basicKnowledgeDestinations.length, 4);
-const published = publishedLegalKnowledge(new Date('2026-08-02'));
+const published = publishedLegalKnowledge(new Date('2026-09-12'));
 const mainSource = readFileSync(resolve('src', 'main.ts'), 'utf8');
 
 for (const [route, packageIds] of expected) {
@@ -35,7 +35,11 @@ for (const [route, packageIds] of expected) {
 
 assert.equal(new Set(expected.map(([route]) => route)).size, expected.length);
 assert.match(mainSource, /knowledgeDestination \? '' : `<header class="profile-heading">/);
-assert.match(mainSource, /class="knowledge-driver-action"><strong>Ce faci:<\/strong>/);
-assert.match(mainSource, /<summary>Vezi regula juridică<\/summary>/);
+assert.match(mainSource, /const explanationLabel = operational\.recommendedAction \? 'Ce înseamnă:' : 'Ce faci:'/);
+assert.match(mainSource, /knowledge-driver-action/);
+assert.match(mainSource, /renderKnowledgeList\('Verifică', entry\.examples\)/);
+assert.match(mainSource, /renderKnowledgeList\('Evită', entry\.commonMistakes\)/);
+assert.match(mainSource, /Vezi regula și sursele oficiale/);
+assert.match(mainSource, /knowledge-source-list/);
 
 console.log('AGM Basic Knowledge Integration: PASS');

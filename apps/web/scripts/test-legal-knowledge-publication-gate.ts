@@ -22,7 +22,7 @@ assert.doesNotMatch(mainSource, /renderBasicPlanned\([^\n]+(?:Martori în bord|T
 assert.equal(drivingRestTimesKnowledgePackage.items.length, 9);
 assert.equal(drivingRestTimesKnowledgePackage.status, 'published');
 assert.equal(isKnowledgePackagePublishable(drivingRestTimesKnowledgePackage, new Date('2026-08-02')), true);
-assert.deepEqual(publishedLegalKnowledge(new Date('2026-08-02')), [drivingRestTimesKnowledgePackage, tachographKnowledgePackage, dashboardWarningLightsKnowledgePackage, transportDocumentsKnowledgePackage, cargoSecuringKnowledgePackage]);
+assert.deepEqual(publishedLegalKnowledge(new Date('2026-09-12')), [drivingRestTimesKnowledgePackage, tachographKnowledgePackage, dashboardWarningLightsKnowledgePackage, transportDocumentsKnowledgePackage, cargoSecuringKnowledgePackage]);
 assert.equal(cargoSecuringKnowledgePackage.status, 'published');
 assert.equal(cargoSecuringKnowledgePackage.version, '0.1.1');
 assert.equal(cargoSecuringKnowledgePackage.items.length, 13);
@@ -92,7 +92,7 @@ const validatedTransportDocuments = {
 };
 assert.equal(isKnowledgePackagePublishable(validatedTransportDocuments, new Date('2026-08-02')), true);
 assert.equal(tachographKnowledgePackage.status, 'published');
-assert.equal(isKnowledgePackagePublishable(tachographKnowledgePackage, new Date('2026-08-02')), true);
+assert.equal(isKnowledgePackagePublishable(tachographKnowledgePackage, new Date('2026-09-12')), true);
 assert.equal(dashboardWarningLightsKnowledgePackage.status, 'published');
 assert.equal(dashboardWarningLightsKnowledgePackage.version, '0.1.3');
 assert.equal(dashboardWarningLightsKnowledgePackage.items.length, 11);
@@ -108,8 +108,9 @@ for (const entry of dashboardWarningLightsKnowledgePackage.items) {
   assert.equal(entry.visualReference.assetStatus, 'verified');
   assert.ok(entry.visualReference.assetPath);
   assert.ok(entry.visualReference.sha256);
-  const assetBytes = readFileSync(resolve('public', entry.visualReference.assetPath!.replace(/^\//, '').replace(/^assets\//, 'assets/')));
-  assert.equal(createHash('sha256').update(assetBytes).digest('hex').toUpperCase(), entry.visualReference.sha256);
+  const assetText = readFileSync(resolve('public', entry.visualReference.assetPath!.replace(/^\//, '').replace(/^assets\//, 'assets/')), 'utf8');
+  const canonicalAssetBytes = Buffer.from(assetText.replace(/\r\n/g, '\n'), 'utf8');
+  assert.equal(createHash('sha256').update(canonicalAssetBytes).digest('hex').toUpperCase(), entry.visualReference.sha256);
   assert.equal(entry.verifiedAt, '2026-08-02');
   assert.equal(entry.reviewDueAt, '2026-11-02');
 }
@@ -134,11 +135,12 @@ const fakeVerifiedWithoutProvenance = {
   })),
 };
 assert.equal(isKnowledgePackagePublishable(fakeVerifiedWithoutProvenance, new Date('2026-08-02')), false);
-assert.equal(tachographKnowledgePackage.version, '0.1.1');
-assert.equal(tachographKnowledgePackage.items.length, 11);
+assert.equal(tachographKnowledgePackage.version, '0.2.0');
+assert.equal(tachographKnowledgePackage.items.length, 15);
 assert.deepEqual(tachographKnowledgePackage.items.map((entry) => entry.id), [
   'TACH-000', 'TACH-001', 'TACH-002', 'TACH-003', 'TACH-004', 'TACH-005',
-  'TACH-006', 'TACH-007', 'TACH-008', 'TACH-009', 'TACH-010',
+  'TACH-006', 'TACH-007', 'TACH-008', 'TACH-009', 'TACH-010', 'TACH-011',
+  'TACH-012', 'TACH-013', 'TACH-014',
 ]);
 
 for (const entry of tachographKnowledgePackage.items) {
@@ -148,8 +150,8 @@ for (const entry of tachographKnowledgePackage.items) {
   assert.ok(entry.commonMistakes.length > 0);
   assert.ok(entry.sourceReferences.length > 0);
   assert.match(entry.jurisdiction, /Uniunea Europeană/);
-  assert.equal(entry.verifiedAt, '2026-08-02');
-  assert.equal(entry.reviewDueAt, '2026-11-02');
+  assert.equal(entry.verifiedAt, '2026-09-12');
+  assert.equal(entry.reviewDueAt, '2026-12-12');
 }
 
 assert.deepEqual(tachographKnowledgePackage.items.find((entry) => entry.id === 'TACH-005')?.sourceReferences.map((entry) => entry.sourceId), ['EU-TACH-001', 'EU-TACH-002']);
@@ -163,6 +165,9 @@ assert.match(smartV2?.legalRule ?? '', /31\.12\.2024/);
 assert.match(smartV2?.legalRule ?? '', /18\.08\.2025/);
 assert.match(smartV2?.practicalExplanation ?? '', /01\.07\.2026/);
 assert.deepEqual(smartV2?.sourceReferences.map((entry) => entry.sourceId), ['EU-TACH-001', 'EU-TACH-002', 'EU-TACH-003', 'EU-TACH-004']);
+assert.deepEqual(tachographKnowledgePackage.items.find((entry) => entry.id === 'TACH-011')?.sourceReferences.map((entry) => entry.sourceId), ['EU-TACH-001']);
+assert.match(tachographKnowledgePackage.items.find((entry) => entry.id === 'TACH-013')?.legalRule ?? '', /cel puțin un an/);
+assert.match(tachographKnowledgePackage.items.find((entry) => entry.id === 'TACH-014')?.practicalExplanation ?? '', /60 de secunde/);
 
 const validatedTachograph = {
   ...tachographKnowledgePackage,
@@ -181,7 +186,7 @@ const validatedTachograph = {
     contradictions: [],
   },
 };
-assert.equal(isKnowledgePackagePublishable(validatedTachograph, new Date('2026-08-02')), true);
+assert.equal(isKnowledgePackagePublishable(validatedTachograph, new Date('2026-09-12')), true);
 
 for (const entry of drivingRestTimesKnowledgePackage.items) {
   assert.ok(entry.legalRule.length > 0);
