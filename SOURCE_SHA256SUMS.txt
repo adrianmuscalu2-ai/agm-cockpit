@@ -1,0 +1,13 @@
+fae97ca6f21c840137c8b123cd5da0951618682d1a2e529f49ca3d96ba7ac04d	1332	apps/api/src/permission-guardian/permission-guardian.contract.ts
+62885bd0615de17e5de83f17b5751626023c37cb35a656527fa0b886947383a8	4637	apps/api/src/permission-guardian/permission-guardian.service.ts
+2429f78262b721c044974d4b5f65fb4122d89ae0322a30c9acc0750fcbac090f	2309	apps/api/test/permission-guardian.service.spec.ts
+95d493be97d369d0c8e7e2a6850bcf664705eaa2a12622080cb7978fb8269f61	3744	apps/web/android/app/src/main/AndroidManifest.xml
+1d6405940dea6a562a4e438f031efc71ea79f9a0f055f77df448be0135aaedda	12409	apps/web/android/app/src/main/java/com/agm/cockpit/DeviceHandoffIntents.java
+71108786ff62f0a863fde83a213d51e6ba371520c35f45c857dd87764cdbe901	5854	apps/web/scripts/test-android-action-layer.ts
+faad45c88b2b61c3557a4e734cdb942b123c8b6a006f8d527613fd7e86fcb7db	1855	apps/web/src/android-action-layer/android-action.contract.ts
+e2893c12db44ba2f4778e4bbcc144c14386a28415bf7fb7e051a479dc500c234	4211	apps/web/src/android-action-layer/android-action.executor.ts
+3777d2492a15df48ea51f1fb8d54486e9977b601c8332b2019412b044090376a	7671	apps/web/src/android-action-layer/android-action.router.ts
+918b08ecf7c9e5abcf6403eb9eac40f391d146d315075cb8ea4bba4f6a909ef3	844	apps/web/src/android-action-layer/confirmation-policy.ts
+1a4cbdd11d07bc80bb77a0d1896197253edc302b90460c59b0f09788a50f581c	3207	apps/web/src/android-action-layer/driver-voice-mode.ts
+2208677f581eecff9ee5d93ecb154e725b12b4a24a823f87b72f56ae158cca77	1400	apps/web/src/android-action-layer/permission-guardian.client.ts
+b2d6915992f0cf4c57cc4e647dd489d27244f9d24fd5de5da6ea00c72e631a51	8231	apps/web/src/premium-capabilities/android-assistant.gateway.ts
