@@ -136,7 +136,7 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
     });
   });
 
-  it.each(['schedule', 'workflow_dispatch'])('accepts the pinned continuity workflow for %s only at the deployed Production SHA', async (eventName) => {
+  it.each(['schedule', 'workflow_dispatch'])('accepts the pinned continuity workflow for %s even when the branch head is newer than the deployed Production SHA', async (eventName) => {
     const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
     const { service } = harness();
     await expect(service.authenticate(await token({
@@ -145,23 +145,18 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
       ref: continuity.ref,
       workflow_ref: continuity.workflowRef,
       event_name: eventName,
+      sha: 'b'.repeat(40),
     }))).resolves.toMatchObject({
       companyId,
       roles: ['AGENT_RUNTIME_CONTINUITY'],
       actorSubject: continuity.subject,
-      actorMetadata: { workflowRef: continuity.workflowRef, ref: continuity.ref, sha: revision },
+      actorMetadata: { workflowRef: continuity.workflowRef, ref: continuity.ref, sha: 'b'.repeat(40) },
     });
   });
 
-  it('rejects the continuity workflow when its SHA differs from Production', async () => {
-    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
+  it('rejects the deploy workflow when its SHA differs from Production', async () => {
     const { service } = harness();
     await expect(service.authenticate(await token({
-      sub: continuity.subject,
-      environment: continuity.environment,
-      ref: continuity.ref,
-      workflow_ref: continuity.workflowRef,
-      event_name: 'schedule',
       sha: 'b'.repeat(40),
     }))).rejects.toBeInstanceOf(UnauthorizedException);
   });
