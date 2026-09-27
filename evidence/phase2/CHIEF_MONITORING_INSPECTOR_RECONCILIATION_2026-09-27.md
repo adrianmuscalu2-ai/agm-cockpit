@@ -1,7 +1,7 @@
 # Chief Monitoring Inspector runtime reconciliation
 
-Date: 2026-09-27  
-Legacy checkpoint: `3c96e710423b94537aa879b8326b7defc38e13a7`  
+Date: 2026-09-27
+Legacy checkpoint: `3c96e710423b94537aa879b8326b7defc38e13a7`
 Canonical baseline: Production tree `f402b84bb05bdc78cb0a052b2ecc15ea96741d00`
 
 ## Verdict
