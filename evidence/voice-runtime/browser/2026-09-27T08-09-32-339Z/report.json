@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-27T08-09-32-339Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "status": "PASS",
+  "results": [
+    {
+      "id": "model-request-preemption",
+      "status": "PASS",
+      "staleResponseAbsent": true,
+      "newestResponseVisible": true,
+      "priorRequestFailed": true,
+      "cancelLatencyMs": 0
+    },
+    {
+      "id": "audio-output-preemption",
+      "status": "PASS",
+      "oldAudioStopped": true,
+      "activeAudio": "RASPUNS FINAL PATRU",
+      "activeAudioCount": 1,
+      "state": "SPEAKING",
+      "latency": "MIC→speech — ms · VAD — ms · STT — ms · orchestrator 7 ms · model 40 ms · network 27 ms · TTS→audio 16 ms · transcript→audio 92 ms · MIC→audio — ms",
+      "telemetry": {
+        "cycleId": "09513edb-8acc-4608-8605-9c022c5b81f4",
+        "listeningStartedAt": 5836.699999988079,
+        "finalTranscriptAt": 5836.699999988079,
+        "nativeTiming": {
+          "manualInputMs": 0
+        },
+        "engineRequestAt": 5837.5999999940395,
+        "engineResponseAt": 5911.699999988079,
+        "engineLatencyMs": 74,
+        "serverTiming": {
+          "timeToFirstTokenMs": 40,
+          "orchestratorMs": 7,
+          "modelMs": 40,
+          "answerCompleteMs": 47,
+          "serverTotalMs": 47,
+          "sourceResolutionMs": 0
+        },
+        "networkLatencyMs": 27,
+        "ttsRequestedAt": 5912.4000000059605,
+        "transcriptToTtsMs": 76,
+        "audioStartedAt": 5928.799999982119,
+        "ttsStartedAt": 5928.799999982119,
+        "ttsRequestToAudioStartMs": 16,
+        "transcriptToAudioStartMs": 92
+      }
+    }
+  ],
+  "browserContract": {
+    "plugin": "PASS",
+    "integratedControl": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "session": "PASS",
+    "target": "PASS"
+  },
+  "target": "http://127.0.0.1:57467",
+  "revision": "90ac92e134578bd449d33b15a898338b2cebf8d7",
+  "finishedAt": "2026-09-27T08:09:44.970Z",
+  "assistantRequests": [
+    {
+      "text": "PRIMA întrebare lentă",
+      "receivedAt": 1790496578206,
+      "status": "FULFILLED",
+      "finishedAt": 1790496579808
+    },
+    {
+      "text": "A DOUA întrebare prioritară",
+      "receivedAt": 1790496578547,
+      "status": "FULFILLED",
+      "finishedAt": 1790496578652
+    },
+    {
+      "text": "TREIA întrebare pentru audio",
+      "receivedAt": 1790496580946,
+      "status": "FULFILLED",
+      "finishedAt": 1790496581016
+    },
+    {
+      "text": "A PATRA întrebare finală",
+      "receivedAt": 1790496581268,
+      "status": "FULFILLED",
+      "finishedAt": 1790496581332
+    }
+  ],
+  "failedAssistantRequests": [
+    {
+      "text": "{\"productId\":\"agm-cockpit\",\"moduleId\":\"premium-cockpit\",\"language\":\"ro\",\"confirmedText\":\"PRIMA întrebare lentă\",\"surface\":\"BROWSER\",\"history\":[]}",
+      "failure": {
+        "errorText": "net::ERR_ABORTED"
+      }
+    }
+  ],
+  "console": [
+    {
+      "type": "warning",
+      "text": "Capacitor plugin \"AgmCapability\" already registered. Cannot register plugins twice."
+    },
+    {
+      "type": "warning",
+      "text": "Capacitor plugin \"AgmCapability\" already registered. Cannot register plugins twice."
+    }
+  ]
+}
