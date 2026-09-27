@@ -378,6 +378,58 @@ let activeTranslatorVoiceInput: Promise<void> | null = null;
 let lastTranslatorHealthCapturedAt: string | null = null;
 let lastRenderedProductionPreflightSignature: string | null = null;
 let adminSessionRetryTimer: number | undefined;
+let pendingAndroidAssistantInvocation = false;
+let androidAssistantStartScheduled = false;
+
+type AgmaAssistantWindow = Window & {
+  __agmaHandleAndroidAssistantInvocation?: (source: string) => boolean;
+};
+
+function startExistingAssistantVoiceRuntime() {
+  if (androidAssistantStartScheduled) return;
+  androidAssistantStartScheduled = true;
+  window.requestAnimationFrame(() => {
+    androidAssistantStartScheduled = false;
+    const start = document.querySelector<HTMLButtonElement>('[data-premium-assistant] [data-assistant-start], [data-premium-copilot] [data-assistant-start]');
+    if (!start || start.getAttribute('aria-pressed') === 'true') return;
+    start.click();
+  });
+}
+
+function handleAndroidAssistantInvocation(source: string) {
+  if (!Capacitor.isNativePlatform()) return false;
+  const safeSource = source.replace(/[^A-Z_]/g, '') || 'SYSTEM_ASSISTANT';
+  document.documentElement.dataset.agmaAssistantInvocation = safeSource;
+  if (!state.legalAcceptanceAccepted) {
+    pendingAndroidAssistantInvocation = true;
+    state.status = audioMessage(
+      'Acceptați termenii AGM pentru a porni ascultarea vocală.',
+      'Akzeptieren Sie die AGM-Bedingungen, um die Spracheingabe zu starten.',
+      'Accept the AGM terms to start voice listening.',
+    );
+    render();
+    return true;
+  }
+  pendingAndroidAssistantInvocation = false;
+  if (!isPremiumNavigationAllowed('premiumVoice')) {
+    state.status = audioMessage(
+      'Asistentul vocal necesită autoritate Premium verificată.',
+      'Der Sprachassistent benötigt eine verifizierte Premium-Berechtigung.',
+      'The voice assistant requires verified Premium authority.',
+    );
+    navigateToModule('access');
+    return true;
+  }
+  navigateToModule('premiumVoice');
+  startExistingAssistantVoiceRuntime();
+  return true;
+}
+
+(window as AgmaAssistantWindow).__agmaHandleAndroidAssistantInvocation = handleAndroidAssistantInvocation;
+window.addEventListener('agma-android-assistant-invocation', (event) => {
+  const detail = (event as CustomEvent<{ source?: string }>).detail;
+  handleAndroidAssistantInvocation(detail?.source ?? 'SYSTEM_ASSISTANT');
+});
 const ADMIN_SESSION_EXPIRED_MESSAGE = 'Sesiunea administrativă a expirat sau a fost revocată. Autentifică-te din nou prin Owner Access.';
 let activeQuickLanguageMenuCleanup: (() => void) | null = null;
 let globalCameraAvailable: boolean | null = null;
@@ -5847,6 +5899,9 @@ function acceptLegalNotice() {
   state.tutorialOpen = !tutorialRepository.isTutorialCompleted();
   state.tutorialOpenedFromHelp = false;
   render();
+  if (pendingAndroidAssistantInvocation && !state.tutorialOpen) {
+    handleAndroidAssistantInvocation('LEGAL_ACCEPTANCE_RESUME');
+  }
 }
 
 function createEmailFromTranslation() {
