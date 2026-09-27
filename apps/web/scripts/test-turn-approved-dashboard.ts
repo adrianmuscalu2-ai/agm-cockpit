@@ -30,7 +30,8 @@ assert.match(html, /ARHITECTURĂ ȘI GUVERNANȚĂ/);
 assert.match(html, /Atlas coordonează execuția; monitorizarea verifică independent/);
 assert.match(html, /Inspector Șef Monitorizare/);
 assert.match(html, /Autovalidare<\/dt><dd>Interzisă/);
-assert.match(html, /class="turn-network-department ai-network"[\s\S]*P9 · CONTROL-PLANE INTERN[\s\S]*id="turn-p9"/);
+assert.match(html, /class="turn-network-department ai-network"[\s\S]*P9 · CONTROL-PLANE INTERN/, 'P9 must retain its declared AI-network placement');
+assert.match(html, /id="turn-p9"[\s\S]*data-p9-projection="loading"/, 'P9 operational projection must remain present on the investigate page');
 
 assert.match(html, /id="turn-authority-control-plane"/);
 assert.match(html, /data-authority-dashboard/);
