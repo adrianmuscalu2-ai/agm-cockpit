@@ -1,0 +1,313 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-27T07-55-58-665Z",
+  "status": "PASS",
+  "flow": "IAB PROBE ONCE -> CONTROLLED AGM PLAYWRIGHT/CHROMIUM -> MON-010 TRUTH -> DUTY RECEIPT -> RELOAD",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "target": "http://127.0.0.1:56419/turn",
+  "results": [
+    {
+      "id": "target-http-200",
+      "status": "PASS",
+      "detail": {
+        "status": 200,
+        "target": "http://127.0.0.1:56419/turn"
+      }
+    },
+    {
+      "id": "runtime-chain-visible",
+      "status": "PASS",
+      "detail": {
+        "agents": [
+          {
+            "identity": "premium.architecture-inspector",
+            "status": "ACTIVE"
+          },
+          {
+            "identity": "premium.release-inspector",
+            "status": "FAIL"
+          }
+        ],
+        "text": "TURN - OPERATIONAL AGENT TRUTHAgent Runtime & Inspector FailoverACTIVE requires mandate, execution, output, persistent evidence, current independent validation, and freshness.EVIDENCE-DERIVEDOVERALL OPERATIONAL STATEFAILCONTROL SYSTEMPASSAGENT ACCOUNTABILITYFAILINSPECTOR FAILOVERPASSCONTROL COVERAGECOMPLETEFALSE ACTIVE0UNEXPLAINED DEGRADED0NO TELEMETRY - ACTIVE MANDATES0UNEXPLAINED STANDBY0EXPIRED RUNTIME EVIDENCE0FAILED - ACTIVE MANDATES1MANDATE NOT DEMONSTRATED - OPERATIONAL0FINAL AGENT RUNTIME PASSFAILMandated operational fleet2 active mandates · 1 ACTIVE · 0 DEGRADED · 1 FAILED · 0 NO TELEMETRY · 0 MANDATE NOT DEMONSTRATEDInactive / no current mandate: 0Open incidents: 1Primary recovered: NOFailover preserved: YESFleet operational truth2 agents · 1 HEALTHY · 0 DEGRADED · 1 FAILED · 0 NO TELEMETRY · 0 STANDBY0 agents without current telemetry0 degraded agents1 failed agentsOpen incidents: 1Inspector control chainPrimarypremium.release-inspector - FAILED - RECOVERED NOSecondary / validatorpremium.architecture-inspector - COMPLETED / premium.architecture-inspectorMandate transferPROVEN - PRIMARY_INSPECTOR_FAILED - 27.09.2026, 09:55:58Last validation27.09.2026, 09:55:58 - AuthorityAuditJournal:transferCoverage / incidentTRANSFERRED_TO_SECONDARY - incident-primaryIdentity / mandateExecutableMandateTrigger / frequencyLast execution / resultOutput / evidenceValidatorFreshnessStatusFailoverOpen responsibilitypremium.release-inspectorPrimary InspectorYESPROVENprimary-mandateRELEASE_VALIDATIONON_RELEASE27.09.2026, 09:55:58FAILEDurn:incident:primaryAgentRuntimeEvent:primarypremium.architecture-inspectorPROVEN - 27.09.2026, 09:55:58CURRENTFAILControlled primary failure.PROVENRecover primary inspector.premium.architecture-inspectorSecondary InspectorYESPROVENsecondary-mandateINSPECTOR_FAILUREON_FAILURE27.09.2026, 09:55:58COMPLETEDurn:validation:secondaryAgentRuntimeEvent:secondarypremium.architecture-inspectorPROVEN - 27.09.2026, 09:55:58CURRENTACTIVETransferred validation completed.PROVENNONEContract agent-runtime-accountability.v2 - generated 27.09.2026, 09:55:58 - open incidents 1"
+      }
+    },
+    {
+      "id": "basic-registry-canonical-34",
+      "status": "PASS",
+      "detail": {
+        "ids": [
+          "agent-agm-chronicler",
+          "agent-codex",
+          "agent-inspector",
+          "agent-legal",
+          "agent-linguistic-de-en",
+          "agent-linguistic-librarian",
+          "agent-linguistic-ro-de",
+          "agent-linguistic-ro-en",
+          "agent-mentor",
+          "architecture-guardian",
+          "backend-infrastructure",
+          "director-turn-operations",
+          "documentation",
+          "frontend-experience",
+          "i18n-localization",
+          "infrastructure-reuse-coordinator",
+          "monitor-ai",
+          "monitor-android",
+          "monitor-api",
+          "monitor-browser",
+          "monitor-cloudflare",
+          "monitor-database",
+          "monitor-incidents",
+          "monitor-security",
+          "monitor-server-backup",
+          "monitor-server-primary",
+          "monitor-telemetry",
+          "monitor-ui-live",
+          "p9-copilot-control-plane",
+          "release-operations",
+          "secret-credentials-guardian",
+          "version-guardian",
+          "website-content-visual-guardian",
+          "website-runtime-release-guardian"
+        ],
+        "statuses": {
+          "monitor-server-primary": "PASS",
+          "monitor-server-backup": "NO_TELEMETRY",
+          "monitor-api": "PASS",
+          "monitor-browser": "PASS",
+          "monitor-android": "NO_TELEMETRY",
+          "monitor-ai": "DEGRADED",
+          "monitor-database": "DEGRADED",
+          "monitor-cloudflare": "DEGRADED",
+          "monitor-ui-live": "PASS",
+          "monitor-incidents": "NO_TELEMETRY",
+          "monitor-telemetry": "PASS",
+          "monitor-security": "DEGRADED",
+          "p9-copilot-control-plane": "NO_TELEMETRY",
+          "secret-credentials-guardian": "NO_TELEMETRY",
+          "version-guardian": "NO_TELEMETRY",
+          "architecture-guardian": "NO_TELEMETRY",
+          "release-operations": "NO_TELEMETRY",
+          "frontend-experience": "NO_TELEMETRY",
+          "website-content-visual-guardian": "NO_TELEMETRY",
+          "website-runtime-release-guardian": "NO_TELEMETRY",
+          "backend-infrastructure": "NO_TELEMETRY",
+          "i18n-localization": "NO_TELEMETRY",
+          "documentation": "NO_TELEMETRY",
+          "agent-codex": "NO_TELEMETRY",
+          "agent-inspector": "NO_TELEMETRY",
+          "infrastructure-reuse-coordinator": "NO_TELEMETRY",
+          "agent-mentor": "NO_TELEMETRY",
+          "agent-legal": "NO_TELEMETRY",
+          "agent-linguistic-ro-de": "NO_TELEMETRY",
+          "agent-linguistic-ro-en": "NO_TELEMETRY",
+          "agent-linguistic-de-en": "NO_TELEMETRY",
+          "agent-linguistic-librarian": "NO_TELEMETRY",
+          "director-turn-operations": "NO_TELEMETRY",
+          "agent-agm-chronicler": "NO_TELEMETRY"
+        },
+        "core": "DEGRADED",
+        "contract": "AGM-BASIC-AGENT-NETWORK-V2"
+      }
+    },
+    {
+      "id": "runtime-accountability-polls-same-persistent-projection",
+      "status": "PASS",
+      "detail": {
+        "requestsBeforePollingProof": 1,
+        "runtimeRequestCount": 2,
+        "firstRuntimeGeneratedText": "Contract agent-runtime-accountability.v2 - generated 27.09.2026, 09:55:58 - open incidents 1",
+        "currentRuntimeGeneratedText": "Contract agent-runtime-accountability.v2 - generated 27.09.2026, 09:55:59 - open incidents 1"
+      }
+    },
+    {
+      "id": "failover-verdict-visible",
+      "status": "PASS",
+      "detail": {
+        "agents": [
+          {
+            "identity": "premium.architecture-inspector",
+            "status": "ACTIVE"
+          },
+          {
+            "identity": "premium.release-inspector",
+            "status": "FAIL"
+          }
+        ],
+        "text": "TURN - OPERATIONAL AGENT TRUTHAgent Runtime & Inspector FailoverACTIVE requires mandate, execution, output, persistent evidence, current independent validation, and freshness.EVIDENCE-DERIVEDOVERALL OPERATIONAL STATEFAILCONTROL SYSTEMPASSAGENT ACCOUNTABILITYFAILINSPECTOR FAILOVERPASSCONTROL COVERAGECOMPLETEFALSE ACTIVE0UNEXPLAINED DEGRADED0NO TELEMETRY - ACTIVE MANDATES0UNEXPLAINED STANDBY0EXPIRED RUNTIME EVIDENCE0FAILED - ACTIVE MANDATES1MANDATE NOT DEMONSTRATED - OPERATIONAL0FINAL AGENT RUNTIME PASSFAILMandated operational fleet2 active mandates · 1 ACTIVE · 0 DEGRADED · 1 FAILED · 0 NO TELEMETRY · 0 MANDATE NOT DEMONSTRATEDInactive / no current mandate: 0Open incidents: 1Primary recovered: NOFailover preserved: YESFleet operational truth2 agents · 1 HEALTHY · 0 DEGRADED · 1 FAILED · 0 NO TELEMETRY · 0 STANDBY0 agents without current telemetry0 degraded agents1 failed agentsOpen incidents: 1Inspector control chainPrimarypremium.release-inspector - FAILED - RECOVERED NOSecondary / validatorpremium.architecture-inspector - COMPLETED / premium.architecture-inspectorMandate transferPROVEN - PRIMARY_INSPECTOR_FAILED - 27.09.2026, 09:55:58Last validation27.09.2026, 09:55:58 - AuthorityAuditJournal:transferCoverage / incidentTRANSFERRED_TO_SECONDARY - incident-primaryIdentity / mandateExecutableMandateTrigger / frequencyLast execution / resultOutput / evidenceValidatorFreshnessStatusFailoverOpen responsibilitypremium.release-inspectorPrimary InspectorYESPROVENprimary-mandateRELEASE_VALIDATIONON_RELEASE27.09.2026, 09:55:58FAILEDurn:incident:primaryAgentRuntimeEvent:primarypremium.architecture-inspectorPROVEN - 27.09.2026, 09:55:58CURRENTFAILControlled primary failure.PROVENRecover primary inspector.premium.architecture-inspectorSecondary InspectorYESPROVENsecondary-mandateINSPECTOR_FAILUREON_FAILURE27.09.2026, 09:55:58COMPLETEDurn:validation:secondaryAgentRuntimeEvent:secondarypremium.architecture-inspectorPROVEN - 27.09.2026, 09:55:58CURRENTACTIVETransferred validation completed.PROVENNONEContract agent-runtime-accountability.v2 - generated 27.09.2026, 09:55:58 - open incidents 1"
+      }
+    },
+    {
+      "id": "omitted-mon010-is-unknown",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "registered-without-receipt-is-not-active",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "canonical-identities-only",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "role-contract-enforced-visible",
+      "status": "PASS",
+      "detail": {
+        "truth": "UNKNOWN / NOT CHECKED",
+        "incidentDuty": "UNKNOWN / NO CURRENT EVIDENCE",
+        "registeredNoReceipt": "UNKNOWN / NO CURRENT EVIDENCE",
+        "legacyArchitectureIdentity": false,
+        "legacyVersionIdentity": false,
+        "enforcement": "ROLE CONTRACT v1.1 · ENFORCED"
+      }
+    },
+    {
+      "id": "complete-zero-source-proves-no-active-incidents",
+      "status": "PASS",
+      "detail": {
+        "truth": "NO ACTIVE INCIDENTS",
+        "duty": "DUTY VERIFIED",
+        "receipt": {
+          "agentId": "monitor-incidents",
+          "roleContractVersion": "agm-agent-role.v1.1",
+          "mandateId": "incident-truth:2026-09-27T07:56:06.527Z",
+          "trigger": "PERIODIC_CHECK",
+          "startedAt": "2026-09-27T07:56:06.527Z",
+          "completedAt": "2026-09-27T07:56:31.562Z",
+          "source": [
+            "Incident Journal local",
+            "API-006 /incidents"
+          ],
+          "coverage": "COMPLETE",
+          "result": "PASS",
+          "evidenceRef": "runtime:incident-truth:2026-09-27T07:56:06.527Z",
+          "freshness": "CURRENT",
+          "openResponsibility": "NONE",
+          "escalation": "NONE",
+          "validator": "chief-monitoring-inspector",
+          "executedActions": [
+            "observe",
+            "verify",
+            "record"
+          ]
+        }
+      }
+    },
+    {
+      "id": "source-failure-is-not-zero",
+      "status": "PASS",
+      "detail": {
+        "truth": "INCIDENT DATA UNAVAILABLE",
+        "duty": "FAILED",
+        "receipt": {
+          "agentId": "monitor-incidents",
+          "roleContractVersion": "agm-agent-role.v1.1",
+          "mandateId": "incident-truth:2026-09-27T07:56:31.660Z",
+          "trigger": "PERIODIC_CHECK",
+          "startedAt": "2026-09-27T07:56:31.660Z",
+          "completedAt": "2026-09-27T07:56:31.699Z",
+          "source": [
+            "Incident Journal local",
+            "API-006 /incidents"
+          ],
+          "coverage": "PARTIAL",
+          "result": "FAIL",
+          "evidenceRef": "runtime:incident-truth:2026-09-27T07:56:31.660Z",
+          "freshness": "UNKNOWN",
+          "openResponsibility": "Restore incident source access and repeat the check.",
+          "escalation": "SOURCE OWNER",
+          "validator": "chief-monitoring-inspector",
+          "executedActions": [
+            "observe",
+            "verify",
+            "record",
+            "escalate"
+          ]
+        }
+      }
+    },
+    {
+      "id": "active-incident-truth-visible",
+      "status": "PASS",
+      "detail": {
+        "truth": "ACTIVE INCIDENT",
+        "receipt": {
+          "agentId": "monitor-incidents",
+          "roleContractVersion": "agm-agent-role.v1.1",
+          "mandateId": "incident-truth:2026-09-27T07:56:31.918Z",
+          "trigger": "PERIODIC_CHECK",
+          "startedAt": "2026-09-27T07:56:31.918Z",
+          "completedAt": "2026-09-27T07:56:31.928Z",
+          "source": [
+            "Incident Journal local",
+            "API-006 /incidents"
+          ],
+          "coverage": "COMPLETE",
+          "result": "PASS",
+          "evidenceRef": "runtime:incident-truth:2026-09-27T07:56:31.918Z",
+          "freshness": "CURRENT",
+          "openResponsibility": "NONE",
+          "escalation": "NONE",
+          "validator": "chief-monitoring-inspector",
+          "executedActions": [
+            "observe",
+            "verify",
+            "record"
+          ]
+        }
+      }
+    },
+    {
+      "id": "controlled-navigation-interaction-capture",
+      "status": "PASS",
+      "action": "TURN -> MON-010 recheck -> accountability inspection",
+      "screenshot": "evidence\\agent-accountability\\browser\\2026-09-27T07-55-58-665Z\\agent-accountability-active-incident.png"
+    },
+    {
+      "id": "restart-preserves-receipt-without-faking-current-state",
+      "status": "PASS",
+      "detail": {
+        "currentTruth": "UNKNOWN / NOT CHECKED",
+        "persistedReceipt": true,
+        "receiptCount": 36
+      }
+    },
+    {
+      "id": "no-page-errors",
+      "status": "PASS",
+      "detail": []
+    }
+  ],
+  "pageErrors": [],
+  "fatal": null,
+  "finishedAt": "2026-09-27T07:56:41.836Z"
+}
