@@ -42,7 +42,7 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
 
   configured() {
     const staticToken = this.config.get<string>('GMAIL_ACCESS_TOKEN');
-    const refreshFlow = this.config.get<string>('GMAIL_OAUTH_CLIENT_ID') && this.config.get<string>('GMAIL_OAUTH_CLIENT_SECRET') && this.config.get<string>('GMAIL_OAUTH_REFRESH_TOKEN');
+    const refreshFlow = this.hasRefreshFlow();
     return Boolean(this.config.get<string>('GMAIL_FROM_ADDRESS') && (staticToken || refreshFlow));
   }
 
@@ -156,7 +156,8 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
 
   private async accessToken() {
     const staticToken = this.config.get<string>('GMAIL_ACCESS_TOKEN');
-    if (staticToken) return staticToken;
+    // Prefer OAuth refresh whenever configured; a legacy static access token may be expired.
+    if (!this.hasRefreshFlow() && staticToken) return staticToken;
     if (this.cachedToken && this.cachedToken.expiresAt > Date.now() + 60_000) return this.cachedToken.value;
     const body = new URLSearchParams({
       client_id: this.config.getOrThrow<string>('GMAIL_OAUTH_CLIENT_ID'),
@@ -176,6 +177,14 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
     if (!token.access_token) throw new GmailProviderError('AUTHORIZATION_FAILED');
     this.cachedToken = { value: token.access_token, expiresAt: Date.now() + (token.expires_in ?? 3600) * 1000 };
     return token.access_token;
+  }
+
+  private hasRefreshFlow() {
+    return Boolean(
+      this.config.get<string>('GMAIL_OAUTH_CLIENT_ID')
+      && this.config.get<string>('GMAIL_OAUTH_CLIENT_SECRET')
+      && this.config.get<string>('GMAIL_OAUTH_REFRESH_TOKEN'),
+    );
   }
 
   private async trackedFetch(url:string,init:RequestInit){const started=Date.now(),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8_000);this.telemetry.requestCount++;try{const response=await fetch(url,{...init,signal:controller.signal});if(response.status===429)this.telemetry.rateLimitEvents++;if(!response.ok)this.telemetry.errors++;return response;}catch(error){this.telemetry.errors++;if((error as Error).name==='AbortError')this.telemetry.timeouts++;throw error;}finally{this.telemetry.latencyMs+=Date.now()-started;clearTimeout(timer);}}
