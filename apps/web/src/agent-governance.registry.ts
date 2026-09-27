@@ -9,6 +9,9 @@ export type {
 export const agentGovernanceRegistry: AgentGovernanceRecord[] = [
   ...monitoringAgentGovernanceRecords,
   {
+    id: 'chief-monitoring-inspector', code: 'CMI-BASIC', nameKey: 'agentRegistry.inspector.name', roleKey: 'agentRegistry.inspector.role', responsibilitiesKey: 'agentRegistry.inspector.responsibilities', ownerDepartmentId: 'monitoring', status: 'active', lastValidationKey: 'agentRegistry.inspector.validation', lastActivityKey: 'agentRegistry.inspector.activity', reliabilityKey: 'agentRegistry.reliability.validated', displayName: 'Inspector Șef Monitorizare', displayRole: 'BASIC runtime monitoring inspector', displayResponsibilities: 'Execută prin Authority Control Plane inspecția periodică read-only a mandatelor, evenimentelor runtime, accountability și incidentelor; publică exclusiv AuthorityAuditJournal și AgentRuntimeEvent.',
+  },
+  {
     id: 'p9-copilot-control-plane', code: 'P9', nameKey: 'agentRegistry.codex.name', roleKey: 'agentRegistry.codex.role', responsibilitiesKey: 'agentRegistry.codex.responsibilities', ownerDepartmentId: 'ai-agents', status: 'active', lastValidationKey: 'agentRegistry.codex.validation', lastActivityKey: 'agentRegistry.codex.activity', reliabilityKey: 'agentRegistry.reliability.validated', displayName: 'P9', displayRole: 'Copilot control-plane intern', displayResponsibilities: 'Runtime read-only promovat, proiectat din evidence operațional; Kill Switch și rollback rămân disponibile.',
   },
   {
