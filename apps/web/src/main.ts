@@ -378,6 +378,7 @@ let activeTranslatorVoiceInput: Promise<void> | null = null;
 let lastTranslatorHealthCapturedAt: string | null = null;
 let lastRenderedProductionPreflightSignature: string | null = null;
 let adminSessionRetryTimer: number | undefined;
+const ADMIN_SESSION_EXPIRED_MESSAGE = 'Sesiunea administrativă a expirat sau a fost revocată. Autentifică-te din nou prin Owner Access.';
 let activeQuickLanguageMenuCleanup: (() => void) | null = null;
 let globalCameraAvailable: boolean | null = null;
 let globalCameraPermission: PermissionState | 'unknown' = 'unknown';
@@ -4801,12 +4802,16 @@ function renderAdministratorLogin() {
 }
 
 function renderAdministratorSessionFailure(detail: string) {
+  const terminal = detail === ADMIN_SESSION_EXPIRED_MESSAGE;
   return `
     <section class="admin-login admin-session-failure" aria-labelledby="admin-session-failure-title" role="alert">
       <header><span>AG-017</span><h1 id="admin-session-failure-title">AUTH/SESSION FAILURE</h1></header>
       <p>${escapeHtml(detail)}</p>
       <p>Stările agenților și serviciilor sunt păstrate; autentificarea nu produce DEGRADED sau FAIL.</p>
-      <button id="retryAdminSessionRefresh" class="primary" type="button">Reîncearcă reînnoirea sesiunii</button>
+      ${terminal ? `<form id="adminLoginForm">
+        <label>PIN AGM<input id="adminPin" type="password" inputmode="numeric" autocomplete="off" minlength="4" maxlength="64" required /></label>
+        <button class="primary" type="submit">Autentifică-te din nou prin Owner Access</button>
+      </form>` : '<button id="retryAdminSessionRefresh" class="primary" type="button">Reîncearcă reînnoirea sesiunii</button>'}
     </section>`;
 }
 
@@ -4866,6 +4871,7 @@ async function submitAdminPinChange() {
 }
 
 async function restoreAdministratorAccess() {
+  const hadLocalSession = readAdministratorSession() !== null;
   try {
     state.adminSession = await restoreAdministratorSession();
     state.adminAccessVerified = state.adminSession !== null;
@@ -4877,10 +4883,15 @@ async function restoreAdministratorAccess() {
     }
   } catch (error) {
     state.adminAccessVerified = false;
-    state.adminSessionFailure = isTurnAdminSessionError(error)
-      ? 'Reînnoirea automată nu este disponibilă momentan. Nu este necesar PIN sau login manual.'
+    state.adminSession = null;
+    const terminal = isTurnAdminSessionError(error)
+      && (error.reason === 'expired-or-revoked' || error.reason === 'forbidden');
+    state.adminSessionFailure = terminal
+      ? hadLocalSession ? ADMIN_SESSION_EXPIRED_MESSAGE : null
+      : isTurnAdminSessionError(error)
+        ? 'Reînnoirea automată nu este disponibilă momentan. Nu este necesar PIN sau login manual.'
       : 'Canalul de sesiune nu este disponibil momentan. Nu este necesar PIN sau login manual.';
-    if (adminSessionRetryTimer === undefined) {
+    if (!terminal && adminSessionRetryTimer === undefined) {
       adminSessionRetryTimer = window.setTimeout(() => {
         adminSessionRetryTimer = undefined;
         void restoreAdministratorAccess();

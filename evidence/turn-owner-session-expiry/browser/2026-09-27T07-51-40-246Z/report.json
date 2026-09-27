@@ -1,0 +1,57 @@
+{
+  "contract": "agm-turn-owner-session-expiry-browser.v2",
+  "runId": "2026-09-27T07-51-40-246Z",
+  "status": "PASS",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "target": "http://127.0.0.1:5192/turn",
+  "authAuthority": "Current HttpOnly refresh-family authority; deterministic 401 terminal response injected at network boundary",
+  "applicationMutation": "NONE",
+  "results": [
+    {
+      "scenario": "load",
+      "status": "PASS",
+      "state": {
+        "alert": "\n      AG-017AUTH/SESSION FAILURE\n      Sesiunea administrativă a expirat sau a fost revocată. Autentifică-te din nou prin Owner Access.\n      Stările agenților și serviciilor sunt păstrate; autentificarea nu produce DEGRADED sau FAIL.\n      \n        PIN AGM\n        Autentifică-te din nou prin Owner Access\n      \n    ",
+        "ownerLogin": true,
+        "dashboard": false,
+        "sessionToken": null,
+        "persistentToken": null,
+        "overflow": false
+      },
+      "screenshot": "evidence\\turn-owner-session-expiry\\browser\\2026-09-27T07-51-40-246Z\\owner-session-expired-load.png"
+    },
+    {
+      "scenario": "reload",
+      "status": "PASS",
+      "state": {
+        "alert": "\n      AG-017AUTH/SESSION FAILURE\n      Sesiunea administrativă a expirat sau a fost revocată. Autentifică-te din nou prin Owner Access.\n      Stările agenților și serviciilor sunt păstrate; autentificarea nu produce DEGRADED sau FAIL.\n      \n        PIN AGM\n        Autentifică-te din nou prin Owner Access\n      \n    ",
+        "ownerLogin": true,
+        "dashboard": false,
+        "sessionToken": null,
+        "persistentToken": null,
+        "overflow": false
+      },
+      "screenshot": "evidence\\turn-owner-session-expiry\\browser\\2026-09-27T07-51-40-246Z\\owner-session-expired-reload.png"
+    },
+    {
+      "scenario": "reopen",
+      "status": "PASS",
+      "state": {
+        "alert": "\n      AG-017AUTH/SESSION FAILURE\n      Sesiunea administrativă a expirat sau a fost revocată. Autentifică-te din nou prin Owner Access.\n      Stările agenților și serviciilor sunt păstrate; autentificarea nu produce DEGRADED sau FAIL.\n      \n        PIN AGM\n        Autentifică-te din nou prin Owner Access\n      \n    ",
+        "ownerLogin": true,
+        "dashboard": false,
+        "sessionToken": null,
+        "persistentToken": null,
+        "overflow": false
+      },
+      "screenshot": "evidence\\turn-owner-session-expiry\\browser\\2026-09-27T07-51-40-246Z\\owner-session-expired-reopen.png"
+    }
+  ],
+  "pageErrors": [],
+  "fatal": null,
+  "finishedAt": "2026-09-27T07:52:02.722Z"
+}

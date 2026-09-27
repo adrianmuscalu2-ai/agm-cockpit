@@ -52,7 +52,6 @@ export async function restoreAdministratorSession(): Promise<AdminSession | null
   } catch (error) {
     if (isTerminalSessionFailure(error)) {
       clearAdministratorSession();
-      return null;
     }
     throw error;
   }
