@@ -57,7 +57,6 @@ export class GitHubActionsOidcService {
   }
 
   private assertClaims(claims: GitHubActionsOidcClaims) {
-    const expectedRevision = this.config.get<string>('AGM_REVISION');
     const policy = GITHUB_ACTIONS_PROVISIONING_CONTRACT;
     const now = Math.floor(Date.now() / 1_000);
     const trustedWorkflow = policy.trustedWorkflows.find((candidate) => (
@@ -67,14 +66,18 @@ export class GitHubActionsOidcService {
       && claims.workflow_ref === candidate.workflowRef
       && (candidate.eventNames as readonly string[]).includes(claims.event_name)
     ));
-    if (!expectedRevision || !/^[0-9a-f]{40}$/.test(expectedRevision)) throw new ServiceUnavailableException('Production revision binding is unavailable.');
+    const expectedRevision = this.config.get<string>('AGM_REVISION');
+    if (trustedWorkflow?.bindsDeployedRevision && (!expectedRevision || !/^[0-9a-f]{40}$/.test(expectedRevision))) {
+      throw new ServiceUnavailableException('Production revision binding is unavailable.');
+    }
     if (
       claims.repository !== policy.repository
       || claims.repository_id !== policy.repositoryId
       || claims.repository_owner_id !== policy.repositoryOwnerId
       || !trustedWorkflow
       || claims.runner_environment !== policy.runnerEnvironment
-      || claims.sha !== expectedRevision
+      || !/^[0-9a-f]{40}$/.test(claims.sha)
+      || (trustedWorkflow.bindsDeployedRevision && claims.sha !== expectedRevision)
       || !/^\d+$/.test(claims.run_id)
       || !/^\d+$/.test(claims.run_attempt)
       || typeof claims.jti !== 'string'
