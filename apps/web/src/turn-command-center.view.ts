@@ -19,6 +19,8 @@ import { renderIncidentTruthDetails } from './incident-truth';
 import { renderTurnAgentLiveState } from './turn-agent-live-state';
 import { renderAgentRuntimeAccountability } from './agent-runtime-accountability';
 import { createDomainOrchestrators } from '@agm/library-control-plane';
+import { turnModuleNavigationGroups, turnModuleNavigationRegistry, type TurnModuleNavigationEntry } from './turn-module-navigation.registry';
+import { renderTurnAccountabilitySpatialModel, renderTurnAgentsSpatialModel, renderTurnMonitoringSpatialModel, renderTurnSpatialControlModel } from './turn-spatial-control-model';
 import {
   type TurnCommandItem,
   type TurnHealthStatus,
@@ -77,13 +79,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
         </div>
       </header>
 
-      <nav class="turn-page-navigation" data-turn-page-navigation aria-label="Pagini TURN">
-        <button type="button" data-turn-page-target="basic" aria-selected="true">1 · BASIC</button>
-        <button type="button" data-turn-page-target="premium" aria-selected="false">2 · PREMIUM</button>
-        <button type="button" data-turn-page-target="orchestrators" aria-selected="false">3 · ORCHESTRATORI</button>
-        <button type="button" data-turn-page-target="incidents" aria-selected="false">4 · INCIDENTE</button>
-        <button type="button" data-turn-page-target="investigate" aria-selected="false">5 · DRILL-DOWN</button>
-      </nav>
+      ${renderTurnModuleNavigation()}
 
       ${renderFunctionalOverview()}
 
@@ -93,6 +89,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       <section class="turn-investigation-runtime" data-turn-page="investigate" hidden aria-label="TURN runtime și accountability drill-down">
         ${renderTurnAgentLiveState()}
         ${renderAgentRuntimeAccountability()}
+        ${renderTurnAccountabilitySpatialModel()}
         ${renderAgentAccountabilityView()}
       </section>
 
@@ -170,6 +167,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       ${renderOperationalProtocol()}
       ${renderProductionPreflight()}
       ${renderOperationsCenter(incidents)}
+      ${renderTurnMonitoringSpatialModel()}
       ${renderMonitoringDepartment(incidents)}
 
       <section class="turn-grid">
@@ -212,6 +210,35 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       <button id="turnBackToTop" class="turn-back-to-top" type="button" hidden aria-label="Înapoi sus">↑ Înapoi sus</button>
     </section>
   `;
+}
+
+function renderTurnModuleNavigation() {
+  const byId = new Map(turnModuleNavigationRegistry.map((entry) => [entry.moduleId, entry]));
+  const groups = turnModuleNavigationGroups.map((group) => `
+    <details class="turn-module-nav-group" open>
+      <summary>${escapeHtml(group.label)}</summary>
+      <div class="turn-module-nav-items">
+        ${group.moduleIds.map((id) => renderTurnModuleLink(byId.get(id))).join('')}
+      </div>
+    </details>
+  `).join('');
+
+  return `<aside class="turn-module-navigation" data-turn-module-navigation aria-label="Index modular Turn">
+    <div class="turn-module-navigation-header"><div><span class="turn-kicker">TURN · MODULE INDEX</span><strong>Navigare rapidă</strong></div><a href="#turn-basic" data-open-turn-page="basic">Overview</a></div>
+    <label class="turn-module-search"><span>Caută modul, funcție sau identificator</span><input type="search" data-turn-module-search placeholder="Ex.: telemetry, incident, Machine" /></label>
+    <div data-turn-module-groups>${groups}</div>
+    <p class="turn-module-search-empty" data-turn-module-search-empty hidden>Nu există module care corespund căutării.</p>
+  </aside>`;
+}
+
+function renderTurnModuleLink(entry: TurnModuleNavigationEntry | undefined) {
+  if (!entry) return '';
+  const search = [entry.moduleId, entry.displayName, entry.responsibleAgent, entry.canonicalSource, entry.environment].join(' ').toLocaleLowerCase();
+  const page = entry.page ?? 'investigate';
+  const statusClass = entry.validationStatus.toLowerCase().replaceAll('_', '-');
+  if (!entry.target) return `<span class="turn-module-nav-link turn-module-nav-link-unconnected turn-module-nav-link-${escapeHtml(statusClass)}" data-turn-module-id="${escapeHtml(entry.moduleId)}" data-turn-module-search-value="${escapeHtml(search)}" data-validation-status="${escapeHtml(entry.validationStatus)}"><span>${escapeHtml(entry.displayName)}</span><small>NOT CONNECTED · ${escapeHtml(entry.environment)}</small></span>`;
+  const href = `#${entry.target}`;
+  return `<a class="turn-module-nav-link turn-module-nav-link-${escapeHtml(statusClass)}" href="${escapeHtml(href)}" data-open-turn-page="${escapeHtml(page)}" data-turn-module-id="${escapeHtml(entry.moduleId)}" data-turn-module-search-value="${escapeHtml(search)}" data-validation-status="${escapeHtml(entry.validationStatus)}"><span>${escapeHtml(entry.displayName)}</span><small>${escapeHtml(entry.validationStatus)} · ${escapeHtml(entry.environment)}</small></a>`;
 }
 
 function renderFunctionalOverview() {
@@ -284,6 +311,7 @@ function renderTurnOrchestrationControlPlane() {
   ];
   return `<section class="turn-spatial-page turn-orchestrator-page" data-turn-page="orchestrators" hidden aria-labelledby="turn-orchestrator-page-title">
     <header><div><span class="turn-kicker">TURN · ORCHESTRATION CONTROL PLANE</span><h2 id="turn-orchestrator-page-title">Orchestratori canonici · separați de agenți</h2><p>Orchestratorii coordonează mandate și rutare. Nu sunt reclasificați ca agenți Basic sau Premium și această pagină nu inventează stare runtime.</p></div><strong data-orchestrator-count="${orchestrators.length}">${orchestrators.length} ORCHESTRATORI</strong></header>
+    ${renderTurnSpatialControlModel('orchestrators')}
     <div class="turn-functional-grid" data-turn-orchestrator-grid>${orchestrators.map((orchestrator) => `<article class="turn-functional-zone status-static-reference" data-orchestrator-id="${escapeHtml(orchestrator.id)}" data-orchestrator-domain="${escapeHtml(orchestrator.domain)}">
       <header><div><small>ORCHESTRATOR · NOT AGENT</small><h3>${escapeHtml(orchestrator.id)}</h3></div><strong>CANONICAL CONTRACT</strong></header>
       <p>${escapeHtml(orchestrator.domain)}</p>
@@ -444,8 +472,10 @@ function renderApprovedTurnDashboard(language: UiLanguage) {
   const aiAgents = agentGovernanceRegistry.filter((agent) => agent.ownerDepartmentId === 'ai-agents');
   const p9 = aiAgents.find((agent) => agent.id === 'p9-copilot-control-plane');
   const independentMonitor = turnOrganizationAgents.find((agent) => agent.id === 'chief-monitoring-inspector');
+  const spatialModel = renderTurnAgentsSpatialModel();
 
   return `<section class="turn-agent-dashboard" id="turn-dashboard" aria-labelledby="turn-dashboard-title" data-agent-count="${approvedAgents.length}" data-p9-count="${p9 ? 1 : 0}">
+    ${spatialModel}
     <header class="turn-dashboard-header">
       <div><span class="turn-kicker">TURN · SECONDARY GOVERNANCE REFERENCE</span><h2 id="turn-dashboard-title">Registrul de guvernanță</h2><p>Referință secundară pentru arhitectură și responsabilități. Starea funcțională Product Owner provine exclusiv din proiecția live de mai sus.</p></div>
       <div class="turn-dashboard-verdict"><span class="turn-light planned" aria-hidden="true"></span><strong>${approvedAgents.length} AGENȚI + P9</strong><small>REGISTRY ONLY · fără afirmație runtime</small></div>

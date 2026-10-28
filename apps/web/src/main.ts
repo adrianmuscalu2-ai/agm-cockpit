@@ -169,6 +169,7 @@ import { bindProductionPreflight, reconcileProductionPreflightIncident } from '.
 import { publishPanelAgentModel } from './turn-agent-panel.integration';
 import { bindTurnBackToTop } from './turn-navigation';
 import { bindTurnOrganizationChart } from './turn-organization-chart';
+import { bindTurnSpatialModels } from './turn-spatial-control-model';
 import { bindP9TurnProjection } from './p9-turn-projection';
 import { bindTurnAgentLiveState } from './turn-agent-live-state';
 import { bindTurnFunctionalOverview } from './turn-functional-overview';
@@ -668,6 +669,7 @@ function render() {
       if (incidentsChanged || snapshotChanged) render();
     });
     bindTurnOrganizationChart();
+    bindTurnSpatialModels();
     void bindP9TurnProjection();
     bindTurnAgentLiveState();
     void bindTurnFunctionalOverview();
