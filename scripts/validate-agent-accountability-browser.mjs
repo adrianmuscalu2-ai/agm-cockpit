@@ -134,7 +134,7 @@ try {
   });
 
   await page.goto(target, { waitUntil: 'domcontentloaded' });
-  await page.locator('[data-turn-page-target="investigate"]').click();
+  await page.locator('[data-turn-module-navigation] [data-open-turn-page="investigate"]').first().click();
   await page.waitForSelector('[data-turn-page="investigate"]:not([hidden])');
   await page.waitForSelector('#turn-agent-accountability', { state: 'visible' });
   await page.waitForSelector('[data-inspector-failover="PASS"]');
@@ -266,7 +266,7 @@ try {
 
   incidentMode = 'OMITTED';
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.locator('[data-turn-page-target="investigate"]').click();
+    await page.locator('[data-turn-module-navigation] [data-open-turn-page="investigate"]').first().click();
   await page.waitForSelector('[data-turn-page="investigate"]:not([hidden])');
   await page.waitForSelector('#turn-agent-accountability', { state: 'visible' });
   await page.waitForFunction(() => document.querySelector('[data-incident-truth-state]')?.textContent?.trim() === 'UNKNOWN / NOT CHECKED');
