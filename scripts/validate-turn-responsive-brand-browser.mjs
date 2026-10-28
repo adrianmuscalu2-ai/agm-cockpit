@@ -88,7 +88,7 @@ async function startTarget() {
 function layoutMetrics() {
   const rootElement = document.documentElement;
   const visiblePage = document.querySelector('[data-turn-page]:not([hidden])');
-  const important = Array.from(document.querySelectorAll('.turn-command-header, .turn-page-navigation, [data-turn-page]:not([hidden]) > header, [data-turn-page]:not([hidden]) .turn-approved-orbital-panel, [data-turn-page]:not([hidden]) .turn-spatial-summary'));
+  const important = Array.from(document.querySelectorAll('.turn-command-header, .turn-page-navigation, .turn-module-navigation, [data-turn-page]:not([hidden]) > header, [data-turn-page]:not([hidden]) .turn-approved-orbital-panel, [data-turn-page]:not([hidden]) .turn-spatial-summary'));
   const outside = important.flatMap((element) => {
     const box = element.getBoundingClientRect();
     return box.left < -1 || box.right > window.innerWidth + 1 ? [{ className: element.className, left: box.left, right: box.right }] : [];
@@ -142,7 +142,7 @@ try {
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     for (const turnPage of ['basic', 'premium', 'orchestrators']) {
-      await page.locator(`[data-turn-page-target="${turnPage}"]`).click();
+      await page.locator(`[data-turn-module-navigation] [data-open-turn-page="${turnPage}"]`).first().click();
       await page.waitForSelector(`[data-turn-page="${turnPage}"]:not([hidden])`);
       const metrics = await page.evaluate(layoutMetrics);
       check(`${viewport.name}-${turnPage}-distinct-page`, metrics.page === turnPage, metrics);
@@ -153,7 +153,7 @@ try {
       await page.screenshot({ path: screenshot, fullPage: true });
     }
   }
-  await page.locator('[data-turn-page-target="premium"]').click();
+  await page.locator('[data-turn-module-navigation] [data-open-turn-page="premium"]').first().click();
   await page.waitForSelector('[data-turn-page="premium"]:not([hidden])');
   check('basic-premium-separate', await page.evaluate(() => {
     const basic = document.querySelector('[data-turn-page="basic"]');
@@ -161,7 +161,7 @@ try {
     return Boolean(basic && premium && basic !== premium && basic.hasAttribute('hidden') && !premium.hasAttribute('hidden'));
   }), { target });
 
-  await page.locator('[data-turn-page-target="orchestrators"]').click();
+  await page.locator('[data-turn-module-navigation] [data-open-turn-page="orchestrators"]').first().click();
   await page.waitForSelector('[data-turn-page="orchestrators"]:not([hidden])');
   const orchestratorIds = await page.locator('[data-turn-page="orchestrators"] [data-orchestrator-id]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-orchestrator-id')));
   const expectedOrchestratorIds = [
