@@ -1,4 +1,5 @@
 import { renderPremiumShell } from '../premium-shell';
+import { renderTurnSpatialControlModel } from '../turn-spatial-control-model';
 
 type Translate = (key: string) => string;
 type Escape = (value: string) => string;
@@ -48,6 +49,12 @@ export function renderTurnAuthorityControlPlane() {
         <h2 id="turn-authority-control-plane-title">Premium operational space</h2>
         <p>Poziția și culoarea fiecărui nod sunt o proiecție interactivă a telemetriei canonice. Click pe agent pentru runtime, cauză, dovadă și acțiune.</p>
       </header>
+      <aside class="turn-governance-state" data-governance-module aria-label="Starea modulului Governance">
+        <div><span class="turn-kicker">TURN · GOVERNANCE</span><strong>Governance V2 pregătit, dar neactivat</strong></div>
+        <span class="turn-governance-state-badge">BLOCKED · NO RUNTIME</span>
+        <p>Suprafața este disponibilă pentru orientare vizuală; nu pornește evaluatori, scrieri, ledger sau servicii Governance.</p>
+      </aside>
+      ${renderTurnSpatialControlModel('premium')}
       <section class="agm-network-hero" data-authority-dashboard aria-live="polite" aria-busy="true">
         <section class="turn-approved-orbital-panel premium" data-premium-operational-orbit data-orbital-source="PENDING_REAL_SOURCE" aria-labelledby="turn-premium-orbit-title">
           <header>
