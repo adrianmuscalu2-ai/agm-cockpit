@@ -786,7 +786,16 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     }
     await this.dashboard(ctx);
     const fleetValidations = await this.validateOperationalDutyResults(ctx, fleetDutyResults, secondaryMandate, runId);
-    if (fleetValidations.length !== fleetDutyResults.length) throw new ConflictException('NON_HUMAN_DUTY_VALIDATION_INCOMPLETE');
+    if (fleetValidations.length !== fleetDutyResults.length) {
+      throw new ConflictException({
+        message: 'NON_HUMAN_DUTY_VALIDATION_INCOMPLETE',
+        expectedDutyResults: fleetDutyResults.length,
+        validatedDutyResults: fleetValidations.length,
+        failedDuties: fleetDutyResults
+          .filter((execution) => !execution.passed)
+          .map((execution) => ({ agentId: execution.agentId, reason: execution.reason, checks: execution.checks })),
+      });
+    }
     return { ...(await this.agentAccountability(ctx)), recovery: { runId, domainDutyResults, inspectorEvaluations: inspection.evaluations, inspectorValidations } };
   }
 
