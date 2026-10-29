@@ -10,15 +10,15 @@ export const OPERATIONAL_LINGUIST_V1_BASELINE_VERSION = 'agm.operational-linguis
 export const OPERATIONAL_LINGUIST_V1_PUBLISHER_POLICY = 'github-actions-oidc.v1';
 export const OPERATIONAL_LINGUIST_V1_WRITER_ID = 'agm.operational-linguist.workflow-auditor';
 export const OPERATIONAL_LINGUIST_V1_WRITER_VERSION = '1.0.0';
-export const OPERATIONAL_LINGUIST_V1_BASELINE_DIGEST = 'sha256:f5c9ffef6cdd240f7788f024942f00f606dfb208032fc3ed3d558bee69a22820';
+export const OPERATIONAL_LINGUIST_V1_BASELINE_DIGEST = 'sha256:3888efd48d32036e9a0b0f9880859938c26519e1d190a863f04f50204e2fbdf4';
 
 export const OPERATIONAL_LINGUIST_V1_LANGUAGES = ['it', 'es', 'sv'] as const;
 export type OperationalLinguistV1Language = (typeof OPERATIONAL_LINGUIST_V1_LANGUAGES)[number];
 
 export const OPERATIONAL_LINGUIST_V1_COMPONENTS = {
-  it: { componentId: 'premium-linguist-it', authorityScope: 'premium.linguistic.it', catalogDigest: 'sha256:5cf389fc2f2e60ff9d9a0dd6acd008ee370b07065e85e41f53f95610e260ea25' },
-  es: { componentId: 'premium-linguist-es', authorityScope: 'premium.linguistic.es', catalogDigest: 'sha256:04d8f19c417113ef80550510007987aac56883461d4570eb15f58274afcece6f' },
-  sv: { componentId: 'premium-linguist-sv', authorityScope: 'premium.linguistic.sv', catalogDigest: 'sha256:d9dae5ba8701281e4c21f258926702b517c729d608e4d23d0ddcbcae0c2ef90f' },
+  it: { componentId: 'premium-linguist-it', authorityScope: 'premium.linguistic.it', catalogDigest: 'sha256:e91e75fd69ab2c000e515fa987364859581f00fe72264a2e8a3205f6cf15caba' },
+  es: { componentId: 'premium-linguist-es', authorityScope: 'premium.linguistic.es', catalogDigest: 'sha256:7fceb6c9f8819d1cd15878bf0363922954144729bda71b4619a600c82849ca50' },
+  sv: { componentId: 'premium-linguist-sv', authorityScope: 'premium.linguistic.sv', catalogDigest: 'sha256:2545d9bcee9d5201cef1145ac64df9603396c39abff2f685a22baaa0bf3bc8a8' },
 } as const;
 
 export type OperationalLinguistV1ComponentId =
