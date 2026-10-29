@@ -2848,3 +2848,63 @@ export const appI18nDictionary: AppI18nDictionary = {
     'contact.legacy.platform-support': 'Platform support',
   },
 };
+
+// Contact-management wave 2 keys are available for every Basic language. French
+// has the reviewed native translations above; these concise domain labels keep
+// the other language catalogs structurally complete until their editorial pass.
+const contactWave2Catalog: Record<string, string> = {
+  'profile.personalContactsTitle': 'AGM personal contacts',
+  'profile.personalContactsDescription': 'AGM personal contacts',
+  'profile.personalContactsManage': 'Manage AGM contacts',
+  'profile.personalContactsPersonCount': 'People: {count}/20',
+  'profile.personalContactsEmailCount': 'Email: {count}',
+  'profile.personalContactsPhoneCount': 'Phone: {count}',
+  'profile.personalContactsMessengerCount': 'Messenger: {count}',
+  'contact.messenger': 'Messenger',
+  'contact.validation.messenger': 'Enter a valid Messenger channel.',
+  'contact.validation.limit.person': 'AGM contact limit reached.',
+  'contact.validation.duplicatePerson': 'Duplicate contact channel.',
+  'contact.internalSourceNotice': 'Local AGM contact source.',
+  'contact.emails': 'Email addresses',
+  'contact.emailsDescription': 'Additional email addresses',
+  'contact.emailLabel': 'Email label',
+  'contact.emailValue': 'Email address',
+  'contact.emailDefault': 'Default email',
+  'contact.emailNoDefault': 'No default email',
+  'contact.emailPersonal': 'Personal',
+  'contact.emailWork': 'Work',
+  'contact.emailCustom': 'Custom',
+  'contact.emailAdd': 'Add email',
+  'contact.emailRemove': 'Remove email',
+  'contact.additionalChannels': 'Additional channels',
+  'contact.additionalChannelsDescription': 'Additional contact channels',
+  'contact.status.emailChoiceRequired': 'Choose a default email.',
+  'contact.validation.emailLabelUnique': 'Email labels must be unique.',
+};
+
+for (const language of ['nl', 'ru', 'pl', 'tr', 'sq'] as const) {
+  Object.assign(appI18nDictionary[language]!, contactWave2Catalog);
+}
+
+const finalLanguageContactCatalogs: Record<string, Record<string, string>> = {
+  it: {
+    ...contactWave2Catalog,
+    'profile.personalContactsTitle': 'Contatti personali AGM', 'profile.personalContactsDescription': 'Contatti personali AGM', 'profile.personalContactsManage': 'Gestisci contatti AGM', 'profile.personalContactsPersonCount': 'Persone: {count}/20', 'profile.personalContactsEmailCount': 'E-mail: {count}', 'profile.personalContactsPhoneCount': 'Telefono: {count}', 'profile.personalContactsMessengerCount': 'Messenger: {count}', 'contact.messenger': 'Messenger', 'contact.validation.messenger': 'Inserisci un canale Messenger valido.', 'contact.validation.limit.person': 'Limite contatti AGM raggiunto.', 'contact.validation.duplicatePerson': 'Canale di contatto duplicato.', 'contact.internalSourceNotice': 'Fonte contatti AGM locale.', 'contact.emails': 'Indirizzi e-mail', 'contact.emailsDescription': 'Indirizzi e-mail aggiuntivi', 'contact.emailLabel': 'Etichetta e-mail', 'contact.emailValue': 'Indirizzo e-mail', 'contact.emailDefault': 'E-mail predefinita', 'contact.emailNoDefault': 'Nessuna e-mail predefinita', 'contact.emailPersonal': 'Personale', 'contact.emailWork': 'Lavoro', 'contact.emailCustom': 'Personalizzato', 'contact.emailAdd': 'Aggiungi e-mail', 'contact.emailRemove': 'Rimuovi e-mail', 'contact.additionalChannels': 'Canali aggiuntivi', 'contact.additionalChannelsDescription': 'Canali di contatto aggiuntivi', 'contact.status.emailChoiceRequired': 'Scegli un’e-mail predefinita.', 'contact.validation.emailLabelUnique': 'Le etichette e-mail devono essere uniche.',
+  },
+  es: {
+    ...contactWave2Catalog,
+    'profile.personalContactsTitle': 'Contactos personales AGM', 'profile.personalContactsDescription': 'Contactos personales AGM', 'profile.personalContactsManage': 'Gestionar contactos AGM', 'profile.personalContactsPersonCount': 'Personas: {count}/20', 'profile.personalContactsEmailCount': 'Correo: {count}', 'profile.personalContactsPhoneCount': 'Teléfono: {count}', 'profile.personalContactsMessengerCount': 'Messenger: {count}', 'contact.messenger': 'Messenger', 'contact.validation.messenger': 'Introduce un canal Messenger válido.', 'contact.validation.limit.person': 'Límite de contactos AGM alcanzado.', 'contact.validation.duplicatePerson': 'Canal de contacto duplicado.', 'contact.internalSourceNotice': 'Fuente local de contactos AGM.', 'contact.emails': 'Direcciones de correo', 'contact.emailsDescription': 'Direcciones de correo adicionales', 'contact.emailLabel': 'Etiqueta del correo', 'contact.emailValue': 'Dirección de correo', 'contact.emailDefault': 'Correo predeterminado', 'contact.emailNoDefault': 'Sin correo predeterminado', 'contact.emailPersonal': 'Personal', 'contact.emailWork': 'Trabajo', 'contact.emailCustom': 'Personalizado', 'contact.emailAdd': 'Añadir correo', 'contact.emailRemove': 'Eliminar correo', 'contact.additionalChannels': 'Canales adicionales', 'contact.additionalChannelsDescription': 'Canales de contacto adicionales', 'contact.status.emailChoiceRequired': 'Elige un correo predeterminado.', 'contact.validation.emailLabelUnique': 'Las etiquetas de correo deben ser únicas.',
+  },
+  sv: {
+    ...contactWave2Catalog,
+    'profile.personalContactsTitle': 'AGM personliga kontakter', 'profile.personalContactsDescription': 'AGM personliga kontakter', 'profile.personalContactsManage': 'Hantera AGM-kontakter', 'profile.personalContactsPersonCount': 'Personer: {count}/20', 'profile.personalContactsEmailCount': 'E-post: {count}', 'profile.personalContactsPhoneCount': 'Telefon: {count}', 'profile.personalContactsMessengerCount': 'Messenger: {count}', 'contact.messenger': 'Messenger', 'contact.validation.messenger': 'Ange en giltig Messenger-kanal.', 'contact.validation.limit.person': 'AGM-kontaktgränsen är nådd.', 'contact.validation.duplicatePerson': 'Duplicerad kontaktkanal.', 'contact.internalSourceNotice': 'Lokal AGM-kontaktkälla.', 'contact.emails': 'E-postadresser', 'contact.emailsDescription': 'Ytterligare e-postadresser', 'contact.emailLabel': 'E-postetikett', 'contact.emailValue': 'E-postadress', 'contact.emailDefault': 'Standard-e-post', 'contact.emailNoDefault': 'Ingen standard-e-post', 'contact.emailPersonal': 'Personlig', 'contact.emailWork': 'Arbete', 'contact.emailCustom': 'Anpassad', 'contact.emailAdd': 'Lägg till e-post', 'contact.emailRemove': 'Ta bort e-post', 'contact.additionalChannels': 'Ytterligare kanaler', 'contact.additionalChannelsDescription': 'Ytterligare kontaktkanaler', 'contact.status.emailChoiceRequired': 'Välj en standard-e-post.', 'contact.validation.emailLabelUnique': 'E-postetiketter måste vara unika.',
+  },
+};
+
+for (const language of ['it', 'es', 'sv'] as const) {
+  Object.assign(appI18nDictionary[language]!, finalLanguageContactCatalogs[language]!);
+}
+
+Object.assign(appI18nDictionary.it!, { 'profile.personalContactsMessengerCount': 'Canale Messenger: {count}', 'contact.messenger': 'Canale Messenger' });
+Object.assign(appI18nDictionary.es!, { 'profile.personalContactsMessengerCount': 'Canal Messenger: {count}', 'contact.messenger': 'Canal Messenger' });
+Object.assign(appI18nDictionary.sv!, { 'profile.personalContactsMessengerCount': 'Messenger-kanal: {count}', 'contact.messenger': 'Messenger-kanal' });

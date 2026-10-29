@@ -28,21 +28,6 @@ export function bindTurnCommandNavigation() {
       if (isTurnPage(page)) selectPage(page);
     });
   });
-  root.addEventListener('click', (event) => {
-    const trigger = (event.target as HTMLElement).closest<HTMLElement>('[data-open-turn-page]');
-    const page = trigger?.dataset.openTurnPage;
-    if (!trigger || !isTurnPage(page)) return;
-    event.preventDefault();
-    selectPage(page);
-    const href = trigger.getAttribute('href');
-    if (href?.startsWith('#') && href.length > 1) requestAnimationFrame(() => {
-      const target = document.querySelector<HTMLElement>(href);
-      const disclosure = target?.closest<HTMLDetailsElement>('details');
-      if (disclosure) disclosure.open = true;
-      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      target?.focus({ preventScroll: true });
-    });
-  });
 
   const moduleSearch = root.querySelector<HTMLInputElement>('[data-turn-module-search]');
   const moduleLinks = [...root.querySelectorAll<HTMLElement>('[data-turn-module-search-value]')];
@@ -59,6 +44,21 @@ export function bindTurnCommandNavigation() {
       group.hidden = Boolean(query) && !group.querySelector('[data-turn-module-search-value]:not([hidden])');
     });
     if (empty) empty.hidden = visible > 0;
+  });
+  root.addEventListener('click', (event) => {
+    const trigger = (event.target as HTMLElement).closest<HTMLElement>('[data-open-turn-page]');
+    const page = trigger?.dataset.openTurnPage;
+    if (!trigger || !isTurnPage(page)) return;
+    event.preventDefault();
+    selectPage(page);
+    const href = trigger.getAttribute('href');
+    if (href?.startsWith('#') && href.length > 1) requestAnimationFrame(() => {
+      const target = document.querySelector<HTMLElement>(href);
+      const disclosure = target?.closest<HTMLDetailsElement>('details');
+      if (disclosure) disclosure.open = true;
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      target?.focus({ preventScroll: true });
+    });
   });
 
   const backToTop = root.querySelector<HTMLButtonElement>('#turnBackToTop');

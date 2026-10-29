@@ -11,7 +11,7 @@ describe('OperationalAgentDutyRunner linguistic recovery', () => {
       authorityScope: 'premium.linguistic.it', mandateId: 'mandate-it', mandateVersion: 1,
       currentEvidenceId: 'evidence-v1', observedAt: new Date('2026-09-19T04:02:30.000Z'), authorityEpoch: 3, sequence: 7,
       contractVersion: 'agm.linguistic-resource-counts.v1', contractDigest: 'sha256:8c2207d91a261c69af17eca9746867c14c603dcc0edc061d74c88330ceb721b1',
-      catalogDigest: 'sha256:5cf389fc2f2e60ff9d9a0dd6acd008ee370b07065e85e41f53f95610e260ea25',
+      catalogDigest: 'sha256:e91e75fd69ab2c000e515fa987364859581f00fe72264a2e8a3205f6cf15caba',
       appCount: counts.app, operationalCount: counts.operational, carMoverCount: counts.carMover, premiumCount: counts.premium, totalCount: counts.total, errorCount: 0,
       currentEvidence: { publisher: { writerId: 'agm.operational-linguist.workflow-auditor', writerVersion: '1.0.0', buildRevision: 'a'.repeat(40) } },
     };

@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 2,
+  "runId": "2026-09-27T08-04-16-289Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "expected": {
+    "copy": "Planifică, compară și asistă executarea mutării vehiculelor pe baza datelor reale AGM.",
+    "boundary": "Decizia finală rămâne umană.",
+    "cta": "Intră în Car Mover",
+    "modules": [
+      "AGM Premium Copilot",
+      "Cameră OCR",
+      "Vorbește"
+    ],
+    "flow": "HERO → MODULE → HUMAN DECIDE → JOB FILE"
+  },
+  "results": [
+    {
+      "id": "desktop",
+      "status": "PASS",
+      "viewport": {
+        "id": "desktop",
+        "width": 1440,
+        "height": 1000
+      },
+      "inspection": {
+        "copy": "Planifică, compară și asistă executarea mutării vehiculelor pe baza datelor reale AGM.",
+        "boundary": "Decizia finală rămâne umană.",
+        "cta": "Intră în Car Mover",
+        "modules": [
+          "AGM Premium Copilot",
+          "Cameră OCR",
+          "Vorbește"
+        ],
+        "flow": "HERO → MODULE → HUMAN DECIDE → JOB FILE",
+        "title": "CAR MOVER / DISPATCH AI",
+        "accentIsBlock": true,
+        "image": "/images/car-mover-route-entry-bg-v4.png",
+        "imageReady": true,
+        "translucentCard": true,
+        "horizontalOverflow": false,
+        "overlaps": [],
+        "copyPass": true
+      },
+      "visualPass": true,
+      "pageErrors": [],
+      "screenshot": "evidence\\car-mover\\browser-parity\\2026-09-27T08-04-16-289Z\\desktop.png"
+    },
+    {
+      "id": "mobile",
+      "status": "PASS",
+      "viewport": {
+        "id": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "inspection": {
+        "copy": "Planifică, compară și asistă executarea mutării vehiculelor pe baza datelor reale AGM.",
+        "boundary": "Decizia finală rămâne umană.",
+        "cta": "Intră în Car Mover",
+        "modules": [
+          "AGM Premium Copilot",
+          "Cameră OCR",
+          "Vorbește"
+        ],
+        "flow": "HERO → MODULE → HUMAN DECIDE → JOB FILE",
+        "title": "CAR MOVER / DISPATCH AI",
+        "accentIsBlock": true,
+        "image": "/images/car-mover-route-entry-bg-v4.png",
+        "imageReady": true,
+        "translucentCard": true,
+        "horizontalOverflow": false,
+        "overlaps": [],
+        "copyPass": true
+      },
+      "visualPass": true,
+      "pageErrors": [],
+      "screenshot": "evidence\\car-mover\\browser-parity\\2026-09-27T08-04-16-289Z\\mobile.png"
+    }
+  ],
+  "diagnostics": [],
+  "target": "http://127.0.0.1:56702",
+  "status": "PASS",
+  "revision": "90ac92e134578bd449d33b15a898338b2cebf8d7",
+  "finishedAt": "2026-09-27T08:04:32.137Z"
+}

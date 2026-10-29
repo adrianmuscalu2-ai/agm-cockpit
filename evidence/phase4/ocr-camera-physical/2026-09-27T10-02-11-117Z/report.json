@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-27T10-02-11-117Z",
+  "status": "PASS",
+  "serial": "RFCY70WDHXK",
+  "packageName": "com.agm.cockpit.storagetest",
+  "checks": [
+    {
+      "id": "DEVICE_AND_APK_PROVENANCE",
+      "status": "PASS",
+      "evidence": {
+        "device": {
+          "model": "SM-S931B",
+          "android": "16",
+          "sdk": "36"
+        },
+        "apk": {
+          "sourceHead": "5a85ed7797161fa0bc198c04b0e4b4354b90f69d",
+          "sourceTree": "fcbee0f30c3ff7f78cad577acd83dac99c7a91cc",
+          "versionCode": "28",
+          "versionName": "1.6.0-storage-test",
+          "installedSha256": "FCB6015A1419230FB19ACC4D495CE225B177AA161C61159BF40B1680D6C06C1F"
+        }
+      }
+    },
+    {
+      "id": "OCR_BASIC_CONTEXTUAL_RETURN",
+      "status": "PASS",
+      "evidence": {
+        "id": "basic",
+        "path": "/basic",
+        "expectedPath": "/basic",
+        "result": "sd\nwelt,\nţi!\nR\ni",
+        "target": "sd\nwelt,\nţi!\nR\ni",
+        "contextOrigin": "basic",
+        "hasCapturedImage": true,
+        "requestedAt": "2026-09-27T10:02:15.169Z",
+        "shutterAt": "2026-09-27T10:02:16.577Z",
+        "completedAt": "2026-09-27T10:02:33.237Z",
+        "cameraFocus": "mCurrentFocus=Window{ff003be u0 com.sec.android.app.camera/com.sec.android.app.camera.Camera}",
+        "returnFocus": "mCurrentFocus=Window{c2b1be3 u0 com.agm.cockpit.storagetest/com.agm.cockpit.MainActivity}",
+        "previewScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/basic-fresh-camera-preview.png",
+        "resultScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/basic-ocr-result.png",
+        "capturedImageSha256": "58AD5CA3A9D4C66D2DD2074A8A9D9F4200BB6F754D48FD5E59E27E1EC6C87826",
+        "status": "PASS"
+      }
+    },
+    {
+      "id": "OCR_TRANSLATOR_CONTEXTUAL_RETURN",
+      "status": "PASS",
+      "evidence": {
+        "id": "translator",
+        "path": "/translator",
+        "expectedPath": "/translator",
+        "result": "sad\nEY:\n3\n(74\nAS\nţi\ny\nIo",
+        "target": "sad\nEY:\n3\n(74\nAS\nţi\ny\nIo",
+        "contextOrigin": "cockpit",
+        "hasCapturedImage": true,
+        "requestedAt": "2026-09-27T10:02:33.665Z",
+        "shutterAt": "2026-09-27T10:02:34.279Z",
+        "completedAt": "2026-09-27T10:02:47.842Z",
+        "cameraFocus": "mCurrentFocus=Window{81bddee u0 com.sec.android.app.camera/com.sec.android.app.camera.Camera}",
+        "returnFocus": "mCurrentFocus=Window{c2b1be3 u0 com.agm.cockpit.storagetest/com.agm.cockpit.MainActivity}",
+        "previewScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/translator-fresh-camera-preview.png",
+        "resultScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/translator-ocr-result.png",
+        "capturedImageSha256": "36A91769CB54EB8B13637D1A74C91F89E0B11AA90A1D810C721E8598FDA0536E",
+        "status": "PASS"
+      }
+    },
+    {
+      "id": "OCR_EMAIL_CONTEXTUAL_RETURN",
+      "status": "PASS",
+      "evidence": {
+        "id": "email",
+        "path": "/email",
+        "expectedPath": "/email",
+        "result": "taie\n4\nXA\n7\nFa\n5\nIo",
+        "target": "taie\n4\nXA\n7\nFa\n5\nIo",
+        "contextOrigin": "email",
+        "hasCapturedImage": true,
+        "requestedAt": "2026-09-27T10:02:48.391Z",
+        "shutterAt": "2026-09-27T10:02:48.972Z",
+        "completedAt": "2026-09-27T10:03:03.252Z",
+        "cameraFocus": "mCurrentFocus=Window{d6386bf u0 com.sec.android.app.camera/com.sec.android.app.camera.Camera}",
+        "returnFocus": "mCurrentFocus=Window{c2b1be3 u0 com.agm.cockpit.storagetest/com.agm.cockpit.MainActivity}",
+        "previewScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/email-fresh-camera-preview.png",
+        "resultScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/email-ocr-result.png",
+        "capturedImageSha256": "D5D7D383430655D81E30F0DD8B029390D9DF57610953C3497D548D9D3DF63174",
+        "status": "PASS"
+      }
+    },
+    {
+      "id": "THREE_GENUINELY_NEW_CAMERA_CAPTURES",
+      "status": "PASS",
+      "evidence": {
+        "count": 3,
+        "imageSha256": [
+          "58AD5CA3A9D4C66D2DD2074A8A9D9F4200BB6F754D48FD5E59E27E1EC6C87826",
+          "36A91769CB54EB8B13637D1A74C91F89E0B11AA90A1D810C721E8598FDA0536E",
+          "D5D7D383430655D81E30F0DD8B029390D9DF57610953C3497D548D9D3DF63174"
+        ],
+        "provenance": "Samsung Camera activity opened and physical shutter key dispatched separately for each context; no gallery/file input used."
+      }
+    }
+  ],
+  "captures": [
+    {
+      "id": "basic",
+      "path": "/basic",
+      "expectedPath": "/basic",
+      "result": "sd\nwelt,\nţi!\nR\ni",
+      "target": "sd\nwelt,\nţi!\nR\ni",
+      "contextOrigin": "basic",
+      "hasCapturedImage": true,
+      "requestedAt": "2026-09-27T10:02:15.169Z",
+      "shutterAt": "2026-09-27T10:02:16.577Z",
+      "completedAt": "2026-09-27T10:02:33.237Z",
+      "cameraFocus": "mCurrentFocus=Window{ff003be u0 com.sec.android.app.camera/com.sec.android.app.camera.Camera}",
+      "returnFocus": "mCurrentFocus=Window{c2b1be3 u0 com.agm.cockpit.storagetest/com.agm.cockpit.MainActivity}",
+      "previewScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/basic-fresh-camera-preview.png",
+      "resultScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/basic-ocr-result.png",
+      "capturedImageSha256": "58AD5CA3A9D4C66D2DD2074A8A9D9F4200BB6F754D48FD5E59E27E1EC6C87826",
+      "status": "PASS"
+    },
+    {
+      "id": "translator",
+      "path": "/translator",
+      "expectedPath": "/translator",
+      "result": "sad\nEY:\n3\n(74\nAS\nţi\ny\nIo",
+      "target": "sad\nEY:\n3\n(74\nAS\nţi\ny\nIo",
+      "contextOrigin": "cockpit",
+      "hasCapturedImage": true,
+      "requestedAt": "2026-09-27T10:02:33.665Z",
+      "shutterAt": "2026-09-27T10:02:34.279Z",
+      "completedAt": "2026-09-27T10:02:47.842Z",
+      "cameraFocus": "mCurrentFocus=Window{81bddee u0 com.sec.android.app.camera/com.sec.android.app.camera.Camera}",
+      "returnFocus": "mCurrentFocus=Window{c2b1be3 u0 com.agm.cockpit.storagetest/com.agm.cockpit.MainActivity}",
+      "previewScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/translator-fresh-camera-preview.png",
+      "resultScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/translator-ocr-result.png",
+      "capturedImageSha256": "36A91769CB54EB8B13637D1A74C91F89E0B11AA90A1D810C721E8598FDA0536E",
+      "status": "PASS"
+    },
+    {
+      "id": "email",
+      "path": "/email",
+      "expectedPath": "/email",
+      "result": "taie\n4\nXA\n7\nFa\n5\nIo",
+      "target": "taie\n4\nXA\n7\nFa\n5\nIo",
+      "contextOrigin": "email",
+      "hasCapturedImage": true,
+      "requestedAt": "2026-09-27T10:02:48.391Z",
+      "shutterAt": "2026-09-27T10:02:48.972Z",
+      "completedAt": "2026-09-27T10:03:03.252Z",
+      "cameraFocus": "mCurrentFocus=Window{d6386bf u0 com.sec.android.app.camera/com.sec.android.app.camera.Camera}",
+      "returnFocus": "mCurrentFocus=Window{c2b1be3 u0 com.agm.cockpit.storagetest/com.agm.cockpit.MainActivity}",
+      "previewScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/email-fresh-camera-preview.png",
+      "resultScreenshot": "evidence/phase4/ocr-camera-physical/2026-09-27T10-02-11-117Z/email-ocr-result.png",
+      "capturedImageSha256": "D5D7D383430655D81E30F0DD8B029390D9DF57610953C3497D548D9D3DF63174",
+      "status": "PASS"
+    }
+  ],
+  "device": {
+    "model": "SM-S931B",
+    "android": "16",
+    "sdk": "36"
+  },
+  "apk": {
+    "sourceHead": "5a85ed7797161fa0bc198c04b0e4b4354b90f69d",
+    "sourceTree": "fcbee0f30c3ff7f78cad577acd83dac99c7a91cc",
+    "versionCode": "28",
+    "versionName": "1.6.0-storage-test",
+    "installedSha256": "FCB6015A1419230FB19ACC4D495CE225B177AA161C61159BF40B1680D6C06C1F"
+  },
+  "finishedAt": "2026-09-27T10:03:03.337Z"
+}

@@ -4,4 +4,5 @@
     <string name="title_activity_main">AGM Transporte</string>
     <string name="package_name">com.agm.cockpit</string>
     <string name="custom_url_scheme">com.agm.cockpit</string>
+    <string name="agma_assistant_name">AGMa</string>
 </resources>

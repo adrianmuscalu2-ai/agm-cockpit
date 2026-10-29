@@ -19,6 +19,10 @@ COPY packages/shared packages/shared
 COPY packages/library-control-plane packages/library-control-plane
 COPY apps/web apps/web
 
+# The production API contract is a public, non-secret build-time endpoint.
+# Keep the ignored local env file reproducible inside the isolated image build.
+RUN printf 'VITE_AGM_API_BASE_URL=https://api.agmcockpit.com/api/v1\n' > apps/web/.env.production
+
 RUN pnpm --filter @agm/shared build
 RUN pnpm --filter @agm/library-control-plane build
 RUN pnpm --filter @agm/web build

@@ -96,6 +96,14 @@ await assert.rejects(
 assert.equal(auth.readAdministratorSession(), null, 'A terminal refresh failure must clear only the short-lived access token.');
 assert.equal(localStorage.getItem(auth.ADMIN_SESSION_KEY), null, 'No administrative JWT may be persisted in localStorage.');
 
+sessionStorage.setItem(auth.ADMIN_SESSION_KEY, JSON.stringify({ accessToken: 'expired-owner-access', expiresInSeconds: 900 }));
+await assert.rejects(
+  () => auth.restoreAdministratorSession(),
+  (error: unknown) => auth.isTurnAdminSessionError(error) && error.reason === 'expired-or-revoked',
+  'Absolute refresh-family expiry must remain distinguishable from a transient refresh failure for Owner Access UX.',
+);
+assert.equal(auth.readAdministratorSession(), null, 'Terminal restore failure must clear the ephemeral access token.');
+
 const overviewRoot = {
   dataset: {} as Record<string, string>,
   setAttribute() {},
@@ -131,13 +139,17 @@ const mainSource = await readFile(new URL('../src/main.ts', import.meta.url), 'u
 const functionalOverviewSource = await readFile(new URL('../src/turn-functional-overview.ts', import.meta.url), 'utf8');
 const premiumRuntimeSource = await readFile(new URL('../src/premium-governance/premium-governance.runtime.ts', import.meta.url), 'utf8');
 assert.match(mainSource, /AUTH\/SESSION FAILURE/);
+assert.match(mainSource, /ADMIN_SESSION_EXPIRED_MESSAGE/);
+assert.match(mainSource, /hadLocalSession \? ADMIN_SESSION_EXPIRED_MESSAGE : null/, 'Only a previously authenticated Owner session may render expiry UX.');
+assert.match(mainSource, /Autentifică-te din nou prin Owner Access/);
+assert.match(mainSource, /if \(!terminal && adminSessionRetryTimer === undefined\)/, 'Absolute expiry must not enter an automatic refresh loop.');
 assert.match(mainSource, /adminSessionRetryTimer/);
 assert.match(mainSource, /Nu este necesar PIN sau login manual/);
 assert.match(mainSource, /autentificarea nu produce DEGRADED sau FAIL/);
 assert.match(mainSource, /if \(state\.view === 'turn'\) render\(\);/, 'Background auth retries must not rerender unrelated application surfaces.');
-assert.match(functionalOverviewSource, /functionalOverviewRequest/, 'TURN functional overview must coalesce rerender-overlapping reads.');
+assert.match(functionalOverviewSource, /functionalOverviewLoader\.read/, 'TURN functional overview must coalesce rerender-overlapping reads through the protected-resource loader.');
 assert.match(functionalOverviewSource, /const root = document\.querySelector<HTMLElement>/, 'Coalesced functional data must paint the current DOM after rerender.');
-assert.match(premiumRuntimeSource, /dashboardRequest/, 'Premium dashboard must coalesce rerender-overlapping reads.');
+assert.match(premiumRuntimeSource, /dashboardLoader\.read/, 'Premium dashboard must coalesce rerender-overlapping reads through the protected-resource loader.');
 assert.match(premiumRuntimeSource, /const currentDetail = document\.querySelector<HTMLElement>/, 'Coalesced Premium data must paint the current DOM after rerender.');
 
 console.log(JSON.stringify({
@@ -146,6 +158,7 @@ console.log(JSON.stringify({
   successfulRotationCycles: 5,
   reloadContinuity: true,
   explicitAuthFailure: true,
+  absoluteExpiryOwnerAccessUx: true,
   transientFailurePreservesSession: true,
   automaticRestoreRetry: true,
   unrelatedSurfaceRerender: false,

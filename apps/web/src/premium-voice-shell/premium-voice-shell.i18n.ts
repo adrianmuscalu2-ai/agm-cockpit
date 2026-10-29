@@ -107,5 +107,5 @@ export const premiumVoiceShellMessages: Record<BasicLanguageCode, PremiumVoiceSh
 };
 
 export function premiumVoiceShellMessage(language: BasicLanguageCode, key: PremiumVoiceShellMessageKey) {
-  return premiumVoiceShellMessages[language][key];
+  return premiumVoiceShellMessages[language][key].replace(/\bAGM\b/g, 'AGMa');
 }

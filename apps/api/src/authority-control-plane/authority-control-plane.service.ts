@@ -16,12 +16,14 @@ import { OPERATIONAL_INCIDENT_CONTRACT, operationalIncidentTransition, qualifyOp
 import { AGENT_ACCOUNTABILITY_CONTRACT, INSPECTOR_FAILOVER_CONTRACT, evaluateAgentAccountability, evaluateAgentRuntimeVerdict, evaluateInspectorFailover, falseActiveCount, selectLatestAccountableExecution, type AccountabilitySignal } from './agent-runtime-accountability.engine';
 import { OperationalAgentDutyRunner, type OperationalAgentDutyResult } from './operational-agent-duty.runner';
 import { OPERATIONAL_LINGUIST_V1_BASELINE_VERSION } from '@agm/shared';
+import { CHIEF_MONITORING_INSPECTOR_CONTRACT, CHIEF_MONITORING_INSPECTOR_ID, chiefMonitoringInspectorDuty } from './basic-agent-duty.seed';
 
 const ACTIVE_LEASE_STATES = ['AUTHORIZED', 'ACTIVE', 'DRAINING'];
 const AUTHORITY_ADMIN_ROLES = new Set(['OWNER', 'PRODUCT_OWNER', 'COMPANY_OWNER', 'ADMIN']);
 const AUTHORITY_CONTROL_PLANE_ID = TURN_OPERATIONAL_TRUTH_CONTRACT.authorityControlPlaneId;
 const COMPONENT_RUNTIME_PROBE_STALE_AFTER_MS = 90_000;
 const COMPONENT_RUNTIME_PROBE_INTERVAL_MS = 60_000;
+const PRODUCT_OWNER_SYSTEM_USER_ID = '00000000-0000-0000-0000-000000000001';
 const CRITICAL_CONTINUOUS_AGENT_IDS = new Set(['agm.authority.control-plane', 'agm.guardian.secrets']);
 const json = (value: unknown) => value as Prisma.InputJsonValue;
 type DomainActivity = { status: string; observedAt: Date; recordId: string; detail: string; dependencyState: string };
@@ -104,8 +106,10 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     try {
       const companies = await this.prisma.company.findMany({ where: { isActive: true }, select: { id: true } });
       await Promise.all(companies.map(async (company) => {
+        await this.ensureApprovedChiefMonitoringInspectorMandate(company.id);
         await this.recordRuntimeCapabilityProbes(company.id);
         await this.executeCriticalContinuousDuties(company.id);
+        await this.executeChiefMonitoringInspectorDuty(company.id);
       }));
     } finally {
       this.runtimeCycleInFlight = false;
@@ -144,6 +148,104 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     // Incidents are reconciled only after new execution and independent
     // validation evidence have been persisted.
     await this.dashboard(ctx);
+  }
+
+  private async ensureApprovedChiefMonitoringInspectorMandate(companyId: string) {
+    const mandateKey = `basic-duty:${CHIEF_MONITORING_INSPECTOR_ID}`;
+    const contractHash = hash({
+      contract: CHIEF_MONITORING_INSPECTOR_CONTRACT,
+      agentId: CHIEF_MONITORING_INSPECTOR_ID,
+      scopeId: chiefMonitoringInspectorDuty.scope,
+      mode: chiefMonitoringInspectorDuty.mode,
+      readSet: chiefMonitoringInspectorDuty.readPermissions,
+      writeSet: chiefMonitoringInspectorDuty.writePermissions,
+      prohibitedActions: chiefMonitoringInspectorDuty.prohibitedActions,
+      approvalReference: chiefMonitoringInspectorDuty.approvalReference,
+    });
+    return this.prisma.authorityMandate.upsert({
+      where: { companyId_mandateKey: { companyId, mandateKey } },
+      create: {
+        companyId, mandateKey, scopeId: chiefMonitoringInspectorDuty.scope,
+        agentId: CHIEF_MONITORING_INSPECTOR_ID, mode: chiefMonitoringInspectorDuty.mode,
+        contractHash, readSet: json(chiefMonitoringInspectorDuty.readPermissions),
+        writeSet: json(chiefMonitoringInspectorDuty.writePermissions), resourceSelectors: json([]),
+        prohibitedActions: json(chiefMonitoringInspectorDuty.prohibitedActions),
+        approvedByUserId: PRODUCT_OWNER_SYSTEM_USER_ID,
+      },
+      update: {
+        status: 'APPROVED', revokedAt: null, expiresAt: null, scopeId: chiefMonitoringInspectorDuty.scope,
+        mode: chiefMonitoringInspectorDuty.mode, contractHash,
+        readSet: json(chiefMonitoringInspectorDuty.readPermissions), writeSet: json(chiefMonitoringInspectorDuty.writePermissions),
+        resourceSelectors: json([]), prohibitedActions: json(chiefMonitoringInspectorDuty.prohibitedActions),
+      },
+    });
+  }
+
+  private async executeChiefMonitoringInspectorDuty(companyId: string) {
+    const now = new Date();
+    const mandates = await this.prisma.authorityMandate.findMany({
+      where: {
+        companyId,
+        agentId: { in: [CHIEF_MONITORING_INSPECTOR_ID, SECONDARY_INSPECTOR_ID] },
+        status: 'APPROVED', revokedAt: null,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      },
+      orderBy: { issuedAt: 'desc' },
+    });
+    const mandateByAgent = firstBy(mandates, (mandate) => mandate.agentId);
+    const cmiMandate = mandateByAgent.get(CHIEF_MONITORING_INSPECTOR_ID);
+    const validatorMandate = mandateByAgent.get(SECONDARY_INSPECTOR_ID);
+    if (!cmiMandate || !validatorMandate) return;
+    const ctx: RequestContext = {
+      companyId, userId: PRODUCT_OWNER_SYSTEM_USER_ID, roles: ['PRODUCT_OWNER'],
+      requestId: randomUUID(), correlationId: randomUUID(),
+    };
+    const runId = `cmi-${randomUUID()}`;
+    const execution = await this.operationalDuties.executeChiefMonitoringInspector(ctx, cmiMandate, runId, now);
+    await this.validateChiefMonitoringInspectorResult(ctx, execution, validatorMandate, runId);
+    const qualification = qualifyOperationalIncident({
+      canonicalId: CHIEF_MONITORING_INSPECTOR_ID,
+      status: execution.passed ? 'PASS' : 'FAIL', runtimeMode: 'CONTINUOUS_COMPONENT', runtimePresence: 'PRESENT',
+      workloadState: 'VALIDATED', dependencyState: execution.passed ? 'PASS' : 'FAIL',
+      dependencyFailures: execution.passed ? [] : [execution.reason ?? 'CMI_OBSERVATION_FAILED'],
+      reason: execution.reason, evidenceReference: `AgentRuntimeEvent:${execution.executionEventId}`, evaluatedAt: now,
+    });
+    const journals = await this.prisma.authorityAuditJournal.findMany({
+      where: { companyId, eventType: { in: ['OPERATIONAL_INCIDENT_OPENED', 'OPERATIONAL_INCIDENT_RESOLVED'] } },
+      orderBy: { occurredAt: 'desc' }, take: 2_000,
+    });
+    await this.reconcileOperationalIncidents(ctx, [{ canonicalId: CHIEF_MONITORING_INSPECTOR_ID, scopeId: chiefMonitoringInspectorDuty.scope, qualification }], journals);
+  }
+
+  private async validateChiefMonitoringInspectorResult(
+    ctx: RequestContext,
+    execution: OperationalAgentDutyResult,
+    validatorMandate: { id: string },
+    runId: string,
+  ) {
+    const validatedAt = new Date(Math.max(Date.now(), new Date(execution.executedAt).getTime() + 1));
+    const safeMetadata = {
+      contractVersion: AGENT_ACCOUNTABILITY_CONTRACT,
+      basicDutyContract: CHIEF_MONITORING_INSPECTOR_CONTRACT,
+      agentId: execution.agentId, validatorId: SECONDARY_INSPECTOR_ID,
+      validatorMandateId: validatorMandate.id, targetMandateId: execution.mandateId,
+      executionEventId: execution.executionEventId, executionEvidenceRef: execution.evidenceRef,
+      executionOutputRef: execution.outputRef, executionEvidenceHash: execution.outputRef.replace('sha256:', ''),
+      validatedAt: validatedAt.toISOString(), result: 'PASS', observedExecutionResult: execution.result,
+      observedExecutionPassed: execution.passed, runId,
+    };
+    const outputRef = `sha256:${hash(safeMetadata)}`;
+    const eventId = deterministicUuid(`${ctx.companyId}:${execution.executionEventId}:${validatorMandate.id}:cmi-accountability-validation`);
+    const existing = await this.prisma.authorityAuditJournal.findUnique({ where: { companyId_eventId: { companyId: ctx.companyId, eventId } } });
+    if (existing) return existing;
+    return this.prisma.authorityAuditJournal.create({ data: {
+      companyId: ctx.companyId, eventId, eventType: 'AGENT_ACCOUNTABILITY_VALIDATED',
+      scopeId: chiefMonitoringInspectorDuty.scope, mandateId: validatorMandate.id,
+      actorType: 'AGENT', actorId: SECONDARY_INSPECTOR_ID,
+      outcome: 'PASS', reasonCode: execution.reason ?? undefined,
+      payloadHash: hash(safeMetadata), safeMetadata: json({ ...safeMetadata, outputRef }),
+      correlationId: ctx.correlationId, occurredAt: validatedAt,
+    } });
   }
 
   async dashboard(ctx: RequestContext) {

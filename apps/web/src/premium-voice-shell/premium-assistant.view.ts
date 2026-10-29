@@ -3,9 +3,10 @@ import { renderPremiumShell } from '../premium-shell';
 import { premiumAssistantUiMessages } from './premium-assistant-ui.i18n';
 import { premiumConversationMessages } from './premium-conversation.i18n';
 import { deviceAssistantCopy } from '../premium-capabilities/device-assistant-handoff.i18n';
+import { withAgmaAssistantName } from './assistant-identity';
 
 export function renderPremiumAssistantView(language: BasicLanguageCode, escapeHtml: (value:string)=>string) {
-  const m = premiumAssistantUiMessages[language];
+  const m = withAgmaAssistantName(premiumAssistantUiMessages[language]);
   const d = deviceAssistantCopy[language];
   return renderPremiumShell({
     viewClass:'premium-assistant-view', labelledBy:'premium-assistant-title', brandHref:'/premium', brandModule:'premium', brandAriaLabel:escapeHtml(m.back),

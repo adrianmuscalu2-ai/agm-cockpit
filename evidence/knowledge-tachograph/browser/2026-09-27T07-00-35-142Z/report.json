@@ -1,0 +1,44 @@
+{
+  "contract": "agm-knowledge-tachograph-browser.v2",
+  "status": "PASS",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "buildSignature": "63a08db4a48cd9cca02925177f5858ab3f8e741be47134d57414569c22285990",
+  "results": [
+    {
+      "scenario": "desktop-tachograph",
+      "status": "PASS",
+      "route": "http://127.0.0.1:54332/knowledge/tahograf",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "entries": 15,
+      "sourceLinks": [
+        "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02014R0165-20241231",
+        "https://transport.ec.europa.eu/transport-modes/road/tachograph_en"
+      ],
+      "screenshot": "evidence\\knowledge-tachograph\\browser\\2026-09-27T07-00-35-142Z\\desktop-tachograph.png"
+    },
+    {
+      "scenario": "mobile-tachograph",
+      "status": "PASS",
+      "route": "http://127.0.0.1:54332/knowledge/tahograf",
+      "viewport": {
+        "width": 412,
+        "height": 915
+      },
+      "entries": 15,
+      "sourceLinks": [
+        "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02014R0165-20241231",
+        "https://transport.ec.europa.eu/transport-modes/road/tachograph_en"
+      ],
+      "screenshot": "evidence\\knowledge-tachograph\\browser\\2026-09-27T07-00-35-142Z\\mobile-tachograph.png"
+    }
+  ],
+  "pageErrors": [],
+  "finishedAt": "2026-09-27T07:00:50.918Z"
+}

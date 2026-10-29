@@ -10,9 +10,9 @@ const html = renderTurnCommandCenter({
   incidentFilters: emptyIncidentFilters(),
 });
 
-assert.equal(agentGovernanceRegistry.length, 37, 'Registry must contain the three final-language agents');
-assert.equal((html.match(/data-entry-agent-id=/g) ?? []).length, 37, 'Entry panel must show every registered agent');
-assert.equal((html.match(/data-agent-row-id=/g) ?? []).length, 36, 'Canonical table must show every non-P9 registry row');
+assert.equal(agentGovernanceRegistry.length, 38, 'Registry must contain CMI BASIC and the three final-language agents');
+assert.equal((html.match(/data-entry-agent-id=/g) ?? []).length, 38, 'Entry panel must show every registered agent');
+assert.equal((html.match(/data-agent-row-id=/g) ?? []).length, 37, 'Canonical table must show every non-P9 registry row');
 for (const id of ['website-content-visual-guardian', 'website-runtime-release-guardian']) {
   assert.match(html, new RegExp(`data-agent-row-id="${id}"`));
 }
@@ -22,14 +22,16 @@ for (const id of ['agent-linguistic-ro-de', 'agent-linguistic-ro-en', 'agent-lin
 for (const id of ['premium-linguist-it', 'premium-linguist-es', 'premium-linguist-sv']) {
   assert.equal(agentGovernanceRegistry.find((agent) => agent.id === id)?.status, 'active', `${id} must be operational`);
   assert.match(html, new RegExp(`data-agent-row-id="${id}"`));
-  assert.match(html, new RegExp(`data-live-agent-id="${id}"`));
+  assert.doesNotMatch(html, new RegExp(`data-live-agent-id="${id}"`), `${id} must not be restored in the legacy BASIC live-agent list`);
 }
+assert.match(html, /data-turn-page="premium"/, 'Premium identities must retain their dedicated TURN page');
 assert.equal((html.match(/id="turn-dashboard"/g) ?? []).length, 1, 'There must be one primary dashboard');
 assert.match(html, /ARHITECTURĂ ȘI GUVERNANȚĂ/);
 assert.match(html, /Atlas coordonează execuția; monitorizarea verifică independent/);
 assert.match(html, /Inspector Șef Monitorizare/);
 assert.match(html, /Autovalidare<\/dt><dd>Interzisă/);
-assert.match(html, /class="turn-network-department ai-network"[\s\S]*P9 · CONTROL-PLANE INTERN[\s\S]*id="turn-p9"/);
+assert.match(html, /class="turn-network-department ai-network"[\s\S]*P9 · CONTROL-PLANE INTERN/, 'P9 must retain its declared AI-network placement');
+assert.match(html, /id="turn-p9"[\s\S]*data-p9-projection="loading"/, 'P9 operational projection must remain present on the investigate page');
 
 assert.match(html, /id="turn-authority-control-plane"/);
 assert.match(html, /data-authority-dashboard/);
