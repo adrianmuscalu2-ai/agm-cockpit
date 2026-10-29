@@ -30,6 +30,7 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     ['20260906120000_add_turn_admin_refresh_sessions', '6f5079681bdf144d4f6b8c0d55bf46c4a55bb8be56752c01a900b8ee4c87af85'],
     ['20260919133000_add_agm_shared_archive_phase2c', '858a08cccc84bded137c98011e07d3add0436a75fcd53d6518da1cea04d739b5'],
     ['20260923090000_add_operational_linguist_v1', 'b32863cd6592ad3cc0d9c7cee5024ca7c2eee7c1f0e05d1a6d1cf2ff975ae65e'],
+    ['20261029120000_add_governance_v2', '3775d230886604929a265ecc6491eba0e621c514c100354ac04eabc39713b455'],
   ] as const,
   criticalModels: [
     'Company',
