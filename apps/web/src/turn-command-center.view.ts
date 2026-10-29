@@ -236,9 +236,18 @@ function renderTurnModuleLink(entry: TurnModuleNavigationEntry | undefined) {
   const search = [entry.moduleId, entry.displayName, entry.responsibleAgent, entry.canonicalSource, entry.environment].join(' ').toLocaleLowerCase();
   const page = entry.page ?? 'investigate';
   const statusClass = entry.validationStatus.toLowerCase().replaceAll('_', '-');
+  const statusLabel = turnModuleValidationLabel(entry.validationStatus);
   if (!entry.target) return `<span class="turn-module-nav-link turn-module-nav-link-unconnected turn-module-nav-link-${escapeHtml(statusClass)}" data-turn-module-id="${escapeHtml(entry.moduleId)}" data-turn-module-search-value="${escapeHtml(search)}" data-validation-status="${escapeHtml(entry.validationStatus)}"><span>${escapeHtml(entry.displayName)}</span><small>NOT CONNECTED · ${escapeHtml(entry.environment)}</small></span>`;
   const href = `#${entry.target}`;
-  return `<a class="turn-module-nav-link turn-module-nav-link-${escapeHtml(statusClass)}" href="${escapeHtml(href)}" data-open-turn-page="${escapeHtml(page)}" data-turn-module-id="${escapeHtml(entry.moduleId)}" data-turn-module-search-value="${escapeHtml(search)}" data-validation-status="${escapeHtml(entry.validationStatus)}"><span>${escapeHtml(entry.displayName)}</span><small>${escapeHtml(entry.validationStatus)} · ${escapeHtml(entry.environment)}</small></a>`;
+  return `<a class="turn-module-nav-link turn-module-nav-link-${escapeHtml(statusClass)}" href="${escapeHtml(href)}" data-open-turn-page="${escapeHtml(page)}" data-turn-module-id="${escapeHtml(entry.moduleId)}" data-turn-module-search-value="${escapeHtml(search)}" data-validation-status="${escapeHtml(entry.validationStatus)}"><span>${escapeHtml(entry.displayName)}</span><small>${escapeHtml(statusLabel)} · ${escapeHtml(entry.environment)}</small></a>`;
+}
+
+function turnModuleValidationLabel(status: TurnModuleNavigationEntry['validationStatus']) {
+  return {
+    VALIDATED: 'VALIDATED', TESTED: 'TESTED', IMPLEMENTED_NOT_VALIDATED: 'IMPLEMENTED · NOT VALIDATED',
+    RUNTIME_PASS: 'RUNTIME PASS', NOT_ACTIVATED: 'NOT ACTIVATED', CERTIFICATION_PENDING: 'BROWSER CERTIFICATION PENDING',
+    BLOCKED: 'BLOCKED', UNKNOWN: 'UNKNOWN',
+  }[status];
 }
 
 function renderFunctionalOverview() {

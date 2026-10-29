@@ -131,7 +131,7 @@ try {
   } else {
     report.checks.firstRunTutorial = 'ALREADY_COMPLETED';
   }
-  await page.locator('[data-turn-page-target="investigate"]').click();
+  await page.locator('[data-turn-module-navigation] [data-open-turn-page="investigate"]').first().click();
   await page.waitForSelector('[data-turn-page="investigate"]:not([hidden])', { timeout: 45_000 });
   await page.waitForSelector('[data-turn-agent-live="pass"]', { timeout: 45_000 });
   if (await skipTutorial.isVisible().catch(() => false)) {
@@ -143,7 +143,7 @@ try {
   await page.waitForFunction(() => document.querySelector('[data-live-connection]')?.textContent?.includes('M2M AUTHENTICATED'));
   await page.locator('[data-turn-agent-live]').screenshot({ path: resolve(evidenceRoot, 'turn-authenticated-chain.png') });
   if (!canonicalProduction) {
-    await page.locator('[data-turn-page-target="premium"]').click();
+    await page.locator('[data-turn-module-navigation] [data-open-turn-page="premium"]').first().click();
     await page.waitForSelector('[data-authority-dashboard][data-operational-truth="pass"]', { timeout: 45_000 });
   }
 
@@ -215,7 +215,7 @@ try {
       await page.waitForSelector('.legal-acceptance-overlay', { state: 'detached', timeout: 15_000 });
       report.checks.legalAcceptanceAfterReload = 'ACCEPTED';
     }
-    await page.locator('[data-turn-page-target="investigate"]').click();
+    await page.locator('[data-turn-module-navigation] [data-open-turn-page="investigate"]').first().click();
     await page.waitForSelector('[data-turn-page="investigate"]:not([hidden])', { timeout: 45_000 });
     await page.waitForSelector('[data-turn-agent-live="pass"]', { timeout: 45_000 });
     const continuedResponse = await fetch(apiUrl, { headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' } });
