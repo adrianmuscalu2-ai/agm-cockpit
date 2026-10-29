@@ -36,6 +36,9 @@
 .turn-module-nav-link small { color: #9bb6c8; font-size: 0.68rem; }
 .turn-module-search-empty { margin: 0; color: #ffd166; }
 .turn-module-nav-link-tested { border-color: rgba(74, 222, 128, 0.34); }
+.turn-module-nav-link-validated, .turn-module-nav-link-ready { border-color: rgba(74, 222, 128, 0.56); background: rgba(20, 102, 72, 0.18); }
+.turn-module-nav-link-not-activated { border-color: rgba(248, 184, 78, 0.58); background: rgba(113, 63, 18, 0.16); }
+.turn-module-nav-link-not-activated small { color: #ffd166; }
 .turn-module-nav-link-implemented-not-validated { border-color: rgba(139, 215, 255, 0.2); }
 .turn-module-nav-link-blocked { border-color: rgba(248, 184, 78, 0.46); background: rgba(113, 63, 18, 0.16); }
 .turn-module-nav-link-blocked small { color: #ffd166; }
