@@ -125,6 +125,7 @@ import {
 } from './text-corrector/text-corrector.types';
 import { renderTurnCommandCenter } from './turn-command-center.view';
 import { publishedLegalKnowledge } from './legal-knowledge/legal-knowledge.registry';
+import type { KnowledgeItem, KnowledgePackage } from './legal-knowledge/knowledge.contract';
 import { basicKnowledgeDestinationFromRoute, packagesForBasicKnowledgeDestination } from './legal-knowledge/knowledge-navigation.registry';
 import {
   createIncident,
@@ -378,6 +379,59 @@ let activeTranslatorVoiceInput: Promise<void> | null = null;
 let lastTranslatorHealthCapturedAt: string | null = null;
 let lastRenderedProductionPreflightSignature: string | null = null;
 let adminSessionRetryTimer: number | undefined;
+let pendingAndroidAssistantInvocation = false;
+let androidAssistantStartScheduled = false;
+
+type AgmaAssistantWindow = Window & {
+  __agmaHandleAndroidAssistantInvocation?: (source: string) => boolean;
+};
+
+function startExistingAssistantVoiceRuntime() {
+  if (androidAssistantStartScheduled) return;
+  androidAssistantStartScheduled = true;
+  window.requestAnimationFrame(() => {
+    androidAssistantStartScheduled = false;
+    const start = document.querySelector<HTMLButtonElement>('[data-premium-assistant] [data-assistant-start], [data-premium-copilot] [data-assistant-start]');
+    if (!start || start.getAttribute('aria-pressed') === 'true') return;
+    start.click();
+  });
+}
+
+function handleAndroidAssistantInvocation(source: string) {
+  if (!Capacitor.isNativePlatform()) return false;
+  const safeSource = source.replace(/[^A-Z_]/g, '') || 'SYSTEM_ASSISTANT';
+  document.documentElement.dataset.agmaAssistantInvocation = safeSource;
+  if (!state.legalAcceptanceAccepted) {
+    pendingAndroidAssistantInvocation = true;
+    state.status = audioMessage(
+      'Acceptați termenii AGM pentru a porni ascultarea vocală.',
+      'Akzeptieren Sie die AGM-Bedingungen, um die Spracheingabe zu starten.',
+      'Accept the AGM terms to start voice listening.',
+    );
+    render();
+    return true;
+  }
+  pendingAndroidAssistantInvocation = false;
+  if (!isPremiumNavigationAllowed('premiumVoice')) {
+    state.status = audioMessage(
+      'Asistentul vocal necesită autoritate Premium verificată.',
+      'Der Sprachassistent benötigt eine verifizierte Premium-Berechtigung.',
+      'The voice assistant requires verified Premium authority.',
+    );
+    navigateToModule('access');
+    return true;
+  }
+  navigateToModule('premiumVoice');
+  startExistingAssistantVoiceRuntime();
+  return true;
+}
+
+(window as AgmaAssistantWindow).__agmaHandleAndroidAssistantInvocation = handleAndroidAssistantInvocation;
+window.addEventListener('agma-android-assistant-invocation', (event) => {
+  const detail = (event as CustomEvent<{ source?: string }>).detail;
+  handleAndroidAssistantInvocation(detail?.source ?? 'SYSTEM_ASSISTANT');
+});
+const ADMIN_SESSION_EXPIRED_MESSAGE = 'Sesiunea administrativă a expirat sau a fost revocată. Autentifică-te din nou prin Owner Access.';
 let activeQuickLanguageMenuCleanup: (() => void) | null = null;
 let globalCameraAvailable: boolean | null = null;
 let globalCameraPermission: PermissionState | 'unknown' = 'unknown';
@@ -615,7 +669,7 @@ function render() {
       if (incidentsChanged || snapshotChanged) render();
     });
     bindTurnOrganizationChart();
-      bindTurnSpatialModels();
+    bindTurnSpatialModels();
     void bindP9TurnProjection();
     bindTurnAgentLiveState();
     void bindTurnFunctionalOverview();
@@ -2135,6 +2189,44 @@ function renderLegalAcceptanceNotice() {
   `;
 }
 
+function renderKnowledgeList(title: string, values: readonly string[]) {
+  if (values.length === 0) return '';
+  return `<section><h3>${escapeHtml(title)}</h3><ul>${values.map((value) => `<li>${escapeHtml(value)}</li>`).join('')}</ul></section>`;
+}
+
+function renderKnowledgeSources(entry: KnowledgeItem, knowledgePackage: KnowledgePackage) {
+  const links = entry.sourceReferences.map((reference) => {
+    const source = knowledgePackage.sources.find((candidate) => candidate.id === reference.sourceId);
+    if (!source) return '';
+    return `<li><a href='${escapeHtml(source.url)}' target='_blank' rel='noopener noreferrer'>${escapeHtml(source.title)}</a><small>${escapeHtml(reference.locator)}</small></li>`;
+  }).filter(Boolean).join('');
+  return links ? `<ul class='knowledge-source-list'>${links}</ul>` : '';
+}
+
+function renderKnowledgeItem(entry: KnowledgeItem, knowledgePackage: KnowledgePackage) {
+  const operational = entry as KnowledgeItem & { recommendedAction?: string; vehicleVariation?: string };
+  const explanationLabel = operational.recommendedAction ? 'Ce înseamnă:' : 'Ce faci:';
+  return `
+    <details class='knowledge-entry'>
+      <summary>${escapeHtml(entry.topic)}</summary>
+      <div class='knowledge-entry-body'>
+        <p class='knowledge-driver-action'><strong>${explanationLabel}</strong> ${escapeHtml(entry.practicalExplanation)}</p>
+        ${operational.recommendedAction ? `<p class='knowledge-immediate-action'><strong>Ce faci acum:</strong> ${escapeHtml(operational.recommendedAction)}</p>` : ''}
+        <div class='knowledge-guidance-grid'>
+          ${renderKnowledgeList('Verifică', entry.examples)}
+          ${renderKnowledgeList('Evită', entry.commonMistakes)}
+        </div>
+        ${operational.vehicleVariation ? `<p class='knowledge-vehicle-variation'><strong>Poate varia:</strong> ${escapeHtml(operational.vehicleVariation)}</p>` : ''}
+        <details class='knowledge-legal-detail'>
+          <summary>Vezi regula și sursele oficiale</summary>
+          <p>${escapeHtml(entry.legalRule)}</p>
+          ${renderKnowledgeSources(entry, knowledgePackage)}
+        </details>
+      </div>
+    </details>
+  `;
+}
+
 function renderLegalCenter() {
   const language = uiLanguage();
   const publishedKnowledge = publishedLegalKnowledge();
@@ -2187,17 +2279,8 @@ function renderLegalCenter() {
           ${visibleKnowledge.map((knowledgePackage) => `
             <article class="legal-card">
               <h2>${escapeHtml(knowledgePackage.title)}</h2>
-              <p class="knowledge-package-meta">Validat · versiunea ${escapeHtml(knowledgePackage.version)}</p>
-              ${knowledgePackage.items.map((entry) => `
-                <details>
-                  <summary>${escapeHtml(entry.topic)}</summary>
-                  <p class="knowledge-driver-action"><strong>Ce faci:</strong> ${escapeHtml(entry.practicalExplanation)}</p>
-                  <details class="knowledge-legal-detail">
-                    <summary>Vezi regula juridică</summary>
-                    <p>${escapeHtml(entry.legalRule)}</p>
-                  </details>
-                </details>
-              `).join('')}
+              <p class="knowledge-package-meta">Validat ${escapeHtml(knowledgePackage.verifiedAt)} · versiunea ${escapeHtml(knowledgePackage.version)} · ${knowledgePackage.items.length} informații</p>
+              ${knowledgePackage.items.map((entry) => renderKnowledgeItem(entry, knowledgePackage)).join('')}
             </article>
           `).join('')}
         </section>
@@ -4773,12 +4856,16 @@ function renderAdministratorLogin() {
 }
 
 function renderAdministratorSessionFailure(detail: string) {
+  const terminal = detail === ADMIN_SESSION_EXPIRED_MESSAGE;
   return `
     <section class="admin-login admin-session-failure" aria-labelledby="admin-session-failure-title" role="alert">
       <header><span>AG-017</span><h1 id="admin-session-failure-title">AUTH/SESSION FAILURE</h1></header>
       <p>${escapeHtml(detail)}</p>
       <p>Stările agenților și serviciilor sunt păstrate; autentificarea nu produce DEGRADED sau FAIL.</p>
-      <button id="retryAdminSessionRefresh" class="primary" type="button">Reîncearcă reînnoirea sesiunii</button>
+      ${terminal ? `<form id="adminLoginForm">
+        <label>PIN AGM<input id="adminPin" type="password" inputmode="numeric" autocomplete="off" minlength="4" maxlength="64" required /></label>
+        <button class="primary" type="submit">Autentifică-te din nou prin Owner Access</button>
+      </form>` : '<button id="retryAdminSessionRefresh" class="primary" type="button">Reîncearcă reînnoirea sesiunii</button>'}
     </section>`;
 }
 
@@ -4838,6 +4925,7 @@ async function submitAdminPinChange() {
 }
 
 async function restoreAdministratorAccess() {
+  const hadLocalSession = readAdministratorSession() !== null;
   try {
     state.adminSession = await restoreAdministratorSession();
     state.adminAccessVerified = state.adminSession !== null;
@@ -4849,10 +4937,15 @@ async function restoreAdministratorAccess() {
     }
   } catch (error) {
     state.adminAccessVerified = false;
-    state.adminSessionFailure = isTurnAdminSessionError(error)
-      ? 'Reînnoirea automată nu este disponibilă momentan. Nu este necesar PIN sau login manual.'
+    state.adminSession = null;
+    const terminal = isTurnAdminSessionError(error)
+      && (error.reason === 'expired-or-revoked' || error.reason === 'forbidden');
+    state.adminSessionFailure = terminal
+      ? hadLocalSession ? ADMIN_SESSION_EXPIRED_MESSAGE : null
+      : isTurnAdminSessionError(error)
+        ? 'Reînnoirea automată nu este disponibilă momentan. Nu este necesar PIN sau login manual.'
       : 'Canalul de sesiune nu este disponibil momentan. Nu este necesar PIN sau login manual.';
-    if (adminSessionRetryTimer === undefined) {
+    if (!terminal && adminSessionRetryTimer === undefined) {
       adminSessionRetryTimer = window.setTimeout(() => {
         adminSessionRetryTimer = undefined;
         void restoreAdministratorAccess();
@@ -5808,6 +5901,9 @@ function acceptLegalNotice() {
   state.tutorialOpen = !tutorialRepository.isTutorialCompleted();
   state.tutorialOpenedFromHelp = false;
   render();
+  if (pendingAndroidAssistantInvocation && !state.tutorialOpen) {
+    handleAndroidAssistantInvocation('LEGAL_ACCEPTANCE_RESUME');
+  }
 }
 
 function createEmailFromTranslation() {

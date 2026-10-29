@@ -1,0 +1,1542 @@
+{
+  "schemaVersion": 2,
+  "runId": "2026-09-27T08-08-19-928Z",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "routeCoverage": [
+    {
+      "route": "/home",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/basic",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/ocr",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/access",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/premium",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/premium/copilot",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/premium/team",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/premium/ladungssicherung",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/premium/communications",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/premium/voice",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/car-mover",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/car-mover/menu",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/car-mover/planning",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/car-mover/active-transfer",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/car-mover/completion-incidents",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/car-mover/accounting",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/car-mover/guide",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/car-mover/archive",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/translator",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/email",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/profile",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/corrector",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/turn",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/legal",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/about",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/roadmap",
+      "status": "PASS",
+      "routePreserved": true
+    },
+    {
+      "route": "/licenses",
+      "status": "PASS",
+      "routePreserved": true
+    }
+  ],
+  "results": [
+    {
+      "id": "basic-context",
+      "route": "/basic",
+      "selector": "#globalOcrContextText",
+      "status": "PASS",
+      "ocrText": "AGM DOCUMENT\nCMR 12345\nTRANSPORT TEST",
+      "screenshot": "evidence\\global-camera-ocr\\browser\\2026-09-27T08-08-19-928Z\\basic-context.png"
+    },
+    {
+      "id": "translator-context",
+      "route": "/translator",
+      "selector": "#translatorText",
+      "status": "PASS",
+      "ocrText": "AGM DOCUMENT\nCMR 12345\nTRANSPORT TEST",
+      "screenshot": "evidence\\global-camera-ocr\\browser\\2026-09-27T08-08-19-928Z\\translator-context.png"
+    },
+    {
+      "id": "email-context",
+      "route": "/email",
+      "selector": "#message",
+      "status": "PASS",
+      "ocrText": "AGM DOCUMENT\nCMR 12345\nTRANSPORT TEST",
+      "screenshot": "evidence\\global-camera-ocr\\browser\\2026-09-27T08-08-19-928Z\\email-context.png"
+    }
+  ],
+  "diagnostics": [
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496506737",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496506738",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496508307",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496508308",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:3000/api/v1/turn-admin/refresh",
+      "message": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496510079",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496510079",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:3000/api/v1/turn-admin/refresh",
+      "message": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496511472",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496511473",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496512696",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496512696",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496514004",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496514005",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496515215",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496515216",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496516409",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496516410",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496517435",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496517436",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:3000/api/v1/turn-admin/refresh",
+      "message": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496518465",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496518466",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496519336",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496519337",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496520373",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496520373",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496521345",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496521348",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496522310",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496522311",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:3000/api/v1/turn-admin/refresh",
+      "message": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496523705",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:3000/api/v1/turn-admin/refresh",
+      "message": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496523706",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496524912",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496524912",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496526271",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496526272",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496527352",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496527353",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496528461",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496528462",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496529658",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496529659",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:3000/api/v1/turn-admin/refresh",
+      "message": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496530835",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496530836",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:3000/api/v1/turn-admin/refresh",
+      "message": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496531802",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496531803",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:3000/api/v1/turn-admin/refresh",
+      "message": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/api/v1/operations/components/android/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/api/v1/incidents",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496532869",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496532870",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Access to fetch at 'https://agm-cockpit-website.pages.dev/.well-known/agm-website-health.json' from origin 'http://127.0.0.1:57159' has been blocked by CORS policy: The 'Access-Control-Allow-Origin' header has a value 'https://app.agmcockpit.com' that is not equal to the supplied origin. Have the server send the header with a valid value."
+    },
+    {
+      "type": "requestfailed",
+      "url": "https://agm-cockpit-website.pages.dev/.well-known/agm-website-health.json",
+      "message": "net::ERR_FAILED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_FAILED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496534298",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496534299",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496535569",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496535570",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496536669",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496536670",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496537592",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496537592",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496538550",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496538551",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:3000/api/v1/turn-admin/refresh",
+      "message": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Estimating resolution as 1329"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496544929",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496544930",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:3000/api/v1/turn-admin/refresh",
+      "message": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Estimating resolution as 1329"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/live?_agm_probe=1790496549813",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/health/ready?_agm_probe=1790496549814",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:57159/api/v1/translation/health",
+      "message": "net::ERR_ABORTED"
+    },
+    {
+      "type": "console-error",
+      "message": "Estimating resolution as 1329"
+    },
+    {
+      "type": "requestfailed",
+      "url": "http://127.0.0.1:3000/api/v1/turn-admin/refresh",
+      "message": "net::ERR_CONNECTION_REFUSED"
+    },
+    {
+      "type": "console-error",
+      "message": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    }
+  ],
+  "target": "http://127.0.0.1:57159",
+  "status": "PASS",
+  "revision": "90ac92e134578bd449d33b15a898338b2cebf8d7",
+  "finishedAt": "2026-09-27T08:09:16.471Z"
+}

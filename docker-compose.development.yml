@@ -1,0 +1,30 @@
+name: agm-development
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: agm-development-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${AGM_DEV_POSTGRES_USER:-agm_development}
+      POSTGRES_PASSWORD: ${AGM_DEV_POSTGRES_PASSWORD:?set a development-only database password in development.env}
+      POSTGRES_DB: ${AGM_DEV_POSTGRES_DB:-agm_development}
+    ports:
+      - "127.0.0.1:${AGM_DEV_POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - agm_development_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AGM_DEV_POSTGRES_USER:-agm_development} -d ${AGM_DEV_POSTGRES_DB:-agm_development}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agm_development_private
+
+networks:
+  agm_development_private:
+    name: agm-development-private
+
+volumes:
+  agm_development_postgres_data:
+    name: agm-development-postgres-data

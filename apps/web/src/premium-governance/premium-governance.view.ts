@@ -51,8 +51,8 @@ export function renderTurnAuthorityControlPlane() {
       </header>
       <aside class="turn-governance-state" data-governance-module aria-label="Starea modulului Governance">
         <div><span class="turn-kicker">TURN · GOVERNANCE</span><strong>Governance V2 pregătit, dar neactivat</strong></div>
-        <span class="turn-governance-state-badge">BLOCKED · NO RUNTIME</span>
-        <p>Suprafața este disponibilă pentru orientare vizuală; nu pornește evaluatori, scrieri, ledger sau servicii Governance.</p>
+        <span class="turn-governance-state-badge">PREPARED · ACTIVATION GATED</span>
+        <p>Runtime-ul și contractele sunt integrate, dar mediul Governance oficial nu este activat; nu se execută scrieri, ledger sau servicii Governance în această suprafață.</p>
       </aside>
       ${renderTurnSpatialControlModel('premium')}
       <section class="agm-network-hero" data-authority-dashboard aria-live="polite" aria-busy="true">

@@ -326,13 +326,16 @@ function evaluateBasicAgentDashboardNode(node: BasicAgentDashboardNode): BasicAg
 function evaluateBasicAgentRuntimeEvent(event: BasicAgentTelemetryInventory['latestRuntimeEvents'][number], evaluatedAt: string): BasicAgentSourceEvaluation {
   const ageMs = Math.max(0, Date.parse(evaluatedAt) - Date.parse(event.occurredAt));
   const recent = Number.isFinite(ageMs) && ageMs <= 24 * 60 * 60 * 1000;
+  const chiefMonitoringCycleCurrent = event.agentId === 'chief-monitoring-inspector' && event.lifecycle === 'COMPLETED' && ageMs <= 90_000;
   const active = ['STARTED', 'WORKING'].includes(event.lifecycle) && ageMs <= 15 * 60 * 1000;
   const stuck = ['STARTED', 'WORKING'].includes(event.lifecycle) && !active;
   const failed = event.lifecycle === 'FAILED' && recent;
   const blocked = event.lifecycle === 'BLOCKED' && recent;
-  const operationalStatus: BasicAgentStatus = active ? 'PASS' : failed ? 'FAIL' : blocked || stuck ? 'DEGRADED' : 'STANDBY';
+  const operationalStatus: BasicAgentStatus = chiefMonitoringCycleCurrent || active ? 'PASS' : failed ? 'FAIL' : blocked || stuck ? 'DEGRADED' : 'STANDBY';
   const evidenceSource = `AgentRuntimeEvent · ${event.eventId} · ${event.occurredAt}`;
-  const reason = active
+  const reason = chiefMonitoringCycleCurrent
+    ? 'Ciclul CMI aprobat a fost finalizat in fereastra de liveness de 90 de secunde.'
+    : active
     ? `${event.lifecycle} confirmat de evenimentul runtime persistent.`
     : stuck
       ? `${event.lifecycle} nu a primit o tranziție terminală în 15 minute.`
@@ -341,19 +344,19 @@ function evaluateBasicAgentRuntimeEvent(event: BasicAgentTelemetryInventory['lat
         : `${event.lifecycle} este activitate istorică, nu stare runtime curentă.`;
   return {
     operationalStatus,
-    runtimeStatus: active ? 'ACTIVE' : failed ? 'FAILED' : blocked || stuck ? 'DEGRADED' : 'STANDBY',
-    health: active || event.lifecycle === 'COMPLETED' ? 'HEALTHY' : failed ? 'FAILED' : blocked || stuck ? 'DEGRADED' : 'NOT_EVALUATED',
+    runtimeStatus: chiefMonitoringCycleCurrent || active ? 'ACTIVE' : failed ? 'FAILED' : blocked || stuck ? 'DEGRADED' : 'STANDBY',
+    health: chiefMonitoringCycleCurrent || active || event.lifecycle === 'COMPLETED' ? 'HEALTHY' : failed ? 'FAILED' : blocked || stuck ? 'DEGRADED' : 'NOT_EVALUATED',
     freshness: recent ? 'CURRENT' : 'STALE',
     observedAt: event.occurredAt,
     runtimeEvidence: 'REAL_EVENT',
-    runtimePresence: active ? 'OBSERVED' : 'NOT_OBSERVED',
-    runtimeMode: 'EVENT_DRIVEN',
-    currentOperation: active ? `${event.lifecycle} · mandat ${event.mandateId}` : 'NO CURRENT WORKLOAD',
+    runtimePresence: chiefMonitoringCycleCurrent || active ? 'OBSERVED' : 'NOT_OBSERVED',
+    runtimeMode: event.agentId === 'chief-monitoring-inspector' ? 'CONTINUOUS_PROBE' : 'EVENT_DRIVEN',
+    currentOperation: chiefMonitoringCycleCurrent ? `INSPECȚIE PERIODICĂ FINALIZATĂ · mandat ${event.mandateId}` : active ? `${event.lifecycle} · mandat ${event.mandateId}` : 'NO CURRENT WORKLOAD',
     evidenceSource,
     reason,
     requiredAction: failed || blocked || stuck ? `Inspectează mandatul ${event.mandateId} și dovada ${event.evidenceRef}.` : 'Nicio acțiune automată; pornește agentul numai printr-un mandat real.',
     telemetryReason: `${event.lifecycle} · event persistent`,
-    componentReason: 'Agent event-driven; nu se cere heartbeat continuu când nu rulează.',
+    componentReason: event.agentId === 'chief-monitoring-inspector' ? 'Duty periodic ACP; liveness exclusiv din AgentRuntimeEvent.' : 'Agent event-driven; nu se cere heartbeat continuu când nu rulează.',
   };
 }
 

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { aggregateBasicAgentStatus, buildPanelAgentModel, panelAgentMappingReport, panelAgentSources } from '../src/turn-agent-panel.integration';
+import { aggregateBasicAgentStatus, buildBasicAgentNetworkModel, buildPanelAgentModel, ingestBasicAgentOperationalDashboard, panelAgentMappingReport, panelAgentSources, resetBasicAgentOperationalDashboardForTest } from '../src/turn-agent-panel.integration';
 import { agentGovernanceRegistry } from '../src/agent-governance.registry';
 import { turnOrganizationAgents } from '../src/turn-organization-chart';
 
@@ -10,7 +10,7 @@ const model = buildPanelAgentModel();
 const report = panelAgentMappingReport();
 
 assert.equal(panelAgentSources.length, 19, 'operational panel must include the three final-language runtime identities');
-assert.equal(agentGovernanceRegistry.length, 37, 'canonical registry must include the three final-language agents');
+assert.equal(agentGovernanceRegistry.length, 38, 'canonical registry must include CMI BASIC and the three final-language agents');
 assert.equal(model.length, panelAgentSources.length, 'every approved visual agent must be normalized');
 assert.equal(new Set(model.map((agent) => agent.panelAgentId)).size, model.length, 'panel IDs must be unique');
 assert.ok(turnOrganizationAgents.some((agent) => agent.id === 'atlas-operations'), 'official Turn organization registry must contain Atlas');
@@ -39,5 +39,29 @@ assert.equal(aggregateBasicAgentStatus(['PASS', 'NO_TELEMETRY', 'STANDBY']), 'PA
 assert.equal(aggregateBasicAgentStatus(['PASS', 'STANDBY']), 'PASS', 'legitimate event-driven standby does not degrade observed agents');
 assert.equal(aggregateBasicAgentStatus(['PASS', 'DEGRADED', 'NO_TELEMETRY']), 'DEGRADED', 'confirmed degradation outranks unknown coverage');
 assert.equal(aggregateBasicAgentStatus(['PASS', 'FAIL']), 'FAIL', 'confirmed failure remains the highest priority');
+
+const evaluatedAt = '2026-09-27T12:00:31.000Z';
+ingestBasicAgentOperationalDashboard({
+  generatedAt: evaluatedAt,
+  nodes: [],
+  telemetryInventory: {
+    contractVersion: 'turn-basic-agent-telemetry-inventory.v1', evaluatedAt,
+    runtimeEventWindow: { source: 'AgentRuntimeEvent', loaded: 1, limit: 1000, oldestLoadedAt: '2026-09-27T12:00:30.000Z' },
+    latestRuntimeEvents: [{
+      agentId: 'chief-monitoring-inspector', eventId: '00000000-0000-4000-a000-000000000050', mandateId: 'mandate-cmi',
+      lifecycle: 'COMPLETED', occurredAt: '2026-09-27T12:00:30.000Z', recordedAt: '2026-09-27T12:00:30.100Z',
+      evidenceRef: 'AuthorityAuditJournal:00000000-0000-4000-a000-000000000051',
+    }],
+    componentHeartbeats: [],
+  },
+});
+const cmi = buildBasicAgentNetworkModel().find((agent) => agent.record.id === 'chief-monitoring-inspector');
+assert.ok(cmi, 'Chief Monitoring Inspector must be registered as a BASIC identity');
+assert.equal(cmi.runtimeEvidence, 'REAL_EVENT', 'CMI must project from AgentRuntimeEvent');
+assert.equal(cmi.runtimeMode, 'CONTINUOUS_PROBE', 'CMI must be evaluated as the scheduled ACP duty');
+assert.equal(cmi.criteria.operational.status, 'PASS', 'a current completed CMI cycle must prove liveness');
+assert.doesNotMatch(cmi.criteria.operational.source, /ComponentHeartbeat/, 'CMI must never project legacy heartbeat authority');
+assert.equal(buildBasicAgentNetworkModel().length, 35, 'BASIC registry must contain the prior 34 identities plus the approved CMI duty');
+resetBasicAgentOperationalDashboardForTest();
 
 console.log(JSON.stringify({ pass: true, governanceRegistryEntries: agentGovernanceIds.size, turnOrganizationRegistryEntries: turnOrganizationAgents.length, agents: model.length, mapped: report.filter((row) => row.mappingStatus === 'MAPPED').length, unmapped: report.filter((row) => row.mappingStatus === 'UNMAPPED').length, statuses: [...new Set(model.map((agent) => agent.runtimeStatus))] }, null, 2));

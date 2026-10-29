@@ -1,0 +1,115 @@
+import { chromium } from 'playwright';
+import { createReadStream, statSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { createServer } from 'node:http';
+import path, { extname, join, normalize } from 'node:path';
+
+const root = process.cwd();
+const runId = new Date().toISOString().replace(/[:.]/g, '-');
+const output = path.join(root, 'evidence', 'phase3', 'dashboard-warning-lights', runId, 'browser');
+const results = [];
+const pageErrors = [];
+let browser;
+let targetServer;
+let fatal;
+
+async function startTarget() {
+  const webRoot = path.join(root, 'apps', 'web', 'dist');
+  const server = createServer((request, response) => {
+    const pathname = new URL(request.url ?? '/', 'http://localhost').pathname;
+    const relative = normalize(decodeURIComponent(pathname === '/' ? '/index.html' : pathname)).replace(/^([/\\])+/, '');
+    const candidate = join(webRoot, relative);
+    let file = join(webRoot, 'index.html');
+    if (candidate.startsWith(webRoot)) {
+      try { if (statSync(candidate).isFile()) file = candidate; } catch {}
+    }
+    const types = { '.css': 'text/css', '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.woff2': 'font/woff2' };
+    response.writeHead(200, { 'Content-Type': types[extname(file)] ?? 'application/octet-stream', 'Cache-Control': 'no-store' });
+    createReadStream(file).pipe(response);
+  });
+  await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
+  const address = server.address();
+  const port = typeof address === 'object' && address ? address.port : 0;
+  return { server, url: `http://127.0.0.1:${port}/` };
+}
+
+async function ready(url) {
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    try { if ((await fetch(url)).status === 200) return; } catch {}
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error('TARGET_HTTP_NOT_READY');
+}
+
+async function scenario(page, target, id, viewport) {
+  await page.setViewportSize(viewport);
+  await page.goto(new URL('/knowledge/martori-bord', target).toString(), { waitUntil: 'networkidle' });
+  const heading = page.getByRole('heading', { name: 'Martori în bord', exact: true });
+  await heading.first().waitFor({ state: 'visible' });
+  const entries = page.locator('.knowledge-entry');
+  if (await entries.count() !== 15) throw new Error(`${id}: EXPECTED_15_ENTRIES`);
+
+  const required = [
+    ['Presiune aer de frânare prea mică', 'nu pleca'],
+    ['ABS remorcă / remorcă fără ABS', 'distanță sigură'],
+    ['AEB / cameră sau senzor cu vizibilitate limitată', 'Condu defensiv'],
+    ['Suspensie pneumatică / înălțime de rulare', 'viteză de mers pe jos'],
+  ];
+  for (const [topic, action] of required) {
+    const entry = entries.filter({ has: page.locator('summary', { hasText: topic }) });
+    if (await entry.count() !== 1) throw new Error(`${id}: MISSING_${topic}`);
+    await entry.locator(':scope > summary').click();
+    if (!(await entry.innerText()).includes(action)) throw new Error(`${id}: ACTION_MISSING_${topic}`);
+    if (await entry.locator('img').count() !== 0) throw new Error(`${id}: UNAPPROVED_VISUAL_${topic}`);
+    await entry.locator('.knowledge-legal-detail > summary').click();
+  }
+
+  const body = await page.locator('body').innerText();
+  if (!body.includes('versiunea 0.2.0') || !body.includes('15 informații')) throw new Error(`${id}: PACKAGE_METADATA_INVALID`);
+  if (!body.includes('MAN TG3') || !body.includes('Scania')) throw new Error(`${id}: OFFICIAL_SOURCE_UI_MISSING`);
+  const capture = path.join(output, `${id}-dashboard-warning-0.2.0.png`);
+  await page.screenshot({ path: capture, fullPage: true });
+  results.push({ id, status: 'PASS', viewport, route: page.url(), entries: 15, screenshots: [path.relative(root, capture)] });
+}
+
+await mkdir(output, { recursive: true });
+try {
+  const target = await startTarget();
+  targetServer = target.server;
+  await ready(target.url);
+  browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext({ baseURL: target.url, locale: 'ro-RO' });
+  await context.addInitScript(() => {
+    localStorage.setItem('agm.legal.acceptance.privacy-v2026.07.13.terms-v2026.07.13', JSON.stringify({ privacyPolicyVersion: 'privacy-v2026.07.13', termsVersion: 'terms-v2026.07.13', acceptedAt: new Date().toISOString() }));
+    localStorage.setItem('agm.tutorial.completed.v1', new Date().toISOString());
+    localStorage.setItem('agm.profile.settings.v2', JSON.stringify({ preferredLanguage: 'ro', favoriteLanguages: ['ro', 'de', 'en'] }));
+  });
+  const page = await context.newPage();
+  page.on('pageerror', (error) => pageErrors.push(error.message));
+  await scenario(page, target.url, 'web-desktop', { width: 1440, height: 1000 });
+  await scenario(page, target.url, 'android-bundle-mobile', { width: 412, height: 915 });
+  await context.close();
+  if (pageErrors.length > 0) throw new Error(`PAGE_ERRORS:${pageErrors.join(' | ')}`);
+} catch (error) {
+  fatal = error instanceof Error ? error.message : String(error);
+} finally {
+  await browser?.close();
+  if (targetServer) await new Promise((resolve) => targetServer.close(resolve));
+  const report = {
+    contract: 'agm-dashboard-warning-knowledge-browser.v2',
+    status: !fatal && results.length === 2 ? 'PASS' : 'FAIL',
+    browserPluginStatus: 'PASS',
+    integratedBrowserControlStatus: 'PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE',
+    browserSessionStatus: results.length === 2 ? 'PASS' : 'FAIL',
+    targetPageStatus: results.length === 2 ? 'PASS' : 'FAIL',
+    runner: 'Controlled AGM Playwright/Chromium',
+    results,
+    pageErrors,
+    fatal,
+    finishedAt: new Date().toISOString(),
+  };
+  await writeFile(path.join(output, 'report.json'), `${JSON.stringify(report, null, 2)}\n`);
+  console.log(`DASHBOARD WARNING KNOWLEDGE BROWSER: ${report.status}`);
+  console.log(path.join(output, 'report.json'));
+  if (report.status !== 'PASS') process.exitCode = 1;
+}

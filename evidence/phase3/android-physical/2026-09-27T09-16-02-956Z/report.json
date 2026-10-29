@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-27T09-16-02-956Z",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "APK_PROVENANCE",
+      "status": "PASS",
+      "evidence": {
+        "sourceHead": "5a85ed7797161fa0bc198c04b0e4b4354b90f69d",
+        "sourceTree": "fcbee0f30c3ff7f78cad577acd83dac99c7a91cc",
+        "apkSha256": "FCB6015A1419230FB19ACC4D495CE225B177AA161C61159BF40B1680D6C06C1F",
+        "versionCode": "28",
+        "versionName": "1.6.0-storage-test",
+        "installedSha256": "FCB6015A1419230FB19ACC4D495CE225B177AA161C61159BF40B1680D6C06C1F"
+      }
+    },
+    {
+      "id": "ANDROID_1_6_AUTHORITY",
+      "status": "PASS",
+      "evidence": {
+        "sourceHead": "5a85ed7797161fa0bc198c04b0e4b4354b90f69d",
+        "sourceTree": "fcbee0f30c3ff7f78cad577acd83dac99c7a91cc",
+        "apkSha256": "FCB6015A1419230FB19ACC4D495CE225B177AA161C61159BF40B1680D6C06C1F",
+        "versionCode": "28",
+        "versionName": "1.6.0-storage-test",
+        "installedSha256": "FCB6015A1419230FB19ACC4D495CE225B177AA161C61159BF40B1680D6C06C1F"
+      }
+    },
+    {
+      "id": "NATIVE_CAPABILITIES",
+      "status": "PASS",
+      "evidence": {
+        "sdkInt": 36,
+        "online": true,
+        "speechRecognition": true,
+        "onDeviceSpeechRecognition": true,
+        "textToSpeech": true,
+        "camera": true,
+        "shareText": true,
+        "processText": true,
+        "translateText": false,
+        "assist": true,
+        "voiceSettings": true
+      }
+    },
+    {
+      "id": "FOREGROUND_VOICE",
+      "status": "PASS",
+      "evidence": {
+        "permission": {
+          "state": "granted"
+        },
+        "listening": {
+          "outcome": "CANCELLED",
+          "error": "Error: Speech recognition cancelled by a newer turn"
+        }
+      }
+    },
+    {
+      "id": "CONTACTS_NATIVE_BRIDGE",
+      "status": "PASS",
+      "evidence": {
+        "permission": {
+          "state": "granted"
+        },
+        "resultStatus": "NOT_FOUND"
+      }
+    },
+    {
+      "id": "GMAIL_EMAIL_HANDLER",
+      "status": "PASS",
+      "evidence": {
+        "assistant": true,
+        "navigation": true,
+        "dialer": true,
+        "calendar": true,
+        "share": true,
+        "emailDraft": true,
+        "messenger": true
+      }
+    },
+    {
+      "id": "MESSENGER_HANDLER",
+      "status": "PASS",
+      "evidence": {
+        "available": true
+      }
+    },
+    {
+      "id": "NAVIGATION_HANDLER",
+      "status": "PASS",
+      "evidence": {
+        "navigation": true,
+        "providers": {
+          "maps": true,
+          "waze": true,
+          "tomtom": true
+        }
+      }
+    },
+    {
+      "id": "MULTIPLE_EMAIL_UI",
+      "status": "PASS",
+      "evidence": {
+        "initialEmailRows": 2,
+        "rowsAfterAdd": 3,
+        "labels": [
+          "personal",
+          "work"
+        ],
+        "default": "work"
+      }
+    },
+    {
+      "id": "MULTIPLE_EMAIL_PERSISTENCE_RELOAD",
+      "status": "PASS",
+      "evidence": {
+        "emails": [
+          {
+            "id": "0cb31945-e6cb-4f32-8615-f843fde7fe1a",
+            "label": "personal",
+            "value": "personal@example.test",
+            "isDefault": false
+          },
+          {
+            "id": "24e252d5-4cc6-4e91-9828-b1a5e53fdb97",
+            "label": "work",
+            "value": "work@example.test",
+            "isDefault": true
+          }
+        ],
+        "projectedEmail": "work@example.test"
+      }
+    },
+    {
+      "id": "CAR_MOVER_PHYSICAL_UI",
+      "status": "PASS",
+      "evidence": {
+        "cards": 6,
+        "origin": "https://localhost"
+      }
+    }
+  ],
+  "networkRequests": [
+    {
+      "method": "POST",
+      "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/auth/entitlements"
+    },
+    {
+      "method": "POST",
+      "url": "https://api.agmcockpit.com/api/v1/turn-admin/refresh"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/health/live?_agm_probe=1790500566018"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/health/ready?_agm_probe=1790500566018"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/translation/health"
+    },
+    {
+      "method": "POST",
+      "url": "https://api.agmcockpit.com/api/v1/operations/components/android/heartbeat"
+    },
+    {
+      "method": "POST",
+      "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/auth/entitlements"
+    },
+    {
+      "method": "POST",
+      "url": "https://api.agmcockpit.com/api/v1/operations/components/android/heartbeat"
+    },
+    {
+      "method": "POST",
+      "url": "https://api.agmcockpit.com/api/v1/turn-admin/refresh"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/health/live?_agm_probe=1790500570007"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/health/ready?_agm_probe=1790500570007"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/translation/health"
+    },
+    {
+      "method": "POST",
+      "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/auth/entitlements"
+    },
+    {
+      "method": "POST",
+      "url": "https://api.agmcockpit.com/api/v1/auth/refresh"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/auth/entitlements"
+    },
+    {
+      "method": "POST",
+      "url": "https://api.agmcockpit.com/api/v1/operations/components/android/heartbeat"
+    },
+    {
+      "method": "POST",
+      "url": "https://api.agmcockpit.com/api/v1/turn-admin/refresh"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/health/live?_agm_probe=1790500572599"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/health/ready?_agm_probe=1790500572600"
+    },
+    {
+      "method": "GET",
+      "url": "https://api.agmcockpit.com/api/v1/translation/health"
+    }
+  ],
+  "packageName": "com.agm.cockpit.storagetest",
+  "serial": "RFCY70WDHXK",
+  "device": {
+    "model": "SM-S931B",
+    "android": "16",
+    "sdk": "36"
+  },
+  "build": {
+    "sourceHead": "5a85ed7797161fa0bc198c04b0e4b4354b90f69d",
+    "sourceTree": "fcbee0f30c3ff7f78cad577acd83dac99c7a91cc",
+    "apkSha256": "FCB6015A1419230FB19ACC4D495CE225B177AA161C61159BF40B1680D6C06C1F",
+    "versionCode": "28",
+    "versionName": "1.6.0-storage-test",
+    "installedSha256": "FCB6015A1419230FB19ACC4D495CE225B177AA161C61159BF40B1680D6C06C1F"
+  },
+  "native": {
+    "capabilities": {
+      "sdkInt": 36,
+      "online": true,
+      "speechRecognition": true,
+      "onDeviceSpeechRecognition": true,
+      "textToSpeech": true,
+      "camera": true,
+      "shareText": true,
+      "processText": true,
+      "translateText": false,
+      "assist": true,
+      "voiceSettings": true
+    },
+    "protocol": {
+      "schemaVersion": 1,
+      "capturedAtEpochMs": 1790500566002,
+      "selectedAssistantPackage": "com.google.android.googlequicksearchbox",
+      "targets": {
+        "assistant": true,
+        "navigation": true,
+        "dialer": true,
+        "calendar": true,
+        "share": true,
+        "emailDraft": true,
+        "messenger": true
+      },
+      "navigationApps": {
+        "maps": true,
+        "waze": true,
+        "tomtom": true
+      },
+      "permissions": {
+        "assistant": "NOT_REQUIRED",
+        "navigation": "NOT_REQUIRED",
+        "dialer": "NOT_REQUIRED",
+        "calendar": "NOT_REQUIRED",
+        "share": "NOT_REQUIRED",
+        "emailDraft": "NOT_REQUIRED",
+        "messenger": "NOT_REQUIRED"
+      },
+      "runtimePermissions": {
+        "microphone": "AUTHORIZED",
+        "camera": "AUTHORIZED",
+        "contacts": "AUTHORIZED"
+      }
+    },
+    "contactsPermission": {
+      "state": "granted"
+    },
+    "contactProbe": {
+      "status": "NOT_FOUND",
+      "reason": "CONTACT_NOT_FOUND"
+    },
+    "microphonePermission": {
+      "state": "granted"
+    },
+    "listening": {
+      "outcome": "CANCELLED",
+      "error": "Error: Speech recognition cancelled by a newer turn"
+    }
+  },
+  "finishedAt": "2026-09-27T09:16:16.115Z"
+}

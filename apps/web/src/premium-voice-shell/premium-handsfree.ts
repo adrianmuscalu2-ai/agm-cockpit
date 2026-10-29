@@ -47,6 +47,10 @@ export const handsfreeText: Record<BasicLanguageCode, { review: (text: string) =
   sv: { review: text => `Jag uppfattade: ${text}. Säg ja för att bekräfta eller nej för att avbryta.`, retry: 'Jag förstod inte bekräftelsen. Säg ja eller nej.', standby: 'AGM är redo för nästa begäran.' },
 };
 
+for (const messages of Object.values(handsfreeText)) {
+  messages.standby = messages.standby.replace(/\bAGM\b/g, 'AGMa');
+}
+
 export function parseVoiceDecision(language: BasicLanguageCode, value: string): VoiceDecision {
   const normalized = value.toLocaleLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
   const matches = (words: string[]) => words.some(word => {

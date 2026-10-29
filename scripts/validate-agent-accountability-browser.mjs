@@ -16,6 +16,7 @@ let browserContext;
 let fatal = null;
 let incidentMode = 'OMITTED';
 let runtimeRequestCount = 0;
+const cmiObservedAt = new Date().toISOString();
 const canonicalBasicAgentIds = [
   'monitor-server-primary', 'monitor-server-backup', 'monitor-api', 'monitor-browser', 'monitor-android', 'monitor-ai',
   'monitor-database', 'monitor-cloudflare', 'monitor-ui-live', 'monitor-incidents', 'monitor-telemetry', 'monitor-security',
@@ -23,7 +24,7 @@ const canonicalBasicAgentIds = [
   'frontend-experience', 'website-content-visual-guardian', 'website-runtime-release-guardian', 'backend-infrastructure',
   'i18n-localization', 'documentation', 'agent-codex', 'agent-inspector', 'infrastructure-reuse-coordinator', 'agent-mentor',
   'agent-legal', 'agent-linguistic-ro-de', 'agent-linguistic-ro-en', 'agent-linguistic-de-en', 'agent-linguistic-librarian',
-  'director-turn-operations', 'agent-agm-chronicler',
+  'director-turn-operations', 'agent-agm-chronicler', 'chief-monitoring-inspector',
 ];
 let runtimeSnapshot = {
   contractVersion: 'agent-runtime-accountability.v2', generatedAt: new Date().toISOString(),
@@ -124,6 +125,17 @@ try {
       runtimeRequestCount += 1;
       return json(runtimeSnapshot);
     }
+    if (pathname.endsWith('/operations/turn/operational-dashboard')) return json({
+      generatedAt: cmiObservedAt,
+      nodes: [],
+      incidentPipeline: { contractVersion: 'turn-operational-incident-pipeline.v1', eventStore: 'AuthorityAuditJournal', evaluatedAt: cmiObservedAt, nonHealthy: 0, qualified: 0, notRequired: 0, open: 0, opened: 0, resolved: 0 },
+      telemetryInventory: {
+        contractVersion: 'turn-basic-agent-telemetry-inventory.v1', evaluatedAt: cmiObservedAt,
+        runtimeEventWindow: { source: 'AgentRuntimeEvent', loaded: 1, limit: 1000, oldestLoadedAt: cmiObservedAt },
+        latestRuntimeEvents: [{ agentId: 'chief-monitoring-inspector', eventId: '00000000-0000-4000-a000-000000000060', mandateId: 'mandate-cmi', lifecycle: 'COMPLETED', occurredAt: cmiObservedAt, recordedAt: cmiObservedAt, evidenceRef: 'AuthorityAuditJournal:00000000-0000-4000-a000-000000000061' }],
+        componentHeartbeats: [],
+      },
+    });
     if (pathname.endsWith('/turn-admin/validate')) return json({ valid: true });
     if (pathname.endsWith('/auth/refresh')) return json({ accessToken: 'controlled-accountability-token' });
     if (pathname.endsWith('/health/live')) return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'ok' }) });
@@ -157,12 +169,15 @@ try {
   }));
   const expectedBasicIds = [...canonicalBasicAgentIds].sort();
   const validBasicStatuses = new Set(['PASS', 'DEGRADED', 'FAIL', 'NO_TELEMETRY', 'STANDBY']);
-  check('basic-registry-canonical-34', JSON.stringify(basicRegistry.ids) === JSON.stringify(expectedBasicIds)
-    && basicRegistry.ids.length === 34
+  check('basic-registry-canonical-35-with-approved-cmi', JSON.stringify(basicRegistry.ids) === JSON.stringify(expectedBasicIds)
+    && basicRegistry.ids.length === 35
     && basicRegistry.ids.every((identity) => !identity?.startsWith('premium-'))
     && Object.values(basicRegistry.statuses).every((status) => validBasicStatuses.has(status))
     && validBasicStatuses.has(basicRegistry.core)
     && basicRegistry.contract === 'AGM-BASIC-AGENT-NETWORK-V2', basicRegistry);
+  check('cmi-runtime-event-projected-without-legacy-heartbeat', basicRegistry.statuses['chief-monitoring-inspector'] === 'PASS', {
+    status: basicRegistry.statuses['chief-monitoring-inspector'], source: 'AgentRuntimeEvent', componentHeartbeat: 'FORBIDDEN',
+  });
   const firstRuntimeGeneratedText = await page.locator('.agent-runtime-generated').textContent();
   const requestsBeforePollingProof = runtimeRequestCount;
   runtimeSnapshot = { ...runtimeSnapshot, generatedAt: new Date(Date.parse(runtimeSnapshot.generatedAt) + 1_000).toISOString() };

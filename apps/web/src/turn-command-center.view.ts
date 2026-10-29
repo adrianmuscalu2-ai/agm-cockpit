@@ -226,6 +226,13 @@ function renderTurnModuleNavigation() {
   return `<aside class="turn-module-navigation" data-turn-module-navigation aria-label="Index modular Turn">
     <div class="turn-module-navigation-header"><div><span class="turn-kicker">TURN · MODULE INDEX</span><strong>Navigare rapidă</strong></div><a href="#turn-basic" data-open-turn-page="basic">Overview</a></div>
     <label class="turn-module-search"><span>Caută modul, funcție sau identificator</span><input type="search" data-turn-module-search placeholder="Ex.: telemetry, incident, Machine" /></label>
+    <nav class="turn-page-switcher" aria-label="TURN spatial models">
+      <button type="button" data-turn-page-target="basic" aria-selected="true">Basic</button>
+      <button type="button" data-turn-page-target="premium" aria-selected="false">Premium</button>
+      <button type="button" data-turn-page-target="orchestrators" aria-selected="false">Orchestrators</button>
+      <button type="button" data-turn-page-target="incidents" aria-selected="false">Incidents</button>
+      <button type="button" data-turn-page-target="investigate" aria-selected="false">Investigation</button>
+    </nav>
     <div data-turn-module-groups>${groups}</div>
     <p class="turn-module-search-empty" data-turn-module-search-empty hidden>Nu există module care corespund căutării.</p>
   </aside>`;
@@ -236,18 +243,9 @@ function renderTurnModuleLink(entry: TurnModuleNavigationEntry | undefined) {
   const search = [entry.moduleId, entry.displayName, entry.responsibleAgent, entry.canonicalSource, entry.environment].join(' ').toLocaleLowerCase();
   const page = entry.page ?? 'investigate';
   const statusClass = entry.validationStatus.toLowerCase().replaceAll('_', '-');
-  const statusLabel = turnModuleValidationLabel(entry.validationStatus) ?? 'UNKNOWN';
   if (!entry.target) return `<span class="turn-module-nav-link turn-module-nav-link-unconnected turn-module-nav-link-${escapeHtml(statusClass)}" data-turn-module-id="${escapeHtml(entry.moduleId)}" data-turn-module-search-value="${escapeHtml(search)}" data-validation-status="${escapeHtml(entry.validationStatus)}"><span>${escapeHtml(entry.displayName)}</span><small>NOT CONNECTED · ${escapeHtml(entry.environment)}</small></span>`;
   const href = `#${entry.target}`;
-  return `<a class="turn-module-nav-link turn-module-nav-link-${escapeHtml(statusClass)}" href="${escapeHtml(href)}" data-open-turn-page="${escapeHtml(page)}" data-turn-module-id="${escapeHtml(entry.moduleId)}" data-turn-module-search-value="${escapeHtml(search)}" data-validation-status="${escapeHtml(entry.validationStatus)}"><span>${escapeHtml(entry.displayName)}</span><small>${escapeHtml(statusLabel)} · ${escapeHtml(entry.environment)}</small></a>`;
-}
-
-function turnModuleValidationLabel(status: TurnModuleNavigationEntry['validationStatus']) {
-  return {
-    VALIDATED: 'VALIDATED', TESTED: 'TESTED', IMPLEMENTED_NOT_VALIDATED: 'IMPLEMENTED · NOT VALIDATED',
-    RUNTIME_PASS: 'RUNTIME PASS', NOT_ACTIVATED: 'NOT ACTIVATED', CERTIFICATION_PENDING: 'BROWSER CERTIFICATION PENDING',
-    BLOCKED: 'BLOCKED', PARTIAL: 'PARTIAL · RESTORE REHEARSAL PENDING', METADATA_VALIDATED: 'METADATA VALIDATED · VALUES REDACTED', UNKNOWN: 'UNKNOWN',
-  }[status];
+  return `<a class="turn-module-nav-link turn-module-nav-link-${escapeHtml(statusClass)}" href="${escapeHtml(href)}" data-open-turn-page="${escapeHtml(page)}" data-turn-module-id="${escapeHtml(entry.moduleId)}" data-turn-module-search-value="${escapeHtml(search)}" data-validation-status="${escapeHtml(entry.validationStatus)}"><span>${escapeHtml(entry.displayName)}</span><small>${escapeHtml(entry.validationStatus)} · ${escapeHtml(entry.environment)}</small></a>`;
 }
 
 function renderFunctionalOverview() {

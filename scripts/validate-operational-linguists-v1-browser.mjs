@@ -29,6 +29,7 @@ const linguisticIds = components.map((component) => component.componentId);
 const android160BasicAgentIds = [
   'monitor-server-primary', 'monitor-server-backup', 'monitor-api', 'monitor-browser', 'monitor-android', 'monitor-ai',
   'monitor-database', 'monitor-cloudflare', 'monitor-ui-live', 'monitor-incidents', 'monitor-telemetry', 'monitor-security',
+  'chief-monitoring-inspector',
   'p9-copilot-control-plane', 'secret-credentials-guardian', 'version-guardian', 'architecture-guardian', 'release-operations',
   'frontend-experience', 'website-content-visual-guardian', 'website-runtime-release-guardian', 'backend-infrastructure',
   'i18n-localization', 'documentation', 'agent-codex', 'agent-inspector', 'infrastructure-reuse-coordinator', 'agent-mentor',

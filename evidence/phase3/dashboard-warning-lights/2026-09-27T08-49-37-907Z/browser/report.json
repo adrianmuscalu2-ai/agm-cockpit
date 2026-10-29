@@ -1,0 +1,39 @@
+{
+  "contract": "agm-dashboard-warning-knowledge-browser.v2",
+  "status": "PASS",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "results": [
+    {
+      "id": "web-desktop",
+      "status": "PASS",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "route": "http://127.0.0.1:58711/knowledge/martori-bord",
+      "entries": 15,
+      "screenshots": [
+        "evidence\\phase3\\dashboard-warning-lights\\2026-09-27T08-49-37-907Z\\browser\\web-desktop-dashboard-warning-0.2.0.png"
+      ]
+    },
+    {
+      "id": "android-bundle-mobile",
+      "status": "PASS",
+      "viewport": {
+        "width": 412,
+        "height": 915
+      },
+      "route": "http://127.0.0.1:58711/knowledge/martori-bord",
+      "entries": 15,
+      "screenshots": [
+        "evidence\\phase3\\dashboard-warning-lights\\2026-09-27T08-49-37-907Z\\browser\\android-bundle-mobile-dashboard-warning-0.2.0.png"
+      ]
+    }
+  ],
+  "pageErrors": [],
+  "finishedAt": "2026-09-27T08:49:49.509Z"
+}

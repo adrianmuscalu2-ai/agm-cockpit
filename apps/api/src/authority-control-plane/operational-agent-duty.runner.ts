@@ -13,6 +13,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { SecretTelemetryService } from '../secret-telemetry/secret-telemetry.service';
 import { operationalProfile } from './operational-profile';
 import { premiumNetworkSeed } from './premium-network.seed';
+import { CHIEF_MONITORING_INSPECTOR_CONTRACT, CHIEF_MONITORING_INSPECTOR_ID, chiefMonitoringInspectorDuty } from './basic-agent-duty.seed';
 
 const json = (value: unknown) => value as Prisma.InputJsonValue;
 const DUTY_CONTRACT = 'agent-operational-duty.v1';
@@ -147,6 +148,113 @@ export class OperationalAgentDutyRunner {
       results.push({ ...outcome, agentId: seed.canonicalId, mandateId: mandate.id, executedAt: execution.occurredAt.toISOString(), executionEventId: execution.eventId, evidenceRef, outputRef });
     }
     return results;
+  }
+
+  async executeChiefMonitoringInspector(ctx: RequestContext, mandate: ActiveMandate, runId: string, observedAt = new Date()): Promise<OperationalAgentDutyResult> {
+    if (mandate.agentId !== CHIEF_MONITORING_INSPECTOR_ID) throw new Error('CMI_APPROVED_MANDATE_REQUIRED');
+    const windowEnd = new Date(Math.floor(observedAt.getTime() / chiefMonitoringInspectorDuty.scheduleMs) * chiefMonitoringInspectorDuty.scheduleMs);
+    const windowStart = new Date(windowEnd.getTime() - chiefMonitoringInspectorDuty.scheduleMs);
+    const [activeMandates, runtimeEvents, validations, incidentEvents] = await Promise.all([
+      this.prisma.authorityMandate.findMany({
+        where: { companyId: ctx.companyId, status: 'APPROVED', revokedAt: null, OR: [{ expiresAt: null }, { expiresAt: { gt: observedAt } }] },
+        orderBy: { issuedAt: 'desc' }, take: 1_000,
+      }),
+      this.prisma.agentRuntimeEvent.findMany({
+        where: { companyId: ctx.companyId, occurredAt: { gte: windowStart } },
+        orderBy: { occurredAt: 'desc' }, take: 1_000,
+      }),
+      this.prisma.authorityAuditJournal.findMany({
+        where: { companyId: ctx.companyId, eventType: 'AGENT_ACCOUNTABILITY_VALIDATED', occurredAt: { gte: windowStart } },
+        orderBy: { occurredAt: 'desc' }, take: 1_000,
+      }),
+      this.prisma.authorityAuditJournal.findMany({
+        where: { companyId: ctx.companyId, eventType: { in: ['OPERATIONAL_INCIDENT_OPENED', 'OPERATIONAL_INCIDENT_RESOLVED'] } },
+        orderBy: { occurredAt: 'desc' }, take: 2_000,
+      }),
+    ]);
+    const latestIncidentByIdentity = new Map<string, (typeof incidentEvents)[number]>();
+    for (const event of incidentEvents) {
+      const metadata = safeRecord(event.safeMetadata);
+      const identity = typeof metadata.canonicalId === 'string' ? metadata.canonicalId : '';
+      if (identity && !latestIncidentByIdentity.has(identity)) latestIncidentByIdentity.set(identity, event);
+    }
+    const openIncidents = [...latestIncidentByIdentity.values()].filter((event) => event.eventType === 'OPERATIONAL_INCIDENT_OPENED');
+    const failedEvents = runtimeEvents.filter((event) => ['FAILED', 'FAIL', 'BLOCKED', 'ERROR'].includes(event.lifecycle.toUpperCase()));
+    const validatedExecutionIds = new Set(validations.map((event) => safeRecord(event.safeMetadata).executionEventId).filter((id): id is string => typeof id === 'string'));
+    const unvalidatedFailures = failedEvents.filter((event) => !validatedExecutionIds.has(event.eventId));
+    const duplicateMandateAgents = [...activeMandates.reduce((counts, item) => counts.set(item.agentId, (counts.get(item.agentId) ?? 0) + 1), new Map<string, number>())]
+      .filter(([, count]) => count > 1).map(([agentId]) => agentId);
+    const checks = {
+      activeMandates: activeMandates.length,
+      runtimeEventsObserved: runtimeEvents.length,
+      accountabilityValidationsObserved: validations.length,
+      openIncidents: openIncidents.length,
+      failedRuntimeEvents: failedEvents.length,
+      unvalidatedFailures: unvalidatedFailures.length,
+      duplicateActiveMandateAgents: duplicateMandateAgents,
+      componentHeartbeatAuthority: 'FORBIDDEN',
+      incidentAuthority: 'AUTHORITY_CONTROL_PLANE',
+    };
+    const passed = unvalidatedFailures.length === 0 && duplicateMandateAgents.length === 0;
+    const reason = passed ? null : duplicateMandateAgents.length ? 'CMI_DUPLICATE_ACTIVE_MANDATE_DETECTED' : 'CMI_UNVALIDATED_RUNTIME_FAILURE_DETECTED';
+    const evidenceReferences = [
+      ...runtimeEvents.slice(0, 100).map((event) => `AgentRuntimeEvent:${event.eventId}`),
+      ...validations.slice(0, 100).map((event) => `AuthorityAuditJournal:${event.eventId}`),
+      ...openIncidents.slice(0, 100).map((event) => `AuthorityAuditJournal:${event.eventId}`),
+    ];
+    const inputSetHash = hash({
+      activeMandates: activeMandates.map((item) => [item.id, item.agentId, item.version]).sort(),
+      runtimeEvents: runtimeEvents.map((event) => [event.eventId, event.agentId, event.lifecycle, event.occurredAt.toISOString()]).sort(),
+      validations: validations.map((event) => [event.eventId, event.actorId, event.outcome, event.occurredAt.toISOString()]).sort(),
+      incidents: incidentEvents.map((event) => [event.eventId, event.eventType, event.outcome, event.occurredAt.toISOString()]).sort(),
+    });
+    const cycleKey = `${ctx.companyId}:${CHIEF_MONITORING_INSPECTOR_ID}:${CHIEF_MONITORING_INSPECTOR_CONTRACT}:${windowEnd.toISOString()}:${inputSetHash}`;
+    const journalEventId = deterministicUuid(`${cycleKey}:journal`);
+    const runtimeEventId = deterministicUuid(`${cycleKey}:runtime`);
+    const output = {
+      contract: CHIEF_MONITORING_INSPECTOR_CONTRACT,
+      executionKind: 'REAL_BASIC_MONITORING_DUTY',
+      agentId: CHIEF_MONITORING_INSPECTOR_ID,
+      mandateId: mandate.id,
+      approvalReference: chiefMonitoringInspectorDuty.approvalReference,
+      observationWindow: { start: windowStart.toISOString(), end: windowEnd.toISOString() },
+      inputSetHash,
+      checks,
+      evidenceReferences,
+      result: passed ? 'COMPLETED' : 'FAILED',
+      reason,
+      runId,
+    };
+    const outputHash = hash(output);
+    const outputRef = `sha256:${outputHash}`;
+    const persisted = await this.prisma.$transaction(async (tx) => {
+      const existing = await tx.agentRuntimeEvent.findUnique({ where: { companyId_eventId: { companyId: ctx.companyId, eventId: runtimeEventId } } });
+      if (existing) return existing;
+      await tx.authorityAuditJournal.create({ data: {
+        companyId: ctx.companyId, eventId: journalEventId,
+        eventType: passed ? 'CMI_OBSERVATION_COMPLETED' : 'CMI_OBSERVATION_FAILED',
+        scopeId: chiefMonitoringInspectorDuty.scope, mandateId: mandate.id,
+        actorType: 'AGENT', actorId: CHIEF_MONITORING_INSPECTOR_ID,
+        outcome: passed ? 'PASS' : 'FAIL', reasonCode: reason ?? undefined,
+        payloadHash: outputHash, safeMetadata: json({ ...output, cycleKey, outputRef }),
+        correlationId: ctx.correlationId, occurredAt: observedAt,
+      } });
+      return tx.agentRuntimeEvent.create({ data: {
+        companyId: ctx.companyId, eventId: runtimeEventId, mandateId: mandate.id,
+        agentId: CHIEF_MONITORING_INSPECTOR_ID, dossierId: `cmi-${windowEnd.toISOString()}`,
+        lifecycle: passed ? 'COMPLETED' : 'FAILED', sequence: 1, occurredAt: new Date(observedAt.getTime() + 1),
+        evidenceRef: `AuthorityAuditJournal:${journalEventId}`, outputRef, evidenceHash: outputHash,
+        detail: JSON.stringify({ contract: CHIEF_MONITORING_INSPECTOR_CONTRACT, result: output.result, reason, checks }),
+      } });
+    });
+    return {
+      agentId: CHIEF_MONITORING_INSPECTOR_ID, mandateId: mandate.id,
+      operation: 'Inspect current authority, accountability, incident and runtime evidence',
+      passed, result: passed ? 'COMPLETED' : 'FAILED', reason,
+      evidenceReferences, checks,
+      executedAt: persisted.occurredAt.toISOString(), executionEventId: persisted.eventId,
+      evidenceRef: persisted.evidenceRef, outputRef: persisted.outputRef ?? outputRef,
+    };
   }
 
   private async executeOne(agentId: string, ctx: RequestContext, now: Date): Promise<DutyOutcome> {
@@ -397,4 +505,13 @@ function adapterCategory(agentId: string) {
 
 function hash(value: unknown) {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+function safeRecord(value: Prisma.JsonValue): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function deterministicUuid(seed: string) {
+  const digest = createHash('sha256').update(seed).digest('hex');
+  return `${digest.slice(0, 8)}-${digest.slice(8, 12)}-4${digest.slice(13, 16)}-a${digest.slice(17, 20)}-${digest.slice(20, 32)}`;
 }

@@ -3,9 +3,10 @@ import { readFileSync } from 'node:fs';
 import { basicLanguageCodes } from '../src/language-registry';
 import { renderPremiumAssistantView } from '../src/premium-voice-shell/premium-assistant.view';
 import { premiumAssistantUiMessages } from '../src/premium-voice-shell/premium-assistant-ui.i18n';
+import { withAgmaAssistantName } from '../src/premium-voice-shell/assistant-identity';
 
 for(const language of basicLanguageCodes){
-  const messages=premiumAssistantUiMessages[language];
+  const messages=withAgmaAssistantName(premiumAssistantUiMessages[language]);
   assert.ok(Object.values(messages).every((value)=>value.trim().length>0));
   const html=renderPremiumAssistantView(language,(value)=>value.replaceAll('&','&amp;').replaceAll('<','&lt;'));
   assert.ok(html.includes(`data-language="${language}"`));
@@ -39,7 +40,7 @@ assert.match(runtime,/transcript\.addEventListener\('input',\(\)=>void interrupt
 assert.match(runtime,/session\.markEngineResponse\(result\.timing\)/, 'Premium latency telemetry must separate server and network response time');
 assert.match(runtime,/const spoken=await speak\(groundedText,sequence,turnId\)/, 'Clean user answer must flow directly to TTS');
 assert.match(runtime,/const speechLanguage=detectMessageLanguage\(text,language\)/, 'TTS must select the language of the spoken answer instead of forcing the UI language');
-assert.match(runtime,/const speechText=normalizeSpeechText\(text,speechLanguage\)/, 'Visible answer and semantically normalized TTS text must remain separate');
+assert.match(runtime,/const speechText=normalizeSpeechText\(assistantTextForSpeech\(text\),speechLanguage\)/, 'Visible answer and assistant-name pronunciation text must remain separate');
 assert.match(runtime,/NativeAudio\.speak\(\{text:speechText,language:speechLocale,turnId\}\)/, 'Native TTS must receive the detected answer locale');
 assert.match(runtime,/new SpeechSynthesisUtterance\(speechText\)/, 'Browser TTS must receive semantic speech text');
 assert.doesNotMatch(runtime,/client\.sources\(|presentSources|data-assistant-sources/, 'Engineering source trace must not be fetched or rendered by the user runtime');
