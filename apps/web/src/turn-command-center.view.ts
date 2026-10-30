@@ -20,6 +20,7 @@ import { renderTurnAgentLiveState } from './turn-agent-live-state';
 import { renderAgentRuntimeAccountability } from './agent-runtime-accountability';
 import { createDomainOrchestrators } from '@agm/library-control-plane';
 import { turnModuleNavigationGroups, turnModuleNavigationRegistry, type TurnModuleNavigationEntry } from './turn-module-navigation.registry';
+import { renderTurnJournalsView } from './turn-journals.view';
 import { renderTurnAccountabilitySpatialModel, renderTurnAgentsSpatialModel, renderTurnMonitoringSpatialModel, renderTurnSpatialControlModel } from './turn-spatial-control-model';
 import {
   type TurnCommandItem,
@@ -98,6 +99,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
         <header><div><span class="turn-kicker">TURN · INCIDENT PIPELINE</span><h2 id="turn-incident-page-title">Failure → qualification → EventStore → API → TURN</h2><p>Nicio stare non-healthy nu este echivalată automat cu un incident. Fiecare decizie arată regula, sursa și dovada persistentă.</p></div><strong data-incident-pipeline-status>SE ÎNCARCĂ</strong></header>
         <div data-operational-incident-summary></div>
         <div data-operational-incident-decisions></div>
+        ${renderTurnJournalsView({ appVersion })}
         <details class="turn-secondary-registry turn-subsystem-incident-journal">
           <summary><strong>Jurnal separat · incidente aplicație / transport</strong><span>NU ESTE folosit pentru agent health</span></summary>
           ${renderActiveOperationsIncident(incidents)}

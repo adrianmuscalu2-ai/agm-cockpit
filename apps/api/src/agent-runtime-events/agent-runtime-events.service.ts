@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import {
@@ -93,6 +94,12 @@ export class AgentRuntimeEventsService {
     const evidenceRef = expectedOutcome === 'COMPLETED'
       ? 'apps/api/runtime-evidence/agent-inspector-acceptance.json'
       : 'apps/api/runtime-evidence/agent-inspector-missing.json';
+    const cwd = process.cwd();
+    const workspaceRoot = existsSync(resolve(cwd, 'apps/api'))
+      ? cwd
+      : existsSync(resolve(cwd, '..', '..', 'apps/api'))
+        ? resolve(cwd, '..', '..')
+        : cwd;
     let result: Awaited<ReturnType<typeof executeP3AgentInspector>> | undefined;
     let failure: string | undefined;
     try {
@@ -107,7 +114,7 @@ export class AgentRuntimeEventsService {
         now: new Date().toISOString(),
         leaseMs: 30_000,
         evidenceRef,
-        evidenceRoot: process.cwd(),
+        evidenceRoot: workspaceRoot,
         outputRoot: resolve(tmpdir(), 'agm-agent-inspector'),
       }, runtime, adapter);
     } catch (error) {

@@ -10,7 +10,6 @@
   border-radius: 14px;
   background: rgba(3, 17, 29, 0.78);
 }
-
 .turn-module-navigation-header,
 .turn-module-nav-group summary,
 .turn-module-nav-link {
@@ -57,6 +56,46 @@
 .turn-governance-state-badge { justify-self: end; color: #ffd166; font-size: 0.72rem; font-weight: 900; letter-spacing: 0.06em; }
 
 .turn-spatial-control-model { margin: 0 0 16px; padding: 14px; border: 1px solid rgba(88, 232, 255, 0.28); border-radius: 14px; background: rgba(3, 17, 29, 0.78); }
+.turn-journals-view { margin: 16px auto; max-width: 1480px; padding: 18px; border: 1px solid rgba(139, 215, 255, .22); border-radius: 16px; background: rgba(3, 17, 29, .78); }
+.turn-journals-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.turn-journals-header h2 { margin: 4px 0; color: #eaf6ff; }
+.turn-journals-header p { margin: 0; color: #a9c5d7; }
+.turn-journals-badge { flex: 0 0 auto; padding: 7px 10px; border: 1px solid rgba(139, 215, 255, .48); border-radius: 999px; color: #8bd7ff; font-size: .7rem; letter-spacing: .06em; }
+.turn-journals-warning { margin: 14px 0; padding: 12px; border-left: 3px solid #f3ae43; background: rgba(78, 57, 22, .3); color: #f8dfaa; }
+.turn-journals-table-wrap { overflow-x: auto; border: 1px solid rgba(139, 215, 255, .14); border-radius: 12px; }
+.turn-journals-table { width: 100%; min-width: 960px; border-collapse: collapse; font-size: .78rem; }
+.turn-journals-table caption { padding: 10px; text-align: left; color: #a9c5d7; }
+.turn-journals-table th, .turn-journals-table td { padding: 10px; border-top: 1px solid rgba(139, 215, 255, .12); text-align: left; vertical-align: top; }
+.turn-journals-table th { color: #eaf6ff; }
+.turn-journals-table td { color: #bfd2df; }
+.turn-journals-table a { color: #8bd7ff; }
+.turn-journals-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.turn-journal-subsections { display: grid; gap: 14px; margin-top: 18px; }
+.turn-journal-subsections h3 { margin: 0 0 8px; color: #eaf6ff; }
+.agma-history-index { margin-top: 18px; padding: 14px; border: 1px solid rgba(139, 215, 255, .2); border-radius: 12px; background: rgba(4, 18, 30, .62); }
+.agma-history-index > header { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
+.agma-history-index h3 { margin: 4px 0; color: #eaf6ff; }
+.agma-history-index > header p { margin: 0; color: #a9c5d7; }
+.agma-history-index > header strong { color: #8bd7ff; white-space: nowrap; }
+.agma-history-search { display: block; margin: 14px 0; }
+.agma-history-search span { display: block; margin-bottom: 5px; color: #c8d9e4; font-weight: 700; }
+.agma-history-search input { width: 100%; box-sizing: border-box; padding: 11px; border: 1px solid rgba(139, 215, 255, .32); border-radius: 8px; background: #07131f; color: #eef7ff; }
+.agma-history-list { display: grid; gap: 8px; }
+.agma-history-record { border: 1px solid rgba(139, 215, 255, .16); border-radius: 9px; background: rgba(7, 24, 37, .75); }
+.agma-history-record summary { display: grid; grid-template-columns: 170px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 11px; cursor: pointer; list-style: none; }
+.agma-history-record summary::-webkit-details-marker { display: none; }
+.agma-history-record summary span { color: #8daabd; font-size: .75rem; }
+.agma-history-record summary strong { color: #eef7ff; overflow-wrap: anywhere; }
+.agma-history-record summary em { color: #ffd166; font-size: .7rem; font-style: normal; font-weight: 800; }
+.agma-history-record dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 11px 11px; margin: 0; }
+.agma-history-record dl > div { padding: 8px; border-radius: 7px; background: rgba(13, 38, 55, .62); }
+.agma-history-record dt { color: #8daabd; font-size: .7rem; }
+.agma-history-record dd { margin: 4px 0 0; color: #dcebf4; overflow-wrap: anywhere; }
+.agma-history-record a { color: #8bd7ff; }
+.agma-history-empty { padding: 12px; color: #ffd166; }
+.turn-journals-notes article { padding: 12px; border: 1px solid rgba(139, 215, 255, .14); border-radius: 10px; background: rgba(9, 28, 43, .6); }
+.turn-journals-notes p { margin: 6px 0 0; color: #a9c5d7; font-size: .8rem; }
+@media (max-width: 900px) { .turn-journals-header, .agma-history-index > header { display: block; } .turn-journals-badge { display: inline-block; margin-top: 10px; } .turn-journals-notes { grid-template-columns: 1fr; } .agma-history-record summary { grid-template-columns: 1fr; } .agma-history-record dl { grid-template-columns: 1fr; } }
 .turn-spatial-control-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .turn-spatial-control-header h3 { margin: 4px 0; color: #eaf6ff; }
 .turn-spatial-control-header p { margin: 0; color: #a9c5d7; max-width: 900px; }
@@ -309,5 +348,88 @@
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
+  }
+}
+.turn-manifest-governance {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid rgba(84, 230, 211, 0.28);
+  border-radius: 0.9rem;
+  background: rgba(6, 25, 34, 0.78);
+}
+
+.turn-manifest-governance > header,
+.turn-manifest-decision summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.turn-manifest-governance > header strong,
+.turn-manifest-decision summary strong {
+  color: #ffca70;
+  white-space: nowrap;
+}
+
+.turn-manifest-decision-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+}
+
+.turn-manifest-decision {
+  border: 1px solid rgba(255, 202, 112, 0.24);
+  border-radius: 0.65rem;
+  background: rgba(2, 14, 21, 0.72);
+}
+
+.turn-manifest-decision summary {
+  cursor: pointer;
+  padding: 0.7rem 0.85rem;
+  list-style-position: inside;
+}
+
+.turn-manifest-decision summary em {
+  color: #a9c4ca;
+  font-size: 0.72rem;
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+
+.turn-manifest-decision dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0 0.85rem 0.85rem;
+}
+
+.turn-manifest-decision dl > div {
+  min-width: 0;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgba(169, 196, 202, 0.12);
+}
+
+.turn-manifest-decision dt {
+  color: #83aaaF;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.turn-manifest-decision dd {
+  margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  .turn-manifest-governance > header,
+  .turn-manifest-decision summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .turn-manifest-decision dl {
+    grid-template-columns: 1fr;
   }
 }

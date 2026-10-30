@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "status": "CANDIDATE_COMMITTED_NOT_PUSHED_NOT_DEPLOYED",
+  "createdAt": "2026-10-28",
+  "worktree": "C:\\Users\\adria\\Documents\\AGM-CANONICAL-CANDIDATE-20261022",
+  "branch": "phase3-rc-preparation",
+  "currentHead": "SOURCE_COMMIT_PENDING_MANIFEST_FINALIZATION",
+  "candidateCommit": null,
+  "approvedReleaseRef": null,
+  "workflowRunId": null,
+  "apiImage": { "reference": null, "digest": null },
+  "webImage": { "reference": null, "digest": null },
+  "changeControl": {
+    "changeId": null,
+    "utcWindow": null,
+    "deploymentMandate": null,
+    "commandLead": "turn-commander-adrian",
+    "independentValidator": "agent-inspector",
+    "fallbackResponsible": "release-operations / PC Fallback Custodian",
+    "rollbackResponsible": "Atlas/Codex Technical Executor",
+    "releaseExecutor": "release-operations",
+    "identitySource": [
+      "AGM_COCKPIT_GOVERNANCE_REGISTER_V1_1.md",
+      "deploy/production/OPERATIONAL_ROLES.md",
+      "apps/web/src/incident-routing.registry.ts"
+    ],
+    "acknowledgements": "PENDING_ROLE_ACKNOWLEDGEMENTS"
+  },
+  "sourceDigestsSha256": {
+    "apps/web/src/turn-spatial-control-model.ts": "F405C0BEFDCCB5E5841E5AC9F63C3469BDEEEF07E8335BA4EAF0BA0338BB811D",
+    "apps/web/src/turn-command-center.view.ts": "E59EFDCB9D499CBD186104A31A6206E8AEFBA05AB3C38DBAE6BACF7804E87208",
+    "apps/web/src/turn-command-navigation.ts": "4463141F0959BA69A4CC3F63A8B014B6172140713931C01EECA264264A6458E6",
+    "apps/web/src/turn-journals.view.ts": "A0104E6ECC37C9DE16D0D9D71287E7B7B300E9C1C9727FBF19C06DA0826E16EB",
+    "apps/web/src/turn-manifest-governance.ts": "84B78C091EBBEEB3C0836F9236EC0DA9B477F4E7BCDEF32B52A119399E20D461",
+    "apps/web/src/agma-history.ts": "9EF8F0042246227CE018277BF9399C4FDE2F0DAF0B6A2E67932A66469FB45DA8",
+    "apps/web/scripts/test-turn-journals-view.ts": "1787324962521940771BC702D79D98C2796AEB4CBCD9BCBFC23A5E63C970A198",
+    "apps/api/src/agent-runtime-events/agent-runtime-events.service.ts": "39D612B3BF323D193E3498B715F5532F57B61CD9DDDE91CF198847C0690FDA6E",
+    "evidence/turn-reality/p0-agent-runtime-live/execution-endpoint-e2e.json": "2287A0DA507C50DF5BB097B3D02D9C196D6F108751A00104BEF592D40E5022B4",
+    "evidence/rescue/m4-machine-e2e-20261030/RESCUE_JOURNAL.md": "34A661D3225B68DC4BF94B60C21F2CBC7D10F17C4C62FBA15637EF111F764930",
+    "apps/web/src/agent-accountability.ts": "0A24DF4E9BB08C39231B1619899305EE6D7709063766973C44910CD28C345458",
+    "apps/web/src/main.ts": "A9405B3B9CFA3F0168DCA2270550C589EBDD7AD99519B3F1345F68559D964016",
+    "apps/web/src/styles/45-turn-final-remediation.css": "777554A5005C2258BBD5EB1B21BCB3D551DA86813ED0CF0DC11B5406BA227A01",
+    ".tmp/turn-spatial-refresh-2026-10-27/release-candidate-with-back-to-top.png": "CFF7306C94C4D6D1C6DA8099BCD20D114D6DFB4DE6444BF80CE8FB21C83B295F"
+  },
+  "candidateChangeBoundary": {
+    "status": "COMMITTED_LOCAL_NOT_PUSHED",
+    "includedApplicationPaths": [
+      "apps/web/src/agent-accountability.ts",
+      "apps/web/src/main.ts",
+      "apps/web/src/premium-governance/premium-governance.view.ts",
+      "apps/web/src/styles/45-turn-final-remediation.css",
+      "apps/web/src/turn-command-center.view.ts",
+      "apps/web/src/turn-command-navigation.ts",
+      "apps/web/src/turn-module-navigation.registry.ts",
+      "apps/web/src/turn-spatial-control-model.ts",
+      "apps/web/scripts/test-turn-module-navigation.ts",
+      "apps/web/src/turn-journals.view.ts",
+      "apps/web/src/turn-manifest-governance.ts",
+      "apps/web/src/agma-history.ts",
+      "apps/web/scripts/test-turn-journals-view.ts",
+      "apps/api/src/agent-runtime-events/agent-runtime-events.service.ts"
+    ],
+    "includedReleaseReviewPaths": ["release/turn-20261028/"],
+    "includedEvidencePaths": [
+      "evidence/turn-reality/p0-agent-runtime-live/execution-endpoint-e2e.json",
+      "evidence/rescue/m4-machine-e2e-20261030/RESCUE_JOURNAL.md"
+    ],
+    "preservedButExcludedFromApplicationPayload": [
+      "AGM_SAFE_SHUTDOWN_20261026.md",
+      "AGM_SAFE_SHUTDOWN_20261026_MANIFEST.json",
+      "evidence/browser-control/atlas-turn-modular-2026-10-26/",
+      "evidence/browser-control/turn-isolated-ui-preview-2026-10-26/"
+    ],
+    "basis": "Current diff plus the saved 2026-10-26 candidate status sample; no reset, clean, checkout or overwrite performed.",
+    "candidateCommit": null
+  },
+  "turnConsolidation": {
+    "status": "COMMITTED_LOCAL_NOT_PUSHED",
+    "scope": "Turn module navigation, journal lifecycle projection, role accountability, AGMA history index and historical Governance evidence references",
+    "currentReleaseEvidence": [
+      "release/turn-20261028/RELEASE_MANIFEST.json",
+      "release/turn-20261028/GOVERNANCE_V2_INTEGRATION.md",
+      "release/turn-20261028/GOVERNANCE_V2_VALIDATION_PACKAGE.md"
+    ],
+    "historicalEvidence25October": [
+      { "path": "C:\\Users\\adria\\Documents\\AGM-phase1-5-boundary\\.m1-final.backup", "timestamp": "2026-10-25T17:38:56", "status": "HISTORICAL" },
+      { "path": "C:\\Users\\adria\\Documents\\AGM-phase1-5-boundary\\.m2-pre-evidence.dump", "timestamp": "2026-10-25T20:32:06", "status": "HISTORICAL" },
+      { "path": "C:\\Users\\adria\\Documents\\AGM-phase1-5-boundary\\.m2-final.dump", "timestamp": "2026-10-25T20:35:58", "status": "HISTORICAL" },
+      { "path": "C:\\Users\\adria\\Documents\\AGM-phase1-5-boundary\\.m3-governance.dump", "timestamp": "2026-10-25T22:18:09", "status": "HISTORICAL" },
+      { "path": "C:\\Users\\adria\\Documents\\AGM-phase1-5-boundary\\apps\\api\\test\\risk-knowledge-orchestrator.spec.ts", "finding": "Tests A-L; source/test evidence only", "status": "HISTORICAL" }
+    ],
+    "missingHistoricalArtifact": "No discrete historical file labelled M4 was located in the searched dumps, governance/v2, apps/api/scripts and apps/api/test; the current M4 gate is represented by machineE2E below.",
+    "lifecycleBoundary": "Historical evidence does not change current verification, commit, approval or Production state.",
+    "machineE2E": {
+      "strategy": "PARALLEL_WITH_JOURNALS_SEPARATE_GATE",
+      "status": "PASS_CONTROLLED_LOCAL_E2E",
+      "passedSourceTests": [
+        "apps/api/test/machine-auth.e2e.spec.ts · 8/8",
+        "apps/api/test/turn-operational-truth.service.spec.ts · 5/5",
+        "apps/api/test/governance-v2-hardening.spec.ts · 8/8",
+        "apps/api/tsconfig.json · noEmit PASS"
+      ],
+      "runtimeEvidenceRequired": "apps/api/scripts/test-agent-runtime-execution-endpoint-e2e.ts",
+      "runtimeEvidencePath": "evidence/turn-reality/p0-agent-runtime-live/execution-endpoint-e2e.json",
+      "result": "PASS",
+      "completedLifecycle": ["STARTED", "WORKING", "COMPLETED"],
+      "negativeLifecycle": ["STARTED", "WORKING", "FAILED"],
+      "persistenceReadBack": true,
+      "workspaceRootFix": "apps/api/src/agent-runtime-events/agent-runtime-events.service.ts",
+      "rescueJournal": "evidence/rescue/m4-machine-e2e-20261030/RESCUE_JOURNAL.md",
+      "productionBoundary": "Production lifecycle, expiry/revocation and post-deploy Turn linkage remain pending release gates."
+    }
+  },
+  "browserEvidence": {
+    "target": "http://127.0.0.1:5175",
+    "plugin": "PASS",
+    "integratedBrowser": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "controlledSession": "PASS",
+    "targetPage": "PASS",
+    "apiDisconnected": true,
+    "externalRequests": 0,
+    "errors": 0,
+    "postDeployVerification": "PENDING"
+  },
+  "sundayBaseline": {
+    "status": "VERIFIED_AND_REUSABLE",
+    "scope": ["Governance", "Machine", "Risk", "TURN implementation and runtime controls"],
+    "evidence": [
+      "AGM_SAFE_SHUTDOWN_20261026.md",
+      "AGM_SAFE_SHUTDOWN_20261026_MANIFEST.json",
+      "evidence/browser-control/atlas-turn-modular-2026-10-26/",
+      "evidence/browser-control/turn-isolated-ui-preview-2026-10-26/"
+    ],
+    "reuseRule": "Do not repeat unchanged Sunday checks; verify only the post-baseline delta: spatial models and back-to-top interaction."
+  },
+  "productionUiEvidence": {
+    "source": "Production UI evidence supplied from the existing Production Access Preflight view",
+    "status": "READY_REPORTED_IN_UI",
+    "lastRuntimeVerificationDisplayed": "2026-10-28T00:55:00",
+    "displayedSha": "9073b08504ca",
+    "checksObserved": ["Production Access Preflight: READY", "ssh-identity: PASS"],
+    "captureReference": "User-provided Production UI capture in the release conversation",
+    "machineReadableArtifactInWorktree": false,
+    "independentValidatorConfirmation": "PENDING",
+    "note": "Metadata-only UI evidence linked by report; no secret, token, credential or raw runtime value copied. This does not itself certify the current TURN candidate release or post-deploy state."
+  },
+  "gateSources": [
+    "deploy/production/PRE_CHANGE_CHECKLIST.md",
+    "deploy/production/POST_DEPLOYMENT_CHECKLIST.md",
+    "deploy/production/OPERATIONAL_ROLES.md",
+    "deploy/operations/BROWSER_VALIDATION_RUNBOOK.md",
+    ".github/workflows/production-release.yml"
+  ],
+  "gateStatus": {
+    "candidateCommitReviewed": "LOCAL_COMMIT_CREATED_REVIEW_PENDING",
+    "cleanWorktree": "MISSING",
+    "approvedReleaseRef": "MISSING",
+    "deploymentMandate": "MISSING",
+    "roleIdentitiesAndAcknowledgements": "MISSING",
+    "immutableApiWebDigests": "MISSING",
+    "preChangeChecklist": "PENDING_APPROVAL",
+    "postDeployChecklist": "PENDING_DEPLOY",
+    "overall": "NO-GO_UNTIL_COMPLETED"
+  },
+  "secretAndMachineControls": {
+    "guardian": {
+      "role": "Secret & Credentials Guardian",
+      "accessLimit": "sole Production-secret custodian; validates references and lifecycle metadata; does not expose values",
+      "protectedStatuses": ["CONFIGURED", "MISSING", "INVALID", "ROTATION REQUIRED"],
+      "contract": "apps/api/src/secret-telemetry/secret-telemetry.contract.ts",
+      "implementation": "apps/api/src/secret-telemetry/secret-telemetry.service.ts",
+      "organization": "apps/web/src/turn-organization-chart.ts",
+      "registry": "apps/web/src/agent-governance.registry.ts",
+      "evidence": "MISSING_FOR_THIS_RELEASE",
+      "historicalEvidence": [
+        {
+          "path": "C:\\Users\\adria\\Documents\\AGM\\evidence\\governance\\modules\\SEC-TELEMETRY\\v1.0\\RESTORATION_REPORT_2026-08-05.md",
+          "sha256": "E001FFE1DC00837BAC2860ADCE35E46C801848E79307249BE3A0393462C2DFA2",
+          "finding": "LOCAL_IMPLEMENTATION_AND_CONTROLLED_TEST_PASS; public/Hetzner telemetry FAIL/NOT_OPERATIONAL",
+          "scope": "metadata-only statuses, no values/tokens/credentials in output",
+          "currentReleaseUse": "HISTORICAL_SUPPORT_ONLY"
+        },
+        {
+          "path": "C:\\Users\\adria\\Documents\\AGM\\AGM_P0_RECOVERY_COVERAGE_20261024.txt",
+          "finding": "metadata connection restored; runtime custody/rotation history NOT PROVEN",
+          "scope": "local isolated recovery; no secret values",
+          "currentReleaseUse": "HISTORICAL_LIMITATION"
+        },
+        {
+          "path": "C:\\Users\\adria\\Documents\\AGM\\apps\\api\\test\\secret-telemetry.service.spec.ts",
+          "sha256": "CBBE842511DE057F030E781F9ACEF1D36327297CDC4FBE575450A0F30C551B1B",
+          "finding": "metadata transitions and anti-exposure assertions PASS in test source",
+          "currentReleaseUse": "TEST_SOURCE_ONLY"
+        },
+        {
+          "path": "C:\\Users\\adria\\Documents\\AGM\\apps\\web\\scripts\\test-secret-telemetry-integration.ts",
+          "sha256": "8B005BC55B4486FFC3D6134196407DE7B1D8F02C42B49A13A28852495B4EE2E0",
+          "finding": "incident reconciliation and redacted rendering assertions PASS in test source",
+          "currentReleaseUse": "TEST_SOURCE_ONLY"
+        }
+      ],
+      "currentEvidenceProvider": "Secret & Credentials Guardian / Release & Operations",
+      "currentEvidenceMissing": [
+        { "item": "current protected metadata snapshot", "provider": "Secret & Credentials Guardian / Release & Operations", "validator": "Independent Validator", "status": "MISSING" },
+        { "item": "current Production/Hetzner telemetry availability", "provider": "Release & Operations", "validator": "Independent Validator", "status": "MISSING" },
+        { "item": "current custody and rotation history", "provider": "Secret & Credentials Guardian", "validator": "Independent Validator", "status": "MISSING" },
+        { "item": "Guardian identity and dual-authorization acknowledgement", "provider": "Secret & Credentials Guardian / Command Lead", "validator": "Independent Validator", "status": "MISSING" }
+      ],
+      "existingEvidenceNotCurrentRelease": [
+        { "path": "evidence/governance/modules/OPS-004/operations/AGM-INC-20260805-PRODUCTION-RECOVERY/PRODUCTION_RECOVERY_STATUS_20260806.md", "status": "PRESENT_HISTORICAL", "finding": "Guardian CONFIGURED; metadata-only telemetry; Production Preflight READY 8/8; report remains INCIDENT OPEN / AUTHORIZATION BLOCKED / NO PASS / NO CLOSED" },
+        { "path": "evidence/turn-reality/minimal-telemetry/PRODUCTION_VERIFICATION_2026-08-23.md", "status": "PRESENT_HISTORICAL", "finding": "Guardian READY/HEALTHY/LIVE and metadata-only configured checks; report dated 2026-08-23" }
+      ],
+      "guardianIdentity": null,
+      "guardianAcknowledgement": null,
+      "secretValuesObserved": false
+    },
+    "machine": {
+      "role": "Machine Auth / ACP read-only caller",
+      "accessLimit": "scope acp:read; active identity; company-bound read-only routes; no secret-custody authority",
+      "contract": "apps/api/src/machine-auth/machine-auth.contract.ts",
+      "guard": "apps/api/src/machine-auth/machine-jwt-auth.guard.ts",
+      "routes": "apps/api/src/machine-auth/machine-authority.controller.ts",
+      "evidenceRequirements": ["machine identity reference", "credential reference", "scope", "request/correlation IDs", "audit/event correlation", "no raw secret or token value"],
+      "evidence": "MISSING_FOR_THIS_RELEASE",
+      "historicalEvidence": [
+        {
+          "path": "C:\\Users\\adria\\Documents\\AGM\\evidence\\m2m-auth\\2026-09-03\\VALIDATION_REPORT.json",
+          "sha256": "E8A29BAEE7230549D6C9B12D16D5AFFA3D38B4EA72E5F3E0078D510EEF4969CD",
+          "finding": "scope acp:read; 16 focused tests, negative tests, lifecycle audit and raw-secret-not-persisted PASS",
+          "limitation": "production deployment, M2M lifecycle smoke and final pass are PENDING",
+          "currentReleaseUse": "HISTORICAL_SUPPORT_ONLY"
+        },
+        {
+          "path": "C:\\Users\\adria\\Documents\\AGM\\evidence\\m2m-auth\\2026-09-03\\RESCUE_JOURNAL.md",
+          "sha256": "07C33526B7E6BC98CF11A75E73C8DD65582308E3831DFBBF14A84A42B1F9B5F9",
+          "finding": "hashed-secret persistence, guarded use, rotation, old-secret rejection, revocation and audit actions recorded PASS",
+          "limitation": "historical Production attempt rolled back; new Production verification remains required",
+          "currentReleaseUse": "HISTORICAL_LIMITATION"
+        }
+      ],
+      "currentEvidenceProvider": "Release & Operations / Independent Validator",
+      "currentEvidenceMissing": [],
+      "candidateImplementationStatus": "IMPLEMENTED_IN_THIS_MANDATE; PRE_DEPLOY_SOURCE_AND_TEST_VALIDATION_REQUIRED",
+      "candidateSourceTestVerification": {
+        "apiTypeScript": "PASS",
+        "machineAuthUnitRunner": "UNCOMPLETED",
+        "machineAuthUnitRunnerNote": "Jest runner produced no output and did not terminate; runner was stopped. No API, database, production service or secret was touched.",
+        "postDeployRuntime": "PENDING_POST_DEPLOY"
+      },
+      "postDeployEvidencePending": [
+        { "item": "Production lifecycle smoke: provision, issue, use, rotate, revoke and rejection checks", "provider": "Release & Operations", "validator": "Independent Validator", "status": "PENDING_POST_DEPLOY" },
+        { "item": "Production expiry/revocation state and connected-Turn audit linkage", "provider": "Release & Operations", "validator": "Independent Validator", "status": "PENDING_POST_DEPLOY" }
+      ],
+      "existingEvidenceNotCurrentRelease": [
+        { "path": "evidence/turn-reality/p0-agent-runtime-live/PRODUCTION_E2E_2026-08-23.md", "status": "PRESENT_HISTORICAL", "finding": "Authenticated real Turn executor and persisted lifecycle PASS; Production workflow and health PASS for that historical revision" },
+        { "path": "evidence/rescue/deterministic-release-certification-2026-09-20/RESCUE_JOURNAL.md", "status": "PRESENT_HISTORICAL", "finding": "M2M/session and release sequencing evidence; certification explicitly PENDING and no deploy executed" },
+        { "path": "evidence/agent-accountability/browser/2026-09-27T09-48-49-979Z/report.json", "status": "PRESENT_HISTORICAL_LIMITATION", "finding": "Failover transfer PROVEN, but overall operational truth FAIL and Guardian/Machine-related monitors include NO_TELEMETRY" }
+      ],
+      "machineIdentity": null,
+      "credentialReference": null,
+      "scope": null,
+      "independentVerification": null
+    },
+    "separation": "Guardian controls secret custody; Machine provides constrained authenticated reads; Command Lead authorizes the change; Independent Validator validates evidence; release executor executes only the approved workflow."
+  }
+}

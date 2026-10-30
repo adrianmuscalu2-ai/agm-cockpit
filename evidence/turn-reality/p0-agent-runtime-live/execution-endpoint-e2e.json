@@ -1,10 +1,10 @@
 {
   "contract": "agm.turn-agent-runtime-execution-endpoint-e2e.v1",
-  "checkedAt": "2026-08-23T09:26:32.679Z",
-  "apiBaseUrl": "http://127.0.0.1:3012/api/v1",
+  "checkedAt": "2026-10-30T08:14:45.406Z",
+  "apiBaseUrl": "http://127.0.0.1:3100/api/v1",
   "actorRole": "company_owner",
   "completed": {
-    "mandateId": "turn-production-completed-mt5lroq4-9cd514b0",
+    "mandateId": "turn-production-completed-mvup5ab1-1ae3f88e",
     "agentId": "agent-inspector",
     "expectedOutcome": "COMPLETED",
     "lifecycle": [
@@ -13,12 +13,12 @@
       "COMPLETED"
     ],
     "evidenceRef": "apps/api/runtime-evidence/agent-inspector-acceptance.json",
-    "outputRef": "C:\\Users\\adria\\AppData\\Local\\Temp\\agm-agent-inspector\\turn-production-completed-mt5lroq4-9cd514b0-agent-inspector-report.json",
-    "evidenceHash": "9af83a972f09be62fa238736f50d2c39e2567346c6457dc7cef197f7afa69f82",
+    "outputRef": "C:\\Users\\adria\\AppData\\Local\\Temp\\agm-agent-inspector\\turn-production-completed-mvup5ab1-1ae3f88e-agent-inspector-report.json",
+    "evidenceHash": "4fcc21f4fac0a4728b35b83ce06a714004e8aaf5c6241995edf55c06f4970164",
     "failure": null
   },
   "failed": {
-    "mandateId": "turn-production-failed-mt5lrouw-a725ac1b",
+    "mandateId": "turn-production-failed-mvup5akn-70a9ecae",
     "agentId": "agent-inspector",
     "expectedOutcome": "FAILED",
     "lifecycle": [
@@ -29,7 +29,7 @@
     "evidenceRef": "apps/api/runtime-evidence/agent-inspector-missing.json",
     "outputRef": null,
     "evidenceHash": null,
-    "failure": "ENOENT: no such file or directory, open 'C:\\Users\\adria\\Documents\\AGM\\apps\\api\\runtime-evidence\\agent-inspector-missing.json'"
+    "failure": "ENOENT: no such file or directory, open 'C:\\Users\\adria\\Documents\\AGM-CANONICAL-CANDIDATE-20261022\\apps\\api\\runtime-evidence\\agent-inspector-missing.json'"
   },
   "persistenceVerified": true,
   "result": "PASS"
