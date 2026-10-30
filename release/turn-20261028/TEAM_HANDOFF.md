@@ -75,7 +75,7 @@ Sunt dovezi de preview `DEMO / NON-AUTHORITATIVE`, nu Production.
 Ultima stare read-only consemnată:
 
 - branch: `phase3-rc-preparation`;
-- HEAD: `SOURCE_COMMIT_PENDING_MANIFEST_FINALIZATION`;
+- candidate source commit: `edc95a13cbc26d184ccde32078506f73652caf95`;
 - tracking: `origin/phase3-rc-preparation`, local `ahead 2`;
 - worktree: dirty, cu modificări și artefacte untracked păstrate.
 

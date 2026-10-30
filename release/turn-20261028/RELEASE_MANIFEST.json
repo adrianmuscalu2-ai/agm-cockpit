@@ -4,8 +4,8 @@
   "createdAt": "2026-10-28",
   "worktree": "C:\\Users\\adria\\Documents\\AGM-CANONICAL-CANDIDATE-20261022",
   "branch": "phase3-rc-preparation",
-  "currentHead": "SOURCE_COMMIT_PENDING_MANIFEST_FINALIZATION",
-  "candidateCommit": null,
+  "currentHead": "edc95a13cbc26d184ccde32078506f73652caf95",
+  "candidateCommit": "edc95a13cbc26d184ccde32078506f73652caf95",
   "approvedReleaseRef": null,
   "workflowRunId": null,
   "apiImage": { "reference": null, "digest": null },
@@ -72,7 +72,7 @@
       "evidence/browser-control/turn-isolated-ui-preview-2026-10-26/"
     ],
     "basis": "Current diff plus the saved 2026-10-26 candidate status sample; no reset, clean, checkout or overwrite performed.",
-    "candidateCommit": null
+    "candidateCommit": "edc95a13cbc26d184ccde32078506f73652caf95"
   },
   "turnConsolidation": {
     "status": "COMMITTED_LOCAL_NOT_PUSHED",

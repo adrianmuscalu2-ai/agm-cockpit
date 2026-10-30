@@ -6,7 +6,7 @@ Worktree: `C:\Users\adria\Documents\AGM-CANONICAL-CANDIDATE-20261022`
 
 Branch: `phase3-rc-preparation`
 
-Current HEAD: `SOURCE_COMMIT_PENDING_MANIFEST_FINALIZATION`
+Candidate source commit: `edc95a13cbc26d184ccde32078506f73652caf95`
 
 ## Scope
 

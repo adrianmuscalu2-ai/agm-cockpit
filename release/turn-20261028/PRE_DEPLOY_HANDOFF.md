@@ -3,9 +3,9 @@
 Status: `NO-GO / NOT DEPLOYED`
 Prepared from candidate worktree: `C:\Users\adria\Documents\AGM-CANONICAL-CANDIDATE-20261022`
 Branch: `phase3-rc-preparation`
-HEAD: `SOURCE_COMMIT_PENDING_MANIFEST_FINALIZATION`
+HEAD: `edc95a13cbc26d184ccde32078506f73652caf95` (candidate source commit)
 Deploy executed: `NO`
-Candidate commit: `SOURCE_COMMIT_PENDING_MANIFEST_FINALIZATION`; push: `NOT EXECUTED`
+Candidate commit: `edc95a13cbc26d184ccde32078506f73652caf95`; manifest finalization commit: `PENDING`; push: `NOT EXECUTED`
 
 ## Deployment target and procedure
 
