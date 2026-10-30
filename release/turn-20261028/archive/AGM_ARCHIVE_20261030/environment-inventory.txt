@@ -1,0 +1,4 @@
+﻿Generated UTC: 2026-10-30T00:05:59.7678193Z Docker metadata (no environment values):
+agm-governance-v2-local`tpostgres:16-alpine`t127.0.0.1:55433->5432/tcp
+agm-development-postgres`tpostgres:16-alpine`t127.0.0.1:55432->5432/tcp
+agm-postgres`tpostgres:16-alpine`t0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp
