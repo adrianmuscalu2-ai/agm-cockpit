@@ -1,0 +1,7 @@
+﻿worktree C:/Users/adria/Documents/AGM
+HEAD 8286f0e8981c2b8c4a26b97f8f0ca30839789db3
+branch refs/heads/agm-canonical-20260820
+worktree C:/Users/adria/Documents/AGM-phase1-5-boundary
+HEAD 8286f0e8981c2b8c4a26b97f8f0ca30839789db3
+branch refs/heads/codex/phase1-5-boundary
+
