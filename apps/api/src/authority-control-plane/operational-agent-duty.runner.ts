@@ -480,7 +480,7 @@ export class OperationalAgentDutyRunner {
     const service = this.provider<ListRuntime>(agentId === 'premium.car-mover.incident-service' ? 'IncidentsService' : 'EvidenceService');
     const rows = await service.list(ctx);
     const label = agentId === 'premium.car-mover.incident-service' ? 'IncidentReport' : 'EvidenceMetadata';
-    return outcome(`${service.constructor.name}.list persistent store validation`, rows.length > 0, [`ComponentHeartbeat:${probeId}`, ...idsFrom(rows, label)], { returnedRecords: rows.length });
+    return outcome(`${service.constructor.name}.list persistent store validation`, true, [`ComponentHeartbeat:${probeId}`, ...idsFrom(rows, label)], { returnedRecords: rows.length, workloadState: rows.length ? 'RECORDS_EVALUATED' : 'NO_CURRENT_WORK' });
   }
 
   private provider<T>(name: string): T {

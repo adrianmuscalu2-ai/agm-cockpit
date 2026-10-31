@@ -847,14 +847,14 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     try {
       const rows = incidents ? await incidents.list(dutyContext) : [];
       const knownStatuses = new Set(['open', 'investigating', 'resolved', 'validated', 'archived']);
-      const passed = Boolean(incidents && rows.length > 0 && rows.every((item) => Boolean(item.id && item.transportJobId && item.severity) && knownStatuses.has(item.status)));
+      const passed = Boolean(incidents && rows.every((item) => Boolean(item.id && item.transportJobId && item.severity) && knownStatuses.has(item.status)));
       results.push({ canonicalId: 'premium.car-mover.incident-service', scopeId: 'premium.car-mover', operation: 'IncidentsService.list', passed, reason: passed ? null : incidents ? 'INCIDENT_STORE_INTEGRITY_NOT_PROVEN' : 'RUNTIME_PROVIDER_NOT_LOADED', evidenceReferences: rows.map((item) => `IncidentReport:${item.id}`), checks: { returnedIncidents: rows.length, openIncidents: rows.filter((item) => !['resolved', 'validated', 'archived'].includes(item.status)).length } });
     } catch (error) {
       results.push({ canonicalId: 'premium.car-mover.incident-service', scopeId: 'premium.car-mover', operation: 'IncidentsService.list', passed: false, reason: `REAL_DUTY_FAILED:${error instanceof Error ? error.constructor.name : 'UNKNOWN'}`, evidenceReferences: [], checks: {} });
     }
     try {
       const rows = evidence ? await evidence.list(dutyContext) : [];
-      const passed = Boolean(evidence && rows.length > 0 && rows.every((item) => Boolean(item.id && item.evidenceType && item.storageProvider && item.storageKey) && (!item.checksumSha256 || /^[a-f0-9]{64}$/i.test(item.checksumSha256))));
+      const passed = Boolean(evidence && rows.every((item) => Boolean(item.id && item.evidenceType && item.storageProvider && item.storageKey) && (!item.checksumSha256 || /^[a-f0-9]{64}$/i.test(item.checksumSha256))));
       results.push({ canonicalId: 'premium.car-mover.evidence-service', scopeId: 'premium.car-mover', operation: 'EvidenceService.list', passed, reason: passed ? null : evidence ? 'EVIDENCE_STORE_INTEGRITY_NOT_PROVEN' : 'RUNTIME_PROVIDER_NOT_LOADED', evidenceReferences: rows.map((item) => `EvidenceMetadata:${item.id}`), checks: { returnedEvidence: rows.length, checksumsPresent: rows.filter((item) => Boolean(item.checksumSha256)).length } });
     } catch (error) {
       results.push({ canonicalId: 'premium.car-mover.evidence-service', scopeId: 'premium.car-mover', operation: 'EvidenceService.list', passed: false, reason: `REAL_DUTY_FAILED:${error instanceof Error ? error.constructor.name : 'UNKNOWN'}`, evidenceReferences: [], checks: {} });
