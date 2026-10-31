@@ -74,7 +74,7 @@ export class GitHubActionsOidcService {
       || claims.repository_owner_id !== policy.repositoryOwnerId
       || !trustedWorkflow
       || claims.runner_environment !== policy.runnerEnvironment
-      || claims.sha !== expectedRevision
+      || (trustedWorkflow.role === 'DEPLOYMENT_PROVISIONER' && claims.sha !== expectedRevision)
       || !/^\d+$/.test(claims.run_id)
       || !/^\d+$/.test(claims.run_attempt)
       || typeof claims.jti !== 'string'
