@@ -44,16 +44,19 @@ The existing runtime actors are separate and active:
 |---|---|---|
 | Implemented | PASS | `apps/api/src/governance-v2/`, API module registration |
 | Verified | PASS — controlled-local | Governance V2 hardening and persistence/recovery evidence |
-| Committed | PASS | candidate commits `ba1af16` through `b1636e3` are pushed; Governance V2 source was already in the candidate history |
-| Active in Production | NO | this environment is isolated controlled-local; no Production activation is claimed |
+| Committed | PASS | journal projection patch committed as `e2b3a1e` and pushed on `phase3-rc-preparation` |
+| Active in Production | NO for Governance V2 | the controlled-local environment is isolated; the web projection release is deployed, but no Production Governance V2 activation is claimed |
 
 ## Journal consequence
 
 The designation enables the Governance V2 read boundary for this controlled-local
 environment. It does not convert historical Turn projections into current
 Production truth. Version Journal, Operational Memory, Evidence Ledger and Risk
-& Knowledge remain `NOT_VERIFIED` for Production until their current canonical
-records and independent validator receipt are present.
+& Knowledge remain `IMPLEMENTED_NOT_VALIDATED` / `NOT_VERIFIED` for Production
+until their current canonical records and independent validator receipt are
+present. The web UI now connects the first three to explicit read-only
+`HISTORICAL_PROJECTION` sources; this removes `NOT CONNECTED` as a routing
+error but does not promote their lifecycle state.
 
 ## Remaining gate
 
@@ -75,3 +78,23 @@ does not prove Production journal connectivity, current Evidence Ledger data,
 Governance V2 activation, or an independent validator verdict. The screenshot
 itself shows those fields as `UNKNOWN / NOT REPORTED` and remains separate from
 the controlled-local activation record.
+
+## Release and Operations result
+
+Production workflow `41227720680` completed successfully for revision
+`e2b3a1e3437e9561753f38d3bd913522bb38a431`:
+
+- static, API, web and journal contract checks: PASS;
+- deployment and public health: PASS;
+- post-deploy operational truth, soak and certification: PASS;
+- Production Browser preflight, live TURN snapshot, responsive matrix and
+  canonical branding: PASS;
+- restart test: PASS — the release job restarted `agm-production-api.service`
+  and `agm-production-web.service`, then verified readiness, live health and
+  public routing;
+- Car Mover entitlement provisioning was skipped by the workflow dispatch flag;
+  it is unrelated to the journal projection patch.
+
+This is the final release verdict for the implemented web projection. It is not
+a DA for Governance V2 Production activation or for independent journal
+validation.
