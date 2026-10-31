@@ -423,7 +423,8 @@ export class OperationalAgentDutyRunner {
       this.prisma.authorityMandate.findMany({ where: { companyId: ctx.companyId, status: 'APPROVED', revokedAt: null }, select: { id: true, agentId: true, scopeId: true } }),
       this.prisma.normalizedOpportunity.count({ where: { companyId: ctx.companyId, status: { in: ['AVAILABLE', 'REVIEWED'] } } }),
     ]);
-    const nonHumanMandates = new Set(mandates.filter((mandate) => mandate.agentId !== 'agm.human.product-owner').map((mandate) => mandate.agentId));
+    const expectedAgentIds = new Set(premiumNetworkSeed.filter((seed) => seed.kind !== 'HUMAN_AUTHORITY').map((seed) => seed.canonicalId));
+    const nonHumanMandates = new Set(mandates.filter((mandate) => expectedAgentIds.has(mandate.agentId)).map((mandate) => mandate.agentId));
     const passed = nonHumanMandates.size === premiumNetworkSeed.filter((seed) => seed.kind !== 'HUMAN_AUTHORITY').length;
     return outcome('Poll governed work queues and reconcile bounded dispatch coverage', passed, [`ComponentHeartbeat:${probeId}`, ...mandates.slice(0, 20).map((mandate) => `AuthorityMandate:${mandate.id}`)], { mandatedAgents: nonHumanMandates.size, pendingOpportunities });
   }
