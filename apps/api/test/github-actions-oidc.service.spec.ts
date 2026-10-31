@@ -136,8 +136,26 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
     });
   });
 
+  it('accepts the explicitly approved phase3 manual dispatch at the deployed Production SHA', async () => {
+    const phase3 = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows.find((candidate) => candidate.ref === 'refs/heads/phase3-rc-preparation');
+    expect(phase3).toBeDefined();
+    const { service } = harness();
+    await expect(service.authenticate(await token({
+      sub: phase3!.subject,
+      environment: phase3!.environment,
+      ref: phase3!.ref,
+      workflow_ref: phase3!.workflowRef,
+      event_name: 'workflow_dispatch',
+    }))).resolves.toMatchObject({
+      companyId,
+      roles: ['DEPLOYMENT_PROVISIONER'],
+      actorSubject: phase3!.subject,
+      actorMetadata: { workflowRef: phase3!.workflowRef, ref: phase3!.ref, sha: revision },
+    });
+  });
+
   it.each(['schedule', 'workflow_dispatch'])('accepts the pinned continuity workflow for %s only at the deployed Production SHA', async (eventName) => {
-    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
+    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows.find((candidate) => candidate.role === 'AGENT_RUNTIME_CONTINUITY')!;
     const { service } = harness();
     await expect(service.authenticate(await token({
       sub: continuity.subject,
@@ -154,7 +172,7 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
   });
 
   it('rejects the continuity workflow when its SHA differs from Production', async () => {
-    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
+    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows.find((candidate) => candidate.role === 'AGENT_RUNTIME_CONTINUITY')!;
     const { service } = harness();
     await expect(service.authenticate(await token({
       sub: continuity.subject,
@@ -167,7 +185,7 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
   });
 
   it('rejects the continuity workflow when it presents the deploy environment subject', async () => {
-    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
+    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows.find((candidate) => candidate.role === 'AGENT_RUNTIME_CONTINUITY')!;
     const { service } = harness();
     await expect(service.authenticate(await token({
       ref: continuity.ref,
@@ -177,7 +195,7 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
   });
 
   it('rejects an unpinned workflow even when repository, environment and branch are trusted', async () => {
-    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows[1];
+    const continuity = GITHUB_ACTIONS_PROVISIONING_CONTRACT.trustedWorkflows.find((candidate) => candidate.role === 'AGENT_RUNTIME_CONTINUITY')!;
     const { service } = harness();
     await expect(service.authenticate(await token({
       sub: continuity.subject,
