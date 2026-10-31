@@ -69,3 +69,11 @@ are not interchangeable.
 This handoff is not an independent PASS. The executor cannot validate its own
 evidence, cannot impersonate the validator actor, and cannot turn a historical
 projection into a canonical Production journal.
+
+## Evidence reconciliation attached
+
+The executor's read-only source reconciliation is recorded in
+`TURN_EVIDENCE_RECONCILIATION_20261031.md`. It classifies every remaining gate
+as current-valid, limited-scope, expired/not applicable, or not found after
+the required source checks. The reconciliation is input to the validator; it
+does not contain an independent verdict.
