@@ -15,7 +15,9 @@ assert.match(compose, /image:\s*"\$\{AGM_IMAGE:\?AGM_IMAGE must be set by Releas
 assert.match(service, /EnvironmentFile=\/opt\/agm\/production\/release\.env/);
 assert.match(service, /ExecStartPre=\/usr\/bin\/docker image inspect \$\{AGM_IMAGE\}/);
 assert.ok(lifecycle.includes('/opt/agm/production/release.env'));
-assert.match(rollback, /API image: `agm-api@sha256:[a-f0-9]{64}`/);
+assert.match(rollback, /API image: exact prior `AGM_IMAGE` value captured in the approved pre-change rollback bundle\./);
+assert.match(rollback, /Web image: exact prior `AGM_WEB_IMAGE` value captured in the approved pre-change rollback bundle\./);
+assert.match(rollback, /API\/Web revisions: exact prior `AGM_REVISION` and `AGM_WEB_REVISION` values from that bundle\./);
 assert.doesNotMatch(compose, /^\s*build:/m);
 assert.doesNotMatch(compose, /^\s{2}postgres:/m);
 assert.doesNotMatch(compose, /^volumes:/m);
