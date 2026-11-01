@@ -12,6 +12,9 @@
   },
   "terminal": "PASS",
   "independentVerdict": "PASS",
+  "eventLedgerId": "11913e91-1491-41d5-8f4d-d9745013f7f3",
+  "eventLedgerDigest": "rkp-closure-validator-receipt-20261101",
+  "correlationId": "corr-rkp-closure-20261101",
   "coverageLimit": "external drives and inaccessible conversations were not searchable",
   "originalManifestSha256": "B497A4FDE52EC9D3DFFE94FBA69F03DE81607BEC86E7EC14FF59B29899A353B8"
 }
