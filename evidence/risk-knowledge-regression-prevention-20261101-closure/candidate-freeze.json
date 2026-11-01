@@ -1,0 +1,8 @@
+{
+  "candidate": "RKP-20261101-local-closure-01",
+  "baseCandidate": "RKP-20261101-local",
+  "status": "FROZEN_FOR_INDEPENDENT_VALIDATION",
+  "freezePolicy": "new candidate; base candidate immutable",
+  "originalManifestSha256": "B497A4FDE52EC9D3DFFE94FBA69F03DE81607BEC86E7EC14FF59B29899A353B8",
+  "productionImpact": "NONE"
+}

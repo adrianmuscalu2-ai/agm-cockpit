@@ -1,0 +1,14 @@
+{
+  "candidate": "RKP-20261101-local-closure-01",
+  "baseCandidate": "RKP-20261101-local",
+  "status": "FROZEN_FOR_INDEPENDENT_VALIDATION",
+  "scope": "manifest reconciliation and universal conservation guard",
+  "included": [
+    "apps/web/src/universal-conservation.contract.ts",
+    "apps/web/scripts/test-universal-conservation-contract.ts",
+    "evidence/risk-knowledge-regression-prevention-20261101-closure/manifest-reconciliation.md",
+    "evidence/risk-knowledge-regression-prevention-20261101-closure/source-coverage.json"
+  ],
+  "productionImpact": "NONE",
+  "productionActivation": "NOT_AUTHORIZED"
+}

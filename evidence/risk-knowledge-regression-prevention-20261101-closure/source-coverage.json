@@ -1,0 +1,18 @@
+{
+  "status": "PARTIAL",
+  "scope": "accessible local AGM sources",
+  "confirmed": [
+    "registered Git worktrees",
+    "candidate and frozen evidence",
+    "local PostgreSQL container and volume",
+    "uncommitted worktree inventory",
+    "archived capability-recovery audit",
+    "original 25-26 October user-provided manifest"
+  ],
+  "notFoundAfterSearch": ["INTENSO-TRANSFER at checked path"],
+  "notSearched": ["unavailable external drives and inaccessible ChatGPT conversations"],
+  "noDeletionPerformed": true,
+  "productionTouched": false,
+  "turnTouched": false,
+  "agmaTouched": false
+}
