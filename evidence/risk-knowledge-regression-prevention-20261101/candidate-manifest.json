@@ -1,0 +1,20 @@
+{
+  "candidate": "RKP-20261101-local",
+  "status": "FROZEN_FOR_INDEPENDENT_VALIDATION",
+  "scope": "risk-knowledge-regression-prevention",
+  "included": [
+    "apps/web/src/risk-knowledge-regression.contract.ts",
+    "apps/web/src/mandatory-session-mandate-lifecycle.ts",
+    "apps/web/scripts/test-risk-knowledge-regression-contract.ts",
+    "apps/api/src/universal-lifecycle/universal-lifecycle.service.ts",
+    "apps/api/src/universal-lifecycle/universal-lifecycle.module.ts",
+    "apps/api/src/app.module.ts",
+    "prisma/schema.prisma",
+    "prisma/migrations/20261031120000_add_universal_lifecycle/migration.sql",
+    "apps/api/scripts/test-universal-lifecycle-gates.ts",
+    "evidence/risk-knowledge-regression-prevention-20261101/REGRESSION_PROTECTION_SET.json"
+  ],
+  "excluded": "unrelated dirty worktree files, dumps, screenshots and generated artifacts",
+  "productionImpact": "NONE",
+  "independentValidatorRequired": true
+}

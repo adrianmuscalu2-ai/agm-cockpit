@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "backup": "local-backup-post-migration-20261101.dump",
+  "sha256": "caa2e6483d099bd10256d8f0f13543082e62f6505f0d813d9cfd329aae54e409",
+  "sourceContainer": "agm-governance-v2-local",
+  "sourceDatabase": "agm_governance",
+  "restoreProbeDatabase": "agm_governance_restore_probe_20261101",
+  "restoredSentinelRows": 1,
+  "restoreMode": "pg_restore --no-owner --no-privileges",
+  "cleanup": "temporary restore database removed after verification"
+}

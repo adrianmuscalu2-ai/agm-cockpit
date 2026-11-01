@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "index": "evidence/capability-recovery-audit-20261101/semantic-index.jsonl",
+  "rows": 8,
+  "queries": [
+    { "query": "Risk blocked technical pass", "refs": ["CAPABILITY_MATRIX.md#Risk precheck/post-review enforcement", "RISK_KNOWLEDGE_POST_AUDIT.md"] },
+    { "query": "TURN reconstruction", "refs": ["FRAGMENTATION_INVENTORY.md", "REGRESSION_WINDOW_MATRIX.md"] },
+    { "query": "incident registry", "refs": ["CAPABILITY_MATRIX.md#Incident journal lifecycle", "TURN_SOURCE_RECONCILIATION_INPUT.md"] }
+  ],
+  "retrievalMode": "read-only token-overlap lookup over archived semantic index",
+  "sourceIntegrity": "index read successfully and every query returned at least one canonical reference"
+}

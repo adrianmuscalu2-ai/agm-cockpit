@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "container": "agm-governance-v2-local",
+  "hostPort": 55433,
+  "database": "agm_governance",
+  "eventDigest": "rkp-restart-probe-20261101",
+  "eventId": "0d580b59-4596-4f13-9a84-2a267379585b",
+  "beforeRestart": true,
+  "containerRestarted": true,
+  "readyAfterRestart": true,
+  "afterRestart": true,
+  "persistenceProof": "same event id and digest returned after reconnection"
+}

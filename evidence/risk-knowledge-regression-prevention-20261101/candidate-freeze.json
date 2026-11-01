@@ -1,0 +1,11 @@
+{
+  "candidate": "RKP-20261101-local",
+  "status": "FROZEN_FOR_INDEPENDENT_VALIDATION",
+  "frozenAt": "2026-11-01",
+  "digestPolicy": "sha256(sorted relative path + file hash)",
+  "digestRun1": "47577727f252e7d36090a834019dc2de3e9a51e7d289a9bbce1acd83249e54df",
+  "digestRun2": "47577727f252e7d36090a834019dc2de3e9a51e7d289a9bbce1acd83249e54df",
+  "digestRun3": "47577727f252e7d36090a834019dc2de3e9a51e7d289a9bbce1acd83249e54df",
+  "immutableDuringValidation": true,
+  "productionImpact": "NONE"
+}

@@ -1,0 +1,27 @@
+{
+  "validator": "independent-risk-knowledge-validator-final",
+  "candidate": "RKP-20261101-local",
+  "candidateDigest": "47577727f252e7d36090a834019dc2de3e9a51e7d289a9bbce1acd83249e54df",
+  "checks": {
+    "A_missing_precheck": "PASS",
+    "B_protection_precheck": "PASS",
+    "C_technical_pass_degraded": "PASS",
+    "D_p0_unknown": "PASS",
+    "E_canonical_drift": "PASS",
+    "F_candidate_drift": "PASS",
+    "G_recurrent_regression": "PASS",
+    "H_override_preserves_original": "PASS",
+    "I_restart": "PASS",
+    "J_restore": "PASS",
+    "K_semantic_retrieval": "PASS",
+    "L_event_ledger_receipt": "PASS"
+  },
+  "terminal": "PASS",
+  "noRemediationDuringValidation": true,
+  "productionImpact": "NONE",
+  "receiptEventLedgerId": "f5be9ab0-5fdf-48ee-8529-a7ebe2f36e38",
+  "receiptEventDigest": "rkp-validator-receipt-20261101",
+  "restartEvidence": "restart-persistence-evidence.json",
+  "restoreEvidence": "backup-restore-evidence.json",
+  "semanticEvidence": "semantic-retrieval-evidence.json"
+}

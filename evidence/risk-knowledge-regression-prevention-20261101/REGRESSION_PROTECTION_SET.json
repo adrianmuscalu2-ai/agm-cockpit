@@ -1,0 +1,18 @@
+{
+  "contract": "RISK_KNOWLEDGE_REGRESSION_PREVENTION",
+  "status": "LOCAL_CONTRACT_IMPLEMENTED",
+  "sourceAudit": "evidence/capability-recovery-audit-20261101/CAPABILITY_MATRIX.md",
+  "rules": {
+    "technicalPassIsNotRegressionSafe": true,
+    "unknownCriticalIsFailClosed": true,
+    "beforeAfterRequired": true,
+    "riskBlockVetoesFinalPass": true,
+    "materialChangeRequiresRecheck": true
+  },
+  "protectedCapabilities": [
+    { "capability": "TURN incident journal lifecycle", "baseline": "CAPABILITY_MATRIX", "lastKnownGood": "2026-08-07", "expectedBehavior": "persist, search, validate, archive, reopen", "dependency": ["journal writer", "journal reader", "incident registry"], "testRequired": "journal lifecycle regression", "recoveryReference": "TURN_SOURCE_RECONCILIATION_INPUT", "riskLevel": "P0" },
+    { "capability": "Machine authority and leases", "baseline": "CAPABILITY_MATRIX", "lastKnownGood": "2026-10-24 bounded P0", "expectedBehavior": "mandate, decision, lease and fencing remain auditable", "dependency": ["authority control plane", "Prisma", "runtime evidence"], "testRequired": "authority and stale lease regression", "recoveryReference": "AGM_P0_RECOVERY_COVERAGE_20261024.txt", "riskLevel": "P0" },
+    { "capability": "Autonomous mandate continuity", "baseline": "REGRESSION_WINDOW_MATRIX", "lastKnownGood": "2026-08-07 bounded historical evidence", "expectedBehavior": "CONTINUE executes remaining authorized work until terminal state", "dependency": ["session", "mandate", "runner", "terminal verdict"], "testRequired": "MANDATE_CONTINUITY_FAIL_TEST", "recoveryReference": "continuity-journal.json", "riskLevel": "P0" },
+    { "capability": "Risk and Knowledge lifecycle", "baseline": "RISK_KNOWLEDGE_POST_AUDIT", "lastKnownGood": "contract evidence", "expectedBehavior": "precheck, recheck, before/after, post-review and veto", "dependency": ["capability matrix", "last known good", "event ledger", "candidate"], "testRequired": "risk-knowledge-regression contract", "recoveryReference": "RISK_KNOWLEDGE_POST_AUDIT.md", "riskLevel": "P0" }
+  ]
+}

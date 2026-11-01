@@ -41,6 +41,199 @@ model Company {
   sharedArchiveRecords       AgmSharedArchiveRecord[]
 }
 
+model UniversalSessionLifecycleRecord {
+  id                     String    @id @default(uuid()) @db.Uuid
+  sessionId              String    @unique @db.VarChar(160)
+  protocolVersion        String    @db.VarChar(80)
+  protocolRead           Boolean
+  archiveInterrogated    Boolean
+  librariansActivated    Boolean
+  currentBaseline        String    @db.VarChar(160)
+  canonicalSourcesLoaded Boolean
+  actorMatrixLoaded      Boolean
+  worktreeRegistryLoaded Boolean
+  activeIncidentsLoaded  Boolean
+  openMandatesLoaded     Boolean
+  riskKnowledgeAvailable Boolean
+  sessionAuthorized      Boolean
+  actorId                String    @db.VarChar(160)
+  environmentClass       String    @db.VarChar(64)
+  correlationId          String    @db.VarChar(160)
+  evidenceRefs           Json
+  finalStatus            String    @db.VarChar(40)
+  createdAt              DateTime  @default(now())
+  invalidatedAt          DateTime?
+
+  @@index([environmentClass, finalStatus])
+  @@index([correlationId])
+}
+
+model UniversalMandateLifecycleRecord {
+  id                       String    @id @default(uuid()) @db.Uuid
+  mandateId                String    @unique @db.VarChar(160)
+  sessionId                String    @db.VarChar(160)
+  mandateRegistered        Boolean
+  archiveSearchComplete    Boolean
+  librarianHandoffComplete Boolean
+  precedentsLoaded         Boolean
+  canonicalSourcesVerified Boolean
+  actorsVerified           Boolean
+  worktreeVerified         Boolean
+  dependencyReview         String    @db.VarChar(40)
+  riskPrecheck             String    @db.VarChar(40)
+  snapshotRef              String    @db.VarChar(240)
+  executionAuthorized      Boolean
+  actorRefs                Json
+  correlationId            String    @db.VarChar(160)
+  evidenceRefs             Json
+  status                   String    @db.VarChar(40)
+  createdAt                DateTime  @default(now())
+  invalidatedAt            DateTime?
+
+  @@index([sessionId, status])
+  @@index([correlationId])
+}
+
+model UniversalMandateEndRecord {
+  id                    String    @id @default(uuid()) @db.Uuid
+  mandateId             String    @unique @db.VarChar(160)
+  technicalResult       String    @db.VarChar(40)
+  independentValidation String    @db.VarChar(40)
+  riskPostReview        String    @db.VarChar(40)
+  finalVerdict          String    @db.VarChar(40)
+  incidentsUpdated      Boolean
+  versionUpdated        Boolean
+  cscPcrUpdated         Boolean
+  recoveryEvidenceRef   String?   @db.VarChar(240)
+  eventLedgerUpdated    Boolean
+  archiveUpdated        Boolean
+  lessonsLearned        String?   @db.Text
+  nextAuthorizedAction  String?   @db.VarChar(240)
+  mandateClosed         Boolean
+  validatorId           String    @db.VarChar(160)
+  riskReviewerId        String    @db.VarChar(160)
+  closedAt              DateTime?
+  correlationId         String    @db.VarChar(160)
+  evidenceRefs          Json
+  createdAt             DateTime  @default(now())
+
+  @@index([finalVerdict, mandateClosed])
+  @@index([correlationId])
+}
+
+model UniversalSessionEndRecord {
+  id                    String   @id @default(uuid()) @db.Uuid
+  sessionId             String   @unique @db.VarChar(160)
+  openMandates          Json
+  blockers              Json
+  currentCandidates     Json
+  currentVersion        String   @db.VarChar(80)
+  dirtyWork             Json
+  untrackedRelevantWork Json
+  worktrees             Json
+  evidencePreserved     Boolean
+  latestCanonicalState  String   @db.VarChar(80)
+  nextAuthorizedAction  String?  @db.VarChar(240)
+  sessionClosed         Boolean
+  correlationId         String   @db.VarChar(160)
+  createdAt             DateTime @default(now())
+
+  @@index([sessionClosed])
+}
+
+model UniversalLifecycleEvent {
+  id              String   @id @default(uuid()) @db.Uuid
+  eventType       String   @db.VarChar(80)
+  sessionId       String?  @db.VarChar(160)
+  mandateId       String?  @db.VarChar(160)
+  actor           String   @db.VarChar(160)
+  correlationId   String   @db.VarChar(160)
+  previousEventId String?  @db.Uuid
+  previousDigest  String?  @db.VarChar(64)
+  eventDigest     String   @db.VarChar(64)
+  payload         Json
+  occurredAt      DateTime @default(now())
+
+  @@index([sessionId, occurredAt])
+  @@index([mandateId, occurredAt])
+  @@index([correlationId])
+}
+
+model RiskKnowledgeAssessment {
+  id                  String   @id @default(uuid()) @db.Uuid
+  mandateId           String   @db.VarChar(160)
+  phase               String   @db.VarChar(32)
+  verdict             String   @db.VarChar(40)
+  baselineRefs        Json
+  predictedRisks      Json
+  actualEffects       Json
+  missedRisks         Json
+  falsePositives      Json
+  newPrecedents       Json
+  candidateRef        String   @db.VarChar(240)
+  worktreeRef         String   @db.VarChar(240)
+  canonicalSourceRefs Json
+  writerAuthorityRefs Json
+  originalVerdict     String   @db.VarChar(40)
+  correlationId       String   @db.VarChar(160)
+  createdAt           DateTime @default(now())
+
+  @@index([mandateId, phase])
+  @@index([verdict, createdAt])
+}
+
+model RiskKnowledgeProtectionSet {
+  id            String   @id @default(uuid()) @db.Uuid
+  mandateId     String   @unique @db.VarChar(160)
+  items         Json
+  createdBy     String   @db.VarChar(160)
+  correlationId String   @db.VarChar(160)
+  createdAt     DateTime @default(now())
+}
+
+model RiskKnowledgeRecheck {
+  id            String   @id @default(uuid()) @db.Uuid
+  mandateId     String   @db.VarChar(160)
+  trigger       String   @db.VarChar(80)
+  verdict       String   @db.VarChar(40)
+  stale         Boolean
+  evidenceRefs  Json
+  correlationId String   @db.VarChar(160)
+  createdAt     DateTime @default(now())
+
+  @@index([mandateId, createdAt])
+}
+
+model RiskKnowledgeComparison {
+  id           String   @id @default(uuid()) @db.Uuid
+  mandateId    String   @db.VarChar(160)
+  capability   String   @db.VarChar(180)
+  beforeStatus String   @db.VarChar(40)
+  afterStatus  String   @db.VarChar(40)
+  result       String   @db.VarChar(40)
+  priority     String   @db.VarChar(4)
+  evidenceRef  String   @db.VarChar(240)
+  explanation  String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  @@index([mandateId, priority, afterStatus])
+}
+
+model RiskKnowledgeOverride {
+  id                  String   @id @default(uuid()) @db.Uuid
+  mandateId           String   @db.VarChar(160)
+  originalRiskVerdict String   @db.VarChar(40)
+  actor               String   @db.VarChar(160)
+  reason              String   @db.Text
+  acceptedRisk        String   @db.Text
+  scope               String   @db.VarChar(240)
+  evidenceRef         String   @db.VarChar(240)
+  occurredAt          DateTime @default(now())
+  correlationId       String   @db.VarChar(160)
+
+  @@index([mandateId, occurredAt])
+}
+
 model User {
   id                   String                @id @default(uuid()) @db.Uuid
   companyId            String                @db.Uuid

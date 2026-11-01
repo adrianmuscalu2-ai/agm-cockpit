@@ -40,6 +40,7 @@ import { PermissionGuardianModule } from './permission-guardian/permission-guard
 import { SharedArchiveModule } from './shared-archive/shared-archive.module';
 import { OperationalLinguistsV1Module } from './operational-linguists-v1/operational-linguists-v1.module';
 import { GovernanceV2Module } from './governance-v2/governance-v2.module';
+import { UniversalLifecycleModule } from './universal-lifecycle/universal-lifecycle.module';
 
 @Module({
   imports: [
@@ -88,6 +89,7 @@ import { GovernanceV2Module } from './governance-v2/governance-v2.module';
     SharedArchiveModule,
     OperationalLinguistsV1Module,
     GovernanceV2Module,
+    UniversalLifecycleModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
