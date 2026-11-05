@@ -22,11 +22,12 @@ assert.deepEqual(
   [...cssModules],
 );
 const reconstructedCss = cssModules
-  .map((name) => readFileSync(new URL(`../src/styles/${name}`, import.meta.url)))
+  .map((name) => Buffer.from(readFileSync(new URL(`../src/styles/${name}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n'), 'utf8'))
   .reduce((output, content) => Buffer.concat([output, content]), Buffer.alloc(0));
+// Repinned for the TURN CSS added in 34f730b/005474d (pin was stale at origin 13fa7db); line endings normalized so Windows checkouts match.
 assert.equal(
   createHash('sha256').update(reconstructedCss).digest('hex').toUpperCase(),
-  '7ABA3D915DF90FCCF42A915B74C48FB1B0F79592596401F44D33C6FBBBCDC364',
+  '8207BE54C721302EF681123953C04D33F34BCB965D79AC1EFFC7DFDBFD47B80C',
   'The modular CSS must reconstruct the approved Access/Premium and Android Wave 1 cascade.',
 );
 
