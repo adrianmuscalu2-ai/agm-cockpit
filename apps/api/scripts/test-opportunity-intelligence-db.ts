@@ -4,6 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { AuditService } from '../src/audit/audit.service';
 import { AuthorityControlPlaneService } from '../src/authority-control-plane/authority-control-plane.service';
+import { createAuthorityControlPlaneForDbGate } from './authority-control-plane-db.factory';
 import { CarMoverService } from '../src/car-mover/car-mover.service';
 import type { RequestContext } from '../src/common/request-context';
 import { OpportunityIntelligenceService } from '../src/opportunity-intelligence/opportunity-intelligence.service';
@@ -19,15 +20,15 @@ async function main() {
   const runId = `oi-runtime-${Date.now()}`;
   const ctx: RequestContext = { companyId: company.id, userId: user.id, roles: ['OWNER', 'PREMIUM_ACCESS'], requestId: randomUUID(), correlationId: randomUUID() };
   const audit = new AuditService(prisma as never);
-  const authority = new AuthorityControlPlaneService(prisma as never);
+  const authority = createAuthorityControlPlaneForDbGate(prisma as never);
   const carMover = new CarMoverService(prisma as never, audit);
   const intelligence = new OpportunityIntelligenceService(prisma as never, authority, carMover, audit);
   const leases: LeaseProof[] = [];
   try {
     await authority.dashboard(ctx);
-    const routePrimary = await provision(authority, ctx, runId, 'route', 'premium.car-mover.route', 'premium.car-mover.route-mobility', 'opportunity.route.assess', 'openai-primary');
+    const routePrimary = await provision(authority, ctx, runId, 'route', 'premium.car-mover.route', 'premium.car-mover.route-mobility', 'opportunity.route.assess', 'valhalla-osm');
     leases.push(routePrimary);
-    const routeSecondary = await authority.handoff({ previousLeaseId: routePrimary.id, reason: 'Opportunity runtime failover proof', leaseKey: `${runId}-route-secondary`, requestId: `${runId}-route-secondary-request`, mandateId: (await prisma.authorityLease.findUniqueOrThrow({ where: { id: routePrimary.id } })).mandateId, providerId: 'rules-engine', ttlSeconds: 900 }, ctx);
+    const routeSecondary = await authority.handoff({ previousLeaseId: routePrimary.id, reason: 'Opportunity runtime failover proof', leaseKey: `${runId}-route-secondary`, requestId: `${runId}-route-secondary-request`, mandateId: (await prisma.authorityLease.findUniqueOrThrow({ where: { id: routePrimary.id } })).mandateId, providerId: 'manual-confirmation', ttlSeconds: 900 }, ctx);
     leases.push(routeSecondary);
 
     let staleFencingRejected = false;
@@ -37,7 +38,7 @@ async function main() {
     assert(staleFencingRejected, 'OI-21 stale provider response is rejected through fencing');
     assert(routeSecondary.agentId === routePrimary.agentId, 'OI-20 failover retains canonical AGM agent identity');
 
-    const cost = await provision(authority, ctx, runId, 'cost', 'premium.car-mover.cost-risk', 'premium.car-mover.cost-risk', 'opportunity.cost.assess', 'openai-primary');
+    const cost = await provision(authority, ctx, runId, 'cost', 'premium.car-mover.cost-risk', 'premium.car-mover.cost-risk', 'opportunity.cost.assess', 'agm-economic-engine');
     const planner = await provision(authority, ctx, runId, 'planner', 'premium.car-mover.opportunity.planning', 'premium.car-mover.opportunity-planner', 'opportunity.chain.plan', 'openai-primary');
     const judge = await provision(authority, ctx, runId, 'judge', 'premium.car-mover.opportunity.judgement', 'premium.car-mover.opportunity-judge', 'opportunity.verdict.issue', 'openai-primary');
     leases.push(cost, planner, judge);

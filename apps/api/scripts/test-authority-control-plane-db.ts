@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { AuthorityControlPlaneService } from '../src/authority-control-plane/authority-control-plane.service';
+import { createAuthorityControlPlaneForDbGate } from './authority-control-plane-db.factory';
 import type { RequestContext } from '../src/common/request-context';
 
 async function main() {
@@ -11,7 +12,7 @@ async function main() {
   if (!user) throw new Error('No local User exists for runtime gate.');
   const runId = `authority-gate-${Date.now()}`;
   const ctx: RequestContext = { companyId: company.id, userId: user.id, roles: ['OWNER'], requestId: randomUUID(), correlationId: randomUUID() };
-  const service = new AuthorityControlPlaneService(prisma as never);
+  const service = createAuthorityControlPlaneForDbGate(prisma as never);
   try {
     const initial = await service.dashboard(ctx);
     assert(initial.nodes.length >= 19, 'canonical Premium registry is persisted');
