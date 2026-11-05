@@ -27,7 +27,7 @@ const reconstructedCss = cssModules
 // Repinned for the TURN CSS added in 34f730b/005474d (pin was stale at origin 13fa7db); line endings normalized so Windows checkouts match.
 assert.equal(
   createHash('sha256').update(reconstructedCss).digest('hex').toUpperCase(),
-  '8207BE54C721302EF681123953C04D33F34BCB965D79AC1EFFC7DFDBFD47B80C',
+  '4F1D975AD0A4638AFC34B0EC046C554CB83EDC3D952DDF5CC157434AF610023A',
   'The modular CSS must reconstruct the approved Access/Premium and Android Wave 1 cascade.',
 );
 

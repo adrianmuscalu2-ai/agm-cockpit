@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+import { renderTurnJournalsView } from '../src/turn-journals.view';
+import { agmaHistory, searchAgmaHistory } from '../src/agma-history';
+import { manifestDecisionSummary, manifestJournalDecisions } from '../src/turn-manifest-governance';
+
+const view = renderTurnJournalsView({ appVersion: '1.6.0' });
+
+assert.match(view, /data-turn-journals-view/);
+assert.match(view, /READ-ONLY/);
+assert.match(view, /Incident Journal/);
+assert.match(view, /Version Journal/);
+assert.match(view, /Operational Memory/);
+assert.match(view, /Evidence Ledger/);
+assert.match(view, /Risk &amp; Knowledge/);
+assert.equal((view.match(/data-turn-journal-row=/g) ?? []).length, 5);
+assert.match(view, /IMPLEMENTED NOT VALIDATED/);
+assert.match(view, /Version Journal \/ commituri/);
+assert.match(view, /Isolated preview/);
+assert.match(view, /Canonical source registry/);
+assert.match(view, /34f730be3fe5cf790f76a6169fc5b1d043b320da/);
+assert.match(view, /does not write journals/);
+assert.match(view, /Caută etichetă AGMA/);
+assert.equal((view.match(/data-agma-search=/g) ?? []).length, agmaHistory.length);
+assert.equal(searchAgmaHistory('AGMA').length, agmaHistory.length);
+assert.ok(searchAgmaHistory('Wave 2B').some((record) => record.id === 'AGMA-WAVE2B-20260927'));
+assert.ok(searchAgmaHistory('34f730b').some((record) => record.status === 'INCOMPLETE_NOT_COMMITTED'));
+assert.match(view, /Decizii jurnal conform manifestului/);
+assert.equal((view.match(/data-manifest-journal-id=/g) ?? []).length, manifestJournalDecisions.length);
+assert.deepEqual(manifestDecisionSummary(), { yes: 0, no: manifestJournalDecisions.length, total: manifestJournalDecisions.length });
+assert.ok(manifestJournalDecisions.every((decision) => decision.decision === 'NU' && decision.reason.includes('NU:')));
+assert.ok(manifestJournalDecisions.every((decision) => decision.committed === 'NOT_COMMITTED' && decision.production === 'NOT_ACTIVE'));
+assert.ok(manifestJournalDecisions.some((decision) => decision.roleId === 'director-turn-operations' && decision.duty.includes('incidente')));
+assert.ok(manifestJournalDecisions.some((decision) => decision.roleId === 'version-guardian' && decision.duty.includes('baseline')));
+assert.ok(manifestJournalDecisions.some((decision) => decision.roleId === 'agent-agm-chronicler' && decision.duty.includes('cronologia')));
+assert.ok(manifestJournalDecisions.some((decision) => decision.roleStatus === 'IMPLEMENTED_SOURCE' && decision.roleId === 'risk-knowledge-orchestrator' && decision.authorityBoundary.includes('advisory-only')));
+assert.ok(manifestJournalDecisions.find((decision) => decision.roleId === 'risk-knowledge-orchestrator')?.roleEvidence.includes('apps/api/src/governance-v2/risk-knowledge-orchestrator.ts'));
+const riskDecision = manifestJournalDecisions.find((decision) => decision.roleId === 'risk-knowledge-orchestrator');
+assert.ok(riskDecision?.historicalRoleEvidence?.some((reference) => reference.includes('.m1-final.backup')));
+assert.ok(riskDecision?.historicalRoleEvidence?.some((reference) => reference.includes('.m2-final.dump')));
+assert.ok(riskDecision?.historicalRoleEvidence?.some((reference) => reference.includes('.m3-governance.dump')));
+assert.ok(riskDecision?.missingRoleEvidence?.some((reference) => reference.startsWith('M4 historical artifact: NOT LOCATED')));
+
+console.log('TURN journals view contract: PASS');

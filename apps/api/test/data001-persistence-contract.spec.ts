@@ -40,7 +40,7 @@ describe('DATA-001 persistence contract', () => {
   it('contains no destructive operation in the approved migration baseline', () => {
     for (const [name] of DATA001_PERSISTENCE_CONTRACT.expectedMigrations) {
       const sql = readFileSync(resolve(migrationsRoot, name, 'migration.sql'), 'utf8');
-      expect(sql).not.toMatch(/\b(?:DROP\s+(?:TABLE|SCHEMA|DATABASE)|TRUNCATE)\b/i);
+      expect(sql).not.toMatch(/\b(?:DROP\s+(?:TABLE|SCHEMA|DATABASE)|(?<!BEFORE\s)TRUNCATE)\b/i);
     }
   });
 

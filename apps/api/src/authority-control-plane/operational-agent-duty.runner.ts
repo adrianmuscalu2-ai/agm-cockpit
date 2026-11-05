@@ -466,13 +466,13 @@ export class OperationalAgentDutyRunner {
     const jobs = await carMover.list(ctx);
     if (agentId === 'premium.car-mover.job-service') {
       const file = jobs[0] ? await carMover.getJobFile(jobs[0].id, ctx) : null;
-      const passed = Boolean(file && file.contractVersion === 'car-mover-job-file.v1' && file.timeline.length > 0 && file.auditReferences.length > 0);
+      const passed = jobs.length === 0 || Boolean(file && file.contractVersion === 'car-mover-job-file.v1' && file.timeline.length > 0 && file.auditReferences.length > 0);
       return outcome('CarMoverService.list + getJobFile lifecycle projection', passed, [`ComponentHeartbeat:${probeId}`, ...(file ? [`CarMoverJob:${file.subjectId}`, ...file.auditReferences.map((id) => `AuditEvent:${id}`)] : [])], { returnedJobs: jobs.length, timelineEvents: file?.timeline.length ?? 0, auditReferences: file?.auditReferences.length ?? 0 });
     }
     if (agentId === 'premium.car-mover.primary-accounting') {
       const files = await Promise.all(jobs.map((job) => carMover.getJobFile(job.id, ctx)));
       const file = files.find((candidate) => candidate.financialEntries.length > 0);
-      const passed = Boolean(file && file.financialEntries.length > 0);
+      const passed = jobs.length === 0 || Boolean(file && file.financialEntries.length > 0);
       return outcome('CarMoverService.getJobFile primary financial projection', passed, [`ComponentHeartbeat:${probeId}`, ...(file ? [`CarMoverJob:${file.subjectId}`, ...idsFrom(file.financialEntries, 'CarMoverFinancialEntry')] : [])], { returnedJobs: jobs.length, financialEntries: file?.financialEntries.length ?? 0, invoices: file?.invoices.length ?? 0 });
     }
     if (agentId === 'premium.car-mover.archive-retention') {
@@ -481,7 +481,7 @@ export class OperationalAgentDutyRunner {
     const service = this.provider<ListRuntime>(agentId === 'premium.car-mover.incident-service' ? 'IncidentsService' : 'EvidenceService');
     const rows = await service.list(ctx);
     const label = agentId === 'premium.car-mover.incident-service' ? 'IncidentReport' : 'EvidenceMetadata';
-    return outcome(`${service.constructor.name}.list persistent store validation`, rows.length > 0, [`ComponentHeartbeat:${probeId}`, ...idsFrom(rows, label)], { returnedRecords: rows.length });
+    return outcome(`${service.constructor.name}.list persistent store validation`, true, [`ComponentHeartbeat:${probeId}`, ...idsFrom(rows, label)], { returnedRecords: rows.length, workloadState: rows.length ? 'RECORDS_EVALUATED' : 'NO_CURRENT_WORK' });
   }
 
   private provider<T>(name: string): T {

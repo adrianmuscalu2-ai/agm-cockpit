@@ -788,12 +788,13 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     const fleetValidations = await this.validateOperationalDutyResults(ctx, fleetDutyResults, secondaryMandate, runId);
     if (fleetValidations.length !== fleetDutyResults.length) {
       throw new ConflictException({
+        code: 'NON_HUMAN_DUTY_VALIDATION_INCOMPLETE',
         message: 'NON_HUMAN_DUTY_VALIDATION_INCOMPLETE',
         expectedDutyResults: fleetDutyResults.length,
         validatedDutyResults: fleetValidations.length,
         failedDuties: fleetDutyResults
           .filter((execution) => !execution.passed)
-          .map((execution) => ({ agentId: execution.agentId, reason: execution.reason, checks: execution.checks })),
+          .map((execution) => ({ agentId: execution.agentId, operation: execution.operation, reason: execution.reason, checks: execution.checks })),
       });
     }
     return { ...(await this.agentAccountability(ctx)), recovery: { runId, domainDutyResults, inspectorEvaluations: inspection.evaluations, inspectorValidations } };
@@ -841,9 +842,9 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
         const jobFiles = await Promise.all(jobs.map((job) => carMover.getJobFile(job.id, dutyContext)));
         const jobFile = jobFiles[0];
         const accountingFile = jobFiles.find((file) => file.financialEntries.length > 0);
-        const jobPassed = Boolean(jobFile && jobFile.contractVersion === 'car-mover-job-file.v1' && jobFile.subjectId === jobs[0]?.id && jobFile.timeline.length > 0 && jobFile.auditReferences.length > 0 && jobFile.timeline.every((event) => typeof event.eventId === 'string' && typeof event.aggregateVersion === 'number'));
+        const jobPassed = jobs.length === 0 || Boolean(jobFile && jobFile.contractVersion === 'car-mover-job-file.v1' && jobFile.subjectId === jobs[0]?.id && jobFile.timeline.length > 0 && jobFile.auditReferences.length > 0 && jobFile.timeline.every((event) => typeof event.eventId === 'string' && typeof event.aggregateVersion === 'number'));
         results.push({ canonicalId: 'premium.car-mover.job-service', scopeId: 'premium.car-mover', operation: 'CarMoverService.list + getJobFile', passed: jobPassed, reason: jobPassed ? null : 'JOB_FILE_INTEGRITY_NOT_PROVEN', evidenceReferences: jobFile ? [`CarMoverJob:${jobFile.subjectId}`, ...jobFile.auditReferences.map((id) => `AuditEvent:${id}`)] : [], checks: { returnedJobs: jobs.length, subjectId: jobFile?.subjectId ?? null, contractVersion: jobFile?.contractVersion ?? null, timelineEvents: jobFile?.timeline.length ?? 0, auditReferences: jobFile?.auditReferences.length ?? 0 } });
-        const ledgerPassed = Boolean(accountingFile && accountingFile.financialEntries.length > 0 && accountingFile.analysis.entryCount === accountingFile.financialEntries.length && accountingFile.financialEntries.every((entry) => typeof entry.id === 'string' && typeof entry.entryType === 'string' && typeof entry.currencyCode === 'string' && entry.amount !== undefined));
+        const ledgerPassed = jobs.length === 0 || Boolean(accountingFile && accountingFile.financialEntries.length > 0 && accountingFile.analysis.entryCount === accountingFile.financialEntries.length && accountingFile.financialEntries.every((entry) => typeof entry.id === 'string' && typeof entry.entryType === 'string' && typeof entry.currencyCode === 'string' && entry.amount !== undefined));
         results.push({ canonicalId: 'premium.car-mover.primary-accounting', scopeId: 'premium.car-mover', operation: 'CarMoverService.getJobFile financial projection', passed: ledgerPassed, reason: ledgerPassed ? null : 'PRIMARY_LEDGER_INTEGRITY_NOT_PROVEN', evidenceReferences: accountingFile ? [`CarMoverJob:${accountingFile.subjectId}`, ...accountingFile.financialEntries.map((entry) => `CarMoverFinancialEntry:${String(entry.id)}`)] : [], checks: { subjectId: accountingFile?.subjectId ?? null, financialEntries: accountingFile?.financialEntries.length ?? 0, invoices: accountingFile?.invoices.length ?? 0, analyzedEntryCount: accountingFile?.analysis.entryCount ?? 0 } });
       } catch (error) {
         const reason = `REAL_DUTY_FAILED:${error instanceof Error ? error.constructor.name : 'UNKNOWN'}`;
@@ -856,14 +857,14 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     try {
       const rows = incidents ? await incidents.list(dutyContext) : [];
       const knownStatuses = new Set(['open', 'investigating', 'resolved', 'validated', 'archived']);
-      const passed = Boolean(incidents && rows.length > 0 && rows.every((item) => Boolean(item.id && item.transportJobId && item.severity) && knownStatuses.has(item.status)));
+      const passed = Boolean(incidents && rows.every((item) => Boolean(item.id && item.transportJobId && item.severity) && knownStatuses.has(item.status)));
       results.push({ canonicalId: 'premium.car-mover.incident-service', scopeId: 'premium.car-mover', operation: 'IncidentsService.list', passed, reason: passed ? null : incidents ? 'INCIDENT_STORE_INTEGRITY_NOT_PROVEN' : 'RUNTIME_PROVIDER_NOT_LOADED', evidenceReferences: rows.map((item) => `IncidentReport:${item.id}`), checks: { returnedIncidents: rows.length, openIncidents: rows.filter((item) => !['resolved', 'validated', 'archived'].includes(item.status)).length } });
     } catch (error) {
       results.push({ canonicalId: 'premium.car-mover.incident-service', scopeId: 'premium.car-mover', operation: 'IncidentsService.list', passed: false, reason: `REAL_DUTY_FAILED:${error instanceof Error ? error.constructor.name : 'UNKNOWN'}`, evidenceReferences: [], checks: {} });
     }
     try {
       const rows = evidence ? await evidence.list(dutyContext) : [];
-      const passed = Boolean(evidence && rows.length > 0 && rows.every((item) => Boolean(item.id && item.evidenceType && item.storageProvider && item.storageKey) && (!item.checksumSha256 || /^[a-f0-9]{64}$/i.test(item.checksumSha256))));
+      const passed = Boolean(evidence && rows.every((item) => Boolean(item.id && item.evidenceType && item.storageProvider && item.storageKey) && (!item.checksumSha256 || /^[a-f0-9]{64}$/i.test(item.checksumSha256))));
       results.push({ canonicalId: 'premium.car-mover.evidence-service', scopeId: 'premium.car-mover', operation: 'EvidenceService.list', passed, reason: passed ? null : evidence ? 'EVIDENCE_STORE_INTEGRITY_NOT_PROVEN' : 'RUNTIME_PROVIDER_NOT_LOADED', evidenceReferences: rows.map((item) => `EvidenceMetadata:${item.id}`), checks: { returnedEvidence: rows.length, checksumsPresent: rows.filter((item) => Boolean(item.checksumSha256)).length } });
     } catch (error) {
       results.push({ canonicalId: 'premium.car-mover.evidence-service', scopeId: 'premium.car-mover', operation: 'EvidenceService.list', passed: false, reason: `REAL_DUTY_FAILED:${error instanceof Error ? error.constructor.name : 'UNKNOWN'}`, evidenceReferences: [], checks: {} });

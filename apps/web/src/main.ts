@@ -169,6 +169,7 @@ import { bindSecretTelemetry, reconcileSecretTelemetryIncident } from './secret-
 import { bindProductionPreflight, reconcileProductionPreflightIncident } from './production-preflight';
 import { publishPanelAgentModel } from './turn-agent-panel.integration';
 import { bindTurnBackToTop } from './turn-navigation';
+import { bindAgmaHistorySearch } from './turn-journals.view';
 import { bindTurnOrganizationChart } from './turn-organization-chart';
 import { bindTurnSpatialModels } from './turn-spatial-control-model';
 import { bindP9TurnProjection } from './p9-turn-projection';
@@ -632,6 +633,7 @@ function render() {
   } else if (state.view === 'turn') {
     bindIncidentJournal();
     bindProjectCatalog();
+    bindAgmaHistorySearch();
     bindOperationsHealthChecks((source, snapshot) => {
       recordMonitoringDuty(source, snapshot);
       publishPanelAgentModel();

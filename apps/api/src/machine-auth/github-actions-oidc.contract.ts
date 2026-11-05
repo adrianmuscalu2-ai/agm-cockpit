@@ -20,6 +20,14 @@ export const GITHUB_ACTIONS_PROVISIONING_CONTRACT = {
       role: 'DEPLOYMENT_PROVISIONER',
     },
     {
+      subject: 'repo:adrianmuscalu2-ai/agm-cockpit:environment:Production',
+      environment: 'Production',
+      ref: 'refs/heads/phase3-rc-preparation',
+      workflowRef: 'adrianmuscalu2-ai/agm-cockpit/.github/workflows/production-release.yml@refs/heads/phase3-rc-preparation',
+      eventNames: ['workflow_dispatch'],
+      role: 'DEPLOYMENT_PROVISIONER',
+    },
+    {
       subject: 'repo:adrianmuscalu2-ai/agm-cockpit:environment:Production-Agent-Runtime-Continuity',
       environment: 'Production-Agent-Runtime-Continuity',
       ref: 'refs/heads/agm-canonical-20260820',
