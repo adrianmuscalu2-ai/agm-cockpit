@@ -42,7 +42,7 @@ export async function syncAgmatccLedger(fetcher: typeof fetch = turnAdminAuthent
 }
 
 export async function readRemoteAgmatccJournal(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
-  const response = await fetcher(`/operational-events/${encodeURIComponent(stream().streamId)}?afterVersion=0`, { cache: 'no-store', headers: { Accept: 'application/json' } });
+  const response = await fetcher(`/operational-events/${encodeURIComponent(stream().streamId)}?afterVersion=-1`, { cache: 'no-store', headers: { Accept: 'application/json' } });
   if (!response.ok) throw new Error(`AGMATCC_JOURNAL_HTTP_${response.status}`);
   const payload = await response.json() as { data?: { serverVersion?: number; events?: unknown[] } };
   return { serverVersion: payload.data?.serverVersion ?? -1, count: payload.data?.events?.length ?? 0 };
