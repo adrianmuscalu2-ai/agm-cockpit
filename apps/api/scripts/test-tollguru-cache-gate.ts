@@ -1,3 +1,4 @@
+import { createAuthorityControlPlaneForDbGate } from './authority-control-plane-db.factory';
 import 'dotenv/config';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
@@ -16,7 +17,7 @@ async function main(){
   await prisma.$connect();
   const user=await prisma.user.findFirst({where:{email:{equals:'agm.transporte.logistik@gmail.com',mode:'insensitive'},status:'Active'},include:{roles:{include:{role:true}}}});if(!user)throw new Error('PILOT_OWNER_ACCOUNT_NOT_FOUND');
   const ctx:RequestContext={companyId:user.companyId,userId:user.id,roles:[...user.roles.map((item)=>item.role.code),'OWNER','PREMIUM_ACCESS'],requestId:randomUUID(),correlationId:randomUUID()};
-  const audit=new AuditService(prisma),authority=new AuthorityControlPlaneService(prisma),carMover=new CarMoverService(prisma,audit,pilot),oi=new OpportunityIntelligenceService(prisma,authority,carMover,audit);
+  const audit=new AuditService(prisma),authority=createAuthorityControlPlaneForDbGate(prisma),carMover=new CarMoverService(prisma,audit,pilot),oi=new OpportunityIntelligenceService(prisma,authority,carMover,audit);
   const live=new LiveAdapterService(prisma,oi,new TomTomGeocodingAdapter(config),new HereGeocodingAdapter(config),new TomTomRouteAdapter(config),new HereRouteAdapter(config),new TomTomTrafficAdapter(config),new TollGuruAdapter(config),new HereTransitAdapter(config),pilot);
   const before=await metrics(ctx),origin={latitude:48.1351,longitude:11.582},destination={latitude:48.5734,longitude:7.7521};
   const skipped=await live.resolve('TOLL',{routeReference:'pilot-no-toll-required',origin,destination,tollRequired:false},ctx,false);
