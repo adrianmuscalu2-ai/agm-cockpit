@@ -1,0 +1,114 @@
+import { turnAdminAuthenticatedFetch } from '../admin-auth';
+import './agmatcc.css';
+import {
+  AGMATCC_LEDGER_KEY, AGMATCC_STREAM_KEY, appendAgmatccEntry, randomUuid, searchAgmatccLedger,
+  toOperationalSyncItems, verifyAgmatccLedger, type AgmatccEntry, type AgmatccEntryKind, type AgmatccProvenance,
+} from './agmatcc.ledger';
+
+const SYNCED_KEY = 'agm.turn.agmatcc.synced-count.v1';
+const ACTOR_ID = 'turn-admin-session';
+
+type RecognitionLike = { lang: string; interimResults: boolean; continuous: boolean; onresult: ((e: any) => void) | null; onerror: ((e: any) => void) | null; onend: (() => void) | null; start(): void; stop(): void };
+
+function readJson<T>(key: string, fallback: T): T {
+  try { const raw = window.localStorage.getItem(key); return raw ? JSON.parse(raw) as T : fallback; } catch { return fallback; }
+}
+function stream() {
+  const existing = readJson<{ streamId: string; deviceId: string } | null>(AGMATCC_STREAM_KEY, null);
+  if (existing) return existing;
+  const created = { streamId: randomUuid(), deviceId: randomUuid() };
+  window.localStorage.setItem(AGMATCC_STREAM_KEY, JSON.stringify(created));
+  return created;
+}
+
+export async function syncAgmatccLedger(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
+  const ledger = readJson<AgmatccEntry[]>(AGMATCC_LEDGER_KEY, []);
+  const synced = Number(readJson<number>(SYNCED_KEY, 0));
+  if (synced >= ledger.length) return { acknowledged: 0, pending: 0 };
+  const items = toOperationalSyncItems(ledger, stream(), synced);
+  const response = await fetcher('/operational-events/sync', {
+    method: 'POST', cache: 'no-store',
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ events: items }),
+  });
+  if (!response.ok) throw new Error(`AGMATCC_SYNC_HTTP_${response.status}`);
+  const payload = await response.json() as { data?: { results?: Array<{ status: string }> } };
+  const results = payload.data?.results ?? [];
+  const accepted = results.findIndex((r) => r.status === 'conflict');
+  const count = accepted === -1 ? results.length : accepted;
+  window.localStorage.setItem(SYNCED_KEY, JSON.stringify(synced + count));
+  return { acknowledged: count, pending: items.length - count };
+}
+
+export function bindAgmatcc(language = 'ro-RO') {
+  const root = document.querySelector<HTMLElement>('.turn-agmatcc-page');
+  if (!root || root.dataset.agmatccBound) return;
+  root.dataset.agmatccBound = '1';
+  const $ = <T extends HTMLElement>(selector: string) => root.querySelector<T>(selector)!;
+  const draft = $<HTMLTextAreaElement>('[data-agmatcc-draft]');
+  const status = $('[data-agmatcc-status]');
+  const history = $('[data-agmatcc-history]');
+  const results = $('[data-agmatcc-results]');
+  const integrity = $('[data-agmatcc-integrity]');
+  const syncLabel = $('[data-agmatcc-sync]');
+  const captureButton = $<HTMLButtonElement>('[data-agmatcc-capture]');
+  const stopButton = $<HTMLButtonElement>('[data-agmatcc-stop]');
+  let ledger = readJson<AgmatccEntry[]>(AGMATCC_LEDGER_KEY, []);
+  let provenance: AgmatccProvenance = 'typed';
+  let recognition: RecognitionLike | null = null;
+
+  const render = async () => {
+    history.innerHTML = ledger.slice().reverse().map((entry) =>
+      `<li><small>#${entry.index} · ${entry.kind} · ${entry.provenance} · ${entry.occurredAt} · ${entry.hash.slice(0, 12)}</small><div></div></li>`).join('');
+    [...history.children].forEach((li, i) => { li.querySelector('div')!.textContent = ledger[ledger.length - 1 - i].text; });
+    const check = await verifyAgmatccLedger(ledger);
+    integrity.textContent = check.valid ? `Integritate: VALID (${ledger.length} intrări)` : `Integritate: ÎNCĂLCATĂ la #${check.brokenAt}`;
+    const syncedCount = Number(readJson<number>(SYNCED_KEY, 0));
+    syncLabel.textContent = `Sincronizare cu operational-events: ${syncedCount}/${ledger.length}.`;
+  };
+  const append = async (kind: AgmatccEntryKind, text: string, entryProvenance: AgmatccProvenance) => {
+    ledger = await appendAgmatccEntry(ledger, { kind, provenance: entryProvenance, text, language, actorId: ACTOR_ID });
+    window.localStorage.setItem(AGMATCC_LEDGER_KEY, JSON.stringify(ledger));
+    await render();
+    syncAgmatccLedger().then(render).catch(() => { syncLabel.textContent = 'Sincronizare: indisponibilă, intrările rămân locale și se retrimit.'; });
+  };
+
+  captureButton.addEventListener('click', () => {
+    const Ctor = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
+    if (!Ctor) { status.textContent = 'Recunoașterea vocală nu este disponibilă pe acest dispozitiv; folosește introducerea manuală.'; return; }
+    recognition = new Ctor() as RecognitionLike;
+    recognition.lang = language; recognition.interimResults = false; recognition.continuous = false;
+    recognition.onresult = (event) => { draft.value = [...event.results].map((r: any) => r[0].transcript).join(' '); provenance = 'voice-capture'; status.textContent = 'Transcriere primită. Verific-o și confirmă.'; };
+    recognition.onerror = (event) => { status.textContent = `Eroare captură: ${event.error ?? 'necunoscută'}`; };
+    recognition.onend = () => { captureButton.disabled = false; stopButton.disabled = true; };
+    captureButton.disabled = true; stopButton.disabled = false; status.textContent = 'Ascult…';
+    recognition.start();
+  });
+  stopButton.addEventListener('click', () => recognition?.stop());
+  draft.addEventListener('input', () => { if (provenance === 'voice-capture' && !draft.value.trim()) provenance = 'typed'; });
+  $('[data-agmatcc-confirm]').addEventListener('click', () => {
+    const text = draft.value.trim();
+    if (!text) { status.textContent = 'Nimic de înregistrat.'; return; }
+    const kind: AgmatccEntryKind = provenance === 'voice-capture' ? 'voice-transcript-confirmed' : 'note';
+    void append(kind, text, provenance).then(() => { draft.value = ''; provenance = 'typed'; status.textContent = 'Înregistrat (append-only).'; });
+  });
+  $('[data-agmatcc-speak]').addEventListener('click', () => {
+    const text = draft.value.trim() || ledger[ledger.length - 1]?.text;
+    if (!text || !('speechSynthesis' in window)) { status.textContent = 'Nu există text de redat sau redarea vocală nu este disponibilă.'; return; }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language;
+    window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
+    void append('playback', `Redare: ${text.slice(0, 200)}`, 'system');
+  });
+  $<HTMLInputElement>('[data-agmatcc-query]').addEventListener('input', (event) => {
+    const query = (event.target as HTMLInputElement).value;
+    results.innerHTML = '';
+    searchAgmatccLedger(ledger, query).forEach((hit) => {
+      const li = document.createElement('li');
+      li.textContent = `#${hit.entry.index} · ${hit.entry.text}`;
+      results.append(li);
+    });
+  });
+  void render();
+  syncAgmatccLedger().then(render).catch(() => undefined);
+}

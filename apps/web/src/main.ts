@@ -150,6 +150,7 @@ import { bindPremiumAssistantRuntime } from './premium-voice-shell/premium-assis
 import { bindCarMoverRuntime } from './car-mover/car-mover.runtime';
 import { bindPremiumGovernanceRuntime } from './premium-governance/premium-governance.runtime';
 import { bindTurnCommandNavigation } from './turn-command-navigation';
+import { bindAgmatcc } from './turn-agmatcc/agmatcc.runtime';
 import './premium-governance/premium-governance.css';
 import './premium-governance/premium-glass-overrides.css';
 import './premium-governance/turn-authority-control-plane.css';
@@ -242,7 +243,7 @@ type ViewName =
 type EmailComposeMode = 'general' | 'manual';
 type ServiceAvailability = 'checking' | 'online' | 'offline';
 
-const APP_VERSION = 'A.G.M. Cockpit 1.6.0';
+const APP_VERSION = 'A.G.M. Cockpit 1.9.1';
 const APP_BRAND_RELATION: Record<BasicLanguageCode, string> = {
   ro: 'A.G.M. Cockpit — parte din ecosistemul AGM Transporte.',
   de: 'A.G.M. Cockpit — Teil des AGM-Transporte-Ökosystems.',
@@ -719,7 +720,7 @@ function renderHomeHeader() {
     <header class="home-topbar">
       <button class="home-brand" data-module="home" data-admin-trigger type="button" aria-label="${escapeHtml(t(language, 'home.title'))}">
         <strong>A.G.M.</strong>
-        <span>Cockpit 1.6.0</span>
+        <span>Cockpit 1.9.1</span>
       </button>
       <div class="home-profile-control">
         <div class="home-language-control" title="${escapeHtml(t(language, 'header.quickProfileTitle'))}">
@@ -2529,6 +2530,7 @@ function bindShared() {
     bindPremiumAssistantRuntime();
     bindCarMoverRuntime();
   bindTurnCommandNavigation();
+    bindAgmatcc(uiLanguage());
   bindPremiumGovernanceRuntime(state.adminAccessVerified);
   bindCopilotRuntime();
   document.querySelectorAll<HTMLButtonElement>('[data-global-action]').forEach((control) => {
@@ -3940,7 +3942,7 @@ function registerServiceWorker() {
   }
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js?v=agm-cockpit-1.6.0-coherent-turn-v1-20260924', { updateViaCache: 'none' }).catch(() => {
+    navigator.serviceWorker.register('/sw.js?v=agm-cockpit-1.9.1-turn-agmatcc-20261104', { updateViaCache: 'none' }).catch(() => {
       state.status = t(uiLanguage(), 'status.pwaUnavailable');
     });
   });

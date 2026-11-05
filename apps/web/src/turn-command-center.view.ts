@@ -1,3 +1,4 @@
+import { renderAgmatccPage } from './turn-agmatcc/agmatcc.view';
 import { agentGovernanceRegistry, type AgentGovernanceRecord } from './agent-governance.registry';
 import { t } from './i18n/app-i18n';
 import { type UiLanguage } from './i18n/app-i18n.types';
@@ -62,7 +63,7 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       aria-label="${escapeHtml(t(language, 'turn.ariaLabel'))}"
       data-module-contract="${turnCommandCenterContract.version}"
       data-operation-mode="${turnCommandCenterContract.mode}"
-      data-active-turn-page="basic"
+      data-active-turn-page="agmatcc"
     >
       <header class="turn-command-header">
         <div class="turn-command-identity">
@@ -80,6 +81,8 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
       </header>
 
       ${renderTurnModuleNavigation()}
+
+      ${renderAgmatccPage()}
 
       ${renderFunctionalOverview()}
 
@@ -227,7 +230,8 @@ function renderTurnModuleNavigation() {
     <div class="turn-module-navigation-header"><div><span class="turn-kicker">TURN · MODULE INDEX</span><strong>Navigare rapidă</strong></div><a href="#turn-basic" data-open-turn-page="basic">Overview</a></div>
     <label class="turn-module-search"><span>Caută modul, funcție sau identificator</span><input type="search" data-turn-module-search placeholder="Ex.: telemetry, incident, Machine" /></label>
     <nav class="turn-page-switcher" aria-label="TURN spatial models">
-      <button type="button" data-turn-page-target="basic" aria-selected="true">Basic</button>
+      <button type="button" data-turn-page-target="agmatcc" aria-selected="true">AGMaTCC</button>
+      <button type="button" data-turn-page-target="basic" aria-selected="false">Basic</button>
       <button type="button" data-turn-page-target="premium" aria-selected="false">Premium</button>
       <button type="button" data-turn-page-target="orchestrators" aria-selected="false">Orchestrators</button>
       <button type="button" data-turn-page-target="incidents" aria-selected="false">Incidents</button>

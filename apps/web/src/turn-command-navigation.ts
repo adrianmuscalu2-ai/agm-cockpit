@@ -1,4 +1,4 @@
-const TURN_PAGES = ['basic', 'premium', 'orchestrators', 'incidents', 'investigate'] as const;
+const TURN_PAGES = ['agmatcc', 'basic', 'premium', 'orchestrators', 'incidents', 'investigate'] as const;
 type TurnPage = (typeof TURN_PAGES)[number];
 const TURN_LAST_PAGE_KEY = 'agm.turn.navigation.last-page.v1';
 
@@ -71,8 +71,8 @@ export function bindTurnCommandNavigation() {
 
   let stored: string | null = null;
   try { stored = window.localStorage.getItem(TURN_LAST_PAGE_KEY); } catch { stored = null; }
-  const initial = location.hash.startsWith('#turn-') ? location.hash.slice(6) : stored ?? 'basic';
-  selectPage(isTurnPage(initial) ? initial : 'basic', false);
+  const initial = location.hash.startsWith('#turn-') ? location.hash.slice(6) :   stored ?? 'agmatcc';
+    selectPage(isTurnPage(initial) ? initial : 'agmatcc', false);
 }
 
 function isTurnPage(value: string | undefined): value is TurnPage {

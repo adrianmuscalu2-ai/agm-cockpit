@@ -12,7 +12,7 @@ export type TurnModuleNavigationEntry = {
   lastVerifiedAt: string;
   relatedModules: string[];
   evidenceRefs: string[];
-  page?: 'basic' | 'premium' | 'orchestrators' | 'incidents' | 'investigate';
+  page?: 'agmatcc' | 'basic' | 'premium' | 'orchestrators' | 'incidents' | 'investigate';
   target?: string;
 };
 

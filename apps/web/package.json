@@ -1,6 +1,6 @@
 {
   "name": "@agm/web",
-  "version": "1.6.0",
+  "version": "1.9.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -63,6 +63,7 @@
     "test:contact-email-labels": "tsx scripts/test-contact-email-labels.ts",
     "test:turn-live-state": "tsx scripts/test-turn-live-state-reconciliation.ts",
     "test:turn-operational-truth": "tsx scripts/test-turn-operational-truth.ts",
+    "test:agmatcc": "tsx scripts/test-agmatcc.ts",
     "test:turn-functional-overview": "tsx scripts/test-turn-functional-overview.ts",
     "test:turn-auth-continuity": "tsx scripts/test-turn-auth-session-continuity.ts",
     "test:p9-turn-projection": "tsx scripts/test-p9-turn-projection.ts",

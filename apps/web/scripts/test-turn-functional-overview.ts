@@ -35,7 +35,7 @@ assert.match(mainSource, /\$\{renderGlobalQuickActions\(\)\}/);
 assert.match(premiumViewSource, /data-premium-operational-panel data-turn-page-container hidden/);
 assert.match(navigationSource, /container\.hidden = !container\.querySelector\('\[data-turn-page\]:not\(\[hidden\]\)'\)/);
 assert.match(navigationSource, /closest<HTMLDetailsElement>\('details'\)/);
-assert.match(navigationSource, /\['basic', 'premium', 'orchestrators', 'incidents', 'investigate'\]/);
+assert.match(navigationSource, /\['agmatcc', 'basic', 'premium', 'orchestrators', 'incidents', 'investigate'\]/);
 assert.match(operationsCssSource, /\.turn-basic-spatial-page:not\(\[hidden\]\)\{display:flex/);
 assert.doesNotMatch(operationsCssSource, /\.turn-basic-spatial-page\{display:flex/);
 for (const entry of ['p9', 'event-store', 'canonical-agent-registry', 'organization-chart', 'departments', 'agent-control-panel']) {
