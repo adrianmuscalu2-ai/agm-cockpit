@@ -42,6 +42,8 @@ try {
   const syncBodies = [];
   await page.route(/\/turn-admin\/(unlock|refresh)$/, (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { accessToken: 'e2e-auth-gate-stub', expiresInSeconds: 900 } }) }));
   await page.route(/\/turn-admin\/validate$/, (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { valid: true } }) }));
+  let journalReads = 0;
+  await page.route(/\/operational-events\/(?!sync)[^/?]+/, (route) => { journalReads += 1; return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { streamId: 'stub', serverVersion: 1, events: [{}], projection: null } }) }); });
   await page.route(/\/operational-events\/sync$/, (route) => { syncBodies.push(route.request().postData()); return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { results: [], projections: [] } }) }); });
   const response = await page.goto(target + 'turn', { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#turn-agmatcc-title', { timeout: 20000 }).catch(() => {});
@@ -68,6 +70,16 @@ try {
   const resultsText = await page.locator('[data-agmatcc-results]').first().innerText();
   check('Search finds the entry', resultsText.includes('Comanda de test'), { resultsText });
   await page.screenshot({ path: path.join(out, '02-after-entry.png'), fullPage: true });
+  await draft.fill('comanda cauta diacritice');
+  await page.locator('[data-agmatcc-run-command]').first().click();
+  await page.waitForTimeout(400);
+  check('Voice command "cauta" drives search', (await page.locator('[data-agmatcc-query]').first().inputValue()) === 'diacritice' && (await page.locator('[data-agmatcc-results]').first().innerText()).includes('Comanda de test'));
+  await draft.fill('comanda citeste jurnal server');
+  await page.locator('[data-agmatcc-run-command]').first().click();
+  await page.waitForTimeout(600);
+  const statusText = await page.locator('[data-agmatcc-status]').first().innerText();
+  check('Remote journal queried through authenticated GET', journalReads > 0 && /Jurnal server/.test(statusText), { journalReads, statusText });
+  await draft.fill('');
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForSelector('[data-agmatcc-history]', { timeout: 20000 });
   const persisted = await page.locator('[data-agmatcc-history]').first().innerText();

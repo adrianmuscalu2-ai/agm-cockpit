@@ -1,7 +1,8 @@
 import { turnAdminAuthenticatedFetch } from '../admin-auth';
 import './agmatcc.css';
+import { parseAgmatccVoiceCommand } from './agmatcc.commands';
 import {
-  AGMATCC_LEDGER_KEY, AGMATCC_STREAM_KEY, appendAgmatccEntry, randomUuid, searchAgmatccLedger,
+  foldText, AGMATCC_LEDGER_KEY, AGMATCC_STREAM_KEY, appendAgmatccEntry, randomUuid, searchAgmatccLedger,
   toOperationalSyncItems, verifyAgmatccLedger, type AgmatccEntry, type AgmatccEntryKind, type AgmatccProvenance,
 } from './agmatcc.ledger';
 
@@ -40,6 +41,13 @@ export async function syncAgmatccLedger(fetcher: typeof fetch = turnAdminAuthent
   return { acknowledged: count, pending: items.length - count };
 }
 
+export async function readRemoteAgmatccJournal(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
+  const response = await fetcher(`/operational-events/${encodeURIComponent(stream().streamId)}?afterVersion=0`, { cache: 'no-store', headers: { Accept: 'application/json' } });
+  if (!response.ok) throw new Error(`AGMATCC_JOURNAL_HTTP_${response.status}`);
+  const payload = await response.json() as { data?: { serverVersion?: number; events?: unknown[] } };
+  return { serverVersion: payload.data?.serverVersion ?? -1, count: payload.data?.events?.length ?? 0 };
+}
+
 export function bindAgmatcc(language = 'ro-RO') {
   const root = document.querySelector<HTMLElement>('.turn-agmatcc-page');
   if (!root || root.dataset.agmatccBound) return;
@@ -73,12 +81,48 @@ export function bindAgmatcc(language = 'ro-RO') {
     syncAgmatccLedger().then(render).catch(() => { syncLabel.textContent = 'Sincronizare: indisponibilă, intrările rămân locale și se retrimit.'; });
   };
 
+  const searchInput = $<HTMLInputElement>('[data-agmatcc-query]');
+  const runSearch = (query: string) => {
+    searchInput.value = query;
+    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  const speakText = (text: string) => {
+    if (!text || !('speechSynthesis' in window)) { status.textContent = 'Nu există text de redat sau redarea vocală nu este disponibilă.'; return; }
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language;
+    window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
+    void append('playback', `Redare: ${text.slice(0, 200)}`, 'system');
+  };
+  const readRemote = async () => {
+    try {
+      const journal = await readRemoteAgmatccJournal();
+      status.textContent = `Jurnal server: versiune ${journal.serverVersion}, ${journal.count} evenimente (local: ${ledger.length}).`;
+    } catch (error) {
+      status.textContent = `Jurnal server indisponibil: ${(error as Error).message}`;
+    }
+  };
+  const runCommand = (transcript: string): boolean => {
+    const command = parseAgmatccVoiceCommand(transcript);
+    if (command.type === 'none') return false;
+    if (command.type === 'search') { runSearch(command.query); status.textContent = `Comandă: căutare „${command.query}”.`; }
+    else if (command.type === 'play-last') speakText(ledger[ledger.length - 1]?.text ?? '');
+    else if (command.type === 'read-remote-journal') void readRemote();
+    else {
+      const link = [...root.querySelectorAll<HTMLAnchorElement>('[data-agmatcc-journal]')]
+        .find((a) => foldText(a.textContent ?? '').includes(command.target));
+      if (link) { status.textContent = `Comandă: deschid ${link.textContent}.`; link.click(); } else status.textContent = `Comandă: jurnal necunoscut „${command.target}”.`;
+    }
+    return true;
+  };
+  $('[data-agmatcc-run-command]').addEventListener('click', () => { if (!runCommand(draft.value)) status.textContent = 'Nu este o comandă (începe cu „comandă”).'; });
+  $('[data-agmatcc-read-remote]').addEventListener('click', () => { void readRemote(); });
+
   captureButton.addEventListener('click', () => {
     const Ctor = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
     if (!Ctor) { status.textContent = 'Recunoașterea vocală nu este disponibilă pe acest dispozitiv; folosește introducerea manuală.'; return; }
     recognition = new Ctor() as RecognitionLike;
     recognition.lang = language; recognition.interimResults = false; recognition.continuous = false;
-    recognition.onresult = (event) => { draft.value = [...event.results].map((r: any) => r[0].transcript).join(' '); provenance = 'voice-capture'; status.textContent = 'Transcriere primită. Verific-o și confirmă.'; };
+    recognition.onresult = (event) => { draft.value = [...event.results].map((r: any) => r[0].transcript).join(' '); provenance = 'voice-capture'; status.textContent = runCommand(draft.value) ? 'Comandă vocală executată.' : 'Transcriere primită. Verific-o și confirmă.'; };
     recognition.onerror = (event) => { status.textContent = `Eroare captură: ${event.error ?? 'necunoscută'}`; };
     recognition.onend = () => { captureButton.disabled = false; stopButton.disabled = true; };
     captureButton.disabled = true; stopButton.disabled = false; status.textContent = 'Ascult…';
@@ -92,14 +136,7 @@ export function bindAgmatcc(language = 'ro-RO') {
     const kind: AgmatccEntryKind = provenance === 'voice-capture' ? 'voice-transcript-confirmed' : 'note';
     void append(kind, text, provenance).then(() => { draft.value = ''; provenance = 'typed'; status.textContent = 'Înregistrat (append-only).'; });
   });
-  $('[data-agmatcc-speak]').addEventListener('click', () => {
-    const text = draft.value.trim() || ledger[ledger.length - 1]?.text;
-    if (!text || !('speechSynthesis' in window)) { status.textContent = 'Nu există text de redat sau redarea vocală nu este disponibilă.'; return; }
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = language;
-    window.speechSynthesis.cancel(); window.speechSynthesis.speak(utterance);
-    void append('playback', `Redare: ${text.slice(0, 200)}`, 'system');
-  });
+  $('[data-agmatcc-speak]').addEventListener('click', () => speakText(draft.value.trim() || ledger[ledger.length - 1]?.text));
   $<HTMLInputElement>('[data-agmatcc-query]').addEventListener('input', (event) => {
     const query = (event.target as HTMLInputElement).value;
     results.innerHTML = '';

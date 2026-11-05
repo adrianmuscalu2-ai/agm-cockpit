@@ -30,6 +30,11 @@ export function renderAgmatccPage() {
             <button type="button" data-agmatcc-confirm>Confirmă și înregistrează</button>
             <button type="button" data-agmatcc-speak>Redă (voce)</button>
           </div>
+          <p class="agmatcc-hint">Comenzi (încep cu „comandă”): „căutare …”, „redă ultima”, „deschide jurnal …”, „citește jurnal server”. Doar acțiuni de citire; înregistrarea rămâne confirmată de om.</p>
+          <div class="agmatcc-actions">
+            <button type="button" data-agmatcc-run-command>Execută comanda din text</button>
+            <button type="button" data-agmatcc-read-remote>Interoghează jurnalul server</button>
+          </div>
           <p class="agmatcc-status" data-agmatcc-status role="status" aria-live="polite"></p>
         </article>
         <article class="agmatcc-card" aria-labelledby="agmatcc-search-title">

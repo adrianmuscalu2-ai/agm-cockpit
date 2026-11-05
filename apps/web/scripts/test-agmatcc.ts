@@ -26,4 +26,10 @@ const nav = readFileSync(new URL('../src/turn-command-navigation.ts', import.met
 assert.ok(nav.includes("TURN_PAGES = ['agmatcc',"));
 const view = readFileSync(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
 assert.ok(view.indexOf('renderAgmatccPage()}') < view.indexOf('renderFunctionalOverview()}'));
+import { parseAgmatccVoiceCommand } from '../src/turn-agmatcc/agmatcc.commands';
+assert.deepEqual(parseAgmatccVoiceCommand('Comandă: caută Documente CMR'), { type: 'search', query: 'documente cmr' });
+assert.deepEqual(parseAgmatccVoiceCommand('comanda reda ultima'), { type: 'play-last' });
+assert.deepEqual(parseAgmatccVoiceCommand('comandă citește jurnal server'), { type: 'read-remote-journal' });
+assert.equal(parseAgmatccVoiceCommand('deschide jurnal memorie').type, 'none');
+assert.equal(parseAgmatccVoiceCommand('comanda sterge istoricul').type, 'none');
 console.log('AGMaTCC gates: PASS');
