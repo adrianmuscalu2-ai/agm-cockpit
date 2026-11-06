@@ -25,5 +25,8 @@ const blocked = deriveTccAlerts({ ...base, androidActionLayer: { guardianPermiss
 assert.equal(blocked[0].alertClass, 'JUSTIFIED_BLOCK');
 const notProven = deriveTccAlerts({ ...base, androidActionLayer: { guardianPermissionControl: step('Guardian Permission Control', 'NOT_PROVEN') } as TurnOperationalTruth['androidActionLayer'] });
 assert.equal(notProven[0].alertClass, 'WARNING');
+assert.deepEqual(deriveTccAlerts({} as TurnOperationalTruth), [], 'partial payloads must not crash or invent alerts');
+assert.deepEqual(deriveTccAlerts(null as unknown as TurnOperationalTruth), []);
 
 console.log('AGMaTCC alert gates: PASS');
+

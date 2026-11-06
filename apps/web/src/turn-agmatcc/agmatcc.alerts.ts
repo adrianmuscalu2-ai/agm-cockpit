@@ -15,6 +15,7 @@ export const TCC_ALERT_SOURCE = 'backend:GET /operations/turn/operational-truth'
 /** Pure projection of the live backend snapshot; it never invents alerts and never marks anything certified. */
 export function deriveTccAlerts(truth: TurnOperationalTruth): TccBackendAlert[] {
   const alerts: TccBackendAlert[] = [];
+  if (!truth || typeof truth !== 'object' || typeof truth.overallStatus !== 'string') return alerts;
   const push = (alertClass: TccAlertClass, message: string, observedAt: string | null, ref: string | null = null) =>
     alerts.push({ alertClass, message, source: TCC_ALERT_SOURCE, observedAt: observedAt ?? truth.generatedAt, ref });
 
@@ -23,7 +24,7 @@ export function deriveTccAlerts(truth: TurnOperationalTruth): TccBackendAlert[] 
     push('OPERATIONAL_EVENT', `${event.agentId} · ${event.lifecycle} · seq ${event.sequence} · ${event.detail}`, event.recordedAt, event.eventId);
   }
   if (truth.overallStatus !== 'PASS') push('WARNING', `Stare operațională ${truth.overallStatus}: ${truth.reason}`, truth.observedAt);
-  if (truth.accessProof.status !== 'CURRENT') push('WARNING', `Dovada de acces ACP: ${truth.accessProof.status} (fereastră ${truth.accessProof.freshnessWindowSeconds}s)`, truth.accessProof.observedAt);
+  if (truth.accessProof && truth.accessProof.status !== 'CURRENT') push('WARNING', `Dovada de acces ACP: ${truth.accessProof.status} (fereastră ${truth.accessProof.freshnessWindowSeconds}s)`, truth.accessProof.observedAt);
   if (truth.telemetryStatus !== 'LIVE TELEMETRY') push('WARNING', `Telemetrie: ${truth.telemetryStatus}`, truth.observedAt);
   if (truth.falseGreen > 0) push('WARNING', `${truth.falseGreen} indicatori fals-verzi detectați`, truth.observedAt);
 
