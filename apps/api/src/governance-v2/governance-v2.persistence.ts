@@ -144,6 +144,23 @@ export class GovernanceV2Persistence {
     return this.readProposal(id);
   }
 
+  /** Approver decision: never the proposer, never the validator who reviewed it, and only an ACTIVE actor holding the APPROVER role. */
+  async decideProposal(id: string, decision: 'ACCEPTED_FOR_CHANGE_CONTROL' | 'REJECTED', actorId: string, evidenceRefs: string[] = []) {
+    const actor = await this.readGovernanceActor(actorId) as Record<string, unknown> | null;
+    const roles = Array.isArray(actor?.roles) ? actor!.roles as unknown[] : [];
+    if (!actor || actor.status !== 'ACTIVE' || !roles.includes('APPROVER')) throw new Error('GOVERNANCE_ACTOR_UNAUTHORIZED');
+    const proposal = await this.readProposal(id) as Record<string, unknown> | null;
+    if (!proposal) throw new Error('PROPOSAL_NOT_FOUND');
+    if (String(proposal.proposer_id) === actorId) throw new Error('PROPOSAL_SELF_APPROVAL_DENIED');
+    const current = String(proposal.status);
+    if (!(decision === 'ACCEPTED_FOR_CHANGE_CONTROL' ? current === 'REVIEWED' : current === 'DRAFT' || current === 'REVIEWED')) throw new Error('PROPOSAL_INVALID_TRANSITION');
+    const reviewers = await this.db.$queryRawUnsafe<{ actor_id: string }>(`SELECT actor_id FROM ${table}.governance_events WHERE entity_type='GovernanceProposal' AND entity_id=$1 AND event_type='PROPOSAL_REVIEWED'`, id);
+    if (reviewers.some((row) => row.actor_id === actorId)) throw new Error('PROPOSAL_SELF_VALIDATION_DENIED');
+    await this.db.$executeRawUnsafe(`UPDATE ${table}.proposals SET status=$2,updated_at=now(),evidence_refs=evidence_refs || $3::jsonb WHERE proposal_id=$1`, id, decision, JSON.stringify(evidenceRefs));
+    await this.recordEvent('PROPOSAL_DECIDED', 'GovernanceProposal', id, actorId, { from: current, to: decision }, evidenceRefs);
+    return this.readProposal(id);
+  }
+
   async reconcileHistoricalProposal(input: GovernanceProposal, importerId: string, historicalEvidenceAt: string) {
     if (!historicalEvidenceAt || !input.evidenceRefs.length) throw new Error('HISTORICAL_PROVENANCE_INCOMPLETE');
     return this.createProposal({ ...input, status: 'DRAFT', importerId, historicalEvidenceAt, reconciledAt: stamp(), createdAt: stamp(), updatedAt: stamp() });

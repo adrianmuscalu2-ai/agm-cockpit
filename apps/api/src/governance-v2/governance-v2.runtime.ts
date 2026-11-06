@@ -27,6 +27,7 @@ export class GovernanceV2RuntimeService {
   listProposals() { return this.persistence.listProposals(); }
   searchProposals(query: string) { return this.persistence.searchProposals(query); }
   transitionProposal(id: string, target: GovernanceProposal['status'], actorId: string, evidenceRefs: string[] = []) { return this.transaction((p) => p.transitionProposal(id, target, actorId, evidenceRefs)); }
+  decideProposal(id: string, decision: 'ACCEPTED_FOR_CHANGE_CONTROL' | 'REJECTED', actorId: string, evidenceRefs: string[] = []) { return this.transaction((p) => p.decideProposal(id, decision, actorId, evidenceRefs)); }
   reconcileHistoricalProposal(input: GovernanceProposal, importerId: string, historicalEvidenceAt: string) { return this.transaction((p) => p.reconcileHistoricalProposal(input, importerId, historicalEvidenceAt)); }
   createRecoveryEvidence(input: RecoveryEvidenceRecord) { return this.transaction((p) => p.createRecoveryEvidence(input)); }
   readRecoveryEvidence(id: string) { return this.persistence.readRecoveryEvidence(id); }
