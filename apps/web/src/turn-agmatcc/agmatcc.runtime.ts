@@ -106,7 +106,7 @@ export function bindAgmatcc(language = 'ro-RO') {
       `<li><small>#${entry.index} · ${entry.kind} · ${entry.provenance} · ${entry.occurredAt} · ${entry.hash.slice(0, 12)}</small><div></div></li>`).join('');
     [...history.children].forEach((li, i) => { li.querySelector('div')!.textContent = ledger[ledger.length - 1 - i].text; });
     const check = await verifyAgmatccLedger(ledger);
-    const serverPart = remoteCount === null ? 'server: necitit' : remoteCount < 0 ? 'server: INDISPONIBIL' : `server: ${remoteCount} evenimente`;
+    const serverPart = remoteCount === null ? 'server: necitit' : remoteCount < 0 ? 'server: INDISPONIBIL' : `server: ${remoteCount} evenimente în fluxul AGMaTCC al acestui dispozitiv (alertele TCC provin din adevărul operațional, nu din acest flux)`;
     integrity.textContent = check.valid
       ? `Lanț hash local: VALID (${ledger.length} intrări locale${ledger.length === 0 ? ', registru local gol' : ''}) · ${serverPart}`
       : `Integritate: ÎNCĂLCATĂ la #${check.brokenAt} · ${serverPart}`;

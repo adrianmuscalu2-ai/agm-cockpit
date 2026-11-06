@@ -69,10 +69,9 @@ export function bindTurnCommandNavigation() {
   window.addEventListener('scroll', updateBackToTop, { passive: true });
   updateBackToTop();
 
-  let stored: string | null = null;
-  try { stored = window.localStorage.getItem(TURN_LAST_PAGE_KEY); } catch { stored = null; }
-  const initial = location.hash.startsWith('#turn-') ? location.hash.slice(6) :   stored ?? 'agmatcc';
-    selectPage(isTurnPage(initial) ? initial : 'agmatcc', false);
+  // AGMaTCC is always the entry page; only an explicit #turn-<page> deep link overrides it.
+  const initial = location.hash.startsWith('#turn-') ? location.hash.slice(6) : 'agmatcc';
+  selectPage(isTurnPage(initial) ? initial : 'agmatcc', false);
 }
 
 function isTurnPage(value: string | undefined): value is TurnPage {
