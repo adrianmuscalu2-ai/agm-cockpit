@@ -52,7 +52,7 @@ export function renderAgmatccPage() {
         <aside class="agmatcc-col agmatcc-right" aria-label="Întrebări și alerte">
           <h3>Căutare (lexicală)</h3>
           <input type="search" data-agmatcc-query placeholder="Caută în istoricul AGMaTCC" aria-label="Caută în istoricul AGMaTCC" />
-          <p class="agmatcc-hint">SEARCH SEMANTIC: LOCAL, DETERMINIST (index hash cu concepte RO/EN, fără serviciu extern) — rezultatele indică scorul și sursa; căutarea lexicală rămâne separat marcată.</p>
+          <p class="agmatcc-hint">SEARCH SEMANTIC: LOCAL (registrul AGMaTCC) + SERVER (evenimente operaționale ale companiei, cele mai recente; acoperirea este raportată), determinist, concepte RO/EN, fără serviciu extern — rezultatele indică scorul și sursa; căutarea lexicală rămâne separat marcată.</p>
           <ul class="agmatcc-results" data-agmatcc-results></ul>
           <h3>Întrebări</h3>
           <ul class="agmatcc-questions" data-agmatcc-questions></ul>

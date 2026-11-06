@@ -1,4 +1,4 @@
-import { cosine, embedText, matchedConcepts, queryConceptSet, SEMANTIC_DIMENSIONS, SEMANTIC_INDEX_VERSION, SEMANTIC_MIN_SCORE } from '@agm/shared';
+import { cosine, embedText, matchedConcepts, queryConceptSet, SEMANTIC_DIMENSIONS, SEMANTIC_INDEX_VERSION, SEMANTIC_MIN_SCORE } from '../../../../packages/shared/src/semantic-index';
 import type { AgmatccEntry } from './agmatcc.ledger';
 
 // The embedding core lives in @agm/shared so the API server-side index ranks identically.

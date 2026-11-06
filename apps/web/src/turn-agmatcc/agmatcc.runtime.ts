@@ -51,6 +51,16 @@ export async function readRemoteAgmatccJournal(fetcher: typeof fetch = turnAdmin
   return { serverVersion: payload.data?.serverVersion ?? -1, count: payload.data?.events?.length ?? 0 };
 }
 
+export type ServerSemanticResult = { hits: Array<{ eventType: string; score: number; matchedConcepts: string[]; source: string }>; coverage: { total: number; scanned: number; complete: boolean } };
+
+export async function searchServerSemantic(query: string, fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch): Promise<ServerSemanticResult> {
+  const response = await fetcher(`/operational-events/search/semantic?q=${encodeURIComponent(query.trim())}&limit=20`, { cache: 'no-store', headers: { Accept: 'application/json' } });
+  if (!response.ok) throw new Error(`AGMATCC_SEMANTIC_HTTP_${response.status}`);
+  const payload = await response.json() as { data?: ServerSemanticResult };
+  if (!payload.data) throw new Error('AGMATCC_SEMANTIC_EMPTY_PAYLOAD');
+  return payload.data;
+}
+
 export function bindAgmatcc(language = 'ro-RO') {
   const root = document.querySelector<HTMLElement>('.turn-agmatcc-page');
   if (!root || root.dataset.agmatccBound) return;
@@ -175,10 +185,39 @@ export function bindAgmatcc(language = 'ro-RO') {
     });
   });
   $('[data-agmatcc-speak]').addEventListener('click', () => speakText(draft.value.trim() || ledger[ledger.length - 1]?.text));
+  let serverTimer: number | undefined;
+  let serverSeq = 0;
+  const runServerSearch = (query: string) => {
+    const seq = ++serverSeq;
+    window.clearTimeout(serverTimer);
+    if (query.trim().length < 2) return;
+    serverTimer = window.setTimeout(() => {
+      searchServerSemantic(query).then((data) => {
+        if (seq !== serverSeq) return;
+        const header = document.createElement('li');
+        header.dataset.agmatccMode = 'server-semantic-coverage';
+        header.textContent = `[server semantic] ${data.hits.length} rezultate · acoperire ${data.coverage.scanned}/${data.coverage.total} evenimente${data.coverage.complete ? '' : ' (PARȚIAL: doar cele mai recente)'}`;
+        results.append(header);
+        data.hits.forEach((hit) => {
+          const li = document.createElement('li');
+          li.dataset.agmatccMode = 'server-semantic';
+          li.textContent = `[server ${hit.score.toFixed(2)}${hit.matchedConcepts.length ? ` · concept: ${hit.matchedConcepts.join(', ')}` : ''}] ${hit.eventType} · sursă: ${hit.source}`;
+          results.append(li);
+        });
+      }).catch((error: Error) => {
+        if (seq !== serverSeq) return;
+        const li = document.createElement('li');
+        li.dataset.agmatccMode = 'server-semantic-unavailable';
+        li.textContent = `[server semantic] INDISPONIBIL (${error.message}) — se afișează doar căutarea locală.`;
+        results.append(li);
+      });
+    }, 350);
+  };
   $<HTMLInputElement>('[data-agmatcc-query]').addEventListener('input', (event) => {
     const query = (event.target as HTMLInputElement).value;
     setState(query.trim() ? 'searching' : 'idle');
     results.innerHTML = '';
+    runServerSearch(query);
     const seen = new Set<number>();
     semanticSearchAgmatccLedger(ledger, query).forEach((hit) => {
       seen.add(hit.entry.index);

@@ -44,6 +44,8 @@ try {
   await page.route(/\/turn-admin\/validate$/, (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { valid: true } }) }));
   let journalReads = 0;
   await page.route(/\/operational-events\/(?!sync)[^/?]+/, (route) => { journalReads += 1; return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { streamId: 'stub', serverVersion: 1, events: [{}], projection: null } }) }); });
+  const semanticQueries = [];
+  await page.route(/\/operational-events\/search\/semantic\?/, (route) => { semanticQueries.push(route.request().url()); return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { index: 'stub', scope: 'company-operational-events', coverage: { total: 3, scanned: 3, complete: true }, hits: [{ eventType: 'trip.delay_reported', score: 0.81, matchedConcepts: ['delay'], source: 'operational-event:s1@3' }] } }) }); });
   await page.route(/\/operational-events\/sync$/, (route) => { syncBodies.push(route.request().postData()); return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { results: [], projections: [] } }) }); });
   const response = await page.goto(target + 'turn', { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#turn-agmatcc-title', { timeout: 20000 }).catch(() => {});
@@ -69,6 +71,8 @@ try {
   await page.waitForTimeout(500);
   const resultsText = await page.locator('[data-agmatcc-results]').first().innerText();
   check('Search finds the entry', resultsText.includes('Comanda de test'), { resultsText });
+  const serverResultsText = await page.locator('[data-agmatcc-results]').first().innerText();
+  check('Server semantic search queried with source and coverage shown', semanticQueries.length > 0 && serverResultsText.includes('operational-event:s1@3') && /3\/3/.test(serverResultsText), { semanticQueries: semanticQueries.length, serverResultsText });
   await page.screenshot({ path: path.join(out, '02-after-entry.png'), fullPage: true });
   await draft.fill('comanda cauta diacritice');
   await page.locator('[data-agmatcc-run-command]').first().click();
