@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PrismaService } from './prisma/prisma.service';
 import { API_CORE_CONTRACT } from './api-core.contract';
+import { apiBuildInfo } from './build-info';
 
 @Controller('health')
 @SkipThrottle()
@@ -28,6 +29,7 @@ export class HealthController {
         service: API_CORE_CONTRACT.service,
         check: 'live',
         contracts: { agentRuntimeEvents: 'agent-runtime-events.v1.3' },
+        build: apiBuildInfo(),
       },
       meta: {
         timestamp: new Date().toISOString(),
@@ -69,6 +71,7 @@ export class HealthController {
         status: 'ready',
         service: API_CORE_CONTRACT.service,
         dependencies,
+        build: apiBuildInfo(),
       },
       meta: {
         timestamp: new Date().toISOString(),

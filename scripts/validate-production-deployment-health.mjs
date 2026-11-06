@@ -22,7 +22,9 @@ const expectedSha = process.env.AGM_EXPECT_BUILD_SHA;
 if (expectedSha) {
   const url = process.env.AGM_PRODUCTION_BUILD_INFO_URL ?? 'https://app.agmcockpit.com/build-info.json';
   let info = null;
-  // The public frontend is published by Cloudflare Pages asynchronously; wait for it to serve this commit.
+  let apiInfo = null;
+  const apiUrl = process.env.AGM_PRODUCTION_HEALTH_LIVE_URL ?? 'https://api.agmcockpit.com/api/v1/health/live';
+  // The public frontend is published by Cloudflare Pages asynchronously; wait for it and the API to serve this commit.
   const attempts = Number(process.env.AGM_BUILD_INFO_ATTEMPTS ?? 12);
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
@@ -31,16 +33,25 @@ if (expectedSha) {
     } catch {
       info = null;
     }
-    if (info?.commit === expectedSha || attempt === attempts) break;
+    try {
+      const response = await fetch(`${apiUrl}?n=${attempt}`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
+      apiInfo = response.ok ? (await response.json())?.data?.build ?? null : null;
+    } catch {
+      apiInfo = null;
+    }
+    if ((info?.commit === expectedSha && apiInfo?.commit === expectedSha) || attempt === attempts) break;
     await new Promise((resolve) => setTimeout(resolve, 30_000));
   }
+  const webPass = info?.contract === 'agm-web-build-info.v1' && info.commit === expectedSha;
+  const apiPass = apiInfo?.contract === 'agm-api-build-info.v1' && apiInfo.commit === expectedSha;
   build = {
     checked: true,
     expected: expectedSha,
     served: info?.commit ?? null,
     buildId: info?.buildId ?? null,
     builtAt: info?.builtAt ?? null,
-    pass: info?.contract === 'agm-web-build-info.v1' && info.commit === expectedSha,
+    api: { served: apiInfo?.commit ?? null, buildId: apiInfo?.buildId ?? null, builtAt: apiInfo?.builtAt ?? null, pass: apiPass },
+    pass: webPass && apiPass,
   };
 }
 const buildPass = !build.checked || build.pass;
