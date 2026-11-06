@@ -82,6 +82,26 @@ export class GovernanceV2Persistence {
     return this.readGovernanceActor(input.id);
   }
 
+  async bindActorIdentity(input: { actorId: string; principalType: 'MACHINE_IDENTITY' | 'HUMAN_USER'; principalId: string; companyId: string; status: 'BOUND' | 'REVOKED'; decisionRef: string; recordedBy: string }) {
+    if (!input.principalId.trim() || !input.companyId.trim() || !input.decisionRef.trim() || !input.recordedBy.trim()) throw new Error('IDENTITY_BINDING_INCOMPLETE');
+    const actor = await this.readGovernanceActor(input.actorId);
+    if (!actor) throw new Error('GOVERNANCE_ACTOR_UNKNOWN');
+    await this.db.$executeRawUnsafe(`INSERT INTO ${table}.actor_identity_bindings (actor_id,principal_type,principal_id,company_id,status,decision_ref,recorded_by) VALUES ($1,$2,$3,$4,$5,$6,$7)`, input.actorId, input.principalType, input.principalId, input.companyId, input.status, input.decisionRef, input.recordedBy);
+    await this.recordEvent('ACTOR_IDENTITY_BINDING', 'GovernanceActorPrincipal', input.actorId, input.recordedBy, input, [input.decisionRef]);
+  }
+
+  /** Derives the governance actor from the authenticated principal; a caller-supplied actor id is never trusted. */
+  async resolveAuthenticatedActor(principal: { type: 'MACHINE_IDENTITY' | 'HUMAN_USER'; id: string; companyId: string; scopes?: string[] }, capability?: 'propose' | 'validate') {
+    const rows = await this.db.$queryRawUnsafe<{ actor_id: string; company_id: string; status: string }>(`SELECT actor_id,company_id,status FROM ${table}.actor_identity_bindings WHERE principal_type=$1 AND principal_id=$2 ORDER BY binding_id DESC LIMIT 1`, principal.type, principal.id);
+    const binding = rows[0];
+    if (!binding || binding.status !== 'BOUND' || binding.company_id !== principal.companyId) throw new Error('GOVERNANCE_IDENTITY_NOT_BOUND');
+    if (capability === 'propose') {
+      if (principal.type !== 'MACHINE_IDENTITY' || !principal.scopes?.includes('governance:propose')) throw new Error('GOVERNANCE_SCOPE_MISSING');
+      await this.requireActor(binding.actor_id, 'propose');
+    } else if (capability) await this.requireActor(binding.actor_id, capability);
+    return binding.actor_id;
+  }
+
   async readGovernanceActor(id: string) { const rows = await this.db.$queryRawUnsafe(`SELECT * FROM ${table}.actor_principals WHERE actor_id=$1`, id); return rows[0] ?? null; }
   async listGovernanceActors() { return this.db.$queryRawUnsafe(`SELECT * FROM ${table}.actor_principals ORDER BY actor_id`); }
 

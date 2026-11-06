@@ -18,6 +18,8 @@ export class GovernanceV2RuntimeService {
   transitionCanonicalSourceChange(id: string, transition: 'IMPACT_ASSESSED' | 'APPROVED' | 'VALIDATED' | 'ACTIVATED', actorId: string, evidence: string[] = [], version?: string) { return this.transaction((p) => p.transitionCsc(id, transition, actorId, evidence, version)); }
   readCanonicalSourceChange(id: string) { return this.persistence.readCsc(id); }
   registerGovernanceActor(input: GovernanceActorPrincipal) { return this.transaction((p) => p.registerGovernanceActor(input)); }
+  bindActorIdentity(input: Parameters<GovernanceV2Persistence['bindActorIdentity']>[0]) { return this.transaction((p) => p.bindActorIdentity(input)); }
+  resolveAuthenticatedActor(principal: Parameters<GovernanceV2Persistence['resolveAuthenticatedActor']>[0], capability?: 'propose' | 'validate') { return this.persistence.resolveAuthenticatedActor(principal, capability); }
   readGovernanceActor(id: string) { return this.persistence.readGovernanceActor(id); }
   listGovernanceActors() { return this.persistence.listGovernanceActors(); }
   createProposal(input: GovernanceProposal) { return this.transaction((p) => p.createProposal(input)); }
