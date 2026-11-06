@@ -1,8 +1,11 @@
 import { turnAdminAuthenticatedFetch } from '../admin-auth';
 import './agmatcc.css';
 import { parseAgmatccVoiceCommand } from './agmatcc.commands';
+import { semanticSearchAgmatccLedger } from './agmatcc.semantic';
+import { deriveTccAlerts } from './agmatcc.alerts';
+import { fetchTurnOperationalTruth } from '../turn-operational-truth';
 import {
-  foldText, AGMATCC_LEDGER_KEY, AGMATCC_STREAM_KEY, appendAgmatccEntry, randomUuid, searchAgmatccLedger,
+  foldText, AGMATCC_LEDGER_KEY, AGMATCC_STREAM_KEY, appendAgmatccEntry,   randomUuid, searchAgmatccLedger,
   toOperationalSyncItems, verifyAgmatccLedger, type AgmatccEntry, type AgmatccEntryKind, type AgmatccProvenance,
 } from './agmatcc.ledger';
 
@@ -70,10 +73,21 @@ export function bindAgmatcc(language = 'ro-RO') {
   const setState = (state: 'idle' | 'listening' | 'speaking' | 'searching') => { stage.dataset.agmatccState = state; };
   const alert = (source: string, message: string) => {
     const li = document.createElement('li');
-    li.textContent = `[${source}] ${new Date().toISOString()} · ${message}`;
+    li.textContent = `[LOCAL · necertificat · ${source}] ${new Date().toISOString()} · ${message}`;
+    li.dataset.agmatccAlertOrigin = 'local';
     alerts.prepend(li);
     while (alerts.children.length > 20) alerts.lastElementChild?.remove();
   };
+  const refreshBackendAlerts = () => fetchTurnOperationalTruth().then((truth) => {
+    alerts.querySelectorAll('[data-agmatcc-alert-origin="backend"]').forEach((node) => node.remove());
+    deriveTccAlerts(truth).reverse().forEach((item) => {
+      const li = document.createElement('li');
+      li.dataset.agmatccAlertOrigin = 'backend';
+      li.dataset.agmatccAlertClass = item.alertClass;
+      li.textContent = `[${item.alertClass} · ${item.source}] ${item.observedAt ?? ''} · ${item.message}${item.ref ? ` · ref ${item.ref}` : ''}`;
+      alerts.prepend(li);
+    });
+  }, (error: Error) => alert('operational-truth/read', error.message));
 
   let remoteCount: number | null = null;
   const refreshRemoteCount = () => readRemoteAgmatccJournal().then((journal) => { remoteCount = journal.count; }, (error: Error) => { remoteCount = -1; alert('operational-events/read', error.message); });
@@ -160,13 +174,23 @@ export function bindAgmatcc(language = 'ro-RO') {
     const query = (event.target as HTMLInputElement).value;
     setState(query.trim() ? 'searching' : 'idle');
     results.innerHTML = '';
-    searchAgmatccLedger(ledger, query).forEach((hit) => {
+    const seen = new Set<number>();
+    semanticSearchAgmatccLedger(ledger, query).forEach((hit) => {
+      seen.add(hit.entry.index);
       const li = document.createElement('li');
-      li.textContent = `#${hit.entry.index} · ${hit.entry.text}`;
+      li.dataset.agmatccMode = 'semantic';
+      li.textContent = `[semantic ${hit.score.toFixed(2)}${hit.matchedConcepts.length ? ` · concept: ${hit.matchedConcepts.join(', ')}` : ''}] #${hit.entry.index} · ${hit.entry.text} · sursă: ${hit.source}`;
+      results.append(li);
+    });
+    searchAgmatccLedger(ledger, query).filter((hit) => !seen.has(hit.entry.index)).forEach((hit) => {
+      const li = document.createElement('li');
+      li.dataset.agmatccMode = 'lexical';
+      li.textContent = `[lexical] #${hit.entry.index} · ${hit.entry.text}`;
       results.append(li);
     });
   });
   void render();
+  void refreshBackendAlerts();
   void refreshRemoteCount().then(render);
   syncAgmatccLedger().then(refreshRemoteCount).then(render).catch(() => undefined);
 }
