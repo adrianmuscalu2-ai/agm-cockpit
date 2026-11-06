@@ -36,6 +36,7 @@ export class UniversalLifecycleService {
   constructor(private readonly prisma: PrismaService) {}
 
   private get db() {
+    /* eslint-disable @typescript-eslint/no-explicit-any -- delegate typing kept as validated; lint-only, no behavior change */
     return this.prisma as PrismaService & {
       universalSessionLifecycleRecord: any;
       universalMandateLifecycleRecord: any;
@@ -47,6 +48,7 @@ export class UniversalLifecycleService {
       riskKnowledgeComparison: any;
       riskKnowledgeOverride: any;
     };
+    /* eslint-enable @typescript-eslint/no-explicit-any */
   }
 
   async createSessionStartRecord(input: SessionStartInput) {
