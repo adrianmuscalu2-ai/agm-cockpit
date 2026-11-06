@@ -262,5 +262,9 @@
       "independentVerification": null
     },
     "separation": "Guardian controls secret custody; Machine provides constrained authenticated reads; Command Lead authorizes the change; Independent Validator validates evidence; release executor executes only the approved workflow."
-  }
+  },
+  "productionReleaseHistory": [
+    { "version": "1.9.1", "commit": "392bc66b294d772003903d855fd6aaefa1b50496", "workflowRunId": 42162872386, "conclusion": "success", "recordedAt": "2026-11-06", "note": "Append-only reconciliation; earlier fields of this manifest describe the 2026-10-28 candidate snapshot and are retained unchanged." },
+    { "version": "1.9.1", "commit": "0c8d249ba8e799a5fff5de8e0119437a903c7187", "workflowRunId": 42197702955, "conclusion": "success", "recordedAt": "2026-11-06", "note": "Includes AGMaTCC redesign and Governance V2 identity bindings; Production environment gate approved by the reviewer." }
+  ]
 }

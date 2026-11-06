@@ -127,6 +127,7 @@ export function bindAgmatcc(language = 'ro-RO') {
     void append('playback', `Redare: ${text.slice(0, 200)}`, 'system');
   };
   const readRemote = async () => {
+    status.textContent = 'Citesc jurnalul server…';
     try {
       const journal = await readRemoteAgmatccJournal();
       status.textContent = `Jurnal server: versiune ${journal.serverVersion}, ${journal.count} evenimente (local: ${ledger.length}).`;
@@ -167,7 +168,11 @@ export function bindAgmatcc(language = 'ro-RO') {
     const text = draft.value.trim();
     if (!text) { status.textContent = 'Nimic de înregistrat.'; return; }
     const kind: AgmatccEntryKind = provenance === 'voice-capture' ? 'voice-transcript-confirmed' : 'note';
-    void append(kind, text, provenance).then(() => { draft.value = ''; provenance = 'typed'; status.textContent = 'Înregistrat (append-only).'; });
+    const before = status.textContent;
+    void append(kind, text, provenance).then(() => {
+      if (draft.value.trim() === text) { draft.value = ''; provenance = 'typed'; }
+      if (status.textContent === before) status.textContent = 'Înregistrat (append-only).';
+    });
   });
   $('[data-agmatcc-speak]').addEventListener('click', () => speakText(draft.value.trim() || ledger[ledger.length - 1]?.text));
   $<HTMLInputElement>('[data-agmatcc-query]').addEventListener('input', (event) => {
