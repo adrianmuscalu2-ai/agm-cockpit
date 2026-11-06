@@ -56,7 +56,11 @@ describe('Multer 2.4 production multipart boundaries', () => {
     await app.init();
   });
 
-  afterEach(async () => app.close());
+  afterEach(async () => {
+    // Drop lingering keep-alive sockets (aborted upload) so close() cannot wait for the idle timeout.
+    (app.getHttpServer() as { closeAllConnections?: () => void }).closeAllConnections?.();
+    await app.close();
+  });
 
   const authorized = (builder: request.Test) => builder.set('x-test-auth', 'yes').set('x-test-premium', 'yes');
   const consent = (purpose: string) => JSON.stringify({
