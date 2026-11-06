@@ -22,11 +22,17 @@ const expectedSha = process.env.AGM_EXPECT_BUILD_SHA;
 if (expectedSha) {
   const url = process.env.AGM_PRODUCTION_BUILD_INFO_URL ?? 'https://app.agmcockpit.com/build-info.json';
   let info = null;
-  try {
-    const response = await fetch(`${url}?expect=${expectedSha.slice(0, 12)}`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
-    info = response.ok ? await response.json() : null;
-  } catch {
-    info = null;
+  // The public frontend is published by Cloudflare Pages asynchronously; wait for it to serve this commit.
+  const attempts = Number(process.env.AGM_BUILD_INFO_ATTEMPTS ?? 12);
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetch(`${url}?expect=${expectedSha.slice(0, 12)}&n=${attempt}`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
+      info = response.ok ? await response.json() : null;
+    } catch {
+      info = null;
+    }
+    if (info?.commit === expectedSha || attempt === attempts) break;
+    await new Promise((resolve) => setTimeout(resolve, 30_000));
   }
   build = {
     checked: true,
