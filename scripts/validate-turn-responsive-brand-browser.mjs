@@ -173,7 +173,7 @@ try {
   ];
   check('canonical-orchestrators-visible', JSON.stringify(orchestratorIds) === JSON.stringify(expectedOrchestratorIds), { orchestratorIds, expectedOrchestratorIds });
   check('orchestrators-explicitly-separated-from-agents', await page.locator('[data-turn-page="orchestrators"]').getByText('Orchestratori canonici · separați de agenți').isVisible(), { target });
-  check('coherent-version-visible', (await page.locator('body').innerText()).includes('Cockpit 1.6.0'), { expected: 'Cockpit 1.6.0' });
+  check('coherent-version-visible', (await page.locator('body').innerText()).includes('Cockpit 1.9.1'), { expected: 'Cockpit 1.9.1' });
 
   const origin = new URL(target).origin;
   await page.setViewportSize({ width: 1920, height: 1080 });
