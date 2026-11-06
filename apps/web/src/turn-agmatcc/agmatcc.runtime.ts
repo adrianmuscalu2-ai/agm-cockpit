@@ -75,12 +75,17 @@ export function bindAgmatcc(language = 'ro-RO') {
     while (alerts.children.length > 20) alerts.lastElementChild?.remove();
   };
 
+  let remoteCount: number | null = null;
+  const refreshRemoteCount = () => readRemoteAgmatccJournal().then((journal) => { remoteCount = journal.count; }, (error: Error) => { remoteCount = -1; alert('operational-events/read', error.message); });
   const render = async () => {
     history.innerHTML = ledger.slice().reverse().map((entry) =>
       `<li><small>#${entry.index} · ${entry.kind} · ${entry.provenance} · ${entry.occurredAt} · ${entry.hash.slice(0, 12)}</small><div></div></li>`).join('');
     [...history.children].forEach((li, i) => { li.querySelector('div')!.textContent = ledger[ledger.length - 1 - i].text; });
     const check = await verifyAgmatccLedger(ledger);
-    integrity.textContent = check.valid ? `Integritate: VALID (${ledger.length} intrări)` : `Integritate: ÎNCĂLCATĂ la #${check.brokenAt}`;
+    const serverPart = remoteCount === null ? 'server: necitit' : remoteCount < 0 ? 'server: INDISPONIBIL' : `server: ${remoteCount} evenimente`;
+    integrity.textContent = check.valid
+      ? `Lanț hash local: VALID (${ledger.length} intrări locale${ledger.length === 0 ? ', registru local gol' : ''}) · ${serverPart}`
+      : `Integritate: ÎNCĂLCATĂ la #${check.brokenAt} · ${serverPart}`;
     const syncedCount = Number(readJson<number>(SYNCED_KEY, 0));
     syncLabel.textContent = `Sincronizare cu operational-events: ${syncedCount}/${ledger.length}.`;
     questions.innerHTML = '';
@@ -162,5 +167,6 @@ export function bindAgmatcc(language = 'ro-RO') {
     });
   });
   void render();
-  syncAgmatccLedger().then(render).catch(() => undefined);
+  void refreshRemoteCount().then(render);
+  syncAgmatccLedger().then(refreshRemoteCount).then(render).catch(() => undefined);
 }
