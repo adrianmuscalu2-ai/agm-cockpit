@@ -7,54 +7,59 @@ export function renderAgmatccPage() {
   const journals = turnModuleNavigationRegistry.filter((entry) => entry.parentModule === 'memory');
   return `
     <section class="turn-agmatcc-page" data-turn-page="agmatcc" aria-labelledby="turn-agmatcc-title">
-      <header class="agmatcc-header">
-        <img class="agmatcc-logo" src="/images/images/logo1.png" alt="AGMa" />
-        <div>
-          <span class="turn-kicker">AGMaTCC · TURN</span>
-          <h2 id="turn-agmatcc-title">AGMaTCC</h2>
-          <p>Comunicare vocală, transcriere, redare și căutare în istoricul disponibil. Fiecare intrare este append-only, înlănțuită prin hash și trasabilă.</p>
-        </div>
+      <header class="agmatcc-topbar">
+        <h2 id="turn-agmatcc-title">AGMaTCC Copilot</h2>
+        <nav class="agmatcc-journals" aria-label="Jurnale TURN și RK">
+          ${journals.map((entry) => `<a href="${esc(entry.route)}" data-agmatcc-journal="${esc(entry.moduleId)}" title="${esc(entry.validationStatus)}">${esc(entry.displayName)}</a>`).join('')}
+          <button type="button" data-agmatcc-read-remote>Jurnal server</button>
+        </nav>
         <strong class="agmatcc-integrity" data-agmatcc-integrity aria-live="polite">Integritate: se verifică…</strong>
       </header>
-      <div class="agmatcc-grid">
-        <article class="agmatcc-card" aria-labelledby="agmatcc-voice-title">
-          <h3 id="agmatcc-voice-title">Voce și transcriere</h3>
-          <p class="agmatcc-hint">Microfonul pornește doar la acțiunea ta. Transcrierea trebuie confirmată de om înainte de înregistrare; audio nu este stocat.</p>
-          <div class="agmatcc-actions">
-            <button type="button" data-agmatcc-capture>Pornește dictarea</button>
-            <button type="button" data-agmatcc-stop disabled>Oprește</button>
+      <div class="agmatcc-layout">
+        <aside class="agmatcc-col agmatcc-left" aria-label="Agenți și istoric">
+          <h3>Agenți</h3>
+          <ul class="agmatcc-agents">
+            <li><a href="#turn-basic" data-turn-page-target="basic">Basic</a></li>
+            <li><a href="#turn-premium" data-turn-page-target="premium">Premium</a></li>
+            <li><a href="#turn-orchestrators" data-turn-page-target="orchestrators">Orchestratori</a></li>
+          </ul>
+          <h3>Istoric conversațional</h3>
+          <p class="agmatcc-hint" data-agmatcc-sync>Sincronizare: în așteptare.</p>
+          <ol class="agmatcc-history" data-agmatcc-history></ol>
+        </aside>
+        <div class="agmatcc-col agmatcc-center">
+          <div class="agmatcc-stage" data-agmatcc-state="idle">
+            <img class="agmatcc-avatar" src="/images/agm-ai-assistant-microphone-v1.png" alt="AGMa" />
+            <span class="agmatcc-icon agmatcc-icon-listen" aria-hidden="true" title="Ascultare">🎧</span>
+            <span class="agmatcc-icon agmatcc-icon-speak" aria-hidden="true" title="Redare">🎙️</span>
+            <span class="agmatcc-icon agmatcc-icon-search" aria-hidden="true" title="Căutare">🥽</span>
+            <button type="button" class="agmatcc-lips-stop" data-agmatcc-stop aria-label="STOP">STOP</button>
           </div>
-          <label for="agmatccDraft">Transcriere / notă (editabilă)</label>
+          <div class="agmatcc-actions">
+            <button type="button" data-agmatcc-capture>Ascultă (dictare)</button>
+            <button type="button" data-agmatcc-speak>Redă</button>
+          </div>
+          <label for="agmatccDraft">Transcriere (editabilă; audio nu este stocat)</label>
           <textarea id="agmatccDraft" data-agmatcc-draft rows="3" maxlength="2000"></textarea>
           <div class="agmatcc-actions">
             <button type="button" data-agmatcc-confirm>Confirmă și înregistrează</button>
-            <button type="button" data-agmatcc-speak>Redă (voce)</button>
+            <button type="button" data-agmatcc-run-command>Execută comanda</button>
           </div>
-          <p class="agmatcc-hint">Comenzi (încep cu „comandă”): „căutare …”, „redă ultima”, „deschide jurnal …”, „citește jurnal server”. Doar acțiuni de citire; înregistrarea rămâne confirmată de om.</p>
-          <div class="agmatcc-actions">
-            <button type="button" data-agmatcc-run-command>Execută comanda din text</button>
-            <button type="button" data-agmatcc-read-remote>Interoghează jurnalul server</button>
-          </div>
+          <p class="agmatcc-hint">Comenzi (încep cu „comandă”): „căutare …”, „redă ultima”, „deschide jurnal …”, „citește jurnal server”. Doar citire.</p>
+          <h3>Răspunsuri</h3>
           <p class="agmatcc-status" data-agmatcc-status role="status" aria-live="polite"></p>
-        </article>
-        <article class="agmatcc-card" aria-labelledby="agmatcc-search-title">
-          <h3 id="agmatcc-search-title">Căutare în istoric</h3>
-          <p class="agmatcc-hint">Căutare lexicală normalizată (diacritice și majuscule ignorate). Nu este căutare cu embeddings.</p>
+        </div>
+        <aside class="agmatcc-col agmatcc-right" aria-label="Întrebări și alerte">
+          <h3>Căutare (lexicală)</h3>
           <input type="search" data-agmatcc-query placeholder="Caută în istoricul AGMaTCC" aria-label="Caută în istoricul AGMaTCC" />
+          <p class="agmatcc-hint">SEARCH SEMANTIC: INDISPONIBIL — nu există mecanism semantic în platformă; căutarea este lexicală normalizată.</p>
           <ul class="agmatcc-results" data-agmatcc-results></ul>
-        </article>
-        <article class="agmatcc-card" aria-labelledby="agmatcc-history-title">
-          <h3 id="agmatcc-history-title">Istoric append-only</h3>
-          <p class="agmatcc-hint" data-agmatcc-sync>Sincronizare: în așteptare.</p>
-          <ol class="agmatcc-history" data-agmatcc-history></ol>
-        </article>
-        <article class="agmatcc-card" aria-labelledby="agmatcc-journals-title">
-          <h3 id="agmatcc-journals-title">Jurnale TURN · RK · Governance V2</h3>
-          <ul class="agmatcc-journals">
-            ${journals.map((entry) => `<li><a href="${esc(entry.route)}" data-agmatcc-journal="${esc(entry.moduleId)}">${esc(entry.displayName)}</a> <small>${esc(entry.validationStatus)}</small></li>`).join('')}
-            <li><span>Governance V2</span> <small>NECONECTAT în UI: nu există încă interfață HTTP de citire; conectarea trece prin Governance V2 existent.</small></li>
-          </ul>
-        </article>
+          <h3>Întrebări</h3>
+          <ul class="agmatcc-questions" data-agmatcc-questions></ul>
+          <h3>Alerte TCC</h3>
+          <ul class="agmatcc-alerts" data-agmatcc-alerts aria-live="polite"></ul>
+          <p class="agmatcc-hint">Governance V2: NECONECTAT în UI (fără interfață HTTP de citire).</p>
+        </aside>
       </div>
     </section>`;
 }
