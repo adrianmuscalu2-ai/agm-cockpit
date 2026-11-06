@@ -16,12 +16,36 @@ for (const [name, url] of endpoints) {
 }
 
 const pass = results.every((result) => result.pass);
+
+let build = { checked: false };
+const expectedSha = process.env.AGM_EXPECT_BUILD_SHA;
+if (expectedSha) {
+  const url = process.env.AGM_PRODUCTION_BUILD_INFO_URL ?? 'https://app.agmcockpit.com/build-info.json';
+  let info = null;
+  try {
+    const response = await fetch(`${url}?expect=${expectedSha.slice(0, 12)}`, { cache: 'no-store', signal: AbortSignal.timeout(15_000) });
+    info = response.ok ? await response.json() : null;
+  } catch {
+    info = null;
+  }
+  build = {
+    checked: true,
+    expected: expectedSha,
+    served: info?.commit ?? null,
+    buildId: info?.buildId ?? null,
+    builtAt: info?.builtAt ?? null,
+    pass: info?.contract === 'agm-web-build-info.v1' && info.commit === expectedSha,
+  };
+}
+const buildPass = !build.checked || build.pass;
+
 console.log(JSON.stringify({
   contract: 'agm-production-deployment-health.v1',
-  deployment: pass ? 'PASS' : 'FAIL',
-  deploymentHealth: pass ? 'PASS' : 'FAIL',
+  deployment: pass && buildPass ? 'PASS' : 'FAIL',
+  deploymentHealth: pass && buildPass ? 'PASS' : 'FAIL',
   certification: 'PENDING',
   results,
+  build,
 }));
 
-if (!pass) process.exitCode = 1;
+if (!pass || !buildPass) process.exitCode = 1;

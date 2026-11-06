@@ -10,12 +10,26 @@ await build({
 
 const distRoot = path.resolve(process.cwd(), 'dist');
 await inlineApplicationStyles(distRoot);
+await writeBuildInfo(distRoot);
 
 if (process.env.CF_PAGES === '1') {
   const downloads = path.resolve(distRoot, 'downloads');
   if (!downloads.startsWith(`${distRoot}${path.sep}`)) throw new Error('PAGES_DOWNLOADS_PATH_OUTSIDE_DIST');
   await rm(downloads, { recursive: true, force: true });
   console.log('Cloudflare Pages assets prepared: release download binaries excluded.');
+}
+
+async function writeBuildInfo(outputRoot) {
+  const commit = process.env.AGM_BUILD_SHA || 'unknown';
+  const info = {
+    contract: 'agm-web-build-info.v1',
+    appVersion: '1.9.1',
+    commit,
+    buildId: process.env.AGM_BUILD_ID || (commit === 'unknown' ? 'local' : `web-${commit.slice(0, 12)}`),
+    builtAt: process.env.AGM_BUILD_TIME || new Date().toISOString(),
+  };
+  await writeFile(path.join(outputRoot, 'build-info.json'), `${JSON.stringify(info, null, 2)}\n`, 'utf8');
+  console.log(`Build info written: ${info.buildId} (${info.commit})`);
 }
 
 async function inlineApplicationStyles(outputRoot) {

@@ -46,7 +46,7 @@ createServer((request, response) => {
   const requested = pathname;
   const file = safeFile(requested) ?? join(root, 'index.html');
   const headers = {
-    'Cache-Control': file.endsWith('index.html') ? 'no-cache' : 'public, max-age=31536000, immutable',
+    'Cache-Control': /(?:^|[\\/])(?:index\.html|sw\.js|build-info\.json|manifest\.webmanifest)$/.test(file) ? 'no-cache' : 'public, max-age=31536000, immutable',
     'Content-Security-Policy': "default-src 'self'; connect-src 'self' https://api.agmcockpit.com; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; frame-ancestors 'none'",
     'Content-Type': mime.get(extname(file).toLowerCase()) ?? 'application/octet-stream',
     'X-Content-Type-Options': 'nosniff',

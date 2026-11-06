@@ -23,6 +23,11 @@ COPY apps/web apps/web
 # Keep the ignored local env file reproducible inside the isolated image build.
 RUN printf 'VITE_AGM_API_BASE_URL=https://api.agmcockpit.com/api/v1\n' > apps/web/.env.production
 
+ARG AGM_BUILD_SHA=unknown
+ARG AGM_BUILD_ID=
+ARG AGM_BUILD_TIME=
+ENV AGM_BUILD_SHA=$AGM_BUILD_SHA AGM_BUILD_ID=$AGM_BUILD_ID AGM_BUILD_TIME=$AGM_BUILD_TIME
+
 RUN pnpm --filter @agm/shared build
 RUN pnpm --filter @agm/library-control-plane build
 RUN pnpm --filter @agm/web build
