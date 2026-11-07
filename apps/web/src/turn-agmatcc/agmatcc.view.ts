@@ -15,14 +15,18 @@ export function renderAgmatccPage(moduleNavigation = '') {
           <button type="button" data-agmatcc-read-remote>Jurnal server</button>
         </nav>
         ${riskKnowledge ? `<a class="agmatcc-risk-knowledge" href="#turn-journal-risk-knowledge" data-open-turn-page="incidents" title="${esc(riskKnowledge.validationStatus)}">Risk &amp; Knowledge</a>` : ''}
-        <strong class="agmatcc-integrity" data-agmatcc-integrity aria-live="polite">Integritate: se verifică…</strong>
       </header>
+      <details class="agmatcc-audit-panel">
+        <summary>Detalii tehnice și dovezi</summary>
+        <strong class="agmatcc-integrity" data-agmatcc-integrity>Integritate: se verifică…</strong>
+        <p class="agmatcc-hint" data-agmatcc-sync>Sincronizare: în așteptare.</p>
+        <ol class="agmatcc-audit-trace" data-agmatcc-audit></ol>
+      </details>
       <div class="agmatcc-layout">
         <aside class="agmatcc-col agmatcc-left" aria-label="Module TURN și istoric conversațional">
           <div class="agmatcc-module-navigation">${moduleNavigation}</div>
           <section class="agmatcc-conversation-history" aria-labelledby="agmatcc-history-title">
             <h3 id="agmatcc-history-title">Istoric conversațional</h3>
-            <p class="agmatcc-hint" data-agmatcc-sync>Sincronizare: în așteptare.</p>
             <ol class="agmatcc-history" data-agmatcc-history></ol>
           </section>
         </aside>
@@ -46,15 +50,18 @@ export function renderAgmatccPage(moduleNavigation = '') {
                 <button type="button" data-agmatcc-confirm>Confirmă și înregistrează</button>
                 <button type="button" data-agmatcc-run-command>Execută comanda</button>
               </div>
-              <p class="agmatcc-hint">Comenzi (încep cu „comandă”): „căutare …”, „redă ultima”, „deschide jurnal …”, „citește jurnal server”. Doar citire.</p>
+              <p class="agmatcc-hint">Comenzi vocale: „citește jurnalul serverului”, „avem incidente?”, „ce s-a întâmplat ultima dată?”, „dă-mi ID-ul evenimentului”.</p>
               <h3>Răspunsuri</h3>
               <p class="agmatcc-status" data-agmatcc-status role="status" aria-live="polite"></p>
             </div>
             <aside class="agmatcc-col agmatcc-right" aria-label="Întrebări și alerte">
               <h3>Căutare (lexicală)</h3>
               <input type="search" data-agmatcc-query placeholder="Caută în istoricul AGMaTCC" aria-label="Caută în istoricul AGMaTCC" />
-              <p class="agmatcc-hint">SEARCH SEMANTIC: LOCAL (registrul AGMaTCC) + SERVER (evenimente operaționale ale companiei, cele mai recente; acoperirea este raportată), determinist, concepte RO/EN, fără serviciu extern — rezultatele indică scorul și sursa; căutarea lexicală rămâne separat marcată.</p>
-              <ul class="agmatcc-results" data-agmatcc-results></ul>
+              <p class="agmatcc-hint">Caută în istoricul local și în evenimentele serverului. Scorurile, sursele și acoperirea completă sunt disponibile în detaliile tehnice.</p>
+              <details class="agmatcc-evidence-details">
+                <summary>Rezultate tehnice și dovezi ale căutării</summary>
+                <ul class="agmatcc-results" data-agmatcc-results></ul>
+              </details>
               <h3>Întrebări</h3>
               <ul class="agmatcc-questions" data-agmatcc-questions></ul>
               <h3>Alerte TCC</h3>
