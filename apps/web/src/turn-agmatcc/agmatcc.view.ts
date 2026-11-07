@@ -3,29 +3,28 @@ import { turnModuleNavigationRegistry } from '../turn-module-navigation.registry
 const esc = (value: string) => value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
 /** Links to existing TURN journals come from the navigation registry; Governance V2 has no read interface yet and is shown as such. */
-export function renderAgmatccPage() {
+export function renderAgmatccPage(moduleNavigation = '') {
   const journals = turnModuleNavigationRegistry.filter((entry) => entry.parentModule === 'memory');
+  const riskKnowledge = turnModuleNavigationRegistry.find((entry) => entry.moduleId === 'risk-knowledge');
   return `
     <section class="turn-agmatcc-page" data-turn-page="agmatcc" aria-labelledby="turn-agmatcc-title">
       <header class="agmatcc-topbar">
         <h2 id="turn-agmatcc-title">AGMaTCC Copilot</h2>
         <nav class="agmatcc-journals" aria-label="Jurnale TURN și RK">
-          ${journals.map((entry) => `<a href="${esc(entry.route)}" data-agmatcc-journal="${esc(entry.moduleId)}" title="${esc(entry.validationStatus)}">${esc(entry.displayName)}</a>`).join('')}
+          ${journals.map((entry) => `<a href="#turn-journal-${esc(entry.moduleId)}" data-open-turn-page="incidents" data-agmatcc-journal="${esc(entry.moduleId)}" title="${esc(entry.validationStatus)}">${esc(entry.displayName)}</a>`).join('')}
           <button type="button" data-agmatcc-read-remote>Jurnal server</button>
         </nav>
+        ${riskKnowledge ? `<a class="agmatcc-risk-knowledge" href="#turn-journal-risk-knowledge" data-open-turn-page="incidents" title="${esc(riskKnowledge.validationStatus)}">Risk &amp; Knowledge</a>` : ''}
         <strong class="agmatcc-integrity" data-agmatcc-integrity aria-live="polite">Integritate: se verifică…</strong>
       </header>
       <div class="agmatcc-layout">
-        <aside class="agmatcc-col agmatcc-left" aria-label="Agenți și istoric">
-          <h3>Agenți</h3>
-          <ul class="agmatcc-agents">
-            <li><a href="#turn-basic" data-turn-page-target="basic">Basic</a></li>
-            <li><a href="#turn-premium" data-turn-page-target="premium">Premium</a></li>
-            <li><a href="#turn-orchestrators" data-turn-page-target="orchestrators">Orchestratori</a></li>
-          </ul>
-          <h3>Istoric conversațional</h3>
-          <p class="agmatcc-hint" data-agmatcc-sync>Sincronizare: în așteptare.</p>
-          <ol class="agmatcc-history" data-agmatcc-history></ol>
+        <aside class="agmatcc-col agmatcc-left" aria-label="Module TURN și istoric conversațional">
+          <div class="agmatcc-module-navigation">${moduleNavigation}</div>
+          <section class="agmatcc-conversation-history" aria-labelledby="agmatcc-history-title">
+            <h3 id="agmatcc-history-title">Istoric conversațional</h3>
+            <p class="agmatcc-hint" data-agmatcc-sync>Sincronizare: în așteptare.</p>
+            <ol class="agmatcc-history" data-agmatcc-history></ol>
+          </section>
         </aside>
         <div class="agmatcc-col agmatcc-center">
           <div class="agmatcc-stage" data-agmatcc-state="idle">

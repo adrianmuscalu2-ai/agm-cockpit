@@ -21,11 +21,20 @@ const items = toOperationalSyncItems(ledger, { streamId: crypto.randomUUID(), de
 assert.equal(items[1].expectedStreamVersion, 0);
 assert.equal((items[1].event.integrity as { previousEventId?: string }).previousEventId, ledger[0].id);
 
-assert.ok(renderAgmatccPage().includes('data-turn-page="agmatcc"'));
+const agmatccPage = renderAgmatccPage('<aside data-turn-module-navigation>TURN MODULES</aside>');
+assert.ok(agmatccPage.includes('data-turn-page="agmatcc"'));
+assert.ok(agmatccPage.includes('data-turn-module-navigation'));
+assert.ok(agmatccPage.includes('data-open-turn-page="incidents"'));
+assert.ok(agmatccPage.includes('Risk &amp; Knowledge'));
+assert.ok(agmatccPage.indexOf('data-turn-module-navigation') < agmatccPage.indexOf('agmatcc-history-title'));
+assert.ok(agmatccPage.includes('data-agmatcc-journal="version-journal"'));
 const nav = readFileSync(new URL('../src/turn-command-navigation.ts', import.meta.url), 'utf8');
 assert.ok(nav.includes("TURN_PAGES = ['agmatcc',"));
 const view = readFileSync(new URL('../src/turn-command-center.view.ts', import.meta.url), 'utf8');
-assert.ok(view.indexOf('renderAgmatccPage()}') < view.indexOf('renderFunctionalOverview()}'));
+assert.ok(view.indexOf('renderAgmatccPage(renderTurnModuleNavigation())') < view.indexOf('renderFunctionalOverview()}'));
+assert.ok(!view.includes('${renderTurnModuleNavigation()}\n'));
+assert.ok(view.includes('data-open-turn-page="agmatcc"'));
+assert.ok(view.includes("topbarOnlyModules = new Set(['incidents', 'version-journal', 'memory', 'evidence', 'risk-knowledge'])"));
 import { parseAgmatccVoiceCommand } from '../src/turn-agmatcc/agmatcc.commands';
 assert.deepEqual(parseAgmatccVoiceCommand('Comandă: caută Documente CMR'), { type: 'search', query: 'documente cmr' });
 assert.deepEqual(parseAgmatccVoiceCommand('comanda reda ultima'), { type: 'play-last' });

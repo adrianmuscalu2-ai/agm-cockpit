@@ -77,13 +77,12 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
         </div>
         <div class="turn-command-header-actions">
           <strong>PRODUCT OWNER ACCEPTANCE · NOT GRANTED</strong>
+          <a href="#turn-agmatcc-title" data-open-turn-page="agmatcc">AGMaTCC Copilot</a>
           <a href="/basic" data-module="basic" data-turn-exit>Ieși din TURN · Înapoi în aplicație</a>
         </div>
       </header>
 
-      ${renderTurnModuleNavigation()}
-
-      ${renderAgmatccPage()}
+      ${renderAgmatccPage(renderTurnModuleNavigation())}
 
       ${renderFunctionalOverview()}
 
@@ -219,7 +218,11 @@ export function renderTurnCommandCenter({ language, appVersion, incidents, incid
 
 function renderTurnModuleNavigation() {
   const byId = new Map(turnModuleNavigationRegistry.map((entry) => [entry.moduleId, entry]));
-  const groups = turnModuleNavigationGroups.map((group) => `
+  const topbarOnlyModules = new Set(['incidents', 'version-journal', 'memory', 'evidence', 'risk-knowledge']);
+  const groups = turnModuleNavigationGroups.map((group) => ({
+    ...group,
+    moduleIds: group.moduleIds.filter((id) => !topbarOnlyModules.has(id)),
+  })).filter((group) => group.moduleIds.length > 0).map((group) => `
     <details class="turn-module-nav-group" open>
       <summary>${escapeHtml(group.label)}</summary>
       <div class="turn-module-nav-items">
@@ -229,16 +232,8 @@ function renderTurnModuleNavigation() {
   `).join('');
 
   return `<aside class="turn-module-navigation" data-turn-module-navigation aria-label="Index modular Turn">
-    <div class="turn-module-navigation-header"><div><span class="turn-kicker">TURN · MODULE INDEX</span><strong>Navigare rapidă</strong></div><a href="#turn-basic" data-open-turn-page="basic">Overview</a></div>
+    <div class="turn-module-navigation-header"><div><span class="turn-kicker">TURN · MODULE INDEX</span><strong>Navigare rapidă</strong></div><button type="button" data-turn-page-target="agmatcc" aria-selected="true">AGMaTCC</button></div>
     <label class="turn-module-search"><span>Caută modul, funcție sau identificator</span><input type="search" data-turn-module-search placeholder="Ex.: telemetry, incident, Machine" /></label>
-    <nav class="turn-page-switcher" aria-label="TURN spatial models">
-      <button type="button" data-turn-page-target="agmatcc" aria-selected="true">AGMaTCC</button>
-      <button type="button" data-turn-page-target="basic" aria-selected="false">Basic</button>
-      <button type="button" data-turn-page-target="premium" aria-selected="false">Premium</button>
-      <button type="button" data-turn-page-target="orchestrators" aria-selected="false">Orchestrators</button>
-      <button type="button" data-turn-page-target="incidents" aria-selected="false">Incidents</button>
-      <button type="button" data-turn-page-target="investigate" aria-selected="false">Investigation</button>
-    </nav>
     <div data-turn-module-groups>${groups}</div>
     <p class="turn-module-search-empty" data-turn-module-search-empty hidden>Nu există module care corespund căutării.</p>
   </aside>`;

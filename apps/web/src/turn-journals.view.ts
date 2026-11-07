@@ -32,7 +32,7 @@ function journalRow(entry: TurnModuleNavigationEntry) {
   const source = entry.canonicalSource || 'NONE';
   const evidence = entry.evidenceRefs.length ? entry.evidenceRefs.join(', ') : 'NONE RECORDED';
   const status = entry.validationStatus.replaceAll('_', ' ');
-  return `<tr data-turn-journal-row="${escapeHtml(entry.moduleId)}"><th scope="row"><a href="${escapeHtml(entry.route)}">${escapeHtml(entry.displayName)}</a></th><td>${escapeHtml(status)}</td><td>${escapeHtml(entry.environment)}</td><td>${escapeHtml(entry.responsibleAgent)}</td><td>${escapeHtml(source)}</td><td>${escapeHtml(evidence)}</td><td>${escapeHtml(entry.lastVerifiedAt)}</td></tr>`;
+  return `<tr id="turn-journal-${escapeHtml(entry.moduleId)}" data-turn-journal-row="${escapeHtml(entry.moduleId)}"><th scope="row"><a href="#turn-journal-${escapeHtml(entry.moduleId)}" data-open-turn-page="incidents">${escapeHtml(entry.displayName)}</a></th><td>${escapeHtml(status)}</td><td>${escapeHtml(entry.environment)}</td><td>${escapeHtml(entry.responsibleAgent)}</td><td>${escapeHtml(source)}</td><td>${escapeHtml(evidence)}</td><td>${escapeHtml(entry.lastVerifiedAt)}</td></tr>`;
 }
 
 function metadataRows(rows: readonly (readonly [string, string, string, string])[]) {

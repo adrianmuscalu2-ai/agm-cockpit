@@ -6,9 +6,20 @@
 .agmatcc-topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 10px 14px; border: 1px solid rgba(139, 215, 255, .3); border-radius: 14px; background: rgba(4, 18, 30, .78); }
 .agmatcc-topbar h2 { margin: 0; font-size: 1.1rem; }
 .agmatcc-topbar .agmatcc-journals { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; max-height: none; overflow: visible; }
-.agmatcc-topbar a, .agmatcc-topbar button, .agmatcc-agents a { color: inherit; padding: 6px 10px; border: 1px solid rgba(75, 188, 255, .5); border-radius: 8px; background: rgba(75, 188, 255, .12); text-decoration: none; cursor: pointer; font: inherit; }
-.agmatcc-layout { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(300px, 1.6fr) minmax(200px, 1fr); gap: 14px; }
+.agmatcc-topbar a, .agmatcc-topbar button { color: inherit; padding: 6px 10px; border: 1px solid rgba(75, 188, 255, .5); border-radius: 8px; background: rgba(75, 188, 255, .12); text-decoration: none; cursor: pointer; font: inherit; }
+.agmatcc-topbar a:focus-visible, .agmatcc-topbar button:focus-visible, .turn-module-navigation a:focus-visible, .turn-module-navigation button:focus-visible, .turn-module-navigation summary:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.agmatcc-layout { display: grid; grid-template-columns: minmax(220px, .9fr) minmax(300px, 1.5fr) minmax(220px, .9fr); gap: 14px; align-items: start; }
 .agmatcc-col { display: grid; align-content: start; gap: 10px; padding: 14px; border: 1px solid rgba(139, 215, 255, .26); border-radius: 12px; background: rgba(4, 18, 30, .82); min-width: 0; }
+.agmatcc-left { position: sticky; top: 10px; grid-template-rows: minmax(0, 1fr) auto; height: min(760px, calc(100vh - 150px)); max-height: calc(100svh - 150px); overflow: hidden; }
+.agmatcc-module-navigation { min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.agmatcc-module-navigation .turn-module-navigation { width: 100%; max-width: none; margin: 0; padding: 8px; }
+.agmatcc-module-navigation .turn-module-navigation-header { align-items: flex-start; flex-direction: column; }
+.agmatcc-module-navigation .turn-module-navigation-header button { color: #8bd7ff; border: 0; padding: 2px 0; background: transparent; font: inherit; font-weight: 800; cursor: pointer; }
+.agmatcc-module-navigation .turn-module-nav-items { grid-template-columns: minmax(0, 1fr); }
+.agmatcc-module-navigation .turn-module-nav-link { overflow-wrap: anywhere; }
+.agmatcc-conversation-history { min-height: 0; padding-top: 10px; border-top: 1px solid rgba(139, 215, 255, .2); }
+.agmatcc-conversation-history h3 { margin: 0 0 8px; }
+.agmatcc-topbar .agmatcc-risk-knowledge { border-color: rgba(248, 184, 78, .5); background: rgba(248, 184, 78, .12); }
 .agmatcc-col h3 { margin: 0; font-size: .95rem; }
 .agmatcc-col textarea, .agmatcc-col input[type="search"] { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 1px solid rgba(139, 215, 255, .4); background: rgba(0, 0, 0, .35); color: inherit; font: inherit; }
 .agmatcc-agents, .agmatcc-questions, .agmatcc-alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
@@ -30,5 +41,7 @@
 .agmatcc-actions button { min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid #4bbcff; background: rgba(75, 188, 255, .16); color: inherit; cursor: pointer; }
 .agmatcc-actions button:disabled { opacity: .5; cursor: not-allowed; }
 .agmatcc-hint { margin: 0; font-size: .85rem; opacity: .8; }
-.agmatcc-history, .agmatcc-results, .agmatcc-journals { margin: 0; padding-left: 18px; max-height: 260px; overflow: auto; }
+.agmatcc-history, .agmatcc-results { margin: 0; padding-left: 18px; max-height: 260px; overflow: auto; }
+.agmatcc-history { max-height: min(180px, 22svh); }
 .agmatcc-history small { opacity: .7; word-break: break-all; }
+@media (max-width: 900px) { .agmatcc-left { position: static; height: auto; max-height: none; overflow: visible; } .agmatcc-module-navigation { max-height: 48svh; } .agmatcc-history { max-height: 24svh; } }
