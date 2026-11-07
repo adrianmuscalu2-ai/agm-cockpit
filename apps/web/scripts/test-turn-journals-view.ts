@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { renderTurnJournalsView } from '../src/turn-journals.view';
 import { agmaHistory, searchAgmaHistory } from '../src/agma-history';
 import { manifestDecisionSummary, manifestJournalDecisions } from '../src/turn-manifest-governance';
+import { turnModuleNavigationRegistry } from '../src/turn-module-navigation.registry';
 
 const view = renderTurnJournalsView({ appVersion: '1.6.0' });
 
@@ -19,6 +20,14 @@ assert.match(view, /Isolated preview/);
 assert.match(view, /Canonical source registry/);
 assert.match(view, /34f730be3fe5cf790f76a6169fc5b1d043b320da/);
 assert.match(view, /does not write journals/);
+for (const moduleId of ['incidents', 'version-journal', 'memory', 'evidence', 'risk-knowledge']) {
+  const target = `turn-journal-${moduleId}`;
+  const entry = turnModuleNavigationRegistry.find((item) => item.moduleId === moduleId);
+  assert.equal(entry?.page, 'incidents');
+  assert.equal(entry?.target, target);
+  assert.equal(entry?.route, `/turn#${target}`);
+  assert.match(view, new RegExp(`id="${target}"`));
+}
 assert.match(view, /Caută etichetă AGMA/);
 assert.equal((view.match(/data-agma-search=/g) ?? []).length, agmaHistory.length);
 assert.equal(searchAgmaHistory('AGMA').length, agmaHistory.length);
