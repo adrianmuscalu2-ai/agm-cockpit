@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { appendAgmatccEntry, searchAgmatccLedger, toOperationalSyncItems, verifyAgmatccLedger, type AgmatccEntry } from '../src/turn-agmatcc/agmatcc.ledger';
 import { renderAgmatccPage } from '../src/turn-agmatcc/agmatcc.view';
-import { readAgmatccJournalStream, readLatestIncidents, readTccAlertSnapshot, searchServerSemantic } from '../src/turn-agmatcc/agmatcc.commands';
+import {
+  describeAgmatccEvent, parseAgmatccVoiceCommand, readAgmatccJournalStream, readLatestIncidents,
+  readTccAlertSnapshot, searchServerSemantic, summarizeAgmatccJournal, summarizeIncidentJournal,
+  summarizeSemanticSearch, summarizeTccAlerts,
+} from '../src/turn-agmatcc/agmatcc.commands';
 
 const input = { language: 'ro-RO', actorId: 'turn-admin-session' };
 let ledger: AgmatccEntry[] = [];
@@ -28,6 +32,8 @@ assert.ok(agmatccPage.includes('<div class="agmatcc-content" data-turn-page="agm
 assert.ok(agmatccPage.includes('data-turn-module-navigation'));
 assert.ok(agmatccPage.includes('data-open-turn-page="incidents"'));
 assert.ok(agmatccPage.includes('Risk &amp; Knowledge'));
+assert.ok(agmatccPage.includes('data-agmatcc-audit'));
+assert.ok(agmatccPage.includes('<details class="agmatcc-evidence-details">'));
 assert.ok(agmatccPage.indexOf('data-turn-module-navigation') < agmatccPage.indexOf('agmatcc-history-title'));
 assert.ok(agmatccPage.includes('data-agmatcc-journal="version-journal"'));
 
@@ -36,14 +42,47 @@ const journalFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
 	assert.equal(init?.cache, 'no-store');
 	return new Response(JSON.stringify({ data: { streamId: 'stream-1', serverVersion: 0, events: [{
 		eventId: 'event-1', eventType: 'agmatcc.voice-transcript-confirmed', aggregateVersion: 0,
-		recordedAt: '2026-11-07T00:00:00.000Z', payload: { text: 'Incident verificat', provenance: 'voice-capture' },
+		recordedAt: '2026-11-07T00:00:00.000Z', payload: { text: 'Incident verificat', ledgerHash: 'a'.repeat(64), provenance: 'voice-capture' },
 	}] } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 };
 const journal = await readAgmatccJournalStream('stream-1', journalFetch as typeof fetch);
 assert.equal(journal.source, 'GET /operational-events/:streamId?afterVersion=-1');
 assert.equal(journal.scope, 'AGMaTCC device stream; authorized read');
+assert.match(journal.endpoint, /\/operational-events\/stream-1\?afterVersion=-1$/);
+assert.equal(journal.requestPath, '/operational-events/stream-1?afterVersion=-1');
 assert.equal(journal.events[0].text, 'Incident verificat');
+assert.equal(journal.events[0].ledgerHash, 'a'.repeat(64));
 assert.equal(journal.events[0].source, 'operational-event:stream-1@0');
+
+const uuid = '550e8400-e29b-41d4-a716-446655440000';
+const semanticJournal = {
+  count: 5,
+  events: [
+    { eventId: uuid, eventType: 'agmatcc.note', aggregateVersion: 0, recordedAt: '2026-11-07T00:00:00.000Z', text: 'COMMAND_RESULT · EXECUTED — read-only · RESPONSE: Un incident a fost citit.', source: 'audit' },
+    { eventId: 'event-2', eventType: 'agmatcc.playback', aggregateVersion: 1, recordedAt: '2026-11-07T00:01:00.000Z', text: `PLAYBACK FAILED · ${uuid} · engine error`, source: 'audit' },
+    { eventId: 'event-3', eventType: 'agmatcc.voice-transcript-confirmed', aggregateVersion: 2, recordedAt: '2026-11-07T00:02:00.000Z', text: `Verifică ${uuid}`, source: 'audit' },
+    { eventId: 'event-4', eventType: 'agmatcc.note', aggregateVersion: 3, recordedAt: '2026-11-07T00:03:00.000Z', text: 'COMMAND_RESULT · BLOCKED — authorization · RESPONSE: Accesul a fost refuzat.', source: 'audit' },
+    { eventId: 'event-5', eventType: 'agmatcc.note', aggregateVersion: 4, recordedAt: '2026-11-07T00:04:00.000Z', text: 'COMMAND_RESULT · WARNING — source is partial · RESPONSE: Atenție, rezultatul este incomplet.', source: 'audit' },
+  ],
+};
+const journalSummary = summarizeAgmatccJournal(semanticJournal);
+assert.match(journalSummary, /5 evenimente/);
+assert.match(journalSummary, /1 redare vocală/);
+assert.match(journalSummary, /1 eșuat, 1 blocat, 1 avertisment/);
+assert.match(journalSummary, /Starea execuției nu este consemnată pentru 1 eveniment/);
+assert.doesNotMatch(journalSummary, new RegExp(uuid));
+assert.match(describeAgmatccEvent(semanticJournal.events[2]), /fără stare de execuție consemnată/);
+assert.match(describeAgmatccEvent(semanticJournal.events[2]), /Transcrierea a fost confirmată/);
+const technicalResponse = describeAgmatccEvent({
+  eventId: 'event-technical',
+  eventType: 'agmatcc.note',
+  aggregateVersion: 5,
+  recordedAt: '2026-11-07T00:05:00.000Z',
+  text: `COMMAND_RESULT · EXECUTED — read · RESPONSE: Incident citit ${uuid}; endpoint /api/v1/operational-events/stream?afterVersion=-1; hash ${'b'.repeat(64)}; eventId event-9; serverVersion 23; status PASS; version 1.9.1`,
+  source: 'audit',
+});
+assert.match(technicalResponse, /Incident citit/);
+assert.doesNotMatch(technicalResponse, new RegExp(`${uuid}|/api/v1|${'b'.repeat(64)}|event-9|serverVersion|PASS|1\\.9\\.1`));
 
 const incidentsFetch = async (input: RequestInfo | URL) => {
 	assert.match(String(input), /\/incidents$/);
@@ -54,6 +93,17 @@ assert.equal(incidents.source, 'API-006 GET /incidents');
 assert.equal(incidents.scope, 'authenticated user company scope');
 assert.equal(incidents.coverage, 'COMPLETE');
 assert.equal(incidents.incidents[0].title, 'Incident real');
+assert.match(summarizeIncidentJournal(incidents), /1 incident/);
+assert.match(summarizeIncidentJournal(incidents), /Unul este deschis/);
+assert.doesNotMatch(summarizeIncidentJournal(incidents), /incident-1/);
+assert.match(summarizeIncidentJournal({ incidents: [], count: 0, coverage: 'COMPLETE' }), /Nu există incidente înregistrate/);
+const unknownIncidentState = summarizeIncidentJournal({
+  incidents: [{ id: 'incident-2', status: 'awaiting-review', severity: 'unknown', title: 'Review pending', createdAt: '2026-11-08T00:00:00.000Z' }],
+  count: 1,
+  coverage: 'COMPLETE',
+});
+assert.match(unknownIncidentState, /Starea unui incident nu este clasificată/);
+assert.doesNotMatch(unknownIncidentState, /Unul este deschis/);
 await assert.rejects(readLatestIncidents(async () => new Response('', { status: 403 }) as Response), /INCIDENT_JOURNAL_HTTP_403/);
 
 const semanticFetch = async (input: RequestInfo | URL) => {
@@ -63,6 +113,8 @@ const semanticFetch = async (input: RequestInfo | URL) => {
 const semantic = await searchServerSemantic('AGMaTCC', semanticFetch as typeof fetch);
 assert.equal(semantic.hits[0].source, 'operational-event:stream-1@0');
 assert.deepEqual(semantic.coverage, { total: 1, scanned: 1, complete: true });
+assert.match(summarizeSemanticSearch({ server: semantic, localResults: [] }), /1 eveniment relevant/);
+assert.match(summarizeSemanticSearch({ server: { hits: [], coverage: { total: 10, scanned: 3, complete: false } }, localResults: [] }), /verificat doar parțial/);
 await assert.rejects(searchServerSemantic('AGMaTCC', async () => new Response('', { status: 403 }) as Response), /AGMATCC_SEMANTIC_HTTP_403/);
 
 const operationalTruth = {
@@ -74,6 +126,15 @@ const alerts = await readTccAlertSnapshot(async () => operationalTruth);
 assert.equal(alerts.source, 'GET /operations/turn/operational-truth');
 assert.equal(alerts.status, 'PASS');
 assert.equal(alerts.alerts[0].ref, 'truth-event');
+assert.match(summarizeTccAlerts(alerts), /1 eveniment operațional/);
+const warningSummary = summarizeTccAlerts({
+  alerts: [{ alertClass: 'WARNING', message: 'Stare operațională DEGRADED: API /api/v1/health indisponibil', source: 'backend', observedAt: null, ref: null }],
+  status: 'DEGRADED',
+  freshness: 'STALE',
+});
+assert.match(warningSummary, /1 avertisment/);
+assert.match(warningSummary, /starea operațională este degradată/);
+assert.doesNotMatch(warningSummary, /\/api\/v1/);
 
 const nav = readFileSync(new URL('../src/turn-command-navigation.ts', import.meta.url), 'utf8');
 assert.ok(nav.includes("TURN_PAGES = ['agmatcc',"));
@@ -82,9 +143,15 @@ assert.ok(view.indexOf('renderAgmatccPage(renderTurnModuleNavigation())') < view
 assert.ok(!view.includes('${renderTurnModuleNavigation()}\n'));
 assert.ok(view.includes('data-open-turn-page="agmatcc"'));
 assert.ok(view.includes("topbarOnlyModules = new Set(['incidents', 'version-journal', 'memory', 'evidence', 'risk-knowledge'])"));
-import { parseAgmatccVoiceCommand } from '../src/turn-agmatcc/agmatcc.commands';
 assert.deepEqual(parseAgmatccVoiceCommand('Comandă: caută Documente CMR'), { type: 'search', query: 'documente cmr' });
 assert.deepEqual(parseAgmatccVoiceCommand('Citește jurnalul serverului.'), { type: 'read-remote-journal' });
+assert.deepEqual(parseAgmatccVoiceCommand('Avem incidente?'), { type: 'list-incidents' });
+assert.deepEqual(parseAgmatccVoiceCommand('Ce s-a întâmplat ultima dată?'), { type: 'read-last-event' });
+assert.deepEqual(parseAgmatccVoiceCommand('Dă-mi ID-ul evenimentului'), { type: 'read-event-detail', field: 'id' });
+assert.deepEqual(parseAgmatccVoiceCommand('Dă-mi ID-ul evenimentului event-123'), { type: 'read-event-detail', field: 'id', eventId: 'event-123' });
+assert.deepEqual(parseAgmatccVoiceCommand('Dă-mi hash-ul evenimentului'), { type: 'read-event-detail', field: 'hash' });
+assert.deepEqual(parseAgmatccVoiceCommand('Dă-mi endpointul'), { type: 'read-event-detail', field: 'endpoint' });
+assert.deepEqual(parseAgmatccVoiceCommand('Arată-mi detaliile de audit'), { type: 'read-event-detail', field: 'audit' });
 assert.deepEqual(parseAgmatccVoiceCommand('Arată ultimele incidente'), { type: 'list-incidents' });
 assert.deepEqual(parseAgmatccVoiceCommand('Caută evenimentele AGMaTCC'), { type: 'search-agmatcc-events', query: 'AGMaTCC' });
 assert.deepEqual(parseAgmatccVoiceCommand('Ce alerte avem în TURN?'), { type: 'read-tcc-alerts' });

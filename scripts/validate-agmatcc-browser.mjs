@@ -12,7 +12,11 @@ const { createServer: createViteServer } = await import(pathToFileURL(webRequire
 const runId = new Date().toISOString().replace(/[:.]/g, '-');
 const out = path.join(root, 'evidence', 'agmatcc', runId);
 const checks = [];
-const report = { schemaVersion: 1, runId, runner: 'Controlled AGM Playwright/Chromium', browserPluginStatus: 'PASS', integratedBrowserControlStatus: 'PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE', browserSessionStatus: 'FAIL', targetPageStatus: 'FAIL', checks };
+const browserPluginStatus = process.env.AGM_BROWSER_PLUGIN_STATUS === 'PASS' ? 'PASS' : 'FAIL';
+const integratedBrowserControlStatus = process.env.AGM_INTEGRATED_BROWSER_CONTROL_STATUS === 'PASS'
+  ? 'PASS'
+  : 'PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE';
+const report = { schemaVersion: 1, runId, runner: 'Controlled AGM Playwright/Chromium', browserPluginStatus, integratedBrowserControlStatus, browserSessionStatus: 'FAIL', targetPageStatus: 'FAIL', checks };
 const check = (name, ok, detail) => checks.push({ name, status: ok ? 'PASS' : 'FAIL', detail });
 let viteServer; let browser; let fatal;
 
@@ -37,17 +41,50 @@ try {
   await page.addInitScript(() => {
     localStorage.setItem('agm.legal.acceptance.privacy-v2026.07.13.terms-v2026.07.13', JSON.stringify({ privacyPolicyVersion: 'privacy-v2026.07.13', termsVersion: 'terms-v2026.07.13', acceptedAt: new Date().toISOString() }));
     localStorage.setItem('agm.tutorial.completed.v1', new Date().toISOString());
+    window.__agmatccSpoken = [];
+    class MockSpeechSynthesisUtterance {
+      constructor(text) { this.text = text; this.lang = ''; this.onend = null; this.onerror = null; }
+    }
+    Object.defineProperty(window, 'SpeechSynthesisUtterance', { configurable: true, value: MockSpeechSynthesisUtterance });
+    Object.defineProperty(window, 'speechSynthesis', {
+      configurable: true,
+      value: {
+        cancel() {},
+        speak(utterance) {
+          window.__agmatccSpoken.push(utterance.text);
+          queueMicrotask(() => utterance.onend?.());
+        },
+      },
+    });
   });
   // Auth-gate stub only: real PIN/Owner credentials are not available to this runner; AGMaTCC logic itself is not stubbed.
   const syncBodies = [];
   await page.route(/\/turn-admin\/(unlock|refresh)$/, (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { accessToken: 'e2e-auth-gate-stub', expiresInSeconds: 900 } }) }));
   await page.route(/\/turn-admin\/validate$/, (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { valid: true } }) }));
+  await page.route(/\/api\/v1\/auth\/refresh$/, (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { accessToken: 'e2e-user-auth-gate-stub' } }) }));
   let journalReads = 0;
-  await page.route(/\/operational-events\/(?!sync)[^/?]+/, (route) => { journalReads += 1; return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { streamId: 'stub', serverVersion: 1, events: [{}], projection: null } }) }); });
+  const journalEvents = [
+    { eventId: 'event-transcript-123', eventType: 'agmatcc.voice-transcript-confirmed', aggregateVersion: 1, recordedAt: '2026-11-07T08:00:00.000Z', payload: { text: 'Transcriere confirmată', ledgerHash: 'a'.repeat(64) } },
+    { eventId: 'event-playback-failed-123', eventType: 'agmatcc.playback', aggregateVersion: 2, recordedAt: '2026-11-07T08:01:00.000Z', payload: { text: 'PLAYBACK FAILED · event-playback-failed-123 · engine error', ledgerHash: 'b'.repeat(64) } },
+    { eventId: 'event-warning-2026', eventType: 'agmatcc.note', aggregateVersion: 3, recordedAt: '2026-11-07T08:02:00.000Z', payload: { text: 'COMMAND_RESULT · WARNING — partial coverage · RESPONSE: Atenție, rezultatul de jurnal este incomplet.', ledgerHash: 'c'.repeat(64) } },
+  ];
+  let journalRequestPath;
+  await page.route(/\/operational-events\/(?!sync)[^/?]+/, (route) => {
+    journalReads += 1;
+    const requestUrl = new URL(route.request().url());
+    journalRequestPath = `${requestUrl.pathname}${requestUrl.search}`;
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { streamId: 'stub-stream', serverVersion: 3, events: journalEvents, projection: null } }) });
+  });
+  await page.route(/\/api\/v1\/incidents$/, (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ data: [{ id: 'incident-browser-123', status: 'open', severity: 'high', title: 'Transport întârziat', createdAt: '2026-11-07T08:03:00.000Z' }] }),
+  }));
   const semanticQueries = [];
   await page.route(/\/operational-events\/search\/semantic\?/, (route) => { semanticQueries.push(route.request().url()); return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { index: 'stub', scope: 'company-operational-events', coverage: { total: 3, scanned: 3, complete: true }, hits: [{ eventType: 'trip.delay_reported', score: 0.81, matchedConcepts: ['delay'], source: 'operational-event:s1@3' }] } }) }); });
   await page.route(/\/operational-events\/sync$/, (route) => { syncBodies.push(route.request().postData()); return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: { results: [], projections: [] } }) }); });
   const response = await page.goto(target + 'turn', { waitUntil: 'domcontentloaded' });
+  check('Browser plugin callable', report.browserPluginStatus === 'PASS');
   await page.waitForSelector('#turn-agmatcc-title', { timeout: 20000 }).catch(() => {});
   report.targetPageStatus = response?.status() === 200 ? 'PASS' : 'FAIL';
   await page.screenshot({ path: path.join(out, '01-landing.png'), fullPage: true });
@@ -65,10 +102,12 @@ try {
   await page.waitForTimeout(500);
   const historyText = await page.locator('[data-agmatcc-history]').first().innerText();
   check('Confirmed entry appended to history', historyText.includes('Comanda de test'), { historyText });
+  await page.locator('.agmatcc-audit-panel > summary').click();
   const integrity = await page.locator('[data-agmatcc-integrity]').first().innerText();
   check('Integrity indicator verified', /ok|valid|verificat|intact/i.test(integrity), { integrity });
   await page.locator('[data-agmatcc-query]').first().fill('comanda diacritice');
   await page.waitForTimeout(500);
+  await page.locator('.agmatcc-evidence-details > summary').click();
   const resultsText = await page.locator('[data-agmatcc-results]').first().innerText();
   check('Search finds the entry', resultsText.includes('Comanda de test'), { resultsText });
   const serverResultsText = await page.locator('[data-agmatcc-results]').first().innerText();
@@ -80,9 +119,51 @@ try {
   check('Voice command "cauta" drives search', (await page.locator('[data-agmatcc-query]').first().inputValue()) === 'diacritice' && (await page.locator('[data-agmatcc-results]').first().innerText()).includes('Comanda de test'));
   await draft.fill('comanda citeste jurnal server');
   await page.locator('[data-agmatcc-run-command]').first().click();
-  await page.waitForTimeout(600);
-  const statusText = await page.locator('[data-agmatcc-status]').first().innerText();
-  check('Remote journal queried through authenticated GET', journalReads > 0 && /Jurnal server/.test(statusText), { journalReads, statusText });
+  await page.waitForTimeout(800);
+  const journalSummary = await page.locator('[data-agmatcc-status]').first().innerText();
+  const spokenJournal = await page.evaluate(() => window.__agmatccSpoken.at(-1));
+  check('Server log summarized from real event records', journalReads > 0 && /3 evenimente/.test(journalSummary) && /1 eșuat/.test(journalSummary) && /1 avertisment/.test(journalSummary), { journalReads, journalSummary });
+  check('Voice response contains no implicit audit identifiers', spokenJournal === journalSummary && !/event-|[0-9a-f]{64}|\/api\/v1|operational-event:|serverVersion/i.test(spokenJournal), { spokenJournal });
+
+  await draft.fill('Avem incidente?');
+  await page.locator('[data-agmatcc-run-command]').first().click();
+  await page.waitForTimeout(800);
+  const incidentSummary = await page.locator('[data-agmatcc-status]').first().innerText();
+  const spokenIncident = await page.evaluate(() => window.__agmatccSpoken.at(-1));
+  check('Incident question reports the actual open incident', /1 incident/.test(incidentSummary) && /deschis/.test(incidentSummary) && /ridicată/.test(incidentSummary), { incidentSummary });
+  check('Incident answer omits internal identifiers', spokenIncident === incidentSummary && !/incident-browser-123|\/api\/v1/i.test(spokenIncident), { spokenIncident });
+
+  await draft.fill('Ce s-a întâmplat ultima dată?');
+  await page.locator('[data-agmatcc-run-command]').first().click();
+  await page.waitForTimeout(800);
+  const lastEventSummary = await page.locator('[data-agmatcc-status]').first().innerText();
+  check('Last event is explained with its recorded warning', /avertisment înregistrat/.test(lastEventSummary) && /rezultatul de jurnal este incomplet/.test(lastEventSummary), { lastEventSummary });
+
+  await draft.fill('Dă-mi ID-ul evenimentului');
+  await page.locator('[data-agmatcc-run-command]').first().click();
+  await page.waitForTimeout(800);
+  const exactId = await page.locator('[data-agmatcc-status]').first().innerText();
+  const exactIdSpoken = await page.evaluate(() => window.__agmatccSpoken.at(-1));
+  const technicalRows = await page.locator('[data-agmatcc-results]').first().innerText();
+  check('Explicit event ID request returns the exact identifier', exactId === 'event-warning-2026' && exactIdSpoken === exactId, { exactId, exactIdSpoken });
+  check('Audit details open on explicit identifier request', await page.locator('.agmatcc-audit-panel').evaluate((node) => node.open) && await page.locator('.agmatcc-evidence-details').evaluate((node) => node.open) && technicalRows.includes('ledgerHash='));
+
+  await draft.fill('Dă-mi hash-ul evenimentului');
+  await page.locator('[data-agmatcc-run-command]').first().click();
+  await page.waitForTimeout(800);
+  const exactHash = await page.locator('[data-agmatcc-status]').first().innerText();
+  check('Explicit hash request returns the exact digest', exactHash === 'c'.repeat(64));
+
+  await draft.fill('Dă-mi endpointul');
+  await page.locator('[data-agmatcc-run-command]').first().click();
+  await page.waitForTimeout(800);
+  const exactEndpoint = await page.locator('[data-agmatcc-status]').first().innerText();
+  check('Explicit endpoint request returns the effective endpoint', Boolean(journalRequestPath) && exactEndpoint === `Endpointul exact este ${journalRequestPath}.`, { exactEndpoint, journalRequestPath });
+
+  await draft.fill('Arată-mi detaliile de audit');
+  await page.locator('[data-agmatcc-run-command]').first().click();
+  await page.waitForTimeout(800);
+  check('Explicit audit request reveals complete technical evidence', /Detaliile complete/.test(await page.locator('[data-agmatcc-status]').first().innerText()) && await page.locator('.agmatcc-evidence-details').evaluate((node) => node.open));
   await draft.fill('');
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForSelector('[data-agmatcc-history]', { timeout: 20000 });
@@ -90,8 +171,10 @@ try {
   check('History persists across reload', persisted.includes('Comanda de test'));
   const journals = await page.locator('[data-agmatcc-journal]').evaluateAll((nodes) => nodes.map((n) => ({ id: n.getAttribute('data-agmatcc-journal'), href: n.getAttribute('href') })));
   check('Journal links present', journals.length > 0, journals);
-  const sync = await page.locator('[data-agmatcc-sync]').first().innerText();
-  check('Sync state reported honestly', sync.length > 0, { sync });
+  const auditPanel = page.locator('.agmatcc-audit-panel').first();
+  if (!(await auditPanel.evaluate((node) => node.open))) await auditPanel.locator('summary').click();
+  const syncDetails = await page.locator('[data-agmatcc-sync]').first().innerText();
+  check('Sync state reported honestly', syncDetails.length > 0, { sync: syncDetails });
   check('Sync request emitted as operational-event.v1', syncBodies.length > 0 && syncBodies[0].includes('operational-event.v1'), { count: syncBodies.length });
   const unexpected = errors.filter((e) => !/Failed to fetch/.test(e));
   check('No page runtime errors (API-less fetch failures from pre-existing observers excluded)', unexpected.length === 0, { unexpected, apiLessFetchFailures: errors.length - unexpected.length });

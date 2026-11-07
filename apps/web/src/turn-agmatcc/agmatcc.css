@@ -22,6 +22,12 @@
 .agmatcc-conversation-history h3 { margin: 0 0 8px; }
 .agmatcc-topbar .agmatcc-risk-knowledge { border-color: rgba(248, 184, 78, .5); background: rgba(248, 184, 78, .12); }
 .agmatcc-col h3 { margin: 0; font-size: .95rem; }
+.agmatcc-audit-panel, .agmatcc-evidence-details { padding: 8px 10px; border: 1px solid rgba(139, 215, 255, .22); border-radius: 8px; background: rgba(4, 18, 30, .65); }
+.agmatcc-audit-panel > summary, .agmatcc-evidence-details > summary { cursor: pointer; font-weight: 700; }
+.agmatcc-audit-panel > *:not(summary), .agmatcc-evidence-details > *:not(summary) { margin-top: 8px; }
+.agmatcc-audit-trace { max-height: 240px; overflow: auto; }
+.agmatcc-audit-trace li, .agmatcc-results li, .agmatcc-alerts li { overflow-wrap: anywhere; }
+.agmatcc-alerts details p { margin: 6px 0 0; overflow-wrap: anywhere; }
 .agmatcc-col textarea, .agmatcc-col input[type="search"] { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 1px solid rgba(139, 215, 255, .4); background: rgba(0, 0, 0, .35); color: inherit; font: inherit; }
 .agmatcc-agents, .agmatcc-questions, .agmatcc-alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .agmatcc-agents a { display: block; }
