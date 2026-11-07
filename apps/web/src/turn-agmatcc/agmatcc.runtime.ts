@@ -1,6 +1,13 @@
 import { turnAdminAuthenticatedFetch } from '../admin-auth';
 import './agmatcc.css';
-import { parseAgmatccVoiceCommand } from './agmatcc.commands';
+import {
+  parseAgmatccVoiceCommand,
+  readAgmatccJournalStream,
+  readLatestIncidents,
+  readTccAlertSnapshot,
+  searchServerSemantic,
+  type IncidentJournalRecord,
+} from './agmatcc.commands';
 import { semanticSearchAgmatccLedger } from './agmatcc.semantic';
 import { deriveTccAlerts } from './agmatcc.alerts';
 import { fetchTurnOperationalTruth } from '../turn-operational-truth';
@@ -45,20 +52,7 @@ export async function syncAgmatccLedger(fetcher: typeof fetch = turnAdminAuthent
 }
 
 export async function readRemoteAgmatccJournal(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
-  const response = await fetcher(`/operational-events/${encodeURIComponent(stream().streamId)}?afterVersion=-1`, { cache: 'no-store', headers: { Accept: 'application/json' } });
-  if (!response.ok) throw new Error(`AGMATCC_JOURNAL_HTTP_${response.status}`);
-  const payload = await response.json() as { data?: { serverVersion?: number; events?: unknown[] } };
-  return { serverVersion: payload.data?.serverVersion ?? -1, count: payload.data?.events?.length ?? 0 };
-}
-
-export type ServerSemanticResult = { hits: Array<{ eventType: string; score: number; matchedConcepts: string[]; source: string }>; coverage: { total: number; scanned: number; complete: boolean } };
-
-export async function searchServerSemantic(query: string, fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch): Promise<ServerSemanticResult> {
-  const response = await fetcher(`/operational-events/search/semantic?q=${encodeURIComponent(query.trim())}&limit=20`, { cache: 'no-store', headers: { Accept: 'application/json' } });
-  if (!response.ok) throw new Error(`AGMATCC_SEMANTIC_HTTP_${response.status}`);
-  const payload = await response.json() as { data?: ServerSemanticResult };
-  if (!payload.data) throw new Error('AGMATCC_SEMANTIC_EMPTY_PAYLOAD');
-  return payload.data;
+  return readAgmatccJournalStream(stream().streamId, fetcher);
 }
 
 export function bindAgmatcc(language = 'ro-RO') {
@@ -81,6 +75,22 @@ export function bindAgmatcc(language = 'ro-RO') {
   const questions = $('[data-agmatcc-questions]');
   const alerts = $('[data-agmatcc-alerts]');
   const setState = (state: 'idle' | 'listening' | 'speaking' | 'searching') => { stage.dataset.agmatccState = state; };
+  let activeCommandTrace: string[] | null = null;
+  const commandStage = (name: string, detail: string) => {
+    if (!activeCommandTrace) activeCommandTrace = [];
+    activeCommandTrace.push(`${name} — ${detail}`);
+    status.textContent = activeCommandTrace.join('\n');
+    status.dataset.commandStage = name.toLocaleLowerCase().replaceAll('_', '-');
+  };
+  const showOperationRows = (mode: string, lines: string[]) => {
+    results.innerHTML = '';
+    lines.forEach((text) => {
+      const item = document.createElement('li');
+      item.dataset.agmatccMode = mode;
+      item.textContent = text;
+      results.append(item);
+    });
+  };
   const alert = (source: string, message: string) => {
     const li = document.createElement('li');
     li.textContent = `[LOCAL · necertificat · ${source}] ${new Date().toISOString()} · ${message}`;
@@ -116,57 +126,231 @@ export function bindAgmatcc(language = 'ro-RO') {
     ledger.filter((e) => e.kind === 'voice-transcript-confirmed').slice(-10).reverse().forEach((e) => { const li = document.createElement('li'); li.textContent = `#${e.index} · ${e.text}`; questions.append(li); });
     if (!check.valid) alert('ledger-local', `integritate încălcată la #${check.brokenAt}`);
   };
-  const append = async (kind: AgmatccEntryKind, text: string, entryProvenance: AgmatccProvenance) => {
+  const append = async (kind: AgmatccEntryKind, text: string, entryProvenance: AgmatccProvenance, awaitSync = false) => {
     ledger = await appendAgmatccEntry(ledger, { kind, provenance: entryProvenance, text, language, actorId: ACTOR_ID });
     window.localStorage.setItem(AGMATCC_LEDGER_KEY, JSON.stringify(ledger));
     await render();
+    if (awaitSync) {
+      try {
+        const sync = await syncAgmatccLedger();
+        await refreshRemoteCount();
+        await render();
+        return { status: sync.pending === 0 ? 'SYNCED' as const : 'PENDING' as const, acknowledged: sync.acknowledged, pending: sync.pending };
+      } catch (error) {
+        syncLabel.textContent = 'Sincronizare: indisponibilă, intrările rămân locale și se retrimit.';
+        alert('operational-events/sync', error instanceof Error ? error.message : String(error));
+        return { status: 'UNAVAILABLE' as const, acknowledged: 0, pending: 1 };
+      }
+    }
     syncAgmatccLedger().then(render).catch(() => { syncLabel.textContent = 'Sincronizare: indisponibilă, intrările rămân locale și se retrimit.'; alert('operational-events/sync', 'sincronizare indisponibilă; intrările rămân locale'); });
+    return { status: 'PENDING' as const, acknowledged: 0, pending: 1 };
   };
 
   const searchInput = $<HTMLInputElement>('[data-agmatcc-query]');
-  const runSearch = (query: string) => {
-    setState('searching'); searchInput.value = query;
-    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+  let serverTimer: number | undefined;
+  let serverSeq = 0;
+  const renderLocalSearchResults = (query: string) => {
+    const seen = new Set<number>();
+    const semanticHits = semanticSearchAgmatccLedger(ledger, query);
+    const localResults = semanticHits.map((hit) => ({ index: hit.entry.index, text: hit.entry.text, source: hit.source }));
+    semanticHits.forEach((hit) => {
+      seen.add(hit.entry.index);
+      const item = document.createElement('li');
+      item.dataset.agmatccMode = 'semantic';
+      item.textContent = `[semantic ${hit.score.toFixed(2)}${hit.matchedConcepts.length ? ` · concept: ${hit.matchedConcepts.join(', ')}` : ''}] #${hit.entry.index} · ${hit.entry.text} · sursă: ${hit.source}`;
+      results.append(item);
+    });
+    const lexicalHits = searchAgmatccLedger(ledger, query).filter((hit) => !seen.has(hit.entry.index));
+    lexicalHits.forEach((hit) => {
+      localResults.push({ index: hit.entry.index, text: hit.entry.text, source: `agmatcc-local#${hit.entry.index}:${hit.entry.hash.slice(0, 12)}` });
+      const item = document.createElement('li');
+      item.dataset.agmatccMode = 'lexical';
+      item.textContent = `[lexical] #${hit.entry.index} · ${hit.entry.text}`;
+      results.append(item);
+    });
+    return localResults;
   };
-  const speakText = (text: string) => {
-    if (!text || !('speechSynthesis' in window)) { status.textContent = 'Nu există text de redat sau redarea vocală nu este disponibilă.'; return; }
+  const renderServerSearchResults = (data: Awaited<ReturnType<typeof searchServerSemantic>>) => {
+    const header = document.createElement('li');
+    header.dataset.agmatccMode = 'server-semantic-coverage';
+    header.textContent = `[server semantic] ${data.hits.length} rezultate · acoperire ${data.coverage.scanned}/${data.coverage.total} evenimente${data.coverage.complete ? '' : ' (PARȚIAL: doar cele mai recente)'}`;
+    results.append(header);
+    data.hits.forEach((hit) => {
+      const item = document.createElement('li');
+      item.dataset.agmatccMode = 'server-semantic';
+      item.textContent = `[server ${hit.score.toFixed(2)}${hit.matchedConcepts.length ? ` · concept: ${hit.matchedConcepts.join(', ')}` : ''}] ${hit.eventType} · sursă: ${hit.source}`;
+      results.append(item);
+    });
+  };
+  const executeSemanticSearch = async (query: string) => {
+    const normalized = query.trim();
+    if (normalized.length < 2) throw new Error('AGMATCC_SEARCH_QUERY_TOO_SHORT');
+    window.clearTimeout(serverTimer);
+    const seq = ++serverSeq;
+    searchInput.value = normalized;
+    results.innerHTML = '';
+    setState('searching');
+    const localResults = renderLocalSearchResults(normalized);
+    const server = await searchServerSemantic(normalized);
+    if (seq === serverSeq) renderServerSearchResults(server);
+    return { server, localResults };
+  };
+  const speakText = (text: string, operationAudit?: string) => {
+    if (!text || !('speechSynthesis' in window)) {
+      if (!activeCommandTrace) status.textContent = 'Nu există text de redat sau redarea vocală nu este disponibilă.';
+      return false;
+    }
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = language;
-    utterance.onend = () => setState('idle'); utterance.onerror = () => setState('idle');
+    const commandTraceAtStart = activeCommandTrace;
+    if (commandTraceAtStart) commandStage('PLAYBACK', 'REDARE REZULTAT ÎN CURS');
+    else status.textContent = 'PLAYBACK — redare manuală în curs.';
+    utterance.onend = () => {
+      setState('idle');
+      const completed = `PLAYBACK COMPLETED · ${operationAudit ?? text.slice(0, 200)}`;
+      void append('playback', completed, 'system', true).then((journal) => {
+        if (commandTraceAtStart && activeCommandTrace === commandTraceAtStart) {
+          commandStage('PLAYBACK', `REDARE COMPLETĂ · JOURNAL ${journal.status}`);
+          activeCommandTrace = null;
+        } else if (!commandTraceAtStart) status.textContent = `PLAYBACK — redare completă · JOURNAL ${journal.status}.`;
+      });
+    };
+    utterance.onerror = () => {
+      setState('idle');
+      const failed = `PLAYBACK FAILED · ${operationAudit ?? 'manual playback'} · engine error`;
+      void append('note', failed, 'system', true).then((journal) => {
+        if (commandTraceAtStart && activeCommandTrace === commandTraceAtStart) {
+          commandStage('PLAYBACK', `FAILED — motorul vocal a raportat o eroare · JOURNAL ${journal.status}`);
+          activeCommandTrace = null;
+        } else if (!commandTraceAtStart) status.textContent = 'PLAYBACK — redarea a eșuat.';
+      });
+    };
     window.speechSynthesis.cancel(); setState('speaking'); window.speechSynthesis.speak(utterance);
-    void append('playback', `Redare: ${text.slice(0, 200)}`, 'system');
+    return true;
   };
-  const readRemote = async () => {
-    status.textContent = 'Citesc jurnalul server…';
-    try {
-      const journal = await readRemoteAgmatccJournal();
-      status.textContent = `Jurnal server: versiune ${journal.serverVersion}, ${journal.count} evenimente (local: ${ledger.length}).`;
-    } catch (error) {
-      status.textContent = `Jurnal server indisponibil: ${(error as Error).message}`; alert('operational-events/read', (error as Error).message);
+  const speakCommandResult = async (spokenResult: string) => {
+    const audit = activeCommandTrace?.join(' | ') ?? 'AGMaTCC command result';
+    if (!('speechSynthesis' in window)) {
+      commandStage('PLAYBACK', 'UNAVAILABLE — răspunsul rămâne vizibil în interfață');
+      const journal = await append('note', `COMMAND_RESULT · ${audit} · RESPONSE: ${spokenResult} · PLAYBACK UNAVAILABLE`, 'system', true);
+      commandStage('JOURNAL', journal.status === 'SYNCED' ? 'SYNCED' : `LOCAL ONLY · ${journal.status}`);
+      activeCommandTrace = null;
+      return;
+    }
+    commandStage('JOURNAL', 'append-only · aștept confirmarea sync înainte de TTS');
+    const journal = await append('note', `COMMAND_RESULT · ${audit} · RESPONSE: ${spokenResult}`, 'system', true);
+    commandStage('JOURNAL', journal.status === 'SYNCED' ? 'SYNCED' : `LOCAL ONLY · ${journal.status}`);
+    const response = journal.status === 'SYNCED'
+      ? spokenResult
+      : `${spokenResult} Jurnalizat local; sincronizarea server este ${journal.status}.`;
+    if (!speakText(response, audit)) {
+      commandStage('PLAYBACK', 'UNAVAILABLE — răspunsul rămâne vizibil în interfață');
+      activeCommandTrace = null;
     }
   };
-  const runCommand = (transcript: string): boolean => {
+  const runCommand = async (transcript: string, origin: 'voice' | 'typed' | 'button'): Promise<boolean> => {
+    activeCommandTrace = [];
+    commandStage('TRANSCRIBED', `${origin} · ${transcript.trim().length} caractere; transcriptul nu se persistă automat`);
     const command = parseAgmatccVoiceCommand(transcript);
-    if (command.type === 'none') return false;
-    if (command.type === 'search') { runSearch(command.query); status.textContent = `Comandă: căutare „${command.query}”.`; }
-    else if (command.type === 'play-last') speakText(ledger[ledger.length - 1]?.text ?? '');
-    else if (command.type === 'read-remote-journal') void readRemote();
-    else {
-      const link = [...root.querySelectorAll<HTMLAnchorElement>('[data-agmatcc-journal]')]
-        .find((a) => foldText(a.textContent ?? '').includes(command.target));
-      if (link) { status.textContent = `Comandă: deschid ${link.textContent}.`; link.click(); } else status.textContent = `Comandă: jurnal necunoscut „${command.target}”.`;
+    if (command.type === 'none') {
+      commandStage('INTENT_RESOLVED', 'NONE — textul rămâne transcriere, nu execut comandă');
+      activeCommandTrace = null;
+      return false;
+    }
+    if (command.type === 'clarify') {
+      commandStage('INTENT_RESOLVED', 'CLARIFICATION_REQUIRED');
+      speakCommandResult(command.question);
+      return true;
+    }
+
+    commandStage('INTENT_RESOLVED', command.type);
+    try {
+      if (command.type === 'read-remote-journal') {
+        const journal = await readRemoteAgmatccJournal();
+        commandStage('AUTHORIZED', `${journal.scope} · ${journal.source}`);
+        const recent = journal.events.slice(-5).reverse();
+        const lines = recent.map((event) => `#${event.aggregateVersion} · ${event.eventType} · ${event.recordedAt} · ${event.text || '(fără câmp text)'} · ${event.source}`);
+        const response = journal.count
+          ? `Jurnalul server AGMaTCC are ${journal.count} evenimente, versiunea ${journal.serverVersion}. Ultimele ${recent.length}: ${lines.join('. ')}`
+          : `Jurnalul server AGMaTCC nu conține evenimente în fluxul acestui dispozitiv; serverVersion ${journal.serverVersion}. Sursă: ${journal.source}.`;
+        showOperationRows('server-journal', [`${journal.source} · ${journal.scope} · serverVersion ${journal.serverVersion} · ${journal.count} evenimente`, ...lines]);
+        commandStage('EXECUTED', `read-only · ${journal.count} evenimente citite · ${journal.source}`);
+        speakCommandResult(response);
+      } else if (command.type === 'list-incidents') {
+        const journal = await readLatestIncidents();
+        commandStage('AUTHORIZED', `${journal.scope} · ${journal.source}`);
+        const recent = journal.incidents.slice(0, 5);
+        const lines = recent.map((incident) => `${incident.createdAt} · ${incident.severity} · ${incident.status} · ${incident.title} · id ${incident.id}`);
+        const response = journal.count
+          ? `Jurnalul Incidents a returnat ${journal.count} înregistrări. Cele mai recente ${recent.length}: ${lines.join('. ')}`
+          : 'Jurnalul Incident Journal a returnat zero înregistrări pentru compania autentificată. Acoperire completă.';
+        showOperationRows('incident-journal', [`${journal.source} · ${journal.scope} · ${journal.coverage} · ${journal.count} înregistrări`, ...lines]);
+        commandStage('EXECUTED', `read-only · ${journal.count} înregistrări citite · ${journal.source}`);
+        speakCommandResult(response);
+      } else if (command.type === 'read-tcc-alerts') {
+        const snapshot = await readTccAlertSnapshot();
+        commandStage('AUTHORIZED', `snapshot read-only · ${snapshot.source}`);
+        const lines = snapshot.alerts.map((item) => `${item.alertClass} · ${item.message} · ${item.observedAt ?? 'timestamp indisponibil'} · ${item.source}${item.ref ? ` · ref ${item.ref}` : ''}`);
+        const response = lines.length
+          ? `Snapshot TURN: status ${snapshot.status}, freshness ${snapshot.freshness}, observat ${snapshot.observedAt}. ${lines.length} alerte: ${lines.join('. ')}`
+          : `Snapshot TURN: status ${snapshot.status}, freshness ${snapshot.freshness}, observat ${snapshot.observedAt}. Nicio alertă derivată din sursa operațională curentă.`;
+        showOperationRows('tcc-alerts', [`${snapshot.source} · status ${snapshot.status} · freshness ${snapshot.freshness} · ${snapshot.observedAt}`, ...lines]);
+        commandStage('EXECUTED', `read-only · ${lines.length} alerte derivate · ${snapshot.source}`);
+        speakCommandResult(response);
+      } else if (command.type === 'search' || command.type === 'search-agmatcc-events') {
+        const query = command.query;
+        const search = await executeSemanticSearch(query);
+        commandStage('AUTHORIZED', 'GET /operational-events/search/semantic · scope company-operational-events');
+        const hits = search.server.hits;
+        const serverLines = hits.map((hit) => `${hit.eventType} · score ${hit.score.toFixed(2)} · ${hit.matchedConcepts.join(', ') || 'fără concept potrivit'} · ${hit.source}`);
+        const coverage = `${search.server.coverage.scanned}/${search.server.coverage.total}${search.server.coverage.complete ? ' complete' : ' parțial'}`;
+        const localLines = search.localResults.slice(0, 3).map((hit) => `local #${hit.index} ${hit.text} · ${hit.source}`);
+        const response = `Căutare semantică AGMaTCC pentru ${query}: ${hits.length} rezultate server, acoperire ${coverage}, ${search.localResults.length} potriviri locale. ${serverLines.join('. ') || 'Nicio potrivire server.'} ${localLines.join('. ')}`;
+        commandStage('EXECUTED', `${hits.length} rezultate server · acoperire ${coverage} · ${search.localResults.length} potriviri locale`);
+        speakCommandResult(response);
+      } else if (command.type === 'play-last') {
+        const text = ledger[ledger.length - 1]?.text;
+        if (!text) throw new Error('AGMATCC_LOCAL_LEDGER_EMPTY');
+        commandStage('AUTHORIZED', 'citire read-only din ledger-ul AGMaTCC local');
+        commandStage('EXECUTED', `ultima intrare locală #${ledger.length - 1}`);
+        speakCommandResult(text);
+      } else {
+        const link = [...root.querySelectorAll<HTMLAnchorElement>('[data-agmatcc-journal]')]
+          .find((anchor) => foldText(anchor.textContent ?? '').includes(command.target));
+        if (!link) throw new Error(`JOURNAL_LINK_NOT_FOUND:${command.target}`);
+        commandStage('AUTHORIZED', 'navigare read-only în link-ul existent TURN');
+        link.click();
+        commandStage('EXECUTED', `navigare la ${link.textContent ?? command.target}`);
+        speakCommandResult(`Am deschis ${link.textContent ?? command.target}.`);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const statusCode = Number(/HTTP_(401|403)\b/.exec(message)?.[1] ?? (error as { status?: number } | null)?.status);
+      if (statusCode === 401 || statusCode === 403) {
+        commandStage('BLOCKED', `HTTP ${statusCode} · ${message}`);
+        alert('voice-command/authorization', message);
+        speakCommandResult(`Operațiune blocată de autorizare: HTTP ${statusCode}. ${message}`);
+      } else {
+        commandStage('FAILED', message);
+        alert('voice-command/execution', message);
+        speakCommandResult(`Operațiunea a eșuat: ${message}`);
+      }
     }
     return true;
   };
-  $('[data-agmatcc-run-command]').addEventListener('click', () => { if (!runCommand(draft.value)) status.textContent = 'Nu este o comandă (începe cu „comandă”).'; });
-  $('[data-agmatcc-read-remote]').addEventListener('click', () => { void readRemote(); });
+  $('[data-agmatcc-run-command]').addEventListener('click', () => {
+    void runCommand(draft.value, 'typed').then((resolved) => {
+      if (!resolved) status.textContent = 'TRANSCRIBED — textul nu corespunde unei intenții executabile; nicio acțiune nu a fost rulată.';
+    });
+  });
+  $('[data-agmatcc-read-remote]').addEventListener('click', () => { void runCommand('citește jurnalul serverului', 'button'); });
 
   captureButton.addEventListener('click', () => {
     const Ctor = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
     if (!Ctor) { status.textContent = 'Recunoașterea vocală nu este disponibilă pe acest dispozitiv; folosește introducerea manuală.'; return; }
     recognition = new Ctor() as RecognitionLike;
     recognition.lang = language; recognition.interimResults = false; recognition.continuous = false;
-    recognition.onresult = (event) => { draft.value = [...event.results].map((r: any) => r[0].transcript).join(' '); provenance = 'voice-capture'; status.textContent = runCommand(draft.value) ? 'Comandă vocală executată.' : 'Transcriere primită. Verific-o și confirmă.'; };
+    recognition.onresult = (event) => { draft.value = [...event.results].map((r: any) => r[0].transcript).join(' '); provenance = 'voice-capture'; void runCommand(draft.value, 'voice'); };
     recognition.onerror = (event) => { status.textContent = `Eroare captură: ${event.error ?? 'necunoscută'}`; };
     recognition.onend = () => { captureButton.disabled = false; setState('idle'); };
     captureButton.disabled = true; setState('listening'); status.textContent = 'Ascult…';
@@ -185,8 +369,6 @@ export function bindAgmatcc(language = 'ro-RO') {
     });
   });
   $('[data-agmatcc-speak]').addEventListener('click', () => speakText(draft.value.trim() || ledger[ledger.length - 1]?.text));
-  let serverTimer: number | undefined;
-  let serverSeq = 0;
   const runServerSearch = (query: string) => {
     const seq = ++serverSeq;
     window.clearTimeout(serverTimer);
@@ -194,16 +376,7 @@ export function bindAgmatcc(language = 'ro-RO') {
     serverTimer = window.setTimeout(() => {
       searchServerSemantic(query).then((data) => {
         if (seq !== serverSeq) return;
-        const header = document.createElement('li');
-        header.dataset.agmatccMode = 'server-semantic-coverage';
-        header.textContent = `[server semantic] ${data.hits.length} rezultate · acoperire ${data.coverage.scanned}/${data.coverage.total} evenimente${data.coverage.complete ? '' : ' (PARȚIAL: doar cele mai recente)'}`;
-        results.append(header);
-        data.hits.forEach((hit) => {
-          const li = document.createElement('li');
-          li.dataset.agmatccMode = 'server-semantic';
-          li.textContent = `[server ${hit.score.toFixed(2)}${hit.matchedConcepts.length ? ` · concept: ${hit.matchedConcepts.join(', ')}` : ''}] ${hit.eventType} · sursă: ${hit.source}`;
-          results.append(li);
-        });
+        renderServerSearchResults(data);
       }).catch((error: Error) => {
         if (seq !== serverSeq) return;
         const li = document.createElement('li');
@@ -218,20 +391,7 @@ export function bindAgmatcc(language = 'ro-RO') {
     setState(query.trim() ? 'searching' : 'idle');
     results.innerHTML = '';
     runServerSearch(query);
-    const seen = new Set<number>();
-    semanticSearchAgmatccLedger(ledger, query).forEach((hit) => {
-      seen.add(hit.entry.index);
-      const li = document.createElement('li');
-      li.dataset.agmatccMode = 'semantic';
-      li.textContent = `[semantic ${hit.score.toFixed(2)}${hit.matchedConcepts.length ? ` · concept: ${hit.matchedConcepts.join(', ')}` : ''}] #${hit.entry.index} · ${hit.entry.text} · sursă: ${hit.source}`;
-      results.append(li);
-    });
-    searchAgmatccLedger(ledger, query).filter((hit) => !seen.has(hit.entry.index)).forEach((hit) => {
-      const li = document.createElement('li');
-      li.dataset.agmatccMode = 'lexical';
-      li.textContent = `[lexical] #${hit.entry.index} · ${hit.entry.text}`;
-      results.append(li);
-    });
+    renderLocalSearchResults(query);
   });
   void render();
   void refreshBackendAlerts();

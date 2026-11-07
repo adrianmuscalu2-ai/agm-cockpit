@@ -45,6 +45,7 @@ jobs:
       - run: pnpm --filter @agm/api test -- --runInBand
       - run: pnpm --filter @agm/api build
       - run: pnpm --filter @agm/web build
+      - run: pnpm --filter @agm/web test:agmatcc
       - run: pnpm --filter @agm/web test:turn-operational-truth
       - run: pnpm --filter @agm/web test:turn-functional-overview
       - run: pnpm --filter @agm/web test:agent-accountability
