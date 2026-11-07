@@ -22,7 +22,8 @@ assert.equal(items[1].expectedStreamVersion, 0);
 assert.equal((items[1].event.integrity as { previousEventId?: string }).previousEventId, ledger[0].id);
 
 const agmatccPage = renderAgmatccPage('<aside data-turn-module-navigation>TURN MODULES</aside>');
-assert.ok(agmatccPage.includes('data-turn-page="agmatcc"'));
+assert.ok(agmatccPage.includes('<section class="turn-agmatcc-page" aria-labelledby="turn-agmatcc-title">'));
+assert.ok(agmatccPage.includes('<div class="agmatcc-content" data-turn-page="agmatcc">'));
 assert.ok(agmatccPage.includes('data-turn-module-navigation'));
 assert.ok(agmatccPage.includes('data-open-turn-page="incidents"'));
 assert.ok(agmatccPage.includes('Risk &amp; Knowledge'));
