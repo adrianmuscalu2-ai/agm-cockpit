@@ -1,0 +1,79 @@
+name: AGM Production Company Owner Read-Only Preflight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agm-production-company-owner-preflight
+  cancel-in-progress: false
+
+jobs:
+  company-owner-preflight:
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 10
+    steps:
+      - name: Prepare Guardian-authorized SSH transport
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+          PRODUCTION_SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$PRODUCTION_HOST"
+          test -n "$PRODUCTION_USER"
+          test -n "$PRODUCTION_SSH_KEY"
+          ssh_key_file="$RUNNER_TEMP/agm-production-ssh-key"
+          known_hosts_file="$RUNNER_TEMP/agm-production-known-hosts"
+          umask 077
+          printf '%s\n' "$PRODUCTION_SSH_KEY" > "$ssh_key_file"
+          chmod 0600 "$ssh_key_file"
+          ssh-keyscan -T 15 -H "$PRODUCTION_HOST" > "$known_hosts_file"
+          test -s "$known_hosts_file"
+          printf 'AGM_SSH_KEY_FILE=%s\nAGM_SSH_KNOWN_HOSTS_FILE=%s\n' "$ssh_key_file" "$known_hosts_file" >> "$GITHUB_ENV"
+
+      - name: Read-only company owner preflight
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+          SEED_OWNER_EMAIL: ${{ secrets.SEED_OWNER_EMAIL }}
+        run: |
+          set -euo pipefail
+          test -n "$SEED_OWNER_EMAIL"
+          owner_email_arg=$(printf '%q' "$SEED_OWNER_EMAIL")
+          cat <<'NODE' | ssh -i "$AGM_SSH_KEY_FILE" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
+            "$PRODUCTION_USER@$PRODUCTION_HOST" \
+            "sudo docker exec -i -w /app -e OWNER_EMAIL=$owner_email_arg agm-production-api node -"
+          const { PrismaClient } = require("@prisma/client");
+          const prisma = new PrismaClient();
+          const companyId = "00000000-0000-0000-0000-000000000001";
+          const email = process.env.OWNER_EMAIL;
+          if (!email) throw new Error("OWNER_EMAIL_MISSING");
+          const users = await prisma.user.findMany({
+            where: { email },
+            select: {
+              status: true,
+              companyId: true,
+              roles: { select: { companyId: true, role: { select: { code: true, isActive: true } } } },
+            },
+          });
+          const user = users.find((candidate) => candidate.companyId === companyId);
+          const ownerRoles = user?.roles.filter((item) => item.companyId === companyId && item.role.code === "company_owner" && item.role.isActive) ?? [];
+          const result = {
+            userExists: Boolean(user),
+            status: user?.status === "Active" ? "Active" : user ? "Inactive" : "Inexistent",
+            companyOwnerRoleExists: ownerRoles.length > 0,
+            companyCorrect: Boolean(user && user.companyId === companyId),
+          };
+          if (users.filter((candidate) => candidate.companyId === companyId).length > 1) throw new Error("OWNER_IDENTITY_NOT_UNIQUE");
+          process.stdout.write(JSON.stringify(result) + "\n");
+          await prisma.$disconnect();
+          NODE
+
+      - name: Explicitly confirm no Production mutation
+        run: echo 'READ_ONLY_PREFLIGHT_ONLY=PASS; SEED=NOT_EXECUTED; DEPLOY=NOT_EXECUTED; DATABASE_MUTATION=NONE'
