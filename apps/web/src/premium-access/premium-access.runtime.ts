@@ -20,6 +20,15 @@ const runtimeCopy = {
 
 type RuntimeCopy = (typeof runtimeCopy)[keyof typeof runtimeCopy];
 
+const passwordValidationCopy = {
+  ro: 'Parola trebuie să conțină minimum 8 caractere.',
+  de: 'Das Passwort muss mindestens 8 Zeichen enthalten.',
+  en: 'The password must contain at least 8 characters.',
+  it: 'La password deve contenere almeno 8 caratteri.',
+  es: 'La contraseña debe contener al menos 8 caracteres.',
+  sv: 'Lösenordet måste innehålla minst 8 tecken.',
+} as const;
+
 export function bindPremiumAccessRuntime(language: BasicLanguageCode = 'ro') {
   const text: RuntimeCopy = language in runtimeCopy ? runtimeCopy[language as keyof typeof runtimeCopy] : runtimeCopy.en;
   const root = document.querySelector<HTMLElement>('[data-access-enforcement]');
@@ -57,7 +66,7 @@ export function bindPremiumAccessRuntime(language: BasicLanguageCode = 'ro') {
       const accessError = error instanceof PremiumAccessClientError ? error : null;
       root.dataset.accessErrorReason = accessError?.reason ?? 'unexpected';
       root.dataset.accessErrorStatus = accessError?.status ? String(accessError.status) : '';
-      setState(root, accessError?.reason === 'network' ? 'unavailable' : 'denied', loginFailureMessage(accessError, text));
+      setState(root, accessError?.reason === 'network' ? 'unavailable' : 'denied', loginFailureMessage(accessError, language));
     }
   });
   logout?.addEventListener('click', () => {
@@ -99,10 +108,16 @@ async function refresh(root: HTMLElement, client: ReturnType<typeof createPremiu
   }
 }
 
-function loginFailureMessage(error: PremiumAccessClientError | null, text: RuntimeCopy) {
+export function loginFailureMessage(error: PremiumAccessClientError | null, language: BasicLanguageCode = 'ro') {
+  const locale = language in runtimeCopy ? language as keyof typeof runtimeCopy : 'en';
+  const text = runtimeCopy[locale];
   if (!error) return text.generic;
   if (error.reason === 'network') return text.network;
-  if (error.status === 400) return text.invalid;
+  if (error.status === 400) {
+    if (error.validationFields.length === 1 && error.validationFields[0] === 'password') return passwordValidationCopy[locale];
+    if (error.validationFields.length === 1 && error.validationFields[0] === 'email') return text.invalid;
+    return text.generic;
+  }
   if (error.status === 401) return text.rejected;
   if (error.status === 403) return text.forbidden;
   if (error.status === 429) return text.rate;
