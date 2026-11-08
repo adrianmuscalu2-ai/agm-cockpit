@@ -157,13 +157,14 @@ class CustodyTests(unittest.TestCase):
     def test_explicit_boundary_probe_never_sends_credentials_or_a_valid_mutation(self):
         errors = [urllib.error.HTTPError(m.API, 401, '', {'Content-Type': 'application/json'}, io.BytesIO()),
                   urllib.error.HTTPError(m.API, 403, '', {'Content-Type': 'text/html'}, io.BytesIO())]
-        with patch.object(m.urllib.request, 'build_opener') as build, patch.object(m.subprocess, 'run', return_value=SimpleNamespace(returncode=0, stdout='401')):
+        with patch.object(m.urllib.request, 'build_opener') as build, patch.object(m.subprocess, 'run', return_value=SimpleNamespace(returncode=0, stdout='401')), patch.object(m, 'api', side_effect=m.Failure('ATLAS_API_HTTP_401')) as configured:
             build.return_value.open.side_effect = errors
             results = m.inspect_http_boundary()
             for call in build.return_value.open.call_args_list:
                 self.assertNotIn('Authorization', call.args[0].headers)
                 self.assertIn(call.args[0].data, [None, b'{}'])
-        self.assertEqual([result['httpStatus'] for result in results], [401, 403, 401])
+            configured.assert_called_once_with('/auth/me')
+        self.assertEqual([result['httpStatus'] for result in results], [401, 403, 401, 401])
         self.assertTrue(all(result['credentialsSent'] is False for result in results))
 
 

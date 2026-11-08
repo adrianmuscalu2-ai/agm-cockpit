@@ -67,6 +67,13 @@ def inspect_http_boundary():
     checks.append({'client': 'EXISTING_CURL', 'method': 'POST', 'credentialsSent': False,
                    'httpStatus': int(result.stdout) if result.returncode == 0 and result.stdout.isdigit() else None,
                    'transportExitCode': result.returncode})
+    try:
+        api('/auth/me')
+        configured = {'httpStatus': 200}
+    except Failure as error:
+        code = str(error).removeprefix('ATLAS_API_HTTP_')
+        configured = {'httpStatus': int(code)} if code.isdigit() else {'httpStatus': None, 'transportFailureCode': str(error)}
+    checks.append(dict(configured, client='EXISTING_CURL_STDIN_CONFIG', method='GET', credentialsSent=False))
     return checks
 
 
