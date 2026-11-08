@@ -3,6 +3,10 @@ name: AGM Production Governance Actor Binding
 on:
   workflow_dispatch:
     inputs:
+      commander_recovery_request_id:
+        description: Specific official recovery audit request reference for the authenticated company_owner; required if owners are ambiguous
+        required: false
+        type: string
       expected_revision:
         description: Deployed canonical commit to verify before binding
         required: true
@@ -71,12 +75,17 @@ jobs:
           PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
           EXPECTED_REVISION: ${{ inputs.expected_revision }}
           CONFIRM: ${{ inputs.confirm }}
+          COMMANDER_RECOVERY_REQUEST_ID: ${{ inputs.commander_recovery_request_id }}
         run: |
           set -euo pipefail
           test "$CONFIRM" = 'BIND_APPROVED_ACTORS'
+          if [ -n "$COMMANDER_RECOVERY_REQUEST_ID" ]; then
+            [[ "$COMMANDER_RECOVERY_REQUEST_ID" =~ ^[0-9a-fA-F-]{36}$ ]]
+          fi
           test -f "$AGM_SSH_KEY_FILE"
           test -s "$AGM_SSH_KNOWN_HOSTS_FILE"
           remote="sudo docker exec -w /app agm-production-api"
+          binding_remote="sudo docker exec -w /app -e AGM_COMMANDER_RECOVERY_REQUEST_ID=$COMMANDER_RECOVERY_REQUEST_ID agm-production-api"
           deployed_revision=$(ssh -i "$AGM_SSH_KEY_FILE" \
             -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
             -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
@@ -87,7 +96,7 @@ jobs:
             -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
             -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
             "$PRODUCTION_USER@$PRODUCTION_HOST" \
-            "$remote apps/api/node_modules/.bin/ts-node --project apps/api/tsconfig.json apps/api/scripts/activate-governance-v2-actors.ts" \
+            "$binding_remote apps/api/node_modules/.bin/ts-node --project apps/api/tsconfig.json apps/api/scripts/activate-governance-v2-actors.ts" \
             | tee "$RUNNER_TEMP/governance-actor-binding.json"
           jq -e '
             .governanceStatus == "NOT_ACTIVATED"

@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import type { GovernanceActorPrincipal } from '../src/governance-v2/governance-v2.contract';
 import { GovernanceV2Persistence } from '../src/governance-v2/governance-v2.persistence';
 import { GovernanceV2RuntimeService } from '../src/governance-v2/governance-v2.runtime';
+import { verifyCommanderRecoveryAuthority } from '../src/governance-v2/commander-binding-authority';
 
 // Apply only the approved actor bindings. This does not activate Governance V2.
 // Principal ids/company come from the environment and are verified against the canonical tables.
@@ -85,10 +86,25 @@ async function main() {
     select: { userId: true },
   });
   const commanderUserIds = [...new Set(commanderAssignments.map(({ userId }) => userId))];
-  if (commanderUserIds.length !== 1) {
-    throw new Error(`GOVERNANCE_COMMANDER_IDENTITY_NOT_UNIQUE:${commanderUserIds.length}`);
+  const priorCommanderIds: string[] = [];
+  for (const id of commanderUserIds) {
+    const binding = await runtime.readActorIdentityBinding('HUMAN_USER', id);
+    if (binding && bindingMatches(binding, { actorId: 'turn-commander-adrian', companyId: company.id })) priorCommanderIds.push(id);
   }
-  const commanderUserId = commanderUserIds[0];
+  if (priorCommanderIds.length > 1) throw new Error('GOVERNANCE_COMMANDER_EXISTING_BINDING_NOT_UNIQUE');
+  const recoveryReference = process.env.AGM_COMMANDER_RECOVERY_REQUEST_ID?.trim();
+  let commanderUserId: string;
+  if (recoveryReference) {
+    commanderUserId = await verifyCommanderRecoveryAuthority(prisma, company.id, commanderUserIds, recoveryReference);
+    if (priorCommanderIds.length === 1 && priorCommanderIds[0] !== commanderUserId) {
+      throw new Error('GOVERNANCE_COMMANDER_EXISTING_BINDING_CONFLICT');
+    }
+  } else if (priorCommanderIds.length === 1) {
+    commanderUserId = priorCommanderIds[0];
+  } else {
+    if (commanderUserIds.length !== 1) throw new Error(`GOVERNANCE_COMMANDER_IDENTITY_NOT_UNIQUE:${commanderUserIds.length}`);
+    commanderUserId = commanderUserIds[0];
+  }
 
   const existingActors = await Promise.all(actors.map((actor) => runtime.readGovernanceActor(actor.id)));
   const existingBindings = await Promise.all([
