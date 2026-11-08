@@ -87,7 +87,7 @@ jobs:
             -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
             -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
             "$PRODUCTION_USER@$PRODUCTION_HOST" \
-            "$remote node_modules/.bin/ts-node --project apps/api/tsconfig.json apps/api/scripts/activate-governance-v2-actors.ts" \
+            "$remote apps/api/node_modules/.bin/ts-node --project apps/api/tsconfig.json apps/api/scripts/activate-governance-v2-actors.ts" \
             | tee "$RUNNER_TEMP/governance-actor-binding.json"
           jq -e '
             .governanceStatus == "NOT_ACTIVATED"
