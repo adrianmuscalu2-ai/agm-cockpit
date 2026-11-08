@@ -1,0 +1,21 @@
+name: AGM Atlas Custody Validation
+on:
+  pull_request:
+    paths:
+      - apps/api/scripts/production-atlas-custody.py
+      - apps/api/test/test_atlas_custody.py
+      - .github/workflows/production-release.yml
+      - .github/workflows/atlas-custody-validation.yml
+permissions:
+  contents: read
+jobs:
+  custody:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Test isolated Linux custody boundaries without Production credentials
+        run: sudo python3 -m unittest discover -s apps/api/test -p test_atlas_custody.py
+      - name: Check existing release phase separation
+        run: node scripts/test-production-release-phase-separation.mjs
+      - name: Check existing SSH transport
+        run: node scripts/validate-production-ssh-transport.mjs

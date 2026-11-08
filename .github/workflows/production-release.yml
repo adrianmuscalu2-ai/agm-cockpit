@@ -52,6 +52,8 @@ jobs:
       - run: pnpm audit:canonical-route
       - run: node scripts/test-production-release-phase-separation.mjs
       - run: node scripts/validate-production-ssh-transport.mjs
+      - name: Validate Atlas custody with isolated synthetic fixtures
+        run: sudo python3 -m unittest discover -s apps/api/test -p test_atlas_custody.py
       - run: node scripts/validate-premium-assistant-source-refresh.mjs
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm rescue:browser-preflight
@@ -758,6 +760,37 @@ jobs:
           unknown_body=$(jq -nc --arg id "$client_id" --arg secret "$unknown_secret" '{grant_type:"client_credentials",client_id:$id,client_secret:$secret}')
           test "$(curl --silent --output /dev/null --write-out '%{http_code}' -X POST https://api.agmcockpit.com/api/v1/auth/m2m/token -H 'Content-Type: application/json' --data "$unknown_body")" = '401'
           echo 'M2M_PRODUCTION_LIFECYCLE=PASS'
+      - name: Provision or reuse canonical Atlas through existing release authority and custody
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+        run: |
+          set -euo pipefail
+          # Reuse the already-approved release OIDC authority and SSH transport.
+          # The machine secret is received/stored only on the Production host.
+          oidc_response=$(curl --fail --silent --show-error --max-time 15 \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=agm%3Aproduction-machine-provisioning")
+          deployment_token=$(jq -er '.value' <<<"$oidc_response")
+          echo "::add-mask::$deployment_token"
+          ssh -i "$AGM_SSH_KEY_FILE" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" "$PRODUCTION_USER@$PRODUCTION_HOST" \
+            'sudo python3 --version >/dev/null && sudo docker cp agm-production-api:/app/apps/api/scripts/production-atlas-custody.py /opt/agm/production/production-atlas-custody.py && sudo chmod 0644 /opt/agm/production/production-atlas-custody.py'
+          printf '%s' "$deployment_token" | ssh -i "$AGM_SSH_KEY_FILE" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" "$PRODUCTION_USER@$PRODUCTION_HOST" \
+            'sudo python3 /opt/agm/production/production-atlas-custody.py --provision' \
+            | tee "$RUNNER_TEMP/atlas-operations-custody.json"
+          jq -e '.subject == "atlas-operations" and .active == true and .authentication == "PASS" and .authorizedScopes == ["acp:read","governance:propose"] and .administrativePrivileges == false and .secretsDisplayed == false' \
+            "$RUNNER_TEMP/atlas-operations-custody.json" >/dev/null
+      - name: Preserve metadata-only permanent Atlas evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: atlas-operations-custody-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/atlas-operations-custody.json
+          if-no-files-found: warn
+          retention-days: 90
       - name: Persist Production agent runtime evidence
         uses: actions/upload-artifact@v4
         with:
