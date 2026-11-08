@@ -5,12 +5,12 @@ host. No SQL writes, account selection, role changes, or automatic rotation.
 Default mode is strictly inspect-only. --provision requires OIDC on stdin.
 """
 import json
+import fcntl
 import os
 import re
 import stat
 import subprocess
 import sys
-import tempfile
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -74,27 +74,25 @@ def append_custody(data, previous, store=STORE):
     values = {'CLIENT_ID': data['clientId'], 'CLIENT_SECRET': data['clientSecret'],
               'CREDENTIAL_ID': data['credentialId'], 'EXPIRES_AT': data['expiresAt']}
     addition = ''.join(f'{PREFIX}{key}={values[key]}\n' for key in sorted(FIELDS)).encode('ascii')
-    candidate = None
+    descriptor = os.open(store, os.O_RDWR | os.O_APPEND | os.O_NOFOLLOW)
     try:
-        fd, candidate = tempfile.mkstemp(prefix='.atlas-custody-', dir=store.parent)
-        with os.fdopen(fd, 'wb') as target:
-            os.fchmod(target.fileno(), 0o600)
-            target.write(previous + (b'' if previous.endswith(b'\n') else b'\n') + addition)
-            target.flush()
-            os.fsync(target.fileno())
-        # Do not overwrite a concurrent Guardian/configuration update.
-        require(read_store(store)[0] == previous, 'GUARDIAN_STORE_CHANGED')
-        os.replace(candidate, store)
-        candidate = None
-        directory = os.open(store.parent, os.O_DIRECTORY)
-        try:
-            os.fsync(directory)
-        finally:
-            os.close(directory)
-        read_store(store)
+        fcntl.flock(descriptor, fcntl.LOCK_EX)
+        opened = os.fstat(descriptor)
+        current_path = store.lstat()
+        require((opened.st_dev, opened.st_ino) == (current_path.st_dev, current_path.st_ino), 'GUARDIAN_STORE_REPLACED')
+        require(stat.S_ISREG(opened.st_mode) and opened.st_uid == 0 and stat.S_IMODE(opened.st_mode) == 0o600,
+                'EXISTING_GUARDIAN_STORE_BOUNDARY_INVALID')
+        require(os.read(descriptor, opened.st_size + 1) == previous, 'GUARDIAN_STORE_CHANGED')
+        # One append-only write: never rewrite/truncate/copy other secret values.
+        addition = (b'' if previous.endswith(b'\n') else b'\n') + addition
+        require(os.write(descriptor, addition) == len(addition), 'GUARDIAN_APPEND_INCOMPLETE')
+        os.fsync(descriptor)
+        current_path = store.lstat()
+        require((opened.st_dev, opened.st_ino) == (current_path.st_dev, current_path.st_ino), 'GUARDIAN_STORE_REPLACED')
+        _, confirmed = read_store(store)
+        require(confirmed == {PREFIX + key: values[key] for key in FIELDS}, 'GUARDIAN_APPEND_NOT_PROVEN')
     finally:
-        if candidate is not None:
-            os.unlink(candidate)
+        os.close(descriptor)
 
 
 def api(path, body=None, bearer=None, expected=200):

@@ -15,6 +15,10 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: agm-production-release
+  cancel-in-progress: false
+
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/agm-cockpit-api
   WEB_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/agm-cockpit-web
