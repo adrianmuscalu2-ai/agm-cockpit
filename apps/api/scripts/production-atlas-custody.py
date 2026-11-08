@@ -280,7 +280,7 @@ def run(provision=False, inspect_http=False):
     require(set(bindings) == {PREFIX + key for key in FIELDS}, 'ATLAS_CUSTODY_INCOMPLETE_NO_AUTOMATIC_ROTATION')
     require(identity[0]['id'] == bindings[PREFIX + 'CLIENT_ID'], 'ATLAS_CUSTODY_IDENTITY_MISMATCH')
     issued = api('/auth/m2m/token', {'grant_type': 'client_credentials',
-                 'client_id': bindings[PREFIX + 'CLIENT_ID'], 'client_secret': bindings[PREFIX + 'CLIENT_SECRET']})
+                 'client_id': bindings[PREFIX + 'CLIENT_ID'], 'client_secret': bindings[PREFIX + 'CLIENT_SECRET']}, expected=201)
     require(sorted(issued.get('scope', '').split()) == SCOPES, 'ATLAS_TOKEN_SCOPE_MISMATCH')
     network = api(f'/m2m/authority-control-plane/companies/{COMPANY}/network-registry', bearer=issued['access_token'])
     require(isinstance(network.get('data'), list), 'ATLAS_AUTHORIZED_READ_NOT_PROVEN')

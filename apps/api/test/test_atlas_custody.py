@@ -83,6 +83,7 @@ class CustodyTests(unittest.TestCase):
         self.assertEqual([call.args[0] for call in api.call_args_list],
                          ['/auth/m2m/token', f'/m2m/authority-control-plane/companies/{m.COMPANY}/network-registry', '/auth/me'])
         self.assertNotIn(SECRET, str(result))
+        self.assertEqual(api.call_args_list[0].kwargs.get('expected'), 201)
 
     @patch.object(m.os, 'geteuid', return_value=0)
     @patch.object(m, 'read_store', return_value=(b'OTHER=fixture\n', {}))
