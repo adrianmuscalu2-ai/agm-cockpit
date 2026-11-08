@@ -60,7 +60,7 @@ def inspect_http_boundary():
         checks.append(dict(result, client='PYTHON_STDLIB', method=method, credentialsSent=False))
     # Compare the established AGM curl transport, without changing user-agent,
     # following redirects, sending credentials or retrieving privileged data.
-    result = subprocess.run(['curl', '--silent', '--show-error', '--max-time', '15',
+    result = subprocess.run(['curl', '--disable', '--silent', '--show-error', '--max-time', '15',
                              '--request', 'POST', '--header', 'Content-Type: application/json',
                              '--data', '{}', '--output', '/dev/null', '--write-out', '%{http_code}',
                              API + '/auth/deploy/machines'], capture_output=True, text=True, timeout=20, check=False)
@@ -133,19 +133,40 @@ def api(path, body=None, bearer=None, expected=200):
                                'MACHINE_TOKEN_ISSUE' if path == '/auth/m2m/token' else
                                'AUTHORIZED_REGISTRY_READ' if path.startswith('/m2m/') else
                                'CREDENTIAL_REVOCATION' if path.endswith('/revoke') else 'MACHINE_PROVISION')
-    headers = {'Content-Type': 'application/json', 'Cache-Control': 'no-store'}
+    headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Cache-Control': 'no-store'}
     if bearer:
         headers['Authorization'] = f'Bearer {bearer}'
-    payload = None if body is None else json.dumps(body).encode('utf-8')
-    request = urllib.request.Request(API + path, data=payload, headers=headers)
-    try:
-        with urllib.request.build_opener(NoRedirect()).open(request, timeout=20) as response:
-            require(response.status == expected, 'ATLAS_API_UNEXPECTED_STATUS')
-            return json.load(response)
-    except urllib.error.HTTPError as error:
-        DIAGNOSTIC.update(http_boundary(error.code, error.headers))
-        error.close()
-        raise Failure(f'ATLAS_API_HTTP_{error.code}') from None
+    # Reuse AGM's established curl transport. No UA spoofing, redirects,
+    # challenge handling or policy changes. Credentials/config go on stdin,
+    # never command arguments, temporary files, stdout logs or artifacts.
+    config = ['silent', 'show-error', 'include', 'suppress-connect-headers', 'max-time = 20',
+              'url = ' + json.dumps(API + path),
+              'request = ' + json.dumps('GET' if body is None else 'POST'),
+              'write-out = "\\nAGM_HTTP_STATUS:%{http_code}"']
+    config += ['header = ' + json.dumps(key + ': ' + value) for key, value in headers.items()]
+    if body is not None:
+        config.append('data-binary = ' + json.dumps(json.dumps(body)))
+    result = subprocess.run(['curl', '--disable', '--config', '-'], input='\n'.join(config) + '\n',
+                            capture_output=True, text=True, timeout=25, check=False)
+    require(result.returncode == 0, 'ATLAS_CURL_TRANSPORT_FAILED')
+    envelope, marker, status = result.stdout.rpartition('\nAGM_HTTP_STATUS:')
+    require(bool(marker) and status.isdigit() and 100 <= int(status) <= 599, 'ATLAS_HTTP_STATUS_NOT_PROVEN')
+    header_block, separator, response_body = envelope.partition('\n\n')
+    require(bool(separator), 'ATLAS_HTTP_ENVELOPE_INVALID')
+    response_headers = {}
+    for line in header_block.splitlines()[1:]:
+        name, colon, value = line.partition(':')
+        if colon:
+            response_headers[name.strip().lower()] = value.strip()
+    boundary = http_boundary(int(status), {
+        'Content-Type': response_headers.get('content-type', ''),
+        'Server': response_headers.get('server', ''),
+        'cf-mitigated': response_headers.get('cf-mitigated', ''),
+    })
+    if int(status) != expected:
+        DIAGNOSTIC.update(boundary)
+        raise Failure(f'ATLAS_API_HTTP_{status}')
+    return json.loads(response_body)
 
 
 def registry():

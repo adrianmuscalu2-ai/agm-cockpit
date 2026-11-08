@@ -135,16 +135,24 @@ class CustodyTests(unittest.TestCase):
 
     def test_http_failure_reports_boundary_not_provider_body_or_credentials(self):
         raw = 'synthetic-private-response-value'
-        error = urllib.error.HTTPError(m.API, 403, 'Forbidden',
-            {'Content-Type': 'text/html', 'Server': 'cloudflare', 'cf-mitigated': 'challenge'}, io.BytesIO(raw.encode()))
-        with patch.object(m.urllib.request, 'build_opener') as build:
-            build.return_value.open.side_effect = error
+        result = SimpleNamespace(returncode=0, stdout='HTTP/2 403\ncontent-type: text/html\nserver: cloudflare\ncf-mitigated: challenge\n\n' + raw + '\nAGM_HTTP_STATUS:403')
+        with patch.object(m.subprocess, 'run', return_value=result) as transport:
             with self.assertRaisesRegex(m.Failure, 'HTTP_403'):
                 m.api('/auth/deploy/machines', {}, 'synthetic-bearer', 201)
+            self.assertEqual(transport.call_args.args[0], ['curl', '--disable', '--config', '-'])
+            self.assertIn('synthetic-bearer', transport.call_args.kwargs['input'])
         self.assertEqual(m.DIAGNOSTIC['operation'], 'MACHINE_PROVISION')
         self.assertTrue(m.DIAGNOSTIC['explicitChallenge'])
         self.assertNotIn(raw, str(m.DIAGNOSTIC))
         self.assertNotIn('synthetic-bearer', str(m.DIAGNOSTIC))
+
+    def test_existing_curl_configuration_uses_stdin_and_parses_only_json(self):
+        result = SimpleNamespace(returncode=0, stdout='HTTP/2 200\ncontent-type: application/json\n\n{"data": []}\nAGM_HTTP_STATUS:200')
+        with patch.object(m.subprocess, 'run', return_value=result) as transport:
+            self.assertEqual(m.api('/auth/me', bearer='synthetic-bearer'), {'data': []})
+            self.assertNotIn('synthetic-bearer', str(transport.call_args.args))
+            self.assertNotIn('user-agent', transport.call_args.kwargs['input'])
+            self.assertNotIn('location', transport.call_args.kwargs['input'])
 
     def test_explicit_boundary_probe_never_sends_credentials_or_a_valid_mutation(self):
         errors = [urllib.error.HTTPError(m.API, 401, '', {'Content-Type': 'application/json'}, io.BytesIO()),
