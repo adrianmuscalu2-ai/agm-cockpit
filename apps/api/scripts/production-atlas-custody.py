@@ -71,7 +71,8 @@ def inspect_http_boundary():
         api('/auth/me')
         configured = {'httpStatus': 200}
     except Failure as error:
-        code = str(error).removeprefix('ATLAS_API_HTTP_')
+        value = str(error)
+        code = value[len('ATLAS_API_HTTP_'):] if value.startswith('ATLAS_API_HTTP_') else value
         configured = {'httpStatus': int(code)} if code.isdigit() else {'httpStatus': None, 'transportFailureCode': str(error)}
     checks.append(dict(configured, client='EXISTING_CURL_STDIN_CONFIG', method='GET', credentialsSent=False))
     return checks
