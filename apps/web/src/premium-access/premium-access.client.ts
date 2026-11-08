@@ -84,7 +84,13 @@ export function createPremiumAccessClient(input: {
       throw new PremiumAccessClientError('network');
     }
     const envelope = await response.json().catch(() => ({})) as ApiEnvelope<T>;
-    if (!response.ok) throw new PremiumAccessClientError('request', response.status);
+    if (!response.ok) {
+      const messages = Array.isArray(envelope.message) ? envelope.message : [];
+      const validationFields: Array<'email' | 'password'> = response.status === 400
+        ? (['email', 'password'] as const).filter(field => messages.some(message => typeof message === 'string' && message.startsWith(`${field} `)))
+        : [];
+      throw new PremiumAccessClientError('request', response.status, validationFields);
+    }
     if (envelope.data === undefined) throw new PremiumAccessClientError('invalid-response', response.status);
     return envelope.data;
   }
@@ -103,7 +109,7 @@ export function createPremiumAccessClient(input: {
 }
 
 export class PremiumAccessClientError extends Error {
-  constructor(readonly reason: 'network' | 'request' | 'invalid-response' | 'unauthenticated', readonly status?: number) {
+  constructor(readonly reason: 'network' | 'request' | 'invalid-response' | 'unauthenticated', readonly status?: number, readonly validationFields: readonly ('email' | 'password')[] = []) {
     super(`Premium access client failed: ${reason}${status ? ` (${status})` : ''}`);
   }
 }

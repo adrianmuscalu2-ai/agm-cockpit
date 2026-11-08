@@ -62,7 +62,7 @@ export function renderPremiumAccessView(language: AccessLanguage, escapeHtml: (v
       <div class="premium-module-content"><h2>${escapeHtml(text.login)}</h2>
         <label>${escapeHtml(text.email)} <input name="email" type="email" autocomplete="username" required /></label>
         <label>${escapeHtml(text.password)}
-          <span class="premium-password-field"><input name="password" type="password" autocomplete="current-password" required /><button type="button" class="premium-password-toggle" data-password-toggle aria-pressed="false">${escapeHtml(text.showPassword)}</button></span>
+          <span class="premium-password-field"><input name="password" type="password" autocomplete="current-password" minlength="8" required /><button type="button" class="premium-password-toggle" data-password-toggle aria-pressed="false">${escapeHtml(text.showPassword)}</button></span>
         </label>
         <label class="premium-remember"><input name="remember" type="checkbox" data-access-remember /> <span>${escapeHtml(text.remember)}</span></label>
         <button class="premium-module-action" type="submit">${escapeHtml(text.verify)}</button>

@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { decidePremiumAccess } from '../src/premium-access/premium-access.guard';
 import { renderPremiumAccessView } from '../src/premium-access/premium-access.view';
 import { routeForShellView, shellViewFromRoute } from '../src/app-shell/navigation.contract';
-import { createPremiumAccessClient, USER_ACCESS_TOKEN_KEY } from '../src/premium-access/premium-access.client';
+import { createPremiumAccessClient, PremiumAccessClientError, USER_ACCESS_TOKEN_KEY } from '../src/premium-access/premium-access.client';
+import { loginFailureMessage } from '../src/premium-access/premium-access.runtime';
 import { clearVerifiedPremiumAccess, isPremiumNavigationAllowed, registerVerifiedPremiumAccess } from '../src/premium-access/premium-access.navigation';
 
 const now = new Date('2026-08-01T12:00:00.000Z');
@@ -29,6 +30,7 @@ assert.ok(accessHtml.includes('data-module="premium"'));
 assert.ok(accessHtml.includes('AGM Basic'));
 assert.ok(accessHtml.includes('AGM Premium'));
 assert.ok(accessHtml.includes('data-access-login'));
+assert.match(accessHtml, /name="password"[^>]*minlength="8"/);
 assert.ok(accessHtml.includes('data-access-premium-link hidden'));
 
 const memory = new Map<string, string>();
@@ -99,3 +101,23 @@ clearVerifiedPremiumAccess();
 assert.equal(isPremiumNavigationAllowed('premium', now), false);
 
 console.log('Access/Premium separation contract: PASS');
+
+for (const field of ['password', 'email'] as const) {
+  const rejected = createPremiumAccessClient({
+    apiBaseUrl: 'https://api.example.test/api/v1', sessionStorage: storage,
+    fetch: (async () => new Response(JSON.stringify({ message: [field === 'password' ? 'password must be longer than or equal to 8 characters' : 'email must be an email'] }), { status: 400 })) as typeof fetch,
+  });
+  await assert.rejects(rejected.login('probe@example.invalid', 'x'), error => {
+    assert.ok(error instanceof PremiumAccessClientError);
+    assert.deepEqual(error.validationFields, [field]);
+    const message = loginFailureMessage(error, 'ro');
+    if (field === 'password') {
+      assert.match(message, /Parola.*8/);
+      assert.doesNotMatch(message, /e-mail/);
+    } else assert.match(message, /e-mail/);
+    return true;
+  });
+}
+assert.doesNotMatch(loginFailureMessage(new PremiumAccessClientError('request', 400)), /e-mail/);
+assert.equal(loginFailureMessage(new PremiumAccessClientError('request', 401)), 'Datele de autentificare nu au fost acceptate.');
+console.log('Login field validation feedback: PASS');
