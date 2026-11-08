@@ -4,6 +4,8 @@ import io
 import os
 import tempfile
 import unittest
+import urllib.error
+from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -130,6 +132,31 @@ class CustodyTests(unittest.TestCase):
 
     def test_redirects_do_not_forward_authorization(self):
         self.assertIsNone(m.NoRedirect().redirect_request(None, None, 302, '', {}, 'https://other.invalid'))
+
+    def test_http_failure_reports_boundary_not_provider_body_or_credentials(self):
+        raw = 'synthetic-private-response-value'
+        error = urllib.error.HTTPError(m.API, 403, 'Forbidden',
+            {'Content-Type': 'text/html', 'Server': 'cloudflare', 'cf-mitigated': 'challenge'}, io.BytesIO(raw.encode()))
+        with patch.object(m.urllib.request, 'build_opener') as build:
+            build.return_value.open.side_effect = error
+            with self.assertRaisesRegex(m.Failure, 'HTTP_403'):
+                m.api('/auth/deploy/machines', {}, 'synthetic-bearer', 201)
+        self.assertEqual(m.DIAGNOSTIC['operation'], 'MACHINE_PROVISION')
+        self.assertTrue(m.DIAGNOSTIC['explicitChallenge'])
+        self.assertNotIn(raw, str(m.DIAGNOSTIC))
+        self.assertNotIn('synthetic-bearer', str(m.DIAGNOSTIC))
+
+    def test_explicit_boundary_probe_never_sends_credentials_or_a_valid_mutation(self):
+        errors = [urllib.error.HTTPError(m.API, 401, '', {'Content-Type': 'application/json'}, io.BytesIO()),
+                  urllib.error.HTTPError(m.API, 403, '', {'Content-Type': 'text/html'}, io.BytesIO())]
+        with patch.object(m.urllib.request, 'build_opener') as build, patch.object(m.subprocess, 'run', return_value=SimpleNamespace(returncode=0, stdout='401')):
+            build.return_value.open.side_effect = errors
+            results = m.inspect_http_boundary()
+            for call in build.return_value.open.call_args_list:
+                self.assertNotIn('Authorization', call.args[0].headers)
+                self.assertIn(call.args[0].data, [None, b'{}'])
+        self.assertEqual([result['httpStatus'] for result in results], [401, 403, 401])
+        self.assertTrue(all(result['credentialsSent'] is False for result in results))
 
 
 if __name__ == '__main__':

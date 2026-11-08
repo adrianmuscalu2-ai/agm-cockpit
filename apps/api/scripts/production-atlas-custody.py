@@ -21,6 +21,7 @@ STORE = Path('/opt/agm/production/secrets/agm-production.env')
 SCOPES = ['acp:read', 'governance:propose']
 PREFIX = 'ATLAS_OPERATIONS_'
 FIELDS = {'CLIENT_ID', 'CLIENT_SECRET', 'CREDENTIAL_ID', 'EXPIRES_AT'}
+DIAGNOSTIC = {}
 
 
 class Failure(Exception):
@@ -35,6 +36,38 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 def require(condition, code):
     if not condition:
         raise Failure(code)
+
+
+def http_boundary(status, headers):
+    content = headers.get('Content-Type', '').lower()
+    return {'httpStatus': status, 'contentCategory': 'JSON' if 'application/json' in content else 'HTML' if 'text/html' in content else 'OTHER',
+            'cloudflareServer': headers.get('Server', '').lower().startswith('cloudflare'),
+            'explicitChallenge': headers.get('cf-mitigated', '').lower() == 'challenge'}
+
+
+def inspect_http_boundary():
+    # No credentials or valid provisioning body: auth guard rejects before writes.
+    checks = []
+    for method, path in [('GET', '/auth/me'), ('POST', '/auth/deploy/machines')]:
+        request = urllib.request.Request(API + path, data=b'{}' if method == 'POST' else None,
+                                         headers={'Content-Type': 'application/json'}, method=method)
+        try:
+            with urllib.request.build_opener(NoRedirect()).open(request, timeout=15) as response:
+                result = http_boundary(response.status, response.headers)
+        except urllib.error.HTTPError as error:
+            result = http_boundary(error.code, error.headers)
+            error.close()
+        checks.append(dict(result, client='PYTHON_STDLIB', method=method, credentialsSent=False))
+    # Compare the established AGM curl transport, without changing user-agent,
+    # following redirects, sending credentials or retrieving privileged data.
+    result = subprocess.run(['curl', '--silent', '--show-error', '--max-time', '15',
+                             '--request', 'POST', '--header', 'Content-Type: application/json',
+                             '--data', '{}', '--output', '/dev/null', '--write-out', '%{http_code}',
+                             API + '/auth/deploy/machines'], capture_output=True, text=True, timeout=20, check=False)
+    checks.append({'client': 'EXISTING_CURL', 'method': 'POST', 'credentialsSent': False,
+                   'httpStatus': int(result.stdout) if result.returncode == 0 and result.stdout.isdigit() else None,
+                   'transportExitCode': result.returncode})
+    return checks
 
 
 def read_store(store=STORE):
@@ -96,6 +129,10 @@ def append_custody(data, previous, store=STORE):
 
 
 def api(path, body=None, bearer=None, expected=200):
+    DIAGNOSTIC['operation'] = ('HUMAN_SESSION_NEGATIVE_CHECK' if path == '/auth/me' else
+                               'MACHINE_TOKEN_ISSUE' if path == '/auth/m2m/token' else
+                               'AUTHORIZED_REGISTRY_READ' if path.startswith('/m2m/') else
+                               'CREDENTIAL_REVOCATION' if path.endswith('/revoke') else 'MACHINE_PROVISION')
     headers = {'Content-Type': 'application/json', 'Cache-Control': 'no-store'}
     if bearer:
         headers['Authorization'] = f'Bearer {bearer}'
@@ -106,6 +143,8 @@ def api(path, body=None, bearer=None, expected=200):
             require(response.status == expected, 'ATLAS_API_UNEXPECTED_STATUS')
             return json.load(response)
     except urllib.error.HTTPError as error:
+        DIAGNOSTIC.update(http_boundary(error.code, error.headers))
+        error.close()
         raise Failure(f'ATLAS_API_HTTP_{error.code}') from None
 
 
@@ -138,7 +177,8 @@ process.stdout.write(JSON.stringify({identities,postRecovery:{recoveredAccountCo
     return json.loads(result.stdout)
 
 
-def run(provision=False):
+def run(provision=False, inspect_http=False):
+    DIAGNOSTIC.clear()
     require(os.geteuid() == 0, 'EXISTING_ROOT_CUSTODY_AUTHORITY_REQUIRED')
     original, bindings = read_store()
     observed = registry()
@@ -147,8 +187,11 @@ def run(provision=False):
     report = {'subject': 'atlas-operations', 'registryCount': len(identities),
               'postRecovery': observed['postRecovery'], 'secretsDisplayed': False,
               'guardianImplementationChanged': False, 'rkChanged': False}
+    DIAGNOSTIC.update(report)
+    DIAGNOSTIC['custodyBindingPresent'] = bool(bindings)
     if not provision:
-        return dict(report, mode='READ_ONLY', custodyBindingPresent=bool(bindings))
+        return dict(report, mode='READ_ONLY', custodyBindingPresent=bool(bindings),
+                    **({'httpBoundary': inspect_http_boundary()} if inspect_http else {}))
     oidc = sys.stdin.read(16385).strip()
     require(len(oidc) <= 16384 and re.fullmatch(r'[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', oidc),
             'OFFICIAL_RELEASE_OIDC_REQUIRED')
@@ -191,9 +234,9 @@ def run(provision=False):
 
 if __name__ == '__main__':
     try:
-        require(sys.argv[1:] in ([], ['--provision']), 'INVALID_OPERATION')
-        print(json.dumps(run(sys.argv[1:] == ['--provision'])))
+        require(sys.argv[1:] in ([], ['--provision'], ['--inspect-http']), 'INVALID_OPERATION')
+        print(json.dumps(run(sys.argv[1:] == ['--provision'], sys.argv[1:] == ['--inspect-http'])))
     except Exception as error:
         reason = str(error) if isinstance(error, Failure) else type(error).__name__
-        print(json.dumps({'atlas': 'FAIL', 'reason': reason, 'secretsDisplayed': False}))
+        print(json.dumps(dict(DIAGNOSTIC, atlas='FAIL', reason=reason, secretsDisplayed=False)))
         sys.exit(1)

@@ -2,6 +2,15 @@ name: AGM Production Company Owner Read-Only Preflight
 
 on:
   workflow_dispatch:
+    inputs:
+      scope:
+        description: Read-only scope; no seed, deployment or database mutation
+        required: false
+        default: COMPANY_OWNER
+        type: choice
+        options:
+          - COMPANY_OWNER
+          - ATLAS_POST_LOGIN
 
 permissions:
   contents: read
@@ -16,6 +25,7 @@ jobs:
     environment: Production
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v5
       - name: Prepare Guardian-authorized SSH transport
         env:
           PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
@@ -36,6 +46,7 @@ jobs:
           printf 'AGM_SSH_KEY_FILE=%s\nAGM_SSH_KNOWN_HOSTS_FILE=%s\n' "$ssh_key_file" "$known_hosts_file" >> "$GITHUB_ENV"
 
       - name: Read-only company owner preflight
+        if: ${{ inputs.scope != 'ATLAS_POST_LOGIN' }}
         env:
           PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
           PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
@@ -84,6 +95,7 @@ jobs:
           NODE
 
       - name: Read-only inventory of Production company owners
+        if: ${{ inputs.scope != 'ATLAS_POST_LOGIN' }}
         env:
           PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
           PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
@@ -121,5 +133,31 @@ jobs:
           })().catch((error) => { console.error(error.message); process.exitCode = 1; });
           NODE
 
+      - name: Read-only Atlas registry, post-login proof and HTTP boundary inspection
+        if: ${{ inputs.scope == 'ATLAS_POST_LOGIN' }}
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$GITHUB_RUN_ATTEMPT" =~ ^[0-9]+$ ]]
+          remote_script="/tmp/agm-atlas-readonly-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.py"
+          script_hash=$(sha256sum apps/api/scripts/production-atlas-custody.py | cut -d ' ' -f 1)
+          scp -i "$AGM_SSH_KEY_FILE" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
+            apps/api/scripts/production-atlas-custody.py "$PRODUCTION_USER@$PRODUCTION_HOST:$remote_script"
+          ssh -i "$AGM_SSH_KEY_FILE" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" "$PRODUCTION_USER@$PRODUCTION_HOST" \
+            "test \"\$(sha256sum '$remote_script' | cut -d ' ' -f 1)\" = '$script_hash' && sudo python3 '$remote_script' --inspect-http; result=\$?; rm -f '$remote_script'; exit \$result" \
+            | tee "$RUNNER_TEMP/atlas-readonly-preflight.json"
+      - name: Preserve metadata-only Atlas preflight evidence
+        if: ${{ always() && inputs.scope == 'ATLAS_POST_LOGIN' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: atlas-readonly-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/atlas-readonly-preflight.json
+          if-no-files-found: warn
+          retention-days: 90
       - name: Explicitly confirm no Production mutation
         run: echo 'READ_ONLY_PREFLIGHT_ONLY=PASS; SEED=NOT_EXECUTED; DEPLOY=NOT_EXECUTED; DATABASE_MUTATION=NONE'
