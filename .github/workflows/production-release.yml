@@ -796,6 +796,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 90
       - name: Persist Production agent runtime evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: agent-runtime-production-${{ github.run_id }}-${{ github.run_attempt }}

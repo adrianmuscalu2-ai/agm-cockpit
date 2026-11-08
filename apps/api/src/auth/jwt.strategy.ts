@@ -27,13 +27,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    if (typeof payload.sub !== 'string' || !payload.sub) throw new UnauthorizedException();
+    // Reject machine/TURN scopes before treating their textual subject as a
+    // PostgreSQL user UUID. Authorization failure must not become a DB error.
+    if (typeof payload.sub !== 'string' || !payload.sub || payload.scope !== AUTH_CONTRACT.tokenScope) throw new UnauthorizedException();
     const user = await this.users.findById(payload.sub);
     if (
       !user ||
       user.status !== AUTH_CONTRACT.activeStatus ||
       user.companyId !== payload.companyId ||
-      payload.scope !== AUTH_CONTRACT.tokenScope ||
       (payload.credentialVersion ?? 0) !== (user.credentialVersion ?? 0)
     ) {
       throw new UnauthorizedException();

@@ -206,6 +206,42 @@ process.stdout.write(JSON.stringify({identities,postRecovery:{recoveredAccountCo
     return json.loads(result.stdout)
 
 
+def governance_readiness():
+    # Diagnostic-only: invoke the actually deployed read implementations inside
+    # an enforced read-only transaction. Never create a proposal/assessment,
+    # simulate a human JWT, assign a role, or infer formal activation.
+    script = r'''
+const {PrismaClient}=require('@prisma/client');
+const {GovernanceV2Persistence}=require('./apps/api/src/governance-v2/governance-v2.persistence');
+const {GovernanceV2RuntimeService}=require('./apps/api/src/governance-v2/governance-v2.runtime');
+const {createHash}=require('node:crypto'); const {readFileSync}=require('node:fs');
+const p=new PrismaClient();
+(async()=>{try{
+const report=await p.$transaction(async tx=>{
+await tx.$executeRawUnsafe('SET TRANSACTION READ ONLY');
+const runtime=new GovernanceV2RuntimeService(new GovernanceV2Persistence(tx));
+const actors=await runtime.listGovernanceActors();
+const proposals=await runtime.listProposals();
+const knowledge=await runtime.searchRiskKnowledge('AGM');
+const assessments=await runtime.searchRiskKnowledgeAssessments('AGM');
+const events=await runtime.listGovernanceEvents();
+const bindings=await tx.$queryRawUnsafe('SELECT actor_id,principal_type,status FROM agm_governance.actor_identity_bindings ORDER BY actor_id,principal_type');
+const triggers=await tx.$queryRawUnsafe("SELECT count(*)::int AS total,count(*) FILTER (WHERE t.tgenabled='D')::int AS disabled FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='agm_governance' AND NOT t.tgisinternal");
+const active=actors.filter(a=>a.status==='ACTIVE');
+const roleCoverage={}; for(const role of ['PROPOSER','APPROVER','EXECUTOR','VALIDATOR']) roleCoverage[role]=active.filter(a=>Array.isArray(a.roles)&&a.roles.includes(role)).map(a=>a.actor_id);
+const sourceDigests={}; for(const name of ['risk-knowledge-orchestrator.ts','governance-v2.contract.ts','governance-v2.persistence.ts','governance-v2.runtime.ts']) sourceDigests[name]=createHash('sha256').update(readFileSync('./apps/api/src/governance-v2/'+name)).digest('hex');
+return {scope:'ACTUAL_PRODUCTION_MODULE_READS_IN_READ_ONLY_TRANSACTION',deployedRevision:process.env.AGM_BUILD_SHA,proposalRead:'PASS',proposalCount:proposals.length,riskKnowledgeRead:'PASS',riskKnowledgeEvidenceCount:knowledge.total,riskAssessmentRead:'PASS',matchingAssessmentCount:assessments.length,governanceEventRead:'PASS',governanceEventCount:events.length,roleCoverage,bindings,triggerControls:triggers[0],sourceDigests,authenticatedHttpRead:'NOT_TESTED_NO_USER_TOKEN_EXPORT',formalActivation:'NOT_CLAIMED',rolesChanged:false,sqlDataWrites:false};
+},{timeout:20000});
+process.stdout.write(JSON.stringify(report));
+}finally{await p.$disconnect()}})().catch(()=>{process.stderr.write('GOVERNANCE_READ_ONLY_PROBE_FAILED');process.exitCode=1});
+'''
+    result = subprocess.run(['docker', 'exec', '-i', '-w', '/app', 'agm-production-api',
+                             'apps/api/node_modules/.bin/ts-node', '--project', 'apps/api/tsconfig.json',
+                             '--transpile-only', '-e', script], capture_output=True, text=True, timeout=60, check=False)
+    require(result.returncode == 0, 'GOVERNANCE_READ_ONLY_PROBE_FAILED')
+    return json.loads(result.stdout)
+
+
 def run(provision=False, inspect_http=False):
     DIAGNOSTIC.clear()
     require(os.geteuid() == 0, 'EXISTING_ROOT_CUSTODY_AUTHORITY_REQUIRED')
@@ -220,7 +256,7 @@ def run(provision=False, inspect_http=False):
     DIAGNOSTIC['custodyBindingPresent'] = bool(bindings)
     if not provision:
         return dict(report, mode='READ_ONLY', custodyBindingPresent=bool(bindings),
-                    **({'httpBoundary': inspect_http_boundary()} if inspect_http else {}))
+                    **({'httpBoundary': inspect_http_boundary(), 'governanceReadiness': governance_readiness()} if inspect_http else {}))
     oidc = sys.stdin.read(16385).strip()
     require(len(oidc) <= 16384 and re.fullmatch(r'[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', oidc),
             'OFFICIAL_RELEASE_OIDC_REQUIRED')
@@ -244,7 +280,7 @@ def run(provision=False, inspect_http=False):
     require(set(bindings) == {PREFIX + key for key in FIELDS}, 'ATLAS_CUSTODY_INCOMPLETE_NO_AUTOMATIC_ROTATION')
     require(identity[0]['id'] == bindings[PREFIX + 'CLIENT_ID'], 'ATLAS_CUSTODY_IDENTITY_MISMATCH')
     issued = api('/auth/m2m/token', {'grant_type': 'client_credentials',
-                 'client_id': bindings[PREFIX + 'CLIENT_ID'], 'client_secret': bindings[PREFIX + 'CLIENT_SECRET']})
+                 'client_id': bindings[PREFIX + 'CLIENT_ID'], 'client_secret': bindings[PREFIX + 'CLIENT_SECRET']}, expected=201)
     require(sorted(issued.get('scope', '').split()) == SCOPES, 'ATLAS_TOKEN_SCOPE_MISMATCH')
     network = api(f'/m2m/authority-control-plane/companies/{COMPANY}/network-registry', bearer=issued['access_token'])
     require(isinstance(network.get('data'), list), 'ATLAS_AUTHORIZED_READ_NOT_PROVEN')
