@@ -35,6 +35,7 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     ['20261031120000_add_universal_lifecycle', '7c7b72441b7cfbc3430e5b7e22398181fa616e1c79249ebc80144c0a2f3ba2f6'],
     ['20261103100000_protect_universal_lifecycle_event', '6bc0d7617462e69fa880833f48ad25be767217568968559a5784ffadd983f50b'],
     ['20261106100000_add_governance_actor_identity_bindings', '83b1f4bd6c52ca8d6c2c33be038cf969fec393769bf193e587f48dc8301aa65f'],
+    ['20261108190000_add_password_recovery', '17958982ec381fe019e32ad02bfff3a96fb63009d71ed05b25656f2ebc47338b'],
   ] as const,
   criticalModels: [
     'Company',

@@ -6,6 +6,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import request from 'supertest';
 import { AuthController } from '../src/auth/auth.controller';
 import { AuthService } from '../src/auth/auth.service';
+import { PasswordRecoveryService } from '../src/auth/password-recovery.service';
 import { configureHttpApplication } from '../src/http-application';
 import { TranslationController } from '../src/translation/translation.controller';
 import { TranslationService } from '../src/translation/translation.service';
@@ -22,6 +23,7 @@ describe('API perimeter', () => {
       providers: [
         { provide: APP_GUARD, useClass: ThrottlerGuard },
         { provide: AuthService, useValue: { login: jest.fn().mockResolvedValue({ accessToken: 'test' }) } },
+        { provide: PasswordRecoveryService, useValue: { request: jest.fn(), confirm: jest.fn() } },
         {
           provide: TranslationService,
           useValue: { translateText: jest.fn().mockResolvedValue({ text: 'Hallo', available: true, provider: 'openai' }) },
