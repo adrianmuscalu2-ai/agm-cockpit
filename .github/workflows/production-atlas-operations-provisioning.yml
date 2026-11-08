@@ -1,0 +1,63 @@
+name: AGM Production Atlas Operations Provisioning
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Explicitly authorize provisioning of the canonical atlas-operations identity
+        required: true
+        type: choice
+        options:
+          - DO_NOT_RUN
+          - PROVISION_ATLAS_OPERATIONS
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agm-production-atlas-operations-provisioning
+  cancel-in-progress: false
+
+jobs:
+  provision:
+    if: github.ref == 'refs/heads/agm-canonical-20260820' && inputs.confirm == 'PROVISION_ATLAS_OPERATIONS'
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 10
+    steps:
+      - name: Provision canonical machine identity through existing API contract
+        env:
+          PROVISIONING_TOKEN: ${{ secrets.PRODUCTION_ROLE_PROVISIONING_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$PROVISIONING_TOKEN"
+          echo '::add-mask::'"$PROVISIONING_TOKEN"
+          request_body=$(jq -nc '{subject:"atlas-operations",expiresInDays:365}')
+          response=$(curl --fail --silent --show-error \
+            -X POST https://api.agmcockpit.com/api/v1/auth/machines \
+            -H "Authorization: Bearer $PROVISIONING_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data "$request_body")
+          client_id=$(jq -er '.data.clientId' <<<"$response")
+          credential_id=$(jq -er '.data.credentialId' <<<"$response")
+          company_id=$(jq -er '.data.companyId' <<<"$response")
+          client_secret=$(jq -er '.data.clientSecret' <<<"$response")
+          echo '::add-mask::'"$client_secret"
+          test "$(jq -r '.data.subject' <<<"$response")" = 'atlas-operations'
+          jq -e '.data.scopes | sort == ["acp:read", "governance:propose"] and (.data.expiresAt | type == "string")' <<<"$response" >/dev/null
+
+          token_body=$(jq -nc --arg id "$client_id" --arg secret "$client_secret" '{grant_type:"client_credentials",client_id:$id,client_secret:$secret}')
+          issued=$(curl --fail --silent --show-error \
+            -X POST https://api.agmcockpit.com/api/v1/auth/m2m/token \
+            -H 'Content-Type: application/json' \
+            --data "$token_body")
+          access_token=$(jq -er '.access_token' <<<"$issued")
+          echo '::add-mask::'"$access_token"
+          jq -e '.scope | split(" ") | sort == ["acp:read", "governance:propose"]' <<<"$issued" >/dev/null
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer $access_token" \
+            "https://api.agmcockpit.com/api/v1/m2m/authority-control-plane/companies/$company_id/network-registry" \
+            | jq -e '.data | type == "array"' >/dev/null
+
+          printf 'ATLAS_OPERATIONS_PROVISIONING=PASS; SUBJECT=atlas-operations; CREDENTIAL_LIFETIME_DAYS=365; TOKEN_VALIDATION=PASS; SECRET_DISPLAYED=false; GUARDIAN_MODIFIED=false; RK_MODIFIED=false\n'
+          printf 'CLIENT_ID_PRESENT=true; CREDENTIAL_ID_PRESENT=true\n'
