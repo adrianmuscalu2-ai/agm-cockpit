@@ -21,14 +21,15 @@ try {
   const context=await browser.newContext({viewport:{width:1280,height:900}});
   const page=await context.newPage();
   const requests=[];
-  await context.route('**/api/v1/**',async route=>{
+  const apiFixture=async route=>{
     const request=route.request();
     if(request.url().includes('/auth/password-recovery/')){
       requests.push({url:request.url(),body:request.postDataJSON()});
       return route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({data:request.url().endsWith('/request')?{accepted:true}:{passwordChanged:true,signInRequired:true}})});
     }
     return route.fulfill({status:401,contentType:'application/json',body:'{}'});
-  });
+  };
+  await context.route('**/api/v1/**',apiFixture);
   await page.goto(`${target}/access?recover=1`,{waitUntil:'domcontentloaded'});
   // Consent is exercised only on this local test fixture, never on a real user session.
   await page.getByRole('button',{name:'Accept și continui',exact:true}).click();
@@ -56,13 +57,16 @@ try {
   report.results.push({scenario:'fragment-redaction-password-confirmation-and-sign-in',verdict:'PASS'});
   await page.screenshot({path:path.join(output,'confirmed.png'),fullPage:true});
   // Fresh browser: consent triggers a re-render before entering the new password.
-  await context.clearCookies();await page.evaluate(()=>{localStorage.clear();sessionStorage.clear();});
-  await page.goto(`${target}/access#password-reset=${token}`,{waitUntil:'domcontentloaded'});
-  await page.getByRole('button',{name:'Accept și continui',exact:true}).click();
-  await confirm.waitFor({state:'visible'});
-  await confirm.locator('input[name="password"]').fill('test-password-only');await confirm.locator('input[name="repeat"]').fill('test-password-only');
-  await confirm.locator('button[type="submit"]').click();
-  await page.getByText('Parola a fost schimbată.',{exact:false}).waitFor();assert.equal(requests[2].body.token,token);
+  const fresh=await browser.newContext({viewport:{width:1280,height:900}});
+  await fresh.route('**/api/v1/**',apiFixture);
+  const freshPage=await fresh.newPage();
+  await freshPage.goto(`${target}/access#password-reset=${token}`,{waitUntil:'domcontentloaded'});
+  await freshPage.getByRole('button',{name:'Accept și continui',exact:true}).click();
+  const freshConfirm=freshPage.locator('[data-recovery-confirm]');
+  await freshConfirm.waitFor({state:'visible'});
+  await freshConfirm.locator('input[name="password"]').fill('test-password-only');await freshConfirm.locator('input[name="repeat"]').fill('test-password-only');
+  await freshConfirm.locator('button[type="submit"]').click();
+  await freshPage.getByText('Parola a fost schimbată.',{exact:false}).waitFor();assert.equal(requests[2].body.token,token);
   report.results.push({scenario:'ownership-token-survives-consent-rerender-in-memory',verdict:'PASS'});
   report.targetPageStatus='PASS';report.verdict='PASS';report.target=target;
 } catch(error){report.verdict='FAIL';report.targetPageStatus='FAIL';report.error=error.message;process.exitCode=1;}
