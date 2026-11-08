@@ -83,5 +83,43 @@ jobs:
           });
           NODE
 
+      - name: Read-only inventory of Production company owners
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+        run: |
+          set -euo pipefail
+          cat <<'NODE' | ssh -i "$AGM_SSH_KEY_FILE" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
+            "$PRODUCTION_USER@$PRODUCTION_HOST" \
+            "sudo docker exec -i -w /app agm-production-api node -"
+          const { PrismaClient } = require("@prisma/client");
+          const prisma = new PrismaClient();
+          const companyId = "00000000-0000-0000-0000-000000000001";
+          (async () => {
+            try {
+              const users = await prisma.user.findMany({
+                where: { companyId },
+                select: {
+                  status: true,
+                  roles: { where: { companyId }, select: { role: { select: { code: true, isActive: true } } } },
+                },
+              });
+              const owners = users.filter((user) => user.roles.some((item) => item.role.code === "company_owner" && item.role.isActive));
+              const activeOwners = owners.filter((user) => user.status === "Active");
+              process.stdout.write(JSON.stringify({
+                companyOwnerExists: owners.length > 0,
+                activeCompanyOwnerExists: activeOwners.length > 0,
+                companyOwnerCount: owners.length,
+                activeCompanyOwnerCount: activeOwners.length,
+                statuses: [...new Set(owners.map((user) => user.status))].sort(),
+              }) + "\\n");
+            } finally {
+              await prisma.$disconnect();
+            }
+          })().catch((error) => { console.error(error.message); process.exitCode = 1; });
+          NODE
+
       - name: Explicitly confirm no Production mutation
         run: echo 'READ_ONLY_PREFLIGHT_ONLY=PASS; SEED=NOT_EXECUTED; DEPLOY=NOT_EXECUTED; DATABASE_MUTATION=NONE'
