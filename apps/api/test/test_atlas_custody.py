@@ -133,6 +133,18 @@ class CustodyTests(unittest.TestCase):
     def test_redirects_do_not_forward_authorization(self):
         self.assertIsNone(m.NoRedirect().redirect_request(None, None, 302, '', {}, 'https://other.invalid'))
 
+    def test_governance_probe_uses_deployed_implementation_and_enforced_read_only_transaction(self):
+        result = SimpleNamespace(returncode=0, stdout='{"scope":"READ_ONLY_FIXTURE"}')
+        with patch.object(m.subprocess, 'run', return_value=result) as transport:
+            self.assertEqual(m.governance_readiness(), {'scope': 'READ_ONLY_FIXTURE'})
+            script = transport.call_args.args[0][-1]
+            self.assertIn('SET TRANSACTION READ ONLY', script)
+            self.assertIn('new GovernanceV2RuntimeService', script)
+            self.assertIn("runtime.searchRiskKnowledge('AGM')", script)
+            self.assertNotIn('assessStructuralChange(', script)
+            self.assertNotIn('createProposal(', script)
+            self.assertIn("formalActivation:'NOT_CLAIMED'", script)
+
     def test_http_failure_reports_boundary_not_provider_body_or_credentials(self):
         raw = 'synthetic-private-response-value'
         result = SimpleNamespace(returncode=0, stdout='HTTP/2 403\ncontent-type: text/html\nserver: cloudflare\ncf-mitigated: challenge\n\n' + raw + '\nAGM_HTTP_STATUS:403')
