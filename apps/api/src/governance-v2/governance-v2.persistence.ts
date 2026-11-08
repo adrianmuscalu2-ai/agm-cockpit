@@ -90,6 +90,11 @@ export class GovernanceV2Persistence {
     await this.recordEvent('ACTOR_IDENTITY_BINDING', 'GovernanceActorPrincipal', input.actorId, input.recordedBy, input, [input.decisionRef]);
   }
 
+  async readActorIdentityBinding(principalType: 'MACHINE_IDENTITY' | 'HUMAN_USER', principalId: string) {
+    const rows = await this.db.$queryRawUnsafe(`SELECT actor_id,principal_type,principal_id,company_id,status,decision_ref,recorded_by,binding_id FROM ${table}.actor_identity_bindings WHERE principal_type=$1 AND principal_id=$2 ORDER BY binding_id DESC LIMIT 1`, principalType, principalId);
+    return rows[0] ?? null;
+  }
+
   /** Derives the governance actor from the authenticated principal; a caller-supplied actor id is never trusted. */
   async resolveAuthenticatedActor(principal: { type: 'MACHINE_IDENTITY' | 'HUMAN_USER'; id: string; companyId: string; scopes?: string[] }, capability?: 'propose' | 'validate') {
     const rows = await this.db.$queryRawUnsafe<{ actor_id: string; company_id: string; status: string }>(`SELECT actor_id,company_id,status FROM ${table}.actor_identity_bindings WHERE principal_type=$1 AND principal_id=$2 ORDER BY binding_id DESC LIMIT 1`, principal.type, principal.id);

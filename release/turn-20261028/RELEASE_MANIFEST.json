@@ -265,6 +265,28 @@
   },
   "productionReleaseHistory": [
     { "version": "1.9.1", "commit": "392bc66b294d772003903d855fd6aaefa1b50496", "workflowRunId": 42162872386, "conclusion": "success", "recordedAt": "2026-11-06", "note": "Append-only reconciliation; earlier fields of this manifest describe the 2026-10-28 candidate snapshot and are retained unchanged." },
-    { "version": "1.9.1", "commit": "0c8d249ba8e799a5fff5de8e0119437a903c7187", "workflowRunId": 42197702955, "conclusion": "success", "recordedAt": "2026-11-06", "note": "Includes AGMaTCC redesign and Governance V2 identity bindings; Production environment gate approved by the reviewer." }
+    { "version": "1.9.1", "commit": "0c8d249ba8e799a5fff5de8e0119437a903c7187", "workflowRunId": 42197702955, "conclusion": "success", "recordedAt": "2026-11-06", "note": "Includes AGMaTCC redesign and Governance V2 identity bindings; Production environment gate approved by the reviewer." },
+    { "version": "1.9.1", "commit": "386962364706db560f8d11c9eef57a814bb25136", "workflowRunId": 42427563692, "conclusion": "success", "recordedAt": "2026-11-08", "note": "Live uncached verification: Web build pages-386962364706 and API build api-42427563692-1 serve this revision; API readiness and database dependency are available. This is the currently deployed baseline, not the local Governance/Risk & Knowledge candidate; Production actor binding and Governance activation are not evidenced." }
+  ],
+  "commandAuthorizations": [
+    {
+      "authorizationId": "turn-commander-finalization-2026-11-08",
+      "recordedAt": "2026-11-08T07:13:07.541+01:00",
+      "authority": "turn-commander-adrian",
+      "status": "APPROVED_TO_PROCEED",
+      "source": "User instruction in the release conversation",
+      "statement": "ai toate aprobarile necesare pentru a finaliza ,doar sa se revada in manifestul final",
+      "scope": [
+        "Complete AGM 1.9.1 Governance V2 implementation and authorized Production activation.",
+        "Grant governance:propose only to the canonical Atlas proposer identity; preserve separate human approval, independent validation, and execution roles.",
+        "Complete canonical journal and Risk & Knowledge integration and Production verification.",
+        "Promote only statuses supported by recorded implementation, authorization, and validation evidence."
+      ],
+      "constraints": [
+        "Resolve and verify real Production principal identifiers; do not invent or infer actor bindings.",
+        "Preserve append-only records, existing authority boundaries, and independent Guardian and Risk & Knowledge responsibilities.",
+        "This authorization is not evidence that migrations, actor bindings, deployment, activation, or independent validation have occurred."
+      ]
+    }
   ]
 }

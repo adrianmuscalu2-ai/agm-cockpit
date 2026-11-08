@@ -2,7 +2,7 @@ import { turnModuleNavigationRegistry } from '../turn-module-navigation.registry
 
 const esc = (value: string) => value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
-/** Links to existing TURN journals come from the navigation registry; Governance V2 has no read interface yet and is shown as such. */
+/** Journal links come from the navigation registry; Governance V2 reads require a bound human identity and are not connected to this view. */
 export function renderAgmatccPage(moduleNavigation = '') {
   const journals = turnModuleNavigationRegistry.filter((entry) => entry.parentModule === 'memory');
   const riskKnowledge = turnModuleNavigationRegistry.find((entry) => entry.moduleId === 'risk-knowledge');
@@ -66,7 +66,7 @@ export function renderAgmatccPage(moduleNavigation = '') {
               <ul class="agmatcc-questions" data-agmatcc-questions></ul>
               <h3>Alerte TCC</h3>
               <ul class="agmatcc-alerts" data-agmatcc-alerts aria-live="polite"></ul>
-              <p class="agmatcc-hint">Governance V2: NECONECTAT în UI (fără interfață HTTP de citire).</p>
+              <p class="agmatcc-hint">Governance V2: API protejat disponibil; citirea necesită o identitate umană legată. Interfața AGMaTCC nu este conectată.</p>
             </aside>
           </div>
         </div>

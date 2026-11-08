@@ -21,3 +21,22 @@ Correlates with: `AGM_1_9_1_PRODUCTION_RELEASE_RECORD_20261106.md` (run 42162872
 - Production registration and binding: NOT EXECUTED. Requires an authorized Production database credential and the real machine-identity/user ids; run `scripts/activate-governance-v2-actors.ts`. Governance V2 activation in Production: NOT ACTIVATED.
 - Issuing `governance:propose` on machine tokens is not implemented: machine-auth issues only `acp:read` (modifying it would change the existing authority path). Needs a Turn Commander decision.
 - No Governance V2 HTTP controller exists; proposals cannot yet be submitted over the API.
+
+## Append-only authorization amendment — 2026-11-08
+
+- Turn Commander authorization received at `2026-11-08T07:13:07.541+01:00`: “ai toate aprobarile necesare pentru a finaliza ,doar sa se revada in manifestul final”.
+- The authorization permits proceeding with the remaining Governance V2 implementation and Production activation gates, including the `governance:propose` capability for the canonical Atlas proposer, while retaining separate approval, validation, and execution actors.
+- The authorization also covers completing canonical journal and Risk & Knowledge integration and their Production verification. It does not assert that any migration, identity binding, deployment, or activation has already occurred.
+- The deployed source includes `apps/api/src/governance-v2/governance-v2.controller.ts`; the earlier open-item statement that no controller exists is superseded by the current source. API availability alone is not activation evidence.
+- The exact Production machine-identity and human-user principal IDs, database migration state, and independent validation evidence remain to be verified before recording those operations as complete.
+- The authorization is recorded in `RELEASE_MANIFEST.json` under `commandAuthorizations`; historical release entries and decision content above remain unchanged.
+
+## Append-only implementation update — 2026-11-08 (local candidate)
+
+- Added protected read-only proposal and Risk & Knowledge search/read routes. Reads require a current bound human actor with an active APPROVER or VALIDATOR role; database errors are not translated into authorization denials. No write, approval, validation, execution, or activation route was added.
+- Connected the TURN journals Risk & Knowledge panel to those existing canonical runtime/persistence methods. The panel reports read/API errors explicitly and does not change module validation or activation states.
+- Restricted `governance:propose` to the canonical Atlas subject, included the approved scope in authorized Atlas credential rotation and its audit event, and made duplicate identity provisioning fail explicitly instead of creating duplicate authority.
+- Hardened the actor-binding runner: it verifies the supplied Production principals against their company, subject, active status, and approved scope; it skips only exact matching actor/binding records and fails closed on conflicts. Its output explicitly remains `NOT_ACTIVATED`.
+- Local validation: API build and lint PASS; focused machine-auth, Governance controller, and Governance hardening tests PASS (3 suites / 29 tests); Web build, TURN-journals contract, and AGMaTCC contract PASS; actor-binding script type-check PASS.
+- Production baseline verified separately: Web `pages-386962364706` and API `api-42427563692-1` serve commit `386962364706db560f8d11c9eef57a814bb25136`; release run `42427563692` succeeded and API readiness reported the database available. This evidence is recorded in `RELEASE_MANIFEST.json`.
+- Candidate changes remain local and uncommitted. No candidate deployment, Production actor binding, or Governance activation was performed. The real Production principal IDs and authorized database execution context are not available in this session; Production activation and independent runtime validation remain NOT VERIFIED. RK and Guardian source files remain unchanged.
