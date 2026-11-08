@@ -116,17 +116,20 @@ const {PrismaClient}=require('@prisma/client'); const p=new PrismaClient();
 (async()=>{try{
 const companyId='00000000-0000-0000-0000-000000000001';
 const identities=await p.machineIdentity.findMany({where:{companyId,subject:'atlas-operations'},select:{id:true,companyId:true,subject:true,status:true,scopes:true}});
-const audits=await p.auditEvent.findMany({where:{companyId,actionCode:'AUTH_PASSWORD_RECOVERED',occurredAt:{gte:new Date('2026-11-08T20:24:00Z')}},select:{actorUserId:true,occurredAt:true}});
+const audits=await p.auditEvent.findMany({where:{companyId,actionCode:'AUTH_PASSWORD_RECOVERED',occurredAt:{gte:new Date(Math.max(Date.parse('2026-11-08T20:24:00Z'),Date.now()-86400000))}},select:{actorUserId:true,entityId:true,requestId:true,metadata:true,occurredAt:true}});
 const recoveredUsers=[...new Set(audits.map(a=>a.actorUserId).filter(Boolean))];
 let activeOwnersWithPostRecoverySession=0;
+const verifiedRecoveryCandidates=[];
 for(const id of recoveredUsers){
-const user=await p.user.findFirst({where:{id,companyId,status:'Active',company:{isActive:true},roles:{some:{companyId,role:{code:'company_owner',companyId,isActive:true}}}},select:{id:true}});
+const user=await p.user.findFirst({where:{id,companyId,status:'Active',company:{isActive:true},roles:{some:{companyId,role:{code:'company_owner',companyId,isActive:true}}}},select:{id:true,credentialVersion:true}});
 if(!user)continue;
-const recoveredAt=audits.filter(a=>a.actorUserId===id).sort((a,b)=>b.occurredAt-a.occurredAt)[0].occurredAt;
+const audit=audits.filter(a=>a.actorUserId===id).sort((a,b)=>b.occurredAt-a.occurredAt)[0];
+if(audit.entityId!==id||audit.metadata?.ownershipProof!=='SINGLE_USE_EMAIL_LINK'||audit.metadata?.sessionsRevoked!==true||audit.metadata?.credentialVersion!==user.credentialVersion)continue;
+const recoveredAt=audit.occurredAt;
 const session=await p.authSession.findFirst({where:{userId:id,companyId,createdAt:{gte:recoveredAt},revokedAt:null,expiresAt:{gt:new Date()}},select:{id:true}});
-if(session)activeOwnersWithPostRecoverySession++;
+if(session){activeOwnersWithPostRecoverySession++;verifiedRecoveryCandidates.push({recoveryRequestId:audit.requestId,recoveredAt,authenticatedCompanyOwner:true});}
 }
-process.stdout.write(JSON.stringify({identities,postRecovery:{recoveredAccountCount:recoveredUsers.length,activeOwnersWithPostRecoverySession,commanderBindingAuthorized:false}}));
+process.stdout.write(JSON.stringify({identities,postRecovery:{recoveredAccountCount:recoveredUsers.length,activeOwnersWithPostRecoverySession,verifiedRecoveryCandidates,commanderBindingAuthorized:false}}));
 }finally{await p.$disconnect()}})().catch(()=>{process.stderr.write('REGISTRY_READ_FAILED');process.exitCode=1});
 '''
     result = subprocess.run(['docker', 'exec', '-i', '-w', '/app', 'agm-production-api', 'node', '-'],
