@@ -21,6 +21,7 @@ STORE = Path('/opt/agm/production/secrets/agm-production.env')
 SCOPES = ['acp:read', 'governance:propose']
 PREFIX = 'ATLAS_OPERATIONS_'
 FIELDS = {'CLIENT_ID', 'CLIENT_SECRET', 'CREDENTIAL_ID', 'EXPIRES_AT'}
+DIAGNOSTIC = {}
 
 
 class Failure(Exception):
@@ -35,6 +36,46 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 def require(condition, code):
     if not condition:
         raise Failure(code)
+
+
+def http_boundary(status, headers):
+    content = headers.get('Content-Type', '').lower()
+    return {'httpStatus': status, 'contentCategory': 'JSON' if 'application/json' in content else 'HTML' if 'text/html' in content else 'OTHER',
+            'cloudflareServer': headers.get('Server', '').lower().startswith('cloudflare'),
+            'explicitChallenge': headers.get('cf-mitigated', '').lower() == 'challenge'}
+
+
+def inspect_http_boundary():
+    # No credentials or valid provisioning body: auth guard rejects before writes.
+    checks = []
+    for method, path in [('GET', '/auth/me'), ('POST', '/auth/deploy/machines')]:
+        request = urllib.request.Request(API + path, data=b'{}' if method == 'POST' else None,
+                                         headers={'Content-Type': 'application/json'}, method=method)
+        try:
+            with urllib.request.build_opener(NoRedirect()).open(request, timeout=15) as response:
+                result = http_boundary(response.status, response.headers)
+        except urllib.error.HTTPError as error:
+            result = http_boundary(error.code, error.headers)
+            error.close()
+        checks.append(dict(result, client='PYTHON_STDLIB', method=method, credentialsSent=False))
+    # Compare the established AGM curl transport, without changing user-agent,
+    # following redirects, sending credentials or retrieving privileged data.
+    result = subprocess.run(['curl', '--disable', '--silent', '--show-error', '--max-time', '15',
+                             '--request', 'POST', '--header', 'Content-Type: application/json',
+                             '--data', '{}', '--output', '/dev/null', '--write-out', '%{http_code}',
+                             API + '/auth/deploy/machines'], capture_output=True, text=True, timeout=20, check=False)
+    checks.append({'client': 'EXISTING_CURL', 'method': 'POST', 'credentialsSent': False,
+                   'httpStatus': int(result.stdout) if result.returncode == 0 and result.stdout.isdigit() else None,
+                   'transportExitCode': result.returncode})
+    try:
+        api('/auth/me')
+        configured = {'httpStatus': 200}
+    except Failure as error:
+        value = str(error)
+        code = value[len('ATLAS_API_HTTP_'):] if value.startswith('ATLAS_API_HTTP_') else value
+        configured = {'httpStatus': int(code)} if code.isdigit() else {'httpStatus': None, 'transportFailureCode': str(error)}
+    checks.append(dict(configured, client='EXISTING_CURL_STDIN_CONFIG', method='GET', credentialsSent=False))
+    return checks
 
 
 def read_store(store=STORE):
@@ -96,17 +137,44 @@ def append_custody(data, previous, store=STORE):
 
 
 def api(path, body=None, bearer=None, expected=200):
-    headers = {'Content-Type': 'application/json', 'Cache-Control': 'no-store'}
+    DIAGNOSTIC['operation'] = ('HUMAN_SESSION_NEGATIVE_CHECK' if path == '/auth/me' else
+                               'MACHINE_TOKEN_ISSUE' if path == '/auth/m2m/token' else
+                               'AUTHORIZED_REGISTRY_READ' if path.startswith('/m2m/') else
+                               'CREDENTIAL_REVOCATION' if path.endswith('/revoke') else 'MACHINE_PROVISION')
+    headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Cache-Control': 'no-store'}
     if bearer:
         headers['Authorization'] = f'Bearer {bearer}'
-    payload = None if body is None else json.dumps(body).encode('utf-8')
-    request = urllib.request.Request(API + path, data=payload, headers=headers)
-    try:
-        with urllib.request.build_opener(NoRedirect()).open(request, timeout=20) as response:
-            require(response.status == expected, 'ATLAS_API_UNEXPECTED_STATUS')
-            return json.load(response)
-    except urllib.error.HTTPError as error:
-        raise Failure(f'ATLAS_API_HTTP_{error.code}') from None
+    # Reuse AGM's established curl transport. No UA spoofing, redirects,
+    # challenge handling or policy changes. Credentials/config go on stdin,
+    # never command arguments, temporary files, stdout logs or artifacts.
+    config = ['silent', 'show-error', 'include', 'suppress-connect-headers', 'max-time = 20',
+              'url = ' + json.dumps(API + path),
+              'request = ' + json.dumps('GET' if body is None else 'POST'),
+              'write-out = "\\nAGM_HTTP_STATUS:%{http_code}"']
+    config += ['header = ' + json.dumps(key + ': ' + value) for key, value in headers.items()]
+    if body is not None:
+        config.append('data-binary = ' + json.dumps(json.dumps(body)))
+    result = subprocess.run(['curl', '--disable', '--config', '-'], input='\n'.join(config) + '\n',
+                            capture_output=True, text=True, timeout=25, check=False)
+    require(result.returncode == 0, 'ATLAS_CURL_TRANSPORT_FAILED')
+    envelope, marker, status = result.stdout.rpartition('\nAGM_HTTP_STATUS:')
+    require(bool(marker) and status.isdigit() and 100 <= int(status) <= 599, 'ATLAS_HTTP_STATUS_NOT_PROVEN')
+    header_block, separator, response_body = envelope.partition('\n\n')
+    require(bool(separator), 'ATLAS_HTTP_ENVELOPE_INVALID')
+    response_headers = {}
+    for line in header_block.splitlines()[1:]:
+        name, colon, value = line.partition(':')
+        if colon:
+            response_headers[name.strip().lower()] = value.strip()
+    boundary = http_boundary(int(status), {
+        'Content-Type': response_headers.get('content-type', ''),
+        'Server': response_headers.get('server', ''),
+        'cf-mitigated': response_headers.get('cf-mitigated', ''),
+    })
+    if int(status) != expected:
+        DIAGNOSTIC.update(boundary)
+        raise Failure(f'ATLAS_API_HTTP_{status}')
+    return json.loads(response_body)
 
 
 def registry():
@@ -138,7 +206,8 @@ process.stdout.write(JSON.stringify({identities,postRecovery:{recoveredAccountCo
     return json.loads(result.stdout)
 
 
-def run(provision=False):
+def run(provision=False, inspect_http=False):
+    DIAGNOSTIC.clear()
     require(os.geteuid() == 0, 'EXISTING_ROOT_CUSTODY_AUTHORITY_REQUIRED')
     original, bindings = read_store()
     observed = registry()
@@ -147,8 +216,11 @@ def run(provision=False):
     report = {'subject': 'atlas-operations', 'registryCount': len(identities),
               'postRecovery': observed['postRecovery'], 'secretsDisplayed': False,
               'guardianImplementationChanged': False, 'rkChanged': False}
+    DIAGNOSTIC.update(report)
+    DIAGNOSTIC['custodyBindingPresent'] = bool(bindings)
     if not provision:
-        return dict(report, mode='READ_ONLY', custodyBindingPresent=bool(bindings))
+        return dict(report, mode='READ_ONLY', custodyBindingPresent=bool(bindings),
+                    **({'httpBoundary': inspect_http_boundary()} if inspect_http else {}))
     oidc = sys.stdin.read(16385).strip()
     require(len(oidc) <= 16384 and re.fullmatch(r'[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', oidc),
             'OFFICIAL_RELEASE_OIDC_REQUIRED')
@@ -191,9 +263,9 @@ def run(provision=False):
 
 if __name__ == '__main__':
     try:
-        require(sys.argv[1:] in ([], ['--provision']), 'INVALID_OPERATION')
-        print(json.dumps(run(sys.argv[1:] == ['--provision'])))
+        require(sys.argv[1:] in ([], ['--provision'], ['--inspect-http']), 'INVALID_OPERATION')
+        print(json.dumps(run(sys.argv[1:] == ['--provision'], sys.argv[1:] == ['--inspect-http'])))
     except Exception as error:
         reason = str(error) if isinstance(error, Failure) else type(error).__name__
-        print(json.dumps({'atlas': 'FAIL', 'reason': reason, 'secretsDisplayed': False}))
+        print(json.dumps(dict(DIAGNOSTIC, atlas='FAIL', reason=reason, secretsDisplayed=False)))
         sys.exit(1)

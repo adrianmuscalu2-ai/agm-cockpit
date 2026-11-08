@@ -4,6 +4,8 @@ import io
 import os
 import tempfile
 import unittest
+import urllib.error
+from types import SimpleNamespace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -130,6 +132,40 @@ class CustodyTests(unittest.TestCase):
 
     def test_redirects_do_not_forward_authorization(self):
         self.assertIsNone(m.NoRedirect().redirect_request(None, None, 302, '', {}, 'https://other.invalid'))
+
+    def test_http_failure_reports_boundary_not_provider_body_or_credentials(self):
+        raw = 'synthetic-private-response-value'
+        result = SimpleNamespace(returncode=0, stdout='HTTP/2 403\ncontent-type: text/html\nserver: cloudflare\ncf-mitigated: challenge\n\n' + raw + '\nAGM_HTTP_STATUS:403')
+        with patch.object(m.subprocess, 'run', return_value=result) as transport:
+            with self.assertRaisesRegex(m.Failure, 'HTTP_403'):
+                m.api('/auth/deploy/machines', {}, 'synthetic-bearer', 201)
+            self.assertEqual(transport.call_args.args[0], ['curl', '--disable', '--config', '-'])
+            self.assertIn('synthetic-bearer', transport.call_args.kwargs['input'])
+        self.assertEqual(m.DIAGNOSTIC['operation'], 'MACHINE_PROVISION')
+        self.assertTrue(m.DIAGNOSTIC['explicitChallenge'])
+        self.assertNotIn(raw, str(m.DIAGNOSTIC))
+        self.assertNotIn('synthetic-bearer', str(m.DIAGNOSTIC))
+
+    def test_existing_curl_configuration_uses_stdin_and_parses_only_json(self):
+        result = SimpleNamespace(returncode=0, stdout='HTTP/2 200\ncontent-type: application/json\n\n{"data": []}\nAGM_HTTP_STATUS:200')
+        with patch.object(m.subprocess, 'run', return_value=result) as transport:
+            self.assertEqual(m.api('/auth/me', bearer='synthetic-bearer'), {'data': []})
+            self.assertNotIn('synthetic-bearer', str(transport.call_args.args))
+            self.assertNotIn('user-agent', transport.call_args.kwargs['input'])
+            self.assertNotIn('location', transport.call_args.kwargs['input'])
+
+    def test_explicit_boundary_probe_never_sends_credentials_or_a_valid_mutation(self):
+        errors = [urllib.error.HTTPError(m.API, 401, '', {'Content-Type': 'application/json'}, io.BytesIO()),
+                  urllib.error.HTTPError(m.API, 403, '', {'Content-Type': 'text/html'}, io.BytesIO())]
+        with patch.object(m.urllib.request, 'build_opener') as build, patch.object(m.subprocess, 'run', return_value=SimpleNamespace(returncode=0, stdout='401')), patch.object(m, 'api', side_effect=m.Failure('ATLAS_API_HTTP_401')) as configured:
+            build.return_value.open.side_effect = errors
+            results = m.inspect_http_boundary()
+            for call in build.return_value.open.call_args_list:
+                self.assertNotIn('Authorization', call.args[0].headers)
+                self.assertIn(call.args[0].data, [None, b'{}'])
+            configured.assert_called_once_with('/auth/me')
+        self.assertEqual([result['httpStatus'] for result in results], [401, 403, 401, 401])
+        self.assertTrue(all(result['credentialsSent'] is False for result in results))
 
 
 if __name__ == '__main__':

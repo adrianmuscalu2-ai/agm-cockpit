@@ -8,6 +8,7 @@ on:
       - apps/api/src/governance-v2/commander-binding-authority.ts
       - apps/api/scripts/activate-governance-v2-actors.ts
       - .github/workflows/production-governance-actor-binding.yml
+      - .github/workflows/production-company-owner-preflight.yml
       - .github/workflows/production-release.yml
       - .github/workflows/atlas-custody-validation.yml
 permissions:
