@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma, type MachineCredential, type MachineIdentity } from '@prisma/client';
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
@@ -23,13 +23,15 @@ export class MachineAuthService {
     const rawSecret = createCredentialSecret(credentialId);
     const expiresAt = credentialExpiry(expiresInDays);
     const result = await this.prisma.$transaction(async (tx) => {
+      const existingIdentity = await tx.machineIdentity.findFirst({ where: { companyId: ctx.companyId, subject } });
+      if (existingIdentity) throw new ConflictException('Machine identity already exists; rotate its credential instead of provisioning a duplicate.');
       const identity = await tx.machineIdentity.create({
         data: {
           companyId: ctx.companyId,
           subject,
           issuer: MACHINE_AUTH_CONTRACT.issuer,
           audience: MACHINE_AUTH_CONTRACT.audience,
-          scopes: [MACHINE_AUTH_CONTRACT.scope],
+          scopes: scopesForSubject(subject),
         },
       });
       const credential = await tx.machineCredential.create({
@@ -43,7 +45,14 @@ export class MachineAuthService {
         entityId: identity.id,
         requestId: ctx.requestId,
         correlationId: ctx.correlationId,
-        metadata: { subject: identity.subject, credentialId: credential.id, scopes: [MACHINE_AUTH_CONTRACT.scope], expiresAt, provisioningAuthority: authorityMetadata(ctx) },
+        metadata: {
+          subject: identity.subject,
+          credentialId: credential.id,
+          scopes: scopes(identity.scopes),
+          ...(subject === MACHINE_AUTH_CONTRACT.governanceProposerSubject ? { governanceAuthorization: MACHINE_AUTH_CONTRACT.governanceProposeApprovalRef } : {}),
+          expiresAt,
+          provisioningAuthority: authorityMetadata(ctx),
+        },
       });
       return { identity, credential };
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
@@ -60,6 +69,9 @@ export class MachineAuthService {
       const identity = await tx.machineIdentity.findFirst({ where: { id: identityId, companyId: ctx.companyId } });
       if (!identity) throw new NotFoundException('Machine identity not found in the current tenant.');
       if (identity.status !== MACHINE_AUTH_CONTRACT.activeIdentityStatus) throw new ForbiddenException('Machine identity is not active.');
+      const rotatedIdentity = identity.subject === MACHINE_AUTH_CONTRACT.governanceProposerSubject
+        ? await tx.machineIdentity.update({ where: { id: identity.id }, data: { scopes: scopesForSubject(identity.subject) } })
+        : identity;
       const latest = await tx.machineCredential.findFirst({ where: { identityId: identity.id }, orderBy: { version: 'desc' } });
       const revokedAt = new Date();
       await tx.machineCredential.updateMany({ where: { identityId: identity.id, revokedAt: null }, data: { revokedAt } });
@@ -74,9 +86,17 @@ export class MachineAuthService {
         entityId: identity.id,
         requestId: ctx.requestId,
         correlationId: ctx.correlationId,
-        metadata: { credentialId: credential.id, version: credential.version, priorCredentialsRevokedAt: revokedAt, expiresAt, provisioningAuthority: authorityMetadata(ctx) },
+        metadata: {
+          credentialId: credential.id,
+          version: credential.version,
+          priorCredentialsRevokedAt: revokedAt,
+          expiresAt,
+          scopes: scopes(rotatedIdentity.scopes),
+          ...(identity.subject === MACHINE_AUTH_CONTRACT.governanceProposerSubject ? { governanceAuthorization: MACHINE_AUTH_CONTRACT.governanceProposeApprovalRef } : {}),
+          provisioningAuthority: authorityMetadata(ctx),
+        },
       });
-      return { identity, credential };
+      return { identity: rotatedIdentity, credential };
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 
     return credentialResponse(result.identity, result.credential, rawSecret);
@@ -135,6 +155,8 @@ export class MachineAuthService {
     const credential = await this.prisma.machineCredential.findUnique({ where: { id: credentialId }, include: { identity: true } });
     if (!isCredentialUsable(credential, clientId, rawSecret)) throw invalidClient();
     const identity = credential.identity;
+    const grantedScopes = scopes(identity.scopes);
+    const tokenScope = grantedScopes.join(' ');
     const jti = randomUUID();
     const accessToken = await this.jwt.signAsync(
       {
@@ -142,7 +164,7 @@ export class MachineAuthService {
         companyId: identity.companyId,
         client_id: identity.id,
         credential_id: credential.id,
-        scope: MACHINE_AUTH_CONTRACT.scope,
+        scope: tokenScope,
         token_use: MACHINE_AUTH_CONTRACT.tokenUse,
         jti,
       },
@@ -158,13 +180,13 @@ export class MachineAuthService {
       actionCode: 'M2M_TOKEN_ISSUED',
       entityType: 'MachineCredential',
       entityId: credential.id,
-      metadata: { identityId: identity.id, subject: identity.subject, scope: MACHINE_AUTH_CONTRACT.scope, jti },
+      metadata: { identityId: identity.id, subject: identity.subject, scope: tokenScope, jti },
     });
     return {
       access_token: accessToken,
       token_type: 'Bearer',
       expires_in: MACHINE_AUTH_CONTRACT.accessTokenExpiresInSeconds,
-      scope: MACHINE_AUTH_CONTRACT.scope,
+      scope: tokenScope,
     };
   }
 
@@ -188,7 +210,7 @@ export class MachineAuthService {
         entityId: credential.id,
         requestId,
         correlationId,
-        metadata: { identityId: credential.identity.id, subject: credential.identity.subject, scope: MACHINE_AUTH_CONTRACT.scope },
+        metadata: { identityId: credential.identity.id, subject: credential.identity.subject, scope: payload.scope },
       });
     });
     return {
@@ -198,7 +220,7 @@ export class MachineAuthService {
       subject: credential.identity.subject,
       machineIdentityId: credential.identity.id,
       credentialId: credential.id,
-      scopes: [MACHINE_AUTH_CONTRACT.scope],
+      scopes: tokenScopes(payload.scope),
     };
   }
 
@@ -279,12 +301,26 @@ function scopes(value: Prisma.JsonValue) {
   return Array.isArray(value) && value.every((item): item is string => typeof item === 'string') ? value : [];
 }
 
+function tokenScopes(value: string) {
+  return value.split(/\s+/).filter(Boolean);
+}
+
+function scopesForSubject(subject: string) {
+  return subject === MACHINE_AUTH_CONTRACT.governanceProposerSubject
+    ? [MACHINE_AUTH_CONTRACT.scope, MACHINE_AUTH_CONTRACT.governanceProposeScope]
+    : [MACHINE_AUTH_CONTRACT.scope];
+}
+
 function hasCanonicalClaims(payload: MachineJwtPayload) {
   const audience = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+  const parsedScopes = tokenScopes(payload.scope);
   return payload.iss === MACHINE_AUTH_CONTRACT.issuer
     && audience.length === 1
     && audience[0] === MACHINE_AUTH_CONTRACT.audience
-    && payload.scope === MACHINE_AUTH_CONTRACT.scope
+    && parsedScopes.includes(MACHINE_AUTH_CONTRACT.scope)
+    && parsedScopes.length > 0
+    && new Set(parsedScopes).size === parsedScopes.length
+    && parsedScopes.every((scope) => MACHINE_AUTH_CONTRACT.supportedScopes.includes(scope as typeof MACHINE_AUTH_CONTRACT.supportedScopes[number]))
     && payload.token_use === MACHINE_AUTH_CONTRACT.tokenUse;
 }
 
@@ -292,7 +328,7 @@ function isCredentialUsable(credential: CredentialWithIdentity | null, clientId:
   if (!credential || credential.identity.id !== clientId || credential.identity.status !== MACHINE_AUTH_CONTRACT.activeIdentityStatus) return false;
   if (credential.revokedAt || credential.expiresAt <= new Date()) return false;
   if (credential.identity.issuer !== MACHINE_AUTH_CONTRACT.issuer || credential.identity.audience !== MACHINE_AUTH_CONTRACT.audience) return false;
-  if (!scopes(credential.identity.scopes).includes(MACHINE_AUTH_CONTRACT.scope)) return false;
+  if (!identityScopesAreValid(credential.identity)) return false;
   return hashesEqual(credential.secretHash, hash(rawSecret));
 }
 
@@ -305,7 +341,19 @@ function isCredentialBoundToClaims(credential: CredentialWithIdentity | null, pa
     && identity.subject === payload.sub
     && identity.issuer === MACHINE_AUTH_CONTRACT.issuer
     && identity.audience === MACHINE_AUTH_CONTRACT.audience
-    && scopes(identity.scopes).includes(MACHINE_AUTH_CONTRACT.scope);
+    && identityScopesAreValid(identity)
+    && tokenScopes(payload.scope).every((scope) => scopes(identity.scopes).includes(scope))
+    && (!tokenScopes(payload.scope).includes(MACHINE_AUTH_CONTRACT.governanceProposeScope)
+      || identity.subject === MACHINE_AUTH_CONTRACT.governanceProposerSubject);
+}
+
+function identityScopesAreValid(identity: MachineIdentity) {
+  const grantedScopes = scopes(identity.scopes);
+  return grantedScopes.includes(MACHINE_AUTH_CONTRACT.scope)
+    && new Set(grantedScopes).size === grantedScopes.length
+    && grantedScopes.every((scope) => MACHINE_AUTH_CONTRACT.supportedScopes.includes(scope as typeof MACHINE_AUTH_CONTRACT.supportedScopes[number]))
+    && (!grantedScopes.includes(MACHINE_AUTH_CONTRACT.governanceProposeScope)
+      || identity.subject === MACHINE_AUTH_CONTRACT.governanceProposerSubject);
 }
 
 function invalidClient() {
@@ -323,7 +371,7 @@ function credentialResponse(identity: MachineIdentity, credential: MachineCreden
     credentialId: credential.id,
     subject: identity.subject,
     companyId: identity.companyId,
-    scopes: [MACHINE_AUTH_CONTRACT.scope],
+    scopes: scopes(identity.scopes),
     expiresAt: credential.expiresAt,
   };
 }

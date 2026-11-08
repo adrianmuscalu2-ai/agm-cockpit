@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Get, Headers, HttpException, HttpStatus, NotFoundException, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpException, HttpStatus, NotFoundException, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../common/current-user.decorator';
 import { requestIdFromHeader } from '../common/request-ids';
 import { responseEnvelope } from '../common/response';
@@ -20,6 +20,7 @@ const DENIALS: Record<string, HttpStatus> = {
   PROPOSAL_INVALID_TRANSITION: HttpStatus.CONFLICT,
   PROPOSAL_CONTRACT_INCOMPLETE: HttpStatus.BAD_REQUEST,
   CANDIDATE_DIGEST_MISMATCH: HttpStatus.BAD_REQUEST,
+  GOVERNANCE_SEARCH_QUERY_INVALID: HttpStatus.BAD_REQUEST,
 };
 
 function mapError(error: unknown): never {
@@ -40,10 +41,9 @@ interface ProposeBody {
 interface DecisionBody { decision: 'ACCEPTED_FOR_CHANGE_CONTROL' | 'REJECTED'; evidenceRefs?: string[] }
 
 /**
- * Governance V2 HTTP boundary. Proposals need a machine token carrying
- * `governance:propose`, which no issuer currently emits, so every propose call
- * is denied until the Turn Commander authorizes that scope. Decisions need a
- * human user bound to an ACTIVE APPROVER actor. RK and Guardian are not touched.
+ * Governance V2 HTTP boundary. Only the canonical Atlas machine identity may
+ * hold `governance:propose`; decisions require a separately bound human
+ * approver. Runtime activation and independent validation remain separate gates.
  */
 @Controller('governance-v2')
 export class GovernanceV2Controller {
@@ -80,21 +80,64 @@ export class GovernanceV2Controller {
   @Get('proposals')
   @UseGuards(JwtAuthGuard)
   async list(@CurrentUser() user: RequestContext, @Headers('x-request-id') header?: string) {
-    await this.requireBoundHuman(user);
-    return responseEnvelope(await this.governance.listProposals(), requestIdFromHeader(header));
+    try {
+      await this.requireBoundHuman(user);
+      return responseEnvelope(await this.governance.listProposals(), requestIdFromHeader(header));
+    } catch (error) { mapError(error); }
   }
 
   @Get('proposals/:id')
   @UseGuards(JwtAuthGuard)
   async read(@Param('id') id: string, @CurrentUser() user: RequestContext, @Headers('x-request-id') header?: string) {
-    await this.requireBoundHuman(user);
-    const proposal = await this.governance.readProposal(id);
-    if (!proposal) throw new NotFoundException('PROPOSAL_NOT_FOUND');
-    return responseEnvelope(proposal, requestIdFromHeader(header));
+    try {
+      await this.requireBoundHuman(user);
+      const proposal = await this.governance.readProposal(id);
+      if (!proposal) throw new NotFoundException('PROPOSAL_NOT_FOUND');
+      return responseEnvelope(proposal, requestIdFromHeader(header));
+    } catch (error) { mapError(error); }
+  }
+
+  @Get('risk-knowledge/search')
+  @UseGuards(JwtAuthGuard)
+  async searchRiskKnowledge(@Query('q') query: string, @CurrentUser() user: RequestContext, @Headers('x-request-id') header?: string) {
+    try {
+      await this.requireBoundHuman(user);
+      return responseEnvelope(await this.governance.searchRiskKnowledge(this.searchQuery(query)), requestIdFromHeader(header));
+    } catch (error) { mapError(error); }
+  }
+
+  @Get('risk-knowledge/assessments')
+  @UseGuards(JwtAuthGuard)
+  async searchRiskKnowledgeAssessments(@Query('q') query: string, @CurrentUser() user: RequestContext, @Headers('x-request-id') header?: string) {
+    try {
+      await this.requireBoundHuman(user);
+      return responseEnvelope(await this.governance.searchRiskKnowledgeAssessments(this.searchQuery(query)), requestIdFromHeader(header));
+    } catch (error) { mapError(error); }
+  }
+
+  @Get('risk-knowledge/assessments/:id')
+  @UseGuards(JwtAuthGuard)
+  async readRiskKnowledgeAssessment(@Param('id') id: string, @CurrentUser() user: RequestContext, @Headers('x-request-id') header?: string) {
+    try {
+      await this.requireBoundHuman(user);
+      const assessment = await this.governance.readRiskKnowledgeAssessment(id);
+      if (!assessment) throw new NotFoundException('RISK_ASSESSMENT_NOT_FOUND');
+      return responseEnvelope(assessment, requestIdFromHeader(header));
+    } catch (error) { mapError(error); }
   }
 
   private async requireBoundHuman(user: RequestContext) {
-    try { await this.governance.resolveAuthenticatedActor({ type: 'HUMAN_USER', id: user.userId, companyId: user.companyId }); }
-    catch { throw new ForbiddenException('GOVERNANCE_IDENTITY_NOT_BOUND'); }
+    const actorId = await this.governance.resolveAuthenticatedActor({ type: 'HUMAN_USER', id: user.userId, companyId: user.companyId });
+    const actor = await this.governance.readGovernanceActor(actorId) as { status?: string; roles?: unknown } | null;
+    const roles = Array.isArray(actor?.roles) ? actor.roles : [];
+    if (actor?.status !== 'ACTIVE' || !roles.some((role) => role === 'APPROVER' || role === 'VALIDATOR')) {
+      throw new Error('GOVERNANCE_ACTOR_UNAUTHORIZED');
+    }
+  }
+
+  private searchQuery(query: string) {
+    const normalized = query?.trim();
+    if (!normalized || normalized.length < 2 || normalized.length > 200) throw new Error('GOVERNANCE_SEARCH_QUERY_INVALID');
+    return normalized;
   }
 }

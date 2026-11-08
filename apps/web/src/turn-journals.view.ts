@@ -1,6 +1,7 @@
 import { turnModuleNavigationRegistry, type TurnModuleNavigationEntry } from './turn-module-navigation.registry';
 import { agmaHistory, type AgmaHistoryRecord } from './agma-history';
 import { manifestDecisionSummary, manifestJournalDecisions, type ManifestJournalDecision } from './turn-manifest-governance';
+import { authenticatedApiFetch } from './authenticated-api';
 
 const journalIds = ['incidents', 'version-journal', 'memory', 'evidence', 'risk-knowledge'] as const;
 
@@ -69,6 +70,18 @@ export function renderTurnJournalsView({ appVersion = 'UNKNOWN' }: { appVersion?
     <div class="turn-journals-warning"><strong>Truth boundary:</strong> Version Journal, Operational Memory and Evidence Ledger are connected to read-only historical projections. They remain <code>IMPLEMENTED_NOT_VALIDATED</code>; a projection is not current runtime validation or Production activation.</div>
     <div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Turn journal status and provenance</caption><thead><tr><th scope="col">Journal</th><th scope="col">Status</th><th scope="col">Environment</th><th scope="col">Owner</th><th scope="col">Canonical source</th><th scope="col">Evidence</th><th scope="col">Last verified</th></tr></thead><tbody>${entries.map(journalRow).join('')}</tbody></table></div>
     <div class="turn-journal-subsections"><section id="turn-operational-memory" aria-labelledby="turn-operational-memory-title"><h3 id="turn-operational-memory-title">Operational Memory / AGMa</h3><p>Proiecția read-only AGMa și reconcilierea Incident Journal rămân separate de verificarea runtime curentă.</p></section><section id="turn-evidence-ledger" aria-labelledby="turn-evidence-ledger-title"><h3 id="turn-evidence-ledger-title">Evidence Ledger</h3><p>Manifesturile și dovezile controlate sunt referențiate; lipsa unei dovezi Production curente rămâne <code>UNKNOWN / NOT REPORTED</code>.</p></section>
+      <section id="turn-governance-risk-knowledge-read-surface" aria-labelledby="turn-journal-risk-knowledge-title" data-governance-read>
+        <h3 id="turn-journal-risk-knowledge-title">Governance V2 · Risk &amp; Knowledge</h3>
+        <p>Citire protejată, fără operații de scriere sau activare. Accesul necesită o identitate umană legată cu rol activ de APPROVER sau VALIDATOR.</p>
+        <div class="turn-governance-read-actions">
+          <button type="button" data-governance-proposals>Încarcă propuneri</button>
+          <label><span>Caută în dovezile Risk &amp; Knowledge</span><input type="search" data-governance-query maxlength="200" /></label>
+          <button type="button" data-governance-risk-search>Caută dovezi canonice</button>
+          <button type="button" data-governance-assessments-search>Caută evaluări</button>
+        </div>
+        <p role="status" aria-live="polite" data-governance-status>Starea API nu a fost verificată în această sesiune.</p>
+        <div class="turn-governance-read-results" data-governance-results></div>
+      </section>
       <section aria-labelledby="turn-version-journal-title"><h3 id="turn-version-journal-title">Version Journal / commituri</h3><div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Snapshot metadata, nu dovadă de deploy</caption><thead><tr><th scope="col">Câmp</th><th scope="col">Valoare</th><th scope="col">Sursă</th><th scope="col">Stare</th></tr></thead><tbody>${metadataRows(versionRows)}</tbody></table></div></section>
       <section aria-labelledby="turn-environment-journal-title"><h3 id="turn-environment-journal-title">Medii și conectivitate</h3><div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Separare între preview, surse externe și producție</caption><thead><tr><th scope="col">Mediu</th><th scope="col">Țintă</th><th scope="col">Dovadă</th><th scope="col">Stare</th></tr></thead><tbody>${metadataRows(environmentSnapshot)}</tbody></table></div></section>
       <section aria-labelledby="turn-canonical-sources-title"><h3 id="turn-canonical-sources-title">Surse canonice</h3><div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Surse locale identificate</caption><thead><tr><th scope="col">Registru</th><th scope="col">Cale</th><th scope="col">Stare</th></tr></thead><tbody>${sourceRows(canonicalSourceSnapshot)}</tbody></table></div></section>
@@ -80,6 +93,7 @@ export function renderTurnJournalsView({ appVersion = 'UNKNOWN' }: { appVersion?
 }
 
 export function bindAgmaHistorySearch() {
+  bindGovernanceReadSurface();
   const input = document.querySelector<HTMLInputElement>('[data-agma-history-search]');
   const list = document.querySelector<HTMLElement>('[data-agma-history-list]');
   const count = document.querySelector<HTMLElement>('[data-agma-result-count]');
@@ -99,4 +113,68 @@ export function bindAgmaHistorySearch() {
   };
   input.addEventListener('input', apply);
   apply();
+}
+
+function bindGovernanceReadSurface() {
+  const root = document.querySelector<HTMLElement>('[data-governance-read]');
+  if (!root || root.dataset.governanceReadBound) return;
+  root.dataset.governanceReadBound = '1';
+  const status = root.querySelector<HTMLElement>('[data-governance-status]')!;
+  const results = root.querySelector<HTMLElement>('[data-governance-results]')!;
+  const query = root.querySelector<HTMLInputElement>('[data-governance-query]')!;
+  const load = async (label: string, path: string) => {
+    status.textContent = `Se citesc ${label} din API-ul Governance V2…`;
+    results.replaceChildren();
+    try {
+      const response = await authenticatedApiFetch(path, { cache: 'no-store', headers: { Accept: 'application/json' } });
+      const payload = await response.json().catch(() => null) as { data?: unknown; code?: string } | null;
+      if (!response.ok) throw new Error(`HTTP ${response.status}${payload?.code ? ` · ${payload.code}` : ''}`);
+      if (!payload || !Object.prototype.hasOwnProperty.call(payload, 'data')) throw new Error('Răspuns API invalid: lipsește câmpul data.');
+      renderGovernanceReadResult(results, label, payload.data);
+      status.textContent = `${label}: citire reușită. Aceasta confirmă numai disponibilitatea citirii, nu activarea Governance sau validarea unui jurnal.`;
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      status.textContent = `${label}: citirea nu a reușit (${detail}). Nicio stare de validare sau activare nu a fost schimbată.`;
+    }
+  };
+  root.querySelector('[data-governance-proposals]')?.addEventListener('click', () => {
+    void load('Propuneri Governance', '/governance-v2/proposals');
+  });
+  root.querySelector('[data-governance-risk-search]')?.addEventListener('click', () => {
+    void load('Dovezi Risk & Knowledge', `/governance-v2/risk-knowledge/search?q=${encodeURIComponent(query.value)}`);
+  });
+  root.querySelector('[data-governance-assessments-search]')?.addEventListener('click', () => {
+    void load('Evaluări Risk & Knowledge', `/governance-v2/risk-knowledge/assessments?q=${encodeURIComponent(query.value)}`);
+  });
+}
+
+function renderGovernanceReadResult(root: HTMLElement, label: string, data: unknown) {
+  const heading = document.createElement('h4');
+  heading.textContent = label;
+  const summary = document.createElement('p');
+  const detail = document.createElement('details');
+  const detailSummary = document.createElement('summary');
+  const pre = document.createElement('pre');
+  detailSummary.textContent = 'Detalii tehnice pentru audit';
+  pre.textContent = JSON.stringify(data, null, 2);
+  detail.append(detailSummary, pre);
+
+  if (Array.isArray(data)) {
+    summary.textContent = `${data.length} înregistrări citite.`;
+  } else if (data && typeof data === 'object') {
+    const record = data as Record<string, unknown>;
+    if (typeof record.total === 'number') {
+      const categories = ['incidents', 'versions', 'snapshots', 'sources', 'cscs', 'pcrs', 'worktrees']
+        .filter((key) => Array.isArray(record[key]))
+        .map((key) => `${key}: ${(record[key] as unknown[]).length}`);
+      summary.textContent = `${record.total} dovezi găsite${categories.length ? ` · ${categories.join(' · ')}` : ''}.`;
+    } else {
+      const verdict = typeof record.verdict === 'string' ? ` · verdict ${record.verdict}` : '';
+      const scope = typeof record.scope === 'string' ? ` · ${record.scope}` : '';
+      summary.textContent = `${Object.keys(record).length} câmpuri returnate${verdict}${scope}.`;
+    }
+  } else {
+    summary.textContent = 'API-ul nu a returnat înregistrări.';
+  }
+  root.replaceChildren(heading, summary, detail);
 }
