@@ -40,6 +40,7 @@ jobs:
             -H 'Content-Type: application/json' \
             --data "$request_body" \
             --output "$response_file" --write-out '%{http_code}')
+          printf 'PROVISION_HTTP_STATUS=%s\n' "$status"
           test "$status" = '201'
           response=$(<"$response_file")
           client_id=$(jq -er '.data.clientId' <<<"$response")
