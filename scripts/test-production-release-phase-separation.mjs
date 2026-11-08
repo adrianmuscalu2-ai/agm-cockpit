@@ -54,6 +54,7 @@ assert.match(certification, /AGM_API_ORIGIN: https:\/\/api\.agmcockpit\.com/);
 assert.match(certification, /publish:operational-linguists-v1:activate/);
 assert.doesNotMatch(certification, /PRODUCTION_TURN_ADMIN_PIN/);
 assert.match(certification, /CERTIFICATION=PASS/);
+assert.match(certification, /name: Persist Production agent runtime evidence\n\s+if: always\(\)/);
 
 assert.match(browser, /needs: \[deployment-health, post-deploy-certification\]/);
 assert.match(browser, /if: \$\{\{ always\(\) && needs\.deployment-health\.result == 'success' \}\}/);
