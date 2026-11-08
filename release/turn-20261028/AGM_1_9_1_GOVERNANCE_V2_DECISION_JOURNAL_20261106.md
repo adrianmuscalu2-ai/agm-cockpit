@@ -40,3 +40,10 @@ Correlates with: `AGM_1_9_1_PRODUCTION_RELEASE_RECORD_20261106.md` (run 42162872
 - Local validation: API build and lint PASS; focused machine-auth, Governance controller, and Governance hardening tests PASS (3 suites / 29 tests); Web build, TURN-journals contract, and AGMaTCC contract PASS; actor-binding script type-check PASS.
 - Production baseline verified separately: Web `pages-386962364706` and API `api-42427563692-1` serve commit `386962364706db560f8d11c9eef57a814bb25136`; release run `42427563692` succeeded and API readiness reported the database available. This evidence is recorded in `RELEASE_MANIFEST.json`.
 - Candidate changes remain local and uncommitted. No candidate deployment, Production actor binding, or Governance activation was performed. The real Production principal IDs and authorized database execution context are not available in this session; Production activation and independent runtime validation remain NOT VERIFIED. RK and Guardian source files remain unchanged.
+
+## Append-only Production execution path — 2026-11-08
+
+- Added a manually dispatched `Production`-environment workflow that checks the requested revision against both the canonical workflow ref and live API build before using the existing Guardian-controlled SSH secret references.
+- The runner discovers exactly one active Atlas machine identity with `acp:read` and the explicitly authorized `governance:propose` scope, then resolves the Commander to the unique active `company_owner` user in that same active company. Missing or ambiguous identities, missing migration, or conflicting append-only records stop the operation.
+- The binding script verifies both principals through the persisted Governance actor resolver after binding. It does not expose credentials, rotate machine credentials, or mark Governance active; its result remains `NOT_ACTIVATED`.
+- Local API type-check and focused Governance/machine-auth tests pass (3 suites / 29 tests). Production workflow dispatch, actor discovery, binding, authenticated HTTP reads, and independent validation remain pending until the candidate is merged and deployed.

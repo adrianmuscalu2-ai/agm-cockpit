@@ -8,9 +8,6 @@ import { GovernanceV2RuntimeService } from '../src/governance-v2/governance-v2.r
 // Repeated runs skip matching records and fail closed on conflicts; no history is rewritten.
 const need = (name: string) => { const value = process.env[name]?.trim(); if (!value) throw new Error(`${name} is required`); return value; };
 const url = need('DATABASE_URL');
-const company = need('GOVERNANCE_COMPANY_ID');
-const atlasMachineId = need('GOVERNANCE_ATLAS_MACHINE_IDENTITY_ID');
-const commanderUserId = need('GOVERNANCE_COMMANDER_USER_ID');
 const DECISION = 'turn-commander-decision-20261106-governance-v2-actors';
 const prisma = new PrismaClient({ datasources: { db: { url } } });
 const runtime = new GovernanceV2RuntimeService(new GovernanceV2Persistence(prisma as never));
@@ -53,30 +50,105 @@ async function ensureBinding(input: {
 }
 
 async function main() {
-  const machine = await prisma.machineIdentity.findFirst({
-    where: { id: atlasMachineId, companyId: company },
-    select: { subject: true, status: true, scopes: true },
-  });
-  if (!machine || machine.subject !== 'atlas-operations' || machine.status !== 'ACTIVE'
-    || !Array.isArray(machine.scopes) || !machine.scopes.includes('governance:propose')) {
+  const migration = await prisma.$queryRaw<Array<{ ready: boolean }>>`
+    SELECT to_regclass('agm_governance.actor_identity_bindings') IS NOT NULL AS ready
+  `;
+  if (!migration[0]?.ready) throw new Error('GOVERNANCE_ACTOR_BINDING_MIGRATION_MISSING');
+
+  const proposerCandidates = (await prisma.machineIdentity.findMany({
+    where: { subject: 'atlas-operations', status: 'ACTIVE' },
+    select: { id: true, companyId: true, scopes: true },
+  })).filter((identity) => Array.isArray(identity.scopes) && identity.scopes.includes('governance:propose'));
+  if (proposerCandidates.length !== 1) {
+    throw new Error(`GOVERNANCE_ATLAS_IDENTITY_NOT_UNIQUE:${proposerCandidates.length}`);
+  }
+  const machine = proposerCandidates[0];
+  const machineScopes = Array.isArray(machine.scopes)
+    ? machine.scopes.filter((scope): scope is string => typeof scope === 'string')
+    : [];
+  if (!machineScopes.includes('acp:read') || !machineScopes.includes('governance:propose')) {
     throw new Error('GOVERNANCE_ATLAS_MACHINE_IDENTITY_INVALID');
   }
-  const commander = await prisma.user.findFirst({
-    where: { id: commanderUserId, companyId: company },
-    select: { id: true, status: true },
+  const company = await prisma.company.findUnique({
+    where: { id: machine.companyId },
+    select: { id: true, isActive: true },
   });
-  if (!commander || commander.status !== 'Active') throw new Error('GOVERNANCE_COMMANDER_USER_INVALID');
+  if (!company?.isActive) throw new Error('GOVERNANCE_COMPANY_INACTIVE');
+
+  const ownerRoles = await prisma.role.findMany({
+    where: { companyId: company.id, code: 'company_owner', isActive: true },
+    select: { id: true },
+  });
+  if (ownerRoles.length !== 1) throw new Error(`GOVERNANCE_COMMANDER_ROLE_NOT_UNIQUE:${ownerRoles.length}`);
+  const commanderAssignments = await prisma.userRole.findMany({
+    where: { companyId: company.id, roleId: ownerRoles[0].id, user: { status: 'Active' } },
+    select: { userId: true },
+  });
+  const commanderUserIds = [...new Set(commanderAssignments.map(({ userId }) => userId))];
+  if (commanderUserIds.length !== 1) {
+    throw new Error(`GOVERNANCE_COMMANDER_IDENTITY_NOT_UNIQUE:${commanderUserIds.length}`);
+  }
+  const commanderUserId = commanderUserIds[0];
+
+  const existingActors = await Promise.all(actors.map((actor) => runtime.readGovernanceActor(actor.id)));
+  const existingBindings = await Promise.all([
+    runtime.readActorIdentityBinding('MACHINE_IDENTITY', machine.id),
+    runtime.readActorIdentityBinding('HUMAN_USER', commanderUserId),
+  ]);
+  if (existingActors.some((actor, index) => actor && !actorMatches(actor, actors[index]))) {
+    throw new Error('GOVERNANCE_ACTOR_CONFLICT');
+  }
+  const expectedBindings = [
+    { actorId: 'atlas-operations', companyId: company.id },
+    { actorId: 'turn-commander-adrian', companyId: company.id },
+  ];
+  if (existingBindings.some((binding, index) => binding && !bindingMatches(binding, expectedBindings[index]))) {
+    throw new Error('GOVERNANCE_IDENTITY_BINDING_CONFLICT');
+  }
 
   const actorResults = [];
   for (const actor of actors) actorResults.push({ actorId: actor.id, result: await ensureActor(actor) });
-  const atlasBinding = await ensureBinding({ actorId: 'atlas-operations', principalType: 'MACHINE_IDENTITY', principalId: atlasMachineId, companyId: company });
-  const commanderBinding = await ensureBinding({ actorId: 'turn-commander-adrian', principalType: 'HUMAN_USER', principalId: commanderUserId, companyId: company });
+  const atlasBinding = await ensureBinding({ actorId: 'atlas-operations', principalType: 'MACHINE_IDENTITY', principalId: machine.id, companyId: company.id });
+  const commanderBinding = await ensureBinding({ actorId: 'turn-commander-adrian', principalType: 'HUMAN_USER', principalId: commanderUserId, companyId: company.id });
+  const resolvedAtlas = await runtime.resolveAuthenticatedActor({
+    type: 'MACHINE_IDENTITY', id: machine.id, companyId: company.id, scopes: machineScopes,
+  }, 'propose');
+  const resolvedCommander = await runtime.resolveAuthenticatedActor({
+    type: 'HUMAN_USER', id: commanderUserId, companyId: company.id,
+  });
+  if (resolvedAtlas !== 'atlas-operations' || resolvedCommander !== 'turn-commander-adrian') {
+    throw new Error('GOVERNANCE_ACTOR_BINDING_VERIFICATION_FAILED');
+  }
   console.log(JSON.stringify({
+    companyId: company.id,
+    principals: { atlasMachineIdentityId: machine.id, turnCommanderUserId: commanderUserId },
     actors: actorResults,
     bindings: { atlas: atlasBinding, turnCommander: commanderBinding },
     governanceStatus: 'NOT_ACTIVATED',
+    authenticatedActorResolution: 'PASS',
     decisionRef: DECISION,
   }));
+}
+
+function actorMatches(existing: unknown, actor: GovernanceActorPrincipal) {
+  const value = existing as {
+    display_name: string; roles: unknown; can_propose: boolean; can_validate: boolean; can_execute: boolean; status: string;
+  };
+  return value.display_name === actor.displayName
+    && Array.isArray(value.roles)
+    && JSON.stringify(value.roles) === JSON.stringify(actor.roles)
+    && value.can_propose === actor.canPropose
+    && value.can_validate === actor.canValidate
+    && value.can_execute === actor.canExecute
+    && value.status === actor.status;
+}
+
+function bindingMatches(existing: unknown, expected: { actorId: string; companyId: string }) {
+  const value = existing as { actor_id: string; company_id: string; status: string; decision_ref: string };
+  return value.actor_id === expected.actorId
+    && value.company_id === expected.companyId
+    && value.status === 'BOUND'
+    && value.decision_ref === DECISION;
 }
 
 main().catch((error: unknown) => {

@@ -1,0 +1,105 @@
+name: AGM Production Governance Actor Binding
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_revision:
+        description: Deployed canonical commit to verify before binding
+        required: true
+        type: string
+      confirm:
+        description: Explicitly authorize the append-only Governance actor binding operation
+        required: true
+        type: choice
+        options:
+          - DO_NOT_RUN
+          - BIND_APPROVED_ACTORS
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agm-production-governance-actor-binding
+  cancel-in-progress: false
+
+jobs:
+  bind-production-actors:
+    if: >-
+      github.ref == 'refs/heads/agm-canonical-20260820' &&
+      inputs.confirm == 'BIND_APPROVED_ACTORS'
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 10
+    steps:
+      - name: Verify the canonical deployed revision and database readiness
+        env:
+          EXPECTED_REVISION: ${{ inputs.expected_revision }}
+        run: |
+          set -euo pipefail
+          test "$EXPECTED_REVISION" = "$GITHUB_SHA"
+          curl --fail --silent --show-error --max-time 15 \
+            https://api.agmcockpit.com/api/v1/health/ready \
+            > "$RUNNER_TEMP/agm-production-readiness.json"
+          jq -e --arg revision "$EXPECTED_REVISION" '
+            .data.status == "ready"
+            and .data.dependencies.database == "available"
+            and .data.build.commit == $revision
+          ' "$RUNNER_TEMP/agm-production-readiness.json" > /dev/null
+          jq -c '.data.build | {appVersion,commit,buildId,builtAt}' "$RUNNER_TEMP/agm-production-readiness.json"
+      - name: Prepare Guardian-authorized SSH transport
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+          PRODUCTION_SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$PRODUCTION_HOST"
+          test -n "$PRODUCTION_USER"
+          test -n "$PRODUCTION_SSH_KEY"
+          ssh_key_file="$RUNNER_TEMP/agm-production-ssh-key"
+          known_hosts_file="$RUNNER_TEMP/agm-production-known-hosts"
+          umask 077
+          printf '%s\n' "$PRODUCTION_SSH_KEY" > "$ssh_key_file"
+          chmod 0600 "$ssh_key_file"
+          ssh-keyscan -T 15 -H "$PRODUCTION_HOST" > "$known_hosts_file"
+          test -s "$known_hosts_file"
+          ssh-keygen -lf "$known_hosts_file"
+          printf 'AGM_SSH_KEY_FILE=%s\nAGM_SSH_KNOWN_HOSTS_FILE=%s\n' "$ssh_key_file" "$known_hosts_file" >> "$GITHUB_ENV"
+      - name: Bind only uniquely verified canonical Production actors
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+          EXPECTED_REVISION: ${{ inputs.expected_revision }}
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          set -euo pipefail
+          test "$CONFIRM" = 'BIND_APPROVED_ACTORS'
+          test -f "$AGM_SSH_KEY_FILE"
+          test -s "$AGM_SSH_KNOWN_HOSTS_FILE"
+          remote="sudo docker exec -w /app agm-production-api"
+          deployed_revision=$(ssh -i "$AGM_SSH_KEY_FILE" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
+            "$PRODUCTION_USER@$PRODUCTION_HOST" \
+            "$remote node -p 'process.env.AGM_BUILD_SHA || \"\"'")
+          test "$deployed_revision" = "$EXPECTED_REVISION"
+          ssh -i "$AGM_SSH_KEY_FILE" \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
+            "$PRODUCTION_USER@$PRODUCTION_HOST" \
+            "$remote node_modules/.bin/ts-node --project apps/api/tsconfig.json apps/api/scripts/activate-governance-v2-actors.ts" \
+            | tee "$RUNNER_TEMP/governance-actor-binding.json"
+          jq -e '
+            .governanceStatus == "NOT_ACTIVATED"
+            and .authenticatedActorResolution == "PASS"
+            and .bindings.atlas != null
+            and .bindings.turnCommander != null
+          ' "$RUNNER_TEMP/governance-actor-binding.json" > /dev/null
+      - name: Preserve metadata-only binding evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-governance-actor-binding-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/governance-actor-binding.json
+          if-no-files-found: warn
+          retention-days: 90
