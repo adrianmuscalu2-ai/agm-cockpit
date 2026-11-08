@@ -1,4 +1,5 @@
 import type { BasicLanguageCode } from '../language-registry';
+import { renderPasswordRecovery } from './password-recovery';
 type AccessLanguage = BasicLanguageCode;
 
 const copy = {
@@ -69,6 +70,7 @@ export function renderPremiumAccessView(language: AccessLanguage, escapeHtml: (v
         <button class="premium-back" type="button" data-access-logout>${escapeHtml(text.logout)}</button>
       </div>
     </form>
+    ${renderPasswordRecovery(language, escapeHtml)}
     <footer class="premium-footer"><p data-access-status aria-live="polite">${escapeHtml(text.status)}</p></footer>
   </section>`;
 }

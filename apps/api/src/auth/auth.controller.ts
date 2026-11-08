@@ -10,11 +10,27 @@ import { CsrfOriginGuard } from './csrf-origin.guard';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Throttle } from '@nestjs/throttler';
+import { ConfirmPasswordRecoveryDto, RequestPasswordRecoveryDto } from './dto/password-recovery.dto';
+import { PasswordRecoveryService } from './password-recovery.service';
 
 const COOKIE = 'agm_refresh';
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(private readonly auth: AuthService, private readonly recovery: PasswordRecoveryService) {}
+  @Post('password-recovery/request') @UseGuards(CsrfOriginGuard)
+  @Throttle({ default: { limit: 5, ttl: 60_000, blockDuration: 60_000 } })
+  async requestPasswordRecovery(@Body() dto: RequestPasswordRecoveryDto, @Res({ passthrough: true }) response: Response) {
+    response.setHeader('Cache-Control', 'no-store');
+    return responseEnvelope(await this.recovery.request(dto.email));
+  }
+  @Post('password-recovery/confirm') @UseGuards(CsrfOriginGuard)
+  @Throttle({ default: { limit: 5, ttl: 60_000, blockDuration: 60_000 } })
+  async confirmPasswordRecovery(@Body() dto: ConfirmPasswordRecoveryDto, @Res({ passthrough: true }) response: Response) {
+    response.setHeader('Cache-Control', 'no-store');
+    const result = await this.recovery.confirm(dto.token, dto.password);
+    response.clearCookie(COOKIE, { path: '/api/v1/auth' });
+    return responseEnvelope(result);
+  }
   @Post('login') @Throttle({ default: { limit: AUTH_CONTRACT.loginThrottle.limit, ttl: AUTH_CONTRACT.loginThrottle.ttlMs, blockDuration: AUTH_CONTRACT.loginThrottle.blockDurationMs } })
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) response: Response) { const result = await this.auth.login(dto.email, dto.password); setCookie(response, result.rawRefreshToken); return responseEnvelope({ accessToken: result.accessToken, user: result.user }); }
   @Post('refresh') @UseGuards(CsrfOriginGuard) async refresh(@Req() request: Request, @Res({ passthrough: true }) response: Response) { const result = await this.auth.refresh(readCookie(request, COOKIE)); setCookie(response, result.rawRefreshToken); return responseEnvelope({ accessToken: result.accessToken, user: result.user }); }

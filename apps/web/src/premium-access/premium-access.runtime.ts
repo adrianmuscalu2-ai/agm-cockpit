@@ -2,6 +2,7 @@ import { createPremiumAccessClient, PremiumAccessClientError } from './premium-a
 import { decidePremiumAccess } from './premium-access.guard';
 import { clearVerifiedPremiumAccess, registerVerifiedPremiumAccess } from './premium-access.navigation';
 import type { BasicLanguageCode } from '../language-registry';
+import { bindPasswordRecovery } from './password-recovery';
 
 const env = (import.meta as ImportMeta & { env?: Record<string, string | boolean | undefined> }).env;
 const configured = typeof env?.VITE_AGM_API_BASE_URL === 'string' ? env.VITE_AGM_API_BASE_URL.trim() : '';
@@ -33,6 +34,7 @@ export function bindPremiumAccessRuntime(language: BasicLanguageCode = 'ro') {
   const text: RuntimeCopy = language in runtimeCopy ? runtimeCopy[language as keyof typeof runtimeCopy] : runtimeCopy.en;
   const root = document.querySelector<HTMLElement>('[data-access-enforcement]');
   if (!root || !apiBaseUrl) return;
+  bindPasswordRecovery(apiBaseUrl, language);
   const client = createPremiumAccessClient({ apiBaseUrl, fetch: window.fetch.bind(window), sessionStorage: window.sessionStorage });
   const form = root.querySelector<HTMLFormElement>('[data-access-login]');
   const logout = root.querySelector<HTMLButtonElement>('[data-access-logout]');

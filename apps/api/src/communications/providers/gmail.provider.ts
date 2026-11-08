@@ -70,7 +70,8 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
     const response = await this.gmail(`/history?startHistoryId=${encodeURIComponent(historyId)}&historyTypes=messageAdded`);
     const history = await response.json() as { history?: Array<{ messagesAdded?: Array<{ message?: { id?: string } }> }> };
     const ids = [...new Set((history.history ?? []).flatMap((item) => item.messagesAdded ?? []).map((item) => item.message?.id).filter((id): id is string => Boolean(id)))];
-    return Promise.all(ids.map(async (id) => this.toInbound(await this.getMessage(id), pushEventId)));
+    const messages = await Promise.all(ids.map(id => this.getMessage(id)));
+    return messages.filter(message => !isAccountRecoveryMessage(message)).map(message => this.toInbound(message, pushEventId));
   }
 
   async readRecent(maxMessages = 100): Promise<InboundCommunication[]> {
@@ -80,7 +81,8 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
     const response = await this.gmail(`/messages?q=${query}&maxResults=${safeLimit}`);
     const list = await response.json() as { messages?: Array<{ id?: string }> };
     const ids = [...new Set((list.messages ?? []).map((item) => item.id).filter((id): id is string => Boolean(id)))];
-    return mapWithConcurrency(ids, 5, async (id) => this.toInbound(await this.getMessage(id), `gmail-sync:${id}`));
+    const messages = await mapWithConcurrency(ids, 5, id => this.getMessage(id));
+    return messages.filter(message => !isAccountRecoveryMessage(message)).map(message => this.toInbound(message, `gmail-sync:${message.id}`));
   }
 
   async searchInbox(query: string, maxMessages = 10): Promise<GmailInboxMessage[]> {
@@ -90,14 +92,15 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
     const response = await this.gmail(`/messages?q=${encodeURIComponent(gmailQuery)}&maxResults=${safeLimit}`);
     const list = await response.json() as { messages?: Array<{ id?: string }> };
     const ids = (list.messages ?? []).map((item) => item.id).filter((id): id is string => Boolean(id));
-    return mapWithConcurrency(ids, 5, async (id) => this.toInboxMessage(await this.getMessage(id)));
+    const messages = await mapWithConcurrency(ids, 5, id => this.getMessage(id));
+    return messages.filter(message => !isAccountRecoveryMessage(message)).map(message => this.toInboxMessage(message));
   }
 
   async readThread(threadId: string): Promise<GmailInboxMessage[]> {
     if (!this.configured()) throw new GmailProviderError('NOT_CONFIGURED');
     const response = await this.gmail(`/threads/${encodeURIComponent(threadId)}?format=full`);
     const value = await response.json() as { messages?: GmailMessage[] };
-    return (value.messages ?? []).map((message) => this.toInboxMessage(message));
+    return (value.messages ?? []).filter(message => !isAccountRecoveryMessage(message)).map((message) => this.toInboxMessage(message));
   }
 
   private async getMessage(id: string) {
@@ -188,6 +191,12 @@ export class GmailCommunicationProvider implements CommunicationProviderPort {
   }
 
   private async trackedFetch(url:string,init:RequestInit){const started=Date.now(),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8_000);this.telemetry.requestCount++;try{const response=await fetch(url,{...init,signal:controller.signal});if(response.status===429)this.telemetry.rateLimitEvents++;if(!response.ok)this.telemetry.errors++;return response;}catch(error){this.telemetry.errors++;if((error as Error).name==='AbortError')this.telemetry.timeouts++;throw error;}finally{this.telemetry.latencyMs+=Date.now()-started;clearTimeout(timer);}}
+}
+
+// Recovery links are mailbox ownership proofs. Never expose them through the
+// operational inbox, assistant retrieval, or persisted communication intake.
+function isAccountRecoveryMessage(message: GmailMessage) {
+  return (message.payload?.headers ?? []).some(header => header.name.toLowerCase() === 'subject' && header.value.startsWith('[AGM ACCOUNT RECOVERY]'));
 }
 
 function plainText(part?: GmailPart): string {

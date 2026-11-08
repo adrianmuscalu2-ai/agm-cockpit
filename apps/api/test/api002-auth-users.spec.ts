@@ -11,7 +11,7 @@ import { UsersService } from '../src/users/users.service';
 describe('API-002 Auth & Users contract', () => {
   const prismaMock = () => {
     const value:any = {
-    user: { update: jest.fn().mockResolvedValue(undefined) },
+    user: { update: jest.fn().mockResolvedValue(undefined), updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
     authSession: {
       create: jest.fn().mockResolvedValue(undefined),
       findUnique: jest.fn(),
@@ -53,6 +53,7 @@ describe('API-002 Auth & Users contract', () => {
       companyId: 'company-1',
       roles: ['OWNER'],
       scope: AUTH_CONTRACT.tokenScope,
+      credentialVersion: 0,
     });
     expect(prisma.authSession.create).toHaveBeenCalledWith({ data: expect.objectContaining({
       companyId: 'company-1', userId: 'user-1', tokenHash: expect.stringMatching(/^[a-f0-9]{64}$/),
@@ -151,7 +152,7 @@ describe('API-002 Auth & Users contract', () => {
         }),
       };
       const response = { cookie: jest.fn() };
-      const controller = new AuthController(auth as never);
+      const controller = new AuthController(auth as never, {} as never);
       const envelope = await controller.login({ email:'owner@agm.test', password:'not-recorded' }, response as never);
       expect(JSON.stringify(envelope)).not.toContain('raw-refresh-secret');
       expect(response.cookie).toHaveBeenCalledWith('agm_refresh', 'raw-refresh-secret', {
@@ -164,7 +165,7 @@ describe('API-002 Auth & Users contract', () => {
   it('revokes and clears logout cookie on the same restricted path', async () => {
     const auth = { logout: jest.fn().mockResolvedValue(undefined) };
     const response = { clearCookie: jest.fn() };
-    const controller = new AuthController(auth as never);
+    const controller = new AuthController(auth as never, {} as never);
     await expect(controller.logout({ headers:{ cookie:'agm_refresh=opaque-value; other=value' } } as never, response as never))
       .resolves.toEqual(expect.objectContaining({ data:{ loggedOut:true } }));
     expect(auth.logout).toHaveBeenCalledWith('opaque-value');

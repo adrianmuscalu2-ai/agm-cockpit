@@ -37,6 +37,12 @@ export class AuthService {
     const nextRawRefreshToken = randomBytes(48).toString('base64url');
     const now = new Date();
     const rotated = await this.prisma.$transaction(async (tx) => {
+      // Serialize session creation with a password reset of this same user.
+      const current = await tx.user.updateMany({
+        where: { id: session.userId, status: AUTH_CONTRACT.activeStatus, credentialVersion: session.user.credentialVersion ?? 0 },
+        data: { credentialVersion: session.user.credentialVersion ?? 0 },
+      });
+      if (current.count !== 1) return false;
       const claimed = await tx.authSession.updateMany({
         where: { id: session.id, tokenHash: hash(rawToken), revokedAt: null, expiresAt: { gt: now } },
         data: { revokedAt: now, replacedAt: now, lastUsedAt: now },
@@ -72,13 +78,20 @@ export class AuthService {
 
   private async issue(user: AuthUser) {
     const rawRefreshToken = randomBytes(48).toString('base64url');
-    await this.prisma.authSession.create({ data: { companyId: user.companyId, userId: user.id, familyId: randomUUID(), generation: 0, tokenHash: hash(rawRefreshToken), expiresAt: new Date(Date.now() + AUTH_CONTRACT.refreshSessionDays * 86400_000) } });
+    await this.prisma.$transaction(async tx => {
+      const current = await tx.user.updateMany({
+        where: { id: user.id, status: AUTH_CONTRACT.activeStatus, credentialVersion: user.credentialVersion ?? 0 },
+        data: { credentialVersion: user.credentialVersion ?? 0 },
+      });
+      if (current.count !== 1) throw new UnauthorizedException('Invalid credentials.');
+      await tx.authSession.create({ data: { companyId: user.companyId, userId: user.id, familyId: randomUUID(), generation: 0, tokenHash: hash(rawRefreshToken), expiresAt: new Date(Date.now() + AUTH_CONTRACT.refreshSessionDays * 86400_000) } });
+    });
     return { ...(await this.accessPayload(user)), rawRefreshToken };
   }
 
   private async accessPayload(user: AuthUser) {
     const roles = user.roles.filter((item) => item.companyId === user.companyId && item.role.companyId === user.companyId && item.role.isActive).map((item) => item.role.code);
-    const accessToken = await this.jwt.signAsync({ sub: user.id, companyId: user.companyId, roles, scope: AUTH_CONTRACT.tokenScope });
+    const accessToken = await this.jwt.signAsync({ sub: user.id, companyId: user.companyId, roles, scope: AUTH_CONTRACT.tokenScope, credentialVersion: user.credentialVersion ?? 0 });
     return { accessToken, user: { id: user.id, companyId: user.companyId, displayName: user.displayName, email: user.email, roles } };
   }
 }

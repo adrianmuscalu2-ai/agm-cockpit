@@ -610,7 +610,7 @@ function render() {
       </section>
       ${renderGlobalCameraOcrDialog()}
       ${state.legalAcceptanceAccepted ? '' : renderLegalAcceptanceNotice()}
-      ${state.legalAcceptanceAccepted && state.tutorialOpen ? renderTutorial() : ''}
+      ${state.legalAcceptanceAccepted && state.tutorialOpen && state.view !== 'access' ? renderTutorial() : ''}
       ${state.legalAcceptanceAccepted && !state.tutorialOpen && state.contextualHint !== null ? renderContextualHint() : ''}
       ${state.legalAcceptanceAccepted && !state.tutorialOpen && state.emailTutorialOpen ? renderEmailTutorialHint() : ''}
       ${state.roadmapInvitationOpen ? renderRoadmapInvitation() : ''}
@@ -6272,6 +6272,7 @@ function navigateToModule(view: ViewName) {
 }
 
 function viewFromCurrentRoute(): ViewName {
+  if (window.location.pathname === '/access' && window.location.hash.startsWith('#password-reset=')) return 'access';
   const hashRoute = window.location.hash.replace(/^#\/?/, '').toLocaleLowerCase();
   const pathRoute = window.location.pathname.replace(/^\/?/, '').toLocaleLowerCase();
   const route = hashRoute && !isTurnSectionFragment(hashRoute) ? hashRoute : pathRoute;
