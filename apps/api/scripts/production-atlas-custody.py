@@ -173,8 +173,16 @@ def run(provision=False):
     require(sorted(issued.get('scope', '').split()) == SCOPES, 'ATLAS_TOKEN_SCOPE_MISMATCH')
     network = api(f'/m2m/authority-control-plane/companies/{COMPANY}/network-registry', bearer=issued['access_token'])
     require(isinstance(network.get('data'), list), 'ATLAS_AUTHORIZED_READ_NOT_PROVEN')
+    try:
+        api('/auth/me', bearer=issued['access_token'])
+    except Failure as error:
+        require(str(error) == 'ATLAS_API_HTTP_401', 'ATLAS_HUMAN_SESSION_ISOLATION_NOT_PROVEN')
+    else:
+        raise Failure('ATLAS_HUMAN_SESSION_ISOLATION_NOT_PROVEN')
     return dict(report, mode='PROVISION_OR_REUSE', created=created, active=True,
                 custody='EXISTING_ROOT_ONLY_PRODUCTION_ENV', authentication='PASS',
+                clientId=bindings[PREFIX + 'CLIENT_ID'], credentialId=bindings[PREFIX + 'CREDENTIAL_ID'],
+                expiresAt=bindings[PREFIX + 'EXPIRES_AT'], humanSessionRejected=True,
                 authorizedScopes=SCOPES, administrativePrivileges=False, governanceBinding='NOT_CLAIMED')
 
 

@@ -73,13 +73,13 @@ class CustodyTests(unittest.TestCase):
     @patch.object(m.os, 'geteuid', return_value=0)
     @patch.object(m, 'read_store', return_value=(b'OTHER=fixture\n', BINDINGS))
     @patch.object(m, 'registry', return_value=OBSERVED)
-    @patch.object(m, 'api', side_effect=[dict(access_token='fixture-token', scope='acp:read governance:propose'), dict(data=[])])
+    @patch.object(m, 'api', side_effect=[dict(access_token='fixture-token', scope='acp:read governance:propose'), dict(data=[]), m.Failure('ATLAS_API_HTTP_401')])
     def test_existing_identity_only_authenticates_no_create_or_rotate(self, api, registry, store, uid):
         with patch.object(m.sys, 'stdin', io.StringIO('fixture.payload.signature')):
             result = m.run(True)
         self.assertFalse(result['created'])
         self.assertEqual([call.args[0] for call in api.call_args_list],
-                         ['/auth/m2m/token', f'/m2m/authority-control-plane/companies/{m.COMPANY}/network-registry'])
+                         ['/auth/m2m/token', f'/m2m/authority-control-plane/companies/{m.COMPANY}/network-registry', '/auth/me'])
         self.assertNotIn(SECRET, str(result))
 
     @patch.object(m.os, 'geteuid', return_value=0)
@@ -107,7 +107,7 @@ class CustodyTests(unittest.TestCase):
     @patch.object(m, 'read_store', side_effect=[(b'OTHER=fixture\n', {}), (b'OTHER=fixture\n', BINDINGS)])
     @patch.object(m, 'registry', side_effect=[dict(OBSERVED, identities=[]), OBSERVED])
     @patch.object(m, 'append_custody')
-    @patch.object(m, 'api', side_effect=[dict(data=DATA), dict(access_token='fixture-token', scope='acp:read governance:propose'), dict(data=[])])
+    @patch.object(m, 'api', side_effect=[dict(data=DATA), dict(access_token='fixture-token', scope='acp:read governance:propose'), dict(data=[]), m.Failure('ATLAS_API_HTTP_401')])
     def test_new_canonical_identity_custodied_then_authenticates(self, api, append, registry, store, uid):
         with patch.object(m.sys, 'stdin', io.StringIO('fixture.payload.signature')):
             result = m.run(True)
