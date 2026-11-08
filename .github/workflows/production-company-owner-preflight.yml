@@ -49,30 +49,38 @@ jobs:
             -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" \
             "$PRODUCTION_USER@$PRODUCTION_HOST" \
             "sudo docker exec -i -w /app -e OWNER_EMAIL=$owner_email_arg agm-production-api node -"
-          const { PrismaClient } = require("@prisma/client");
-          const prisma = new PrismaClient();
-          const companyId = "00000000-0000-0000-0000-000000000001";
-          const email = process.env.OWNER_EMAIL;
-          if (!email) throw new Error("OWNER_EMAIL_MISSING");
-          const users = await prisma.user.findMany({
-            where: { email },
-            select: {
-              status: true,
-              companyId: true,
-              roles: { select: { companyId: true, role: { select: { code: true, isActive: true } } } },
-            },
+          (async () => {
+            const { PrismaClient } = require("@prisma/client");
+            const prisma = new PrismaClient();
+            try {
+              const companyId = "00000000-0000-0000-0000-000000000001";
+              const email = process.env.OWNER_EMAIL;
+              if (!email) throw new Error("OWNER_EMAIL_MISSING");
+              const users = await prisma.user.findMany({
+                where: { email },
+                select: {
+                  status: true,
+                  companyId: true,
+                  roles: { select: { companyId: true, role: { select: { code: true, isActive: true } } } },
+                },
+              });
+              const companyUsers = users.filter((candidate) => candidate.companyId === companyId);
+              if (companyUsers.length > 1) throw new Error("OWNER_IDENTITY_NOT_UNIQUE");
+              const user = companyUsers[0];
+              const ownerRoles = user?.roles.filter((item) => item.companyId === companyId && item.role.code === "company_owner" && item.role.isActive) ?? [];
+              process.stdout.write(JSON.stringify({
+                userExists: Boolean(user),
+                status: user?.status === "Active" ? "Active" : user ? "Inactive" : "Inexistent",
+                companyOwnerRoleExists: ownerRoles.length > 0,
+                companyCorrect: Boolean(user && user.companyId === companyId),
+              }) + "\n");
+            } finally {
+              await prisma.$disconnect();
+            }
+          })().catch((error) => {
+            console.error(error instanceof Error ? error.message : String(error));
+            process.exitCode = 1;
           });
-          const user = users.find((candidate) => candidate.companyId === companyId);
-          const ownerRoles = user?.roles.filter((item) => item.companyId === companyId && item.role.code === "company_owner" && item.role.isActive) ?? [];
-          const result = {
-            userExists: Boolean(user),
-            status: user?.status === "Active" ? "Active" : user ? "Inactive" : "Inexistent",
-            companyOwnerRoleExists: ownerRoles.length > 0,
-            companyCorrect: Boolean(user && user.companyId === companyId),
-          };
-          if (users.filter((candidate) => candidate.companyId === companyId).length > 1) throw new Error("OWNER_IDENTITY_NOT_UNIQUE");
-          process.stdout.write(JSON.stringify(result) + "\n");
-          await prisma.$disconnect();
           NODE
 
       - name: Explicitly confirm no Production mutation
