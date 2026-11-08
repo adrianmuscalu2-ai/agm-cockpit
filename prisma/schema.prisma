@@ -241,6 +241,7 @@ model User {
   displayName          String
   email                String
   passwordHash         String
+  credentialVersion    Int                   @default(0)
   phoneNumber          String?
   status               String                @default("Active")
   personalDataStatus   String                @default("Active")
@@ -252,10 +253,27 @@ model User {
   lastLoginAt          DateTime?
   roles                UserRole[]
   authSessions         AuthSession[]
+  passwordResets       PasswordResetChallenge[]
   preDepartureSessions PreDepartureSession[]
   sharedArchiveRecords AgmSharedArchiveRecord[]
 
   @@unique([companyId, email])
+}
+
+model PasswordResetChallenge {
+  id                String    @id @default(uuid()) @db.Uuid
+  companyId         String    @db.Uuid
+  userId            String    @db.Uuid
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialVersion Int
+  tokenHash         String    @unique @db.VarChar(64)
+  expiresAt         DateTime
+  deliveredAt       DateTime?
+  consumedAt        DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
 }
 
 model AuthSession {

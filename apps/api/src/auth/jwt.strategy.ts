@@ -10,6 +10,7 @@ interface JwtPayload {
   companyId: string;
   roles: string[];
   scope?: string;
+  credentialVersion?: number;
 }
 
 @Injectable()
@@ -32,7 +33,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       !user ||
       user.status !== AUTH_CONTRACT.activeStatus ||
       user.companyId !== payload.companyId ||
-      payload.scope !== AUTH_CONTRACT.tokenScope
+      payload.scope !== AUTH_CONTRACT.tokenScope ||
+      (payload.credentialVersion ?? 0) !== (user.credentialVersion ?? 0)
     ) {
       throw new UnauthorizedException();
     }

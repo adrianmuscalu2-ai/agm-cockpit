@@ -11,11 +11,14 @@ import { CsrfOriginGuard } from './csrf-origin.guard';
 import { RoleProvisioningController } from './role-provisioning.controller';
 import { RoleProvisioningService } from './role-provisioning.service';
 import { AuditModule } from '../audit/audit.module';
+import { CommunicationModule } from '../communications/communication.module';
+import { PasswordRecoveryService } from './password-recovery.service';
 
 @Module({
   imports: [
     UsersModule,
     AuditModule,
+    CommunicationModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -29,7 +32,7 @@ import { AuditModule } from '../audit/audit.module';
     }),
   ],
   controllers: [AuthController, RoleProvisioningController],
-  providers: [AuthService, JwtStrategy, CsrfOriginGuard, RoleProvisioningService],
+  providers: [AuthService, JwtStrategy, CsrfOriginGuard, RoleProvisioningService, PasswordRecoveryService],
   exports: [AuthService],
 })
 export class AuthModule {}
