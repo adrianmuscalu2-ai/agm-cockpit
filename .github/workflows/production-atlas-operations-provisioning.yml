@@ -33,21 +33,25 @@ jobs:
           test -n "$PROVISIONING_TOKEN"
           echo '::add-mask::'"$PROVISIONING_TOKEN"
           request_body=$(jq -nc '{subject:"atlas-operations",expiresInDays:365}')
-          response=$(curl --fail --silent --show-error \
+          response_file="$RUNNER_TEMP/atlas-operations-provision-response.json"
+          status=$(curl --silent --show-error --max-time 20 \
             -X POST https://api.agmcockpit.com/api/v1/auth/machines \
             -H "Authorization: Bearer $PROVISIONING_TOKEN" \
             -H 'Content-Type: application/json' \
-            --data "$request_body")
+            --data "$request_body" \
+            --output "$response_file" --write-out '%{http_code}')
+          test "$status" = '201'
+          response=$(<"$response_file")
           client_id=$(jq -er '.data.clientId' <<<"$response")
           credential_id=$(jq -er '.data.credentialId' <<<"$response")
           company_id=$(jq -er '.data.companyId' <<<"$response")
           client_secret=$(jq -er '.data.clientSecret' <<<"$response")
           echo '::add-mask::'"$client_secret"
           test "$(jq -r '.data.subject' <<<"$response")" = 'atlas-operations'
-          jq -e '.data.scopes | sort == ["acp:read", "governance:propose"] and (.data.expiresAt | type == "string")' <<<"$response" >/dev/null
+          jq -e '(.data.scopes | sort == ["acp:read", "governance:propose"]) and (.data.expiresAt | type == "string")' <<<"$response" >/dev/null
 
           token_body=$(jq -nc --arg id "$client_id" --arg secret "$client_secret" '{grant_type:"client_credentials",client_id:$id,client_secret:$secret}')
-          issued=$(curl --fail --silent --show-error \
+          issued=$(curl --fail --silent --show-error --max-time 20 \
             -X POST https://api.agmcockpit.com/api/v1/auth/m2m/token \
             -H 'Content-Type: application/json' \
             --data "$token_body")
