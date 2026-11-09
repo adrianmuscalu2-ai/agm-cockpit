@@ -783,9 +783,9 @@ jobs:
           printf '%s' "$deployment_token" | ssh -i "$AGM_SSH_KEY_FILE" \
             -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
             -o "UserKnownHostsFile=$AGM_SSH_KNOWN_HOSTS_FILE" "$PRODUCTION_USER@$PRODUCTION_HOST" \
-            'sudo python3 /opt/agm/production/production-atlas-custody.py --provision' \
+            'sudo python3 /opt/agm/production/production-atlas-custody.py --provision --verify-governance' \
             | tee "$RUNNER_TEMP/atlas-operations-custody.json"
-          jq -e '.subject == "atlas-operations" and .active == true and .authentication == "PASS" and .authorizedScopes == ["acp:read","governance:propose"] and .administrativePrivileges == false and .secretsDisplayed == false' \
+          jq -e '.subject == "atlas-operations" and .active == true and .authentication == "PASS" and .authorizedScopes == ["acp:read","governance:propose"] and .administrativePrivileges == false and .secretsDisplayed == false and .governanceBoundary.machineAuthenticationAndProposerBinding == "PASS" and .governanceBoundary.incompleteProposalRejected == true and .governanceBoundary.humanReadRejected == true and .governanceBoundary.proposalCreated == false' \
             "$RUNNER_TEMP/atlas-operations-custody.json" >/dev/null
       - name: Preserve metadata-only permanent Atlas evidence
         if: always()
