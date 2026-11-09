@@ -258,6 +258,46 @@ def verify_governance_boundary(bearer):
             'humanReadRejected': True, 'proposalCreated': False, 'formalActivation': 'NOT_CLAIMED'}
 
 
+def journal_readiness():
+    # Evidence-only companion to the normal browser note. No human token/PIN,
+    # journal text, envelope, or credential leaves the Production host.
+    script = r'''
+const {PrismaClient}=require('@prisma/client');
+const {OperationalEventStoreService}=require('./apps/api/src/operational-event-store/operational-event-store.service');
+const {createHash}=require('node:crypto'); const p=new PrismaClient();
+(async()=>{try{
+const report=await p.$transaction(async tx=>{
+await tx.$executeRawUnsafe('SET TRANSACTION READ ONLY');
+const companyId='00000000-0000-0000-0000-000000000001';
+const revision=process.env.AGM_BUILD_SHA;
+if(!/^[a-f0-9]{40}$/.test(revision||''))throw Error('BUILD_REVISION_MISSING');
+const marker='release '+revision.slice(0,7)+'.';
+const matches=await tx.operationalEvent.findMany({where:{companyId,eventType:'agmatcc.note',payload:{path:['text'],string_contains:marker}},select:{eventId:true,streamRecordId:true},take:2});
+if(matches.length!==1)return {status:'NOT_PROVEN',matchingNotes:matches.length,deployedRevision:revision,sqlDataWrites:false,fullJournalActivation:'NOT_CLAIMED'};
+const stream=await tx.operationalEventStream.findFirst({where:{id:matches[0].streamRecordId,companyId},select:{streamId:true,currentVersion:true}});
+if(!stream||stream.currentVersion<0||stream.currentVersion>=2000)throw Error('JOURNAL_SCOPE_NOT_BOUNDED');
+const result=await new OperationalEventStoreService(tx).read(stream.streamId,-1,{companyId,userId:'read-only-production-inspection',roles:[],requestId:'read-only-journal-evidence',correlationId:'read-only-journal-evidence'});
+let previousHash='GENESIS', previousId=null;
+let valid=result.events.length===result.serverVersion+1, notePresent=false;
+for(const [index,e] of result.events.entries()){
+const b=e.payload||{};
+const hash=createHash('sha256').update(JSON.stringify([index,e.eventId,e.eventType.replace(/^agmatcc\./,''),b.provenance,b.text,b.language,e.occurredAt,e.actor?.id,b.previousLedgerHash])).digest('hex');
+valid=valid&&e.moduleId==='agmatcc'&&e.aggregateVersion===index&&b.previousLedgerHash===previousHash&&b.ledgerHash===hash&&(e.integrity?.previousEventId||null)===previousId;
+previousHash=b.ledgerHash;previousId=e.eventId;
+if(e.eventId===matches[0].eventId)notePresent=true;
+}
+return {scope:'ACTUAL_PRODUCTION_JOURNAL_SERVICE_IN_READ_ONLY_TRANSACTION',status:valid&&notePresent?'PASS':'FAIL',deployedRevision:revision,matchingNotes:matches.length,eventId:matches[0].eventId,streamId:stream.streamId,eventCount:result.events.length,serverVersion:result.serverVersion,completeStreamRead:result.events.length===result.serverVersion+1,ledgerHashesValid:valid,confirmedBrowserNotePersisted:notePresent,contentsDisplayed:false,credentialsDisplayed:false,sqlDataWrites:false,fullJournalActivation:'NOT_CLAIMED'};
+},{timeout:20000});
+process.stdout.write(JSON.stringify(report));
+}finally{await p.$disconnect()}})().catch(()=>{process.stderr.write('JOURNAL_READ_ONLY_PROBE_FAILED');process.exitCode=1});
+'''
+    result = subprocess.run(['docker', 'exec', '-i', '-w', '/app', 'agm-production-api',
+                             'apps/api/node_modules/.bin/ts-node', '--project', 'apps/api/tsconfig.json',
+                             '--transpile-only', '-e', script], capture_output=True, text=True, timeout=60, check=False)
+    require(result.returncode == 0, 'JOURNAL_READ_ONLY_PROBE_FAILED')
+    return json.loads(result.stdout)
+
+
 def run(provision=False, inspect_http=False, verify_governance=False):
     DIAGNOSTIC.clear()
     require(os.geteuid() == 0, 'EXISTING_ROOT_CUSTODY_AUTHORITY_REQUIRED')
@@ -272,7 +312,8 @@ def run(provision=False, inspect_http=False, verify_governance=False):
     DIAGNOSTIC['custodyBindingPresent'] = bool(bindings)
     if not provision:
         return dict(report, mode='READ_ONLY', custodyBindingPresent=bool(bindings),
-                    **({'httpBoundary': inspect_http_boundary(), 'governanceReadiness': governance_readiness()} if inspect_http else {}))
+                    **({'httpBoundary': inspect_http_boundary(), 'governanceReadiness': governance_readiness(),
+                        'journalReadiness': journal_readiness()} if inspect_http else {}))
     oidc = sys.stdin.read(16385).strip()
     require(len(oidc) <= 16384 and re.fullmatch(r'[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', oidc),
             'OFFICIAL_RELEASE_OIDC_REQUIRED')

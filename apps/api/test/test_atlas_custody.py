@@ -2,6 +2,8 @@
 import importlib.util
 import io
 import os
+import json
+import subprocess
 import tempfile
 import unittest
 import urllib.error
@@ -166,6 +168,44 @@ class CustodyTests(unittest.TestCase):
             self.assertNotIn('assessStructuralChange(', script)
             self.assertNotIn('createProposal(', script)
             self.assertIn("formalActivation:'NOT_CLAIMED'", script)
+
+    def test_journal_probe_proves_persisted_note_and_hash_chain_without_exporting_contents(self):
+        with patch.object(m.subprocess, 'run', return_value=SimpleNamespace(returncode=0, stdout='{}')) as transport:
+            m.journal_readiness()
+            script = transport.call_args.args[0][-1]
+        self.assertIn('SET TRANSACTION READ ONLY', script)
+        self.assertIn('new OperationalEventStoreService(tx).read(', script)
+        self.assertNotIn('.sync(', script)
+        self.assertNotIn('.create(', script)
+        self.assertNotIn('.update(', script)
+        runner = r'''
+const vm=require('node:vm');const {createHash}=require('node:crypto');
+const mode=process.argv[1];const revision='a'.repeat(40);
+const body={provenance:'typed',text:'private-fixture release aaaaaaa.',language:'ro-RO',previousLedgerHash:'GENESIS'};
+const event={eventId:'fixture-event',moduleId:'agmatcc',aggregateVersion:0,eventType:'agmatcc.note',occurredAt:'2026-11-09T05:21:27.000Z',actor:{id:'turn-admin-session'},payload:body,integrity:{}};
+body.ledgerHash=createHash('sha256').update(JSON.stringify([0,event.eventId,'note',body.provenance,body.text,body.language,event.occurredAt,event.actor.id,body.previousLedgerHash])).digest('hex');
+if(mode==='corrupt')body.text+='tampered';
+let readOnly=false;
+const tx={$executeRawUnsafe:async sql=>{if(sql!=='SET TRANSACTION READ ONLY')throw Error('WRITE');readOnly=true},operationalEvent:{findMany:async()=>{if(!readOnly)throw Error('READ_ONLY_REQUIRED');return mode==='duplicate'?[{},{}]:[{eventId:'fixture-event',streamRecordId:'fixture-record'}]}},operationalEventStream:{findFirst:async()=>({streamId:'fixture-stream',currentVersion:0})}};
+class PrismaClient{async $transaction(callback){return callback(tx)}async $disconnect(){}}
+class OperationalEventStoreService{constructor(actual){if(actual!==tx)throw Error('UNPINNED')}async read(){return {events:[event],serverVersion:0}}}
+vm.runInNewContext(SCRIPT,{require:name=>name==='@prisma/client'?{PrismaClient}:name==='node:crypto'?{createHash}:{OperationalEventStoreService},process:{env:{AGM_BUILD_SHA:revision},stdout:process.stdout,stderr:process.stderr,exitCode:0}});
+'''
+        # Only synthetic fixtures; no application URL, credentials or database.
+        for mode, expected in [('valid', 'PASS'), ('corrupt', 'FAIL'), ('duplicate', 'NOT_PROVEN')]:
+            with self.subTest(mode=mode):
+                execution = subprocess.run(['node', '-e', 'const SCRIPT=' + json.dumps(script) + ';' + runner, mode],
+                                           capture_output=True, text=True, timeout=10, check=True)
+                report = json.loads(execution.stdout)
+                self.assertEqual(report['status'], expected)
+                self.assertFalse(report['sqlDataWrites'])
+                self.assertNotIn('private-fixture', execution.stdout)
+                self.assertEqual(report['fullJournalActivation'], 'NOT_CLAIMED')
+
+    def test_journal_probe_fails_closed_without_exporting_remote_diagnostics(self):
+        with patch.object(m.subprocess, 'run', return_value=SimpleNamespace(returncode=1, stdout='sensitive-fixture')):
+            with self.assertRaisesRegex(m.Failure, '^JOURNAL_READ_ONLY_PROBE_FAILED$'):
+                m.journal_readiness()
 
     def test_http_failure_reports_boundary_not_provider_body_or_credentials(self):
         raw = 'synthetic-private-response-value'
