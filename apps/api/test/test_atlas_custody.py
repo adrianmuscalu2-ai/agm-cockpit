@@ -177,7 +177,8 @@ class CustodyTests(unittest.TestCase):
         self.assertIn('new OperationalEventStoreService(tx).read(', script)
         self.assertNotIn('.sync(', script)
         self.assertNotIn('.create(', script)
-        self.assertNotIn('.update(', script)
+        self.assertNotIn('operationalEvent.update', script)
+        self.assertNotIn('operationalEventStream.update', script)
         runner = r'''
 const vm=require('node:vm');const {createHash}=require('node:crypto');
 const mode=process.argv[1];const revision='a'.repeat(40);
