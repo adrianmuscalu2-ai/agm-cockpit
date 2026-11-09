@@ -1,0 +1,62 @@
+name: AGM Governance Regression Validation
+on:
+  pull_request:
+    paths:
+      - apps/api/src/governance-v2/**
+      - apps/api/test/*governance*
+      - apps/api/scripts/*governance*
+      - .github/workflows/governance-regression-validation.yml
+permissions:
+  contents: read
+jobs:
+  governance-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: agm_governance_test
+          POSTGRES_PASSWORD: governance-test-only
+          POSTGRES_DB: agm_governance_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://agm_governance_test:governance-test-only@127.0.0.1:5432/agm_governance_test?connection_limit=4
+      AGM_GOVERNANCE_TEST_DATABASE_URL: postgresql://agm_governance_test:governance-test-only@127.0.0.1:5432/agm_governance_test?connection_limit=4
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+      - run: pnpm --filter @agm/shared build
+      - run: pnpm --filter @agm/library-control-plane build
+      - run: pnpm --filter @agm/copilot-control-plane build
+      - run: pnpm --filter @agm/api exec tsc --noEmit
+      - run: pnpm --filter @agm/api exec eslint src/governance-v2
+      - run: pnpm --filter @agm/api exec jest --runInBand test/governance-v2-persistence-regression.spec.ts test/governance-v2-hardening.spec.ts test/governance-v2.controller.spec.ts test/commander-binding-authority.spec.ts
+      - name: Verify real pooled transactions, rollback, roles and full dependency closure
+        run: |
+          set -euo pipefail
+          pnpm --filter @agm/api exec ts-node scripts/test-governance-regression-db.ts | tee governance-regression-db.json
+      - name: Preserve existing decision and authenticated identity binding regressions
+        run: |
+          set -euo pipefail
+          pnpm --filter @agm/api exec ts-node scripts/test-governance-decision-db.ts
+          pnpm --filter @agm/api exec ts-node scripts/test-governance-identity-binding-db.ts
+      - name: Preserve disposable-only verification metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-regression-${{ github.run_id }}
+          path: governance-regression-db.json
+          if-no-files-found: warn

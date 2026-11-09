@@ -134,6 +134,27 @@ class CustodyTests(unittest.TestCase):
     def test_redirects_do_not_forward_authorization(self):
         self.assertIsNone(m.NoRedirect().redirect_request(None, None, 302, '', {}, 'https://other.invalid'))
 
+    def test_governance_check_uses_only_an_incomplete_non_persistable_proposal_and_rejects_human_read(self):
+        with patch.object(m, 'api', side_effect=[{'code': 'PROPOSAL_CONTRACT_INCOMPLETE'}, m.Failure('ATLAS_API_HTTP_401')]) as api:
+            result = m.verify_governance_boundary('synthetic-bearer')
+        self.assertEqual(api.call_args_list[0].args, ('/governance-v2/proposals', {}, 'synthetic-bearer', 400))
+        self.assertEqual(api.call_args_list[1].args, ('/governance-v2/proposals',))
+        self.assertEqual(api.call_args_list[1].kwargs, {'bearer': 'synthetic-bearer'})
+        self.assertFalse(result['proposalCreated'])
+        self.assertEqual(result['formalActivation'], 'NOT_CLAIMED')
+        self.assertNotIn('synthetic-bearer', str(result))
+
+    def test_governance_check_fails_closed_if_a_machine_can_read_human_governance(self):
+        with patch.object(m, 'api', side_effect=[{'code': 'PROPOSAL_CONTRACT_INCOMPLETE'}, {'data': []}]):
+            with self.assertRaisesRegex(m.Failure, 'HUMAN_BOUNDARY_NOT_PROVEN'):
+                m.verify_governance_boundary('synthetic-bearer')
+
+    def test_governance_check_does_not_treat_an_unrelated_bad_request_as_binding_proof(self):
+        with patch.object(m, 'api', return_value={'code': 'SOMETHING_ELSE'}) as api:
+            with self.assertRaisesRegex(m.Failure, 'BINDING_NOT_PROVEN'):
+                m.verify_governance_boundary('synthetic-bearer')
+        api.assert_called_once()
+
     def test_governance_probe_uses_deployed_implementation_and_enforced_read_only_transaction(self):
         result = SimpleNamespace(returncode=0, stdout='{"scope":"READ_ONLY_FIXTURE"}')
         with patch.object(m.subprocess, 'run', return_value=result) as transport:

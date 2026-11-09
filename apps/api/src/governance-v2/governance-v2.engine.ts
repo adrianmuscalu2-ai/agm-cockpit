@@ -62,7 +62,7 @@ export class GovernanceV2Engine {
 
   impactedComponents(component: string) {
     const result = new Set<string>([component]); const queue = [component];
-    while (queue.length) { const current = queue.shift()!; for (const edge of this.edges.values()) if (edge.sourceComponent === current && edge.validationRequired && !result.has(edge.targetComponent)) { result.add(edge.targetComponent); queue.push(edge.targetComponent); } }
+    while (queue.length) { const current = queue.shift()!; for (const edge of this.edges.values()) if (edge.sourceComponent === current && edge.validationRequired && !edge.supersededAt && !result.has(edge.targetComponent)) { result.add(edge.targetComponent); queue.push(edge.targetComponent); } }
     return [...result];
   }
 
@@ -86,7 +86,8 @@ export class GovernanceV2Engine {
 
   approvePcr(id: string, actor: GovernanceActor) {
     const pcr = this.requirePcr(id); this.requireRole(actor, 'APPROVER'); this.requireDifferent(pcr.proposerId, actor.id, 'APPROVER_CANNOT_BE_PROPOSER');
-    const required = this.impactedComponents(pcr.affectedComponents[0] ?? ''); const missing = required.filter((component) => pcr.dependencyChecks[component] === undefined);
+    if (!pcr.affectedComponents.length || pcr.affectedComponents.some((component) => !component.trim())) throw new GovernanceViolation('DEPENDENCY_COMPONENTS_INCOMPLETE');
+    const required = [...new Set(pcr.affectedComponents.flatMap((component) => this.impactedComponents(component)))]; const missing = required.filter((component) => pcr.dependencyChecks[component] === undefined);
     const bad = required.filter((component) => ['FAIL', 'UNKNOWN'].includes(pcr.dependencyChecks[component] ?? 'UNKNOWN'));
     if (missing.length || bad.length) throw new GovernanceViolation('REGRESSION_CASCADE_BLOCKED');
     pcr.approvalStatus = 'APPROVED'; pcr.approverId = actor.id; pcr.status = 'APPROVED'; this.appendEvent('APPROVED', 'ProductionChangeRecord', id, actor.id, [id]); return pcr;

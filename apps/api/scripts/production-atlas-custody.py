@@ -139,6 +139,7 @@ def append_custody(data, previous, store=STORE):
 def api(path, body=None, bearer=None, expected=200):
     DIAGNOSTIC['operation'] = ('HUMAN_SESSION_NEGATIVE_CHECK' if path == '/auth/me' else
                                'MACHINE_TOKEN_ISSUE' if path == '/auth/m2m/token' else
+                               'GOVERNANCE_HTTP_BOUNDARY' if path.startswith('/governance-v2/') else
                                'AUTHORIZED_REGISTRY_READ' if path.startswith('/m2m/') else
                                'CREDENTIAL_REVOCATION' if path.endswith('/revoke') else 'MACHINE_PROVISION')
     headers = {'Content-Type': 'application/json', 'Accept': 'application/json', 'Cache-Control': 'no-store'}
@@ -242,7 +243,22 @@ process.stdout.write(JSON.stringify(report));
     return json.loads(result.stdout)
 
 
-def run(provision=False, inspect_http=False):
+def verify_governance_boundary(bearer):
+    # Only the existing Atlas token/scopes. An empty proposal has no mandatory
+    # ID/title/candidate, so it cannot persist even if validation regresses.
+    rejected = api('/governance-v2/proposals', {}, bearer, 400)
+    require('PROPOSAL_CONTRACT_INCOMPLETE' in json.dumps(rejected), 'ATLAS_GOVERNANCE_BINDING_NOT_PROVEN')
+    try:
+        api('/governance-v2/proposals', bearer=bearer)
+    except Failure as error:
+        require(str(error) == 'ATLAS_API_HTTP_401', 'ATLAS_GOVERNANCE_HUMAN_BOUNDARY_NOT_PROVEN')
+    else:
+        raise Failure('ATLAS_GOVERNANCE_HUMAN_BOUNDARY_NOT_PROVEN')
+    return {'machineAuthenticationAndProposerBinding': 'PASS', 'incompleteProposalRejected': True,
+            'humanReadRejected': True, 'proposalCreated': False, 'formalActivation': 'NOT_CLAIMED'}
+
+
+def run(provision=False, inspect_http=False, verify_governance=False):
     DIAGNOSTIC.clear()
     require(os.geteuid() == 0, 'EXISTING_ROOT_CUSTODY_AUTHORITY_REQUIRED')
     original, bindings = read_store()
@@ -294,13 +310,14 @@ def run(provision=False, inspect_http=False):
                 custody='EXISTING_ROOT_ONLY_PRODUCTION_ENV', authentication='PASS',
                 clientId=bindings[PREFIX + 'CLIENT_ID'], credentialId=bindings[PREFIX + 'CREDENTIAL_ID'],
                 expiresAt=bindings[PREFIX + 'EXPIRES_AT'], humanSessionRejected=True,
-                authorizedScopes=SCOPES, administrativePrivileges=False, governanceBinding='NOT_CLAIMED')
+                authorizedScopes=SCOPES, administrativePrivileges=False, governanceBinding='NOT_CLAIMED',
+                **({'governanceBoundary': verify_governance_boundary(issued['access_token'])} if verify_governance else {}))
 
 
 if __name__ == '__main__':
     try:
-        require(sys.argv[1:] in ([], ['--provision'], ['--inspect-http']), 'INVALID_OPERATION')
-        print(json.dumps(run(sys.argv[1:] == ['--provision'], sys.argv[1:] == ['--inspect-http'])))
+        require(sys.argv[1:] in ([], ['--provision'], ['--inspect-http'], ['--provision', '--verify-governance']), 'INVALID_OPERATION')
+        print(json.dumps(run('--provision' in sys.argv[1:], sys.argv[1:] == ['--inspect-http'], '--verify-governance' in sys.argv[1:])))
     except Exception as error:
         reason = str(error) if isinstance(error, Failure) else type(error).__name__
         print(json.dumps(dict(DIAGNOSTIC, atlas='FAIL', reason=reason, secretsDisplayed=False)))

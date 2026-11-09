@@ -13,7 +13,7 @@ export class GovernanceV2RuntimeService {
 
   readCanonicalSource(factKey: string) { return this.persistence.activeSource(factKey); }
   listCanonicalSources(factKey?: string) { return this.persistence.listCanonicalSources(factKey); }
-  createCanonicalSource(input: Omit<CanonicalSourceRecord, 'createdAt' | 'updatedAt' | 'status'> & { status?: CanonicalSourceRecord['status'] }) { return this.transaction((p) => p.createCanonicalSource(input)); }
+  createCanonicalSource(input: Omit<CanonicalSourceRecord, 'createdAt' | 'updatedAt' | 'status'> & { status?: CanonicalSourceRecord['status'] }, actorId: string) { return this.transaction((p) => p.createCanonicalSource(input, actorId)); }
   requestCanonicalSourceChange(input: Omit<CanonicalSourceChange, 'status' | 'approvalStatus' | 'validationEvidence'>) { return this.transaction((p) => p.requestCanonicalSourceChange(input)); }
   transitionCanonicalSourceChange(id: string, transition: 'IMPACT_ASSESSED' | 'APPROVED' | 'VALIDATED' | 'ACTIVATED', actorId: string, evidence: string[] = [], version?: string) { return this.transaction((p) => p.transitionCsc(id, transition, actorId, evidence, version)); }
   readCanonicalSourceChange(id: string) { return this.persistence.readCsc(id); }
@@ -36,21 +36,21 @@ export class GovernanceV2RuntimeService {
   searchRecoveryEvidence(query: string) { return this.persistence.searchRecoveryEvidence(query); }
   listGovernanceEvents(entityId?: string) { return this.persistence.listGovernanceEvents(entityId); }
   reconcileHistoricalRecoveryEvidence(input: RecoveryEvidenceRecord, importerId: string, historicalExecutionAt: string) { return this.transaction((p) => p.reconcileHistoricalRecoveryEvidence(input, importerId, historicalExecutionAt)); }
-  addDependencyEdge(edge: GovernanceDependencyEdge) { return this.transaction((p) => p.addDependencyEdge(edge)); }
+  addDependencyEdge(edge: GovernanceDependencyEdge, actorId: string) { return this.transaction((p) => p.addDependencyEdge(edge, actorId)); }
   createProductionChange(input: Omit<ProductionChangeRecord, 'status' | 'approvalStatus' | 'dependencyChecks'>) { return this.transaction((p) => p.createProductionChange(input)); }
   readPcr(id: string) { return this.persistence.readPcr(id); }
   assessProductionChange(id: string, actorId: string) { return this.transaction((p) => p.assessProductionChange(id, actorId)); }
-  recordDependencyResult(id: string, component: string, result: string) { return this.transaction((p) => p.recordDependencyResult(id, component, result)); }
-  recordDependencyGraphStatus(id: string, status: 'COMPLETE' | 'INCOMPLETE' | 'UNKNOWN', evidenceRef: string) { return this.transaction((p) => p.recordDependencyGraphStatus(id, status, evidenceRef)); }
-  recordAcceptedDegradation(id: string, component: string, humanApprovalId: string, rationale: string, evidenceRef: string, expiry?: string) { return this.transaction((p) => p.recordAcceptedDegradation(id, component, humanApprovalId, rationale, evidenceRef, expiry)); }
+  recordDependencyResult(id: string, component: string, result: string, actorId: string) { return this.transaction((p) => p.recordDependencyResult(id, component, result, actorId)); }
+  recordDependencyGraphStatus(id: string, status: 'COMPLETE' | 'INCOMPLETE' | 'UNKNOWN', evidenceRef: string, actorId: string) { return this.transaction((p) => p.recordDependencyGraphStatus(id, status, evidenceRef, actorId)); }
+  recordAcceptedDegradation(id: string, component: string, humanApprovalId: string, rationale: string, evidenceRef: string, actorId: string, expiry?: string) { return this.transaction((p) => p.recordAcceptedDegradation(id, component, humanApprovalId, rationale, evidenceRef, actorId, expiry)); }
   approveProductionChange(id: string, actorId: string) { return this.transaction((p) => p.approveProductionChange(id, actorId)); }
   evaluateProductionReleaseGate(id: string, actorId: string, binding?: { candidateRef: string; versionId: string; revision: string; artifactDigest?: string }) { return this.transaction((p) => p.evaluateProductionReleaseGate(id, actorId, binding)); }
-  recordProductionExecution(id: string, actorId: string, revision: string) { return this.transaction((p) => p.recordProductionExecution(id, actorId, revision)); }
+  recordProductionExecution(id: string, actorId: string, revision: string, binding?: { candidateRef: string; versionId: string; artifactDigest?: string }) { return this.transaction((p) => p.recordProductionExecution(id, actorId, revision, binding)); }
   validateProductionChange(id: string, actorId: string, evidence: string[], verdict: 'PASS' | 'FAIL') { return this.transaction((p) => p.validateProductionChange(id, actorId, evidence, verdict)); }
-  createVersion(version: VersionRecord) { return this.transaction((p) => p.createVersion(version)); }
+  createVersion(version: VersionRecord, actorId: string) { return this.transaction((p) => p.createVersion(version, actorId)); }
   readVersion(id: string) { return this.persistence.readVersion(id); }
-  promoteVersion(id: string, target: VersionRecord['status']) { return this.transaction((p) => p.promoteVersion(id, target)); }
-  createSnapshot(snapshot: SnapshotRecord) { return this.transaction((p) => p.createSnapshot(snapshot)); }
+  promoteVersion(id: string, target: VersionRecord['status'], actorId: string) { return this.transaction((p) => p.promoteVersion(id, target, actorId)); }
+  createSnapshot(snapshot: SnapshotRecord, actorId: string) { return this.transaction((p) => p.createSnapshot(snapshot, actorId)); }
   readSnapshot(id: string) { return this.persistence.readSnapshot(id); }
   createIncident(incident: IncidentRecord) { return this.transaction((p) => p.createIncident(incident)); }
   createBreakGlassAuthorization(input: import('./governance-v2.contract').BreakGlassAuthorization) { return this.transaction((p) => p.createBreakGlassAuthorization(input)); }
