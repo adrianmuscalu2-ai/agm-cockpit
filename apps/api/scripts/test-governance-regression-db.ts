@@ -28,7 +28,7 @@ async function main() {
       execFileSync('docker', ['run', '--pull=never', '--rm', '-d', '--name', container, '-e', 'POSTGRES_PASSWORD', '-e', 'POSTGRES_USER=agm_governance_test', '-e', 'POSTGRES_DB=agm_governance_test', '-p', '127.0.0.1::5432', 'postgres:16-alpine'], { env: { ...process.env, POSTGRES_PASSWORD: password }, stdio: 'pipe', timeout: 90000 });
       let ready = false;
       for (let attempt = 0; attempt < 40; attempt++) {
-        try { execFileSync('docker', ['exec', container, 'pg_isready', '-U', 'agm_governance_test'], { stdio: 'pipe', timeout: 3000 }); ready = true; break; }
+        try { execFileSync('docker', ['exec', container, 'pg_isready', '-h', '127.0.0.1', '-U', 'agm_governance_test'], { stdio: 'pipe', timeout: 5000 }); ready = true; break; }
         catch { await new Promise(resolve => setTimeout(resolve, 500)); }
       }
       assert.ok(ready, 'DISPOSABLE_DATABASE_NOT_READY');
@@ -148,9 +148,9 @@ async function main() {
     await assert.rejects(() => db.$executeRawUnsafe(`UPDATE agm_governance.proposals SET status='REJECTED' WHERE proposal_id='concurrent-0'`), /GOVERNANCE_STRUCTURAL_WRITE_BOUNDARY/);
     console.log(JSON.stringify({ status: 'PASS', environment: 'DISPOSABLE_ONLY', connectionLimit: 4, distinctConnections: new Set(connectionIds).size, concurrentProposals: 12, rollbackAfterAuditFailure: 'PASS', nestedTransactionLedger: 'PASS', fullDependencyClosure: gate.impactedComponents, roleNegativeControls: 'PASS', unchangedRiskKnowledgeWrite: 'PASS', appendOnlyLedger: 'PASS', productionMutation: false }));
   } catch (error) {
-    const transport = error as { code?: string; status?: number; signal?: string; stderr?: Buffer };
-    const safeTransportDetail = stage === 'CREATE_DISPOSABLE_DATABASE'
-      ? transport.stderr?.toString().replaceAll(password, '[REDACTED]').slice(0, 1200) : undefined;
+    const transport = error as { code?: string; status?: number; signal?: string; stderr?: Buffer; stdout?: Buffer };
+    const safeTransportDetail = ['CREATE_DISPOSABLE_DATABASE', 'MIGRATE_DISPOSABLE_DATABASE'].includes(stage)
+      ? [transport.stderr, transport.stdout].filter(Boolean).map(value => value!.toString()).join('\n').replaceAll(password, '[REDACTED]').replace(/postgres(?:ql)?:\/\/[^\s"']+/g, '[DISPOSABLE_DATABASE_URL]').slice(-2000) : undefined;
     console.error(JSON.stringify({ status: 'FAIL', stage, error: error instanceof Error ? error.name : 'UnknownError', code: transport.code, exitStatus: transport.status, signal: transport.signal, transportDetail: safeTransportDetail, detail: error instanceof assert.AssertionError ? error.message : undefined }));
     process.exitCode = 1;
   } finally {
