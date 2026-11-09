@@ -272,13 +272,13 @@ const companyId='00000000-0000-0000-0000-000000000001';
 const revision=process.env.AGM_BUILD_SHA;
 if(!/^[a-f0-9]{40}$/.test(revision||''))throw Error('BUILD_REVISION_MISSING');
 const marker='release '+revision.slice(0,7)+'.';
-const matches=await tx.operationalEvent.findMany({where:{companyId,eventType:'agmatcc.note',payload:{path:['text'],string_contains:marker}},select:{eventId:true,streamRecordId:true},take:2});
+const matches=await tx.operationalEvent.findMany({where:{companyId,eventType:'agmatcc.note',payload:{path:['text'],string_contains:marker}},select:{eventId:true,streamRecordId:true,recordedAt:true},take:2});
 if(matches.length!==1)return {status:'NOT_PROVEN',matchingNotes:matches.length,deployedRevision:revision,sqlDataWrites:false,fullJournalActivation:'NOT_CLAIMED'};
 const stream=await tx.operationalEventStream.findFirst({where:{id:matches[0].streamRecordId,companyId},select:{streamId:true,currentVersion:true}});
 if(!stream||stream.currentVersion<0||stream.currentVersion>=2000)throw Error('JOURNAL_SCOPE_NOT_BOUNDED');
 const result=await new OperationalEventStoreService(tx).read(stream.streamId,-1,{companyId,userId:'read-only-production-inspection',roles:[],requestId:'read-only-journal-evidence',correlationId:'read-only-journal-evidence'});
 let previousHash='GENESIS', previousId=null;
-let valid=result.events.length===result.serverVersion+1, notePresent=false;
+let valid=result.events.length<=2000&&result.serverVersion===stream.currentVersion&&result.events.length===result.serverVersion+1, notePresent=false;
 for(const [index,e] of result.events.entries()){
 const b=e.payload||{};
 const hash=createHash('sha256').update(JSON.stringify([index,e.eventId,e.eventType.replace(/^agmatcc\./,''),b.provenance,b.text,b.language,e.occurredAt,e.actor?.id,b.previousLedgerHash])).digest('hex');
@@ -286,8 +286,8 @@ valid=valid&&e.moduleId==='agmatcc'&&e.aggregateVersion===index&&b.previousLedge
 previousHash=b.ledgerHash;previousId=e.eventId;
 if(e.eventId===matches[0].eventId)notePresent=true;
 }
-return {scope:'ACTUAL_PRODUCTION_JOURNAL_SERVICE_IN_READ_ONLY_TRANSACTION',status:valid&&notePresent?'PASS':'FAIL',deployedRevision:revision,matchingNotes:matches.length,eventId:matches[0].eventId,streamId:stream.streamId,eventCount:result.events.length,serverVersion:result.serverVersion,completeStreamRead:result.events.length===result.serverVersion+1,ledgerHashesValid:valid,confirmedBrowserNotePersisted:notePresent,contentsDisplayed:false,credentialsDisplayed:false,sqlDataWrites:false,fullJournalActivation:'NOT_CLAIMED'};
-},{timeout:20000});
+return {scope:'ACTUAL_PRODUCTION_JOURNAL_SERVICE_IN_READ_ONLY_TRANSACTION',status:valid&&notePresent?'PASS':'FAIL',deployedRevision:revision,matchingNotes:matches.length,eventId:matches[0].eventId,noteRecordedAt:matches[0].recordedAt,streamId:stream.streamId,eventCount:result.events.length,serverVersion:result.serverVersion,completeStreamRead:result.events.length===result.serverVersion+1,ledgerHashesValid:valid,uniqueReleaseMarkerNotePersisted:notePresent,browserRequestCorrelation:'NOT_CLAIMED_BY_DATABASE_PROBE',contentsDisplayed:false,credentialsDisplayed:false,sqlDataWrites:false,fullJournalActivation:'NOT_CLAIMED'};
+},{timeout:20000,isolationLevel:'RepeatableRead'});
 process.stdout.write(JSON.stringify(report));
 }finally{await p.$disconnect()}})().catch(()=>{process.stderr.write('JOURNAL_READ_ONLY_PROBE_FAILED');process.exitCode=1});
 '''

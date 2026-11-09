@@ -175,6 +175,7 @@ class CustodyTests(unittest.TestCase):
             script = transport.call_args.args[0][-1]
         self.assertIn('SET TRANSACTION READ ONLY', script)
         self.assertIn('new OperationalEventStoreService(tx).read(', script)
+        self.assertIn("isolationLevel:'RepeatableRead'", script)
         self.assertNotIn('.sync(', script)
         self.assertNotIn('.create(', script)
         self.assertNotIn('operationalEvent.update', script)
@@ -189,11 +190,11 @@ if(mode==='corrupt')body.text+='tampered';
 let readOnly=false;
 const tx={$executeRawUnsafe:async sql=>{if(sql!=='SET TRANSACTION READ ONLY')throw Error('WRITE');readOnly=true},operationalEvent:{findMany:async()=>{if(!readOnly)throw Error('READ_ONLY_REQUIRED');return mode==='duplicate'?[{},{}]:[{eventId:'fixture-event',streamRecordId:'fixture-record'}]}},operationalEventStream:{findFirst:async()=>({streamId:'fixture-stream',currentVersion:0})}};
 class PrismaClient{async $transaction(callback){return callback(tx)}async $disconnect(){}}
-class OperationalEventStoreService{constructor(actual){if(actual!==tx)throw Error('UNPINNED')}async read(){return {events:[event],serverVersion:0}}}
+class OperationalEventStoreService{constructor(actual){if(actual!==tx)throw Error('UNPINNED')}async read(){return {events:[event],serverVersion:mode==='version-mismatch'?1:0}}}
 vm.runInNewContext(SCRIPT,{require:name=>name==='@prisma/client'?{PrismaClient}:name==='node:crypto'?{createHash}:{OperationalEventStoreService},process:{env:{AGM_BUILD_SHA:revision},stdout:process.stdout,stderr:process.stderr,exitCode:0}});
 '''
         # Only synthetic fixtures; no application URL, credentials or database.
-        for mode, expected in [('valid', 'PASS'), ('corrupt', 'FAIL'), ('duplicate', 'NOT_PROVEN')]:
+        for mode, expected in [('valid', 'PASS'), ('corrupt', 'FAIL'), ('duplicate', 'NOT_PROVEN'), ('version-mismatch', 'FAIL')]:
             with self.subTest(mode=mode):
                 execution = subprocess.run(['node', '-e', 'const SCRIPT=' + json.dumps(script) + ';' + runner, mode],
                                            capture_output=True, text=True, timeout=10, check=True)
