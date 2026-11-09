@@ -1,21 +1,37 @@
 import { createHash } from 'node:crypto';
 import { randomUUID } from 'node:crypto';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import type { BreakGlassAuthorization, CanonicalSourceChange, CanonicalSourceRecord, GovernanceDependencyEdge, GovernanceActorPrincipal, GovernanceProposal, IncidentRecord, ProductionChangeRecord, RecoveryEvidenceRecord, RiskKnowledgeAssessment, SnapshotRecord, VersionRecord } from './governance-v2.contract';
 import { MACHINE_CANDIDATE_BINDING } from './governance-v2.contract';
 
 type SqlClient = { $queryRawUnsafe<T = unknown>(query: string, ...values: unknown[]): Promise<T[]>; $executeRawUnsafe(query: string, ...values: unknown[]): Promise<number> };
+type TransactionHost = SqlClient & { $transaction?: <T>(work: (db: SqlClient) => Promise<T>, options?: { maxWait: number; timeout: number }) => Promise<T> };
 const table = 'agm_governance';
 const digest = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const stamp = () => new Date().toISOString();
 
-/** Minimal persistence boundary for Governance V2. The caller owns the transaction. */
+/** All runtime writes share Prisma's pinned transaction, including unchanged RK callbacks. */
 export class GovernanceV2Persistence {
-  constructor(private readonly db: SqlClient) {}
+  private readonly connection = new AsyncLocalStorage<{ db: SqlClient; rollbackOnly: boolean }>();
+  constructor(private readonly root: TransactionHost) {}
+  private get db(): SqlClient { return this.connection.getStore()?.db ?? this.root; }
 
   async transaction<T>(work: (db: SqlClient) => Promise<T>) {
-    await this.db.$executeRawUnsafe('BEGIN');
-    try { await this.db.$executeRawUnsafe(`SELECT set_config('agm.governance_context','approved',true)`); const result = await work(this.db); await this.db.$executeRawUnsafe('COMMIT'); return result; }
-    catch (error) { await this.db.$executeRawUnsafe('ROLLBACK'); throw error; }
+    const current = this.connection.getStore();
+    if (current) {
+      try { return await work(current.db); }
+      catch (error) { current.rollbackOnly = true; throw error; }
+    }
+    if (!this.root.$transaction) throw new Error('GOVERNANCE_TRANSACTION_HOST_REQUIRED');
+    return this.root.$transaction((db) => this.connection.run({ db, rollbackOnly: false }, async () => {
+      await db.$queryRawUnsafe(`SELECT set_config('agm.governance_context','approved',true)`);
+      // Take the existing ledger lock before any read/tail selection. Concurrent
+      // mutations cannot commit state without its matching hash-linked event.
+      await db.$executeRawUnsafe(`SELECT pg_advisory_xact_lock(hashtext('agm_governance_events'))`);
+      const result = await work(db);
+      if (this.connection.getStore()?.rollbackOnly) throw new Error('GOVERNANCE_TRANSACTION_ABORTED');
+      return result;
+    }), { maxWait: 10000, timeout: 20000 });
   }
 
   async activeSource(factKey: string) {
@@ -27,11 +43,12 @@ export class GovernanceV2Persistence {
     return this.db.$queryRawUnsafe(`SELECT * FROM ${table}.canonical_source_records ${factKey ? 'WHERE fact_key = $1' : ''} ORDER BY created_at, id`, ...(factKey ? [factKey] : []));
   }
 
-  async createCanonicalSource(input: Omit<CanonicalSourceRecord, 'createdAt' | 'updatedAt' | 'status'> & { status?: CanonicalSourceRecord['status'] }) {
+  async createCanonicalSource(input: Omit<CanonicalSourceRecord, 'createdAt' | 'updatedAt' | 'status'> & { status?: CanonicalSourceRecord['status'] }, actorId: string) {
+    await this.requireRole(actorId, 'EXECUTOR');
     const status = input.status ?? 'DRAFT';
     if (status === 'ACTIVE' && await this.activeSource(input.factKey)) throw new Error('CANONICAL_SOURCE_COLLISION');
     await this.db.$executeRawUnsafe(`INSERT INTO ${table}.canonical_source_records (id,fact_key,human_title,description,canonical_source,write_authority,validator_authority,readers,precedence,conflict_behavior,contract_version,status,activated_at,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10,$11,$12,$13::timestamptz,$13::timestamptz,$13::timestamptz)`, input.id, input.factKey, input.humanTitle, input.description, input.canonicalSource, input.writeAuthority, input.validatorAuthority, JSON.stringify(input.readers), input.precedence, input.conflictBehavior, input.contractVersion, status, input.activatedAt);
-    await this.recordEvent('CREATED', 'CanonicalSourceRecord', input.id, input.writeAuthority, input, []);
+    await this.recordEvent('CREATED', 'CanonicalSourceRecord', input.id, actorId, input, []);
     return this.readCanonicalSource(input.id);
   }
 
@@ -41,6 +58,7 @@ export class GovernanceV2Persistence {
   }
 
   async requestCanonicalSourceChange(input: Omit<CanonicalSourceChange, 'status' | 'approvalStatus' | 'validationEvidence'>) {
+    await this.requireActor(input.proposerId, 'propose');
     const current = await this.activeSource(input.factKey) as { canonical_source: string; write_authority: string; precedence: number } | null;
     if (!current || current.canonical_source !== input.oldSource || current.write_authority !== input.oldWriteAuthority || current.precedence !== input.oldPrecedence) throw new Error('OLD_SOURCE_MISMATCH');
     await this.db.$executeRawUnsafe(`INSERT INTO ${table}.canonical_source_changes (id,semantic_title,fact_key,old_source,new_source,old_write_authority,new_write_authority,old_precedence,new_precedence,reason,impact_study_ref,migration_plan_ref,test_plan_ref,rollback_plan_ref,approval_status,status,proposer_id,proposal_id,pcr_id,candidate_digest,correlation_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,'PENDING','DRAFT',$15,$16,$17,$18,$19)`, input.id, input.semanticTitle, input.factKey, input.oldSource, input.newSource, input.oldWriteAuthority, input.newWriteAuthority, input.oldPrecedence, input.newPrecedence, input.reason, input.impactStudyRef, input.migrationPlanRef, input.testPlanRef, input.rollbackPlanRef, input.proposerId, input.proposalId ?? null, input.pcrId ?? null, input.candidateDigest ?? null, input.correlationId ?? null);
@@ -51,19 +69,22 @@ export class GovernanceV2Persistence {
   async readCsc(id: string) { const rows = await this.db.$queryRawUnsafe(`SELECT * FROM ${table}.canonical_source_changes WHERE id = $1`, id); return rows[0] ?? null; }
 
   async transitionCsc(id: string, transition: 'IMPACT_ASSESSED' | 'APPROVED' | 'VALIDATED' | 'ACTIVATED', actorId: string, evidence: string[] = [], version?: string) {
+    if (!['IMPACT_ASSESSED', 'APPROVED', 'VALIDATED', 'ACTIVATED'].includes(transition)) throw new Error('CSC_INVALID_TRANSITION');
+    await this.requireRole(actorId, transition === 'APPROVED' ? 'APPROVER' : transition === 'ACTIVATED' ? 'EXECUTOR' : 'VALIDATOR');
     const csc = await this.readCsc(id) as Record<string, unknown> | null;
     if (!csc) throw new Error('CSC_NOT_FOUND');
     if (transition === 'IMPACT_ASSESSED') {
+      if (!['DRAFT', 'IMPACT_ASSESSED'].includes(String(csc.status)) || csc.proposer_id === actorId) throw new Error('CSC_INVALID_TRANSITION');
       if (!csc.impact_study_ref || !csc.migration_plan_ref || !csc.test_plan_ref || !csc.rollback_plan_ref) throw new Error('IMPACT_STUDY_INCOMPLETE');
       await this.db.$executeRawUnsafe(`UPDATE ${table}.canonical_source_changes SET status='IMPACT_ASSESSED' WHERE id=$1`, id);
     } else if (transition === 'APPROVED') {
       if (csc.proposer_id === actorId || !['DRAFT', 'IMPACT_ASSESSED'].includes(String(csc.status))) throw new Error('APPROVAL_DENIED');
       await this.db.$executeRawUnsafe(`UPDATE ${table}.canonical_source_changes SET status='APPROVED',approval_status='APPROVED',approved_by=$2 WHERE id=$1`, id, actorId);
     } else if (transition === 'VALIDATED') {
-      if (csc.proposer_id === actorId || csc.approval_status !== 'APPROVED' || !evidence.length) throw new Error('CSC_VALIDATION_INCOMPLETE');
+      if (csc.proposer_id === actorId || csc.approved_by === actorId || csc.status !== 'APPROVED' || csc.approval_status !== 'APPROVED' || !evidence.length) throw new Error('CSC_VALIDATION_INCOMPLETE');
       await this.db.$executeRawUnsafe(`UPDATE ${table}.canonical_source_changes SET status='VALIDATED',validation_evidence=$2::jsonb,validator_id=$3 WHERE id=$1`, id, JSON.stringify(evidence), actorId);
     } else {
-      if (csc.status !== 'VALIDATED' || csc.approved_by === actorId || !csc.validator_id || !version) throw new Error('CSC_NOT_APPROVED_AND_VALIDATED');
+      if (csc.status !== 'VALIDATED' || csc.proposer_id === actorId || csc.approved_by === actorId || csc.validator_id === actorId || !csc.validator_id || !version) throw new Error('CSC_NOT_APPROVED_AND_VALIDATED');
       const current = await this.activeSource(String(csc.fact_key)) as Record<string, unknown> | null;
       if (!current || current.canonical_source !== csc.old_source) throw new Error('SOURCE_CHANGED_WITHOUT_CSC');
       const at = stamp();
@@ -76,6 +97,9 @@ export class GovernanceV2Persistence {
   }
 
   async registerGovernanceActor(input: GovernanceActorPrincipal) {
+    // Trusted provisioning only: the existing operator-controlled binding runner
+    // verifies its Production decision/principals before calling this method.
+    // No user/M2M controller exposes actor registration or capability grants.
     if (!input.id.trim() || !input.displayName.trim() || !input.roles.length) throw new Error('ACTOR_IDENTITY_INCOMPLETE');
     await this.db.$executeRawUnsafe(`INSERT INTO ${table}.actor_principals (actor_id,display_name,roles,can_propose,can_validate,can_execute,status) VALUES ($1,$2,$3::jsonb,$4,$5,$6,$7) ON CONFLICT (actor_id) DO UPDATE SET display_name=EXCLUDED.display_name,roles=EXCLUDED.roles,can_propose=EXCLUDED.can_propose,can_validate=EXCLUDED.can_validate,can_execute=EXCLUDED.can_execute,status=EXCLUDED.status,updated_at=now()`, input.id, input.displayName, JSON.stringify(input.roles), input.canPropose, input.canValidate, input.canExecute, input.status);
     await this.recordEvent('ACTOR_REGISTERED', 'GovernanceActorPrincipal', input.id, input.id, input, []);
@@ -86,6 +110,7 @@ export class GovernanceV2Persistence {
     if (!input.principalId.trim() || !input.companyId.trim() || !input.decisionRef.trim() || !input.recordedBy.trim()) throw new Error('IDENTITY_BINDING_INCOMPLETE');
     const actor = await this.readGovernanceActor(input.actorId);
     if (!actor) throw new Error('GOVERNANCE_ACTOR_UNKNOWN');
+    await this.requireRole(input.recordedBy, 'APPROVER');
     await this.db.$executeRawUnsafe(`INSERT INTO ${table}.actor_identity_bindings (actor_id,principal_type,principal_id,company_id,status,decision_ref,recorded_by) VALUES ($1,$2,$3,$4,$5,$6,$7)`, input.actorId, input.principalType, input.principalId, input.companyId, input.status, input.decisionRef, input.recordedBy);
     await this.recordEvent('ACTOR_IDENTITY_BINDING', 'GovernanceActorPrincipal', input.actorId, input.recordedBy, input, [input.decisionRef]);
   }
@@ -104,6 +129,7 @@ export class GovernanceV2Persistence {
       if (principal.type !== 'MACHINE_IDENTITY' || !principal.scopes?.includes('governance:propose')) throw new Error('GOVERNANCE_SCOPE_MISSING');
       await this.requireActor(binding.actor_id, 'propose');
     } else if (capability) await this.requireActor(binding.actor_id, capability);
+    await this.requireActiveActor(binding.actor_id);
     return binding.actor_id;
   }
 
@@ -111,12 +137,19 @@ export class GovernanceV2Persistence {
   async listGovernanceActors() { return this.db.$queryRawUnsafe(`SELECT * FROM ${table}.actor_principals ORDER BY actor_id`); }
 
   private async requireActor(id: string, capability: 'propose' | 'validate') {
-    const actor = await this.readGovernanceActor(id) as Record<string, unknown> | null;
-    if (!actor || actor.status !== 'ACTIVE' || (capability === 'propose' ? actor.can_propose !== true : actor.can_validate !== true)) throw new Error('GOVERNANCE_ACTOR_UNAUTHORIZED');
+    return this.requireRole(id, capability === 'propose' ? 'PROPOSER' : 'VALIDATOR');
+  }
+
+  private async requireRole(id: string, role: 'PROPOSER' | 'APPROVER' | 'EXECUTOR' | 'VALIDATOR') {
+    const actor = await this.requireActiveActor(id);
+    const roles = Array.isArray(actor.roles) ? actor.roles : [];
+    const flag = { PROPOSER: 'can_propose', APPROVER: null, EXECUTOR: 'can_execute', VALIDATOR: 'can_validate' }[role];
+    if (!roles.includes(role) || (flag && actor[flag] !== true)) throw new Error('GOVERNANCE_ACTOR_UNAUTHORIZED');
     return actor;
   }
 
   private async requireActiveActor(id: string) {
+    if (typeof id !== 'string' || !id.trim()) throw new Error('GOVERNANCE_ACTOR_UNAUTHORIZED');
     const actor = await this.readGovernanceActor(id) as Record<string, unknown> | null;
     if (!actor || actor.status !== 'ACTIVE') throw new Error('GOVERNANCE_ACTOR_UNAUTHORIZED');
     return actor;
@@ -137,12 +170,14 @@ export class GovernanceV2Persistence {
   async searchProposals(query: string) { return this.db.$queryRawUnsafe(`SELECT * FROM ${table}.proposals WHERE to_tsvector('simple', semantic_title || ' ' || description || ' ' || scope || ' ' || proposal_type || ' ' || candidate_ref || ' ' || candidate_digest) @@ plainto_tsquery('simple',$1) ORDER BY created_at,proposal_id`, query); }
 
   async transitionProposal(id: string, target: GovernanceProposal['status'], actorId: string, evidenceRefs: string[] = []) {
+    // Approval/rejection must never have a weaker alternate runtime path.
+    if (target === 'ACCEPTED_FOR_CHANGE_CONTROL' || target === 'REJECTED') return this.decideProposal(id, target, actorId, evidenceRefs);
     const proposal = await this.readProposal(id) as Record<string, unknown> | null;
     if (!proposal) throw new Error('PROPOSAL_NOT_FOUND');
     const current = String(proposal.status);
     const allowed: Record<string, string[]> = { DRAFT: ['REVIEWED','REJECTED','ABANDONED'], REVIEWED: ['ACCEPTED_FOR_CHANGE_CONTROL','REJECTED','ABANDONED'], ACCEPTED_FOR_CHANGE_CONTROL: ['SUPERSEDED','REJECTED','ABANDONED'] };
     if (!allowed[current]?.includes(target)) throw new Error('PROPOSAL_INVALID_TRANSITION');
-    if (target === 'REVIEWED' || target === 'ACCEPTED_FOR_CHANGE_CONTROL') { await this.requireActor(actorId, 'validate'); if (String(proposal.proposer_id) === actorId) throw new Error('PROPOSAL_SELF_APPROVAL_DENIED'); }
+    if (target === 'REVIEWED') { await this.requireActor(actorId, 'validate'); if (String(proposal.proposer_id) === actorId) throw new Error('PROPOSAL_SELF_APPROVAL_DENIED'); }
     else await this.requireActor(actorId, 'validate');
     await this.db.$executeRawUnsafe(`UPDATE ${table}.proposals SET status=$2,updated_at=now(),evidence_refs=evidence_refs || $3::jsonb WHERE proposal_id=$1`, id,target,JSON.stringify(evidenceRefs));
     await this.recordEvent(target === 'REVIEWED' ? 'PROPOSAL_REVIEWED' : 'PROPOSAL_STATUS_CHANGED', 'GovernanceProposal', id, actorId, { from: current, to: target }, evidenceRefs);
@@ -151,9 +186,7 @@ export class GovernanceV2Persistence {
 
   /** Approver decision: never the proposer, never the validator who reviewed it, and only an ACTIVE actor holding the APPROVER role. */
   async decideProposal(id: string, decision: 'ACCEPTED_FOR_CHANGE_CONTROL' | 'REJECTED', actorId: string, evidenceRefs: string[] = []) {
-    const actor = await this.readGovernanceActor(actorId) as Record<string, unknown> | null;
-    const roles = Array.isArray(actor?.roles) ? actor!.roles as unknown[] : [];
-    if (!actor || actor.status !== 'ACTIVE' || !roles.includes('APPROVER')) throw new Error('GOVERNANCE_ACTOR_UNAUTHORIZED');
+    await this.requireRole(actorId, 'APPROVER');
     const proposal = await this.readProposal(id) as Record<string, unknown> | null;
     if (!proposal) throw new Error('PROPOSAL_NOT_FOUND');
     if (String(proposal.proposer_id) === actorId) throw new Error('PROPOSAL_SELF_APPROVAL_DENIED');
@@ -180,8 +213,8 @@ export class GovernanceV2Persistence {
     const pcrs = await this.db.$queryRawUnsafe<Record<string, unknown>>(`SELECT id,candidate_digest FROM ${table}.production_change_records WHERE id=$1`, input.pcrId);
     if (!pcrs[0]) throw new Error('RECOVERY_PCR_NOT_FOUND');
     if (pcrs[0].candidate_digest && pcrs[0].candidate_digest !== input.candidateDigest) throw new Error('RECOVERY_PCR_DIGEST_MISMATCH');
-    await this.requireActiveActor(input.executorId);
-    if (input.validatorId) await this.requireActiveActor(input.validatorId);
+    await this.requireRole(input.executorId, 'EXECUTOR');
+    if (input.validatorId) await this.requireRole(input.validatorId, 'VALIDATOR');
     if (input.verdict === 'PASS' && (!input.completedAt || !input.validatorId || input.executorId === input.validatorId)) throw new Error('RECOVERY_PASS_VALIDATION_INCOMPLETE');
     if (input.backupSha256 && !/^[a-f0-9]{64}$/i.test(input.backupSha256)) throw new Error('RECOVERY_BACKUP_DIGEST_INVALID');
     if (input.recoveryType === 'BACKUP_RESTORE' && input.verdict === 'PASS' && (!input.backupRef || !input.backupSha256 || input.destroyVerified !== true || input.restoreVerified !== true || input.postRestoreStartupVerified !== true || !input.criticalTestsResult || input.criticalTestsResult !== 'PASS')) throw new Error('RECOVERY_BACKUP_RESTORE_EVIDENCE_INCOMPLETE');
@@ -203,22 +236,24 @@ export class GovernanceV2Persistence {
 
   async reconcileHistoricalRecoveryEvidence(input: RecoveryEvidenceRecord, importerId: string, historicalExecutionAt: string) {
     if (!historicalExecutionAt || !input.evidenceRefs.length || (input.recoveryType === 'BACKUP_RESTORE' && !input.backupSha256)) throw new Error('RECOVERY_HISTORICAL_PROVENANCE_INCOMPLETE');
-    await this.requireActiveActor(importerId);
+    await this.requireRole(importerId, 'VALIDATOR');
     const reconciledAt = stamp();
     await this.createRecoveryEvidence({ ...input, historicalExecutionAt, reconciledAt, importerId });
     await this.recordEvent('RECOVERY_EVIDENCE_RECONCILED', 'RecoveryEvidence', input.recoveryEvidenceId, importerId, { historicalExecutionAt, reconciledAt, importerId }, input.evidenceRefs);
     return this.readRecoveryEvidence(input.recoveryEvidenceId);
   }
 
-  async addDependencyEdge(edge: GovernanceDependencyEdge) {
+  async addDependencyEdge(edge: GovernanceDependencyEdge, actorId: string) {
+    await this.requireRole(actorId, 'VALIDATOR');
     const duplicate = await this.db.$queryRawUnsafe(`SELECT id FROM ${table}.governance_dependency_edges WHERE source_component=$1 AND relation=$2 AND target_component=$3 AND superseded_at IS NULL`, edge.sourceComponent, edge.relation, edge.targetComponent);
     if (duplicate.length) throw new Error('DUPLICATE_ACTIVE_DEPENDENCY');
-    await this.db.$executeRawUnsafe(`INSERT INTO ${table}.governance_dependency_edges (id,source_component,relation,target_component,criticality,validation_required,introduced_at) VALUES ($1,$2,$3,$4,$5,$6,$7::timestamptz)`, edge.id, edge.sourceComponent, edge.relation, edge.targetComponent, edge.criticality, edge.validationRequired, edge.introducedAt);
-    await this.recordEvent('CREATED', 'GovernanceDependencyEdge', edge.id, 'governance-runtime', edge, []);
+    await this.db.$executeRawUnsafe(`INSERT INTO ${table}.governance_dependency_edges (id,source_component,relation,target_component,criticality,validation_required,introduced_at,superseded_at) VALUES ($1,$2,$3,$4,$5,$6,$7::timestamptz,$8::timestamptz)`, edge.id, edge.sourceComponent, edge.relation, edge.targetComponent, edge.criticality, edge.validationRequired, edge.introducedAt, edge.supersededAt ?? null);
+    await this.recordEvent('CREATED', 'GovernanceDependencyEdge', edge.id, actorId, edge, []);
     return edge;
   }
 
   async createProductionChange(input: Omit<ProductionChangeRecord, 'status' | 'approvalStatus' | 'dependencyChecks'>) {
+    await this.requireActor(input.proposerId, 'propose');
     await this.db.$executeRawUnsafe(`INSERT INTO ${table}.production_change_records (id,semantic_title,description,impact_class,affected_components,affected_canonical_sources,dependency_impact_ref,impact_study,test_plan,rollback_plan,snapshot_ref,candidate_ref,candidate_digest,approval_status,related_incidents,related_csc,proposer_id,schema_change,migration_ref,migration_risk,backward_compatibility_impact,proposal_id,status) VALUES ($1,$2,$3,$4,$5::jsonb,$6::jsonb,$7,$8,$9,$10,$11,$12,$13,'PENDING',$14::jsonb,$15::jsonb,$16,$17,$18,$19,$20,$21,'DRAFT')`, input.id, input.semanticTitle, input.description, input.impactClass, JSON.stringify(input.affectedComponents), JSON.stringify(input.affectedCanonicalSources), input.dependencyImpactRef, input.impactStudy, input.testPlan, input.rollbackPlan, input.snapshotRef, input.candidateRef, input.candidateDigest ?? null, JSON.stringify(input.relatedIncidents), JSON.stringify(input.relatedCSC), input.proposerId, input.schemaChange ?? false, input.migrationRef ?? null, input.migrationRisk ?? null, input.backwardCompatibilityImpact ?? null, input.proposalId ?? null);
     await this.recordEvent('CREATED', 'ProductionChangeRecord', input.id, input.proposerId, input, []);
     return this.readPcr(input.id);
@@ -227,75 +262,108 @@ export class GovernanceV2Persistence {
   async readPcr(id: string) { const rows = await this.db.$queryRawUnsafe(`SELECT * FROM ${table}.production_change_records WHERE id=$1`, id); return rows[0] ?? null; }
 
   async assessProductionChange(id: string, actorId: string) {
+    await this.requireRole(actorId, 'VALIDATOR');
     const pcr = await this.readPcr(id) as Record<string, unknown> | null; if (!pcr) throw new Error('PCR_NOT_FOUND');
+    if (pcr.proposer_id === actorId || !['DRAFT', 'IMPACT_ASSESSED'].includes(String(pcr.status))) throw new Error('PCR_INVALID_TRANSITION');
     if (!pcr.impact_study || !pcr.dependency_impact_ref || !pcr.snapshot_ref || !pcr.test_plan || !pcr.rollback_plan) throw new Error('IMPACT_STUDY_INCOMPLETE');
     await this.db.$executeRawUnsafe(`UPDATE ${table}.production_change_records SET status='IMPACT_ASSESSED' WHERE id=$1`, id); await this.recordEvent('VALIDATED','ProductionChangeRecord',id,actorId,{transition:'IMPACT_ASSESSED'},[String(pcr.impact_study)]); return this.readPcr(id);
   }
 
-  async recordDependencyResult(id: string, component: string, result: string) { await this.db.$executeRawUnsafe(`UPDATE ${table}.production_change_records SET dependency_checks=dependency_checks || jsonb_build_object($2,$3) WHERE id=$1`, id, component, result); return this.readPcr(id); }
-  async recordDependencyGraphStatus(id: string, status: 'COMPLETE' | 'INCOMPLETE' | 'UNKNOWN', evidenceRef: string) { await this.db.$executeRawUnsafe(`UPDATE ${table}.production_change_records SET dependency_checks=dependency_checks || jsonb_build_object('__graph',jsonb_build_object('status',$2,'evidenceRef',$3)) WHERE id=$1`, id, status, evidenceRef); return this.readPcr(id); }
-  async recordAcceptedDegradation(id: string, component: string, humanApprovalId: string, rationale: string, evidenceRef: string, expiry?: string) { await this.db.$executeRawUnsafe(`UPDATE ${table}.production_change_records SET dependency_checks=dependency_checks || jsonb_build_object($2,jsonb_build_object('status','EXPLICIT_ACCEPTED_DEGRADATION','humanApprovalId',$3,'rationale',$4,'evidenceRef',$5,'expiry',$6::text)) WHERE id=$1`, id, component, humanApprovalId, rationale, evidenceRef, expiry ?? null); return this.readPcr(id); }
+  private async editablePcr(id: string) {
+    const pcr = await this.readPcr(id) as Record<string, unknown> | null;
+    if (!pcr) throw new Error('PCR_NOT_FOUND');
+    if (!['DRAFT', 'IMPACT_ASSESSED', 'CANDIDATE_READY', 'VALIDATED'].includes(String(pcr.status))) throw new Error('PCR_INVALID_TRANSITION');
+    return pcr;
+  }
+
+  async recordDependencyResult(id: string, component: string, result: string, actorId: string) {
+    await this.requireRole(actorId, 'VALIDATOR');
+    await this.editablePcr(id);
+    if (!component.trim() || component === '__graph' || !['PASS', 'FAIL', 'UNKNOWN'].includes(result)) throw new Error('DEPENDENCY_RESULT_INVALID');
+    await this.db.$executeRawUnsafe(`UPDATE ${table}.production_change_records SET dependency_checks=dependency_checks || jsonb_build_object($2::text,$3::text) WHERE id=$1`, id, component, result);
+    await this.recordEvent('VALIDATED', 'ProductionChangeRecord', id, actorId, { component, result }, []);
+    return this.readPcr(id);
+  }
+
+  async recordDependencyGraphStatus(id: string, status: 'COMPLETE' | 'INCOMPLETE' | 'UNKNOWN', evidenceRef: string, actorId: string) {
+    await this.requireRole(actorId, 'VALIDATOR');
+    await this.editablePcr(id);
+    if (!evidenceRef.trim() || !['COMPLETE', 'INCOMPLETE', 'UNKNOWN'].includes(status)) throw new Error('DEPENDENCY_GRAPH_INVALID');
+    await this.db.$executeRawUnsafe(`UPDATE ${table}.production_change_records SET dependency_checks=dependency_checks || jsonb_build_object('__graph',jsonb_build_object('status',$2::text,'evidenceRef',$3::text)) WHERE id=$1`, id, status, evidenceRef);
+    await this.recordEvent('VALIDATED', 'ProductionChangeRecord', id, actorId, { graphStatus: status }, [evidenceRef]);
+    return this.readPcr(id);
+  }
+
+  async recordAcceptedDegradation(id: string, component: string, humanApprovalId: string, rationale: string, evidenceRef: string, actorId: string, expiry?: string) {
+    await this.requireRole(actorId, 'APPROVER');
+    const pcr = await this.editablePcr(id);
+    if (pcr.proposer_id === actorId || !component.trim() || component === '__graph' || !humanApprovalId.trim() || !rationale.trim() || !evidenceRef.trim() || (expiry && (!Number.isFinite(Date.parse(expiry)) || Date.parse(expiry) <= Date.now()))) throw new Error('DEGRADATION_ACCEPTANCE_INVALID');
+    await this.db.$executeRawUnsafe(`UPDATE ${table}.production_change_records SET dependency_checks=dependency_checks || jsonb_build_object($2::text,jsonb_build_object('status','EXPLICIT_ACCEPTED_DEGRADATION','humanApprovalId',$3::text,'rationale',$4::text,'evidenceRef',$5::text,'expiry',$6::text)) WHERE id=$1`, id, component, humanApprovalId, rationale, evidenceRef, expiry ?? null);
+    await this.recordEvent('APPROVED', 'ProductionChangeRecord', id, actorId, { component, humanApprovalId, rationale, expiry }, [evidenceRef]);
+    return this.readPcr(id);
+  }
 
   async approveProductionChange(id: string, actorId: string) {
+    await this.requireRole(actorId, 'APPROVER');
     const pcr = await this.readPcr(id) as Record<string, unknown> | null; if (!pcr) throw new Error('PCR_NOT_FOUND'); if (pcr.proposer_id === actorId) throw new Error('APPROVER_CANNOT_BE_PROPOSER');
+    if (!['IMPACT_ASSESSED', 'CANDIDATE_READY', 'VALIDATED'].includes(String(pcr.status))) throw new Error('PCR_INVALID_TRANSITION');
     if (pcr.impact_class === 'STRUCTURAL') {
       const cscRefs = (pcr.related_csc as string[]) ?? [];
       if (!cscRefs.length) throw new Error('STRUCTURAL_CSC_REQUIRED');
       const cscRows = await this.db.$queryRawUnsafe<{ status: string }>(`SELECT status FROM ${table}.canonical_source_changes WHERE id = ANY($1::text[])`, cscRefs);
       if (cscRows.length !== cscRefs.length || cscRows.some((row) => row.status !== 'ACTIVATED')) throw new Error('STRUCTURAL_CSC_NOT_ACTIVATED');
     }
-    const affected = (pcr.affected_components as string[]) ?? []; const impacted = await this.impactedComponents(String(affected[0] ?? '')); const checks = (pcr.dependency_checks as Record<string, unknown> | null) ?? {};
+    const impacted = await this.allImpactedComponents(pcr.affected_components); const checks = (pcr.dependency_checks as Record<string, unknown> | null) ?? {};
     const graph = checks.__graph as { status?: string } | undefined;
     if (graph?.status !== 'COMPLETE') throw new Error('DEPENDENCY_GRAPH_INCOMPLETE');
-    const blocked = impacted.some(component => { const value = checks[component]; if (value === 'PASS') return false; if (!value || typeof value === 'string') return true; const accepted = value as Record<string, unknown>; return accepted.status !== 'EXPLICIT_ACCEPTED_DEGRADATION' || !accepted.humanApprovalId || !accepted.rationale || !accepted.evidenceRef; }); if (blocked) throw new Error('REGRESSION_CASCADE_BLOCKED');
+    if (impacted.some(component => !this.dependencyPassed(checks[component]))) throw new Error('REGRESSION_CASCADE_BLOCKED');
     await this.db.$executeRawUnsafe(`UPDATE ${table}.production_change_records SET status='APPROVED',approval_status='APPROVED',approver_id=$2 WHERE id=$1`, id, actorId); await this.recordEvent('APPROVED','ProductionChangeRecord',id,actorId,{transition:'APPROVED',impacted},[]); return this.readPcr(id);
   }
 
   async evaluateProductionReleaseGate(id: string, actorId: string, binding?: { candidateRef: string; versionId: string; revision: string; artifactDigest?: string }) {
+    await this.requireRole(actorId, 'EXECUTOR');
     const pcr = await this.readPcr(id) as Record<string, unknown> | null;
     if (!pcr) throw new Error('RELEASE_BLOCKED:PCR_NOT_FOUND');
     if (!binding?.candidateRef || !binding.versionId || !binding.revision) throw new Error('RELEASE_BLOCKED:BINDING_INPUT_INCOMPLETE');
     if (String(pcr.candidate_ref) !== binding.candidateRef) throw new Error('RELEASE_BLOCKED:CANDIDATE_MISMATCH');
-    const versions = await this.db.$queryRawUnsafe<{ commit_sha: string; candidate_snapshot: string; artifact_digests: unknown }>(`SELECT commit_sha,candidate_snapshot,artifact_digests FROM ${table}.version_records WHERE id=$1`, binding.versionId);
+    const versions = await this.db.$queryRawUnsafe<{ commit_sha: string; candidate_snapshot: string; artifact_digests: unknown; status: string; candidate_digest: string | null }>(`SELECT commit_sha,candidate_snapshot,artifact_digests,status,candidate_digest FROM ${table}.version_records WHERE id=$1`, binding.versionId);
     if (versions.length !== 1 || versions[0].commit_sha !== binding.revision || versions[0].candidate_snapshot !== String(pcr.snapshot_ref)) throw new Error('RELEASE_BLOCKED:REVISION_MISMATCH');
+    if (versions[0].status !== 'CANONICAL') throw new Error('RELEASE_BLOCKED:VERSION_NOT_CANONICAL');
+    if (pcr.candidate_digest && versions[0].candidate_digest !== pcr.candidate_digest) throw new Error('RELEASE_BLOCKED:CANDIDATE_DIGEST_MISMATCH');
     if (pcr.schema_change && (!pcr.migration_ref || !pcr.migration_risk || !pcr.backward_compatibility_impact)) throw new Error('RELEASE_BLOCKED:MIGRATION_BINDING_INCOMPLETE');
     if (binding.artifactDigest && !(Array.isArray(versions[0].artifact_digests) && versions[0].artifact_digests.includes(binding.artifactDigest))) throw new Error('RELEASE_BLOCKED:ARTIFACT_DIGEST_MISMATCH');
     const required = ['impact_study', 'dependency_impact_ref', 'snapshot_ref', 'candidate_ref', 'test_plan', 'rollback_plan'];
     if (required.some((field) => !pcr[field])) throw new Error('RELEASE_BLOCKED:IMPACT_STUDY_INCOMPLETE');
     if (pcr.status !== 'APPROVED' || pcr.approval_status !== 'APPROVED') throw new Error('RELEASE_BLOCKED:PCR_NOT_APPROVED');
-    if (!pcr.approver_id || pcr.approver_id === pcr.proposer_id || pcr.approver_id === actorId) throw new Error('RELEASE_BLOCKED:ACTOR_SEPARATION');
+    if (!pcr.approver_id || pcr.approver_id === pcr.proposer_id || pcr.approver_id === actorId || pcr.proposer_id === actorId) throw new Error('RELEASE_BLOCKED:ACTOR_SEPARATION');
     if (pcr.impact_class === 'STRUCTURAL') {
       const refs = (pcr.related_csc as string[]) ?? [];
       if (!refs.length) throw new Error('RELEASE_BLOCKED:CSC_REQUIRED');
       const rows = await this.db.$queryRawUnsafe<{ status: string }>(`SELECT status FROM ${table}.canonical_source_changes WHERE id = ANY($1::text[])`, refs);
       if (rows.length !== refs.length || rows.some((row) => row.status !== 'ACTIVATED')) throw new Error('RELEASE_BLOCKED:CSC_NOT_ACTIVATED');
     }
-    const affected = (pcr.affected_components as string[]) ?? [];
     const checks = (pcr.dependency_checks as Record<string, unknown> | null) ?? {};
     const graph = checks.__graph as { status?: string } | undefined;
     if (graph?.status !== 'COMPLETE') throw new Error('RELEASE_BLOCKED:DEPENDENCY_GRAPH_INCOMPLETE');
-    const impacted = await this.impactedComponents(String(affected[0] ?? ''));
-    const blocked = impacted.some((component) => {
-      const value = checks[component];
-      if (value === 'PASS') return false;
-      if (!value || typeof value === 'string') return true;
-      const accepted = value as Record<string, unknown>;
-      return accepted.status !== 'EXPLICIT_ACCEPTED_DEGRADATION' || !accepted.humanApprovalId || !accepted.rationale || !accepted.evidenceRef;
-    });
+    const impacted = await this.allImpactedComponents(pcr.affected_components);
+    const blocked = impacted.some(component => !this.dependencyPassed(checks[component]));
     if (blocked) throw new Error('RELEASE_BLOCKED:REGRESSION_CASCADE');
     return { status: 'READY_FOR_PRODUCTION_APPROVAL', productionMutation: false, pcrId: id, actorId, candidateRef: binding.candidateRef, versionId: binding.versionId, revision: binding.revision, snapshotRef: pcr.snapshot_ref, relatedCsc: pcr.related_csc ?? [], dependencyGraph: graph.status, impactedComponents: impacted, schemaChange: Boolean(pcr.schema_change), migrationRef: pcr.migration_ref ?? null };
   }
 
-  async recordProductionExecution(id: string, actorId: string, revision: string) {
+  async recordProductionExecution(id: string, actorId: string, revision: string, binding?: { candidateRef: string; versionId: string; artifactDigest?: string }) {
+    await this.requireRole(actorId, 'EXECUTOR');
     const pcr = await this.readPcr(id) as Record<string, unknown> | null;
     if (!pcr || pcr.status !== 'APPROVED') throw new Error('PCR_NOT_APPROVED');
     if (pcr.proposer_id === actorId || pcr.approver_id === actorId) throw new Error('EXECUTOR_ACTOR_SEPARATION_DENIED');
+    await this.evaluateProductionReleaseGate(id, actorId, binding ? { ...binding, revision } : undefined);
     await this.db.$executeRawUnsafe(`UPDATE ${table}.production_change_records SET status='DEPLOYED',executor_id=$2,deploy_revision=$3 WHERE id=$1`, id, actorId, revision);
     await this.recordEvent('ACTIVATED', 'ProductionChangeRecord', id, actorId, { transition: 'EXECUTION_RECORDED', revision }, [revision]);
     return this.readPcr(id);
   }
 
   async validateProductionChange(id: string, actorId: string, evidence: string[], verdict: 'PASS' | 'FAIL') {
+    await this.requireRole(actorId, 'VALIDATOR');
     const pcr = await this.readPcr(id) as Record<string, unknown> | null;
     if (!pcr || pcr.status !== 'DEPLOYED' || !evidence.length) throw new Error('POST_DEPLOY_VALIDATION_INCOMPLETE');
     if (pcr.proposer_id === actorId || pcr.executor_id === actorId) throw new Error('VALIDATOR_ACTOR_SEPARATION_DENIED');
@@ -305,17 +373,18 @@ export class GovernanceV2Persistence {
     return this.readPcr(id);
   }
 
-  async createVersion(version: VersionRecord) { await this.db.$executeRawUnsafe(`INSERT INTO ${table}.version_records (id,semantic_title,status,base_revision,commit_sha,candidate_digest,artifact_digests,candidate_snapshot,validation_evidence,pcr_refs,csc_refs,incident_refs,final_verdict) VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9::jsonb,$10::jsonb,$11::jsonb,$12::jsonb,$13)`, version.id,version.semanticTitle,version.status,version.baseRevision,version.commitSha,version.candidateDigest ?? null,JSON.stringify(version.artifactDigests),version.candidateSnapshot,JSON.stringify(version.validationEvidence),JSON.stringify(version.pcrRefs),JSON.stringify(version.cscRefs),JSON.stringify(version.incidentRefs),version.finalVerdict ?? null); await this.recordEvent('CREATED','VersionRecord',version.id,'governance-runtime',version,[]); return version; }
+  async createVersion(version: VersionRecord, actorId: string) { await this.requireRole(actorId, 'PROPOSER'); if (version.status !== 'WIP') throw new Error('INVALID_VERSION_PROMOTION'); await this.db.$executeRawUnsafe(`INSERT INTO ${table}.version_records (id,semantic_title,status,base_revision,commit_sha,candidate_digest,artifact_digests,candidate_snapshot,validation_evidence,pcr_refs,csc_refs,incident_refs,final_verdict) VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9::jsonb,$10::jsonb,$11::jsonb,$12::jsonb,$13)`, version.id,version.semanticTitle,version.status,version.baseRevision,version.commitSha,version.candidateDigest ?? null,JSON.stringify(version.artifactDigests),version.candidateSnapshot,JSON.stringify(version.validationEvidence),JSON.stringify(version.pcrRefs),JSON.stringify(version.cscRefs),JSON.stringify(version.incidentRefs),version.finalVerdict ?? null); await this.recordEvent('CREATED','VersionRecord',version.id,actorId,version,[]); return version; }
   async readVersion(id: string) { const rows = await this.db.$queryRawUnsafe(`SELECT * FROM ${table}.version_records WHERE id=$1`, id); return rows[0] ?? null; }
 
-  async promoteVersion(id: string, target: VersionRecord['status']) { const rows=await this.db.$queryRawUnsafe(`SELECT * FROM ${table}.version_records WHERE id=$1`,id); const v=rows[0] as Record<string,unknown>|undefined; if(!v)throw new Error('VERSION_NOT_FOUND'); const allowed:Record<string,string[]>={CANDIDATE:['WIP'],VALIDATED:['CANDIDATE'],CANONICAL:['VALIDATED'],DEPLOYED:['CANONICAL']}; if(allowed[target]&&!allowed[target].includes(String(v.status)))throw new Error('INVALID_VERSION_PROMOTION'); if(target==='DEPLOYED')throw new Error('PRODUCTION_DEPLOY_FORBIDDEN'); await this.db.$executeRawUnsafe(`UPDATE ${table}.version_records SET status=$2 WHERE id=$1`,id,target); await this.recordEvent('ACTIVATED','VersionRecord',id,'governance-runtime',{from:v.status,to:target},[]); return this.db.$queryRawUnsafe(`SELECT * FROM ${table}.version_records WHERE id=$1`,id); }
+  async promoteVersion(id: string, target: VersionRecord['status'], actorId: string) { if (target === 'DEPLOYED') throw new Error('PRODUCTION_DEPLOY_FORBIDDEN'); const role = target === 'CANDIDATE' ? 'PROPOSER' : target === 'VALIDATED' ? 'VALIDATOR' : target === 'CANONICAL' ? 'APPROVER' : null; if (!role) throw new Error('INVALID_VERSION_PROMOTION'); await this.requireRole(actorId, role); const rows=await this.db.$queryRawUnsafe(`SELECT * FROM ${table}.version_records WHERE id=$1`,id); const v=rows[0] as Record<string,unknown>|undefined; if(!v)throw new Error('VERSION_NOT_FOUND'); const allowed:Record<string,string[]>={CANDIDATE:['WIP'],VALIDATED:['CANDIDATE'],CANONICAL:['VALIDATED'],DEPLOYED:['CANONICAL']}; if(allowed[target]&&!allowed[target].includes(String(v.status)))throw new Error('INVALID_VERSION_PROMOTION'); await this.db.$executeRawUnsafe(`UPDATE ${table}.version_records SET status=$2 WHERE id=$1`,id,target); await this.recordEvent('ACTIVATED','VersionRecord',id,actorId,{from:v.status,to:target},[]); return this.db.$queryRawUnsafe(`SELECT * FROM ${table}.version_records WHERE id=$1`,id); }
 
-  async createSnapshot(snapshot: SnapshotRecord) { await this.db.$executeRawUnsafe(`INSERT INTO ${table}.snapshot_records (snapshot_id,semantic_title,content_summary,tags,status,branch,base_commit,worktree,manifest_digest,snapshot_digest,changed_files,untracked_files,tests,related_version,related_incident,related_csc,related_pcr,created_at) VALUES ($1,$2,$3,$4::jsonb,$5,$6,$7,$8,$9,$10,$11::jsonb,$12::jsonb,$13::jsonb,$14,$15,$16,$17,$18::timestamptz)`,snapshot.snapshotId,snapshot.semanticTitle,snapshot.contentSummary,JSON.stringify(snapshot.tags),snapshot.status,snapshot.branch,snapshot.baseCommit,snapshot.worktree,snapshot.manifestDigest,snapshot.snapshotDigest,JSON.stringify(snapshot.changedFiles),JSON.stringify(snapshot.untrackedFiles),JSON.stringify(snapshot.tests),snapshot.relatedVersion??null,snapshot.relatedIncident??null,snapshot.relatedCSC??null,snapshot.relatedPCR??null,snapshot.createdAt); await this.recordEvent('CREATED','SnapshotRecord',snapshot.snapshotId,'governance-runtime',snapshot,[]); return snapshot; }
+  async createSnapshot(snapshot: SnapshotRecord, actorId: string) { await this.requireRole(actorId, 'EXECUTOR'); await this.db.$executeRawUnsafe(`INSERT INTO ${table}.snapshot_records (snapshot_id,semantic_title,content_summary,tags,status,branch,base_commit,worktree,manifest_digest,snapshot_digest,changed_files,untracked_files,tests,related_version,related_incident,related_csc,related_pcr,created_at) VALUES ($1,$2,$3,$4::jsonb,$5,$6,$7,$8,$9,$10,$11::jsonb,$12::jsonb,$13::jsonb,$14,$15,$16,$17,$18::timestamptz)`,snapshot.snapshotId,snapshot.semanticTitle,snapshot.contentSummary,JSON.stringify(snapshot.tags),snapshot.status,snapshot.branch,snapshot.baseCommit,snapshot.worktree,snapshot.manifestDigest,snapshot.snapshotDigest,JSON.stringify(snapshot.changedFiles),JSON.stringify(snapshot.untrackedFiles),JSON.stringify(snapshot.tests),snapshot.relatedVersion??null,snapshot.relatedIncident??null,snapshot.relatedCSC??null,snapshot.relatedPCR??null,snapshot.createdAt); await this.recordEvent('CREATED','SnapshotRecord',snapshot.snapshotId,actorId,snapshot,[]); return snapshot; }
   async readSnapshot(id: string) { const rows = await this.db.$queryRawUnsafe(`SELECT * FROM ${table}.snapshot_records WHERE snapshot_id=$1`, id); return rows[0] ?? null; }
 
-  async createIncident(incident: IncidentRecord) { await this.db.$executeRawUnsafe(`INSERT INTO ${table}.incident_forensic_records (incident_id,semantic_title,symptom,reproduction,root_cause,root_cause_classification,attempted_fixes,applied_remediation,test_evidence,validator,human_validation,introduced_version,fixed_version,related_csc,related_pcr,prevention,similar_incidents,closure_evidence) VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9::jsonb,$10,$11,$12,$13,$14::jsonb,$15::jsonb,$16,$17::jsonb,$18)`,incident.id,incident.semanticTitle,incident.symptom,incident.reproduction,incident.rootCause,incident.rootCauseClassification,JSON.stringify(incident.attemptedFixes),incident.appliedRemediation,JSON.stringify(incident.testEvidence),incident.validator,incident.humanValidation??null,incident.introducedVersion??null,incident.fixedVersion??null,JSON.stringify(incident.relatedCSC),JSON.stringify(incident.relatedPCR),incident.prevention,JSON.stringify(incident.similarIncidents),incident.closureEvidence??null); await this.recordEvent('CREATED','IncidentForensicRecord',incident.id,incident.validator,incident,[]); return incident; }
+  async createIncident(incident: IncidentRecord) { await this.requireRole(incident.validator, 'VALIDATOR'); await this.db.$executeRawUnsafe(`INSERT INTO ${table}.incident_forensic_records (incident_id,semantic_title,symptom,reproduction,root_cause,root_cause_classification,attempted_fixes,applied_remediation,test_evidence,validator,human_validation,introduced_version,fixed_version,related_csc,related_pcr,prevention,similar_incidents,closure_evidence) VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9::jsonb,$10,$11,$12,$13,$14::jsonb,$15::jsonb,$16,$17::jsonb,$18)`,incident.id,incident.semanticTitle,incident.symptom,incident.reproduction,incident.rootCause,incident.rootCauseClassification,JSON.stringify(incident.attemptedFixes),incident.appliedRemediation,JSON.stringify(incident.testEvidence),incident.validator,incident.humanValidation??null,incident.introducedVersion??null,incident.fixedVersion??null,JSON.stringify(incident.relatedCSC),JSON.stringify(incident.relatedPCR),incident.prevention,JSON.stringify(incident.similarIncidents),incident.closureEvidence??null); await this.recordEvent('CREATED','IncidentForensicRecord',incident.id,incident.validator,incident,[]); return incident; }
 
   async createBreakGlassAuthorization(input: BreakGlassAuthorization) {
+    await this.requireRole(input.authorizedHumanId, 'APPROVER');
     const now = new Date(); const start = new Date(input.startedAt); const expiry = new Date(input.expiresAt);
     if (!input.authorizedHumanId || input.authorizedHumanId === input.requesterId) throw new Error('BREAK_GLASS_AUTHORITY_INVALID');
     if (!input.incidentId || !input.reason || !input.scopeComponent || !input.scopeOperation || !input.backupRef || !input.snapshotRef || !input.rollbackPlan || !input.riskAcceptance) throw new Error('BREAK_GLASS_EVIDENCE_INCOMPLETE');
@@ -324,11 +393,24 @@ export class GovernanceV2Persistence {
     await this.recordEvent('BREAK_GLASS_AUTHORIZED','BreakGlassAuthorization',input.id,input.authorizedHumanId,input,[input.backupRef,input.snapshotRef,input.incidentId]); return this.readBreakGlass(input.id);
   }
   async readBreakGlass(id: string) { const rows = await this.db.$queryRawUnsafe(`SELECT * FROM ${table}.break_glass_authorizations WHERE id=$1`,id); return rows[0] ?? null; }
-  async validateBreakGlassForExecution(id: string, executorId: string, at = stamp()) { const row = await this.readBreakGlass(id) as Record<string,unknown>|null; if(!row)throw new Error('BREAK_GLASS_NOT_FOUND'); if(row.status!=='AUTHORIZED')throw new Error('BREAK_GLASS_NOT_AUTHORIZED'); if(new Date(String(row.expires_at))<=new Date(at))throw new Error('BREAK_GLASS_EXPIRED'); if(row.requester_id===executorId)throw new Error('BREAK_GLASS_ACTOR_SEPARATION'); return {status:'EMERGENCY_ACTION_AUTHORIZED',authorizationId:id,scopeComponent:row.scope_component,scopeOperation:row.scope_operation,releaseVersion:row.release_version,commitSha:row.commit_sha,expiresAt:row.expires_at,productionMutation:false}; }
+  async validateBreakGlassForExecution(id: string, executorId: string, at?: string) {
+    await this.requireRole(executorId, 'EXECUTOR');
+    if (at !== undefined) throw new Error('BREAK_GLASS_CALLER_TIME_FORBIDDEN');
+    const row = await this.readBreakGlass(id) as Record<string, unknown> | null;
+    if (!row) throw new Error('BREAK_GLASS_NOT_FOUND');
+    if (row.status !== 'AUTHORIZED') throw new Error('BREAK_GLASS_NOT_AUTHORIZED');
+    const start = Date.parse(String(row.started_at)), expiry = Date.parse(String(row.expires_at));
+    const now = Date.now();
+    if (!Number.isFinite(start) || !Number.isFinite(expiry) || start >= expiry) throw new Error('BREAK_GLASS_TIME_INVALID');
+    if (now < start) throw new Error('BREAK_GLASS_NOT_STARTED');
+    if (now >= expiry) throw new Error('BREAK_GLASS_EXPIRED');
+    if (row.requester_id === executorId || row.authorized_human_id === executorId) throw new Error('BREAK_GLASS_ACTOR_SEPARATION');
+    return { status: 'EMERGENCY_ACTION_AUTHORIZED', authorizationId: id, scopeComponent: row.scope_component, scopeOperation: row.scope_operation, releaseVersion: row.release_version, commitSha: row.commit_sha, expiresAt: row.expires_at, productionMutation: false };
+  }
   async recordBreakGlassExecuted(id: string, executorId: string) { const auth=await this.validateBreakGlassForExecution(id,executorId); await this.db.$executeRawUnsafe(`UPDATE ${table}.break_glass_authorizations SET status='EXECUTED',executor_id=$2,updated_at=now() WHERE id=$1`,id,executorId); await this.recordEvent('BREAK_GLASS_EXECUTED','BreakGlassAuthorization',id,executorId,auth,[]); return this.readBreakGlass(id); }
-  async recordBreakGlassValidation(id: string, validatorId: string, evidence: string[], verdict: 'VALIDATED'|'FAILED') { const row=await this.readBreakGlass(id) as Record<string,unknown>|null;if(!row||row.status!=='EXECUTED'||row.executor_id===validatorId||!evidence.length)throw new Error('BREAK_GLASS_VALIDATION_INVALID');const status=verdict==='VALIDATED'?'VALIDATED':'FAILED';await this.db.$executeRawUnsafe(`UPDATE ${table}.break_glass_authorizations SET status=$2,validator_id=$3,validation_evidence=$4::jsonb,updated_at=now() WHERE id=$1`,id,status,validatorId,JSON.stringify(evidence));await this.recordEvent(verdict==='VALIDATED'?'BREAK_GLASS_VALIDATED':'BREAK_GLASS_FAILED','BreakGlassAuthorization',id,validatorId,{verdict},evidence);return this.readBreakGlass(id); }
+  async recordBreakGlassValidation(id: string, validatorId: string, evidence: string[], verdict: 'VALIDATED'|'FAILED') { await this.requireRole(validatorId, 'VALIDATOR'); const row=await this.readBreakGlass(id) as Record<string,unknown>|null;if(!row||row.status!=='EXECUTED'||row.executor_id===validatorId||row.requester_id===validatorId||!evidence.length)throw new Error('BREAK_GLASS_VALIDATION_INVALID');const status=verdict==='VALIDATED'?'VALIDATED':'FAILED';await this.db.$executeRawUnsafe(`UPDATE ${table}.break_glass_authorizations SET status=$2,validator_id=$3,validation_evidence=$4::jsonb,updated_at=now() WHERE id=$1`,id,status,validatorId,JSON.stringify(evidence));await this.recordEvent(verdict==='VALIDATED'?'BREAK_GLASS_VALIDATED':'BREAK_GLASS_FAILED','BreakGlassAuthorization',id,validatorId,{verdict},evidence);return this.readBreakGlass(id); }
 
-  private async recordEvent(eventType: string, entityType: string, entityId: string, actorId: string, payload: unknown, evidenceRefs: string[]) { const previous = await this.db.$queryRawUnsafe<{event_id:string,event_digest:string}>(`SELECT event_id,event_digest FROM ${table}.governance_events ORDER BY recorded_at DESC,event_id DESC LIMIT 1`); return this.appendEvent({eventId:randomUUID(),eventType,semanticTitle:`${eventType} ${entityType}`,entityType,entityId,previousEventId:previous[0]?.event_id,previousDigest:previous[0]?.event_digest,payload,correlationId:randomUUID(),actorId,occurredAt:stamp(),evidenceRefs}); }
+  private async recordEvent(eventType: string, entityType: string, entityId: string, actorId: string, payload: unknown, evidenceRefs: string[]) { await this.db.$executeRawUnsafe(`SELECT pg_advisory_xact_lock(hashtext('agm_governance_events'))`); const previous = await this.db.$queryRawUnsafe<{event_id:string,event_digest:string}>(`SELECT event_id,event_digest FROM ${table}.governance_events ORDER BY recorded_at DESC,event_id DESC LIMIT 1`); return this.appendEvent({eventId:randomUUID(),eventType,semanticTitle:`${eventType} ${entityType}`,entityType,entityId,previousEventId:previous[0]?.event_id,previousDigest:previous[0]?.event_digest,payload,correlationId:randomUUID(),actorId,occurredAt:stamp(),evidenceRefs}); }
 
   async searchSnapshots(query: string) {
     return this.db.$queryRawUnsafe(`SELECT * FROM ${table}.snapshot_records WHERE to_tsvector('simple', semantic_title || ' ' || content_summary) @@ plainto_tsquery('simple', $1) ORDER BY snapshot_id`, query);
@@ -342,6 +424,23 @@ export class GovernanceV2Persistence {
       SELECT e.target_component FROM ${table}.governance_dependency_edges e JOIN impact i ON e.source_component = i.component WHERE e.validation_required = true AND e.superseded_at IS NULL
     ) SELECT component FROM impact ORDER BY component`, sourceComponent);
     return rows.map((row) => row.component);
+  }
+
+  private async allImpactedComponents(affected: unknown) {
+    if (!Array.isArray(affected) || affected.length === 0 || affected.some((component) => typeof component !== 'string' || !component.trim())) throw new Error('DEPENDENCY_COMPONENTS_INCOMPLETE');
+    const all = new Set<string>(affected);
+    for (const component of new Set<string>(affected)) {
+      for (const impacted of await this.impactedComponents(component)) all.add(impacted);
+    }
+    return [...all].sort();
+  }
+
+  private dependencyPassed(value: unknown) {
+    if (value === 'PASS') return true;
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+    const accepted = value as Record<string, unknown>;
+    if (accepted.status !== 'EXPLICIT_ACCEPTED_DEGRADATION' || ['humanApprovalId', 'rationale', 'evidenceRef'].some(key => typeof accepted[key] !== 'string' || !(accepted[key] as string).trim())) return false;
+    return accepted.expiry == null || (typeof accepted.expiry === 'string' && Number.isFinite(Date.parse(accepted.expiry)) && Date.parse(accepted.expiry) > Date.now());
   }
 
   async searchWorktrees(query: string) {
@@ -371,6 +470,7 @@ export class GovernanceV2Persistence {
   async readRiskKnowledgeAssessment(id: string) { const rows = await this.db.$queryRawUnsafe(`SELECT * FROM ${table}.risk_knowledge_assessments WHERE assessment_id=$1`, id); return rows[0] ?? null; }
   async searchRiskKnowledgeAssessments(query: string) { return this.db.$queryRawUnsafe(`SELECT * FROM ${table}.risk_knowledge_assessments WHERE to_tsvector('simple', scope || ' ' || precedent_summary) @@ plainto_tsquery('simple',$1) ORDER BY generated_at DESC, assessment_id`, query); }
   async recordRiskKnowledgeOverride(id: string, override: NonNullable<RiskKnowledgeAssessment['humanOverride']>) {
+    await this.requireRole(override.authorizedHumanId, 'APPROVER');
     const existing = await this.readRiskKnowledgeAssessment(id) as Record<string, unknown> | null;
     if (!existing) throw new Error('RISK_ASSESSMENT_NOT_FOUND');
     if (!['BLOCK', 'REVIEW_REQUIRED'].includes(String(existing.verdict))) throw new Error('RISK_OVERRIDE_VERDICT_INVALID');
@@ -380,6 +480,7 @@ export class GovernanceV2Persistence {
   }
 
   async registerWorktree(input: { worktreeId: string; semanticTitle: string; description: string; path: string; branch: string; baseCommit: string; purposePhase: string; status: string; ownerExecutor: string; candidateRef?: string; snapshotRef?: string; modifiedFilesCount: number; untrackedFilesCount: number; evidenceRefs: string[]; migrationRefs: string[]; lastActivityAt: string; tests: string[]; relatedIncident?: string; relatedCSC?: string; relatedPCR?: string; relatedVersion?: string; preservationStatus: string; safeToRemove: boolean; removalReason: string }) {
+    await this.requireRole(input.ownerExecutor, 'EXECUTOR');
     await this.db.$executeRawUnsafe(`INSERT INTO ${table}.worktree_records (worktree_id,semantic_title,description,path,branch,base_commit,purpose_phase,status,owner_executor,candidate_ref,snapshot_ref,modified_files_count,untracked_files_count,evidence_refs,migration_refs,last_activity_at,tests,related_incident,related_csc,related_pcr,related_version,preservation_status,safe_to_remove,removal_reason) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::jsonb,$15::jsonb,$16::timestamptz,$17::jsonb,$18,$19,$20,$21,$22,$23,$24)`, input.worktreeId, input.semanticTitle, input.description, input.path, input.branch, input.baseCommit, input.purposePhase, input.status, input.ownerExecutor, input.candidateRef ?? null, input.snapshotRef ?? null, input.modifiedFilesCount, input.untrackedFilesCount, JSON.stringify(input.evidenceRefs), JSON.stringify(input.migrationRefs), input.lastActivityAt, JSON.stringify(input.tests), input.relatedIncident ?? null, input.relatedCSC ?? null, input.relatedPCR ?? null, input.relatedVersion ?? null, input.preservationStatus, input.safeToRemove, input.removalReason);
   }
 
@@ -390,7 +491,7 @@ export class GovernanceV2Persistence {
     if (!tail[0] && (input.previousEventId || input.previousDigest)) throw new Error('GOVERNANCE_EVENT_INVALID_INITIAL_LINK');
     const payloadDigest = digest(input.payload);
     const eventDigest = digest({ eventId: input.eventId, eventType: input.eventType, entityType: input.entityType, entityId: input.entityId, previousDigest: input.previousDigest ?? null, payloadDigest, correlationId: input.correlationId, actorId: input.actorId });
-    await this.db.$executeRawUnsafe(`INSERT INTO ${table}.governance_events (event_id,event_type,semantic_title,entity_type,entity_id,previous_event_id,relation,previous_digest,payload_digest,event_digest,correlation_id,actor_id,occurred_at,evidence_refs) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::timestamptz,$14::jsonb)`, input.eventId, input.eventType, input.semanticTitle, input.entityType, input.entityId, input.previousEventId ?? null, input.relation ?? null, input.previousDigest ?? null, payloadDigest, eventDigest, input.correlationId, input.actorId, input.occurredAt, JSON.stringify(input.evidenceRefs));
+    await this.db.$executeRawUnsafe(`INSERT INTO ${table}.governance_events (event_id,event_type,semantic_title,entity_type,entity_id,previous_event_id,relation,previous_digest,payload_digest,event_digest,correlation_id,actor_id,occurred_at,evidence_refs,recorded_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::timestamptz,$14::jsonb,GREATEST(clock_timestamp(),COALESCE((SELECT max(recorded_at) FROM ${table}.governance_events),clock_timestamp()) + interval '1 microsecond'))`, input.eventId, input.eventType, input.semanticTitle, input.entityType, input.entityId, input.previousEventId ?? null, input.relation ?? null, input.previousDigest ?? null, payloadDigest, eventDigest, input.correlationId, input.actorId, input.occurredAt, JSON.stringify(input.evidenceRefs));
     return { eventDigest, payloadDigest };
   }
 

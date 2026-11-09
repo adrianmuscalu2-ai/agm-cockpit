@@ -68,4 +68,24 @@ describe('Governance V2 hardening', () => {
   it('returns explicit violations rather than silently accepting invalid transitions', () => {
     const engine = engineWithSource(); expect(() => engine.promoteVersion('missing', 'CANDIDATE')).toThrow(GovernanceViolation);
   });
+
+  it('checks disconnected affected roots, cycles and excludes superseded dependencies', () => {
+    const engine = engineWithSource(); const record = pcr(engine);
+    record.affectedComponents.push('B', 'X');
+    for (const [sourceComponent, targetComponent, supersededAt] of [['B', 'B1'], ['B1', 'B'], ['B', 'old', new Date().toISOString()]]) {
+      engine.addDependencyEdge({ id: `${sourceComponent}-${targetComponent}`, sourceComponent: sourceComponent!, targetComponent: targetComponent!, relation: 'DEPENDS_ON', criticality: 'HIGH', validationRequired: true, introducedAt: new Date().toISOString(), supersededAt });
+    }
+    engine.assessPcr(record.id, validator);
+    for (const component of ['X', 'Y', 'B']) engine.recordDependencyResult(record.id, component, 'PASS');
+    expect(() => engine.approvePcr(record.id, approver)).toThrow('REGRESSION_CASCADE_BLOCKED');
+    engine.recordDependencyResult(record.id, 'B1', 'PASS');
+    expect(engine.approvePcr(record.id, approver).status).toBe('APPROVED');
+    expect(engine.impactedComponents('B')).toEqual(['B', 'B1']);
+  });
+
+  it('fails closed for an empty affected-root list', () => {
+    const engine = engineWithSource(); const record = pcr(engine);
+    record.affectedComponents.length = 0;
+    expect(() => engine.approvePcr(record.id, approver)).toThrow('DEPENDENCY_COMPONENTS_INCOMPLETE');
+  });
 });
