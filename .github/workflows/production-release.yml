@@ -468,6 +468,8 @@ jobs:
             --data "{\"targetUserId\":\"$TARGET_USER_ID\"}")
           echo "$response" | jq -e '.data.role == "CAR_MOVER_ACCESS" and .data.active == true and (.data.auditEventId | type == "string")'
       - name: Verify canonical M2M lifecycle in Production
+        env:
+          AGM_RELEASE_CLEANUP_MACHINE_ID: ${{ vars.AGM_RELEASE_CLEANUP_MACHINE_ID }}
         run: |
           set -euo pipefail
           # The API has just been replaced by the preceding deploy step. Retry
@@ -477,21 +479,52 @@ jobs:
             command curl --retry 8 --retry-delay 3 --retry-max-time 90 \
               --retry-all-errors --connect-timeout 10 --max-time 60 "$@"
           }
-          oidc_response=$(curl --fail --silent --show-error \
-            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=agm%3Aproduction-machine-provisioning")
-          PROVISIONING_TOKEN=$(jq -er '.value' <<<"$oidc_response")
-          echo "::add-mask::$PROVISIONING_TOKEN"
+          refresh_provisioning_token() {
+            local oidc_response next_provisioning_token
+            oidc_response=$(curl --fail --silent --show-error \
+              -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+              "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=agm%3Aproduction-machine-provisioning") || return
+            next_provisioning_token=$(jq -er '.value | select(type == "string" and length > 0)' <<<"$oidc_response") || return
+            echo "::add-mask::$next_provisioning_token"
+            PROVISIONING_TOKEN=$next_provisioning_token
+          }
+          refresh_provisioning_token
+          if [ -n "${AGM_RELEASE_CLEANUP_MACHINE_ID:-}" ]; then
+            test "$GITHUB_REF" = 'refs/heads/agm-canonical-20260820'
+            # Read-only nominal evidence binds this UUID to the failed release
+            # fixture production-release-43396113254-2, with acp:read only.
+            # Never accept an arbitrary agent or authority as a cleanup target.
+            test "$AGM_RELEASE_CLEANUP_MACHINE_ID" = 'c0dc0b24-73b7-485d-84e7-398234dcec39'
+            previous_cleanup_body=$(jq -nc '{reason:"TURN Commander corrective release: revoke temporary fixture production-release-43396113254-2 after failed OIDC cleanup."}')
+            previous_cleanup_result=$(curl --fail --silent --show-error \
+              -X POST "https://api.agmcockpit.com/api/v1/auth/deploy/machines/$AGM_RELEASE_CLEANUP_MACHINE_ID/revoke" \
+              -H "Authorization: Bearer $PROVISIONING_TOKEN" \
+              -H 'Content-Type: application/json' \
+              --data "$previous_cleanup_body")
+            jq -e --arg id "$AGM_RELEASE_CLEANUP_MACHINE_ID" \
+              '.data.identityId == $id and .data.status == "REVOKED"' <<<"$previous_cleanup_result" >/dev/null
+            echo 'PREVIOUS_RELEASE_FIXTURE_CLEANUP=PASS'
+            refresh_provisioning_token
+          fi
           client_id=''
           cleanup() {
+            local original_status=$? cleanup_body
+            trap - EXIT
             if [ -n "$client_id" ]; then
-              cleanup_body=$(jq -nc '{reason:"Production release validation cleanup."}')
-              curl --fail --silent --show-error \
-                -X POST "https://api.agmcockpit.com/api/v1/auth/deploy/machines/$client_id/revoke" \
-                -H "Authorization: Bearer $PROVISIONING_TOKEN" \
-                -H 'Content-Type: application/json' \
-                --data "$cleanup_body" >/dev/null || true
+              if ! cleanup_body=$(jq -nc '{reason:"Production release validation cleanup."}') \
+                || ! refresh_provisioning_token \
+                || ! curl --fail --silent --show-error \
+                  -X POST "https://api.agmcockpit.com/api/v1/auth/deploy/machines/$client_id/revoke" \
+                  -H "Authorization: Bearer $PROVISIONING_TOKEN" \
+                  -H 'Content-Type: application/json' \
+                  --data "$cleanup_body" >/dev/null; then
+                echo 'M2M_PRODUCTION_CLEANUP=FAIL' >&2
+                if [ "$original_status" -eq 0 ]; then original_status=1; fi
+              else
+                echo 'M2M_PRODUCTION_CLEANUP=PASS'
+              fi
             fi
+            exit "$original_status"
           }
           trap cleanup EXIT
 
@@ -752,6 +785,7 @@ jobs:
           jq '.' <<<"$checkpoint_two" > evidence/agent-accountability/production/agent-runtime-accountability.json
           sha256sum evidence/agent-accountability/production/agent-runtime-accountability.json > evidence/agent-accountability/production/agent-runtime-accountability.json.sha256
 
+          refresh_provisioning_token
           revoke_body=$(jq -nc '{reason:"Production release credential lifecycle validation."}')
           curl --fail --silent --show-error \
             -X POST "https://api.agmcockpit.com/api/v1/auth/deploy/machines/$client_id/credentials/$next_credential_id/revoke" \
