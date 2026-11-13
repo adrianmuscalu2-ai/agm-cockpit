@@ -4,6 +4,7 @@ import { manifestDecisionSummary, manifestJournalDecisions, type ManifestJournal
 import { authenticatedApiFetch } from './authenticated-api';
 import { readGovernanceModule, governanceReadFailure, summarizeGovernanceRead, type GovernanceReadModule } from './turn-agmatcc/agmatcc.commands';
 import { beginTurnModuleRead, updateTurnModuleReadState } from './turn-command-navigation';
+import { journalAvailabilityLabels, reconcileJournalDelivery } from './turn-journal-evidence';
 
 const journalIds = ['incidents', 'version-journal', 'memory', 'evidence', 'risk-knowledge'] as const;
 
@@ -34,9 +35,11 @@ function escapeHtml(value: string) {
 function journalRow(entry: TurnModuleNavigationEntry) {
   const source = entry.canonicalSource || 'NONE';
   const evidence = entry.evidenceRefs.length ? entry.evidenceRefs.join(', ') : 'NONE RECORDED';
-  const status = entry.validationStatus.replaceAll('_', ' ');
+  const status = entry.journalAvailability ? journalAvailabilityLabels[entry.journalAvailability] : entry.validationStatus.replaceAll('_', ' ');
   const live = entry.moduleId === 'risk-knowledge';
-  return `<tr id="turn-journal-${escapeHtml(entry.moduleId)}" data-turn-journal-row="${escapeHtml(entry.moduleId)}"><th scope="row"><a href="#turn-journal-${escapeHtml(entry.moduleId)}" data-open-turn-page="incidents">${escapeHtml(entry.displayName)}</a></th><td${live ? ' data-governance-connection="risk-knowledge"' : ''}>${live ? 'API: neverificat în această sesiune' : escapeHtml(status)}</td><td>${escapeHtml(entry.environment)}</td><td>${escapeHtml(entry.responsibleAgent)}</td><td>${escapeHtml(source)}</td><td>${escapeHtml(evidence)}</td><td${live ? ' data-governance-checked="risk-knowledge"' : ''}>${escapeHtml(entry.lastVerifiedAt)}</td></tr>`;
+  const environment = entry.journalAvailability === 'LOCAL_JOURNAL' ? 'LOCAL_SESSION' : entry.environment;
+  const release = entry.journalAvailability ? '<p data-journal-release-status>Livrare curentă neverificată</p><small data-journal-release-references></small>' : '';
+  return `<tr id="turn-journal-${escapeHtml(entry.moduleId)}" data-turn-journal-row="${escapeHtml(entry.moduleId)}"><th scope="row"><a href="#turn-journal-${escapeHtml(entry.moduleId)}" data-open-turn-page="incidents">${escapeHtml(entry.displayName)}</a></th><td${live ? ' data-governance-connection="risk-knowledge"' : ''}>${live ? 'API: neverificat în această sesiune' : escapeHtml(status)}</td><td>${escapeHtml(environment)}</td><td>${escapeHtml(entry.responsibleAgent)}</td><td>${escapeHtml(source)}</td><td>${escapeHtml(evidence)}${release}</td><td${live ? ' data-governance-checked="risk-knowledge"' : entry.journalAvailability ? ' data-journal-release-checked' : ''}>${entry.journalAvailability ? 'Citire canonică în așteptare' : escapeHtml(entry.lastVerifiedAt)}</td></tr>`;
 }
 
 function metadataRows(rows: readonly (readonly [string, string, string, string])[]) {
@@ -66,13 +69,13 @@ function manifestDecisionMarkup(decision: ManifestJournalDecision) {
 /** Read-only journal index. Statuses come from the navigation registry and are not inferred. */
 export function renderTurnJournalsView({ appVersion = 'UNKNOWN' }: { appVersion?: string } = {}) {
   const entries = journalIds.map((id) => turnModuleNavigationRegistry.find((entry) => entry.moduleId === id)).filter((entry): entry is TurnModuleNavigationEntry => Boolean(entry));
-  const versionRows = [...releaseSnapshot, ['Preview build label', appVersion, 'isolated preview runtime', 'DEMO LABEL'] as const];
+  const versionRows = releaseSnapshot;
   const decisionSummary = manifestDecisionSummary();
   return `<section class="turn-journals-view" id="turn-journals-memory" aria-labelledby="turn-journals-title" data-turn-journals-view>
     <header class="turn-journals-header"><div><span class="turn-kicker">TURN - JOURNALS & MEMORY</span><h2 id="turn-journals-title">Operational journals and evidence</h2><p>Conexiunile Governance și RK se verifică în sesiunea curentă. Sursele istorice sunt etichetate separat; disponibilitatea API nu este un verdict de validare.</p></div><strong class="turn-journals-badge">READ-ONLY</strong></header>
-    <div class="turn-journals-warning"><strong>Truth boundary:</strong> Version Journal, Operational Memory and Evidence Ledger are connected to read-only historical projections. They remain <code>IMPLEMENTED_NOT_VALIDATED</code>; a projection is not current runtime validation or Production activation.</div>
-    <div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Turn journal status and provenance</caption><thead><tr><th scope="col">Journal</th><th scope="col">Status</th><th scope="col">Environment</th><th scope="col">Owner</th><th scope="col">Canonical source</th><th scope="col">Evidence</th><th scope="col">Last verified</th></tr></thead><tbody>${entries.map(journalRow).join('')}</tbody></table></div>
-    <div class="turn-journal-subsections"><section id="turn-operational-memory" aria-labelledby="turn-operational-memory-title"><h3 id="turn-operational-memory-title">Operational Memory / AGMa</h3><p>Proiecția read-only AGMa și reconcilierea Incident Journal rămân separate de verificarea runtime curentă.</p></section><section id="turn-evidence-ledger" aria-labelledby="turn-evidence-ledger-title"><h3 id="turn-evidence-ledger-title">Evidence Ledger</h3><p>Manifesturile și dovezile controlate sunt referențiate; lipsa unei dovezi Production curente rămâne <code>UNKNOWN / NOT REPORTED</code>.</p></section>
+    <section aria-label="Certificarea livrării curente" data-journal-delivery><h3>Livrarea curentă · interfață ${escapeHtml(appVersion)}</h3><p data-journal-release-status role="status" aria-live="polite">Livrare curentă neverificată</p><p data-journal-release-references></p><button type="button" data-journal-release-refresh>Citește certificarea canonică</button><p>Disponibilitatea jurnalului indică sursa consultabilă. Certificarea livrării este citită din versiunea canonică și PCR-ul asociat SHA-ului servit de Web și API.</p></section>
+    <div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Disponibilitatea jurnalelor și proveniența dovezilor</caption><thead><tr><th scope="col">Journal</th><th scope="col">Disponibilitate</th><th scope="col">Sursa datelor</th><th scope="col">Responsabil în registru</th><th scope="col">Referință sursă</th><th scope="col">Dovezi și certificarea livrării</th><th scope="col">Ultima citire</th></tr></thead><tbody>${entries.map(journalRow).join('')}</tbody></table></div>
+    <div class="turn-journal-subsections"><section id="turn-operational-memory" aria-labelledby="turn-operational-memory-title"><h3 id="turn-operational-memory-title">Operational Memory / AGMa</h3><p>Istoricul AGMa și reconcilierea Incident Journal sunt consultabile din sursele indicate în registru.</p></section><section id="turn-evidence-ledger" aria-labelledby="turn-evidence-ledger-title"><h3 id="turn-evidence-ledger-title">Evidence Ledger</h3><p>Manifesturile istorice își păstrează referințele. Dovezile livrării curente sunt citite din versiunea canonică și PCR-ul asociat.</p></section>
       <section id="turn-governance-risk-knowledge-read-surface" aria-labelledby="turn-journal-risk-knowledge-title" data-governance-read>
         <h3 id="turn-journal-risk-knowledge-title">Governance V2 · Risk &amp; Knowledge</h3>
         <p>Citire protejată, fără operații de scriere sau activare. Accesul necesită o identitate umană legată cu rol activ de APPROVER sau VALIDATOR.</p>
@@ -88,18 +91,20 @@ export function renderTurnJournalsView({ appVersion = 'UNKNOWN' }: { appVersion?
         <button type="button" data-governance-refresh>Verifică conexiunile</button>
         <div class="turn-governance-read-results" data-governance-results></div>
       </section>
-      <p><strong>Snapshot istoric 2026-10-28.</strong> Tabelele de versiune, mediu și surse de mai jos păstrează metadatele acelui preview; nu reprezintă conexiunea sau certificarea Production curentă.</p>
+      <details data-historical-journal-metadata><summary>Arhivă preview 2026-10-28 · versiune, mediu și surse</summary>
       <section aria-labelledby="turn-version-journal-title"><h3 id="turn-version-journal-title">Version Journal / commituri</h3><div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Snapshot metadata, nu dovadă de deploy</caption><thead><tr><th scope="col">Câmp</th><th scope="col">Valoare</th><th scope="col">Sursă</th><th scope="col">Stare</th></tr></thead><tbody>${metadataRows(versionRows)}</tbody></table></div></section>
       <section aria-labelledby="turn-environment-journal-title"><h3 id="turn-environment-journal-title">Medii și conectivitate</h3><div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Separare între preview, surse externe și producție</caption><thead><tr><th scope="col">Mediu</th><th scope="col">Țintă</th><th scope="col">Dovadă</th><th scope="col">Stare</th></tr></thead><tbody>${metadataRows(environmentSnapshot)}</tbody></table></div></section>
       <section aria-labelledby="turn-canonical-sources-title"><h3 id="turn-canonical-sources-title">Surse canonice</h3><div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Surse locale identificate</caption><thead><tr><th scope="col">Registru</th><th scope="col">Cale</th><th scope="col">Stare</th></tr></thead><tbody>${sourceRows(canonicalSourceSnapshot)}</tbody></table></div></section>
+      </details>
     </div>
-    <section class="turn-manifest-governance" aria-labelledby="turn-manifest-governance-title"><header><div><span class="turn-kicker">MANIFEST · COORDONARE</span><h3 id="turn-manifest-governance-title">Decizii jurnal conform manifestului</h3><p>Flux read-only DA/NU. Implementată, verificată, comisă și activă în Production sunt stări distincte; un NU păstrează motivul și referințele consultate.</p></div><strong data-manifest-decision-summary>${decisionSummary.yes} DA · ${decisionSummary.no} NU</strong></header><div class="turn-manifest-decision-list">${manifestJournalDecisions.map(manifestDecisionMarkup).join('')}</div></section>
+    <details class="turn-manifest-governance" data-historical-journal-metadata><summary>Arhivă manifest 2026-10-28 · deciziile de la data snapshotului</summary><section aria-labelledby="turn-manifest-governance-title"><header><div><h3 id="turn-manifest-governance-title">Decizii jurnal conform manifestului istoric</h3><p>Fiecare stare de implementare, verificare și activare de mai jos aparține snapshotului 2026-10-28.</p></div><strong data-manifest-decision-summary>${decisionSummary.yes} DA · ${decisionSummary.no} NU</strong></header><div class="turn-manifest-decision-list">${manifestJournalDecisions.map(manifestDecisionMarkup).join('')}</div></section></details>
     <section class="agma-history-index" id="turn-agma-history" aria-labelledby="turn-agma-history-title"><header><div><span class="turn-kicker">ETICHETĂ · AGMA</span><h3 id="turn-agma-history-title">Istoric AGMa recuperabil</h3><p>Căutare pe eticheta AGMA, ID stabil, commit, versiune, regresie, funcționalitate, sursă și mediu. Rezultatele rămân separate de registrele specializate.</p></div><strong data-agma-result-count>${agmaHistory.length} rezultate</strong></header><label class="agma-history-search"><span>Caută etichetă AGMA</span><input type="search" id="turnAgmaSearch" data-agma-history-search placeholder="Ex.: AGMA" value="" /></label><p class="agma-history-empty" data-agma-history-empty hidden>Nu există rezultate pentru această etichetă.</p><div class="agma-history-list" data-agma-history-list>${agmaHistory.map(agmaRecordMarkup).join('')}</div></section>
-    <div class="turn-journals-notes"><article><strong>Verified</strong><p>Incident Journal reconciliation uses API-006 as remote authority and holds terminal claims for human validation.</p></article><article><strong>Missing</strong><p>A current runtime execution and evidence reference for each historical journal; registry metadata alone cannot provide that proof.</p></article><article><strong>Not performed</strong><p>This page does not write journals, change statuses, or activate Governance V2.</p></article></div>
+    <p>Incident Journal păstrează înregistrările locale și reconcilierea API-006 cu validarea umană a stărilor terminale. History &amp; Evolution și Evidence Ledger păstrează sursele istorice și referințele originale.</p>
   </section>`;
 }
 
 export function bindAgmaHistorySearch() {
+  bindJournalDeliveryEvidence();
   bindGovernanceReadSurface();
   const input = document.querySelector<HTMLInputElement>('[data-agma-history-search]');
   const list = document.querySelector<HTMLElement>('[data-agma-history-list]');
@@ -120,6 +125,49 @@ export function bindAgmaHistorySearch() {
   };
   input.addEventListener('input', apply);
   apply();
+}
+
+function bindJournalDeliveryEvidence() {
+  const root = document.querySelector<HTMLElement>('[data-turn-journals-view]');
+  if (!root || root.dataset.journalDeliveryBound) return;
+  root.dataset.journalDeliveryBound = '1';
+  let generation = 0;
+  const show = (state: string, label: string, references: string[], checkedAt: string) => {
+    root.querySelectorAll<HTMLElement>('[data-journal-release-status]').forEach(node => {
+      node.textContent = label;
+      node.dataset.releaseState = state;
+    });
+    root.querySelectorAll<HTMLElement>('[data-journal-release-references]').forEach(node => {
+      node.textContent = references.join(' · ');
+    });
+    root.querySelectorAll<HTMLElement>('[data-journal-release-checked]').forEach(node => { node.textContent = checkedAt; });
+  };
+  const refresh = async () => {
+    const request = ++generation;
+    show('CHECKING', 'Se citește certificarea livrării curente…', [], 'Citire în curs');
+    try {
+      const responses = await Promise.all([
+        fetch('/build-info.json', { cache: 'no-store', headers: { Accept: 'application/json' } }),
+        authenticatedApiFetch('/health/ready', { cache: 'no-store', headers: { Accept: 'application/json' } }),
+        authenticatedApiFetch('/governance-v2/risk-knowledge/search?q=TURN', { cache: 'no-store', headers: { Accept: 'application/json' } }),
+      ]);
+      const failed = responses.find(response => !response.ok);
+      if (failed) throw new Error(`GOVERNANCE_READ_HTTP_${failed.status}`);
+      const [web, api, canonical] = await Promise.all(responses.map(response => response.json()));
+      const evidence = reconcileJournalDelivery(web.commit, api.data?.build?.commit, canonical.data);
+      if (!root.isConnected || request !== generation) return;
+      show(evidence.state, evidence.label, evidence.references, new Date().toISOString());
+    } catch (error) {
+      if (!root.isConnected || request !== generation) return;
+      const state = governanceReadFailure(error);
+      const label = state === 'AUTH_REQUIRED' ? 'Certificarea necesită autentificarea contului'
+        : state === 'FORBIDDEN' ? 'Acces refuzat la dovezile canonice'
+        : 'Certificarea livrării este indisponibilă';
+      show(state, label, [], 'Citire canonică nereușită');
+    }
+  };
+  root.querySelector('[data-journal-release-refresh]')?.addEventListener('click', () => { void refresh(); });
+  void refresh();
 }
 
 function bindGovernanceReadSurface() {

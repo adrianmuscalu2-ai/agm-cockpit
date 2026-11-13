@@ -3,6 +3,7 @@ import { renderTurnJournalsView } from '../src/turn-journals.view';
 import { agmaHistory, searchAgmaHistory } from '../src/agma-history';
 import { manifestDecisionSummary, manifestJournalDecisions } from '../src/turn-manifest-governance';
 import { turnModuleNavigationRegistry } from '../src/turn-module-navigation.registry';
+import { reconcileJournalDelivery } from '../src/turn-journal-evidence';
 
 const view = renderTurnJournalsView({ appVersion: '1.6.0' });
 
@@ -19,12 +20,16 @@ assert.match(view, /data-governance-assessments-search/);
 assert.match(view, /APPROVER sau VALIDATOR/);
 assert.match(view, /fără operații de scriere sau activare/);
 assert.equal((view.match(/data-turn-journal-row=/g) ?? []).length, 5);
-assert.match(view, /IMPLEMENTED NOT VALIDATED/);
+assert.match(view, /Jurnal local disponibil/);
+assert.match(view, /Proiecție istorică disponibilă/);
+assert.equal((view.match(/data-journal-release-status/g) ?? []).length, 5);
+assert.doesNotMatch(view.split('data-historical-journal-metadata')[0], /IMPLEMENTED[_ ]NOT[_ ]VALIDATED/);
 assert.match(view, /Version Journal \/ commituri/);
 assert.match(view, /Isolated preview/);
 assert.match(view, /Canonical source registry/);
 assert.match(view, /34f730be3fe5cf790f76a6169fc5b1d043b320da/);
-assert.match(view, /does not write journals/);
+assert.match(view, /data-historical-journal-metadata/);
+assert.doesNotMatch(view, /Preview build label/);
 for (const moduleId of ['incidents', 'version-journal', 'memory', 'evidence', 'risk-knowledge']) {
   const target = `turn-journal-${moduleId}`;
   const entry = turnModuleNavigationRegistry.find((item) => item.moduleId === moduleId);
@@ -55,3 +60,30 @@ assert.ok(riskDecision?.historicalRoleEvidence?.some((reference) => reference.in
 assert.ok(riskDecision?.missingRoleEvidence?.some((reference) => reference.startsWith('M4 historical artifact: NOT LOCATED')));
 
 console.log('TURN journals view contract: PASS');
+
+const revision = 'a'.repeat(40);
+const previousRevision = 'b'.repeat(40);
+const pcr = { id: 'current-pcr', deploy_revision: revision, status: 'CLOSED', final_verdict: 'PASS',
+  post_deploy_verification: 'sha256:runtime-evidence', proposer_id: 'proposer', executor_id: 'executor', validator_id: 'validator' };
+const version = { id: 'current-version', commit_sha: revision, status: 'CANONICAL', pcr_refs: [pcr.id] };
+const data = { versions: [version], pcrs: [pcr] };
+assert.equal(reconcileJournalDelivery(revision, revision, data).state, 'CERTIFIED');
+assert.ok(reconcileJournalDelivery(revision, revision, data).references.includes(pcr.id));
+assert.equal(reconcileJournalDelivery(revision, previousRevision, data).state, 'REVISION_MISMATCH');
+assert.equal(reconcileJournalDelivery(previousRevision, previousRevision, data).state, 'NOT_FOUND');
+assert.equal(reconcileJournalDelivery(revision, revision, { versions: [], pcrs: [] }).state, 'NOT_FOUND');
+assert.equal(reconcileJournalDelivery(revision, revision, { ...data, versions: [{ ...version, status: 'CANDIDATE' }] }).state, 'NOT_FOUND');
+assert.equal(reconcileJournalDelivery(revision, revision, { ...data, versions: [{ ...version, pcr_refs: ['different-pcr'] }] }).state, 'PENDING');
+assert.equal(reconcileJournalDelivery(revision, revision, { ...data, versions: [{ ...version, pcr_refs: [pcr.id, 'missing-pcr'] }] }).state, 'PENDING');
+assert.equal(reconcileJournalDelivery(revision, revision, { ...data, versions: [{ ...version, pcr_refs: [] }] }).state, 'PENDING');
+assert.equal(reconcileJournalDelivery(revision, revision, { ...data, versions: [version, { ...version, id: 'incomplete-version', pcr_refs: undefined }] }).state, 'PENDING');
+assert.equal(reconcileJournalDelivery(revision, revision, { ...data, versions: [version, { ...version, id: 'second-version', pcr_refs: ['missing-pcr'] }] }).state, 'PENDING');
+assert.equal(reconcileJournalDelivery(revision, revision, { ...data, pcrs: [{ ...pcr, deploy_revision: previousRevision }] }).state, 'PENDING');
+for (const change of [{ status: 'DEPLOYED' }, { final_verdict: 'FAIL' }, { post_deploy_verification: '' }, { validator_id: pcr.executor_id }, { validator_id: pcr.proposer_id }, { executor_id: undefined }]) {
+  assert.equal(reconcileJournalDelivery(revision, revision, { ...data, pcrs: [{ ...pcr, ...change }] }).state, 'PENDING');
+}
+assert.throws(() => reconcileJournalDelivery(revision, revision, { versions: [null], pcrs: [] }), /MALFORMED/);
+assert.throws(() => reconcileJournalDelivery(revision, revision, {}), /MALFORMED/);
+assert.throws(() => reconcileJournalDelivery('unknown', revision, data), /REVISION_MISSING/);
+assert.ok(turnModuleNavigationRegistry.filter(entry => ['incidents', 'version-journal', 'memory', 'evidence'].includes(entry.moduleId)).every(entry => entry.journalAvailability));
+console.log('TURN canonical journal delivery reconciliation: PASS');

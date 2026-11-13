@@ -22,6 +22,7 @@ import { renderAgentRuntimeAccountability } from './agent-runtime-accountability
 import { createDomainOrchestrators } from '@agm/library-control-plane';
 import { turnModuleNavigationGroups, turnModuleNavigationRegistry, type TurnModuleNavigationEntry } from './turn-module-navigation.registry';
 import { renderTurnJournalsView } from './turn-journals.view';
+import { journalAvailabilityLabels } from './turn-journal-evidence';
 import { renderTurnAccountabilitySpatialModel, renderTurnAgentsSpatialModel, renderTurnMonitoringSpatialModel, renderTurnSpatialControlModel } from './turn-spatial-control-model';
 import {
   type TurnCommandItem,
@@ -243,11 +244,12 @@ function renderTurnModuleLink(entry: TurnModuleNavigationEntry | undefined) {
   if (!entry) return '';
   const search = [entry.moduleId, entry.displayName, entry.responsibleAgent, entry.canonicalSource, entry.environment].join(' ').toLocaleLowerCase();
   const page = entry.page ?? 'investigate';
-  const statusClass = entry.validationStatus.toLowerCase().replaceAll('_', '-');
+  const statusClass = (entry.journalAvailability ?? entry.validationStatus).toLowerCase().replaceAll('_', '-');
   const connection = entry.moduleId === 'governance' || entry.moduleId === 'risk-knowledge';
+  const availability = entry.journalAvailability ? journalAvailabilityLabels[entry.journalAvailability] : undefined;
   if (!entry.target) return `<span class="turn-module-nav-link turn-module-nav-link-unconnected turn-module-nav-link-${escapeHtml(statusClass)}" data-turn-module-id="${escapeHtml(entry.moduleId)}" data-turn-module-search-value="${escapeHtml(search)}" data-validation-status="${escapeHtml(entry.validationStatus)}"><span>${escapeHtml(entry.displayName)}</span><small>NOT CONNECTED · ${escapeHtml(entry.environment)}</small></span>`;
   const href = `#${entry.target}`;
-  return `<a class="turn-module-nav-link turn-module-nav-link-${escapeHtml(statusClass)}" href="${escapeHtml(href)}" data-open-turn-page="${escapeHtml(page)}" data-turn-module-id="${escapeHtml(entry.moduleId)}" data-turn-module-search-value="${escapeHtml(search)}" data-validation-status="${escapeHtml(entry.validationStatus)}"><span>${escapeHtml(entry.displayName)}</span><small${connection ? ` data-governance-connection="${escapeHtml(entry.moduleId)}"` : ''}>${connection ? 'API: neverificat în această sesiune' : `${escapeHtml(entry.validationStatus)} · ${escapeHtml(entry.environment)}`}</small></a>`;
+  return `<a class="turn-module-nav-link turn-module-nav-link-${escapeHtml(statusClass)}" href="${escapeHtml(href)}" data-open-turn-page="${escapeHtml(page)}" data-turn-module-id="${escapeHtml(entry.moduleId)}" data-turn-module-search-value="${escapeHtml(search)}" ${availability ? `data-journal-availability="${escapeHtml(entry.journalAvailability!)}"` : `data-validation-status="${escapeHtml(entry.validationStatus)}"`}><span>${escapeHtml(entry.displayName)}</span><small${connection ? ` data-governance-connection="${escapeHtml(entry.moduleId)}"` : ''}>${availability ?? (connection ? 'API: neverificat în această sesiune' : `${escapeHtml(entry.validationStatus)} · ${escapeHtml(entry.environment)}`)}</small></a>`;
 }
 
 function renderFunctionalOverview() {
