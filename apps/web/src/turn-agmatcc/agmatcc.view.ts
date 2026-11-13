@@ -1,4 +1,5 @@
 import { turnModuleNavigationRegistry } from '../turn-module-navigation.registry';
+import { journalAvailabilityLabels } from '../turn-journal-evidence';
 
 const esc = (value: string) => value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
@@ -11,12 +12,12 @@ export function renderAgmatccPage(moduleNavigation = '') {
       <header class="agmatcc-topbar">
         <h2 id="turn-agmatcc-title">AGMaTCC Copilot</h2>
         <nav class="agmatcc-journals" aria-label="Jurnale TURN și RK">
-          ${journals.map((entry) => `<a href="#turn-journal-${esc(entry.moduleId)}" data-open-turn-page="incidents" data-agmatcc-journal="${esc(entry.moduleId)}" title="${esc(entry.validationStatus)}">${esc(entry.displayName)}</a>`).join('')}
+          ${journals.map((entry) => `<a href="#turn-journal-${esc(entry.moduleId)}" data-open-turn-page="incidents" data-agmatcc-journal="${esc(entry.moduleId)}" title="${esc(entry.journalAvailability ? journalAvailabilityLabels[entry.journalAvailability] : 'Sursă de jurnal disponibilă')} · ${esc(entry.canonicalSource)}">${esc(entry.displayName)}</a>`).join('')}
           <button type="button" data-agmatcc-read-remote>Jurnal server</button>
           <button type="button" data-agmatcc-read-governance>Propuneri Governance</button>
           <button type="button" data-agmatcc-read-rk>Evaluări RK</button>
         </nav>
-        ${riskKnowledge ? `<a class="agmatcc-risk-knowledge" href="#turn-journal-risk-knowledge" data-open-turn-page="incidents" title="${esc(riskKnowledge.validationStatus)}">Risk &amp; Knowledge</a>` : ''}
+        ${riskKnowledge ? `<a class="agmatcc-risk-knowledge" href="#turn-journal-risk-knowledge" data-open-turn-page="incidents" data-governance-connection-title="risk-knowledge" title="API: neverificat în această sesiune">Risk &amp; Knowledge</a>` : ''}
       </header>
       <details class="agmatcc-audit-panel">
         <summary>Detalii tehnice și dovezi</summary>

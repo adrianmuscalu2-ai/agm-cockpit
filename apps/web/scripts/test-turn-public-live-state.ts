@@ -42,10 +42,13 @@ Object.defineProperty(globalThis, 'document', { configurable: true, value: { que
 updateTurnModuleReadState('governance', 'CONNECTED_READ_ONLY', 'actual-request');
 assert.equal(nodes[0].dataset.validationStatus, 'UNKNOWN', 'connectivity must not rewrite validation');
 assert.equal(nodes[0].dataset.connectionStatus, 'CONNECTED_READ_ONLY');
+assert.match(nodes[0].title, /API conectat.*actual-request/);
 updateTurnModuleReadState('governance', 'FORBIDDEN');
 assert.equal(nodes[0].dataset.connectionStatus, 'FORBIDDEN', 'a later refusal must remove the connected indication');
 assert.match(nodes[0].textContent, /Acces refuzat/);
 assert.doesNotMatch(nodes[0].textContent, /conectat|VALIDATED/);
+assert.match(nodes[0].title, /Acces refuzat/);
+assert.doesNotMatch(nodes[0].title, /conectat|actual-request|VALIDATED/);
 const oldRequest = beginTurnModuleRead('risk-knowledge');
 const newRequest = beginTurnModuleRead('risk-knowledge');
 assert.equal(updateTurnModuleReadState('risk-knowledge', 'FORBIDDEN', '', newRequest), true);

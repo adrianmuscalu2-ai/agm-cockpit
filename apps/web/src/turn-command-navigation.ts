@@ -103,6 +103,10 @@ export function updateTurnModuleReadState(moduleId: GovernanceReadModule, state:
   document.querySelectorAll<HTMLElement>(`[data-governance-connection="${moduleId}"]`).forEach(node => {
     node.textContent = labels[state]; node.dataset.connectionStatus = state; node.title = evidence;
   });
+  document.querySelectorAll<HTMLElement>(`[data-governance-connection-title="${moduleId}"]`).forEach(node => {
+    node.title = evidence ? `${labels[state]} · ${evidence}` : labels[state];
+    node.dataset.connectionStatus = state;
+  });
   document.querySelectorAll<HTMLElement>(`[data-turn-module-id="${moduleId}"], [data-turn-journal-row="${moduleId}"]`).forEach(node => {
     node.dataset.connectionStatus = state;
   });
