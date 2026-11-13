@@ -122,6 +122,7 @@ jobs:
         run: echo "digest=${{ steps.image.outputs.digest }}" >> "$GITHUB_OUTPUT"
 
   deploy:
+    if: ${{ github.ref == 'refs/heads/agm-canonical-20260820' || (github.ref == 'refs/heads/phase3-rc-preparation' && github.event_name == 'workflow_dispatch') }}
     name: Deployment
     needs: [publish, publish-web]
     runs-on: ubuntu-latest
