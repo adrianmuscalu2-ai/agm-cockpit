@@ -50,9 +50,10 @@ export function renderTurnAuthorityControlPlane() {
         <p>Poziția și culoarea fiecărui nod sunt o proiecție interactivă a telemetriei canonice. Click pe agent pentru runtime, cauză, dovadă și acțiune.</p>
       </header>
       <aside class="turn-governance-state" data-governance-module aria-label="Starea modulului Governance">
-        <div><span class="turn-kicker">TURN · GOVERNANCE</span><strong>Governance V2 pregătit, dar neactivat</strong></div>
-        <span class="turn-governance-state-badge">PREPARED · ACTIVATION GATED</span>
-        <p>Runtime-ul și contractele sunt integrate, dar mediul Governance oficial nu este activat; nu se execută scrieri, ledger sau servicii Governance în această suprafață.</p>
+        <div><span class="turn-kicker">TURN · GOVERNANCE</span><strong>Governance V2 · conexiune API</strong></div>
+        <span class="turn-governance-state-badge" data-governance-connection="governance">API: neverificat în această sesiune</span>
+        <p>Disponibilitatea citirii se verifică folosind contul autentificat. Aprobarea, execuția și validarea rămân supuse rolurilor și porților existente.</p>
+        <a href="#turn-governance-risk-knowledge-read-surface" data-open-turn-page="incidents">Deschide propunerile și evaluările RK</a>
       </aside>
       ${renderTurnSpatialControlModel('premium')}
       <section class="agm-network-hero" data-authority-dashboard aria-live="polite" aria-busy="true">

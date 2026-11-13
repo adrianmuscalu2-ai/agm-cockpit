@@ -2,6 +2,8 @@ import { turnModuleNavigationRegistry, type TurnModuleNavigationEntry } from './
 import { agmaHistory, type AgmaHistoryRecord } from './agma-history';
 import { manifestDecisionSummary, manifestJournalDecisions, type ManifestJournalDecision } from './turn-manifest-governance';
 import { authenticatedApiFetch } from './authenticated-api';
+import { readGovernanceModule, governanceReadFailure, summarizeGovernanceRead, type GovernanceReadModule } from './turn-agmatcc/agmatcc.commands';
+import { beginTurnModuleRead, updateTurnModuleReadState } from './turn-command-navigation';
 
 const journalIds = ['incidents', 'version-journal', 'memory', 'evidence', 'risk-knowledge'] as const;
 
@@ -33,7 +35,8 @@ function journalRow(entry: TurnModuleNavigationEntry) {
   const source = entry.canonicalSource || 'NONE';
   const evidence = entry.evidenceRefs.length ? entry.evidenceRefs.join(', ') : 'NONE RECORDED';
   const status = entry.validationStatus.replaceAll('_', ' ');
-  return `<tr id="turn-journal-${escapeHtml(entry.moduleId)}" data-turn-journal-row="${escapeHtml(entry.moduleId)}"><th scope="row"><a href="#turn-journal-${escapeHtml(entry.moduleId)}" data-open-turn-page="incidents">${escapeHtml(entry.displayName)}</a></th><td>${escapeHtml(status)}</td><td>${escapeHtml(entry.environment)}</td><td>${escapeHtml(entry.responsibleAgent)}</td><td>${escapeHtml(source)}</td><td>${escapeHtml(evidence)}</td><td>${escapeHtml(entry.lastVerifiedAt)}</td></tr>`;
+  const live = entry.moduleId === 'risk-knowledge';
+  return `<tr id="turn-journal-${escapeHtml(entry.moduleId)}" data-turn-journal-row="${escapeHtml(entry.moduleId)}"><th scope="row"><a href="#turn-journal-${escapeHtml(entry.moduleId)}" data-open-turn-page="incidents">${escapeHtml(entry.displayName)}</a></th><td${live ? ' data-governance-connection="risk-knowledge"' : ''}>${live ? 'API: neverificat în această sesiune' : escapeHtml(status)}</td><td>${escapeHtml(entry.environment)}</td><td>${escapeHtml(entry.responsibleAgent)}</td><td>${escapeHtml(source)}</td><td>${escapeHtml(evidence)}</td><td${live ? ' data-governance-checked="risk-knowledge"' : ''}>${escapeHtml(entry.lastVerifiedAt)}</td></tr>`;
 }
 
 function metadataRows(rows: readonly (readonly [string, string, string, string])[]) {
@@ -66,7 +69,7 @@ export function renderTurnJournalsView({ appVersion = 'UNKNOWN' }: { appVersion?
   const versionRows = [...releaseSnapshot, ['Preview build label', appVersion, 'isolated preview runtime', 'DEMO LABEL'] as const];
   const decisionSummary = manifestDecisionSummary();
   return `<section class="turn-journals-view" id="turn-journals-memory" aria-labelledby="turn-journals-title" data-turn-journals-view>
-    <header class="turn-journals-header"><div><span class="turn-kicker">TURN - JOURNALS & MEMORY</span><h2 id="turn-journals-title">Operational journals and evidence</h2><p>Read-only index of local sources. The status is rendered exactly from the registry; missing evidence is not converted to PASS.</p></div><strong class="turn-journals-badge">READ-ONLY</strong></header>
+    <header class="turn-journals-header"><div><span class="turn-kicker">TURN - JOURNALS & MEMORY</span><h2 id="turn-journals-title">Operational journals and evidence</h2><p>Conexiunile Governance și RK se verifică în sesiunea curentă. Sursele istorice sunt etichetate separat; disponibilitatea API nu este un verdict de validare.</p></div><strong class="turn-journals-badge">READ-ONLY</strong></header>
     <div class="turn-journals-warning"><strong>Truth boundary:</strong> Version Journal, Operational Memory and Evidence Ledger are connected to read-only historical projections. They remain <code>IMPLEMENTED_NOT_VALIDATED</code>; a projection is not current runtime validation or Production activation.</div>
     <div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Turn journal status and provenance</caption><thead><tr><th scope="col">Journal</th><th scope="col">Status</th><th scope="col">Environment</th><th scope="col">Owner</th><th scope="col">Canonical source</th><th scope="col">Evidence</th><th scope="col">Last verified</th></tr></thead><tbody>${entries.map(journalRow).join('')}</tbody></table></div>
     <div class="turn-journal-subsections"><section id="turn-operational-memory" aria-labelledby="turn-operational-memory-title"><h3 id="turn-operational-memory-title">Operational Memory / AGMa</h3><p>Proiecția read-only AGMa și reconcilierea Incident Journal rămân separate de verificarea runtime curentă.</p></section><section id="turn-evidence-ledger" aria-labelledby="turn-evidence-ledger-title"><h3 id="turn-evidence-ledger-title">Evidence Ledger</h3><p>Manifesturile și dovezile controlate sunt referențiate; lipsa unei dovezi Production curente rămâne <code>UNKNOWN / NOT REPORTED</code>.</p></section>
@@ -80,8 +83,12 @@ export function renderTurnJournalsView({ appVersion = 'UNKNOWN' }: { appVersion?
           <button type="button" data-governance-assessments-search>Caută evaluări</button>
         </div>
         <p role="status" aria-live="polite" data-governance-status>Starea API nu a fost verificată în această sesiune.</p>
+        <p>Governance: <span data-governance-connection="governance">API: neverificat în această sesiune</span><br />RK: <span data-governance-connection="risk-knowledge">API: neverificat în această sesiune</span></p>
+        <p data-governance-summary="risk-knowledge"></p>
+        <button type="button" data-governance-refresh>Verifică conexiunile</button>
         <div class="turn-governance-read-results" data-governance-results></div>
       </section>
+      <p><strong>Snapshot istoric 2026-10-28.</strong> Tabelele de versiune, mediu și surse de mai jos păstrează metadatele acelui preview; nu reprezintă conexiunea sau certificarea Production curentă.</p>
       <section aria-labelledby="turn-version-journal-title"><h3 id="turn-version-journal-title">Version Journal / commituri</h3><div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Snapshot metadata, nu dovadă de deploy</caption><thead><tr><th scope="col">Câmp</th><th scope="col">Valoare</th><th scope="col">Sursă</th><th scope="col">Stare</th></tr></thead><tbody>${metadataRows(versionRows)}</tbody></table></div></section>
       <section aria-labelledby="turn-environment-journal-title"><h3 id="turn-environment-journal-title">Medii și conectivitate</h3><div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Separare între preview, surse externe și producție</caption><thead><tr><th scope="col">Mediu</th><th scope="col">Țintă</th><th scope="col">Dovadă</th><th scope="col">Stare</th></tr></thead><tbody>${metadataRows(environmentSnapshot)}</tbody></table></div></section>
       <section aria-labelledby="turn-canonical-sources-title"><h3 id="turn-canonical-sources-title">Surse canonice</h3><div class="turn-journals-table-wrap"><table class="turn-journals-table"><caption>Surse locale identificate</caption><thead><tr><th scope="col">Registru</th><th scope="col">Cale</th><th scope="col">Stare</th></tr></thead><tbody>${sourceRows(canonicalSourceSnapshot)}</tbody></table></div></section>
@@ -122,30 +129,62 @@ function bindGovernanceReadSurface() {
   const status = root.querySelector<HTMLElement>('[data-governance-status]')!;
   const results = root.querySelector<HTMLElement>('[data-governance-results]')!;
   const query = root.querySelector<HTMLInputElement>('[data-governance-query]')!;
+  query.value ||= 'Production';
+  const loadModule = async (moduleId: GovernanceReadModule, showResults = false) => {
+    const generation = beginTurnModuleRead(moduleId);
+    try {
+      const read = await readGovernanceModule(moduleId, query.value);
+      if (!root.isConnected) return;
+      if (!updateTurnModuleReadState(moduleId, 'CONNECTED_READ_ONLY', `${read.checkedAt} · ${read.path} · ${read.requestId ?? ''}`, generation)) return;
+      document.querySelectorAll<HTMLElement>(`[data-governance-checked="${moduleId}"]`).forEach(node => { node.textContent = read.checkedAt; });
+      const summary = root.querySelector<HTMLElement>(`[data-governance-summary="${moduleId}"]`);
+      if (summary) summary.textContent = summarizeGovernanceRead(read);
+      if (showResults) {
+        renderGovernanceReadResult(results, moduleId === 'governance' ? 'Propuneri Governance' : 'Evaluări RK', read.records);
+        status.textContent = summarizeGovernanceRead(read);
+      }
+    } catch (error) {
+      if (!root.isConnected) return;
+      if (!updateTurnModuleReadState(moduleId, governanceReadFailure(error), '', generation)) return;
+      const summary = root.querySelector<HTMLElement>(`[data-governance-summary="${moduleId}"]`);
+      if (summary) summary.textContent = '';
+      if (showResults) { results.replaceChildren(); status.textContent = `Citirea nu a reușit: ${error instanceof Error ? error.message : String(error)}. Niciun verdict nu a fost schimbat.`; }
+    }
+  };
   const load = async (label: string, path: string) => {
+    const generation = beginTurnModuleRead('risk-knowledge');
     status.textContent = `Se citesc ${label} din API-ul Governance V2…`;
     results.replaceChildren();
     try {
       const response = await authenticatedApiFetch(path, { cache: 'no-store', headers: { Accept: 'application/json' } });
       const payload = await response.json().catch(() => null) as { data?: unknown; code?: string } | null;
-      if (!response.ok) throw new Error(`HTTP ${response.status}${payload?.code ? ` · ${payload.code}` : ''}`);
+      if (!response.ok) throw new Error(`GOVERNANCE_READ_HTTP_${response.status}${payload?.code ? ` · ${payload.code}` : ''}`);
       if (!payload || !Object.prototype.hasOwnProperty.call(payload, 'data')) throw new Error('Răspuns API invalid: lipsește câmpul data.');
+      if (!root.isConnected) return;
+      if (!updateTurnModuleReadState('risk-knowledge', 'CONNECTED_READ_ONLY', `${new Date().toISOString()} · ${path}`, generation)) return;
       renderGovernanceReadResult(results, label, payload.data);
       status.textContent = `${label}: citire reușită. Aceasta confirmă numai disponibilitatea citirii, nu activarea Governance sau validarea unui jurnal.`;
     } catch (error) {
+      if (!root.isConnected) return;
+      if (!updateTurnModuleReadState('risk-knowledge', governanceReadFailure(error), '', generation)) return;
+      const summary = root.querySelector('[data-governance-summary="risk-knowledge"]');
+      if (summary) summary.textContent = '';
       const detail = error instanceof Error ? error.message : String(error);
       status.textContent = `${label}: citirea nu a reușit (${detail}). Nicio stare de validare sau activare nu a fost schimbată.`;
     }
   };
   root.querySelector('[data-governance-proposals]')?.addEventListener('click', () => {
-    void load('Propuneri Governance', '/governance-v2/proposals');
+    void loadModule('governance', true);
   });
   root.querySelector('[data-governance-risk-search]')?.addEventListener('click', () => {
     void load('Dovezi Risk & Knowledge', `/governance-v2/risk-knowledge/search?q=${encodeURIComponent(query.value)}`);
   });
   root.querySelector('[data-governance-assessments-search]')?.addEventListener('click', () => {
-    void load('Evaluări Risk & Knowledge', `/governance-v2/risk-knowledge/assessments?q=${encodeURIComponent(query.value)}`);
+    void loadModule('risk-knowledge', true);
   });
+  const refresh = () => Promise.allSettled([loadModule('governance'), loadModule('risk-knowledge')]);
+  root.querySelector('[data-governance-refresh]')?.addEventListener('click', () => { void refresh(); });
+  void refresh();
 }
 
 function renderGovernanceReadResult(root: HTMLElement, label: string, data: unknown) {

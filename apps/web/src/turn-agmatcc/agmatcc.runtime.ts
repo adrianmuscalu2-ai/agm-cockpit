@@ -1,10 +1,12 @@
 import { turnAdminAuthenticatedFetch } from '../admin-auth';
+import { beginTurnModuleRead, updateTurnModuleReadState } from '../turn-command-navigation';
 import './agmatcc.css';
 import {
   parseAgmatccVoiceCommand,
   readAgmatccJournalStream,
   readLatestIncidents,
   readTccAlertSnapshot,
+  readGovernanceModule, governanceReadFailure, summarizeGovernanceRead,
   describeAgmatccEvent,
   searchServerSemantic,
   summarizeAgmatccJournal,
@@ -142,7 +144,15 @@ export function bindAgmatcc(language = 'ro-RO') {
   }, (error: Error) => alert('operational-truth/read', error.message));
 
   let remoteCount: number | null = null;
-  const refreshRemoteCount = () => readRemoteAgmatccJournal().then((journal) => { remoteCount = journal.count; }, (error: Error) => { remoteCount = -1; alert('operational-events/read', error.message); });
+  const journalConnection = root.querySelector<HTMLElement>('[data-agmatcc-journal-connection]');
+  const refreshRemoteCount = () => readRemoteAgmatccJournal().then((journal) => {
+    remoteCount = journal.count;
+    if (journalConnection) { journalConnection.textContent = `conectat · ${journal.count} evenimente în fluxul acestui dispozitiv`; journalConnection.dataset.connectionStatus = 'CONNECTED_READ_ONLY'; }
+  }, (error: Error) => {
+    remoteCount = -1;
+    if (journalConnection) { journalConnection.textContent = 'conexiune neconfirmată · verifică sesiunea TURN'; journalConnection.dataset.connectionStatus = 'UNAVAILABLE'; }
+    alert('operational-events/read', error.message);
+  });
   const render = async () => {
     const conversation = ledger.filter((entry) => entry.provenance !== 'system' || entry.kind === 'note' || entry.kind === 'playback');
     history.innerHTML = conversation.slice().reverse().map((entry) =>
@@ -301,7 +311,21 @@ export function bindAgmatcc(language = 'ro-RO') {
 
     commandStage('INTENT_RESOLVED', command.type);
     try {
-      if (command.type === 'read-remote-journal') {
+      if (command.type === 'read-governance' || command.type === 'read-risk-knowledge') {
+        const moduleId = command.type === 'read-governance' ? 'governance' : 'risk-knowledge';
+        const generation = beginTurnModuleRead(moduleId);
+        try {
+          const read = await readGovernanceModule(moduleId, command.type === 'read-risk-knowledge' ? command.query : undefined);
+          if (!updateTurnModuleReadState(moduleId, 'CONNECTED_READ_ONLY', `${read.checkedAt} · ${read.path} · ${read.requestId ?? ''}`, generation)) return true;
+          commandStage('AUTHORIZED', `identitate umană legată · GET ${read.path}`);
+          showOperationRows('governance-read', read.records.map(row => JSON.stringify(row)));
+          commandStage('EXECUTED', `read-only · ${read.records.length} înregistrări; fără activare sau aprobare`);
+          speakCommandResult(summarizeGovernanceRead(read));
+        } catch (error) {
+          if (!updateTurnModuleReadState(moduleId, governanceReadFailure(error), '', generation)) return true;
+          throw error;
+        }
+      } else if (command.type === 'read-remote-journal') {
         const journal = await readRemoteAgmatccJournal();
         commandStage('AUTHORIZED', `${journal.scope} · ${journal.source}`);
         const lines = [
@@ -428,6 +452,8 @@ export function bindAgmatcc(language = 'ro-RO') {
     });
   });
   $('[data-agmatcc-read-remote]').addEventListener('click', () => { void runCommand('citește jurnalul serverului', 'button'); });
+  root.querySelector('[data-agmatcc-read-governance]')?.addEventListener('click', () => { void runCommand('citește governance', 'button'); });
+  root.querySelector('[data-agmatcc-read-rk]')?.addEventListener('click', () => { void runCommand('citește evaluările RK', 'button'); });
 
   captureButton.addEventListener('click', () => {
     const Ctor = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;

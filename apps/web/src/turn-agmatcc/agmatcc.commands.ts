@@ -14,6 +14,8 @@ export type AgmatccVoiceCommand =
   | { type: 'list-incidents' }
   | { type: 'search-agmatcc-events'; query: string }
   | { type: 'read-tcc-alerts' }
+  | { type: 'read-governance' }
+  | { type: 'read-risk-knowledge'; query?: string }
   | { type: 'clarify'; question: string }
   | { type: 'none' };
 
@@ -53,6 +55,11 @@ export function parseAgmatccVoiceCommand(transcript: string): AgmatccVoiceComman
   const body = folded.replace(OPTIONAL_LEGACY_PREFIX, '').trim();
   if (!body) return { type: 'none' };
 
+  if (/^(?:citeste|arata|afiseaza)\s+(?:propunerile\s+)?governance$/.test(body)) return { type: 'read-governance' };
+  if (/^(?:citeste|arata|afiseaza)\s+(?:evaluarile\s+)?(?:rk|risk (?:and |si )?knowledge)$/.test(body)) return { type: 'read-risk-knowledge' };
+  const riskQuery = /^(?:cauta|gaseste)\s+in\s+rk\s+(.+)$/.exec(body)?.[1];
+  if (riskQuery) return { type: 'read-risk-knowledge', query: riskQuery };
+
   let found: RegExpExecArray | null;
   const requestedId = /(?:id(?:-ul)?\s+evenimentului|event\s+id)\s*[:=]?\s+([A-Za-z0-9._:-]+)/i.exec(transcript)?.[1];
   if (/\b(?:id ul|identificatorul)\s+evenimentului\b/.test(body)
@@ -79,6 +86,36 @@ export function parseAgmatccVoiceCommand(transcript: string): AgmatccVoiceComman
 }
 
 export type AgmatccEventDisposition = 'executed' | 'failed' | 'warning' | 'blocked' | 'unknown';
+
+export type GovernanceReadModule = 'governance' | 'risk-knowledge';
+export type GovernanceReadConnection = 'NOT_CHECKED' | 'CHECKING' | 'CONNECTED_READ_ONLY' | 'AUTH_REQUIRED' | 'FORBIDDEN' | 'UNAVAILABLE';
+
+/** Existing human-authenticated read boundary only; no activation, decision or override. */
+export async function readGovernanceModule(moduleId: GovernanceReadModule, query = 'Production', fetcher = authenticatedApiFetch) {
+  const normalized = query.trim();
+  if (moduleId === 'risk-knowledge' && (normalized.length < 2 || normalized.length > 200)) throw new Error('GOVERNANCE_SEARCH_QUERY_INVALID');
+  const path = moduleId === 'governance' ? '/governance-v2/proposals'
+    : `/governance-v2/risk-knowledge/assessments?q=${encodeURIComponent(normalized)}`;
+  const response = await fetcher(path, { method: 'GET', cache: 'no-store', headers: { Accept: 'application/json' } });
+  const payload = await response.json().catch(() => null) as { data?: unknown; code?: string; meta?: { requestId?: string } } | null;
+  if (!response.ok) throw new Error(`GOVERNANCE_READ_HTTP_${response.status}${payload?.code ? `:${payload.code}` : ''}`);
+  if (!Array.isArray(payload?.data) || payload.data.some(row => !row || typeof row !== 'object' || Array.isArray(row))) throw new Error('GOVERNANCE_READ_INVALID_RESPONSE');
+  return { moduleId, path, records: payload.data as Record<string, unknown>[], checkedAt: new Date().toISOString(), requestId: payload?.meta?.requestId ?? null };
+}
+
+export function governanceReadFailure(error: unknown): GovernanceReadConnection {
+  const message = error instanceof Error ? error.message : String(error);
+  return /HTTP_401\b/.test(message) ? 'AUTH_REQUIRED' : /HTTP_403\b/.test(message) ? 'FORBIDDEN' : 'UNAVAILABLE';
+}
+
+export function summarizeGovernanceRead(read: Awaited<ReturnType<typeof readGovernanceModule>>) {
+  if (read.moduleId === 'governance') return `Governance: ${read.records.length} propuneri citite din API-ul autorizat. Citirea nu acordă drepturi de aprobare sau execuție.`;
+  if (!read.records.length) return 'RK: conexiune de citire verificată, fără evaluări pentru căutarea solicitată. Nu există un verdict de dedus.';
+  return `RK: ${read.records.length} evaluări citite. ` + read.records.slice(0, 3).map(row => {
+    const conditions = Array.isArray(row.conditions) ? row.conditions as Array<{ id?: string; status?: string }> : [];
+    return `${String(row.scope ?? row.assessment_id ?? row.assessmentId ?? 'Evaluare')}: ${String(row.verdict ?? 'UNKNOWN')}${conditions.length ? `; condiții: ${conditions.map(c => `${c.id ?? '?'} ${c.status ?? 'UNKNOWN'}`).join(', ')}` : ''}.`;
+  }).join(' ');
+}
 
 const eventTypeLabels: Record<string, string> = {
   'agmatcc.note': 'notă',

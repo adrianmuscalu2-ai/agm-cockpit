@@ -1,3 +1,6 @@
+import { turnModuleNavigationRegistry } from './turn-module-navigation.registry';
+import type { GovernanceReadConnection, GovernanceReadModule } from './turn-agmatcc/agmatcc.commands';
+
 const TURN_PAGES = ['agmatcc', 'basic', 'premium', 'orchestrators', 'incidents', 'investigate'] as const;
 type TurnPage = (typeof TURN_PAGES)[number];
 const TURN_LAST_PAGE_KEY = 'agm.turn.navigation.last-page.v1';
@@ -70,8 +73,40 @@ export function bindTurnCommandNavigation() {
   updateBackToTop();
 
   // AGMaTCC is always the entry page; only an explicit #turn-<page> deep link overrides it.
-  const initial = location.hash.startsWith('#turn-') ? location.hash.slice(6) : 'agmatcc';
-  selectPage(isTurnPage(initial) ? initial : 'agmatcc', false);
+  const module = turnModuleNavigationRegistry.find(entry => entry.target && `#${entry.target}` === location.hash);
+  selectPage(resolveTurnInitialPage(location.hash), false);
+  if (module?.target) requestAnimationFrame(() => document.getElementById(module.target!)?.scrollIntoView({ block: 'start' }));
+}
+
+export function resolveTurnInitialPage(hash: string): TurnPage {
+  const initial = hash.startsWith('#turn-') ? hash.slice(6) : 'agmatcc';
+  const module = turnModuleNavigationRegistry.find(entry => entry.target && `#${entry.target}` === hash);
+  return isTurnPage(initial) ? initial : module?.page ?? 'agmatcc';
+}
+
+/** Session connectivity is separate from validation or activation authority. */
+const readGenerations: Record<GovernanceReadModule, number> = { governance: 0, 'risk-knowledge': 0 };
+
+export function beginTurnModuleRead(moduleId: GovernanceReadModule) {
+  const generation = ++readGenerations[moduleId];
+  updateTurnModuleReadState(moduleId, 'CHECKING', '', generation);
+  return generation;
+}
+
+export function updateTurnModuleReadState(moduleId: GovernanceReadModule, state: GovernanceReadConnection, evidence = '', generation?: number) {
+  if (generation !== undefined && generation !== readGenerations[moduleId]) return false;
+  const labels: Record<GovernanceReadConnection, string> = {
+    NOT_CHECKED: 'API: neverificat în această sesiune', CHECKING: 'API: se verifică…',
+    CONNECTED_READ_ONLY: 'API conectat · citire autorizată', AUTH_REQUIRED: 'Autentificarea contului este necesară',
+    FORBIDDEN: 'Acces refuzat · rol uman APPROVER/VALIDATOR necesar', UNAVAILABLE: 'API indisponibil · conexiune neconfirmată',
+  };
+  document.querySelectorAll<HTMLElement>(`[data-governance-connection="${moduleId}"]`).forEach(node => {
+    node.textContent = labels[state]; node.dataset.connectionStatus = state; node.title = evidence;
+  });
+  document.querySelectorAll<HTMLElement>(`[data-turn-module-id="${moduleId}"], [data-turn-journal-row="${moduleId}"]`).forEach(node => {
+    node.dataset.connectionStatus = state;
+  });
+  return true;
 }
 
 function isTurnPage(value: string | undefined): value is TurnPage {

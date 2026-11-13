@@ -13,6 +13,8 @@ export function renderAgmatccPage(moduleNavigation = '') {
         <nav class="agmatcc-journals" aria-label="Jurnale TURN și RK">
           ${journals.map((entry) => `<a href="#turn-journal-${esc(entry.moduleId)}" data-open-turn-page="incidents" data-agmatcc-journal="${esc(entry.moduleId)}" title="${esc(entry.validationStatus)}">${esc(entry.displayName)}</a>`).join('')}
           <button type="button" data-agmatcc-read-remote>Jurnal server</button>
+          <button type="button" data-agmatcc-read-governance>Propuneri Governance</button>
+          <button type="button" data-agmatcc-read-rk>Evaluări RK</button>
         </nav>
         ${riskKnowledge ? `<a class="agmatcc-risk-knowledge" href="#turn-journal-risk-knowledge" data-open-turn-page="incidents" title="${esc(riskKnowledge.validationStatus)}">Risk &amp; Knowledge</a>` : ''}
       </header>
@@ -66,7 +68,8 @@ export function renderAgmatccPage(moduleNavigation = '') {
               <ul class="agmatcc-questions" data-agmatcc-questions></ul>
               <h3>Alerte TCC</h3>
               <ul class="agmatcc-alerts" data-agmatcc-alerts aria-live="polite"></ul>
-              <p class="agmatcc-hint">Governance V2: API protejat disponibil; citirea necesită o identitate umană legată. Interfața AGMaTCC nu este conectată.</p>
+              <p class="agmatcc-hint">Jurnal AGMaTCC: <span data-agmatcc-journal-connection>conexiune neverificată</span></p>
+              <p class="agmatcc-hint">Governance: <span data-governance-connection="governance">API: neverificat în această sesiune</span><br />RK: <span data-governance-connection="risk-knowledge">API: neverificat în această sesiune</span>. Citirile folosesc contul uman și rolurile existente; nu activează module și nu emit aprobări.</p>
             </aside>
           </div>
         </div>
