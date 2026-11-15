@@ -71,7 +71,7 @@ Recovery must use this archive and the same rehearsal database under a recovery
 mandate; do not reset, reseed or create another database. Test fixtures remain labelled
 and retained, with no user/role provisioning or cleanup deletes.
 
-## Validation and remaining gates
+## Initial integration validation (before PR35 finalization mandate)
 
 - API and Web typecheck: PASS. Only changed shared code was built for package exports.
 - Luna/adapter/accounting unit tests: 24 PASS; malformed usage and no-spend-on-refusal covered.
@@ -101,6 +101,60 @@ It authenticates through real HTTP endpoints, checks OWNER read before any spend
 calls Luna, reads ACPM through that owner and reconciles persisted cost. It does not
 create credentials. Browser E2E and independent review must follow before promotion.
 
-Decision: GO for draft PR and independent review; NO-GO for promotion until the
+Initial decision: GO for draft PR and independent review; NO-GO for promotion until the
 legitimate authenticated live flow and independent review are complete. No merge,
 Production deployment, new worktree/clone/database, or RK/Guardian/Governance edits.
+
+## PR35 finalization mandate — 2026-11-15
+
+The subsequent explicit OWNER-test provisioning mandate supersedes the initial
+zero-identity gate above. The existing `prisma/seed/seed.ts` procedure created
+`pr35-owner@rehearsal.invalid`, role `company_owner`, only in the verified rehearsal.
+Fresh random test credentials and JWT signing material are held outside Git in
+Windows DPAPI custody. No Production identity or token was copied. TURN uses its
+existing configured-PIN bootstrap, unlock and session validation; OWNER remains a
+separate login. The browser reads the legal notice and acknowledges it through UI.
+
+Missing prerequisite `20261108190000_add_password_recovery` was applied from the
+existing canonical migration, transactionally with its migration record, only in
+`agm_cockpit_191_rehearsal` at 127.0.0.1:55432. The verified backup above remains
+available. No protected control module or Production schema was changed.
+
+Independent Codex advisory review found structured secret-key redaction (P1) and
+mixed valid/invented provenance acceptance (P2). Commit `acf9c2e` fixes both;
+19 affected copilot tests, 5 accounting tests and independent reproductions pass.
+API typecheck passes. Previously accepted concurrency and AGMaTCC evidence is reused.
+
+Real browser run `1794774707179` demonstrates OWNER login, TURN unlock, authorized
+journal HTTP read, an OpenAI `gpt-6-luna` Romanian answer and OWNER ACPM HTTP read.
+Execution `8e5358b0-498a-47ee-8a90-b756c8d6205e` answered that the explicitly labelled
+rehearsal transport is PREGĂTIT. Its cited stream/version/event exists in PostgreSQL
+and in the authorized journal response. Four ACPM events (two STARTED/COMPLETED
+pairs) have independently recalculated valid SHA-256 hashes. No mocked HTTP was used.
+
+New measured usage: 1,288 input + 139 output tokens over two paid requests. Conservative
+cost estimate USD 0.00036185; historical estimate USD 0.0005412; cumulative estimate
+USD 0.00090305. The shared ledger debits USD 0.00136185 including rounded historical
+spend, below USD 5. No uncertain/pending paid reservations remain. These are usage-based
+estimates, not a provider invoice or a billing-account reconciliation.
+
+Raw local evidence remains in `D:/AGM-ACPM-Isolated-20261115-GPT6Luna/evidence`:
+`authenticated-browser-1794774707179.json`, `authenticated-db-1794774707179.json`,
+`authenticated-verified-1794774707179.json`, and screenshots. The first screenshot
+proves Luna rendering but exposes an ACPM stale-Vite-cache rendering failure; it is
+not ACPM visual PASS. The minimal OWNER-only retest reuses the paid Luna proof.
+
+Recovery journal: IAB exact selection reports host unavailable (optional platform
+limitation); controlled Playwright/Chromium is the authorized route. Initial seed
+failed on missing User.credentialVersion; canonical migration restored compatibility.
+A read-only psql probe with a guessed role failed; the actual configured rehearsal
+role was then used. UI attempts 1–3 exposed runner timing around legal notice and
+tutorial; normal UI waits/dismissal fixed them. Run4 passed backend/Luna. Stale Vite
+prebundle lacked selectAcpm; a noDiscovery attempt then exposed Tesseract interop,
+so the runner uses the existing canonical Vite config and reoptimization. All failed
+reports/logs remain local; no extra provider requests were made for these recoveries.
+
+Reproducible launcher: `apps/api/scripts/run-luna-browser-rehearsal.ps1` after
+`pnpm.cmd rescue:browser-preflight`. Set `REHEARSAL_REUSE_EVIDENCE` to the accepted
+browser JSON for an OWNER/UI-only retest; this reads persisted ACPM without calling
+the provider. No new worktree, clone or database is created.
