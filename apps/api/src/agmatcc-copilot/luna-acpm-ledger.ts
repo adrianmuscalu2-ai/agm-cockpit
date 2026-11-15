@@ -16,18 +16,28 @@ export type LunaReservation = { callId: string; executionId: string; companyId: 
 @Injectable()
 export class LunaAcpmLedger {
   constructor(private readonly prisma: PrismaService) {}
-  private requireRehearsal() {
+  protected requireTarget() {
     const url = new URL(process.env.DATABASE_URL ?? '');
-    if (process.env.NODE_ENV === 'production' || !['127.0.0.1','localhost'].includes(url.hostname)
+    if(process.env.NODE_ENV==='production') {
+      if(process.env.AGMATCC_LUNA_PRODUCTION_ENABLED!=='true'||url.pathname!=='/agm'||url.hostname!==process.env.AGMATCC_LUNA_PRODUCTION_DB_HOST||!process.env.AGMATCC_LUNA_PRODUCTION_DB_HOST||url.port==='55432')throw new Error('LUNA_PRODUCTION_TARGET_REQUIRED');
+      return;
+    }
+    if (!['127.0.0.1','localhost'].includes(url.hostname)
       || url.port !== '55432' || url.pathname !== '/agm_cockpit_191_rehearsal') throw new Error('LUNA_REHEARSAL_TARGET_REQUIRED');
   }
   async reserve(ctx: RequestContext, executionId: string, mandateId: string): Promise<LunaReservation> {
-    this.requireRehearsal();
+    this.requireTarget();
     const reservation = { callId: randomUUID(), executionId, companyId: ctx.companyId, mandateId, startedAt: new Date().toISOString() };
     await this.prisma.$transaction(async tx => {
       await tx.$executeRaw`SET LOCAL synchronous_commit = on`;
       await tx.$queryRaw`SELECT pg_advisory_xact_lock(191, 61115)::text`;
-      const budget = await tx.$queryRaw<Array<{ available: bigint }>>`SELECT b."limitNanoUsd"-b."priorNanoUsd"-COALESCE((SELECT SUM(COALESCE(r."chargedNanoUsd",r."reservedNanoUsd")) FROM "LunaEvaluationReservation" r WHERE r."scope"=b."scope"),0)::bigint AS available FROM "LunaEvaluationBudget" b WHERE b."scope"=${SCOPE}`;
+      const handoffs=await tx.$queryRaw<Array<{carriedNanoUsd:bigint;receiptHash:string;receipt:Record<string,unknown>;targetDatabase:string}>>`SELECT "carriedNanoUsd","receiptHash","receipt","targetDatabase" FROM "LunaBudgetHandoff" WHERE scope=${SCOPE}`;
+      const production=process.env.NODE_ENV==='production';
+      if(!production&&handoffs.length)throw new Error('LUNA_SOURCE_BUDGET_FROZEN');
+      const handoff=handoffs[0];
+      if(production&&(!handoff||handoff.targetDatabase!=='agm'||createHash('sha256').update(canonicalAcpm(handoff.receipt)).digest('hex')!==handoff.receiptHash||handoff.receiptHash!==process.env.AGMATCC_LUNA_HANDOFF_SHA256||String(handoff.receipt.carriedNanoUsd)!==String(handoff.carriedNanoUsd)))throw new Error('LUNA_VERIFIED_HANDOFF_REQUIRED');
+      const carried=production?handoff.carriedNanoUsd:0n;
+      const budget = await tx.$queryRaw<Array<{ available: bigint }>>`SELECT b."limitNanoUsd"-GREATEST(b."priorNanoUsd",${carried}::bigint)-COALESCE((SELECT SUM(COALESCE(r."chargedNanoUsd",r."reservedNanoUsd")) FROM "LunaEvaluationReservation" r WHERE r."scope"=b."scope"),0)::bigint AS available FROM "LunaEvaluationBudget" b WHERE b."scope"=${SCOPE}`;
       if (!budget.length || BigInt(budget[0].available) < BigInt(RESERVE)) throw new Error('ACPM_BUDGET_EXHAUSTED');
       await tx.$executeRaw`INSERT INTO "LunaEvaluationReservation" ("callId","companyId","executionId","scope","reservedNanoUsd","state","startedAt") VALUES (${reservation.callId}::uuid,${ctx.companyId}::uuid,${executionId}::uuid,${SCOPE},${RESERVE},'RESERVED',${reservation.startedAt}::timestamptz)`;
       await this.event(tx, reservation, 'STARTED', 1, { accounting: 'RESERVED', reservedNanoUsd: RESERVE });
@@ -35,7 +45,7 @@ export class LunaAcpmLedger {
     return reservation;
   }
   async settle(r: LunaReservation, usage: CopilotUsage | undefined, errorCode: string | null, evidenceRefs: string[], providerOutcome?: string) {
-    this.requireRehearsal();
+    this.requireTarget();
     const valid = usage && Number.isSafeInteger(usage.inputTokens) && usage.inputTokens >= 0 && Number.isSafeInteger(usage.outputTokens) && usage.outputTokens >= 0;
     // Integer nanodollars: $0.20/M input + $0.75/M output. No binary float accumulation.
     const charged = valid ? usage.inputTokens * 200 + usage.outputTokens * 750 : RESERVE;

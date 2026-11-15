@@ -1,4 +1,5 @@
 import { LunaAcpmLedger } from './luna-acpm-ledger';
+import { LunaProductionAccessGuard } from './luna-production-access.guard';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AgentRuntimeEventsModule } from '../agent-runtime-events/agent-runtime-events.module';
@@ -17,13 +18,15 @@ import { OpenAIResponsesAgmatccProvider, SimulatedAgmatccProvider } from './agma
     AgmatccCopilotService,
     LunaAcpmLedger,
     OperationalEventAccessGuard,
+    LunaProductionAccessGuard,
     {
       provide: AGMATCC_COPILOT_PROVIDER,
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         const mode = config.get<string>('AGMATCC_COPILOT_PROVIDER', 'simulated');
         if (mode === 'simulated') return new SimulatedAgmatccProvider();
-        if (mode !== 'openai' || config.get<string>('NODE_ENV') === 'production' || config.get<string>('AGMATCC_COPILOT_ISOLATED_ENABLED') !== 'true') {
+        const enabled = config.get<string>('NODE_ENV') === 'production' ? config.get<string>('AGMATCC_LUNA_PRODUCTION_ENABLED') === 'true' : config.get<string>('AGMATCC_COPILOT_ISOLATED_ENABLED') === 'true';
+        if (mode !== 'openai' || !enabled) {
           throw new Error('ACPM_OPENAI_PROVIDER_LOCAL_ISOLATION_REQUIRED');
         }
         const apiKey = config.get<string>('OPENAI_API_KEY');

@@ -8,6 +8,7 @@ import { AGMATCC_COPILOT_CONTRACT, type CopilotAnswer, type CopilotEvidence, typ
 import { CopilotProviderError, estimateCost, type AgmatccCopilotProvider } from './agmatcc-copilot.provider';
 import { LunaAcpmLedger } from './luna-acpm-ledger';
 import { AcpmIsolatedSpool } from './acpm-isolated-spool';
+import type { CommanderBinding } from './luna-production-access.guard';
 
 export const AGMATCC_COPILOT_PROVIDER = Symbol('AGMATCC_COPILOT_PROVIDER');
 type OperationalEventReadRow = { eventId: string; eventType: string; aggregateVersion: number; recordedAt: Date; payload: unknown; stream: { streamId: string } };
@@ -23,11 +24,12 @@ export class AgmatccCopilotService {
 
   constructor(private readonly config: ConfigService, private readonly prisma: PrismaService, private readonly agentEvents: AgentRuntimeEventsService, @Inject(AGMATCC_COPILOT_PROVIDER) provider: AgmatccCopilotProvider, @Optional() private readonly ledger?: LunaAcpmLedger) { this.provider = provider; }
 
-  async respond(user: RequestContext, question: string, testMandateId?: string): Promise<CopilotAnswer> {
-    if (this.config.get<string>('AGMATCC_COPILOT_ISOLATED_ENABLED') !== 'true' || !['simulated', 'openai'].includes(this.config.get<string>('AGMATCC_COPILOT_PROVIDER', 'simulated') ?? '')) {
+  async respond(user: RequestContext, question: string, testMandateId?: string, commander?:CommanderBinding): Promise<CopilotAnswer> {
+    const production=process.env.NODE_ENV==='production';
+    if(production && (this.config.get<string>('AGMATCC_LUNA_PRODUCTION_ENABLED')!=='true'||this.provider.provider!=='openai'||!commander||commander.familyHash!==this.config.get<string>('AGMATCC_LUNA_COMMANDER_FAMILY_SHA256')||!user.roles.includes('TURN_ADMIN_SESSION')))throw new ServiceUnavailableException('AGMATCC_COPILOT_ISOLATED_PRODUCTION_DISABLED');
+    if ((!production && this.config.get<string>('AGMATCC_COPILOT_ISOLATED_ENABLED') !== 'true') || !['simulated', 'openai'].includes(this.config.get<string>('AGMATCC_COPILOT_PROVIDER', 'simulated') ?? '')) {
       throw new ServiceUnavailableException('AGMATCC_COPILOT_ISOLATED_DISABLED');
     }
-    if (process.env.NODE_ENV === 'production') throw new ServiceUnavailableException('AGMATCC_COPILOT_ISOLATED_PRODUCTION_DISABLED');
     if (this.provider.provider === 'simulated') this.spool ??= new AcpmIsolatedSpool(this.config.get<string>('ACPM_ISOLATED_SPOOL_DIR'));
     if (this.provider.provider === 'openai' && !this.ledger) throw new ServiceUnavailableException('ACPM_LEDGER_REQUIRED');
     if (!user.companyId || !user.userId || !user.roles.some((role) => ['PREMIUM_ACCESS', 'TURN_ADMIN_SESSION'].includes(role))) {

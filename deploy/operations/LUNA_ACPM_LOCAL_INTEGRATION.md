@@ -187,3 +187,89 @@ accepted Luna/concurrency evidence preserved, only affected browser gates retest
 GO for PR review. Formal GitHub review remains PENDING; promotion/Production HOLD.
 No merge or deployment executed. Remaining action is independent formal acceptance
 of the reviewed candidate, without repeating the paid tests or inventing approvers.
+
+## Technical remediation — Production Responses and bounded activation
+
+This section supersedes the earlier technical blockers; it does not grant release approval.
+
+The existing Production key was tested through POST /v1/responses inside its existing
+container, after a durable reservation in the shared evaluation ledger. Response HTTP200,
+model gpt-6-luna, status completed, text `Verificare reușită.`, usage24 input/12 output.
+No key was transferred and no Production database was changed. The metadata403 was only
+missing api.model.read, not an inference denial. Execution24a509ea-1caa-46b4-8a33-c95d994cd6d6
+is preserved outside Git with its reservation/usage. New conservative estimateUSD0.0000138;
+cumulative measured-usage estimateUSD0.00091685; conservative ledger debitUSD0.00137565.
+
+Production activation is now an explicit OFF-by-default path in candidate code. It requires:
+
+- `AGMATCC_COPILOT_PROVIDER=openai` and `AGMATCC_LUNA_PRODUCTION_ENABLED=true`;
+- existing Production OPENAI_API_KEY custody, unchanged;
+- `AGMATCC_LUNA_COMMANDER_FAMILY_SHA256`, obtained from the authenticated caller's
+  GET /api/v1/agmatcc-copilot/session after the disabled code is released;
+- `AGMATCC_LUNA_PRODUCTION_DB_HOST` matching the existing configured host, databaseagm;
+- `AGMATCC_LUNA_HANDOFF_SHA256` matching the approved immutable receipt.
+
+The session endpoint uses the canonical TURN guard and returns only the caller's family
+fingerprint plus activationGranted:false. The additional Production guard reuses canonical
+signature/expiry/revocation verification BEFORE comparing the family. OWNER/Premium alone,
+another family, missing binding and missing activation are refused. Rotation within a valid
+family remains canonical; a new login family requires explicit rebinding. No existing TURN
+authentication, RK, Guardian or Governance code was modified. Actual Commander binding
+and deployment remain unexecuted; fixture tests are not reported as human-session E2E.
+
+### Cumulative budget transfer and legacy writers
+
+Two additional additive migrations prepare LunaBudgetHandoff and LunaBudgetSourceFence.
+Both were applied ONLY to the existing rehearsal. Production remains at32 migrations;
+the pending release delta is now4, in order: ACPM ledger, evaluation budget, handoff, fence.
+No existing migration or historical checksum is rewritten.
+
+The source is sealed atUSD0.00137565, receiptSHA256
+bb0cd21c21b23fa5278c82da512c2ba9d94802d4510af4506be3caf5d46a245e.
+Source reservation inserts are refused at PostgreSQL level, including legacy writers.
+The seal and reservations use the same advisory lock; the monotonic fence row also makes
+stale repeatable-read writers serialize/fail. No budget reset or automatic unfreeze exists.
+Unknown reservations transfer at their full amount. The source MUST remain frozen even
+if application code is rolled back. Never remove the database fence to rerun paid tests.
+
+Production uses GREATEST(initial prior debit, carried debit) plus ALL new charged/pending
+reservations, capped by the unchangedUSD5 database constraint. Absence/mismatch of receipt,
+target or activation fails closed before provider access. The existing integer-cost,
+atomic ACPM settlement, duplicate rejection and uncertain-reservation rules are preserved.
+
+`seal-luna-budget-handoff.ts` creates the one-way source receipt under the shared lock.
+`import-luna-budget-handoff.ts <receipt-file>` is a PREPARED release-window action, not run:
+it verifies the pinned hash, actual Production database, scope, bounds and absence of prior
+reservations, then imports idempotently without overwriting. It grants no activation.
+Run from apps/api with the canonical runtime toolchain only after authorized migrations;
+the reviewed receipt is a non-secret artifact, never a credential or identity grant.
+
+Production-policy concurrency was exercised in the existing rehearsal, with target assertion
+explicitly overridden in the fixture:55 requests/49 accepted/6 refused,98 verified events,
+peakUSD4.9017513. This is SQL-policy evidence, not deployed-Production evidence. After adding
+the DB fence, the affected minimal test refused20/20 direct legacy inserts over two clients,
+added zero rows, rejected unfreeze, and confirmed current debit equals transferred debit.
+The earlier positive concurrency proof is reused; the fixture now routes post-seal reruns
+to the refusal test. No new provider calls occurred during these validations.
+
+### Recovery and remaining coverage
+
+Retain the verified Production backup from20261115T211146Z, SHA256
+ece9c7b1c57df111c0191c87a00aa6301db9de75a18604621b5d20cfd03b3fa6, and captured prior image
+digests. Refresh them in the actual change window. Application rollback preserves all
+append-only ACPM, handoff and reservation data; no down-migration/deletion is prepared.
+
+Instrumented: Luna provider calls; native runtime AGENT and agent-inspector INSPECTOR;
+route-mobility, cost-risk, opportunity-planner AGENT and opportunity-judge INSPECTOR;
+opportunity.analysis-pipeline ORCHESTRATOR and handoffs when identities share one mandate.
+Gaps: uninstrumented declared components, mixed/unknown mandate parentage, missing model/
+capacity/version fields and full deployed-chain execution. Missing observations are not
+healthy by inference. Approval and final certification remain separate gates.
+
+Affected validation:32 test cases PASS across copilot/accounting, Commander binding and
+Production target/receipt boundaries; API build, typecheck, lint and explicit operational
+script typecheck PASS. Repository secret scan PASS (4014 tracked files). No Web behavior
+was changed, so accepted Web/browser evidence is retained rather than repeated.
+The remediation commit remains LOCAL: this branch's push automatically deploys Cloudflare
+Preview, which would violate the current no-deployment mandate. The PR discussion records
+the evidence without claiming its remote HEAD contains the remediation.
