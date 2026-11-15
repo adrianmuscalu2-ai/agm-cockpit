@@ -1,3 +1,4 @@
+import { AcpmModule } from '../acpm/acpm.module';
 import { Module } from '@nestjs/common';
 import { AuditModule } from '../audit/audit.module';
 import { AuthorityControlPlaneModule } from '../authority-control-plane/authority-control-plane.module';
@@ -7,7 +8,7 @@ import { OpportunityIntelligenceService } from './opportunity-intelligence.servi
 import { OpportunityTelemetryInterceptor } from './opportunity-telemetry.interceptor';
 
 @Module({
-  imports: [AuditModule, AuthorityControlPlaneModule, CarMoverModule],
+  imports: [AcpmModule, AuditModule, AuthorityControlPlaneModule, CarMoverModule],
   controllers: [OpportunityIntelligenceController],
   providers: [OpportunityIntelligenceService, OpportunityTelemetryInterceptor],
   exports: [OpportunityIntelligenceService],

@@ -26,6 +26,7 @@ import { PremiumAssistantModule } from './premium-assistant/premium-assistant.mo
 import { DataRightsModule } from './data-rights/data-rights.module';
 import { CarMoverModule } from './car-mover/car-mover.module';
 import { AgentRuntimeEventsModule } from './agent-runtime-events/agent-runtime-events.module';
+import { AcpmModule } from './acpm/acpm.module';
 import { ComponentTelemetryModule } from './component-telemetry/component-telemetry.module';
 import { AuthorityControlPlaneModule } from './authority-control-plane/authority-control-plane.module';
 import { OpportunityIntelligenceModule } from './opportunity-intelligence/opportunity-intelligence.module';
@@ -77,6 +78,7 @@ import { AgmatccCopilotModule } from './agmatcc-copilot/agmatcc-copilot.module';
     DataRightsModule,
     CarMoverModule,
     AgentRuntimeEventsModule,
+    AcpmModule,
     ComponentTelemetryModule,
     AuthorityControlPlaneModule,
     OpportunityIntelligenceModule,

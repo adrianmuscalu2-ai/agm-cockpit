@@ -58,3 +58,21 @@
 .agmatcc-history { max-height: min(180px, 22svh); }
 .agmatcc-history small { opacity: .7; word-break: break-all; }
 @media (max-width: 900px) { .agmatcc-left { position: static; height: auto; max-height: none; overflow: visible; } .agmatcc-module-navigation { max-height: 48svh; } .agmatcc-history { max-height: 24svh; } }
+.agmatcc-performance { margin-block: 1rem; padding: 1rem; border: 1px solid #657487; border-radius: 8px; overflow-x: auto; }
+.agmatcc-performance table { width: 100%; border-collapse: collapse; }
+.agmatcc-performance th, .agmatcc-performance td { padding: .6rem; text-align: left; vertical-align: top; border-bottom: 1px solid #657487; }
+.agmatcc-performance p { overflow-wrap: anywhere; }
+.acpm-filters { display:flex; flex-wrap:wrap; gap:.8rem; margin-block:1rem; margin-inline:0; border:1px solid #657487; min-inline-size:0; width:100%; box-sizing:border-box; }
+.acpm-filters label { display:flex; flex:1 1 12rem; flex-direction:column; gap:.3rem; min-width:0; max-width:100%; }
+.acpm-filters select, .acpm-filters input { width:100%; min-width:0; max-width:100%; box-sizing:border-box; padding:.4rem; background:#102736; color:inherit; border:1px solid #657487; }
+[data-acpm-timeline] { max-height:22rem; overflow:auto; overflow-wrap:anywhere; padding-left:1.4rem; }
+[data-acpm-timeline] li { margin-bottom:.7rem; }
+.agmatcc-performance .acpm-table-region { max-height: 32rem; overflow: auto; }
+.agmatcc-performance button { padding: .6rem .9rem; border: 1px solid #477f9c; border-radius: .5rem; color: inherit; background: #103044; }
+@media (max-width: 600px) {
+  .agmatcc-performance table, .agmatcc-performance tbody, .agmatcc-performance tr, .agmatcc-performance td { display: block; width: auto; }
+  .agmatcc-performance thead { display: none; }
+  .agmatcc-performance tr { border-bottom: 1px solid #657487; }
+  .agmatcc-performance td { overflow-wrap: anywhere; border: 0; }
+  .agmatcc-performance td::before { content: attr(data-label); display: block; font-weight: bold; margin-bottom: .3rem; }
+}
