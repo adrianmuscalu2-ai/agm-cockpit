@@ -7,6 +7,10 @@ export interface AgmatccCopilotProvider {
   complete(messages: readonly ProviderMessage[], allowTools: boolean): Promise<ProviderTurn>;
 }
 
+export class CopilotProviderError extends ServiceUnavailableException {
+  constructor(code: string, readonly usage?: CopilotUsage) { super(code); }
+}
+
 /** Deterministic, offline provider used by isolated tests and local demonstrations. */
 @Injectable()
 export class SimulatedAgmatccProvider implements AgmatccCopilotProvider {
@@ -51,6 +55,8 @@ export class OpenAIResponsesAgmatccProvider implements AgmatccCopilotProvider {
         for (const call of safeCalls(content)) input.push({ type: 'function_call', call_id: call.id, name: call.name, arguments: JSON.stringify(call.arguments) });
       } else input.push({ role, content });
     }
+    // Byte bound is conservative for tokenization; reserve covers input, tool schema and output.
+    if (Buffer.byteLength(JSON.stringify(input), 'utf8') > 100_000) throw new CopilotProviderError('ACPM_INPUT_LIMIT');
     let response: Response;
     try {
       response = await this.fetcher(AGMATCC_COPILOT_CONTRACT.endpoint, {
@@ -61,6 +67,7 @@ export class OpenAIResponsesAgmatccProvider implements AgmatccCopilotProvider {
           input,
           reasoning: { effort: 'low' },
           max_output_tokens: 120,
+          service_tier: 'default',
           store: false,
           text: { format: { type: 'json_schema', name: 'agmatcc_answer', strict: true, schema: ANSWER_SCHEMA } },
           ...(allowTools ? { tools: READ_ONLY_TOOL_DEFINITIONS, tool_choice: 'auto' } : {}),
@@ -68,24 +75,25 @@ export class OpenAIResponsesAgmatccProvider implements AgmatccCopilotProvider {
         signal: AbortSignal.timeout(AGMATCC_COPILOT_CONTRACT.timeoutMs),
       });
     } catch {
-      throw new ServiceUnavailableException('ACPM_PROVIDER_TIMEOUT_OR_NETWORK_ERROR');
+      throw new CopilotProviderError('ACPM_PROVIDER_TIMEOUT_OR_NETWORK_ERROR');
     }
-    if (!response.ok) throw new ServiceUnavailableException(`ACPM_PROVIDER_HTTP_${response.status}`);
+    if (!response.ok) throw new CopilotProviderError(`ACPM_PROVIDER_HTTP_${response.status}`);
     const payload = await response.json() as OpenAIResponse;
     const usage = { inputTokens: payload.usage?.input_tokens ?? 0, outputTokens: payload.usage?.output_tokens ?? 0, estimatedCostUsd: estimateCost(payload.usage?.input_tokens ?? 0, payload.usage?.output_tokens ?? 0) };
+    if (!Number.isSafeInteger(payload.usage?.input_tokens) || !Number.isSafeInteger(payload.usage?.output_tokens) || usage.inputTokens < 0 || usage.outputTokens < 0) throw new CopilotProviderError('ACPM_USAGE_UNCONFIRMED');
     const calls = (payload.output ?? []).flatMap((item) => item.type === 'function_call' ? [{ id: item.call_id ?? item.id ?? '', name: item.name ?? '', arguments: parseArguments(item.arguments) }] : []);
     if (allowTools && calls.length) {
       return {
-        kind: 'tool_calls', calls: calls.slice(0, AGMATCC_COPILOT_CONTRACT.maxToolCalls) as CopilotToolCall[],
+        kind: 'tool_calls', calls: calls as CopilotToolCall[],
         timeToFirstResponseMs: Date.now() - started, usage,
       };
     }
     const outputText = payload.output_text ?? (payload.output ?? []).flatMap((item) => item.content ?? []).map((item) => item.text ?? '').join('');
     let output: { status: CopilotOutcome; answer: string; evidenceRefs: string[] };
     try { output = JSON.parse(outputText) as typeof output; }
-    catch { throw new ServiceUnavailableException('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID'); }
-    if (!['PASS', 'FAIL', 'BLOCKED', 'UNKNOWN'].includes(output.status) || typeof output.answer !== 'string' || !Array.isArray(output.evidenceRefs)) {
-      throw new ServiceUnavailableException('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID');
+    catch { throw new CopilotProviderError('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID', usage); }
+    if (!output || typeof output !== 'object' || !['PASS', 'FAIL', 'BLOCKED', 'UNKNOWN'].includes(output.status) || typeof output.answer !== 'string' || !Array.isArray(output.evidenceRefs) || output.evidenceRefs.some(ref => typeof ref !== 'string')) {
+      throw new CopilotProviderError('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID', usage);
     }
     return { kind: 'final', output, timeToFirstResponseMs: Date.now() - started, usage };
   }

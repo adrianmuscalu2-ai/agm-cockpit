@@ -1,11 +1,12 @@
-import { ForbiddenException, Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 import type { RequestContext } from '../common/request-context';
 import { PrismaService } from '../prisma/prisma.service';
 import { AgentRuntimeEventsService } from '../agent-runtime-events/agent-runtime-events.service';
 import { AGMATCC_COPILOT_CONTRACT, type CopilotAnswer, type CopilotEvidence, type CopilotOutcome, type ProviderMessage } from './agmatcc-copilot.contract';
-import { estimateCost, type AgmatccCopilotProvider } from './agmatcc-copilot.provider';
+import { CopilotProviderError, estimateCost, type AgmatccCopilotProvider } from './agmatcc-copilot.provider';
+import { LunaAcpmLedger } from './luna-acpm-ledger';
 import { AcpmIsolatedSpool } from './acpm-isolated-spool';
 
 export const AGMATCC_COPILOT_PROVIDER = Symbol('AGMATCC_COPILOT_PROVIDER');
@@ -20,14 +21,15 @@ export class AgmatccCopilotService {
   private spool?: AcpmIsolatedSpool;
   private readonly provider: AgmatccCopilotProvider;
 
-  constructor(private readonly config: ConfigService, private readonly prisma: PrismaService, private readonly agentEvents: AgentRuntimeEventsService, @Inject(AGMATCC_COPILOT_PROVIDER) provider: AgmatccCopilotProvider) { this.provider = provider; }
+  constructor(private readonly config: ConfigService, private readonly prisma: PrismaService, private readonly agentEvents: AgentRuntimeEventsService, @Inject(AGMATCC_COPILOT_PROVIDER) provider: AgmatccCopilotProvider, @Optional() private readonly ledger?: LunaAcpmLedger) { this.provider = provider; }
 
   async respond(user: RequestContext, question: string, testMandateId?: string): Promise<CopilotAnswer> {
     if (this.config.get<string>('AGMATCC_COPILOT_ISOLATED_ENABLED') !== 'true' || !['simulated', 'openai'].includes(this.config.get<string>('AGMATCC_COPILOT_PROVIDER', 'simulated') ?? '')) {
       throw new ServiceUnavailableException('AGMATCC_COPILOT_ISOLATED_DISABLED');
     }
     if (process.env.NODE_ENV === 'production') throw new ServiceUnavailableException('AGMATCC_COPILOT_ISOLATED_PRODUCTION_DISABLED');
-    this.spool ??= new AcpmIsolatedSpool(this.config.get<string>('ACPM_ISOLATED_SPOOL_DIR'));
+    if (this.provider.provider === 'simulated') this.spool ??= new AcpmIsolatedSpool(this.config.get<string>('ACPM_ISOLATED_SPOOL_DIR'));
+    if (this.provider.provider === 'openai' && !this.ledger) throw new ServiceUnavailableException('ACPM_LEDGER_REQUIRED');
     if (!user.companyId || !user.userId || !user.roles.some((role) => ['PREMIUM_ACCESS', 'TURN_ADMIN_SESSION'].includes(role))) {
       throw new ForbiddenException('AGMATCC_COPILOT_READ_ACCESS_REQUIRED');
     }
@@ -37,19 +39,37 @@ export class AgmatccCopilotService {
     const isolatedMandateId = `isolated-eval:${safeMandateId(testMandateId)}`;
     const refs: string[] = [];
     let usage = { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 };
+    let unconfirmedCalls = 0;
     let ttfr = 0;
     let outcome: CopilotOutcome = 'UNKNOWN';
     let answer = 'Nu există informații verificate suficiente pentru a răspunde.';
     let errorCode: string | null = null;
     let timedOut = false;
+    const complete = async (messages: readonly ProviderMessage[], allowTools: boolean) => {
+      if (this.provider.provider !== 'openai') return this.provider.complete(messages, allowTools);
+      const reservation = await this.ledger!.reserve(user, executionId, isolatedMandateId);
+      let result;
+      try { result = await this.provider.complete(messages, allowTools); }
+      catch (error) {
+        const measured = error instanceof CopilotProviderError ? error.usage : undefined;
+        if (measured) usage = addUsage(usage, measured);
+        else unconfirmedCalls++;
+        await this.ledger!.settle(reservation, measured, error instanceof Error ? error.message : 'ACPM_PROVIDER_ERROR', refs);
+        throw error;
+      }
+      usage = addUsage(usage, result.usage);
+      try { await this.ledger!.settle(reservation, result.usage, null, refs, result.kind === 'final' ? result.output.status : 'TOOLS_REQUESTED'); }
+      catch (error) { unconfirmedCalls++; throw error; }
+      return result;
+    };
     try {
       const initial: ProviderMessage[] = [
         { role: 'system', content: COPILOT_SYSTEM_INSTRUCTION },
         { role: 'user', content: JSON.stringify({ question, language: 'ro', request: 'Răspunde în română. Folosește numai dovezile returnate de instrumentele read-only. Dacă nu ajung, spune UNKNOWN.' }) },
       ];
-      const plan = await this.provider.complete(initial, true);
+      const plan = await complete(initial, true);
       ttfr = plan.timeToFirstResponseMs;
-      usage = addUsage(usage, plan.usage);
+      if (this.provider.provider === 'simulated') usage = addUsage(usage, plan.usage);
       let final = plan;
       if (plan.kind === 'tool_calls') {
         if (plan.calls.length > AGMATCC_COPILOT_CONTRACT.maxToolCalls) throw new Error('ACPM_TOOL_CALL_LIMIT');
@@ -59,8 +79,8 @@ export class AgmatccCopilotService {
           refs.push(...evidence.map((item) => item.sourceRef));
           followup.push({ role: 'tool', toolCallId: call.id, content: JSON.stringify(evidence.map((item) => ({ ...item, content: markUntrusted(item.content) }))) });
         }
-        final = await this.provider.complete(followup, false);
-        usage = addUsage(usage, final.usage);
+        final = await complete(followup, false);
+        if (this.provider.provider === 'simulated') usage = addUsage(usage, final.usage);
       }
       if (final.kind !== 'final') throw new Error('ACPM_FINAL_RESPONSE_REQUIRED');
       ttfr = ttfr || final.timeToFirstResponseMs;
@@ -74,7 +94,7 @@ export class AgmatccCopilotService {
         answer = final.output.answer.slice(0, 4_000);
       }
       const totalMs = Date.now() - started;
-      await this.spool.append({ executionId, testMandateId: isolatedMandateId, model: this.provider.model, provider: this.provider.provider, outcome, startedAt, totalMs, timeToFirstResponseMs: ttfr, usage, retryCount: 0, errorCode, timedOut, evidenceRefs: verifiedRefs });
+      await this.spool?.append({ executionId, testMandateId: isolatedMandateId, model: this.provider.model, provider: this.provider.provider, outcome, startedAt, totalMs, timeToFirstResponseMs: ttfr, usage, retryCount: 0, errorCode, timedOut, evidenceRefs: verifiedRefs });
       return {
         contractVersion: AGMATCC_COPILOT_CONTRACT.version,
         model: this.provider.model,
@@ -85,16 +105,17 @@ export class AgmatccCopilotService {
         answer,
         evidenceRefs: verifiedRefs,
         usage,
+        accounting: { unconfirmedCalls, reservedUsd: unconfirmedCalls * 0.1 },
         timing: { totalMs, timeToFirstResponseMs: ttfr },
       };
     } catch (error) {
       errorCode = error instanceof Error ? error.message.slice(0, 120) : 'ACPM_UNKNOWN_ERROR';
       timedOut = /TIMEOUT|timed out/i.test(errorCode);
-      outcome = /ACPM_TOOL_CALL_LIMIT|ACPM_TOOL_NOT_ALLOWLISTED|ACPM_.*_READ_NOT_AUTHORIZED/.test(errorCode) ? 'BLOCKED' : 'FAIL';
-      answer = 'Copilotul izolat nu a putut finaliza citirea. Comanda nu a executat nicio acțiune de scriere.';
+      outcome = /ACPM_BUDGET_EXHAUSTED|ACPM_TOOL_CALL_LIMIT|ACPM_TOOL_NOT_ALLOWLISTED|ACPM_.*_READ_NOT_AUTHORIZED/.test(errorCode) ? 'BLOCKED' : 'FAIL';
+      answer = 'Copilotul izolat nu a putut finaliza citirea. Nu s-a executat nicio acțiune de business.';
       const totalMs = Date.now() - started;
-      await this.spool.append({ executionId, testMandateId: isolatedMandateId, model: this.provider.model, provider: this.provider.provider, outcome, startedAt, totalMs, timeToFirstResponseMs: ttfr, usage, retryCount: 0, errorCode, timedOut, evidenceRefs: refs });
-      return { contractVersion: AGMATCC_COPILOT_CONTRACT.version, model: this.provider.model, provider: this.provider.provider, executionId, testMandateId: isolatedMandateId, status: outcome, answer, evidenceRefs: [], usage, timing: { totalMs, timeToFirstResponseMs: ttfr } };
+      await this.spool?.append({ executionId, testMandateId: isolatedMandateId, model: this.provider.model, provider: this.provider.provider, outcome, startedAt, totalMs, timeToFirstResponseMs: ttfr, usage, retryCount: 0, errorCode, timedOut, evidenceRefs: refs });
+      return { contractVersion: AGMATCC_COPILOT_CONTRACT.version, model: this.provider.model, provider: this.provider.provider, executionId, testMandateId: isolatedMandateId, status: outcome, answer, evidenceRefs: [], usage, accounting: { unconfirmedCalls, reservedUsd: unconfirmedCalls * 0.1 }, timing: { totalMs, timeToFirstResponseMs: ttfr } };
     }
   }
 

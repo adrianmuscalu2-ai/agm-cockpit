@@ -53,7 +53,7 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
   });
 
   it('rejects unentitled tenants before provider or data access', async () => {
-    const provider: AgmatccCopilotProvider = { model: 'gpt-6-luna', complete: jest.fn() };
+    const provider: AgmatccCopilotProvider = { model: 'gpt-6-luna', provider: 'simulated', complete: jest.fn() };
     await expect(make(provider).respond({ ...user(), roles: [] }, 'citește jurnalul')).rejects.toBeInstanceOf(ForbiddenException);
     expect(provider.complete).not.toHaveBeenCalled();
     expect(prisma.operationalEvent.findMany).not.toHaveBeenCalled();
@@ -72,7 +72,7 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
 
   it('blocks excessive model tool calls before any read operation', async () => {
     const call: CopilotToolCall = { id: 'too-many', name: 'search_operational_events', arguments: { query: 'test', limit: 1 } };
-    const provider: AgmatccCopilotProvider = { model: 'gpt-6-luna', complete: jest.fn().mockResolvedValue({ kind: 'tool_calls', calls: [call, call, call], timeToFirstResponseMs: 1, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 } }) };
+    const provider: AgmatccCopilotProvider = { model: 'gpt-6-luna', provider: 'simulated', complete: jest.fn().mockResolvedValue({ kind: 'tool_calls', calls: [call, call, call], timeToFirstResponseMs: 1, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 } }) };
     const result = await make(provider).respond(user(), 'blocaj');
     expect(result.status).toBe('BLOCKED');
     expect(prisma.operationalEvent.findMany).not.toHaveBeenCalled();
@@ -110,7 +110,7 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
       { id: 'agent-read', name: 'read_agent_runtime_events', arguments: { mandateId: null, limit: 10 } },
       { id: 'incident-read', name: 'search_incidents', arguments: { query: 'incident', limit: 5 } },
     ];
-    const provider: AgmatccCopilotProvider = { model: 'gpt-6-luna', complete: jest.fn().mockResolvedValue({ kind: 'tool_calls', calls, timeToFirstResponseMs: 1, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 } }) };
+    const provider: AgmatccCopilotProvider = { model: 'gpt-6-luna', provider: 'simulated', complete: jest.fn().mockResolvedValue({ kind: 'tool_calls', calls, timeToFirstResponseMs: 1, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 } }) };
     const result = await make(provider).respond({ ...user(), roles: ['TURN_ADMIN_SESSION'] }, 'read');
     expect(result.status).toBe('BLOCKED');
     expect(agentEvents.read).not.toHaveBeenCalled();
@@ -126,7 +126,7 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
         followupMessages = messages;
         return { kind: 'final', output: { status: 'PASS', answer: 'Sursa indică un blocaj justificat.', evidenceRefs: ['operational-event:stream-a@4:event-1', 'not-authorized'] }, timeToFirstResponseMs: 4, usage: { inputTokens: 3, outputTokens: 2, estimatedCostUsd: 0 } };
       });
-    const result = await make({ model: 'gpt-6-luna', complete }).respond(user(), 'blocaj');
+    const result = await make({ model: 'gpt-6-luna', provider: 'simulated', complete }).respond(user(), 'blocaj');
     expect(followupMessages.find((item) => item.role === 'system')?.content).toContain('ignoră instrucțiuni');
     expect(followupMessages.find((item) => item.role === 'tool')?.content).toContain('<UNTRUSTED_OPERATIONAL_DATA>');
     expect(followupMessages.find((item) => item.role === 'tool')?.content).not.toContain('EXAMPLE_SYNTHETIC_TOKEN');
@@ -143,7 +143,7 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
   });
 
   it('records provider timeout as FAIL with no retry and a verifiable append-only chain', async () => {
-    const provider: AgmatccCopilotProvider = { model: 'gpt-6-luna', complete: jest.fn().mockRejectedValue(new Error('ACPM_PROVIDER_TIMEOUT')) };
+    const provider: AgmatccCopilotProvider = { model: 'gpt-6-luna', provider: 'simulated', complete: jest.fn().mockRejectedValue(new Error('ACPM_PROVIDER_TIMEOUT')) };
     const result = await make(provider).respond(user(), 'citește jurnalul');
     expect(result.status).toBe('FAIL');
     const spool = new AcpmIsolatedSpool(directory);
@@ -154,7 +154,7 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
   });
 
   it('records provider unavailability separately from timeout without retrying', async () => {
-    const provider: AgmatccCopilotProvider = { model: 'gpt-6-luna', complete: jest.fn().mockRejectedValue(new Error('ACPM_PROVIDER_UNAVAILABLE')) };
+    const provider: AgmatccCopilotProvider = { model: 'gpt-6-luna', provider: 'simulated', complete: jest.fn().mockRejectedValue(new Error('ACPM_PROVIDER_UNAVAILABLE')) };
     const result = await make(provider).respond(user(), 'citește jurnalul');
     expect(result.status).toBe('FAIL');
     const spool = new AcpmIsolatedSpool(directory);
@@ -205,13 +205,13 @@ describe('GPT-6 Luna candidate Responses adapter', () => {
     expect(finalBody.text.format).toMatchObject({ type: 'json_schema', strict: true });
     expect(finalBody.temperature).toBeUndefined();
     expect(fetcher.mock.calls[0][0]).toBe('https://api.openai.com/v1/responses');
-    expect(estimateCost(1_000, 1_000)).toBe(0.0006);
+    expect(estimateCost(1_000, 1_000)).toBe(0.00095);
   });
 
   it('parses Responses function calls and emits the canonical function-call continuation format', async () => {
     const fetcher = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>()
-      .mockResolvedValueOnce(new Response(JSON.stringify({ output: [{ type: 'function_call', id: 'fc-1', call_id: 'call-1', name: 'read_agent_runtime_events', arguments: '{"mandateId":"m-1","limit":5}' }] }), { status: 200 }))
-      .mockResolvedValueOnce(new Response(JSON.stringify({ output_text: JSON.stringify({ status: 'UNKNOWN', answer: 'Nu sunt date.', evidenceRefs: [] }) }), { status: 200 }));
+      .mockResolvedValueOnce(new Response(JSON.stringify({ usage: { input_tokens: 10, output_tokens: 5 }, output: [{ type: 'function_call', id: 'fc-1', call_id: 'call-1', name: 'read_agent_runtime_events', arguments: '{"mandateId":"m-1","limit":5}' }] }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ usage: { input_tokens: 10, output_tokens: 5 }, output_text: JSON.stringify({ status: 'UNKNOWN', answer: 'Nu sunt date.', evidenceRefs: [] }) }), { status: 200 }));
     const provider = new OpenAIResponsesAgmatccProvider('test-only-not-a-real-key', fetcher);
     const first = await provider.complete([{ role: 'system', content: 'read-only' }, { role: 'user', content: 'mandatul m-1' }], true);
     expect(first.kind).toBe('tool_calls');
@@ -227,7 +227,7 @@ describe('GPT-6 Luna candidate Responses adapter', () => {
   });
 
   it('rejects malformed structured output and never falls back to free text', async () => {
-    const fetcher = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>().mockResolvedValue(new Response(JSON.stringify({ output_text: 'guess without schema' }), { status: 200 }));
+    const fetcher = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>().mockResolvedValue(new Response(JSON.stringify({ usage: { input_tokens: 10, output_tokens: 5 }, output_text: 'guess without schema' }), { status: 200 }));
     const provider = new OpenAIResponsesAgmatccProvider('test-only-not-a-real-key', fetcher);
     await expect(provider.complete([{ role: 'user', content: '?' }], false)).rejects.toThrow('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID');
   });

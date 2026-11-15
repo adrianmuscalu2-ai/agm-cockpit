@@ -1,3 +1,4 @@
+import { LunaAcpmLedger } from './luna-acpm-ledger';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AgentRuntimeEventsModule } from '../agent-runtime-events/agent-runtime-events.module';
@@ -14,6 +15,7 @@ import { OpenAIResponsesAgmatccProvider, SimulatedAgmatccProvider } from './agma
   controllers: [AgmatccCopilotController],
   providers: [
     AgmatccCopilotService,
+    LunaAcpmLedger,
     OperationalEventAccessGuard,
     {
       provide: AGMATCC_COPILOT_PROVIDER,

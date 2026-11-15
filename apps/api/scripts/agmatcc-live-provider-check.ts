@@ -1,3 +1,5 @@
+// Historical direct-provider runner is retained for provenance, but paid tests now use the shared ledger.
+throw new Error('USE_AUTHENTICATED_REHEARSAL_LIVE_RUNNER_WITH_SHARED_BUDGET');
 import { randomUUID } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import { AGMATCC_COPILOT_CONTRACT, type CopilotOutcome } from '../src/agmatcc-copilot/agmatcc-copilot.contract';

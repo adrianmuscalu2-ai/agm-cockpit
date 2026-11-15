@@ -25,6 +25,7 @@ export type CopilotAnswer = {
   answer: string;
   evidenceRefs: string[];
   usage: CopilotUsage;
+  accounting?: { unconfirmedCalls: number; reservedUsd: number };
   timing: { totalMs: number; timeToFirstResponseMs: number };
 };
 

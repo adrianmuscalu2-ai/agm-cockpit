@@ -1,8 +1,9 @@
 import { selectAcpm, type AcpmSnapshot, type AcpmFilters } from '@agm/shared';
-import { turnAdminAuthenticatedFetch } from '../admin-auth';
+import { authenticatedApiFetch } from '../authenticated-api';
 
 export const acpmPanel = `<section class="acpm-performance agmatcc-performance" aria-label="Agent & Chain Performance Monitor">
   <h3>ACPM · Agent &amp; Chain Performance Monitor</h3>
+  <p>Citirea necesită autentificarea contului OWNER AGM. PIN-ul TURN nu acordă acest rol.</p>
   <p>Observare și analiză. ACP — Authority Control Plane păstrează autoritatea, permisiunile și guvernanța.</p>
   <p>Execuții observate, transferuri și performanță. Lipsa datelor nu confirmă funcționarea.</p>
   <button type="button" data-acpm-refresh>Actualizează ACPM</button>
@@ -72,7 +73,7 @@ export function renderAcpm(target: HTMLElement, snapshot: AcpmSnapshot & {invent
   if(!snapshot.runs.length){const item=document.createElement('p');item.textContent='Istoric și evoluție indisponibile pentru selecția curentă.';evolution.append(item);}
   target.append(evolution);
 }
-export function bindAcpm(root: HTMLElement, fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
+export function bindAcpm(root: HTMLElement, fetcher: typeof fetch = authenticatedApiFetch as typeof fetch) {
   const button=root.querySelector<HTMLButtonElement>('[data-acpm-refresh]');
   const status=root.querySelector<HTMLElement>('[data-acpm-status]');
   const target=root.querySelector<HTMLElement>('[data-acpm-content]');

@@ -5,6 +5,7 @@ import path from 'node:path';
 import { writeFile, readFile } from 'node:fs/promises';
 const root = process.cwd();
 const out = 'D:/AGM-ACPM-Isolated-20261115-GPT6Luna/evidence';
+const prefix = `browser-integration-${Date.now()}`;
 const require = createRequire(path.join(root, 'apps/web/package.json'));
 const { createServer } = await import(pathToFileURL(require.resolve('vite')).href);
 const preflight = JSON.parse(await readFile('tmp/rescue-browser-preflight.json', 'utf8'));
@@ -22,12 +23,12 @@ try {
   await page.waitForFunction(() => document.body.innerText.length > 100);
   await page.keyboard.press('Tab');
   const body = await page.locator('body').innerText();
-  await page.screenshot({path:`${out}/browser-current.png`,fullPage:true});
+  await page.screenshot({path:`${out}/${prefix}.png`,fullPage:true});
   const report = {checkedAt:new Date().toISOString(),origin,route:page.url(), visualSignature:preflight.visualSignature,
     browserPluginStatus:'PASS - CUA callable; controlled Playwright available',integratedBrowserControlStatus:'PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE - browser access host unavailable',
     browserSessionStatus:'PASS',targetPageStatus:response.status()===200 && body.length>100 ? 'PASS':'FAIL',httpStatus:response.status(),
     navigation:'Home to #turn; keyboard Tab',title:await page.title(),bodyExcerpt:body.slice(0,5000),errors,
-    copilotVisible:await page.locator('[data-agmatcc-ai-question]').count(),scope:'Local rendered shell only; no authorized TURN session, no legal acceptance or authentication bypass',screenshot:'browser-current.png'};
-  await writeFile(`${out}/browser-current.json`,JSON.stringify(report,null,2));
+    copilotVisible:await page.locator('[data-agmatcc-ai-question]').count(),scope:'Local rendered shell only; no authorized TURN session, no legal acceptance or authentication bypass',screenshot:`${prefix}.png`};
+  await writeFile(`${out}/${prefix}.json`,JSON.stringify(report,null,2));
   console.log(JSON.stringify(report));
 } finally {await browser?.close();await server.close();}

@@ -25,7 +25,9 @@ export type AcpmEvaluationEvent = {
 
 /** Append-only evaluation spool; it is deliberately independent from Prisma and Production journals. */
 export class AcpmIsolatedSpool {
-  private queue: Promise<void> = Promise.resolve();
+  private static readonly queues = new Map<string, Promise<void>>();
+  private get queue() { return AcpmIsolatedSpool.queues.get(this.filePath) ?? Promise.resolve(); }
+  private set queue(value: Promise<void>) { AcpmIsolatedSpool.queues.set(this.filePath, value); }
   private readonly filePath: string;
 
   constructor(directory = process.env.ACPM_ISOLATED_SPOOL_DIR) {
