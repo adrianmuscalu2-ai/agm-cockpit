@@ -1,5 +1,6 @@
 import { turnModuleNavigationRegistry } from '../turn-module-navigation.registry';
 import { journalAvailabilityLabels } from '../turn-journal-evidence';
+import { acpmPanel } from './acpm.performance';
 
 const esc = (value: string) => value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
@@ -19,6 +20,7 @@ export function renderAgmatccPage(moduleNavigation = '') {
         </nav>
         ${riskKnowledge ? `<a class="agmatcc-risk-knowledge" href="#turn-journal-risk-knowledge" data-open-turn-page="incidents" data-governance-connection-title="risk-knowledge" title="API: neverificat în această sesiune">Risk &amp; Knowledge</a>` : ''}
       </header>
+      ${acpmPanel}
       <details class="agmatcc-audit-panel">
         <summary>Detalii tehnice și dovezi</summary>
         <strong class="agmatcc-integrity" data-agmatcc-integrity>Integritate: se verifică…</strong>

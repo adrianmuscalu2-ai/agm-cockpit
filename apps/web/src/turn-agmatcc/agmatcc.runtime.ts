@@ -1,4 +1,5 @@
 import { turnAdminAuthenticatedFetch } from '../admin-auth';
+import { bindAcpm } from './acpm.performance';
 import { beginTurnModuleRead, updateTurnModuleReadState } from '../turn-command-navigation';
 import './agmatcc.css';
 import {
@@ -67,6 +68,7 @@ export function bindAgmatcc(language = 'ro-RO') {
   const root = document.querySelector<HTMLElement>('.turn-agmatcc-page');
   if (!root || root.dataset.agmatccBound) return;
   root.dataset.agmatccBound = '1';
+  bindAcpm(root);
   const $ = <T extends HTMLElement>(selector: string) => root.querySelector<T>(selector)!;
   const draft = $<HTMLTextAreaElement>('[data-agmatcc-draft]');
   const status = $('[data-agmatcc-status]');

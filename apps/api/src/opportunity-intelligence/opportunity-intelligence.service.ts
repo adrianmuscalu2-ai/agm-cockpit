@@ -1,3 +1,4 @@
+import { AcpmObserver } from '../acpm/acpm.observer';
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
@@ -28,6 +29,7 @@ export class OpportunityIntelligenceService {
     private readonly authority: AuthorityControlPlaneService,
     private readonly carMover: CarMoverService,
     private readonly audit: AuditService,
+    private readonly acpm: AcpmObserver = new AcpmObserver(prisma),
   ) {}
 
   async intake(dto: IntakeOpportunityDto, ctx: RequestContext) {
@@ -114,19 +116,33 @@ export class OpportunityIntelligenceService {
     const costAuthority = await this.validateAgent(dto.costAuthority, 'opportunity.cost.assess', 'premium.car-mover.cost-risk', 'premium.car-mover.cost-risk', ctx);
     const plannerAuthority = await this.validateAgent(dto.plannerAuthority, 'opportunity.chain.plan', 'premium.car-mover.opportunity.planning', 'premium.car-mover.opportunity-planner', ctx);
     const judgeAuthority = await this.validateAgent(dto.judgeAuthority, 'opportunity.verdict.issue', 'premium.car-mover.opportunity.judgement', 'premium.car-mover.opportunity-judge', ctx);
+    const [routeIdentity,costIdentity,plannerIdentity,judgeIdentity]=await Promise.all([
+      this.acpm.leaseIdentity(ctx,routeAuthority.leaseId,'premium.car-mover.route-mobility','AGENT'),
+      this.acpm.leaseIdentity(ctx,costAuthority.leaseId,'premium.car-mover.cost-risk','AGENT'),
+      this.acpm.leaseIdentity(ctx,plannerAuthority.leaseId,'premium.car-mover.opportunity-planner','AGENT'),
+      this.acpm.leaseIdentity(ctx,judgeAuthority.leaseId,'premium.car-mover.opportunity-judge','INSPECTOR'),
+    ]);
+    return this.acpm.pipeline(ctx,[routeIdentity,costIdentity,plannerIdentity,judgeIdentity],async tracker=>{
+    const wait=<T>(operation:()=>Promise<T>)=>tracker?tracker.wait(operation):operation();
+    const stage=async<T>(identity:typeof routeIdentity,name:string,operation:()=>T)=>{
+      const transfer=tracker&&identity?await tracker.emit('HANDOFF',{targetComponentId:identity.componentId}):undefined;
+      return this.acpm.measureSync(ctx,identity,stageRef(name),operation,transfer?.eventId);
+    };
+    // These are deterministic function executions, not versioned AI model calls.
+    const stageRef=(stage:string)=>`opportunity-analysis:${ctx.correlationId}:${stage}`;
     const started = Date.now();
     const chainIds: string[] = []; const verdictIds: string[] = [];
     for (const variant of dto.variants) {
       const ids = variant.segments.map((segment) => segment.opportunityId);
       if (new Set(ids).size !== ids.length) throw new BadRequestException('OPPORTUNITY_CHAIN_DUPLICATE_MEMBER');
-      const opportunities = await this.prisma.normalizedOpportunity.findMany({ where: { companyId: ctx.companyId, id: { in: ids }, status: { in: ['AVAILABLE','REVIEWED'] } } });
+      const opportunities = await wait(()=>this.prisma.normalizedOpportunity.findMany({ where: { companyId: ctx.companyId, id: { in: ids }, status: { in: ['AVAILABLE','REVIEWED'] } } }));
       if (opportunities.length !== ids.length) throw new NotFoundException('OPPORTUNITY_CHAIN_MEMBER_NOT_FOUND');
       const byId = new Map(opportunities.map((item) => [item.id, item]));
       const analyzed: Array<{ opportunityId: string; route: ReturnType<typeof assessRoute>; cost: ReturnType<typeof assessCost>; routeId: string; costId: string }> = [];
       for (let index = 0; index < variant.segments.length; index += 1) {
         const segment = variant.segments[index]; const opportunity = byId.get(segment.opportunityId)!;
         const normalized = normalizedFromRecord(opportunity);
-        const route = assessRoute(segment.route);
+        const route = await stage(routeIdentity,'assessRoute',()=>assessRoute(segment.route));
         const routeKey = `${variant.variantKey}:${index}:${segment.opportunityId}`;
         const routeVersion = await this.nextRouteVersion(ctx.companyId, routeKey);
         const calculatedAt = new Date(); const routeAssessmentId = randomUUID();
@@ -140,7 +156,7 @@ export class OpportunityIntelligenceService {
           assumptions: json(route.assumptions), confidence: route.confidence, calculation: json(route.calculation), warnings: json(route.warnings), inputHash: route.inputHash,
           calculatedAt, validUntil: new Date(calculatedAt.getTime() + route.validForMinutes * 60_000),
         } });
-        const cost = assessCost(normalized, route, segment.cost);
+        const cost = await stage(costIdentity,'assessCost',()=>assessCost(normalized, route, segment.cost));
         const costKey = `${variant.variantKey}:${index}:${segment.opportunityId}`; const costVersion = await this.nextCostVersion(ctx.companyId, costKey);
         const costAt = new Date(); const costAssessmentId = randomUUID();
         const costRecord = await this.prisma.opportunityCostAssessment.create({ data: {
@@ -158,7 +174,7 @@ export class OpportunityIntelligenceService {
         } });
         analyzed.push({ opportunityId: opportunity.id, route, cost, routeId: routeRecord.routeAssessmentId, costId: costRecord.costAssessmentId });
       }
-      const planned = aggregateChain(analyzed); const chainVersion = await this.nextChainVersion(ctx.companyId, variant.variantKey);
+      const planned = await stage(plannerIdentity,'aggregateChain',()=>aggregateChain(analyzed)); const chainVersion = await this.nextChainVersion(ctx.companyId, variant.variantKey);
       const chain = await this.prisma.opportunityChain.create({ data: {
         companyId: ctx.companyId, chainKey: variant.variantKey, version: chainVersion, opportunityIds: json(planned.opportunityIds),
         routeAssessmentIds: json(analyzed.map((item) => item.routeId)), costAssessmentIds: json(analyzed.map((item) => item.costId)),
@@ -166,7 +182,7 @@ export class OpportunityIntelligenceService {
         fencingToken: plannerAuthority.fencingToken, objective: variant.objective ?? 'BALANCED', metrics: json(planned.metrics), feasible: planned.feasible, inputHash: planned.inputHash,
       } });
       const freshness = opportunities.every((item) => isFreshNow(item.sourceTimestamp)) ? 'FRESH' : 'STALE';
-      const judged = judgeChain(planned, freshness); const verdictVersion = await this.nextVerdictVersion(ctx.companyId, variant.variantKey);
+      const judged = await stage(judgeIdentity,'judgeChain',()=>judgeChain(planned, freshness)); const verdictVersion = await this.nextVerdictVersion(ctx.companyId, variant.variantKey);
       const verdict = await this.prisma.opportunityVerdict.create({ data: {
         companyId: ctx.companyId, chainId: chain.id, version: verdictVersion, classification: judged.classification,
         reasons: json(judged.reasons), advantages: json(judged.advantages), risks: json(judged.risks), confidence: judged.confidence,
@@ -186,6 +202,7 @@ export class OpportunityIntelligenceService {
     ]);
     await this.audit.create({ actionCode: 'OPPORTUNITY_ANALYSIS_COMPLETED', entityType: 'OpportunityAnalysisRun', entityId: chainIds[0] ?? randomUUID(), metadata: { chainIds, verdictIds, automaticAcceptance: false, contractVersion: OPPORTUNITY_CONTRACT_VERSION }, productId: 'agm-car-mover', moduleId: 'opportunity-intelligence' }, ctx);
     return this.readRun(json(chainIds), json(verdictIds), ctx.companyId, false);
+    });
   }
 
   async planning(ctx: RequestContext) {

@@ -6,6 +6,7 @@ import { API_CORE_CONTRACT } from './api-core.contract';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
+  app.enableShutdownHooks(['SIGTERM', 'SIGINT']);
   const config = app.get(ConfigService);
   configureHttpApplication(app, config);
   const port = config.get<number>('PORT', API_CORE_CONTRACT.defaultPort);

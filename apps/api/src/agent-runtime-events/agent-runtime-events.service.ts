@@ -15,18 +15,31 @@ import {
 import type { RequestContext } from '../common/request-context';
 import { PrismaService } from '../prisma/prisma.service';
 import type { AgentRuntimeEventInput } from './agent-runtime-event.contract';
+import { AcpmObserver } from '../acpm/acpm.observer';
 
 @Injectable()
 export class AgentRuntimeEventsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly acpm: AcpmObserver) {}
 
   async append(input: AgentRuntimeEventInput, ctx: RequestContext) {
-    const event = await this.prisma.agentRuntimeEvent.upsert({
-      where: { companyId_eventId: { companyId: ctx.companyId, eventId: input.eventId } },
-      create: { companyId: ctx.companyId, ...input, occurredAt: new Date(input.occurredAt) },
-      update: {},
-    });
-    return serialize(event);
+    try {
+      const persisted=await this.prisma.$transaction(async tx=>{
+        const event = await tx.agentRuntimeEvent.upsert({
+          where: { companyId_eventId: { companyId: ctx.companyId, eventId: input.eventId } },
+          create: { companyId: ctx.companyId, ...input, occurredAt: new Date(input.occurredAt) },
+          update: {},
+        });
+        const serialized=serialize(event);
+        // The source lifecycle row and ACPM ledger entry commit atomically.
+        await this.acpm.persistNativeInTransaction(tx,ctx,serialized);
+        return serialized;
+      });
+      this.acpm.noteNativeCommitted(ctx.companyId);
+      return persisted;
+    } catch(error) {
+      this.acpm.noteNativeFailed(ctx.companyId);
+      throw error;
+    }
   }
 
   async read(ctx: RequestContext, options: { mandateId?: string; after?: string; limit?: number }) {
@@ -143,5 +156,5 @@ export class AgentRuntimeEventsService {
 }
 
 function serialize(event: { eventId: string; mandateId: string; agentId: string; dossierId: string; lifecycle: string; sequence: number; occurredAt: Date; recordedAt: Date; evidenceRef: string; outputRef: string | null; evidenceHash: string | null; detail: string }) {
-  return { ...event, occurredAt: event.occurredAt.toISOString(), recordedAt: event.recordedAt.toISOString() };
+  return { ...event, lifecycle: event.lifecycle as AgentRuntimeEventInput['lifecycle'], occurredAt: event.occurredAt.toISOString(), recordedAt: event.recordedAt.toISOString() };
 }

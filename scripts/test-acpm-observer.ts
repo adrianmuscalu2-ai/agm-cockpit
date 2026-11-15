@@ -1,0 +1,141 @@
+import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { ForbiddenException } from '@nestjs/common';
+import { AcpmObserver } from '../apps/api/src/acpm/acpm.observer';
+import { AcpmService } from '../apps/api/src/acpm/acpm.service';
+import type { PrismaService } from '../apps/api/src/prisma/prisma.service';
+import type { RequestContext } from '../apps/api/src/common/request-context';
+import { assessRoute } from '../apps/api/src/opportunity-intelligence/opportunity-intelligence.engine';
+import { OpportunityIntelligenceService } from '../apps/api/src/opportunity-intelligence/opportunity-intelligence.service';
+import { AgentRuntimeEventsService } from '../apps/api/src/agent-runtime-events/agent-runtime-events.service';
+
+export async function runObserverTests(db:PrismaService,ctx:RequestContext,evidence:string){
+ const passed:string[]=[];
+ const observer=new AcpmObserver(db), reader=new AcpmService(db,observer);
+ const identity={mandateId:'LOCAL-ACPM-VALIDATION',chainId:randomUUID(),componentId:'local-database-inspector',componentKind:'INSPECTOR' as const};
+ const s=observer.session(ctx,identity,'scripts/test-acpm-observer.ts');
+ await s.emit('STARTED');
+ const rows=await s.wait(()=>db.$queryRaw<Array<{version:string}>>`SELECT version() AS version`);
+ assert.match(rows[0].version,/PostgreSQL 16/);
+ await s.emit('COMPLETED');await observer.flush();
+ let snapshot=await reader.monitor(ctx);
+ const run=snapshot.runs.find(r=>r.chainId===identity.chainId)!;
+ assert.deepEqual(run.events.map(e=>e.kind),['STARTED','SUSPENDED','RESUMED','COMPLETED']);
+ assert.equal(run.complete,true);assert.ok(run.activeMs!==null);
+ passed.push('real isolated database query: automatic wait/resume and persisted bounded durations');
+ writeFileSync(join(evidence,'observer-real-local-query.json'),JSON.stringify({dataClass:'REAL_LOCAL_VALIDATION_NOT_PRODUCTION',run},null,2));
+ await observer.shutdown();
+ const freshObserver=new AcpmObserver(db);
+ await freshObserver.ready();
+ const fresh=new AcpmService(db,freshObserver);
+ assert.deepEqual((await fresh.monitor(ctx)).runs.find(r=>r.runId===run.runId)?.events,run.events);
+ passed.push('observer reconstruction preserves already persisted events; counters explicitly process-local');
+ const runtime=new AgentRuntimeEventsService(db,freshObserver);
+ const nativeId=randomUUID(),nativeAt=new Date().toISOString();
+ await runtime.append({eventId:nativeId,mandateId:'NATIVE-NEW-MANDATE',agentId:'agent-inspector',dossierId:'native-dossier',lifecycle:'COMPLETED',sequence:3,occurredAt:nativeAt,evidenceRef:'fixture:native-runtime',evidenceHash:'b'.repeat(64),detail:'native runtime completion'},ctx);
+ await runtime.append({eventId:nativeId,mandateId:'NATIVE-NEW-MANDATE',agentId:'agent-inspector',dossierId:'native-dossier',lifecycle:'COMPLETED',sequence:3,occurredAt:nativeAt,evidenceRef:'fixture:native-runtime',evidenceHash:'b'.repeat(64),detail:'native runtime completion'},ctx);
+ await freshObserver.flush();snapshot=await reader.monitor(ctx);
+ const nativeRun=snapshot.runs.find(r=>r.runId==='native-dossier');assert.equal(nativeRun?.componentKind,'INSPECTOR');assert.equal(nativeRun?.events[0]?.eventId,nativeId);assert.equal(nativeRun?.events[0]?.kind,'COMPLETED');
+ assert.equal(nativeRun?.events.length,1);
+ passed.push('native runtime-event producer bridges new inspector lifecycle with original identity and evidence');
+ assert.equal((await reader.monitor({...ctx,companyId:randomUUID()})).observerHealth?.persisted,0);
+ passed.push('sink counters isolated by tenant');
+ const blockedIdentity={...identity,chainId:randomUUID()};
+ await assert.rejects(freshObserver.pipeline(ctx,[blockedIdentity],async()=>{throw new ForbiddenException('fixture gate');}));
+ await freshObserver.flush();snapshot=await reader.monitor(ctx);
+ const blocked=snapshot.runs.find(r=>r.chainId===blockedIdentity.chainId)!;
+ assert.equal(blocked.status,'PAUSED');assert.equal(blocked.events.at(-1)?.kind,'BLOCKED');
+ assert.equal(blocked.events.at(-1)?.block?.classification,'UNREVIEWED');
+ passed.push('business protection not recorded as FAILED or automatically justified');
+ const chain={...identity,chainId:randomUUID()};
+ await freshObserver.pipeline(ctx,[chain],async tracker=>{
+   const transfer=await tracker!.emit('HANDOFF',{targetComponentId:chain.componentId});
+   await freshObserver.measureSync(ctx,chain,'fixture:deterministic-route',()=>assessRoute({distanceKm:10,durationMinutes:10,distanceToPickupKm:0,sources:['fixture'],confidence:80}),transfer.eventId);
+ });
+ await freshObserver.flush();snapshot=await reader.monitor(ctx);
+ assert.ok(snapshot.transfers.some(t=>t.acceptedByEventId && snapshot.runs.some(r=>r.chainId===chain.chainId&&r.events.some(e=>e.eventId===t.eventId))));
+ assert.ok(snapshot.runs.filter(r=>r.chainId===chain.chainId).every(r=>r.events.every(e=>!e.model&&!e.workload)));
+ passed.push('actual deterministic function and accepted handoff; no invented AI metadata');
+ const before=freshObserver.health(ctx.companyId).accepted;
+ assert.equal(await freshObserver.pipeline(ctx,[identity,{...identity,mandateId:'different'}],async tracker=>{assert.equal(tracker,undefined);return 7;}),7);
+ assert.equal(freshObserver.health(ctx.companyId).accepted,before);
+ passed.push('cross-mandate requests do not invent orchestration identity');
+ const bad=new AcpmObserver({$transaction:async()=>{throw new Error('test-only outage');}} as unknown as PrismaService);
+ await assert.rejects(bad.measureSync(ctx,identity,'fixture:failure-isolation',()=>42));
+ assert.equal(bad.health(ctx.companyId).failed,1);assert.equal(bad.health(ctx.companyId).pending,0);
+ passed.push('PostgreSQL outage fails the awaited telemetry write visibly; no in-memory queue is reported as durable');
+ let commitNumber=0;
+ const lostAckDb={$transaction:async(work:(tx:any)=>Promise<unknown>)=>{const value=await db.$transaction(work);commitNumber++;if(commitNumber===2){const error=Object.assign(new Error('simulated lost commit acknowledgement'),{code:'P1017'});throw error;}return value;}};
+ const retryObserver=new AcpmObserver(lostAckDb as unknown as PrismaService);
+ let operationRuns=0;
+ const retryResult=await retryObserver.measureSync(ctx,identity,'fixture:lost-commit-ack',()=>{operationRuns++;return 'completed';});
+ const retryRun=(await new AcpmService(db,retryObserver).monitor(ctx)).runs.find(r=>r.events.some(e=>e.evidenceRef==='fixture:lost-commit-ack'));
+ assert.equal(retryResult,'completed');assert.equal(operationRuns,1);assert.deepEqual(retryRun?.events.map(e=>e.kind),['STARTED','COMPLETED']);
+ passed.push('lost COMPLETED commit acknowledgement retries the exact same event ID/hash; operation runs once and no false FAILED is written');
+ let transactionNumber=0;
+ const completionOutageDb={$transaction:async(work:(tx:any)=>Promise<unknown>)=>{transactionNumber++;if(transactionNumber===2)throw new Error('test-only completion write outage');return db.$transaction(work);}};
+ const completionOutageObserver=new AcpmObserver(completionOutageDb as unknown as PrismaService),businessFailure=new Error('business operation failed');
+ await assert.rejects(completionOutageObserver.measureSync(ctx,identity,'fixture:preserve-business-error',()=>{throw businessFailure;}),error=>error===businessFailure);
+ const preserved=(await new AcpmService(db,completionOutageObserver).monitor(ctx)).runs.find(r=>r.events.some(e=>e.evidenceRef==='fixture:preserve-business-error'));
+ assert.deepEqual(preserved?.events.map(e=>e.kind),['STARTED']);
+ passed.push('telemetry failure while recording business failure does not replace original business error or fabricate a terminal event');
+ let nestedTransactions=0,childRuns=0;
+ const nestedOutageDb={$transaction:async(work:(tx:any)=>Promise<unknown>)=>{nestedTransactions++;if(nestedTransactions===3)throw new Error('test-only child completion persistence outage');return db.$transaction(work);}};
+ const nestedOutageObserver=new AcpmObserver(nestedOutageDb as unknown as PrismaService),nestedChain={...identity,chainId:randomUUID()};
+ await assert.rejects(nestedOutageObserver.pipeline(ctx,[nestedChain],async()=>nestedOutageObserver.measureSync(ctx,nestedChain,'fixture:nested-completion-outage',()=>{childRuns++;return 5;})));
+ const nestedSnapshot=await new AcpmService(db,nestedOutageObserver).monitor(ctx),nestedEvents=nestedSnapshot.runs.filter(r=>r.chainId===nestedChain.chainId).flatMap(r=>r.events);
+ assert.equal(childRuns,1);assert.deepEqual(nestedEvents.map(e=>e.kind),['STARTED','STARTED']);
+ assert.equal(nestedEvents.some(e=>e.kind==='FAILED'),false);
+ passed.push('nested completion persistence error propagates without false orchestrator or child FAILED events');
+ let waitTransactions=0;
+ const waitOutageDb={$transaction:async(work:(tx:any)=>Promise<unknown>)=>{waitTransactions++;if(waitTransactions===3)throw new Error('test-only resume persistence outage');return db.$transaction(work);}};
+ const waitOutageObserver=new AcpmObserver(waitOutageDb as unknown as PrismaService),waitFailure=new Error('original suspended operation failure');
+ const waitSession=waitOutageObserver.session(ctx,{...identity,chainId:randomUUID()},'fixture:resume-outage');await waitSession.emit('STARTED');
+ await assert.rejects(waitSession.wait(async()=>{throw waitFailure;}),error=>error===waitFailure);
+ passed.push('failed RESUMED persistence does not mask the original suspended-operation error');
+ const concurrentSession=retryObserver.session(ctx,{...identity,chainId:randomUUID()},'fixture:concurrent-session-emits');
+ const concurrentEvents=await Promise.all([concurrentSession.emit('STARTED'),concurrentSession.emit('COMPLETED')]);
+ assert.deepEqual(concurrentEvents.map(e=>e.sequence),[1,2]);
+ passed.push('same-session concurrent emits serialize and preserve sequence order');
+ const concurrent=Array.from({length:24},(_,index)=>freshObserver.measureSync(ctx,{...chain,chainId:randomUUID(),componentId:`parallel-${index}`},'fixture:parallel-persist',()=>index));
+ assert.deepEqual(await Promise.all(concurrent),Array.from({length:24},(_,index)=>index));
+ assert.equal(freshObserver.health(ctx.companyId).pending,0);
+ passed.push('concurrent direct PostgreSQL commits settle without a process-local backlog');
+ const stuck=new AcpmObserver({authorityLease:{findFirst:()=>new Promise(()=>{})}} as unknown as PrismaService);
+ const time=Date.now();assert.equal(await stuck.leaseIdentity(ctx,randomUUID(),'a','AGENT'),undefined);
+ assert.ok(Date.now()-time<2000);assert.equal(stuck.health(ctx.companyId).missingIdentity,1);
+ passed.push('unresponsive identity lookup bounded; no invented mandate');
+ // Service integration uses declared fixtures for authority and domain records,
+ // real analyze()/engine functions, and the real isolated PostgreSQL ledger.
+ const agents=['premium.car-mover.route-mobility','premium.car-mover.cost-risk','premium.car-mover.opportunity-planner','premium.car-mover.opportunity-judge'];
+ const order:string[]=[];const chains:any[]=[],verdicts:any[]=[];
+ const records=(items:any[])=>({findFirst:async()=>null,findMany:async()=>items,create:async({data}:any)=>{const record={id:randomUUID(),...data};items.push(record);return record;}});
+ const fake:any={
+   opportunityAnalysisRun:{findUnique:async()=>null,create:async()=>({})},
+   normalizedOpportunity:{findMany:async()=>[{id:'fixture-opportunity',priceAmount:100,currencyCode:'EUR',sourceTimestamp:new Date()}]},
+   opportunityRouteAssessment:records([]),opportunityCostAssessment:records([]),opportunityChain:records(chains),opportunityVerdict:records(verdicts),
+   opportunityAgentTelemetry:{upsert:async()=>({})},
+   authorityLease:{findFirst:async({where}:any)=>{order.push('lookup');assert.equal(where.companyId,ctx.companyId);return {mandateId:'SERVICE-INTEGRATION-FIXTURE'};}},
+   $executeRaw:db.$executeRaw.bind(db),$queryRaw:db.$queryRaw.bind(db),$transaction:db.$transaction.bind(db),
+ };
+ const wired=new AcpmObserver(fake);
+ const authority:any={validateWrite:async({leaseId}:any)=>{order.push('authority');return {agentId:agents[Number(leaseId)],leaseId,providerId:'fixture-only',epoch:1,fencingToken:1};}};
+ const service=new OpportunityIntelligenceService(fake,authority,{} as any,{create:async()=>({})} as any,wired);
+ const proof=(i:number)=>({leaseId:String(i),epoch:1,fencingToken:1});
+ const dto={idempotencyKey:'fixture-only',routeAuthority:proof(0),costAuthority:proof(1),plannerAuthority:proof(2),judgeAuthority:proof(3),variants:[{variantKey:'fixture-variant',segments:[{opportunityId:'fixture-opportunity',route:{distanceKm:10,durationMinutes:10,distanceToPickupKm:0,sources:['fixture'],confidence:80},cost:{fuel:2}}]}]};
+ const serviceCtx={...ctx,roles:['PREMIUM_ACCESS'],correlationId:randomUUID()};
+ const result=await service.analyze(dto,serviceCtx);await wired.flush();
+ assert.deepEqual(order.slice(0,4),['authority','authority','authority','authority']);assert.equal(result.chains.length,1);
+ const measured=await new AcpmService(db,wired).monitor(ctx);const actual=measured.runs.filter(r=>r.chainId===serviceCtx.correlationId);
+ assert.equal(actual.length,5);assert.ok(actual.every(r=>r.complete));
+ assert.deepEqual(actual.filter(r=>r.componentKind!=='ORCHESTRATOR').map(r=>r.componentId).sort(),agents.sort());
+ assert.equal(measured.transfers.filter(t=>actual.some(r=>r.events.some(e=>e.eventId===t.eventId))&&t.acceptedByEventId).length,4);
+ const accepted=wired.health(ctx.companyId).accepted;
+ await assert.rejects(service.analyze(dto,{...serviceCtx,roles:[]}));assert.equal(wired.health(ctx.companyId).accepted,accepted);
+ passed.push('actual analyze service: four authority gates before telemetry, four executed stages, pipeline, accepted transfers, denied request emits nothing');
+ await freshObserver.shutdown();await stuck.shutdown();await wired.shutdown();
+ writeFileSync(join(evidence,'observer-tests.json'),JSON.stringify({at:new Date().toISOString(),passed,dataClass:'TEST_FIXTURES_EXCEPT_SEPARATELY_IDENTIFIED_REAL_LOCAL_QUERY',productionAccess:false,health:freshObserver.health(ctx.companyId)},null,2));
+ console.log(`ACPM observer tests: ${passed.length} passed`);
+}

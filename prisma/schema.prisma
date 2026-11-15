@@ -25,6 +25,7 @@ model Company {
   operationalEventStreams    OperationalEventStream[]
   operationalEvents          OperationalEvent[]
   agentRuntimeEvents         AgentRuntimeEvent[]
+  agentChainPerformanceEvents AgentChainPerformanceEvent[]
   componentHeartbeats        ComponentHeartbeat[]
   operationalLinguistBaselines OperationalLinguistBaseline[]
   operationalLinguistPublishers OperationalLinguistPublisher[]
@@ -742,6 +743,18 @@ model OperationalEvent {
   @@index([companyId, streamRecordId, aggregateVersion])
   @@index([companyId, occurredAt])
   @@index([companyId, productId, subjectType, subjectId, occurredAt])
+}
+
+model AgentChainPerformanceEvent {
+  companyId String @db.Uuid
+  company Company @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  eventId String @db.Uuid
+  recordedAt DateTime @default(now()) @db.Timestamptz(6)
+  recordedBy String
+  payload Json
+  payloadHash String @db.VarChar(64)
+  @@id([companyId, eventId])
+  @@index([companyId, recordedAt, eventId], map: "AgentChainPerformanceEvent_tenant_time")
 }
 
 model AgentRuntimeEvent {
