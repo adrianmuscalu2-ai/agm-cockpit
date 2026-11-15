@@ -7,6 +7,7 @@ import {canonicalAcpm} from '../src/acpm/acpm.canonical';
 // Prepared release-window action; NEVER called by migration/startup or this remediation.
 // Import only the independently reviewed receipt hash, before enabling Production Luna.
 async function main(){
+ if(process.env.AGMATCC_LUNA_PRODUCTION_ENABLED==='true')throw Error('HANDOFF_IMPORT_REQUIRES_LUNA_DISABLED');
  const u=new URL(process.env.DATABASE_URL??'');
  if(process.env.NODE_ENV!=='production'||u.pathname!=='/agm'||u.hostname!==process.env.AGMATCC_LUNA_PRODUCTION_DB_HOST||!process.env.AGMATCC_LUNA_PRODUCTION_DB_HOST||u.port==='55432')throw Error('PRODUCTION_TARGET_REQUIRED');
  const exported=JSON.parse(readFileSync(process.argv[2],'utf8')),r=exported.receipt;
