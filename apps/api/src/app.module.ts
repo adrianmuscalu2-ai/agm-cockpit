@@ -41,6 +41,7 @@ import { SharedArchiveModule } from './shared-archive/shared-archive.module';
 import { OperationalLinguistsV1Module } from './operational-linguists-v1/operational-linguists-v1.module';
 import { GovernanceV2Module } from './governance-v2/governance-v2.module';
 import { UniversalLifecycleModule } from './universal-lifecycle/universal-lifecycle.module';
+import { AgmatccCopilotModule } from './agmatcc-copilot/agmatcc-copilot.module';
 
 @Module({
   imports: [
@@ -90,6 +91,7 @@ import { UniversalLifecycleModule } from './universal-lifecycle/universal-lifecy
     OperationalLinguistsV1Module,
     GovernanceV2Module,
     UniversalLifecycleModule,
+    AgmatccCopilotModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
