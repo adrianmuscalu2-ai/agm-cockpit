@@ -3,3 +3,6 @@ export * from './linguistic-resource-contract';
 export * from './operational-linguist-v1.contract';
 export * from './operational-linguist-v1.validator';
 export * from './semantic-index';
+export * from './agent-chain-performance';
+export * from './agent-chain-recorder';
+export * from './acpm';

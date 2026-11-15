@@ -1,4 +1,5 @@
 import { turnAdminAuthenticatedFetch } from '../admin-auth';
+import { bindAcpm } from './acpm.performance';
 import { beginTurnModuleRead, updateTurnModuleReadState } from '../turn-command-navigation';
 import './agmatcc.css';
 import {
@@ -67,9 +68,14 @@ export function bindAgmatcc(language = 'ro-RO') {
   const root = document.querySelector<HTMLElement>('.turn-agmatcc-page');
   if (!root || root.dataset.agmatccBound) return;
   root.dataset.agmatccBound = '1';
+  bindAcpm(root);
   const $ = <T extends HTMLElement>(selector: string) => root.querySelector<T>(selector)!;
   const draft = $<HTMLTextAreaElement>('[data-agmatcc-draft]');
   const status = $('[data-agmatcc-status]');
+  const aiQuestion = $<HTMLTextAreaElement>('[data-agmatcc-ai-question]');
+  const aiSend = $<HTMLButtonElement>('[data-agmatcc-ai-send]');
+  const aiAnswer = $('[data-agmatcc-ai-answer]');
+  const aiEvidence = $('[data-agmatcc-ai-evidence]');
   const history = $('[data-agmatcc-history]');
   const results = $('[data-agmatcc-results]');
   const integrity = $('[data-agmatcc-integrity]');
@@ -122,6 +128,27 @@ export function bindAgmatcc(language = 'ro-RO') {
     alerts.prepend(li);
     while (alerts.children.length > 20) alerts.lastElementChild?.remove();
   };
+  aiSend.addEventListener('click', async () => {
+    const question = aiQuestion.value.trim();
+    if (question.length < 2) { aiAnswer.textContent = 'Scrie o întrebare mai clară.'; return; }
+    aiSend.disabled = true;
+    aiAnswer.textContent = 'Copilotul izolat consultă numai sursele read-only autorizate…';
+    aiEvidence.replaceChildren();
+    try {
+      const response = await turnAdminAuthenticatedFetch('/agmatcc-copilot/respond', {
+        method: 'POST', cache: 'no-store', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, language: 'ro', testMandateId: randomUuid() }),
+      });
+      if (!response.ok) throw new Error(`ACPM_HTTP_${response.status}`);
+      const envelope = await response.json() as { data?: { answer?: string; status?: string; evidenceRefs?: string[]; model?: string } };
+      const result = envelope.data;
+      if (!result?.answer || !result.status) throw new Error('ACPM_RESPONSE_INVALID');
+      aiAnswer.textContent = `[${result.status} · ${result.model ?? 'model indisponibil'}] ${result.answer}`;
+      for (const ref of result.evidenceRefs ?? []) { const item = document.createElement('li'); item.textContent = ref; aiEvidence.append(item); }
+    } catch (error) {
+      aiAnswer.textContent = `Copilot izolat indisponibil; parserul clasic rămâne disponibil. ${error instanceof Error ? error.message : 'Eroare necunoscută'}`;
+    } finally { aiSend.disabled = false; }
+  });
   const refreshBackendAlerts = () => fetchTurnOperationalTruth().then((truth) => {
     alerts.querySelectorAll('[data-agmatcc-alert-origin="backend"]').forEach((node) => node.remove());
     deriveTccAlerts(truth).reverse().forEach((item) => {

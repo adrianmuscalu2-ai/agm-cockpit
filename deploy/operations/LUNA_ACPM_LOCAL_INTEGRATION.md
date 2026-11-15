@@ -1,0 +1,275 @@
+# AGM 1.9.1 local Luna / AGMaTCC / ACPM integration
+
+Base: `7ec519588b74f384abe8dc84dda35e3741d7fd82`. Destination: existing
+`codex/acpm-gpt6-luna-isolated-20261115` worktree. This is a local review candidate,
+not a Production release. No model or authority configuration in Production changes.
+
+## Provenance
+
+- `b966d4eb050d225ad66650d73b285df8a6bda536`: preserves the 20 Luna candidate files.
+  The synthetic credential fixture was explicitly labelled EXAMPLE for the secret scanner.
+- `b287c52290d7561be51a2553cdb58117514657f7`: preserves 44 ACPM source files from
+  `D:/AGM-ACP-20261115`; anchored by `preserve/acpm-operational-20261115`.
+- `4949eb2`: transfers that ACPM commit with `cherry-pick -x`. AppModule and the
+  AGMaTCC view/runtime/CSS retain both features. No whole-directory replacement.
+- Source archives, original manifests, failed attempts, test logs and database backup
+  stay outside Git in `D:/AGM-ACPM-Isolated-20261115-GPT6Luna/evidence`.
+
+## Runtime and accounting
+
+Paid service calls require the exact existing rehearsal target:
+`127.0.0.1:55432/agm_cockpit_191_rehearsal` (localhost is also accepted).
+The existing reduced bootstrap includes the real authentication, copilot and ACPM
+modules; it does not boot the full application's unrelated initializers.
+
+Each provider call reserves USD 0.10 under a PostgreSQL transaction advisory lock.
+The shared ceiling is USD 5 across tenants and processes. Historical estimated
+USD 0.0005412 is rounded UP to USD 0.001, linked to the original JSONL chain hash.
+Reservations and STARTED observations commit together before calling the provider.
+Settlement and terminal ACPM observation also commit together. Duplicate settlement
+is rejected. Unknown usage, network failure, process interruption or failed settlement
+never releases the reservation automatically. No model/network retries are added.
+
+Accounting uses integer nanodollars at conservative long-context estimates of
+USD 0.20/M input and USD 0.75/M output, ignoring cache discounts. These are estimates,
+not invoice values. Pricing reference checked 2026-11-15:
+https://developers.openai.com/api/docs/pricing . Payload input is bounded to 100 KB;
+output is capped at 120 tokens and service tier is default. The reserve exceeds the
+bounded request's conservative cost. The fixture expectation is USD 0.00095 for
+1,000 input plus 1,000 output tokens.
+
+Malformed final JSON retains returned usage. Missing usage remains unconfirmed,
+including in the service response. Measurement payloads include execution/call IDs,
+tenant, model, tokens, pricing, elapsed response time, provider outcome, errors and
+authorized evidence references. Timing is full-response latency, not streaming TTFT.
+The original evaluation JSONL is not imported as fabricated operational events and
+is not written by the paid integrated path. The legacy direct paid runner is disabled;
+use the authenticated rehearsal runner so all paid calls share the same budget.
+
+## Authorization
+
+Copilot continues to use the existing OperationalEventAccessGuard and TURN read scope.
+Agent/incident reads still require PREMIUM_ACCESS. ACPM HTTP endpoints still use
+JwtAuthGuard and the existing OWNER/company_owner/PRODUCT_OWNER service gate.
+The panel now uses authenticatedApiFetch for the existing user session, not a TURN
+token. No conversion of TURN into OWNER, new role grant or synthetic session is used.
+Internal measurement writes are not exposed as model tools or new HTTP authority.
+
+## Migration and recovery
+
+Only these migrations were applied, transactionally, to the named rehearsal database,
+with their checksums recorded in its existing Prisma migration registry:
+
+- `20261115003000_agent_chain_performance`
+- `20261115210000_luna_acpm_budget`
+
+Before application, the Docker loopback binding, database name and schema were checked.
+Backup `rehearsal-before-luna-20261115T195853Z.dump` has SHA256
+`95c207c4fcefe2658f32eb29448ec50711590a7a5804b1cda5060f7fc2fa165e`.
+pg_restore listing and full SQL decoding passed. A destructive restore was not run.
+Recovery must use this archive and the same rehearsal database under a recovery
+mandate; do not reset, reseed or create another database. Test fixtures remain labelled
+and retained, with no user/role provisioning or cleanup deletes.
+
+## Initial integration validation (before PR35 finalization mandate)
+
+- API and Web typecheck: PASS. Only changed shared code was built for package exports.
+- Luna/adapter/accounting unit tests: 24 PASS; malformed usage and no-spend-on-refusal covered.
+- Existing TURN read/sync/refused-write contract and AGMaTCC gates: PASS.
+- Real PostgreSQL: 55 simultaneous requests across two clients; 49 accepted, 6 budget
+  refusals; peak USD 4.901 reserved including historical debit. 98 events persisted,
+  hashes verified and reread through a second client; duplicate settlement rejected.
+  These are explicitly labelled TEST_NO_PROVIDER_CALL fixtures, not model executions.
+  Initial lock-deserialization and pool-wait failures are retained; the bounded retry
+  used explicit SQL result typing and a 30-second transaction acquisition limit.
+- Real reduced Nest HTTP runtime: copilot, ACPM and TURN validation return 401 without
+  credentials; no reservation or paid request created. No guards were overridden.
+- Browser preflight and controlled Playwright shell navigation/capture succeeded during
+  integration. IAB host unavailable (optional). Legal notice/PIN remain intact; this is
+  not authenticated UI acceptance or final combined-flow visual certification.
+- **Blocking security gate:** rehearsal has zero users and zero TURN credentials.
+  No legitimate combined login/conversation/OWNER read can be claimed. No account,
+  PIN or role was manufactured. No new paid API calls were made.
+
+The live runner is `apps/api/scripts/test-luna-rehearsal-live.ts`. After an authorized
+owner separately provisions/restores the existing rehearsal identity through the
+approved onboarding process, supply existing credentials only in process environment:
+`AGM_REHEARSAL_TURN_PIN`, `AGM_REHEARSAL_OWNER_EMAIL`, `AGM_REHEARSAL_OWNER_PASSWORD`.
+Use the rehearsal launcher environment and real OpenAI credential from existing custody,
+then run `pnpm.cmd exec ts-node scripts/test-luna-rehearsal-live.ts` from apps/api.
+It authenticates through real HTTP endpoints, checks OWNER read before any spend,
+calls Luna, reads ACPM through that owner and reconciles persisted cost. It does not
+create credentials. Browser E2E and independent review must follow before promotion.
+
+Initial decision: GO for draft PR and independent review; NO-GO for promotion until the
+legitimate authenticated live flow and independent review are complete. No merge,
+Production deployment, new worktree/clone/database, or RK/Guardian/Governance edits.
+
+## PR35 finalization mandate — 2026-11-15
+
+The subsequent explicit OWNER-test provisioning mandate supersedes the initial
+zero-identity gate above. The existing `prisma/seed/seed.ts` procedure created
+`pr35-owner@rehearsal.invalid`, role `company_owner`, only in the verified rehearsal.
+Fresh random test credentials and JWT signing material are held outside Git in
+Windows DPAPI custody. No Production identity or token was copied. TURN uses its
+existing configured-PIN bootstrap, unlock and session validation; OWNER remains a
+separate login. The browser reads the legal notice and acknowledges it through UI.
+
+Missing prerequisite `20261108190000_add_password_recovery` was applied from the
+existing canonical migration, transactionally with its migration record, only in
+`agm_cockpit_191_rehearsal` at 127.0.0.1:55432. The verified backup above remains
+available. No protected control module or Production schema was changed.
+
+Independent Codex advisory review found structured secret-key redaction (P1) and
+mixed valid/invented provenance acceptance (P2). Commit `acf9c2e` fixes both;
+19 affected copilot tests, 5 accounting tests and independent reproductions pass.
+API typecheck passes. Previously accepted concurrency and AGMaTCC evidence is reused.
+
+Real browser run `1794774707179` demonstrates OWNER login, TURN unlock, authorized
+journal HTTP read, an OpenAI `gpt-6-luna` Romanian answer and OWNER ACPM HTTP read.
+Execution `8e5358b0-498a-47ee-8a90-b756c8d6205e` answered that the explicitly labelled
+rehearsal transport is PREGĂTIT. Its cited stream/version/event exists in PostgreSQL
+and in the authorized journal response. Four ACPM events (two STARTED/COMPLETED
+pairs) have independently recalculated valid SHA-256 hashes. No mocked HTTP was used.
+
+New measured usage: 1,288 input + 139 output tokens over two paid requests. Conservative
+cost estimate USD 0.00036185; historical estimate USD 0.0005412; cumulative estimate
+USD 0.00090305. The shared ledger debits USD 0.00136185 including rounded historical
+spend, below USD 5. No uncertain/pending paid reservations remain. These are usage-based
+estimates, not a provider invoice or a billing-account reconciliation.
+
+Raw local evidence remains in `D:/AGM-ACPM-Isolated-20261115-GPT6Luna/evidence`:
+`authenticated-browser-1794774707179.json`, `authenticated-db-1794774707179.json`,
+`authenticated-verified-1794774707179.json`, and screenshots. The first screenshot
+proves Luna rendering but exposes an ACPM stale-Vite-cache rendering failure; it is
+not ACPM visual PASS. The minimal OWNER-only retest reuses the paid Luna proof.
+
+Recovery journal: IAB exact selection reports host unavailable (optional platform
+limitation); controlled Playwright/Chromium is the authorized route. Initial seed
+failed on missing User.credentialVersion; canonical migration restored compatibility.
+A read-only psql probe with a guessed role failed; the actual configured rehearsal
+role was then used. UI attempts 1–3 exposed runner timing around legal notice and
+tutorial; normal UI waits/dismissal fixed them. Run4 passed backend/Luna. Stale Vite
+prebundle lacked selectAcpm; a noDiscovery attempt then exposed Tesseract interop,
+so the runner uses the existing canonical Vite config and reoptimization. All failed
+reports/logs remain local; no extra provider requests were made for these recoveries.
+
+Reproducible launcher: `apps/api/scripts/run-luna-browser-rehearsal.ps1` after
+`pnpm.cmd rescue:browser-preflight`. Set `REHEARSAL_REUSE_EVIDENCE` to the accepted
+browser JSON for an OWNER/UI-only retest; this reads persisted ACPM without calling
+the provider. No new worktree, clone or database is created.
+
+### Closure
+
+Minimal run `1794774879195` passes authenticated TURN/OWNER and ACPM UI: 2/2
+COMPLETED runs and all four events are visible. Database reread again verifies
+hashes, source references and unchanged budget. The paid conversation is explicitly
+REUSED_PASS from run `1794774707179`, not claimed as a second live conversation.
+Evidence is `authenticated-browser`, `authenticated-db`, `authenticated-verified`
+JSON and `authenticated` PNG with this run ID in the local evidence directory.
+
+Browser Plugin Status: PASS (installed mechanism/preflight).
+Integrated Browser Control Status: PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE.
+Browser Session Status: PASS (controlled Playwright/Chromium).
+Target Page Status: PASS (real local application, authenticated navigation/captures).
+
+Independent advisory evaluator `/root/candidate_independent_review` checked exact
+code HEAD `8b242fb972f1502324d59c28ecd50fe3dbcb2c12`: security/authorization,
+AGM 1.9.1 compatibility, ACPM persistence/integrity, concurrent budget protection,
+tested AGMaTCC regressions and Git provenance all PASS within the tested scope.
+The evaluator visually inspected the successful ACPM capture and independently
+verified the paid-run hashes and source correspondence. This is the existing Codex
+advisory channel, not a TURN registry identity, inspector mandate or official approval.
+This closure is documentation-only after that reviewed code HEAD.
+
+RESCUE RECOVERED / HANDOFF TO ATLAS: local configuration and runner recovery complete;
+accepted Luna/concurrency evidence preserved, only affected browser gates retested.
+GO for PR review. Formal GitHub review remains PENDING; promotion/Production HOLD.
+No merge or deployment executed. Remaining action is independent formal acceptance
+of the reviewed candidate, without repeating the paid tests or inventing approvers.
+
+## Technical remediation — Production Responses and bounded activation
+
+This section supersedes the earlier technical blockers; it does not grant release approval.
+
+The existing Production key was tested through POST /v1/responses inside its existing
+container, after a durable reservation in the shared evaluation ledger. Response HTTP200,
+model gpt-6-luna, status completed, text `Verificare reușită.`, usage24 input/12 output.
+No key was transferred and no Production database was changed. The metadata403 was only
+missing api.model.read, not an inference denial. Execution24a509ea-1caa-46b4-8a33-c95d994cd6d6
+is preserved outside Git with its reservation/usage. New conservative estimateUSD0.0000138;
+cumulative measured-usage estimateUSD0.00091685; conservative ledger debitUSD0.00137565.
+
+Production activation is now an explicit OFF-by-default path in candidate code. It requires:
+
+- `AGMATCC_COPILOT_PROVIDER=openai` and `AGMATCC_LUNA_PRODUCTION_ENABLED=true`;
+- existing Production OPENAI_API_KEY custody, unchanged;
+- `AGMATCC_LUNA_COMMANDER_FAMILY_SHA256`, obtained from the authenticated caller's
+  GET /api/v1/agmatcc-copilot/session after the disabled code is released;
+- `AGMATCC_LUNA_PRODUCTION_DB_HOST` matching the existing configured host, databaseagm;
+- `AGMATCC_LUNA_HANDOFF_SHA256` matching the approved immutable receipt.
+
+The session endpoint uses the canonical TURN guard and returns only the caller's family
+fingerprint plus activationGranted:false. The additional Production guard reuses canonical
+signature/expiry/revocation verification BEFORE comparing the family. OWNER/Premium alone,
+another family, missing binding and missing activation are refused. Rotation within a valid
+family remains canonical; a new login family requires explicit rebinding. No existing TURN
+authentication, RK, Guardian or Governance code was modified. Actual Commander binding
+and deployment remain unexecuted; fixture tests are not reported as human-session E2E.
+
+### Cumulative budget transfer and legacy writers
+
+Two additional additive migrations prepare LunaBudgetHandoff and LunaBudgetSourceFence.
+Both were applied ONLY to the existing rehearsal. Production remains at32 migrations;
+the pending release delta is now4, in order: ACPM ledger, evaluation budget, handoff, fence.
+No existing migration or historical checksum is rewritten.
+
+The source is sealed atUSD0.00137565, receiptSHA256
+bb0cd21c21b23fa5278c82da512c2ba9d94802d4510af4506be3caf5d46a245e.
+Source reservation inserts are refused at PostgreSQL level, including legacy writers.
+The seal and reservations use the same advisory lock; the monotonic fence row also makes
+stale repeatable-read writers serialize/fail. No budget reset or automatic unfreeze exists.
+Unknown reservations transfer at their full amount. The source MUST remain frozen even
+if application code is rolled back. Never remove the database fence to rerun paid tests.
+
+Production uses GREATEST(initial prior debit, carried debit) plus ALL new charged/pending
+reservations, capped by the unchangedUSD5 database constraint. Absence/mismatch of receipt,
+target or activation fails closed before provider access. The existing integer-cost,
+atomic ACPM settlement, duplicate rejection and uncertain-reservation rules are preserved.
+
+`seal-luna-budget-handoff.ts` creates the one-way source receipt under the shared lock.
+`import-luna-budget-handoff.ts <receipt-file>` is a PREPARED release-window action, not run:
+it verifies the pinned hash, actual Production database, scope, bounds and absence of prior
+reservations, then imports idempotently without overwriting. It grants no activation.
+Run from apps/api with the canonical runtime toolchain only after authorized migrations;
+the reviewed receipt is a non-secret artifact, never a credential or identity grant.
+
+Production-policy concurrency was exercised in the existing rehearsal, with target assertion
+explicitly overridden in the fixture:55 requests/49 accepted/6 refused,98 verified events,
+peakUSD4.9017513. This is SQL-policy evidence, not deployed-Production evidence. After adding
+the DB fence, the affected minimal test refused20/20 direct legacy inserts over two clients,
+added zero rows, rejected unfreeze, and confirmed current debit equals transferred debit.
+The earlier positive concurrency proof is reused; the fixture now routes post-seal reruns
+to the refusal test. No new provider calls occurred during these validations.
+
+### Recovery and remaining coverage
+
+Retain the verified Production backup from20261115T211146Z, SHA256
+ece9c7b1c57df111c0191c87a00aa6301db9de75a18604621b5d20cfd03b3fa6, and captured prior image
+digests. Refresh them in the actual change window. Application rollback preserves all
+append-only ACPM, handoff and reservation data; no down-migration/deletion is prepared.
+
+Instrumented: Luna provider calls; native runtime AGENT and agent-inspector INSPECTOR;
+route-mobility, cost-risk, opportunity-planner AGENT and opportunity-judge INSPECTOR;
+opportunity.analysis-pipeline ORCHESTRATOR and handoffs when identities share one mandate.
+Gaps: uninstrumented declared components, mixed/unknown mandate parentage, missing model/
+capacity/version fields and full deployed-chain execution. Missing observations are not
+healthy by inference. Approval and final certification remain separate gates.
+
+Affected validation:32 test cases PASS across copilot/accounting, Commander binding and
+Production target/receipt boundaries; API build, typecheck, lint and explicit operational
+script typecheck PASS. Repository secret scan PASS (4014 tracked files). No Web behavior
+was changed, so accepted Web/browser evidence is retained rather than repeated.
+The remediation commit remains LOCAL: this branch's push automatically deploys Cloudflare
+Preview, which would violate the current no-deployment mandate. The PR discussion records
+the evidence without claiming its remote HEAD contains the remediation.

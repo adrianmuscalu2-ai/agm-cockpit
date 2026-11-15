@@ -36,6 +36,10 @@ export const DATA001_PERSISTENCE_CONTRACT = {
     ['20261103100000_protect_universal_lifecycle_event', '6bc0d7617462e69fa880833f48ad25be767217568968559a5784ffadd983f50b'],
     ['20261106100000_add_governance_actor_identity_bindings', '83b1f4bd6c52ca8d6c2c33be038cf969fec393769bf193e587f48dc8301aa65f'],
     ['20261108190000_add_password_recovery', '17958982ec381fe019e32ad02bfff3a96fb63009d71ed05b25656f2ebc47338b'],
+    ['20261115003000_agent_chain_performance', 'daab4eb6c2311506a4d106b4a34f0dd7da7584e018d9527fab27e45a6c6d87af'],
+    ['20261115210000_luna_acpm_budget', 'adf63b692c9d7617dbd548705af1463ffeceb19ce0ea634d7b3b51a4c6b85578'],
+    ['20261115230000_luna_budget_handoff', '645f0ce65e1b2675991eb9efea88eab65b0bc2cf22733affdd8e0e57f8c97c07'],
+    ['20261115231000_luna_source_write_fence', 'd220ce35f98fcd2d785d366e91bbf3d894c3ceb127cc5558d9b234272dcb0a68'],
   ] as const,
   criticalModels: [
     'Company',

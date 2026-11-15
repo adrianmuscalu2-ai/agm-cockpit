@@ -1,5 +1,6 @@
 import { turnModuleNavigationRegistry } from '../turn-module-navigation.registry';
 import { journalAvailabilityLabels } from '../turn-journal-evidence';
+import { acpmPanel } from './acpm.performance';
 
 const esc = (value: string) => value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
@@ -19,6 +20,7 @@ export function renderAgmatccPage(moduleNavigation = '') {
         </nav>
         ${riskKnowledge ? `<a class="agmatcc-risk-knowledge" href="#turn-journal-risk-knowledge" data-open-turn-page="incidents" data-governance-connection-title="risk-knowledge" title="API: neverificat în această sesiune">Risk &amp; Knowledge</a>` : ''}
       </header>
+      ${acpmPanel}
       <details class="agmatcc-audit-panel">
         <summary>Detalii tehnice și dovezi</summary>
         <strong class="agmatcc-integrity" data-agmatcc-integrity>Integritate: se verifică…</strong>
@@ -56,6 +58,14 @@ export function renderAgmatccPage(moduleNavigation = '') {
               <p class="agmatcc-hint">Comenzi vocale: „citește jurnalul serverului”, „avem incidente?”, „ce s-a întâmplat ultima dată?”, „dă-mi ID-ul evenimentului”.</p>
               <h3>Răspunsuri</h3>
               <p class="agmatcc-status" data-agmatcc-status role="status" aria-live="polite"></p>
+              <section class="agmatcc-ai-chat" aria-labelledby="agmatcc-ai-chat-title">
+                <h3 id="agmatcc-ai-chat-title">Copilot conversațional · izolat</h3>
+                <label for="agmatccAiQuestion">Întrebare în limbaj liber (română)</label>
+                <textarea id="agmatccAiQuestion" data-agmatcc-ai-question rows="3" maxlength="2000"></textarea>
+                <button type="button" data-agmatcc-ai-send>Întreabă copilotul read-only</button>
+                <p data-agmatcc-ai-answer role="status" aria-live="polite">Providerul simulat este disponibil numai în mediul izolat.</p>
+                <ul data-agmatcc-ai-evidence aria-label="Referințe la dovezi"></ul>
+              </section>
             </div>
             <aside class="agmatcc-col agmatcc-right" aria-label="Întrebări și alerte">
               <h3>Căutare (lexicală)</h3>

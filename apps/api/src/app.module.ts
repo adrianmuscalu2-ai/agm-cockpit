@@ -26,6 +26,7 @@ import { PremiumAssistantModule } from './premium-assistant/premium-assistant.mo
 import { DataRightsModule } from './data-rights/data-rights.module';
 import { CarMoverModule } from './car-mover/car-mover.module';
 import { AgentRuntimeEventsModule } from './agent-runtime-events/agent-runtime-events.module';
+import { AcpmModule } from './acpm/acpm.module';
 import { ComponentTelemetryModule } from './component-telemetry/component-telemetry.module';
 import { AuthorityControlPlaneModule } from './authority-control-plane/authority-control-plane.module';
 import { OpportunityIntelligenceModule } from './opportunity-intelligence/opportunity-intelligence.module';
@@ -41,6 +42,7 @@ import { SharedArchiveModule } from './shared-archive/shared-archive.module';
 import { OperationalLinguistsV1Module } from './operational-linguists-v1/operational-linguists-v1.module';
 import { GovernanceV2Module } from './governance-v2/governance-v2.module';
 import { UniversalLifecycleModule } from './universal-lifecycle/universal-lifecycle.module';
+import { AgmatccCopilotModule } from './agmatcc-copilot/agmatcc-copilot.module';
 
 @Module({
   imports: [
@@ -76,6 +78,7 @@ import { UniversalLifecycleModule } from './universal-lifecycle/universal-lifecy
     DataRightsModule,
     CarMoverModule,
     AgentRuntimeEventsModule,
+    AcpmModule,
     ComponentTelemetryModule,
     AuthorityControlPlaneModule,
     OpportunityIntelligenceModule,
@@ -90,6 +93,7 @@ import { UniversalLifecycleModule } from './universal-lifecycle/universal-lifecy
     OperationalLinguistsV1Module,
     GovernanceV2Module,
     UniversalLifecycleModule,
+    AgmatccCopilotModule,
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
