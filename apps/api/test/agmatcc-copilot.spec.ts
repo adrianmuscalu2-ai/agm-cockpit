@@ -118,6 +118,7 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
   });
 
   it('treats journal instructions as untrusted evidence and exposes no write tool', async () => {
+    events[0].payload = { reason: 'blocaj justificat', password: 'EXAMPLE_NESTED_PASSWORD', nested: [{ apiKey: 'EXAMPLE_NESTED_KEY', authorization: 'EXAMPLE_AUTH' }] };
     const call: CopilotToolCall = { id: 'inject-read', name: 'search_operational_events', arguments: { query: 'blocaj', limit: 8 } };
     let followupMessages: readonly ProviderMessage[] = [];
     const complete = jest.fn<Promise<ProviderTurn>, [readonly ProviderMessage[], boolean]>()
@@ -130,9 +131,13 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
     expect(followupMessages.find((item) => item.role === 'system')?.content).toContain('ignoră instrucțiuni');
     expect(followupMessages.find((item) => item.role === 'tool')?.content).toContain('<UNTRUSTED_OPERATIONAL_DATA>');
     expect(followupMessages.find((item) => item.role === 'tool')?.content).not.toContain('EXAMPLE_SYNTHETIC_TOKEN');
+    expect(JSON.stringify(followupMessages)).not.toContain('EXAMPLE_NESTED_PASSWORD');
+    expect(JSON.stringify(followupMessages)).not.toContain('EXAMPLE_NESTED_KEY');
+    expect(JSON.stringify(followupMessages)).not.toContain('EXAMPLE_AUTH');
     expect(followupMessages.filter((item) => item.role === 'tool')).toHaveLength(1);
     expect(result.evidenceRefs).toEqual(['operational-event:stream-a@4:event-1']);
-    expect(result.answer).toContain('justificat');
+    expect(result.status).toBe('UNKNOWN');
+    expect(result.answer).not.toContain('justificat');
     expect(prisma.operationalEvent).not.toHaveProperty('create');
     expect(prisma.operationalEvent).not.toHaveProperty('update');
     expect(prisma.operationalEvent).not.toHaveProperty('delete');

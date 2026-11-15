@@ -86,7 +86,7 @@ export class AgmatccCopilotService {
       ttfr = ttfr || final.timeToFirstResponseMs;
       const allowedRefs = new Set(refs);
       const verifiedRefs = [...new Set(final.output.evidenceRefs.filter((ref) => allowedRefs.has(ref)))];
-      if (verifiedRefs.length === 0) {
+      if (verifiedRefs.length === 0 || final.output.evidenceRefs.some((ref) => !allowedRefs.has(ref))) {
         outcome = 'UNKNOWN';
         answer = 'Nu am găsit dovezi autorizate suficiente. Informația rămâne necunoscută.';
       } else {
@@ -132,7 +132,7 @@ export class AgmatccCopilotService {
       });
       const tokens = query.toLocaleLowerCase('ro').split(/\W+/).filter((token) => token.length > 2);
       return rows.map((row) => {
-        const content = `${row.eventType} ${flatten(row.payload)}`.slice(0, 2_000);
+        const content = `${row.eventType} ${flatten(redactOperationalValue(row.payload))}`.slice(0, 2_000);
         const words = content.toLocaleLowerCase('ro').split(/\W+/).filter((word) => word.length > 2);
         const score = tokens.filter((token) => words.some((word) => word.includes(token) || token.includes(word))).length;
         return { row, content, score };
@@ -163,7 +163,7 @@ export class AgmatccCopilotService {
         return { row, content: redactOperationalData(content), score };
       }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || b.row.createdAt.getTime() - a.row.createdAt.getTime())
         .slice(0, Math.min(Math.max(args.limit ?? 8, 1), AGMATCC_COPILOT_CONTRACT.maxEvidenceItems))
-        .map(({ row }) => ({ sourceRef: `incident:${row.id}`, observedAt: row.createdAt.toISOString(), content: JSON.stringify({ status: row.status, severity: row.severity, title: row.title, description: redactOperationalData(row.description ?? '') }) }));
+        .map(({ row }) => ({ sourceRef: `incident:${row.id}`, observedAt: row.createdAt.toISOString(), content: JSON.stringify({ status: row.status, severity: row.severity, title: redactOperationalData(row.title), description: redactOperationalData(row.description ?? '') }) }));
     }
     throw new Error('ACPM_TOOL_NOT_ALLOWLISTED');
   }
@@ -184,9 +184,18 @@ function addUsage(a: { inputTokens: number; outputTokens: number; estimatedCostU
 function markUntrusted(value: string) { return `<UNTRUSTED_OPERATIONAL_DATA>${value.slice(0, 2_000)}</UNTRUSTED_OPERATIONAL_DATA>`; }
 function redactOperationalData(value: string) {
   return value
+    .replace(/\bsk-[A-Za-z0-9_-]{12,}/g, '[REDACTED API KEY]')
     .replace(/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/gi, '[REDACTED PRIVATE KEY]')
     .replace(/\b(authorization\s*[:=]\s*bearer)\s+[^\s,;]+/gi, '$1 [REDACTED]')
     .replace(/\b(api[_ -]?key|secret|password|token|private[_ -]?key)\b\s*[:=]\s*[^\s,;]+/gi, '$1=[REDACTED]');
+}
+/** Redact while field names still exist; flattening first loses the evidence that a value is secret. */
+function redactOperationalValue(value: unknown): unknown {
+  if (typeof value === 'string') return redactOperationalData(value);
+  if (Array.isArray(value)) return value.map(redactOperationalValue);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) =>
+    [key, /password|passwd|secret|token|authorization|api.?key|private.?key|credential|cookie/i.test(key) ? '[REDACTED]' : redactOperationalValue(item)]));
+  return value;
 }
 function flatten(value: unknown): string {
   if (typeof value === 'string') return value;
