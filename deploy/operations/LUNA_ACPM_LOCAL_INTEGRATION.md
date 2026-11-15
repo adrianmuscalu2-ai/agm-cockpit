@@ -158,3 +158,32 @@ Reproducible launcher: `apps/api/scripts/run-luna-browser-rehearsal.ps1` after
 `pnpm.cmd rescue:browser-preflight`. Set `REHEARSAL_REUSE_EVIDENCE` to the accepted
 browser JSON for an OWNER/UI-only retest; this reads persisted ACPM without calling
 the provider. No new worktree, clone or database is created.
+
+### Closure
+
+Minimal run `1794774879195` passes authenticated TURN/OWNER and ACPM UI: 2/2
+COMPLETED runs and all four events are visible. Database reread again verifies
+hashes, source references and unchanged budget. The paid conversation is explicitly
+REUSED_PASS from run `1794774707179`, not claimed as a second live conversation.
+Evidence is `authenticated-browser`, `authenticated-db`, `authenticated-verified`
+JSON and `authenticated` PNG with this run ID in the local evidence directory.
+
+Browser Plugin Status: PASS (installed mechanism/preflight).
+Integrated Browser Control Status: PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE.
+Browser Session Status: PASS (controlled Playwright/Chromium).
+Target Page Status: PASS (real local application, authenticated navigation/captures).
+
+Independent advisory evaluator `/root/candidate_independent_review` checked exact
+code HEAD `8b242fb972f1502324d59c28ecd50fe3dbcb2c12`: security/authorization,
+AGM 1.9.1 compatibility, ACPM persistence/integrity, concurrent budget protection,
+tested AGMaTCC regressions and Git provenance all PASS within the tested scope.
+The evaluator visually inspected the successful ACPM capture and independently
+verified the paid-run hashes and source correspondence. This is the existing Codex
+advisory channel, not a TURN registry identity, inspector mandate or official approval.
+This closure is documentation-only after that reviewed code HEAD.
+
+RESCUE RECOVERED / HANDOFF TO ATLAS: local configuration and runner recovery complete;
+accepted Luna/concurrency evidence preserved, only affected browser gates retested.
+GO for PR review. Formal GitHub review remains PENDING; promotion/Production HOLD.
+No merge or deployment executed. Remaining action is independent formal acceptance
+of the reviewed candidate, without repeating the paid tests or inventing approvers.
