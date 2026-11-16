@@ -1,5 +1,5 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
-import { AGMATCC_COPILOT_CONTRACT, type CopilotOutcome, type CopilotToolCall, type CopilotUsage, type ProviderMessage, type ProviderTurn } from './agmatcc-copilot.contract';
+import { AGMATCC_COPILOT_CONTRACT, type CopilotOutcome, type CopilotToolCall, type CopilotUsage, type ProviderMessage, type ProviderTurn, type ProviderExecution } from './agmatcc-copilot.contract';
 
 export interface AgmatccCopilotProvider {
   readonly model: typeof AGMATCC_COPILOT_CONTRACT.candidateModel;
@@ -8,7 +8,7 @@ export interface AgmatccCopilotProvider {
 }
 
 export class CopilotProviderError extends ServiceUnavailableException {
-  constructor(code: string, readonly usage?: CopilotUsage) { super(code); }
+  constructor(code: string, readonly usage?: CopilotUsage,readonly providerExecution?:ProviderExecution) { super(code); }
 }
 
 /** Deterministic, offline provider used by isolated tests and local demonstrations. */
@@ -79,23 +79,28 @@ export class OpenAIResponsesAgmatccProvider implements AgmatccCopilotProvider {
     }
     if (!response.ok) throw new CopilotProviderError(`ACPM_PROVIDER_HTTP_${response.status}`);
     const payload = await response.json() as OpenAIResponse;
+    const providerExecution:ProviderExecution={provider:'openai',requestedModel:this.model,
+      executedModel:typeof payload.model==='string'&&payload.model.length<=200?payload.model:null,
+      responseId:typeof payload.id==='string'&&payload.id.length<=200?payload.id:null,
+      providerVersion:null,providerVersionReason:'Responses API exposes model ID, not an independent provider-version field; no version inferred from alias.',
+      observedAt:new Date().toISOString(),source:'PROVIDER_RESPONSE',missingReason:typeof payload.model==='string'?'PROVIDER_VERSION_NOT_EXPOSED':'PROVIDER_MODEL_NOT_RETURNED'};
     const usage = { inputTokens: payload.usage?.input_tokens ?? 0, outputTokens: payload.usage?.output_tokens ?? 0, estimatedCostUsd: estimateCost(payload.usage?.input_tokens ?? 0, payload.usage?.output_tokens ?? 0) };
-    if (!Number.isSafeInteger(payload.usage?.input_tokens) || !Number.isSafeInteger(payload.usage?.output_tokens) || usage.inputTokens < 0 || usage.outputTokens < 0) throw new CopilotProviderError('ACPM_USAGE_UNCONFIRMED');
+    if (!Number.isSafeInteger(payload.usage?.input_tokens) || !Number.isSafeInteger(payload.usage?.output_tokens) || usage.inputTokens < 0 || usage.outputTokens < 0) throw new CopilotProviderError('ACPM_USAGE_UNCONFIRMED',undefined,providerExecution);
     const calls = (payload.output ?? []).flatMap((item) => item.type === 'function_call' ? [{ id: item.call_id ?? item.id ?? '', name: item.name ?? '', arguments: parseArguments(item.arguments) }] : []);
     if (allowTools && calls.length) {
       return {
         kind: 'tool_calls', calls: calls as CopilotToolCall[],
-        timeToFirstResponseMs: Date.now() - started, usage,
+        timeToFirstResponseMs: Date.now() - started, usage,providerExecution,
       };
     }
     const outputText = payload.output_text ?? (payload.output ?? []).flatMap((item) => item.content ?? []).map((item) => item.text ?? '').join('');
     let output: { status: CopilotOutcome; answer: string; evidenceRefs: string[] };
     try { output = JSON.parse(outputText) as typeof output; }
-    catch { throw new CopilotProviderError('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID', usage); }
+    catch { throw new CopilotProviderError('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID', usage,providerExecution); }
     if (!output || typeof output !== 'object' || !['PASS', 'FAIL', 'BLOCKED', 'UNKNOWN'].includes(output.status) || typeof output.answer !== 'string' || !Array.isArray(output.evidenceRefs) || output.evidenceRefs.some(ref => typeof ref !== 'string')) {
-      throw new CopilotProviderError('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID', usage);
+      throw new CopilotProviderError('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID', usage,providerExecution);
     }
-    return { kind: 'final', output, timeToFirstResponseMs: Date.now() - started, usage };
+    return { kind: 'final', output, timeToFirstResponseMs: Date.now() - started, usage,providerExecution };
   }
 }
 
@@ -116,6 +121,8 @@ export const ANSWER_SCHEMA = {
 } as const;
 
 type OpenAIResponse = {
+  id?:string;
+  model?:string;
   output_text?: string;
   output?: Array<{ type?: string; id?: string; call_id?: string; name?: string; arguments?: string; content?: Array<{ text?: string }> }>;
   usage?: { input_tokens?: number; output_tokens?: number };

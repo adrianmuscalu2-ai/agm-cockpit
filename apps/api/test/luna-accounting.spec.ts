@@ -26,13 +26,13 @@ describe('Luna accounting boundary', () => {
     const ledger = { reserve: jest.fn().mockResolvedValue({ callId: 'call' }), settle: jest.fn() };
     const service = new AgmatccCopilotService(config as never, {} as never, {} as never, provider, ledger as never);
     expect((await service.respond(user, 'test')).usage).toEqual(usage);
-    expect(ledger.settle).toHaveBeenCalledWith({ callId: 'call' }, usage, 'ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID', []);
+    expect(ledger.settle).toHaveBeenCalledWith({ callId: 'call' }, usage, 'ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID', [], undefined, undefined);
   });
   it('marks network failure as unconfirmed rather than refunded', async () => {
     const provider = { provider: 'openai' as const, model: 'gpt-6-luna' as const, complete: jest.fn().mockRejectedValue(new Error('ACPM_PROVIDER_TIMEOUT')) };
     const ledger = { reserve: jest.fn().mockResolvedValue({ callId: 'call' }), settle: jest.fn() };
     const service = new AgmatccCopilotService(config as never, {} as never, {} as never, provider, ledger as never);
     expect((await service.respond(user, 'test')).status).toBe('FAIL');
-    expect(ledger.settle).toHaveBeenCalledWith({ callId: 'call' }, undefined, 'ACPM_PROVIDER_TIMEOUT', []);
+    expect(ledger.settle).toHaveBeenCalledWith({ callId: 'call' }, undefined, 'ACPM_PROVIDER_TIMEOUT', [], undefined, undefined);
   });
 });

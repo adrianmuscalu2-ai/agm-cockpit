@@ -13,6 +13,8 @@ export type AcpmEvent = {
   workload?: { equivalenceKey: string; protocolVersion: string; environment: string; configurationHash: string };
   capacity?: number;
   supersedesEventId?: string; correctionReason?: string;
+  execution?: { runtimeSessionId:string; processStartedAt:string; requestCorrelationId:string; orchestratorId:string|null; buildRevision:string|null; source:'RUNTIME_OBSERVER' };
+  providerExecution?: { provider:'openai'; requestedModel:string; executedModel:string|null; providerVersion:null; responseId:string|null; observedAt:string; source:'PROVIDER_RESPONSE'|'REQUEST_ONLY'; missingReason:string|null; providerVersionReason:string };
 };
 export type AcpmRun = {
   runId: string; chainId: string; mandateId: string; componentId: string;

@@ -1,3 +1,4 @@
+import { AgentRuntimeEventsModule } from '../src/agent-runtime-events/agent-runtime-events.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, NestFactory } from '@nestjs/core';
@@ -20,11 +21,12 @@ if (!['localhost', '127.0.0.1'].includes(databaseUrl.hostname) || databaseUrl.po
 
 @Module({
   imports: [
+    process.env.ACPM_COMPILED_REPLAY==='true'?require('../dist/agent-runtime-events/agent-runtime-events.module').AgentRuntimeEventsModule:AgentRuntimeEventsModule,
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env', '../../.env'], validate: validateEnvironment }),
     ThrottlerModule.forRoot([{ name: 'default', ttl: API_CORE_CONTRACT.throttle.ttlMs, limit: API_CORE_CONTRACT.throttle.limit }]),
-    AuthModule,
-    AgmatccCopilotModule,
-    AcpmModule,
+    process.env.ACPM_COMPILED_REPLAY==='true'?require('../dist/auth/auth.module').AuthModule:AuthModule,
+    process.env.ACPM_COMPILED_REPLAY==='true'?require('../dist/agmatcc-copilot/agmatcc-copilot.module').AgmatccCopilotModule:AgmatccCopilotModule,
+    process.env.ACPM_COMPILED_REPLAY==='true'?require('../dist/acpm/acpm.module').AcpmModule:AcpmModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

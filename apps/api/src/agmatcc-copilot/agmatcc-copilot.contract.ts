@@ -15,6 +15,7 @@ export const AGMATCC_COPILOT_CONTRACT = {
 export type CopilotOutcome = 'PASS' | 'FAIL' | 'BLOCKED' | 'UNKNOWN';
 export type CopilotEvidence = { sourceRef: string; observedAt: string; content: string };
 export type CopilotUsage = { inputTokens: number; outputTokens: number; estimatedCostUsd: number };
+export type ProviderExecution = NonNullable<import('@agm/shared').AcpmEvent['providerExecution']>;
 export type CopilotAnswer = {
   contractVersion: typeof AGMATCC_COPILOT_CONTRACT.version;
   model: typeof AGMATCC_COPILOT_CONTRACT.candidateModel;
@@ -36,7 +37,7 @@ export type CopilotToolCall = {
 };
 
 export type ProviderTurn =
-  | { kind: 'tool_calls'; calls: CopilotToolCall[]; timeToFirstResponseMs: number; usage: CopilotUsage }
-  | { kind: 'final'; output: { status: CopilotOutcome; answer: string; evidenceRefs: string[] }; timeToFirstResponseMs: number; usage: CopilotUsage };
+  | { kind: 'tool_calls'; calls: CopilotToolCall[]; timeToFirstResponseMs: number; usage: CopilotUsage; providerExecution?:ProviderExecution }
+  | { kind: 'final'; output: { status: CopilotOutcome; answer: string; evidenceRefs: string[] }; timeToFirstResponseMs: number; usage: CopilotUsage; providerExecution?:ProviderExecution };
 
 export type ProviderMessage = { role: 'system' | 'user' | 'assistant' | 'tool'; content: string; toolCallId?: string };

@@ -5,8 +5,9 @@ import type { AcpmEvent } from '@agm/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import type { RequestContext } from '../common/request-context';
 import { canonicalAcpm } from './acpm.canonical';
+import { runtimeObservation } from './acpm.runtime';
 
-type Identity = Pick<AcpmEvent,'mandateId'|'chainId'|'componentId'|'componentKind'|'departmentId'>;
+type Identity = Pick<AcpmEvent,'mandateId'|'chainId'|'componentId'|'componentKind'|'departmentId'> & {orchestratorId?:string};
 type Health = { accepted:number; persisted:number; failed:number; dropped:number; pending:number; missingIdentity:number };
 export class AcpmPersistenceError extends Error {
   constructor(){super('ACPM_PERSISTENCE_FAILED');this.name='AcpmPersistenceError';}
@@ -55,8 +56,16 @@ export class AcpmObserver {
     const kind=input.lifecycle;
     const event:AcpmEvent={eventId:input.eventId,chainId:input.mandateId,mandateId:input.mandateId,runId:input.dossierId,
       componentId:input.agentId,componentKind:input.agentId==='agent-inspector'?'INSPECTOR':'AGENT',kind,sequence:input.sequence,
-      occurredAt:input.occurredAt,evidenceRef:input.evidenceRef,evidenceHash:input.evidenceHash??undefined,source:'ACP',
+      occurredAt:input.occurredAt,evidenceRef:input.evidenceRef,evidenceHash:input.evidenceHash??undefined,source:'ACP',execution:runtimeObservation(ctx,'AgentRuntimeEventsService'),
       ...(kind==='BLOCKED'?{block:{classification:'UNREVIEWED',reason:input.detail||'Native runtime reported BLOCKED',decisionRef:input.evidenceRef}}:{})};
+    // Replay preserves the original observation, including historical UNKNOWN metadata.
+    const prior=await tx.$queryRaw<Array<{payload:AcpmEvent;payloadHash:string}>>`SELECT "payload","payloadHash" FROM "AgentChainPerformanceEvent" WHERE "companyId"=${ctx.companyId}::uuid AND "eventId"=${input.eventId}::uuid`;
+    if(prior.length) {
+      const stored=prior[0];
+      const withoutRuntime=(value:AcpmEvent)=>{const rest={...value};delete rest.execution;return canonicalAcpm(rest);};
+      if(createHash('sha256').update(canonicalAcpm(stored.payload)).digest('hex')!==stored.payloadHash || withoutRuntime(stored.payload)!==withoutRuntime(event))throw new Error('ACPM_OBSERVER_HASH_CONFLICT');
+      return;
+    }
     await this.persistInTransaction(tx,ctx.companyId,event);
   }
   noteNativeCommitted(tenant:string){const h=this.counters(tenant);h.accepted++;h.persisted++;}
@@ -96,7 +105,8 @@ export class AcpmObserver {
       const metadataKey=JSON.stringify(metadata);
       if(pending&&(pending.kind!==kind||pending.metadata!==metadataKey))throw new Error('ACPM_OBSERVER_PRIOR_EVENT_UNCONFIRMED');
       if(!pending&&!allowed.includes(kind))throw new Error('ACPM_OBSERVER_INVALID_TRANSITION');
-      const event=pending?.event??{...identity,runId,eventId:randomUUID(),sequence:sequence+1,kind,occurredAt:new Date().toISOString(),evidenceRef,...metadata,source:'ACP' as const};
+      const event=pending?.event??{...identity,runId,eventId:randomUUID(),sequence:sequence+1,kind,occurredAt:new Date().toISOString(),evidenceRef,...metadata,source:'ACP' as const,
+        execution:runtimeObservation(ctx,identity.orchestratorId??(identity.componentKind==='ORCHESTRATOR'?identity.componentId:null))};
       pending??={kind,metadata:metadataKey,event};
       await this.enqueue(ctx.companyId,event);
       pending=undefined;sequence=event.sequence;

@@ -47,3 +47,16 @@ export class AcpmQueryDto {
   @IsOptional() @IsISO8601() from?:string;
   @IsOptional() @IsISO8601() to?:string;
 }
+export class AcpmSemanticQueryDto {
+  @IsOptional() @IsString() @Length(1,500) q?: string;
+  @IsOptional() @IsString() @Length(1,160) agent?: string;
+  @IsOptional() @IsString() @Length(1,160) model?: string;
+  @IsOptional() @IsString() @Length(1,160) mandate?: string;
+  @IsOptional() @IsString() @Length(1,160) incident?: string;
+  @IsOptional() @IsString() @Length(1,160) chain?: string;
+  @IsOptional() @Type(()=>Number) @IsInt() @Min(1) @Max(100) limit?: number;
+  @IsOptional() @IsIn(['true','false']) includeHistory?: string;
+  @IsOptional() @IsIn(['true','false']) rebuild?: string;
+}
+export class AcpmChainQueryDto { @IsString() @Length(1,160) chain!: string; }
+export class AcpmModelQueryDto { @IsString() @Length(1,160) model!: string; }

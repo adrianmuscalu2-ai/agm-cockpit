@@ -74,11 +74,11 @@ export class AgmatccCopilotService {
         const measured = error instanceof CopilotProviderError ? error.usage : undefined;
         if (measured) usage = addUsage(usage, measured);
         else unconfirmedCalls++;
-        await this.ledger!.settle(reservation, measured, error instanceof Error ? error.message : 'ACPM_PROVIDER_ERROR', refs);
+        await this.ledger!.settle(reservation, measured, error instanceof Error ? error.message : 'ACPM_PROVIDER_ERROR', refs,undefined,error instanceof CopilotProviderError?error.providerExecution:undefined);
         throw error;
       }
       usage = addUsage(usage, result.usage);
-      try { await this.ledger!.settle(reservation, result.usage, null, refs, result.kind === 'final' ? result.output.status : 'TOOLS_REQUESTED'); }
+      try { await this.ledger!.settle(reservation, result.usage, null, refs, result.kind === 'final' ? result.output.status : 'TOOLS_REQUESTED',result.providerExecution); }
       catch (error) { unconfirmedCalls++; throw error; }
       return result;
     };
