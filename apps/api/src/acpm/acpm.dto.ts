@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsISO8601, IsOptional, IsString, IsUUID, Length, Matches, Max, Min, ValidateNested } from 'class-validator';
-import { ACPM_KINDS, type AcpmEvent, type AcpmKind } from '@agm/shared';
+import { ACPM_KINDS, ACPM_COMPONENT_KINDS, type AcpmEvent, type AcpmKind } from '@agm/shared';
 class ModelDto {
   @IsString() @Length(1,120) provider!: string;
   @IsString() @Length(1,120) name!: string;
@@ -23,7 +23,7 @@ export class AppendAcpmEventDto {
   @IsString() @Length(1,160) mandateId!: string;
   @IsString() @Length(1,160) runId!: string;
   @IsString() @Length(1,120) componentId!: string;
-  @IsIn(['AGENT','ORCHESTRATOR','INSPECTOR','DEPARTMENT','UNKNOWN']) componentKind!: AcpmEvent['componentKind'];
+  @IsIn(ACPM_COMPONENT_KINDS) componentKind!: AcpmEvent['componentKind'];
   @IsOptional() @IsString() @Length(1,120) departmentId?: string;
   @IsIn(ACPM_KINDS) kind!: AcpmKind;
   @IsInt() @Min(1) @Max(2147483647) sequence!: number;

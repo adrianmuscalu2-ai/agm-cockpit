@@ -102,6 +102,8 @@ export function bindAcpm(root: HTMLElement, fetcher: typeof fetch = authenticate
     const request=++generation; button.disabled=true; snapshot=null;target.replaceChildren();status.textContent='Se citesc evenimentele…';
     try {
       const response=await fetcher('/acpm',{method:'GET',cache:'no-store',headers:{Accept:'application/json'}});
+      if(response.status===401) throw new Error('Sesiunea contului AGM lipsește sau a expirat. Autentifică-te în contul OWNER; PIN-ul TURN nu o înlocuiește');
+      if(response.status===403) throw new Error('Contul autentificat nu are acces OWNER la ACPM. Rolurile existente rămân obligatorii');
       if(!response.ok) throw new Error(`HTTP ${response.status}`);
       const payload=await response.json();
       if(payload.data?.contract!=='agent-chain-performance-monitor.v1' || !Array.isArray(payload.data.runs)) throw new Error('Contract ACPM invalid');

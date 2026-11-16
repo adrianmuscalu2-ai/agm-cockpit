@@ -4,7 +4,9 @@ import {
   OPERATIONAL_LINGUIST_V1_COMPONENT_IDS,
   validateLinguisticResourceEvidence,
 } from '@agm/shared';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
+import { AcpmObserver } from '../acpm/acpm.observer';
+import { ACPM_COMPONENT_KINDS, type AcpmEvent } from '@agm/shared';
 import { DiscoveryService } from '@nestjs/core';
 import { Prisma } from '@prisma/client';
 import { createHash, randomUUID } from 'node:crypto';
@@ -68,6 +70,7 @@ export class OperationalAgentDutyRunner {
     private readonly prisma: PrismaService,
     private readonly secrets: SecretTelemetryService,
     private readonly discovery: DiscoveryService,
+    @Optional() private readonly acpm?: AcpmObserver,
   ) {}
 
   async execute(ctx: RequestContext, mandates: readonly ActiveMandate[], runId: string, agentIds?: ReadonlySet<string>) {
@@ -80,6 +83,15 @@ export class OperationalAgentDutyRunner {
       const mandate = mandateByAgent.get(seed.canonicalId);
       if (!mandate) throw new Error(`ACTIVE_DUTY_MANDATE_MISSING:${seed.canonicalId}`);
       const executedAt = new Date();
+      // Registry module is the existing ACP departmental grouping. Unknown
+      // registry kinds remain UNKNOWN; no AI model/capacity is inferred.
+      let measurement = this.acpm?.session(ctx, {
+        mandateId: mandate.id, chainId: runId, componentId: seed.canonicalId,
+        componentKind: (ACPM_COMPONENT_KINDS as readonly string[]).includes(seed.kind) ? seed.kind as AcpmEvent['componentKind'] : 'UNKNOWN',
+        departmentId: seed.module,
+      }, `AuthorityMandate:${mandate.id}`);
+      try { await measurement?.emit('STARTED'); }
+      catch { measurement = undefined; /* Observer health records failure; safety duties must still execute. */ }
       let outcome: DutyOutcome;
       try {
         outcome = await this.executeOne(seed.canonicalId, dutyContext, executedAt);
@@ -146,12 +158,29 @@ export class OperationalAgentDutyRunner {
         },
       });
       results.push({ ...outcome, agentId: seed.canonicalId, mandateId: mandate.id, executedAt: execution.occurredAt.toISOString(), executionEventId: execution.eventId, evidenceRef, outputRef });
+      try { await measurement?.emit(outcome.passed ? 'COMPLETED' : 'FAILED', { evidenceRef, evidenceHash: outputHash }); }
+      catch { /* Keep the persisted operational result. Incomplete ACPM stays incomplete. */ }
     }
     return results;
   }
 
   async executeChiefMonitoringInspector(ctx: RequestContext, mandate: ActiveMandate, runId: string, observedAt = new Date()): Promise<OperationalAgentDutyResult> {
     if (mandate.agentId !== CHIEF_MONITORING_INSPECTOR_ID) throw new Error('CMI_APPROVED_MANDATE_REQUIRED');
+    let measurement = this.acpm?.session(ctx, { mandateId: mandate.id, chainId: runId,
+      componentId: CHIEF_MONITORING_INSPECTOR_ID, componentKind: 'INSPECTOR', departmentId: 'basic.monitoring',
+    }, `AuthorityMandate:${mandate.id}`);
+    try { await measurement?.emit('STARTED'); }
+    catch { measurement = undefined; /* Never disable monitoring because its observer is unavailable. */ }
+    let result: OperationalAgentDutyResult;
+    try { result = await this.executeChiefMonitoringInspectorObserved(ctx, mandate, runId, observedAt); }
+    catch (error) { try { await measurement?.emit('FAILED'); } catch { /* Preserve the original failure; unclosed observation remains visible. */ } throw error; }
+    try { await measurement?.emit(result.passed ? 'COMPLETED' : 'FAILED', {
+      evidenceRef: result.evidenceRef, evidenceHash: result.outputRef.startsWith('sha256:') ? result.outputRef.slice(7) : undefined,
+    }); } catch { /* Observer counters expose the unconfirmed terminal event. */ }
+    return result;
+  }
+
+  private async executeChiefMonitoringInspectorObserved(ctx: RequestContext, mandate: ActiveMandate, runId: string, observedAt: Date): Promise<OperationalAgentDutyResult> {
     const windowEnd = new Date(Math.floor(observedAt.getTime() / chiefMonitoringInspectorDuty.scheduleMs) * chiefMonitoringInspectorDuty.scheduleMs);
     const windowStart = new Date(windowEnd.getTime() - chiefMonitoringInspectorDuty.scheduleMs);
     const [activeMandates, runtimeEvents, validations, incidentEvents] = await Promise.all([

@@ -24,6 +24,13 @@ export class AgmatccCopilotController {
     return responseEnvelope({familySha256:createHash('sha256').update(payload.familyId).digest('hex'),activationGranted:false},user.requestId);
   }
 
+  @Get('control-status')
+  @RequireOperationalEventRight('read')
+  controlStatus(@CurrentUser() user:RequestContext,@Headers('authorization') authorization:string) {
+    const session = this.session(user, authorization);
+    return responseEnvelope(this.copilot.controlStatus(session.data.familySha256), user.requestId);
+  }
+
   @Post('respond')
   @UseGuards(LunaProductionAccessGuard)
   @RequireOperationalEventRight('read')

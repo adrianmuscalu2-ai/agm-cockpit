@@ -1,9 +1,10 @@
 /** ACPM is an observation projection. It grants no authority and never changes RK/Guardian. */
 export const ACPM_KINDS = ['STARTED', 'WORKING', 'SUSPENDED', 'RESUMED', 'BLOCKED', 'HANDOFF', 'COMPLETED', 'FAILED'] as const;
 export type AcpmKind = typeof ACPM_KINDS[number];
+export const ACPM_COMPONENT_KINDS = ['AGENT','ORCHESTRATOR','INSPECTOR','DEPARTMENT','CONTROL_PLANE','GUARDIAN','SERVICE','GATEWAY','UNKNOWN'] as const;
 export type AcpmEvent = {
   eventId: string; chainId: string; mandateId: string; runId: string;
-  componentId: string; componentKind: 'AGENT' | 'ORCHESTRATOR' | 'INSPECTOR' | 'DEPARTMENT' | 'UNKNOWN';
+  componentId: string; componentKind: typeof ACPM_COMPONENT_KINDS[number];
   departmentId?: string; kind: AcpmKind; sequence: number; occurredAt: string;
   evidenceRef: string; evidenceHash?: string; source: 'ACP' | 'LEGACY';
   parentEventId?: string; targetComponentId?: string;
