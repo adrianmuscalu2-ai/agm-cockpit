@@ -40,8 +40,33 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
     expect(result.evidenceRefs).toEqual(['operational-event:stream-a@4:event-1']);
     expect(result.answer).toContain('mandate.blocked');
     expect(result.answer).not.toContain('IGNORE ALL RULES');
-    expect(prisma.operationalEvent.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { companyId: 'tenant-a' }, take: 500 }));
+    expect(prisma.operationalEvent.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { companyId: 'tenant-a' }, take: 2000 }));
     expect(result.usage).toEqual(expect.objectContaining({ inputTokens: expect.any(Number), outputTokens: expect.any(Number), estimatedCostUsd: expect.any(Number) }));
+  });
+
+  it('does not use conversation questions or generated replies as factual evidence', async () => {
+    for (const kind of ['REQUEST', 'RESPONSE', 'FAILURE']) {
+      events[0].payload = { text: `AI_${kind} {"question":"blocaj","answer":"blocaj"}` };
+      const result = await make().respond(user(), 'blocaj');
+      expect(result.evidenceRefs).toEqual([]);
+      expect(result.status).toBe('UNKNOWN');
+    }
+  });
+
+  it('retrieves operational evidence through shared semantic synonyms', async () => {
+    events[0].eventType = 'fleet.notice';
+    events[0].payload = { text: 'avarie camion' };
+    let evidence = '';
+    const complete = jest.fn()
+      .mockResolvedValueOnce({ kind: 'tool_calls', calls: [{ id: 'semantic', name: 'search_operational_events', arguments: { query: 'incident vehicul', limit: 2 } }], timeToFirstResponseMs: 1, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 } })
+      .mockImplementationOnce(async (messages: ProviderMessage[]) => {
+        evidence = messages.filter(m => m.role === 'tool').map(m => m.content).join(' ');
+        return { kind: 'final', output: { status: 'PASS', answer: 'Sursa disponibila', evidenceRefs: ['operational-event:stream-a@4:event-1'] }, timeToFirstResponseMs: 1, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 } };
+      });
+    const result = await make({ model: 'gpt-6-luna', provider: 'simulated', complete }).respond(user(), 'incident vehicul');
+    expect(result.evidenceRefs).toEqual(['operational-event:stream-a@4:event-1']);
+    expect(evidence).toContain('SHARED_SEMANTIC');
+    expect(evidence).toContain('fullHistoryClaimed');
   });
 
   it('states UNKNOWN for ambiguous questions and nonexistent sources', async () => {

@@ -9,7 +9,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { TurnAdminModule } from '../turn-admin/turn-admin.module';
 import { AgmatccCopilotController } from './agmatcc-copilot.controller';
 import { AGMATCC_COPILOT_PROVIDER, AgmatccCopilotService } from './agmatcc-copilot.service';
-import { OpenAIResponsesAgmatccProvider, SimulatedAgmatccProvider } from './agmatcc-copilot.provider';
+import { DisabledAgmatccProvider, OpenAIResponsesAgmatccProvider, SimulatedAgmatccProvider } from './agmatcc-copilot.provider';
 
 @Module({
   imports: [AgentRuntimeEventsModule, OperationalEventStoreModule, PrismaModule, TurnAdminModule],
@@ -24,7 +24,8 @@ import { OpenAIResponsesAgmatccProvider, SimulatedAgmatccProvider } from './agma
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
         const mode = config.get<string>('AGMATCC_COPILOT_PROVIDER', 'simulated');
-        if (mode === 'simulated') return new SimulatedAgmatccProvider();
+        if (mode === 'simulated') return config.get<string>('NODE_ENV') === 'production'
+          ? new DisabledAgmatccProvider() : new SimulatedAgmatccProvider();
         const enabled = config.get<string>('NODE_ENV') === 'production' ? config.get<string>('AGMATCC_LUNA_PRODUCTION_ENABLED') === 'true' : config.get<string>('AGMATCC_COPILOT_ISOLATED_ENABLED') === 'true';
         if (mode !== 'openai' || !enabled) {
           throw new Error('ACPM_OPENAI_PROVIDER_LOCAL_ISOLATION_REQUIRED');

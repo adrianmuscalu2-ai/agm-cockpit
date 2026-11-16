@@ -9,6 +9,7 @@ import { CopilotProviderError, estimateCost, type AgmatccCopilotProvider } from 
 import { LunaAcpmLedger } from './luna-acpm-ledger';
 import { AcpmIsolatedSpool } from './acpm-isolated-spool';
 import type { CommanderBinding } from './luna-production-access.guard';
+import { rankSemanticCandidates, SEMANTIC_SCAN_LIMIT } from '../operational-event-store/operational-event-semantic-search.service';
 
 export const AGMATCC_COPILOT_PROVIDER = Symbol('AGMATCC_COPILOT_PROVIDER');
 type OperationalEventReadRow = { eventId: string; eventType: string; aggregateVersion: number; recordedAt: Date; payload: unknown; stream: { streamId: string } };
@@ -58,6 +59,7 @@ export class AgmatccCopilotService {
     const executionId = randomUUID();
     const isolatedMandateId = `isolated-eval:${safeMandateId(testMandateId)}`;
     const refs: string[] = [];
+    const providerExecutions: CopilotAnswer['providerExecutions'] = [];
     let usage = { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 };
     let unconfirmedCalls = 0;
     let ttfr = 0;
@@ -71,6 +73,7 @@ export class AgmatccCopilotService {
       let result;
       try { result = await this.provider.complete(messages, allowTools); }
       catch (error) {
+        if (error instanceof CopilotProviderError && error.providerExecution) providerExecutions.push(error.providerExecution);
         const measured = error instanceof CopilotProviderError ? error.usage : undefined;
         if (measured) usage = addUsage(usage, measured);
         else unconfirmedCalls++;
@@ -78,6 +81,7 @@ export class AgmatccCopilotService {
         throw error;
       }
       usage = addUsage(usage, result.usage);
+      if (result.providerExecution) providerExecutions.push(result.providerExecution);
       try { await this.ledger!.settle(reservation, result.usage, null, refs, result.kind === 'final' ? result.output.status : 'TOOLS_REQUESTED',result.providerExecution); }
       catch (error) { unconfirmedCalls++; throw error; }
       return result;
@@ -116,7 +120,7 @@ export class AgmatccCopilotService {
       const totalMs = Date.now() - started;
       await this.spool?.append({ executionId, testMandateId: isolatedMandateId, model: this.provider.model, provider: this.provider.provider, outcome, startedAt, totalMs, timeToFirstResponseMs: ttfr, usage, retryCount: 0, errorCode, timedOut, evidenceRefs: verifiedRefs });
       return {
-        contractVersion: AGMATCC_COPILOT_CONTRACT.version,
+        contractVersion: AGMATCC_COPILOT_CONTRACT.version, providerExecutions,
         model: this.provider.model,
         provider: this.provider.provider,
         executionId,
@@ -135,7 +139,7 @@ export class AgmatccCopilotService {
       answer = 'Copilotul izolat nu a putut finaliza citirea. Nu s-a executat nicio acțiune de business.';
       const totalMs = Date.now() - started;
       await this.spool?.append({ executionId, testMandateId: isolatedMandateId, model: this.provider.model, provider: this.provider.provider, outcome, startedAt, totalMs, timeToFirstResponseMs: ttfr, usage, retryCount: 0, errorCode, timedOut, evidenceRefs: refs });
-      return { contractVersion: AGMATCC_COPILOT_CONTRACT.version, model: this.provider.model, provider: this.provider.provider, executionId, testMandateId: isolatedMandateId, status: outcome, answer, evidenceRefs: [], usage, accounting: { unconfirmedCalls, reservedUsd: unconfirmedCalls * 0.1 }, timing: { totalMs, timeToFirstResponseMs: ttfr } };
+      return { contractVersion: AGMATCC_COPILOT_CONTRACT.version, providerExecutions, model: this.provider.model, provider: this.provider.provider, executionId, testMandateId: isolatedMandateId, status: outcome, answer, evidenceRefs: [], usage, accounting: { unconfirmedCalls, reservedUsd: unconfirmedCalls * 0.1 }, timing: { totalMs, timeToFirstResponseMs: ttfr } };
     }
   }
 
@@ -147,18 +151,31 @@ export class AgmatccCopilotService {
       const rows = await readPort.operationalEvent.findMany({
         where: { companyId: user.companyId },
         orderBy: { recordedAt: 'desc' },
-        take: 500,
+        take: SEMANTIC_SCAN_LIMIT,
         select: { eventId: true, eventType: true, aggregateVersion: true, recordedAt: true, payload: true, stream: { select: { streamId: true } } },
       });
-      const tokens = query.toLocaleLowerCase('ro').split(/\W+/).filter((token) => token.length > 2);
-      return rows.map((row) => {
-        const content = `${row.eventType} ${flatten(redactOperationalValue(row.payload))}`.slice(0, 2_000);
-        const words = content.toLocaleLowerCase('ro').split(/\W+/).filter((word) => word.length > 2);
-        const score = tokens.filter((token) => words.some((word) => word.includes(token) || token.includes(word))).length;
-        return { row, content, score };
-      }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || b.row.recordedAt.getTime() - a.row.recordedAt.getTime())
-        .slice(0, Math.min(Math.max(args.limit ?? 8, 1), AGMATCC_COPILOT_CONTRACT.maxEvidenceItems))
-        .map(({ row, content }) => ({ sourceRef: `operational-event:${row.stream.streamId}@${row.aggregateVersion}:${row.eventId}`, observedAt: row.recordedAt.toISOString(), content: JSON.stringify({ eventType: row.eventType, payload: redactOperationalData(content) }) }));
+      // Conversation records remain canonical history, but cannot substantiate
+      // their own questions or turn generated answers into independent facts.
+      const candidates = rows.filter(row => {
+        const text = (row.payload as { text?: unknown } | null)?.text;
+        return typeof text !== 'string' || !/^AI_(REQUEST|RESPONSE|FAILURE)\s/.test(text);
+      }).map(row => ({ ...row, streamId: row.stream.streamId, payload: redactOperationalValue(row.payload) }));
+      const limit = Math.min(Math.max(args.limit ?? 8, 1), AGMATCC_COPILOT_CONTRACT.maxEvidenceItems);
+      const semanticHits = rankSemanticCandidates(candidates, query, limit);
+      const tokens = query.toLocaleLowerCase('ro').split(/\W+/).filter(token => token.length > 2);
+      const lexicalRows = candidates.filter(row => !semanticHits.some(hit => hit.eventId === row.eventId)).map(row => {
+        const words = `${row.eventType} ${flatten(row.payload)}`.toLocaleLowerCase('ro').split(/\W+/).filter(word => word.length > 2);
+        return { row, score: tokens.filter(token => words.some(word => word.includes(token) || token.includes(word))).length };
+      }).filter(hit => hit.score > 0).sort((a, b) => b.score - a.score);
+      const hits = [...semanticHits.map(hit => ({ ...hit, retrieval: 'SHARED_SEMANTIC' })),
+        ...lexicalRows.map(({ row }) => ({ eventId: row.eventId, score: 0, matchedConcepts: [] as string[], retrieval: 'LEXICAL_RECALL' }))].slice(0, limit);
+      return hits.map(hit => {
+        const row = candidates.find(candidate => candidate.eventId === hit.eventId)!;
+        return { sourceRef: `operational-event:${row.streamId}@${row.aggregateVersion}:${row.eventId}`,
+          observedAt: row.recordedAt.toISOString(), content: JSON.stringify({ eventType: row.eventType,
+            payload: redactOperationalData(flatten(row.payload).slice(0, 2000)),
+            semantic: { retrieval: hit.retrieval, score: hit.score, matchedConcepts: hit.matchedConcepts, scanned: rows.length, scanLimit: SEMANTIC_SCAN_LIMIT, fullHistoryClaimed: false } }) };
+      });
     }
     if (name === 'read_agent_runtime_events') {
       if (!user.roles.includes('PREMIUM_ACCESS')) throw new ForbiddenException('ACPM_AGENT_RUNTIME_READ_NOT_AUTHORIZED');
