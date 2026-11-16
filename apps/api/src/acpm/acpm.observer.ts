@@ -62,7 +62,7 @@ export class AcpmObserver {
     const prior=await tx.$queryRaw<Array<{payload:AcpmEvent;payloadHash:string}>>`SELECT "payload","payloadHash" FROM "AgentChainPerformanceEvent" WHERE "companyId"=${ctx.companyId}::uuid AND "eventId"=${input.eventId}::uuid`;
     if(prior.length) {
       const stored=prior[0];
-      const withoutRuntime=(value:AcpmEvent)=>{const {execution: _execution,...rest}=value;return canonicalAcpm(rest);};
+      const withoutRuntime=(value:AcpmEvent)=>{const rest={...value};delete rest.execution;return canonicalAcpm(rest);};
       if(createHash('sha256').update(canonicalAcpm(stored.payload)).digest('hex')!==stored.payloadHash || withoutRuntime(stored.payload)!==withoutRuntime(event))throw new Error('ACPM_OBSERVER_HASH_CONFLICT');
       return;
     }
