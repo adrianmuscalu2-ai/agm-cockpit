@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import { runAgmatccAiConversation } from '../src/turn-agmatcc/agmatcc.ai-conversation';
+
+const reply = { answer: 'Evidence found', status: 'PASS', model: 'configured-alias', provider: 'openai', executionId: 'execution-1', testMandateId: 'request-1', evidenceRefs: ['operational-event:stream@1:event'], providerExecutions: [{ source: 'PROVIDER_RESPONSE', executedModel: 'provider-reported-model', responseId: 'response-1', providerVersion: null }] };
+const entries: Array<{ text: string; provenance: string }> = [];
+let calls = 0;
+const fetcher = async (_path: string, init: RequestInit) => {
+  calls++;
+  assert.equal(entries.length, 1, 'request is persisted before inference');
+  assert.equal(JSON.parse(String(init.body)).testMandateId, 'request-1');
+  return new Response(JSON.stringify({ data: reply }), { status: 200 });
+};
+const result = await runAgmatccAiConversation({ question: 'Read the journal', requestId: 'request-1', fetcher, append: async (text, provenance) => { entries.push({ text, provenance }); return { status: 'SYNCED' }; } });
+assert.equal(result.executedModel, 'provider-reported-model');
+assert.equal(result.journalStatus, 'SYNCED');
+assert.equal(entries.length, 2);
+assert.equal(JSON.parse(entries[1].text.slice('AI_RESPONSE '.length)).requestId, 'request-1');
+assert.ok(entries[1].text.includes('response-1'));
+assert.equal(entries[1].provenance, 'system');
+await assert.rejects(runAgmatccAiConversation({ question: 'Read', requestId: 'blocked', fetcher, append: async () => ({ status: 'PENDING' }) }), /JOURNAL_NOT_SYNCED/);
+assert.equal(calls, 1, 'no provider request when durable request write fails');
+let writes = 0;
+const unknown = await runAgmatccAiConversation({ question: 'Read', requestId: 'unknown', fetcher: async () => new Response(JSON.stringify({ data: { ...reply, providerExecutions: [] } })), append: async () => ({ status: ++writes === 1 ? 'SYNCED' : 'PENDING' }) });
+assert.equal(unknown.executedModel, 'UNKNOWN', 'configured alias cannot prove execution');
+assert.equal(unknown.journalStatus, 'PENDING', 'response persistence failure is visible');
+const failures: string[] = [];
+await assert.rejects(runAgmatccAiConversation({ question: 'Read', requestId: 'failed', fetcher: async () => new Response('', { status: 403 }), append: async text => { failures.push(text); return { status: 'SYNCED' }; } }), /HTTP_403/);
+assert.equal(failures.length, 2);
+assert.ok(failures[1].startsWith('AI_FAILURE '));
+await assert.rejects(runAgmatccAiConversation({ question: 'Cancelled', requestId: 'cancelled', isCancelled: () => true, fetcher, append: async () => ({ status: 'SYNCED' }) }), /CANCELLED_BEFORE_PROVIDER/);
+assert.equal(calls, 1, 'STOP before inference cannot charge a provider call');
+console.log('PASS AGMaTCC AI conversation: durable ordering, correlation, provider identity, unknown identity, pending response, failed request');

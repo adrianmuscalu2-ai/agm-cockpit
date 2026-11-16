@@ -3,12 +3,19 @@ import { AGMATCC_COPILOT_CONTRACT, type CopilotOutcome, type CopilotToolCall, ty
 
 export interface AgmatccCopilotProvider {
   readonly model: typeof AGMATCC_COPILOT_CONTRACT.candidateModel;
-  readonly provider: 'simulated' | 'openai';
+  readonly provider: 'simulated' | 'openai' | 'disabled';
   complete(messages: readonly ProviderMessage[], allowTools: boolean): Promise<ProviderTurn>;
 }
 
 export class CopilotProviderError extends ServiceUnavailableException {
   constructor(code: string, readonly usage?: CopilotUsage,readonly providerExecution?:ProviderExecution) { super(code); }
+}
+
+/** Production remains disabled until its existing activation gates are satisfied. */
+export class DisabledAgmatccProvider implements AgmatccCopilotProvider {
+  readonly model = AGMATCC_COPILOT_CONTRACT.candidateModel;
+  readonly provider = 'disabled' as const;
+  async complete(): Promise<ProviderTurn> { throw new CopilotProviderError('AGMATCC_LIVE_PROVIDER_DISABLED'); }
 }
 
 /** Deterministic, offline provider used by isolated tests and local demonstrations. */

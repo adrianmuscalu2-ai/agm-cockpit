@@ -8,7 +8,7 @@ export type AcpmEvaluationEvent = {
   eventId: string;
   executionId: string;
   testMandateId: string;
-  provider: 'simulated' | 'openai';
+  provider: 'simulated' | 'openai' | 'disabled';
   model: string;
   outcome: CopilotOutcome;
   startedAt: string;

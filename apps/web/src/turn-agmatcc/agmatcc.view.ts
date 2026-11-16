@@ -46,7 +46,7 @@ export function renderAgmatccPage(moduleNavigation = '') {
                 <button type="button" class="agmatcc-lips-stop" data-agmatcc-stop aria-label="STOP">STOP</button>
               </div>
               <div class="agmatcc-actions">
-                <button type="button" data-agmatcc-capture>Ascultă (dictare)</button>
+                <button type="button" data-agmatcc-capture>Întreabă vocal</button>
                 <button type="button" data-agmatcc-speak>Redă</button>
               </div>
               <label for="agmatccDraft">Transcriere (editabilă; audio nu este stocat)</label>
@@ -59,11 +59,11 @@ export function renderAgmatccPage(moduleNavigation = '') {
               <h3>Răspunsuri</h3>
               <p class="agmatcc-status" data-agmatcc-status role="status" aria-live="polite"></p>
               <section class="agmatcc-ai-chat" aria-labelledby="agmatcc-ai-chat-title">
-                <h3 id="agmatcc-ai-chat-title">Copilot conversațional · izolat</h3>
+                <h3 id="agmatcc-ai-chat-title">Copilot conversațional</h3>
                 <label for="agmatccAiQuestion">Întrebare în limbaj liber (română)</label>
                 <textarea id="agmatccAiQuestion" data-agmatcc-ai-question rows="3" maxlength="2000"></textarea>
                 <button type="button" data-agmatcc-ai-send>Întreabă copilotul read-only</button>
-                <p data-agmatcc-ai-answer role="status" aria-live="polite">Providerul simulat este disponibil numai în mediul izolat.</p>
+                <p data-agmatcc-ai-answer role="status" aria-live="polite">Răspunsul AI necesită conexiunea autorizată la providerul real.</p>
                 <ul data-agmatcc-ai-evidence aria-label="Referințe la dovezi"></ul>
               </section>
             </div>

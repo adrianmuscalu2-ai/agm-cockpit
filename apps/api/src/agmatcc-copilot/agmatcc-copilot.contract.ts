@@ -19,7 +19,8 @@ export type ProviderExecution = NonNullable<import('@agm/shared').AcpmEvent['pro
 export type CopilotAnswer = {
   contractVersion: typeof AGMATCC_COPILOT_CONTRACT.version;
   model: typeof AGMATCC_COPILOT_CONTRACT.candidateModel;
-  provider: 'simulated' | 'openai';
+  provider: 'simulated' | 'openai' | 'disabled';
+  providerExecutions: ProviderExecution[];
   executionId: string;
   testMandateId: string;
   status: CopilotOutcome;
