@@ -9,7 +9,7 @@ import type { AcpmEvent } from '@agm/shared';
 import { runtimeObservation } from '../acpm/acpm.runtime';
 
 const SCOPE = 'agm-luna-evaluation-20261115';
-const RESERVE = 100_000_000; // $0.10: >100k input bytes at conservative long-context rate +120 output tokens.
+const RESERVE = 100_000_000; // $0.10: >100k input bytes at conservative long-context rate +1024 output tokens.
 export type LunaReservation = { callId: string; executionId: string; companyId: string; mandateId: string; startedAt: string;execution?:AcpmEvent['execution'] };
 
 /** Internal measurement, never an OWNER grant or a model-callable write tool.

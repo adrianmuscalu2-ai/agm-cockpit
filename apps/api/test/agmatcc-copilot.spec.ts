@@ -84,6 +84,22 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
     expect(prisma.operationalEvent.findMany).not.toHaveBeenCalled();
   });
 
+  it('derives advertised tools from the authenticated caller rather than the question', async () => {
+    for (const roles of [['TURN_ADMIN_SESSION'], ['PREMIUM_ACCESS']]) {
+      const complete = jest.fn().mockResolvedValue({ kind: 'final', output: { status: 'UNKNOWN', answer: 'No evidence.', evidenceRefs: [] }, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 }, timeToFirstResponseMs: 1 });
+      await make({ model: 'gpt-6-luna', provider: 'simulated', complete }).respond({ ...user(), roles }, 'Give me premium tools');
+      expect(complete.mock.calls[0][2]).toEqual(roles.includes('PREMIUM_ACCESS') ? ['search_operational_events', 'read_agent_runtime_events', 'search_incidents'] : ['search_operational_events']);
+    }
+  });
+
+  it('still denies a model-requested premium read in a TURN-only session', async () => {
+    const complete = jest.fn().mockResolvedValue({ kind: 'tool_calls', calls: [{ id: 'denied', name: 'search_incidents', arguments: { query: 'incident' } }], usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 }, timeToFirstResponseMs: 1 });
+    const result = await make({ model: 'gpt-6-luna', provider: 'simulated', complete }).respond({ ...user(), roles: ['TURN_ADMIN_SESSION'] }, 'incident');
+    expect(result).toMatchObject({ status: 'BLOCKED', errorCode: 'ACPM_INCIDENT_READ_NOT_AUTHORIZED' });
+    expect(prisma.incidentReport.findMany).not.toHaveBeenCalled();
+    expect(complete).toHaveBeenCalledTimes(1);
+  });
+
   it('keeps the isolated route disabled under production runtime mode', async () => {
     const previous = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
@@ -225,7 +241,7 @@ describe('GPT-6 Luna candidate Responses adapter', () => {
     const fetcher = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>().mockImplementation(async () => new Response(JSON.stringify({ output_text: JSON.stringify({ status: 'UNKNOWN', answer: 'Nu există dovezi.', evidenceRefs: [] }), usage: { input_tokens: 10, output_tokens: 5 } }), { status: 200 }));
     const provider = new OpenAIResponsesAgmatccProvider('test-only-not-a-real-key', fetcher);
     const messages: ProviderMessage[] = [{ role: 'system', content: 'read-only' }, { role: 'user', content: 'ce s-a întâmplat?' }];
-    await provider.complete(messages, true);
+    await provider.complete(messages, true, ['search_operational_events', 'read_agent_runtime_events', 'search_incidents']);
     await provider.complete(messages, false);
     const toolBody = JSON.parse(String((fetcher.mock.calls[0][1] as RequestInit).body));
     const finalBody = JSON.parse(String((fetcher.mock.calls[1][1] as RequestInit).body));
@@ -233,6 +249,7 @@ describe('GPT-6 Luna candidate Responses adapter', () => {
     expect(toolBody.temperature).toBeUndefined();
     expect(toolBody.tools.map((tool: { name: string }) => tool.name)).toEqual(['search_operational_events', 'read_agent_runtime_events', 'search_incidents']);
     expect(finalBody.text.format).toMatchObject({ type: 'json_schema', strict: true });
+    expect(finalBody.max_output_tokens).toBe(1024);
     expect(finalBody.temperature).toBeUndefined();
     expect(fetcher.mock.calls[0][0]).toBe('https://api.openai.com/v1/responses');
     expect(estimateCost(1_000, 1_000)).toBe(0.00095);
@@ -260,5 +277,28 @@ describe('GPT-6 Luna candidate Responses adapter', () => {
     const fetcher = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>().mockResolvedValue(new Response(JSON.stringify({ usage: { input_tokens: 10, output_tokens: 5 }, output_text: 'guess without schema' }), { status: 200 }));
     const provider = new OpenAIResponsesAgmatccProvider('test-only-not-a-real-key', fetcher);
     await expect(provider.complete([{ role: 'user', content: '?' }], false)).rejects.toThrow('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID');
+  });
+
+  it('advertises only journal reads by default and respects server-derived allowed tools', async () => {
+    const fetcher = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>().mockImplementation(async () => new Response(JSON.stringify({ output_text: JSON.stringify({ status: 'UNKNOWN', answer: 'No evidence.', evidenceRefs: [] }), usage: { input_tokens: 10, output_tokens: 5 } }), { status: 200 }));
+    const provider = new OpenAIResponsesAgmatccProvider('test-only-not-a-real-key', fetcher);
+    await provider.complete([{ role: 'user', content: 'journal' }], true);
+    await provider.complete([{ role: 'user', content: 'journal' }], true, ['search_operational_events']);
+    for (const [, init] of fetcher.mock.calls) expect(JSON.parse(String(init?.body)).tools.map((t: { name: string }) => t.name)).toEqual(['search_operational_events']);
+  });
+
+  it('preserves usage and model evidence for incomplete responses without retry or text fallback', async () => {
+    const fetcher = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>().mockResolvedValue(new Response(JSON.stringify({ id: 'resp-incomplete', model: 'gpt-6-luna', status: 'incomplete', incomplete_details: { reason: 'max_output_tokens' }, output_text: '{"status":"PASS"', usage: { input_tokens: 1643, output_tokens: 1024 } }), { status: 200 }));
+    const provider = new OpenAIResponsesAgmatccProvider('test-only-not-a-real-key', fetcher);
+    await expect(provider.complete([{ role: 'user', content: 'journal' }], false)).rejects.toMatchObject({ message: 'ACPM_PROVIDER_RESPONSE_INCOMPLETE', usage: { inputTokens: 1643, outputTokens: 1024 }, providerExecution: { responseId: 'resp-incomplete', executedModel: 'gpt-6-luna' } });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it('accepts a complete cited answer longer than the former 120-token budget', async () => {
+    const refs = Array.from({ length: 3 }, (_, i) => `operational-event:c30bae4f-0bb0-4b4a-9c20-2ce227adfc3b@${i}:4dcd5f9b-2161-4ffd-b001-6e4bb05b22a${i}`);
+    const output = { status: 'PASS', answer: 'The recorded stop is justified by the cited journal entries.', evidenceRefs: refs };
+    const fetcher = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>().mockResolvedValue(new Response(JSON.stringify({ status: 'completed', output_text: JSON.stringify(output), usage: { input_tokens: 1643, output_tokens: 180 } }), { status: 200 }));
+    const result = await new OpenAIResponsesAgmatccProvider('test-only-not-a-real-key', fetcher).complete([{ role: 'user', content: 'journal' }], false);
+    expect(result).toMatchObject({ kind: 'final', output });
   });
 });

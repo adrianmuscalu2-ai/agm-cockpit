@@ -68,10 +68,13 @@ export class AgmatccCopilotService {
     let errorCode: string | null = null;
     let timedOut = false;
     const complete = async (messages: readonly ProviderMessage[], allowTools: boolean) => {
-      if (this.provider.provider !== 'openai') return this.provider.complete(messages, allowTools);
+      const allowedTools = user.roles.includes('PREMIUM_ACCESS')
+        ? ['search_operational_events', 'read_agent_runtime_events', 'search_incidents']
+        : ['search_operational_events'];
+      if (this.provider.provider !== 'openai') return this.provider.complete(messages, allowTools, allowedTools);
       const reservation = await this.ledger!.reserve(user, executionId, isolatedMandateId);
       let result;
-      try { result = await this.provider.complete(messages, allowTools); }
+      try { result = await this.provider.complete(messages, allowTools, allowedTools); }
       catch (error) {
         if (error instanceof CopilotProviderError && error.providerExecution) providerExecutions.push(error.providerExecution);
         const measured = error instanceof CopilotProviderError ? error.usage : undefined;
@@ -139,7 +142,7 @@ export class AgmatccCopilotService {
       answer = 'Copilotul izolat nu a putut finaliza citirea. Nu s-a executat nicio acțiune de business.';
       const totalMs = Date.now() - started;
       await this.spool?.append({ executionId, testMandateId: isolatedMandateId, model: this.provider.model, provider: this.provider.provider, outcome, startedAt, totalMs, timeToFirstResponseMs: ttfr, usage, retryCount: 0, errorCode, timedOut, evidenceRefs: refs });
-      return { contractVersion: AGMATCC_COPILOT_CONTRACT.version, providerExecutions, model: this.provider.model, provider: this.provider.provider, executionId, testMandateId: isolatedMandateId, status: outcome, answer, evidenceRefs: [], usage, accounting: { unconfirmedCalls, reservedUsd: unconfirmedCalls * 0.1 }, timing: { totalMs, timeToFirstResponseMs: ttfr } };
+      return { contractVersion: AGMATCC_COPILOT_CONTRACT.version, providerExecutions, model: this.provider.model, provider: this.provider.provider, executionId, testMandateId: isolatedMandateId, status: outcome, errorCode: /^(ACPM|AGMATCC|LUNA)_[A-Z0-9_]+$/.test(errorCode) ? errorCode : 'ACPM_UNKNOWN_ERROR', answer, evidenceRefs: [], usage, accounting: { unconfirmedCalls, reservedUsd: unconfirmedCalls * 0.1 }, timing: { totalMs, timeToFirstResponseMs: ttfr } };
     }
   }
 
