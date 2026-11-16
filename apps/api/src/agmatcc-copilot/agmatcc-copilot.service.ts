@@ -24,6 +24,24 @@ export class AgmatccCopilotService {
 
   constructor(private readonly config: ConfigService, private readonly prisma: PrismaService, private readonly agentEvents: AgentRuntimeEventsService, @Inject(AGMATCC_COPILOT_PROVIDER) provider: AgmatccCopilotProvider, @Optional() private readonly ledger?: LunaAcpmLedger) { this.provider = provider; }
 
+  // Configuration diagnostics only. This never grants activation, reserves budget,
+  // invokes the provider, or substitutes for the guarded respond/ledger checks.
+  controlStatus(familySha256: string) {
+    const production = process.env.NODE_ENV === 'production';
+    const checks = {
+      enabled: this.config.get<string>(production ? 'AGMATCC_LUNA_PRODUCTION_ENABLED' : 'AGMATCC_COPILOT_ISOLATED_ENABLED') === 'true',
+      providerConfigured: this.provider.provider === 'openai' || (!production && this.provider.provider === 'simulated'),
+      ledgerAvailable: Boolean(this.ledger) || (!production && this.provider.provider === 'simulated'),
+      commanderBound: !production || this.config.get<string>('AGMATCC_LUNA_COMMANDER_FAMILY_SHA256') === familySha256,
+      targetPinned: !production || Boolean(this.config.get<string>('AGMATCC_LUNA_PRODUCTION_DB_HOST')),
+      handoffPinned: !production || /^[a-f0-9]{64}$/.test(this.config.get<string>('AGMATCC_LUNA_HANDOFF_SHA256') ?? ''),
+    };
+    return { contract: 'luna-control-status.v1', production, checks,
+      configurationReady: Object.values(checks).every(Boolean),
+      budgetVerified: false, activationGranted: false,
+      limitation: 'Configuration only; database target, immutable handoff and remaining budget are enforced at reservation.' };
+  }
+
   async respond(user: RequestContext, question: string, testMandateId?: string, commander?:CommanderBinding): Promise<CopilotAnswer> {
     const production=process.env.NODE_ENV==='production';
     if(production && (this.config.get<string>('AGMATCC_LUNA_PRODUCTION_ENABLED')!=='true'||this.provider.provider!=='openai'||!commander||commander.familyHash!==this.config.get<string>('AGMATCC_LUNA_COMMANDER_FAMILY_SHA256')||!user.roles.includes('TURN_ADMIN_SESSION')))throw new ServiceUnavailableException('AGMATCC_COPILOT_ISOLATED_PRODUCTION_DISABLED');

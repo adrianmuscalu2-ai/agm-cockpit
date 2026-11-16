@@ -6,8 +6,9 @@ import { TurnAdminModule } from '../turn-admin/turn-admin.module';
 import { SecretTelemetryModule } from '../secret-telemetry/secret-telemetry.module';
 
 import { OperationalAgentDutyRunner } from './operational-agent-duty.runner';
+import { AcpmModule } from '../acpm/acpm.module';
 @Module({
-  imports: [DiscoveryModule, TurnAdminModule, SecretTelemetryModule],
+  imports: [DiscoveryModule, TurnAdminModule, SecretTelemetryModule, AcpmModule],
   controllers: [AuthorityControlPlaneController],
   providers: [AuthorityControlPlaneService, OperationalAgentDutyRunner],
   exports: [AuthorityControlPlaneService],

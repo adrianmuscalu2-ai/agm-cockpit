@@ -23,6 +23,16 @@ function ordered(source, labels) {
   }
 }
 
+const maintenance = job('credential-maintenance');
+assert.match(maintenance, /environment: Production/);
+assert.match(maintenance, /github\.ref == 'refs\/heads\/agm-canonical-20260820'/);
+assert.match(maintenance, /github\.event_name == 'schedule' \|\| inputs\.credential_maintenance_only/);
+assert.match(maintenance, /test \"\$deployed\" = \"\$GITHUB_SHA\"/);
+assert.doesNotMatch(maintenance, /docker compose|build-push-action|systemctl restart|workflow_dispatch/);
+assert.match(job('verify'), /github\.event_name != 'schedule' && !inputs\.credential_maintenance_only/);
+assert.match(job('publish'), /needs: verify/);
+assert.match(job('publish-web'), /needs: verify/);
+
 const deploy = job('deploy');
 const deploymentHealth = job('deployment-health');
 const certification = job('post-deploy-certification');

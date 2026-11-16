@@ -122,9 +122,9 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
     expect(lookup.where.users.some.roles.some.role.code.in).toContain('company_owner');
   });
 
-  it('accepts an explicitly approved manual dispatch only for the pinned Production workflow', async () => {
+  it.each(['workflow_dispatch', 'schedule'])('accepts gated %s only for the pinned Production workflow', async (eventName) => {
     const { service } = harness();
-    await expect(service.authenticate(await token({ event_name: 'workflow_dispatch' }))).resolves.toMatchObject({
+    await expect(service.authenticate(await token({ event_name: eventName }))).resolves.toMatchObject({
       companyId,
       roles: ['DEPLOYMENT_PROVISIONER'],
       actorSubject: GITHUB_ACTIONS_PROVISIONING_CONTRACT.subject,
@@ -214,7 +214,7 @@ describe('GitHub Actions OIDC Production provisioning boundary', () => {
     ['ref', 'refs/heads/main'],
     ['workflow_ref', 'adrianmuscalu2-ai/agm-cockpit/.github/workflows/other.yml@refs/heads/agm-canonical-20260820'],
     ['sha', 'b'.repeat(40)],
-    ['event_name', 'schedule'],
+    ['event_name', 'pull_request'],
     ['runner_environment', 'self-hosted'],
   ])('rejects a token with a mismatched %s claim', async (claim, value) => {
     const { service } = harness();

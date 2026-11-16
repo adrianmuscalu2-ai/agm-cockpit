@@ -90,13 +90,13 @@ export class AcpmObserver {
     const runId=randomUUID();let sequence=0;let state:'NEW'|'ACTIVE'|'PAUSED'|'TERMINAL'='NEW';
     let pending:{kind:AcpmEvent['kind'];metadata:string;event:AcpmEvent}|undefined;
     let emitTail:Promise<void>=Promise.resolve();
-    const emit=(kind:AcpmEvent['kind'],metadata:Partial<Pick<AcpmEvent,'block'|'parentEventId'|'targetComponentId'>>={})=>{
+    const emit=(kind:AcpmEvent['kind'],metadata:Partial<Pick<AcpmEvent,'block'|'parentEventId'|'targetComponentId'|'evidenceRef'|'evidenceHash'>>={})=>{
       const work=emitTail.then(async()=>{
       const allowed=state==='NEW'?['STARTED']:state==='ACTIVE'?['WORKING','SUSPENDED','BLOCKED','HANDOFF','COMPLETED','FAILED']:state==='PAUSED'?['RESUMED','COMPLETED','FAILED']:[];
       const metadataKey=JSON.stringify(metadata);
       if(pending&&(pending.kind!==kind||pending.metadata!==metadataKey))throw new Error('ACPM_OBSERVER_PRIOR_EVENT_UNCONFIRMED');
       if(!pending&&!allowed.includes(kind))throw new Error('ACPM_OBSERVER_INVALID_TRANSITION');
-      const event=pending?.event??{...identity,...metadata,runId,eventId:randomUUID(),sequence:sequence+1,kind,occurredAt:new Date().toISOString(),evidenceRef,source:'ACP' as const};
+      const event=pending?.event??{...identity,runId,eventId:randomUUID(),sequence:sequence+1,kind,occurredAt:new Date().toISOString(),evidenceRef,...metadata,source:'ACP' as const};
       pending??={kind,metadata:metadataKey,event};
       await this.enqueue(ctx.companyId,event);
       pending=undefined;sequence=event.sequence;

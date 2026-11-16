@@ -1,8 +1,15 @@
 name: AGM Production Release
 
 on:
+  schedule:
+    - cron: '47 */6 * * *'
   workflow_dispatch:
     inputs:
+      credential_maintenance_only:
+        description: Renew existing inspector/executor credentials only (no build or deploy)
+        required: false
+        default: false
+        type: boolean
       provision_car_mover:
         description: Provision the approved Car Mover entitlement during this release
         required: false
@@ -24,7 +31,56 @@ env:
   WEB_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/agm-cockpit-web
 
 jobs:
+  credential-maintenance:
+    if: ${{ github.ref == 'refs/heads/agm-canonical-20260820' && (github.event_name == 'schedule' || inputs.credential_maintenance_only) }}
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Renew through existing Production authority and host custody
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+          PRODUCTION_USER: ${{ secrets.PRODUCTION_USER }}
+          PRODUCTION_SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/credential-maintenance.key"
+          hosts="$RUNNER_TEMP/credential-maintenance.hosts"
+          trap 'rm -f -- "$key" "$hosts"' EXIT
+          printf '%s\n' "$PRODUCTION_SSH_KEY" > "$key"
+          ssh-keyscan -T 15 -H "$PRODUCTION_HOST" > "$hosts"
+          test -s "$hosts"
+          target="$PRODUCTION_USER@$PRODUCTION_HOST"
+          # Refuse a queued/ahead-of-Production revision before sending authority.
+          deployed=$(curl --fail --silent --show-error https://api.agmcockpit.com/api/v1/health/ready | jq -er '.data.build.commit')
+          test "$deployed" = "$GITHUB_SHA"
+          stage="/tmp/agm-credential-maintenance-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          ssh -i "$key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$hosts" "$target" "mkdir -m 700 '$stage'"
+          scp -i "$key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$hosts" apps/api/scripts/production-credential-maintenance.py apps/api/scripts/production-atlas-custody.py "$target:$stage/"
+          oidc=$(curl --fail --silent --show-error --max-time 15 \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=agm%3Aproduction-machine-provisioning" | jq -er '.value')
+          echo "::add-mask::$oidc"
+          mkdir -p evidence/credential-maintenance
+          printf '%s' "$oidc" | ssh -i "$key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$hosts" "$target" \
+            "sudo -n python3 '$stage/production-credential-maintenance.py' --expected-revision '$GITHUB_SHA' --renew" \
+            | tee evidence/credential-maintenance/result.jsonl
+      - name: Preserve metadata-only maintenance outcome
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: credential-maintenance-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/credential-maintenance
+          if-no-files-found: warn
+          retention-days: 90
+
   verify:
+    if: ${{ github.event_name != 'schedule' && !inputs.credential_maintenance_only }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -58,6 +114,8 @@ jobs:
       - run: node scripts/validate-production-ssh-transport.mjs
       - name: Validate Atlas custody with isolated synthetic fixtures
         run: sudo python3 -m unittest discover -s apps/api/test -p test_atlas_custody.py
+      - name: Validate periodic credential custody with isolated fixtures
+        run: sudo python3 -m unittest discover -s apps/api/test -p test_credential_maintenance.py
       - run: node scripts/validate-premium-assistant-source-refresh.mjs
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm rescue:browser-preflight

@@ -25,6 +25,8 @@ import {
   toOperationalSyncItems, verifyAgmatccLedger, type AgmatccEntry, type AgmatccEntryKind, type AgmatccProvenance,
 } from './agmatcc.ledger';
 
+import { requireLunaConfiguration } from './luna-control';
+
 const SYNCED_KEY = 'agm.turn.agmatcc.synced-count.v1';
 const ACTOR_ID = 'turn-admin-session';
 
@@ -135,6 +137,7 @@ export function bindAgmatcc(language = 'ro-RO') {
     aiAnswer.textContent = 'Copilotul izolat consultă numai sursele read-only autorizate…';
     aiEvidence.replaceChildren();
     try {
+      await requireLunaConfiguration(turnAdminAuthenticatedFetch);
       const response = await turnAdminAuthenticatedFetch('/agmatcc-copilot/respond', {
         method: 'POST', cache: 'no-store', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify({ question, language: 'ro', testMandateId: randomUuid() }),

@@ -1,5 +1,5 @@
 import { projectAcpmCore, type AcpmEvent, type AcpmCoreSnapshot } from './acpm.engine';
-export { ACPM_KINDS } from './acpm.engine';
+export { ACPM_KINDS, ACPM_COMPONENT_KINDS } from './acpm.engine';
 export type { AcpmEvent, AcpmKind, AcpmRun } from './acpm.engine';
 export { AcpmRecorder } from './acpm.recorder';
 export type AcpmInventoryEntry = {componentId:string;kind:string;module:string;supervisorId:string|null;observation:string};
