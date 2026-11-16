@@ -4,7 +4,7 @@ import { AGMATCC_COPILOT_CONTRACT, type CopilotOutcome, type CopilotToolCall, ty
 export interface AgmatccCopilotProvider {
   readonly model: typeof AGMATCC_COPILOT_CONTRACT.candidateModel;
   readonly provider: 'simulated' | 'openai' | 'disabled';
-  complete(messages: readonly ProviderMessage[], allowTools: boolean): Promise<ProviderTurn>;
+  complete(messages: readonly ProviderMessage[], allowTools: boolean, allowedTools?: readonly string[]): Promise<ProviderTurn>;
 }
 
 export class CopilotProviderError extends ServiceUnavailableException {
@@ -53,7 +53,7 @@ export class OpenAIResponsesAgmatccProvider implements AgmatccCopilotProvider {
     if (!apiKey.trim()) throw new Error('ACPM_OPENAI_KEY_REQUIRED');
   }
 
-  async complete(messages: readonly ProviderMessage[], allowTools: boolean): Promise<ProviderTurn> {
+  async complete(messages: readonly ProviderMessage[], allowTools: boolean, allowedTools: readonly string[] = ['search_operational_events']): Promise<ProviderTurn> {
     const started = Date.now();
     const input: Array<Record<string, string>> = [];
     for (const { role, content, toolCallId } of messages) {
@@ -73,11 +73,11 @@ export class OpenAIResponsesAgmatccProvider implements AgmatccCopilotProvider {
           model: this.model,
           input,
           reasoning: { effort: 'low' },
-          max_output_tokens: 120,
+          max_output_tokens: 1024,
           service_tier: 'default',
           store: false,
           text: { format: { type: 'json_schema', name: 'agmatcc_answer', strict: true, schema: ANSWER_SCHEMA } },
-          ...(allowTools ? { tools: READ_ONLY_TOOL_DEFINITIONS, tool_choice: 'auto' } : {}),
+          ...(allowTools ? { tools: READ_ONLY_TOOL_DEFINITIONS.filter(tool => allowedTools.includes(tool.name)), tool_choice: 'auto' } : {}),
         }),
         signal: AbortSignal.timeout(AGMATCC_COPILOT_CONTRACT.timeoutMs),
       });
@@ -93,6 +93,7 @@ export class OpenAIResponsesAgmatccProvider implements AgmatccCopilotProvider {
       observedAt:new Date().toISOString(),source:'PROVIDER_RESPONSE',missingReason:typeof payload.model==='string'?'PROVIDER_VERSION_NOT_EXPOSED':'PROVIDER_MODEL_NOT_RETURNED'};
     const usage = { inputTokens: payload.usage?.input_tokens ?? 0, outputTokens: payload.usage?.output_tokens ?? 0, estimatedCostUsd: estimateCost(payload.usage?.input_tokens ?? 0, payload.usage?.output_tokens ?? 0) };
     if (!Number.isSafeInteger(payload.usage?.input_tokens) || !Number.isSafeInteger(payload.usage?.output_tokens) || usage.inputTokens < 0 || usage.outputTokens < 0) throw new CopilotProviderError('ACPM_USAGE_UNCONFIRMED',undefined,providerExecution);
+    if (payload.status === 'incomplete') throw new CopilotProviderError('ACPM_PROVIDER_RESPONSE_INCOMPLETE', usage, providerExecution);
     const calls = (payload.output ?? []).flatMap((item) => item.type === 'function_call' ? [{ id: item.call_id ?? item.id ?? '', name: item.name ?? '', arguments: parseArguments(item.arguments) }] : []);
     if (allowTools && calls.length) {
       return {
@@ -128,6 +129,7 @@ export const ANSWER_SCHEMA = {
 } as const;
 
 type OpenAIResponse = {
+  status?: string;
   id?:string;
   model?:string;
   output_text?: string;

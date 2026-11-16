@@ -24,6 +24,7 @@ export type CopilotAnswer = {
   executionId: string;
   testMandateId: string;
   status: CopilotOutcome;
+  errorCode?: string;
   answer: string;
   evidenceRefs: string[];
   usage: CopilotUsage;
