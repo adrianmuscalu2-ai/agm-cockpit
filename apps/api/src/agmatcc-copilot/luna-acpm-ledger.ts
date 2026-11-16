@@ -4,11 +4,13 @@ import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { RequestContext } from '../common/request-context';
 import { canonicalAcpm } from '../acpm/acpm.canonical';
-import type { CopilotUsage } from './agmatcc-copilot.contract';
+import type { CopilotUsage, ProviderExecution } from './agmatcc-copilot.contract';
+import type { AcpmEvent } from '@agm/shared';
+import { runtimeObservation } from '../acpm/acpm.runtime';
 
 const SCOPE = 'agm-luna-evaluation-20261115';
 const RESERVE = 100_000_000; // $0.10: >100k input bytes at conservative long-context rate +120 output tokens.
-export type LunaReservation = { callId: string; executionId: string; companyId: string; mandateId: string; startedAt: string };
+export type LunaReservation = { callId: string; executionId: string; companyId: string; mandateId: string; startedAt: string;execution?:AcpmEvent['execution'] };
 
 /** Internal measurement, never an OWNER grant or a model-callable write tool.
  * PostgreSQL serializes reservations across processes. Uncertain usage retains its full reservation.
@@ -27,7 +29,7 @@ export class LunaAcpmLedger {
   }
   async reserve(ctx: RequestContext, executionId: string, mandateId: string): Promise<LunaReservation> {
     this.requireTarget();
-    const reservation = { callId: randomUUID(), executionId, companyId: ctx.companyId, mandateId, startedAt: new Date().toISOString() };
+    const reservation = { callId: randomUUID(), executionId, companyId: ctx.companyId, mandateId, startedAt: new Date().toISOString(),execution:runtimeObservation(ctx,'AgmatccCopilotService') };
     await this.prisma.$transaction(async tx => {
       await tx.$executeRaw`SET LOCAL synchronous_commit = on`;
       await tx.$queryRaw`SELECT pg_advisory_xact_lock(191, 61115)::text`;
@@ -44,7 +46,7 @@ export class LunaAcpmLedger {
     }, { maxWait: 30_000, timeout: 10_000 });
     return reservation;
   }
-  async settle(r: LunaReservation, usage: CopilotUsage | undefined, errorCode: string | null, evidenceRefs: string[], providerOutcome?: string) {
+  async settle(r: LunaReservation, usage: CopilotUsage | undefined, errorCode: string | null, evidenceRefs: string[], providerOutcome?: string,providerExecution?:ProviderExecution) {
     this.requireTarget();
     const valid = usage && Number.isSafeInteger(usage.inputTokens) && usage.inputTokens >= 0 && Number.isSafeInteger(usage.outputTokens) && usage.outputTokens >= 0;
     // Integer nanodollars: $0.20/M input + $0.75/M output. No binary float accumulation.
@@ -61,16 +63,18 @@ export class LunaAcpmLedger {
       const rows = await tx.$queryRaw<Array<{ state: string; settlementHash: string | null }>>`SELECT "state","settlementHash" FROM "LunaEvaluationReservation" WHERE "callId"=${r.callId}::uuid AND "companyId"=${r.companyId}::uuid FOR UPDATE`;
       if (!rows.length || rows[0].state !== 'RESERVED') throw new Error('ACPM_RESERVATION_ALREADY_SETTLED_OR_MISSING');
       await tx.$executeRaw`UPDATE "LunaEvaluationReservation" SET "chargedNanoUsd"=${charged},"state"=${valid ? 'SETTLED' : 'UNCONFIRMED'},"settlementHash"=${hash} WHERE "callId"=${r.callId}::uuid AND "companyId"=${r.companyId}::uuid`;
-      await this.event(tx, r, errorCode ? 'FAILED' : 'COMPLETED', 2, measurement);
+      await this.event(tx, r, errorCode ? 'FAILED' : 'COMPLETED', 2, measurement,providerExecution);
     }, { maxWait: 30_000, timeout: 10_000 });
     if (charged > RESERVE) throw new Error('ACPM_RESERVATION_BOUND_EXCEEDED');
   }
-  private async event(tx: Prisma.TransactionClient, r: LunaReservation, kind: string, sequence: number, measurement: object) {
+  private async event(tx: Prisma.TransactionClient, r: LunaReservation, kind: string, sequence: number, measurement: object,providerExecution?:ProviderExecution) {
     const evidenceHash = createHash('sha256').update(canonicalAcpm(measurement)).digest('hex');
     const payload = canonicalAcpm({ eventId: randomUUID(), chainId: r.executionId, runId: r.callId, mandateId: r.mandateId,
       componentId: 'agmatcc.gpt-6-luna', componentKind: 'AGENT', kind, sequence, occurredAt: new Date().toISOString(),
       evidenceRef: `luna-evaluation:${r.executionId}:${r.callId}:${sequence}`, evidenceHash, source: 'ACP',
-      model: { provider: 'openai', name: 'gpt-6-luna', version: 'alias-observed' }, measurement });
+      ...(r.execution?{execution:r.execution}:{}),
+      providerExecution:providerExecution??{provider:'openai',requestedModel:'gpt-6-luna',executedModel:null,providerVersion:null,responseId:null,observedAt:new Date().toISOString(),source:'REQUEST_ONLY',missingReason:'NO_PROVIDER_RESPONSE_OBSERVED',providerVersionReason:'No separate provider version observed'},
+      model: { provider: 'openai', name: providerExecution?.executedModel??'gpt-6-luna', version: 'UNKNOWN' }, measurement });
     const event = JSON.parse(payload) as { eventId: string };
     const hash = createHash('sha256').update(payload).digest('hex');
     await tx.$executeRaw`INSERT INTO "AgentChainPerformanceEvent" ("companyId","eventId","recordedBy","payload","payloadHash") VALUES (${r.companyId}::uuid,${event.eventId}::uuid,'agmatcc:internal-measurement:v1',${payload}::jsonb,${hash})`;
