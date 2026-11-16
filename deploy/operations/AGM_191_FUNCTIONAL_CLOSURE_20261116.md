@@ -76,3 +76,57 @@ are not recertified. The 10,000-observation read cap remains explicit; incomplet
 
 RESCUE RECOVERED for local runtime/test configuration; HANDOFF TO ATLAS with Production approval and legitimate-session
 gates outstanding. No product HOLD is attributed to absent IAB.
+
+## Credential lifecycle V3 continuation (same PR36)
+
+The subsequent TURN Commander mandate explicitly authorizes implementation of preventive
+credential renewal and ACP monitoring. It does not waive the Production environment,
+Guardian custody or formal candidate acceptance gates. The original 764-test evidence
+and frozen manifest remain valid for their original source; the incremental tests below
+cover this additional change. No Guardian/RK source, identity, scope or role is changed.
+
+Root cause: the one-day V2 credentials were successfully rotated, published and used on
+14 November, then expired on 15 November. The six-hour continuity workflow renews mandates,
+not credentials. Existing ACP monitoring did not query credential expiry. Both the validator
+and recovery executor are affected; their exact identities remain intact.
+
+The existing Production Release workflow now has a six-hour maintenance trigger and a
+`credential_maintenance_only` dispatch input. Maintenance skips verification/build/deploy
+jobs and retains the existing Production environment gate, SHA-bound OIDC provisioning
+role, SSH transport and root-only Guardian store. The continuity role still cannot rotate.
+The canonical release OIDC contract admits `schedule` for that exact workflow only;
+repository, environment, ref, signature, tenant and deployed SHA checks remain mandatory.
+Scheduled initiation is not a promise of unattended renewal while approvals are pending.
+
+`production-credential-maintenance.py` only renews the two existing inspector/executor IDs
+when at most 12 hours remain. It requires their latest principal bindings, exact approved
+mandate keys/modes/scopes with at least one day remaining, unchanged scopes, a fixed running
+container and the deployed revision/database. It uses the normal canonical rotation API,
+not administrative SQL writes. A process lock spans observation, rotation, custody and
+authentication. Existing custody bytes remain intact; versioned additions use O_NOFOLLOW,
+0600 ownership checks, inode/content checks, a lock and fsync. New secrets stay on the host.
+An ambiguous HTTP result stops without retry. Failed publication revokes the new credential
+through the existing API; the already revoked old version is never called a rollback.
+Latest-credential custody mismatch stops for reconciliation instead of rotating blindly.
+
+ACP's existing control-plane duty now observes the latest credential metadata without
+reading secret hashes. It emits deduplicated append-only warning, escalation and recovery
+receipts in the existing AuthorityAuditJournal. Recovery requires actual usage of the new
+credential; issuance alone is not authentication. A 12-hour warning fails readiness until
+renewal, so operational PASS no longer masks a pending credential expiry. Noncanonical
+tenants without these identities are explicitly outside this production capability scope.
+
+Incremental evidence is under `D:/AGM-ACPM-Isolated-20261115-GPT6Luna/evidence/rotation-v3-20261116`:
+real rehearsal PostgreSQL rotation, expired/old credential denials, new JWT/access validation,
+warning/escalation/recovery persistence and concurrent deduplication; Linux isolated custody
+fixtures; real PostgreSQL latest-binding regression; OIDC, ACP and Guardian noninterference
+regressions; API build and typecheck; existing release/SSH contract checks.
+Fixtures and failed attempts are retained. No new paid Luna call is required.
+
+Bootstrap remains a distinct operational gate: current Production14da does not contain this
+new maintenance job. Before formal validator adoption, obtain a genuine existing authorized
+provisioning/owner authentication route and Guardian custody authorization for initial V3.
+Do not run the old a70/V1-pinned administrative adapter unchanged, remove its guards, fabricate
+OIDC, or deploy an unapproved candidate just to acquire maintenance authority. Once approved
+and deployed, use the maintenance-only action and verify actual V3 custody/authentication,
+ACP receipts and public build identity before declaring Production PASS.

@@ -6,6 +6,7 @@ import {
 } from '@agm/shared';
 import { Injectable, Optional } from '@nestjs/common';
 import { AcpmObserver } from '../acpm/acpm.observer';
+import { inspectCredentialReadiness } from './credential-readiness';
 import { ACPM_COMPONENT_KINDS, type AcpmEvent } from '@agm/shared';
 import { DiscoveryService } from '@nestjs/core';
 import { Prisma } from '@prisma/client';
@@ -439,12 +440,15 @@ export class OperationalAgentDutyRunner {
   private async controlPlaneDuty(ctx: RequestContext, probeId: string): Promise<DutyOutcome> {
     const service = this.provider<{ dashboard(context: RequestContext): Promise<{ controlPlane: { conflicts: unknown[]; invalidOrStaleAuthority: unknown[]; activeCommandChains: unknown[] } }> }>('AuthorityControlPlaneService');
     const dashboard = await service.dashboard(ctx);
-    const passed = dashboard.controlPlane.conflicts.length === 0 && dashboard.controlPlane.invalidOrStaleAuthority.length === 0;
-    return outcome('Evaluate authority graph, fencing and command-chain conflicts', passed, [ `ComponentHeartbeat:${probeId}` ], {
+    const credentials = await inspectCredentialReadiness(this.prisma, ctx);
+    const passed = dashboard.controlPlane.conflicts.length === 0 && dashboard.controlPlane.invalidOrStaleAuthority.length === 0 && credentials.passed;
+    const result = outcome('Evaluate authority graph, fencing, command chains and machine credential readiness', passed, [ `ComponentHeartbeat:${probeId}`, ...credentials.evidenceReferences ], {
       conflicts: dashboard.controlPlane.conflicts.length,
       invalidOrStaleAuthority: dashboard.controlPlane.invalidOrStaleAuthority.length,
       activeCommandChains: dashboard.controlPlane.activeCommandChains.length,
+      machineCredentialReadiness: credentials,
     });
+    return credentials.passed ? result : { ...result, reason: 'M2M_CREDENTIAL_READINESS_FAILED' };
   }
 
   private async orchestratorDuty(ctx: RequestContext, probeId: string): Promise<DutyOutcome> {
