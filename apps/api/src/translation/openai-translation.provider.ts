@@ -46,6 +46,7 @@ export class OpenAiTranslationProvider implements TranslationProvider {
     }
 
     const startedAt = performance.now();
+    const model = this.config.get<string>('OPENAI_TRANSLATION_MODEL', TRANSLATION_CONTRACT.defaultModel);
 
     try {
       const response = await fetch(TRANSLATION_CONTRACT.endpoint, {
@@ -55,7 +56,7 @@ export class OpenAiTranslationProvider implements TranslationProvider {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: this.config.get<string>('OPENAI_TRANSLATION_MODEL', TRANSLATION_CONTRACT.defaultModel),
+          model,
           input: [
             {
               role: 'system',
@@ -68,7 +69,7 @@ export class OpenAiTranslationProvider implements TranslationProvider {
             },
           ],
           store: false,
-          temperature: 0,
+          ...(supportsSamplingTemperature(model) ? { temperature: 0 } : {}),
         }),
         signal: AbortSignal.timeout(timeoutMs),
       });
@@ -120,6 +121,13 @@ function safeErrorDetails(error: unknown) {
     type: error.name,
     message: error.message.replace(/Bearer\s+\S+/gi, 'Bearer [REDACTED]').slice(0, 200),
   };
+}
+
+// Reasoning-family models (gpt-5*/gpt-6*/o-series, e.g. gpt-6-luna) reject the
+// `temperature` sampling parameter on /v1/responses (verified HTTP 400,
+// request id req_610c0a431f454f6689c5f9796f4cbcc2 on 2026-11-19).
+function supportsSamplingTemperature(model: string): boolean {
+  return !/^(gpt-[56]|o\d)/i.test(model);
 }
 
 function translationTimeoutMs(configuredValue: string | undefined) {

@@ -48,6 +48,22 @@ describe('API-003 Translation & AI Provider', () => {
     });
   });
 
+  it('omits the temperature sampling parameter for reasoning-family models', async () => {
+    jest.spyOn(console, 'info').mockImplementation(() => undefined);
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ output_text: 'Guten Tag' }),
+    } as unknown as Response);
+    const provider = new OpenAiTranslationProvider(
+      new ConfigService({ OPENAI_API_KEY: 'secret', OPENAI_TRANSLATION_MODEL: 'gpt-6-luna' }),
+    );
+    await expect(provider.translate({ text: 'Bună ziua', sourceLanguage: 'ro', targetLanguage: 'de' }))
+      .resolves.toEqual({ text: 'Guten Tag', available: true, provider: 'openai' });
+    const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
+    expect(body).toMatchObject({ model: 'gpt-6-luna', store: false });
+    expect(body).not.toHaveProperty('temperature');
+  });
+
   it('does not log provider messages or source text on an HTTP failure', async () => {
     const errorLog = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     jest.spyOn(console, 'info').mockImplementation(() => undefined);

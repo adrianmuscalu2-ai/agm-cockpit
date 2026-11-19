@@ -1,0 +1,76 @@
+{
+  "mandate": "Owner mandate 2026-11-19: verify the API model behind the 'GPT-6 Luna' conversation and integrate it into the production translation workload if the exact model ID exists and passes real API verification.",
+  "verifiedModelId": "gpt-6-luna",
+  "credentialCustody": {
+    "source": "Windows Credential Manager target AGMaTCC-Luna-Test-20261115, decrypted only in process memory and cleared after each probe",
+    "trackingIdPrefix": "key_HAPVI6jT4CpmRj7H",
+    "secretDisplayed": false,
+    "note": "Local DPAPI openai-production-key.dpapi (2026-08-21) returned HTTP 401 (x-request-id 42458d66-168d-4a52-9a9f-6e5eec38c4dc); it no longer matches the active production key and was not rotated by this change."
+  },
+  "apiEvidence": [
+    {
+      "probe": "GET /v1/models",
+      "atUtc": "2026-11-19T00:29:56Z",
+      "httpStatus": 200,
+      "requestId": "26d0cb18-e611-4218-9a22-1e5165033efc",
+      "totalModels": 98,
+      "matchingIds": ["gpt-5.6-luna", "gpt-6-luna", "gpt-6.1-sol", "gpt-6-sol", "gpt-6-astra", "gpt-6.1-terra", "gpt-6.2-sol", "gpt-6.2-astra"]
+    },
+    {
+      "probe": "POST /v1/responses minimal synthetic request",
+      "atUtc": "2026-11-19T00:30:35Z",
+      "model": "gpt-6-luna",
+      "httpStatus": 200,
+      "status": "completed",
+      "requestId": "req_4e8edccf53be40e7ac68b584afe2676e",
+      "responseId": "resp_056b7ee2ab2c788e016afe432905fc87d2ade1faf6d2c35d30",
+      "usage": { "inputTokens": 24, "outputTokens": 12 },
+      "latencyMs": 2563
+    },
+    {
+      "probe": "POST /v1/responses with the exact production translation request shape INCLUDING temperature:0",
+      "model": "gpt-6-luna",
+      "httpStatus": 400,
+      "requestId": "req_610c0a431f454f6689c5f9796f4cbcc2",
+      "conclusion": "gpt-6-luna rejects the temperature sampling parameter; provider code must omit it for reasoning-family models"
+    },
+    {
+      "probe": "POST /v1/responses with the exact production translation request shape WITHOUT temperature (synthetic ro->de text)",
+      "model": "gpt-6-luna",
+      "httpStatus": 200,
+      "status": "completed",
+      "requestId": "req_ecd7666fed314281b7f7c852eb94d415",
+      "usage": { "inputTokens": 80, "outputTokens": 73 },
+      "latencyMs": 1928,
+      "outputValidated": "Correct German translation preserving time and ramp number"
+    }
+  ],
+  "priorAuthoritativeEvidence": {
+    "document": "deploy/operations/LUNA_ACPM_LOCAL_INTEGRATION.md",
+    "fact": "The existing Production key already completed a gpt-6-luna POST /v1/responses inside the production container (HTTP 200, status completed, execution 24a509ea-1caa-46b4-8a33-c95d994cd6d6), proving the production credential can invoke this model without rotation."
+  },
+  "configurationTrace": {
+    "envVariable": "OPENAI_TRANSLATION_MODEL",
+    "codePath": "apps/api/src/translation/openai-translation.provider.ts -> TRANSLATION_CONTRACT.endpoint https://api.openai.com/v1/responses",
+    "codeDefaultFallback": "gpt-4.1-mini (apps/api/src/translation/translation.contract.ts defaultModel, used when the env variable is unset)",
+    "template": "deploy/production/production.env.template",
+    "liveSource": "/opt/agm/production/secrets/agm-production.env (root 0600 on 167.233.237.253), loaded via env_file in deploy/production/compose.production.yml service agm-production-api",
+    "releasePath": ".github/workflows/production-release.yml publish/deploy jobs; the env file itself is host-managed and is not rewritten by the release workflow",
+    "otherOpenAiWorkloads": {
+      "OPENAI_VISION_MODEL": "default gpt-4.1-mini (dashboard-warning-analysis) - unchanged",
+      "OPENAI_LOAD_SAFETY_MODEL": "default gpt-4.1-mini (premium-load-safety providers) - unchanged",
+      "premiumAssistant": "contract default gpt-4.1-mini - unchanged",
+      "agmatccLunaCopilot": "gpt-6-luna behind AGMATCC_LUNA_PRODUCTION_ENABLED explicit OFF-by-default activation path - unchanged by this change"
+    }
+  },
+  "change": {
+    "files": [
+      "apps/api/src/translation/openai-translation.provider.ts (omit temperature for reasoning-family models; env-selected model unchanged mechanism)",
+      "deploy/production/production.env.template (OPENAI_TRANSLATION_MODEL=gpt-6-luna with documented rollback)",
+      "apps/api/test/api003-translation-provider.spec.ts (focused regression for temperature omission)"
+    ],
+    "rollback": "Set OPENAI_TRANSLATION_MODEL=gpt-4.1-mini in /opt/agm/production/secrets/agm-production.env and restart agm-production-api.service; code default remains gpt-4.1-mini, so removing the variable is an equivalent rollback",
+    "keyRotation": "none"
+  },
+  "costNote": "Conservative long-context estimates for gpt-6-luna (USD 0.20/M input, USD 0.75/M output, checked 2026-11-15 per LUNA_ACPM_LOCAL_INTEGRATION.md) are below the gpt-4.1-mini baseline used in AGM_AI_OPERATIONAL_COST_AUDIT.md; the audit baseline remains the documented worst case."
+}
