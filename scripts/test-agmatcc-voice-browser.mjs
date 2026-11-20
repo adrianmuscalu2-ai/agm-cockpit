@@ -23,7 +23,8 @@ const requests = [];
 const events = [];
 const checks = [];
 const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-const sourceSha256 = Object.fromEntries(['apps/web/src/turn-agmatcc/agmatcc.runtime.ts', 'apps/web/src/turn-agmatcc/agmatcc.ai-conversation.ts', 'apps/web/src/turn-agmatcc/agmatcc.view.ts', 'scripts/test-agmatcc-voice-browser.mjs'].map(file => [file, createHash('sha256').update(readFileSync(file)).digest('hex')]));
+const sourceSha256 = Object.fromEntries(['apps/web/src/turn-agmatcc/agmatcc.runtime.ts', 'apps/web/src/turn-agmatcc/agmatcc.sync.ts', 'apps/web/src/turn-agmatcc/agmatcc.ledger.ts', 'apps/web/src/turn-agmatcc/agmatcc.ai-conversation.ts', 'apps/web/src/turn-agmatcc/agmatcc.view.ts', 'scripts/test-agmatcc-voice-browser.mjs'].map(file => [file, createHash('sha256').update(readFileSync(file)).digest('hex')]));
+let loseFirstSyncAcknowledgment = true;
 let holdReply = false;
 let supportHistory = true;
 let releaseReply;
@@ -35,7 +36,13 @@ try {
     const json = data => route.fulfill({ status: 200, headers: { 'access-control-allow-origin': base, 'access-control-allow-credentials': 'true', 'access-control-allow-headers': 'authorization,content-type', 'access-control-allow-methods': 'GET,POST,OPTIONS' }, contentType: 'application/json', body: JSON.stringify({ data }) });
     if (route.request().method() === 'OPTIONS') return json({});
     if (url.pathname.endsWith('/agmatcc-copilot/control-status')) return json({ contract: 'luna-control-status.v1', configurationReady: true, capabilities: { conversationHistory: supportHistory }, checks: Object.fromEntries(['enabled','providerConfigured','ledgerAvailable','commanderBound','targetPinned','handoffPinned'].map(k => [k, true])) });
-    if (url.pathname.endsWith('/operational-events/sync')) { const q = route.request().postDataJSON(); events.push(...q.events); return json({ results: q.events.map(() => ({ status: 'accepted' })) }); }
+    if (url.pathname.endsWith('/operational-events/sync')) { const q = route.request().postDataJSON(); events.push(...q.events); if (loseFirstSyncAcknowledgment) { loseFirstSyncAcknowledgment = false; return route.abort('failed'); } return json({ results: q.events.map(item => ({ eventId: item.event.eventId, serverVersion: item.event.aggregateVersion, status: 'acknowledged' })) }); }
+    if (url.pathname.includes('/operational-events/')) {
+      const streamId = url.pathname.split('/').at(-1);
+      const stored = events.filter(item => item.event.tripId === streamId).map(item => item.event);
+      const after = Number(url.searchParams.get('afterVersion') ?? -1);
+      return json({ streamId, serverVersion: stored.length - 1, events: stored.filter(event => event.aggregateVersion > after) });
+    }
     if (url.pathname.endsWith('/agmatcc-copilot/respond')) { requests.push(route.request().postDataJSON()); if (holdReply) await new Promise(resolve => { releaseReply = resolve; }); return json({ answer: 'Există un blocaj documentat în jurnal.', status: 'PASS', model: 'configured-fixture', provider: 'openai', executionId: 'fixture-execution', testMandateId: 'fixture', evidenceRefs: ['fixture-only'], providerExecutions: [{ source: 'PROVIDER_RESPONSE', executedModel: 'executed-fixture', responseId: 'fixture-response', providerVersion: null }] }); }
     // Every non-local request is intercepted. No Production or paid calls.
     return json([]);
@@ -57,7 +64,7 @@ try {
   await page.waitForFunction(() => window.spoken.length === 1);
   assert.equal(requests.length, 1); assert.equal(requests[0].question, 'Ce blocaje sunt documentate?');
   assert.deepEqual(await page.evaluate(() => window.spoken), ['Există un blocaj documentat în jurnal.']);
-  assert.ok(JSON.stringify(events).includes('AI_RESPONSE')); checks.push('STT final -> durable request -> AI -> response journal -> Romanian TTS; fixture only');
+  assert.ok(JSON.stringify(events).includes('AI_RESPONSE')); checks.push('Lost first journal acknowledgment recovered through authenticated journal read; fixture only'); checks.push('STT final -> durable request -> AI -> response journal -> Romanian TTS; fixture only');
   await page.locator('[data-agmatcc-capture]').click();
   await page.locator('[data-agmatcc-stop]').click();
   await page.locator('[data-agmatcc-capture]').click();
