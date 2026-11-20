@@ -19,10 +19,11 @@
     "apiLint": "PASS",
     "webBuild": "PASS",
     "browser": "PASS_LOCAL_FIXTURE",
-    "browserChecks": 9,
+    "browserChecks": 10,
     "physicalAudio": "NOT_TESTED",
     "liveModelDialogue": "PENDING_AUTHENTICATED_PRODUCTION_CHECK",
-    "productionRelease": "PENDING"
+    "productionRelease": "PENDING",
+    "apiBuild": "PASS"
   },
   "browserFields": {
     "Browser Plugin Status": "PASS",
@@ -39,7 +40,7 @@
     {
       "step": "APPROVED_ALTERNATE_ROUTE",
       "action": "Existing AGM Playwright/Chromium on OS-assigned loopback port; no installation, reserved ports untouched.",
-      "result": "Nine local browser scenarios PASS; physical audio and real inference not claimed."
+      "result": "Ten local browser scenarios PASS; physical audio and real inference not claimed."
     },
     {
       "step": "RECOVERED / HANDOFF TO ATLAS",

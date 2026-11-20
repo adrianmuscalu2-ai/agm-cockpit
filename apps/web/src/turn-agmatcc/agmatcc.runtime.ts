@@ -169,6 +169,8 @@ export function bindAgmatcc(language = 'ro-RO') {
   const askAi = async (question: string, speak = false, origin: 'voice' | 'typed' = 'typed') => {
     if (aiSend.disabled) return;
     if (!sameSession()) { context.clear(); sessionIdentity = readSessionIdentity(); }
+    const requestSessionIdentity = sessionIdentity;
+    const isRequestSessionCurrent = () => readSessionIdentity() === requestSessionIdentity;
     const generation = ++playbackGeneration;
     clearTimeout(captureTimer); clearTimeout(resumeTimer); resumeRequested = false;
     const previousCapture = recognition; recognition = null; previousCapture?.stop(); captureButton.disabled = false;
@@ -180,16 +182,16 @@ export function bindAgmatcc(language = 'ro-RO') {
     aiEvidence.replaceChildren();
     try {
       await requireLunaConfiguration(turnAdminAuthenticatedFetch);
-      if (generation !== playbackGeneration || !sameSession() || !root.isConnected) return;
+      if (generation !== playbackGeneration || !isRequestSessionCurrent() || !root.isConnected) return;
       const conversation = await runAgmatccAiConversation({ question, origin, requestId: randomUuid(),
         history: context.snapshot(),
-        isCancelled: () => generation !== playbackGeneration || !sameSession() || !root.isConnected,
-        isSessionCurrent: sameSession,
+        isCancelled: () => generation !== playbackGeneration || !isRequestSessionCurrent() || !root.isConnected,
+        isSessionCurrent: isRequestSessionCurrent,
         fetcher: turnAdminAuthenticatedFetch,
         append: (text, provenance) => append('note', text, provenance, true),
       });
       const { result, executedModel, journalStatus } = conversation;
-      if (generation !== playbackGeneration || !sameSession() || !root.isConnected) return;
+      if (generation !== playbackGeneration || !isRequestSessionCurrent() || !root.isConnected) return;
       if (result.status !== 'FAIL' && result.status !== 'BLOCKED' && journalStatus === 'SYNCED') context.remember(question, result.answer);
       lastAiAnswer = result.answer;
       status.textContent = result.answer;
@@ -203,7 +205,7 @@ export function bindAgmatcc(language = 'ro-RO') {
         if (!await speakText(result.answer, `AI execution ${result.executionId}`)) { setConversation(false); setState('idle'); }
       } else setState('idle');
     } catch (error) {
-      if (generation !== playbackGeneration || !sameSession() || !root.isConnected) return;
+      if (generation !== playbackGeneration || !isRequestSessionCurrent() || !root.isConnected) return;
       setConversation(false);
       setState('idle');
       aiAnswer.textContent = `Copilot AI indisponibil; parserul clasic rămâne disponibil. ${error instanceof Error ? error.message : 'Eroare necunoscută'}`;
