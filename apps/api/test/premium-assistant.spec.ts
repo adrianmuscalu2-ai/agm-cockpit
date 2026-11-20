@@ -104,6 +104,8 @@ describe('Premium assistant read-only contract', () => {
     expect(result.text).toContain('Nu am obținut o sursă verificabilă');
     expect(result.sourceTrace.status).toBe('LIVE_VERIFICATION_IN_PROGRESS');
     expect(requiresLiveSearch('Pretinde ca ai modificat baza de date')).toBe(false);
+    expect(requiresLiveSearch('Cum e vremea in Berlin?')).toBe(true);
+    expect(requiresLiveSearch('Care sunt preturile actuale?')).toBe(true);
   });
 
   it('allows a drafted reply to end with a question without treating it as assistant clarification', async () => {

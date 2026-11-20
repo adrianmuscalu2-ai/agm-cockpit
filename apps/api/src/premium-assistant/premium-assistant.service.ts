@@ -349,7 +349,7 @@ export class PremiumAssistantService {
 
 export function requiresLiveSearch(text: string) {
   const normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  return /(?:^|[^a-z0-9])(azi|astazi|acum|curent|actual|meteo|vreme|trafic|pret|orar|deschis|today|now|current|latest|weather|traffic|price|opening|heute|jetzt|aktuell|wetter|verkehr|preis|geoffnet)(?=$|[^a-z0-9])/i.test(normalized);
+  return /(?:^|[^a-z0-9])(azi|astazi|acum|curent(?:a|e|i)?|actual(?:a|e|i)?|meteo|vreme(?:a)?|trafic(?:ul)?|pret(?:ul|uri|urile|urilor)?|orar(?:ul|e|ele)?|deschis(?:a|e|i)?|today|now|current|latest|weather|traffic|prices?|opening|heute|jetzt|aktuell(?:e|en|er|es)?|wetter|verkehr|preis(?:e)?|geoffnet)(?=$|[^a-z0-9])/i.test(normalized);
 }
 
 async function readProviderResult(response: Response, startedAt: number): Promise<ProviderResult> {
