@@ -22,12 +22,14 @@ import { deriveTccAlerts } from './agmatcc.alerts';
 import { fetchTurnOperationalTruth } from '../turn-operational-truth';
 import {
   foldText, AGMATCC_LEDGER_KEY, AGMATCC_STREAM_KEY, appendAgmatccEntry,   randomUuid, searchAgmatccLedger,
-  toOperationalSyncItems, verifyAgmatccLedger, type AgmatccEntry, type AgmatccEntryKind, type AgmatccProvenance,
+  verifyAgmatccLedger, type AgmatccEntry, type AgmatccEntryKind, type AgmatccProvenance,
 } from './agmatcc.ledger';
 
 import { requireLunaConfiguration } from './luna-control';
 import { readRecognitionTranscript, waitForSpeechVoice, speechRecognitionFailure } from './agmatcc.speech';
 import { AgmatccConversationContext, conversationDisplayText, runAgmatccAiConversation } from './agmatcc.ai-conversation';
+
+import { createAgmatccTaskQueue, syncAgmatccEntries } from './agmatcc.sync';
 
 const SYNCED_KEY = 'agm.turn.agmatcc.synced-count.v1';
 const ACTOR_ID = 'turn-admin-session';
@@ -45,23 +47,15 @@ function stream() {
   return created;
 }
 
-export async function syncAgmatccLedger(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
-  const ledger = readJson<AgmatccEntry[]>(AGMATCC_LEDGER_KEY, []);
-  const synced = Number(readJson<number>(SYNCED_KEY, 0));
-  if (synced >= ledger.length) return { acknowledged: 0, pending: 0 };
-  const items = toOperationalSyncItems(ledger, stream(), synced);
-  const response = await fetcher('/operational-events/sync', {
-    method: 'POST', cache: 'no-store',
-    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-    body: JSON.stringify({ events: items }),
+const syncQueue = createAgmatccTaskQueue();
+export function syncAgmatccLedger(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
+  return syncQueue(async () => {
+    const ledger = readJson<AgmatccEntry[]>(AGMATCC_LEDGER_KEY, []);
+    const synced = Number(readJson<number>(SYNCED_KEY, 0));
+    const result = await syncAgmatccEntries(ledger, stream(), synced, fetcher);
+    window.localStorage.setItem(SYNCED_KEY, JSON.stringify(synced + result.acknowledged));
+    return result;
   });
-  if (!response.ok) throw new Error(`AGMATCC_SYNC_HTTP_${response.status}`);
-  const payload = await response.json() as { data?: { results?: Array<{ status: string }> } };
-  const results = payload.data?.results ?? [];
-  const accepted = results.findIndex((r) => r.status === 'conflict');
-  const count = accepted === -1 ? results.length : accepted;
-  window.localStorage.setItem(SYNCED_KEY, JSON.stringify(synced + count));
-  return { acknowledged: count, pending: items.length - count };
 }
 
 export async function readRemoteAgmatccJournal(fetcher: typeof fetch = turnAdminAuthenticatedFetch as typeof fetch) {
@@ -264,7 +258,8 @@ export function bindAgmatcc(language = 'ro-RO') {
     ledger.filter((e) => e.kind === 'voice-transcript-confirmed').slice(-10).reverse().forEach((e) => { const li = document.createElement('li'); li.textContent = e.text; questions.append(li); });
     if (!check.valid) alert('ledger-local', `integritate încălcată la #${check.brokenAt}`);
   };
-  const append = async (kind: AgmatccEntryKind, text: string, entryProvenance: AgmatccProvenance, awaitSync = false) => {
+  const appendQueue = createAgmatccTaskQueue();
+  const append = (kind: AgmatccEntryKind, text: string, entryProvenance: AgmatccProvenance, awaitSync = false) => appendQueue(async () => {
     ledger = await appendAgmatccEntry(ledger, { kind, provenance: entryProvenance, text, language, actorId: ACTOR_ID });
     window.localStorage.setItem(AGMATCC_LEDGER_KEY, JSON.stringify(ledger));
     await render();
@@ -282,7 +277,7 @@ export function bindAgmatcc(language = 'ro-RO') {
     }
     syncAgmatccLedger().then(render).catch(() => { syncLabel.textContent = 'Sincronizare: indisponibilă, intrările rămân locale și se retrimit.'; alert('operational-events/sync', 'sincronizare indisponibilă; intrările rămân locale'); });
     return { status: 'PENDING' as const, acknowledged: 0, pending: 1 };
-  };
+  });
 
   const searchInput = $<HTMLInputElement>('[data-agmatcc-query]');
   let serverTimer: number | undefined;

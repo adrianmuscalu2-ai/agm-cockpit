@@ -108,7 +108,7 @@ export function toOperationalSyncItems(
       eventType: `agmatcc.${entry.kind}`,
       eventVersion: 1,
       occurredAt: entry.occurredAt,
-      recordedAt: new Date().toISOString(),
+      recordedAt: entry.occurredAt,
       tripId: stream.streamId,
       aggregateType: 'TripContext',
       aggregateId: stream.streamId,
