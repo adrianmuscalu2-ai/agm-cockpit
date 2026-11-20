@@ -116,7 +116,7 @@ export class AgmatccCopilotService {
         const followup: ProviderMessage[] = [...initial, { role: 'assistant', content: JSON.stringify(plan.calls) }];
         for (const call of plan.calls) {
           let evidence: CopilotEvidence[];
-          try { evidence = await this.executeReadTool(call.name, call.arguments, user, authorization); }
+          try { evidence = await this.executeReadTool(call.name, call.arguments, user, authorization, question); }
           catch (error) {
             if (error instanceof ForbiddenException || (error instanceof Error && /^ACPM_/.test(error.message))) throw error;
             evidence = [sourceStatus(call.name, 'UNAVAILABLE')];
@@ -153,7 +153,17 @@ export class AgmatccCopilotService {
         outcome = sourceReads.every(read => read.state === 'NOT_AUTHORIZED') ? 'BLOCKED' : 'UNKNOWN';
         const reasons: Record<string, string> = { INACCESSIBLE: 'sursa nu poate fi accesată', NOT_CONNECTED: 'sursa nu este conectată', NOT_AUTHORIZED: 'sesiunea curentă nu are acces la sursă', UNAVAILABLE: 'citirea sursei a eșuat temporar', NO_DATA: 'nu au fost găsite date în intervalul consultat' };
         const labels: Record<string, string> = { agents: 'Starea agenților', telemetry: 'Telemetrie', overview: 'Tablou operațional', incidents: 'Incidente operaționale', authority: 'Autoritate și blocaje', connections: 'Conexiuni', search_operational_events: 'Jurnal operațional', read_agent_runtime_events: 'Evenimentele agenților', search_incidents: 'Registrul incidentelor' };
-        answer = sourceReads.map(read => `${labels[read.source] ?? 'Sursa solicitată'}: ${read.state === 'AVAILABLE' ? 'citire disponibilă, insuficientă pentru a înlocui sursele lipsă' : reasons[read.state] ?? 'stare necunoscută'}.`).join(' ') + ' Starea operațională completă rămâne necunoscută din aceste citiri.';
+        const sourceNotice = sourceReads.map(read => `${labels[read.source] ?? 'Sursa solicitată'}: ${read.state === 'AVAILABLE' ? 'citire disponibilă, insuficientă pentru a înlocui sursele lipsă' : reasons[read.state] ?? 'stare necunoscută'}.`).join(' ') + ' Starea operațională completă rămâne necunoscută din aceste citiri.';
+        // Empty successful reads cannot erase original evidence from another source.
+        // Actual authorization/runtime failures keep the deterministic fail-closed response.
+        const onlyEmptyReads = sourceReads.every(read => ['AVAILABLE', 'NO_DATA'].includes(read.state));
+        const citesAvailableEvidence = !invalidRefs && sourceReads.some(read => read.state === 'AVAILABLE' && read.evidence.some(item => {
+          if (!verifiedRefs.includes(item.sourceRef)) return false;
+          const value = JSON.parse(item.content) as Record<string, unknown>;
+          return value.recordKind !== 'ADAPTER_CONFIGURATION_ONLY' &&
+            ((typeof value.eventType === 'string' && value.payload != null) || (value.record != null && typeof value.record === 'object'));
+        }));
+        answer = onlyEmptyReads && citesAvailableEvidence ? `${answer} ${sourceNotice}` : sourceNotice;
       }
       await this.spool?.append({ executionId, testMandateId: isolatedMandateId, model: this.provider.model, provider: this.provider.provider, outcome, startedAt, totalMs, timeToFirstResponseMs: ttfr, usage, retryCount: 0, errorCode, timedOut, evidenceRefs: verifiedRefs });
       return {
@@ -182,10 +192,11 @@ export class AgmatccCopilotService {
     }
   }
 
-  private async executeReadTool(name: string, args: { query?: string; mandateId?: string | null; limit?: number; source?: string }, user: RequestContext, authorization?: string): Promise<CopilotEvidence[]> {
+  private async executeReadTool(name: string, args: { query?: string; mandateId?: string | null; limit?: number; source?: string }, user: RequestContext, authorization?: string, question = ''): Promise<CopilotEvidence[]> {
     if (name === 'read_turn_sources') {
       if (!this.turnReader) return [sourceStatus(args.source ?? 'turn', 'NOT_CONNECTED')];
-      return this.turnReader.read(args.source ?? '', args.query ?? '', user, authorization);
+      const query = args.source === 'incidents' && /\bagmatcc\b/i.test(question) ? `AGMaTCC ${args.query ?? ''}` : args.query ?? '';
+      return this.turnReader.read(args.source ?? '', query, user, authorization);
     }
     if (name === 'search_operational_events') {
       const query = (args.query ?? '').trim();
@@ -218,6 +229,7 @@ export class AgmatccCopilotService {
         return { sourceRef: `operational-event:${row.streamId}@${row.aggregateVersion}:${row.eventId}`,
           observedAt: row.recordedAt.toISOString(), content: JSON.stringify({ eventType: row.eventType,
             payload: boundedPayload(row.payload),
+            ...historicalSymptom(row.eventType, row.payload),
             explicitAssociations: related.find(item => item.row.eventId === hit.eventId)?.relations ?? [],
             causalLinkInferred: false,
             semantic: { retrieval: hit.retrieval, score: hit.score, matchedConcepts: hit.matchedConcepts, scanned: rows.length, scanLimit: SEMANTIC_SCAN_LIMIT, fullHistoryClaimed: false } }) };
@@ -252,7 +264,17 @@ export class AgmatccCopilotService {
   }
 }
 
+function historicalSymptom(eventType: string, payload: unknown) {
+  const text = (payload as { text?: unknown } | null)?.text;
+  if (!eventType.startsWith('agmatcc.') || typeof text !== 'string' || !/^(STT_FAILURE|TTS_FAILURE|PLAYBACK FAILED)\b/.test(text)) return {};
+  return { factKind: 'DOCUMENTED_HISTORICAL_SYMPTOM', affectedComponent: 'AGMaTCC',
+    symptomChannel: text.startsWith('STT_FAILURE') ? 'speech recognition' : 'speech playback',
+    limitations: 'Original journal symptom, not proof of a formal incident, microphone defect, actual speech, cause, repair or current state.' };
+}
+
 const COPILOT_SYSTEM_INSTRUCTION = [
+  'For a question naming a component, prioritize original evidence of that component across all retrieved sources. Do not replace AGMaTCC symptoms with incidents of unrelated monitoring components. Report documented historical STT/TTS failures as symptoms, separately from formal incident records; no-speech means recognition detected no speech, not proof the user was speaking or that the microphone is defective. Absence of a matching formal incident does not erase documented symptoms.',
+  'Connection restrictions describe only the copilot TURN session and adapters. Never infer that the human user lacks rights in a separately authenticated account. Say this copilot cannot read the restricted source through its current adapter; human account permissions were not inspected.',
   'For current agents, telemetry, organization and blockers, use read_turn_sources with the appropriate source. Historical journal events cannot establish current health. For historical incidents/releases, search the operational journal and, if useful, read persisted TURN incidents. For a restricted or unconnected module read connections and explain its exact limitation.',
   'Distinguish INACCESSIBLE, NOT_CONNECTED, NOT_AUTHORIZED, UNAVAILABLE and NO_DATA from an unknown factual answer. A source availability record is not proof of healthy operations. Do not label a failed read as no incidents. Explain the concrete missing source in Romanian.',
   'Explain meaning, affected component, documented cause, impact, recorded action, current status and source where evidence provides them. Missing links stay explicitly unknown. Never infer cause, recurrence or an unjustified blockage from temporal proximity or semantic similarity. Preserve separate journal events; only explicit IDs/references prove cross-record relationships.',

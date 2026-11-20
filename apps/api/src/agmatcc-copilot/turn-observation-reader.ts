@@ -32,7 +32,7 @@ export class TurnObservationReader {
     }
     try {
       if (source === 'connections') return [evidence(source, {
-        state: 'AVAILABLE', recordKind: 'ADAPTER_CONFIGURATION_ONLY', configuredAdapters: ['tenant operational journal', ...TURN_READ_SOURCES.filter(s => s !== 'connections')], runtimeConnectivity: 'NOT_CHECKED: each source must be read separately; adapter presence is not proof of connectivity',
+        state: 'AVAILABLE', recordKind: 'ADAPTER_CONFIGURATION_ONLY', accessScope: 'COPILOT_TURN_SESSION_ONLY', humanAccountPermissions: 'NOT_INSPECTED: a separately authenticated human account may have different rights; these restrictions describe this copilot adapter only', configuredAdapters: ['tenant operational journal', ...TURN_READ_SOURCES.filter(s => s !== 'connections')], runtimeConnectivity: 'NOT_CHECKED: each source must be read separately; adapter presence is not proof of connectivity',
         restricted: { acpm: 'NOT_AUTHORIZED: requires a separate OWNER identity', governance: 'NOT_AUTHORIZED: requires a bound human APPROVER/VALIDATOR', riskKnowledge: 'NOT_AUTHORIZED: existing Governance boundary' },
         notConnected: { versionHistory: 'Historical UI projection; no complete live release history adapter', evidenceLedger: 'Historical UI projection; individual original references remain available in connected records', functionalOverview: 'Active translation probe excluded from observation-only reader' },
         limits: 'No full-history claim. No causal relationship inferred from similarity or timestamps.',
@@ -47,7 +47,20 @@ export class TurnObservationReader {
           { generatedAt: dashboard.generatedAt, operationalTruth: truth, runtimeWindow: dashboard.telemetryInventory.runtimeEventWindow });
       }
       const dashboard = await this.authority.dashboard(user, true);
-      if (source === 'incidents') return records(source, dashboard.incidents, query, { generatedAt: dashboard.generatedAt, pipeline: dashboard.incidentPipeline, coverage: 'Latest 2000 OPENED/RESOLVED authority journal records; not all incident stores', observationOnly: true });
+      if (source === 'incidents') {
+        const component = /\bagmatcc\b/i.test(query) ? 'AGMaTCC' : null;
+        // Similarity alone cannot associate another component's incidents with AGMaTCC.
+        const matching = component ? dashboard.incidents.filter(row => /\bagmatcc\b/i.test(JSON.stringify(row))) : dashboard.incidents;
+        return records(source, matching, query, {
+          generatedAt: dashboard.generatedAt, requestedComponent: component,
+          totalUnfilteredRecords: dashboard.incidents.length,
+          matchScope: component ? 'Explicit component mention only; no matching record does not establish absence of symptoms in the operational journal' : 'All components',
+          nextSource: 'Search operational events for original AGMaTCC STT/TTS symptoms; distinguish symptoms from formal incidents',
+          pipeline: pick(dashboard.incidentPipeline, ['contractVersion', 'eventStore', 'evaluatedAt', 'nonHealthy', 'qualified', 'notRequired']),
+          counterSemantics: 'Reconciliation is disabled for this observation. open/opened/resolved are NOT a historical inventory and are intentionally omitted. Current incident closure is not established by these counters.',
+          coverage: 'Latest 2000 OPENED/RESOLVED authority journal records; not all incident stores', observationOnly: true,
+        });
+      }
       if (source === 'authority') return records(source, dashboard.nodes.map(node => pick(node, ['canonicalId', 'kind', 'scope', 'supervisorId', 'status', 'reason', 'requiredAction', 'dependencyState', 'dependencyFailures', 'evidence', 'incidentQualification'])), query,
         { generatedAt: dashboard.generatedAt, controlPlane: dashboard.controlPlane, recovery: dashboard.recovery });
       return records(source, dashboard.nodes.map(node => pick(node, ['canonicalId', 'kind', 'module', 'scope', 'currentFunction', 'status', 'statusLabel', 'health', 'freshness', 'statusObservedAt', 'reason', 'evidence'])), query,

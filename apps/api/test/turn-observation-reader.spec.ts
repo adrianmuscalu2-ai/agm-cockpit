@@ -29,6 +29,30 @@ describe('TURN observation boundary', () => {
     expect(dashboard).toHaveBeenLastCalledWith(user, true);
   });
 
+  it('excludes unrelated incidents for AGMaTCC and omits reconciliation counters', async () => {
+    const dashboard = jest.fn().mockResolvedValue({ incidents: [{ canonicalId: 'chief-monitoring-inspector', rootCause: 'RUNTIME_FAILURE' }], generatedAt: '2026-11-20', incidentPipeline: { open: 0, opened: 0, resolved: 0, qualified: 0 } });
+    const reader = new TurnObservationReader({ requireOperationalAccess: jest.fn() } as never, { dashboard } as never, {} as never);
+    const result = await reader.read('incidents', 'AGMaTCC incidents', user);
+    const summary = JSON.parse(result[0].content);
+    expect(result).toHaveLength(1);
+    expect(summary.state).toBe('NO_DATA');
+    expect(summary.summary.requestedComponent).toBe('AGMaTCC');
+    expect(summary.summary.totalUnfilteredRecords).toBe(1);
+    for (const key of ['open', 'opened', 'resolved']) expect(summary.summary.pipeline).not.toHaveProperty(key);
+    expect(JSON.stringify(result)).not.toContain('chief-monitoring-inspector');
+    expect((await reader.read('incidents', 'all incidents', user))).toHaveLength(2);
+    dashboard.mockResolvedValue({ incidents: [{ canonicalId: 'agmatcc', rootCause: 'speech capture' }], incidentPipeline: {} });
+    expect((await reader.read('incidents', 'AGMaTCC', user))).toHaveLength(2);
+  });
+
+  it('scopes adapter restrictions without asserting human account permissions', async () => {
+    const reader = new TurnObservationReader({ requireOperationalAccess: jest.fn() } as never, {} as never, {} as never);
+    const result = JSON.parse((await reader.read('connections', '', user))[0].content);
+    expect(result.accessScope).toBe('COPILOT_TURN_SESSION_ONLY');
+    expect(result.humanAccountPermissions).toContain('NOT_INSPECTED');
+    expect(result.restricted.acpm).toContain('NOT_AUTHORIZED');
+  });
+
   it('redacts secret fields before serialization and preserves observation timestamps', () => {
     const serialized = JSON.stringify(safeObservation({ recordedAt: new Date('2026-11-20T00:00:00Z'), credential: 'SYNTHETIC_SECRET', detail: 'Bearer SYNTHETIC_TOKEN', status: 'STALE' }));
     expect(serialized).not.toContain('SYNTHETIC');
