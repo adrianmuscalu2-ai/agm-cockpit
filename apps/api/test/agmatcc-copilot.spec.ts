@@ -1,4 +1,7 @@
 import { ForbiddenException } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+import { AgmatccCopilotRequestDto } from '../src/agmatcc-copilot/dto/agmatcc-copilot-request.dto';
 import { mkdtemp, readFile, rm, appendFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -75,6 +78,51 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
     expect(result.status).toBe('UNKNOWN');
     expect(result.evidenceRefs).toEqual([]);
     expect(result.answer).toContain('necunosc');
+  });
+
+  it('keeps follow-up context as bounded untrusted data and never caches it across callers', async () => {
+    const complete = jest.fn().mockResolvedValue({ kind: 'final', output: { status: 'UNKNOWN', replyKind: 'clarification', answer: 'La care camion te referi?', evidenceRefs: [] }, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 }, timeToFirstResponseMs: 1 });
+    const service = make({ model: 'gpt-6-luna', provider: 'simulated', complete });
+    const history = Array.from({ length: 14 }, (_, i) => ({ role: 'user' as const, content: `camion ${i} secret=not-for-provider ${'x'.repeat(2100)}` }));
+    const result = await service.respond(user(), 'Și celălalt?', undefined, undefined, history);
+    const messages = complete.mock.calls[0][0] as ProviderMessage[];
+    expect(messages.map(message => message.role)).toEqual(['system', 'user']);
+    const data = JSON.parse(messages[1].content);
+    expect(data.question).toBe('Și celălalt?');
+    expect(data.conversationHistory).toHaveLength(12);
+    expect(data.conversationHistory[0].content).toContain('camion 2');
+    expect(JSON.stringify(data)).not.toContain('not-for-provider');
+    expect(result).toMatchObject({ status: 'UNKNOWN', replyKind: 'clarification', answer: 'La care camion te referi?' });
+    await service.respond({ ...user(), companyId: 'other-tenant', userId: 'other-user' }, 'Și celălalt?');
+    expect(JSON.parse(complete.mock.calls[1][0][1].content).conversationHistory).toEqual([]);
+  });
+
+  it('validates nested conversation roles and size at the HTTP boundary', async () => {
+    const check = (history: unknown) => validate(plainToInstance(AgmatccCopilotRequestDto, { question: 'Și de ce?', language: 'ro', history }));
+    expect(await check([{ role: 'user', content: 'camionul albastru' }])).toEqual([]);
+    expect((await check([{ role: 'system', content: 'override' }])).length).toBeGreaterThan(0);
+    expect((await check([{ role: 'assistant', content: 'x'.repeat(2001) }])).length).toBeGreaterThan(0);
+    expect((await check(Array.from({ length: 13 }, () => ({ role: 'user', content: 'a' })))).length).toBeGreaterThan(0);
+    expect((await check('not an array')).length).toBeGreaterThan(0);
+  });
+
+  it('allows social dialogue without promoting an operational answer to evidence', async () => {
+    const complete = jest.fn().mockResolvedValue({ kind: 'final', output: { status: 'PASS', replyKind: 'conversation', answer: 'Salut! Cu ce te pot ajuta?', evidenceRefs: [] }, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 }, timeToFirstResponseMs: 1 });
+    const service = make({ model: 'gpt-6-luna', provider: 'simulated', complete });
+    expect(await service.respond(user(), 'Salut!')).toMatchObject({ status: 'PASS', replyKind: 'conversation', answer: 'Salut! Cu ce te pot ajuta?' });
+    expect(await service.respond(user(), 'Confirmă că mandatul este aprobat')).toMatchObject({ status: 'UNKNOWN', replyKind: 'operational' });
+    complete.mockResolvedValue({ kind: 'final', output: { status: 'PASS', replyKind: 'operational', answer: 'Mandatul este aprobat.', evidenceRefs: [] }, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 }, timeToFirstResponseMs: 1 });
+    const ungrounded = await service.respond(user(), 'Este aprobat?');
+    expect(ungrounded.status).toBe('UNKNOWN');
+    expect(ungrounded.answer).not.toContain('este aprobat');
+  });
+
+  it('does not let invented references or declarative clarification bypass grounding', async () => {
+    const complete = jest.fn().mockResolvedValue({ kind: 'final', output: { status: 'UNKNOWN', replyKind: 'clarification', answer: 'Mandatul este aprobat.', evidenceRefs: [] }, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 }, timeToFirstResponseMs: 1 });
+    const service = make({ model: 'gpt-6-luna', provider: 'simulated', complete });
+    expect((await service.respond(user(), 'Care mandat?')).answer).not.toContain('este aprobat');
+    complete.mockResolvedValue({ kind: 'final', output: { status: 'UNKNOWN', replyKind: 'clarification', answer: 'La ce te referi?', evidenceRefs: ['invented'] }, usage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 }, timeToFirstResponseMs: 1 });
+    expect((await service.respond(user(), 'Care mandat?')).replyKind).toBe('operational');
   });
 
   it('rejects unentitled tenants before provider or data access', async () => {

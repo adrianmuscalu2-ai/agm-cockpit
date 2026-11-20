@@ -13,6 +13,8 @@ export const AGMATCC_COPILOT_CONTRACT = {
 } as const;
 
 export type CopilotOutcome = 'PASS' | 'FAIL' | 'BLOCKED' | 'UNKNOWN';
+export type ConversationTurn = { role: 'user' | 'assistant'; content: string };
+export type CopilotReplyKind = 'operational' | 'conversation' | 'clarification';
 export type CopilotEvidence = { sourceRef: string; observedAt: string; content: string };
 export type CopilotUsage = { inputTokens: number; outputTokens: number; estimatedCostUsd: number };
 export type ProviderExecution = NonNullable<import('@agm/shared').AcpmEvent['providerExecution']>;
@@ -26,6 +28,7 @@ export type CopilotAnswer = {
   status: CopilotOutcome;
   errorCode?: string;
   answer: string;
+  replyKind?: CopilotReplyKind;
   evidenceRefs: string[];
   usage: CopilotUsage;
   accounting?: { unconfirmedCalls: number; reservedUsd: number };
@@ -40,6 +43,6 @@ export type CopilotToolCall = {
 
 export type ProviderTurn =
   | { kind: 'tool_calls'; calls: CopilotToolCall[]; timeToFirstResponseMs: number; usage: CopilotUsage; providerExecution?:ProviderExecution }
-  | { kind: 'final'; output: { status: CopilotOutcome; answer: string; evidenceRefs: string[] }; timeToFirstResponseMs: number; usage: CopilotUsage; providerExecution?:ProviderExecution };
+  | { kind: 'final'; output: { status: CopilotOutcome; answer: string; evidenceRefs: string[]; replyKind?: CopilotReplyKind }; timeToFirstResponseMs: number; usage: CopilotUsage; providerExecution?:ProviderExecution };
 
 export type ProviderMessage = { role: 'system' | 'user' | 'assistant' | 'tool'; content: string; toolCallId?: string };

@@ -3,6 +3,9 @@ import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { chromium } from 'playwright';
 const require = createRequire(resolve('apps/web/package.json'));
 const { createServer } = await import(pathToFileURL(require.resolve('vite')).href);
@@ -19,6 +22,10 @@ page.on('pageerror', error => errors.push(error.message));
 const requests = [];
 const events = [];
 const checks = [];
+const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const sourceSha256 = Object.fromEntries(['apps/web/src/turn-agmatcc/agmatcc.runtime.ts', 'apps/web/src/turn-agmatcc/agmatcc.ai-conversation.ts', 'apps/web/src/turn-agmatcc/agmatcc.view.ts', 'scripts/test-agmatcc-voice-browser.mjs'].map(file => [file, createHash('sha256').update(readFileSync(file)).digest('hex')]));
+let holdReply = false;
+let releaseReply;
 try {
   await page.route('**/*', async route => {
     const url = new URL(route.request().url());
@@ -28,7 +35,7 @@ try {
     if (route.request().method() === 'OPTIONS') return json({});
     if (url.pathname.endsWith('/agmatcc-copilot/control-status')) return json({ contract: 'luna-control-status.v1', configurationReady: true, checks: Object.fromEntries(['enabled','providerConfigured','ledgerAvailable','commanderBound','targetPinned','handoffPinned'].map(k => [k, true])) });
     if (url.pathname.endsWith('/operational-events/sync')) { const q = route.request().postDataJSON(); events.push(...q.events); return json({ results: q.events.map(() => ({ status: 'accepted' })) }); }
-    if (url.pathname.endsWith('/agmatcc-copilot/respond')) { requests.push(route.request().postDataJSON()); return json({ answer: 'Există un blocaj documentat în jurnal.', status: 'PASS', model: 'configured-fixture', provider: 'openai', executionId: 'fixture-execution', testMandateId: 'fixture', evidenceRefs: ['fixture-only'], providerExecutions: [{ source: 'PROVIDER_RESPONSE', executedModel: 'executed-fixture', responseId: 'fixture-response', providerVersion: null }] }); }
+    if (url.pathname.endsWith('/agmatcc-copilot/respond')) { requests.push(route.request().postDataJSON()); if (holdReply) await new Promise(resolve => { releaseReply = resolve; }); return json({ answer: 'Există un blocaj documentat în jurnal.', status: 'PASS', model: 'configured-fixture', provider: 'openai', executionId: 'fixture-execution', testMandateId: 'fixture', evidenceRefs: ['fixture-only'], providerExecutions: [{ source: 'PROVIDER_RESPONSE', executedModel: 'executed-fixture', responseId: 'fixture-response', providerVersion: null }] }); }
     // Every non-local request is intercepted. No Production or paid calls.
     return json([]);
   });
@@ -62,7 +69,94 @@ try {
   await page.evaluate(() => { window.voiceList = [{ lang: 'ro-RO' }]; window.speechSynthesis.dispatchEvent(new Event('voiceschanged')); });
   await page.waitForTimeout(100);
   assert.equal(await page.evaluate(() => window.spoken.length), 1); checks.push('STOP suppresses delayed voice loading');
+  await page.locator('[data-agmatcc-new-conversation]').click();
+  const initialCaptures = await page.evaluate(() => window.captures.length);
+  await page.locator('[data-agmatcc-conversation]').click();
+  const finalVoice = async text => page.evaluate(text => {
+    const c = window.captures.at(-1);
+    c.onresult({ results: { length: 1, 0: { isFinal: true, 0: { transcript: text } } } });
+  }, text);
+  const countBefore = requests.length;
+  for (const [i, question] of ['Ce blocaje sunt documentate?', 'Și de ce?', 'Mă refeream la celălalt camion.'].entries()) {
+    await finalVoice(question);
+    await page.waitForFunction(count => window.captures.length === count, initialCaptures + i + 2);
+    assert.equal(requests[countBefore + i].history.length, i * 2);
+    if (i) assert.equal(requests[countBefore + i].history.at(-2).role, 'user');
+    assert.equal(await page.locator('[data-agmatcc-conversation]').getAttribute('aria-pressed'), 'true');
+  }
+  assert.equal(requests[countBefore + 1].history[0].content, 'Ce blocaje sunt documentate?');
+  assert.equal(requests[countBefore + 2].history[2].content, 'Și de ce?');
+  checks.push('three voice turns automatically resume listening and carry bounded context including correction; simulated AI only');
+  await page.locator('[data-agmatcc-stop]').click();
+  const stoppedCount = await page.evaluate(() => window.captures.length);
+  await page.waitForTimeout(450);
+  assert.equal(await page.evaluate(() => window.captures.length), stoppedCount);
+  assert.equal(await page.locator('[data-agmatcc-conversation]').getAttribute('aria-pressed'), 'false');
+  checks.push('STOP ends continuous mode without reopening microphone');
+
+  await page.locator('[data-agmatcc-new-conversation]').click();
+  await page.locator('[data-agmatcc-conversation]').click();
+  holdReply = true;
+  await finalVoice('O întrebare care primește un răspuns întârziat');
+  await page.waitForFunction(() => document.querySelector('[data-agmatcc-ai-send]').disabled);
+  // Wait for the intercepted provider request, not merely the UI busy state.
+  const deadline = Date.now() + 10000;
+  while (!releaseReply && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal(typeof releaseReply, 'function');
+  assert.deepEqual(requests.at(-1).history, []);
+  await page.locator('[data-agmatcc-stop]').click();
+  const spokenBeforeRelease = await page.evaluate(() => window.spoken.length);
+  const capturesBeforeRelease = await page.evaluate(() => window.captures.length);
+  holdReply = false; releaseReply(); releaseReply = undefined;
+  await page.waitForFunction(() => !document.querySelector('[data-agmatcc-ai-send]').disabled);
+  await page.waitForTimeout(450);
+  assert.equal(await page.evaluate(() => window.spoken.length), spokenBeforeRelease);
+  assert.equal(await page.evaluate(() => window.captures.length), capturesBeforeRelease);
+  checks.push('new conversation clears context; STOP suppresses delayed AI playback and microphone restart');
+
+  await page.locator('[data-agmatcc-conversation]').click();
+  await page.evaluate(() => window.captures.at(-1).onend());
+  assert.equal(await page.locator('[data-agmatcc-conversation]').getAttribute('aria-pressed'), 'false');
+  checks.push('silence stops continuous mode without an infinite retry loop');
+
+  await page.locator('[data-agmatcc-conversation]').click();
+  await finalVoice('Întrebare înainte de schimbarea sesiunii');
+  await page.waitForFunction(count => window.spoken.length > count, spokenBeforeRelease);
+  await page.locator('[data-agmatcc-stop]').click();
+  await page.evaluate(() => sessionStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: 'OTHER_LOCAL_SYNTHETIC_SESSION', expiresInSeconds: 300 })));
+  await page.locator('[data-agmatcc-ai-question]').fill('Și acum?');
+  await page.locator('[data-agmatcc-ai-send]').click();
+  await page.waitForFunction(() => !document.querySelector('[data-agmatcc-ai-send]').disabled);
+  assert.deepEqual(requests.at(-1).history, []);
+  checks.push('a different authenticated session does not inherit page context');
+  await page.locator('[data-agmatcc-conversation]').click();
+  const beforeHidden = await page.evaluate(() => window.captures.length);
+  await page.evaluate(() => { document.querySelector('.turn-agmatcc-page').hidden = true; });
+  await page.waitForFunction(() => document.querySelector('[data-agmatcc-conversation]').getAttribute('aria-pressed') === 'false');
+  await page.evaluate(() => { document.querySelector('.turn-agmatcc-page').hidden = false; });
+  await page.waitForTimeout(450);
+  assert.equal(await page.evaluate(() => window.captures.length), beforeHidden);
+  checks.push('leaving the visible module stops capture and clears active context');
+  holdReply = true;
+  await page.locator('[data-agmatcc-ai-question]').fill('Cerere în sesiunea veche');
+  await page.locator('[data-agmatcc-ai-send]').click();
+  const sessionDeadline = Date.now() + 10000;
+  while (!releaseReply && Date.now() < sessionDeadline) await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal(typeof releaseReply, 'function');
+  const responseWritesBefore = JSON.stringify(events).match(/AI_RESPONSE/g)?.length ?? 0;
+  await page.evaluate(() => sessionStorage.setItem('agm.admin.session', JSON.stringify({ accessToken: 'THIRD_LOCAL_SYNTHETIC_SESSION', expiresInSeconds: 300 })));
+  await page.locator('[data-agmatcc-capture]').click();
+  holdReply = false; releaseReply(); releaseReply = undefined;
+  await page.waitForFunction(() => !document.querySelector('[data-agmatcc-ai-send]').disabled);
+  assert.equal(JSON.stringify(events).match(/AI_RESPONSE/g)?.length ?? 0, responseWritesBefore);
+  checks.push('in-flight response remains bound to its original session even when a new capture updates UI session identity');
+  assert.deepEqual(errors, []);
   await page.screenshot({ path: resolve(output, 'voice-chain-fixture.png'), fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert(await page.locator('[data-agmatcc-conversation]').isVisible());
+  assert(await page.locator('[data-agmatcc-stop]').isVisible());
+  await page.screenshot({ path: resolve(output, 'voice-chain-mobile-fixture.png'), fullPage: true });
+  await writeFile(resolve(output, 'source-attribution.json'), JSON.stringify({ sourceRevision, sourceSha256, target: base, browserPluginStatus: 'PASS', integratedBrowserControlStatus: 'PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE', browserSessionStatus: 'PASS', targetPageStatus: 'PASS', at: new Date().toISOString() }, null, 2));
   await writeFile(resolve(output, `voice-chain-${Date.now()}.json`), JSON.stringify({ at: new Date().toISOString(), verdict: 'PASS_LOCAL_FIXTURE', physicalAudio: 'NOT_TESTED', productionProviderCalls: 0, target: base, browserPluginStatus: 'PASS', integratedBrowserControlStatus: 'PLATFORM_LIMITATION_OPTIONAL_EVIDENCE_UNAVAILABLE', browserSessionStatus: 'PASS', targetPageStatus: 'PASS', checks }, null, 2), { flag: 'wx' });
   console.log(JSON.stringify({ verdict: 'PASS_LOCAL_FIXTURE', checks, physicalAudio: 'NOT_TESTED', productionProviderCalls: 0 }));
 } catch (error) {

@@ -1,4 +1,4 @@
-import { turnAdminAuthenticatedFetch } from '../admin-auth';
+import { ADMIN_SESSION_KEY, turnAdminAuthenticatedFetch } from '../admin-auth';
 import { bindAcpm } from './acpm.performance';
 import { beginTurnModuleRead, updateTurnModuleReadState } from '../turn-command-navigation';
 import './agmatcc.css';
@@ -27,7 +27,7 @@ import {
 
 import { requireLunaConfiguration } from './luna-control';
 import { readRecognitionTranscript, waitForSpeechVoice, speechRecognitionFailure } from './agmatcc.speech';
-import { conversationDisplayText, runAgmatccAiConversation } from './agmatcc.ai-conversation';
+import { AgmatccConversationContext, conversationDisplayText, runAgmatccAiConversation } from './agmatcc.ai-conversation';
 
 const SYNCED_KEY = 'agm.turn.agmatcc.synced-count.v1';
 const ACTOR_ID = 'turn-admin-session';
@@ -134,31 +134,83 @@ export function bindAgmatcc(language = 'ro-RO') {
   };
   let lastAiAnswer = '';
   let playbackGeneration = 0;
+  const context = new AgmatccConversationContext();
+  // Refresh rotates access tokens inside a family; logout/unlock changes the family.
+  const readSessionIdentity = () => {
+    const raw = sessionStorage.getItem(ADMIN_SESSION_KEY);
+    try {
+      const token = JSON.parse(raw ?? '{}').accessToken as string;
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return typeof payload.familyId === 'string' ? payload.familyId : raw;
+    } catch { return raw; }
+  };
+  let sessionIdentity = readSessionIdentity();
+  const sameSession = () => readSessionIdentity() === sessionIdentity;
+  const conversationButton = $<HTMLButtonElement>('[data-agmatcc-conversation]');
+  let conversationEnabled = false;
+  let resumeRequested = false;
+  let resumeTimer: ReturnType<typeof setTimeout> | undefined;
+  const setConversation = (enabled: boolean) => {
+    conversationEnabled = enabled;
+    conversationButton.setAttribute('aria-pressed', String(enabled));
+    conversationButton.textContent = enabled ? 'Oprește conversația' : 'Pornește conversația';
+    if (!enabled) { resumeRequested = false; clearTimeout(resumeTimer); }
+  };
+  const resumeListening = () => {
+    if (!resumeRequested || !conversationEnabled || aiSend.disabled) return;
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => {
+      if (!root.isConnected || document.hidden || !sameSession()) { setConversation(false); context.clear(); return; }
+      if (!conversationEnabled || aiSend.disabled || recognition) return;
+      resumeRequested = false;
+      startCapture();
+    }, 350);
+  };
   const askAi = async (question: string, speak = false, origin: 'voice' | 'typed' = 'typed') => {
     if (aiSend.disabled) return;
-    const generation = playbackGeneration;
-    if (question.length < 2) { aiAnswer.textContent = 'Scrie o întrebare mai clară.'; return; }
+    if (!sameSession()) { context.clear(); sessionIdentity = readSessionIdentity(); }
+    const requestSessionIdentity = sessionIdentity;
+    const isRequestSessionCurrent = () => readSessionIdentity() === requestSessionIdentity;
+    const generation = ++playbackGeneration;
+    clearTimeout(captureTimer); clearTimeout(resumeTimer); resumeRequested = false;
+    const previousCapture = recognition; recognition = null; previousCapture?.stop(); captureButton.disabled = false;
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (question.length < 2) { setConversation(false); setState('idle'); aiAnswer.textContent = 'Scrie o întrebare mai clară.'; return; }
     aiSend.disabled = true;
+    setState('searching');
     aiAnswer.textContent = 'Copilotul consultă numai sursele read-only autorizate…';
     aiEvidence.replaceChildren();
     try {
       await requireLunaConfiguration(turnAdminAuthenticatedFetch);
-      if (generation !== playbackGeneration) return;
+      if (generation !== playbackGeneration || !isRequestSessionCurrent() || !root.isConnected) return;
       const conversation = await runAgmatccAiConversation({ question, origin, requestId: randomUuid(),
-        isCancelled: () => generation !== playbackGeneration,
+        history: context.snapshot(),
+        isCancelled: () => generation !== playbackGeneration || !isRequestSessionCurrent() || !root.isConnected,
+        isSessionCurrent: isRequestSessionCurrent,
         fetcher: turnAdminAuthenticatedFetch,
         append: (text, provenance) => append('note', text, provenance, true),
       });
       const { result, executedModel, journalStatus } = conversation;
+      if (generation !== playbackGeneration || !isRequestSessionCurrent() || !root.isConnected) return;
+      if (result.status !== 'FAIL' && result.status !== 'BLOCKED' && journalStatus === 'SYNCED') context.remember(question, result.answer);
       lastAiAnswer = result.answer;
       status.textContent = result.answer;
-      aiAnswer.textContent = `[${result.status} | EXECUTED ${executedModel} | CONFIGURED ${result.model} | ${result.provider} | JOURNAL ${journalStatus}] ${result.answer}`;
+      aiAnswer.textContent = result.answer;
+      const trace = document.createElement('li');
+      trace.textContent = `${result.status} | EXECUTED ${executedModel} | CONFIGURED ${result.model} | ${result.provider} | JOURNAL ${journalStatus}`;
+      auditTrace.append(trace);
       for (const ref of result.evidenceRefs ?? []) { const item = document.createElement('li'); item.textContent = ref; aiEvidence.append(item); }
-      if (speak && generation === playbackGeneration) await speakText(result.answer, `AI execution ${result.executionId}`);
+      if (result.status === 'FAIL' || result.status === 'BLOCKED' || journalStatus !== 'SYNCED') setConversation(false);
+      if (speak && generation === playbackGeneration) {
+        if (!await speakText(result.answer, `AI execution ${result.executionId}`)) { setConversation(false); setState('idle'); }
+      } else setState('idle');
     } catch (error) {
+      if (generation !== playbackGeneration || !isRequestSessionCurrent() || !root.isConnected) return;
+      setConversation(false);
+      setState('idle');
       aiAnswer.textContent = `Copilot AI indisponibil; parserul clasic rămâne disponibil. ${error instanceof Error ? error.message : 'Eroare necunoscută'}`;
       status.textContent = aiAnswer.textContent;
-    } finally { aiSend.disabled = false; }
+    } finally { aiSend.disabled = false; resumeListening(); }
   };
   aiSend.addEventListener('click', () => { void askAi(aiQuestion.value.trim(), true); });
   const refreshBackendAlerts = () => fetchTurnOperationalTruth().then((truth) => {
@@ -303,16 +355,19 @@ export function bindAgmatcc(language = 'ro-RO') {
     utterance.onend = () => {
       if (speechGeneration !== playbackGeneration) return;
       setState('idle');
+      resumeRequested = conversationEnabled;
+      resumeListening();
       const completed = `PLAYBACK COMPLETED · ${operationAudit ?? text.slice(0, 200)}`;
       void append('playback', completed, 'system', true).then((journal) => {
         if (commandTraceAtStart && activeCommandTrace === commandTraceAtStart) {
           commandStage('PLAYBACK', `redare completă · jurnal ${journal.status}`);
           activeCommandTrace = null;
-        } else if (!commandTraceAtStart) status.textContent = 'Redarea vocală s-a încheiat.';
+        } else if (!commandTraceAtStart && !conversationEnabled && speechGeneration === playbackGeneration) status.textContent = 'Redarea vocală s-a încheiat.';
       });
     };
     utterance.onerror = () => {
       if (speechGeneration !== playbackGeneration) return;
+      setConversation(false);
       setState('idle');
       const failed = `PLAYBACK FAILED · ${operationAudit ?? 'manual playback'} · engine error`;
       void append('playback', failed, 'system', true).then((journal) => {
@@ -508,13 +563,15 @@ export function bindAgmatcc(language = 'ro-RO') {
 
   let captureStopped = false;
   let captureTimer: ReturnType<typeof setTimeout> | undefined;
-  captureButton.addEventListener('click', () => {
+  const startCapture = () => {
+    if (!sameSession()) { context.clear(); sessionIdentity = readSessionIdentity(); }
     const Ctor = (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
-    if (!Ctor) { status.textContent = 'STT: browserul nu ofera transcriere vocala. Introducerea manuala ramane disponibila.'; return; }
+    if (!Ctor) { setConversation(false); status.textContent = 'STT: browserul nu ofera transcriere vocala. Introducerea manuala ramane disponibila.'; return; }
     if (aiSend.disabled) { status.textContent = 'Asteapta raspunsul curent inainte de o noua intrebare.'; return; }
     playbackGeneration++;
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     captureStopped = false;
+    resumeRequested = false;
     let submitted = false;
     let failed = false;
     let heard = false;
@@ -524,6 +581,7 @@ export function bindAgmatcc(language = 'ro-RO') {
     current.onstart = () => { if (recognition !== current) return; setState('listening'); status.textContent = 'Ascult. Transcrierea apare mai jos.'; };
     current.onresult = (event) => {
       if (recognition !== current || captureStopped) return;
+      if (!sameSession() || !root.isConnected || root.closest('[hidden]')) { stopButton.click(); context.clear(); return; }
       const transcript = readRecognitionTranscript(event);
       heard = Boolean(transcript.text);
       draft.value = transcript.text;
@@ -538,6 +596,7 @@ export function bindAgmatcc(language = 'ro-RO') {
     current.onerror = (event) => {
       if (recognition !== current) return;
       failed = true;
+      setConversation(false);
       const code = String(event.error ?? 'unknown');
       status.textContent = `STT: ${speechRecognitionFailure(code)}`;
       alert('STT', code);
@@ -545,29 +604,58 @@ export function bindAgmatcc(language = 'ro-RO') {
     };
     current.onend = () => {
       if (recognition !== current) return;
+      recognition = null;
       clearTimeout(captureTimer); captureButton.disabled = false;
       if (!submitted) {
+        setConversation(false);
         setState('idle');
         if (!failed && !captureStopped) status.textContent = heard
           ? 'STT: transcrierea nu a fost finalizata. Verifica textul si trimite intrebarea.'
           : 'STT: ascultarea s-a incheiat fara transcriere. Nicio cerere AI nu a fost trimisa.';
       }
+      resumeListening();
     };
     captureButton.disabled = true; status.textContent = 'Pornesc microfonul...';
     try {
       current.start();
       captureTimer = setTimeout(() => { if (recognition === current && !submitted && !captureStopped) current.stop(); }, 30000);
     } catch (error) {
+      recognition = null; setConversation(false);
       captureButton.disabled = false; setState('idle');
       status.textContent = `STT: ${error instanceof Error ? error.message : 'Pornire esuata'}`;
     }
-  });
+  };
+  captureButton.addEventListener('click', startCapture);
   stopButton.addEventListener('click', () => {
+    setConversation(false);
     playbackGeneration++; captureStopped = true; clearTimeout(captureTimer); const stopped = recognition; recognition = null; stopped?.stop();
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     captureButton.disabled = false; setState('idle');
     status.textContent = 'Oprit. Răspunsurile deja primite rămân în jurnal.';
   });
+  conversationButton.addEventListener('click', () => {
+    if (conversationEnabled) { stopButton.click(); return; }
+    if (aiSend.disabled) { status.textContent = 'Așteaptă încheierea cererii curente.'; return; }
+    stopButton.click(); setConversation(true); startCapture();
+  });
+  $('[data-agmatcc-new-conversation]').addEventListener('click', () => {
+    stopButton.click(); context.clear(); lastAiAnswer = ''; aiQuestion.value = ''; draft.value = '';
+    aiAnswer.textContent = ''; aiEvidence.replaceChildren();
+    status.textContent = 'Conversație nouă. Cu ce te pot ajuta?';
+  });
+  let pageWasVisible = true;
+  const stopDetached = new MutationObserver(() => {
+    const visible = root.isConnected && !root.closest('[hidden]');
+    if (!visible && pageWasVisible) { stopButton.click(); context.clear(); }
+    pageWasVisible = visible;
+    if (!root.isConnected) stopDetached.disconnect();
+  });
+  stopDetached.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
+  const visibilityChanged = () => {
+    if (!root.isConnected) { document.removeEventListener('visibilitychange', visibilityChanged); return; }
+    if (document.hidden) stopButton.click();
+  };
+  document.addEventListener('visibilitychange', visibilityChanged);
   draft.addEventListener('input', () => { if (provenance === 'voice-capture' && !draft.value.trim()) provenance = 'typed'; });
   $('[data-agmatcc-confirm]').addEventListener('click', () => {
     const text = draft.value.trim();
