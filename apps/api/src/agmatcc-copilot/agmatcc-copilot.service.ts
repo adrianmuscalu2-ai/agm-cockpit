@@ -38,6 +38,7 @@ export class AgmatccCopilotService {
       handoffPinned: !production || /^[a-f0-9]{64}$/.test(this.config.get<string>('AGMATCC_LUNA_HANDOFF_SHA256') ?? ''),
     };
     return { contract: 'luna-control-status.v1', production, checks,
+      capabilities: { conversationHistory: true },
       configurationReady: Object.values(checks).every(Boolean),
       budgetVerified: false, activationGranted: false,
       limitation: 'Configuration only; database target, immutable handoff and remaining budget are enforced at reservation.' };

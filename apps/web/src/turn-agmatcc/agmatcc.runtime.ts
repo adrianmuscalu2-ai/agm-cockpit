@@ -181,10 +181,10 @@ export function bindAgmatcc(language = 'ro-RO') {
     aiAnswer.textContent = 'Copilotul consultă numai sursele read-only autorizate…';
     aiEvidence.replaceChildren();
     try {
-      await requireLunaConfiguration(turnAdminAuthenticatedFetch);
+      const capabilities = await requireLunaConfiguration(turnAdminAuthenticatedFetch);
       if (generation !== playbackGeneration || !isRequestSessionCurrent() || !root.isConnected) return;
       const conversation = await runAgmatccAiConversation({ question, origin, requestId: randomUuid(),
-        history: context.snapshot(),
+        history: capabilities.conversationHistory ? context.snapshot() : undefined,
         isCancelled: () => generation !== playbackGeneration || !isRequestSessionCurrent() || !root.isConnected,
         isSessionCurrent: isRequestSessionCurrent,
         fetcher: turnAdminAuthenticatedFetch,

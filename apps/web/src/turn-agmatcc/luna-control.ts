@@ -1,4 +1,4 @@
-type Control = { contract: string; configurationReady: boolean; checks: Record<string, boolean> };
+type Control = { contract: string; configurationReady: boolean; checks: Record<string, boolean>; capabilities?: { conversationHistory?: boolean } };
 const labels: Record<string, string> = { enabled: 'activarea autorizată', providerConfigured: 'providerul',
   ledgerAvailable: 'registrul bugetar', commanderBound: 'asocierea acestei sesiuni Commander',
   targetPinned: 'ținta Production', handoffPinned: 'transferul bugetului existent' };
@@ -17,4 +17,5 @@ export async function requireLunaConfiguration(fetcher: (path: string, init: Req
   if (!status.configurationReady || missing.length) {
     throw new Error(`Luna nu este pregătită: ${missing.map(key => labels[key]).join(', ') || 'configurație incompletă'}. Nu s-a solicitat un răspuns plătit.`);
   }
+  return { conversationHistory: status.capabilities?.conversationHistory === true };
 }

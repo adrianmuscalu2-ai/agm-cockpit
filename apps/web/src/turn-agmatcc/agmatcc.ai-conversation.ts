@@ -41,7 +41,8 @@ export async function runAgmatccAiConversation(input: {
     if (input.isCancelled?.()) throw new Error('AGMATCC_AI_CANCELLED_BEFORE_PROVIDER');
     const response = await input.fetcher('/agmatcc-copilot/respond', {
       method: 'POST', cache: 'no-store', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: input.question, language: 'ro', testMandateId: input.requestId, history: (input.history ?? []).slice(-12).map(({ role, content }) => ({ role, content: content.slice(0, 2000) })) }),
+      body: JSON.stringify({ question: input.question, language: 'ro', testMandateId: input.requestId,
+        ...(input.history === undefined ? {} : { history: input.history.slice(-12).map(({ role, content }) => ({ role, content: content.slice(0, 2000) })) }) }),
     });
     if (!response.ok) throw new Error(`ACPM_HTTP_${response.status}`);
     const envelope = await response.json() as { data?: AiReply };

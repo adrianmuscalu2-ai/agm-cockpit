@@ -8,6 +8,7 @@ const fetcher = async (_path: string, init: RequestInit) => {
   calls++;
   assert.equal(entries.length, 1, 'request is persisted before inference');
   assert.equal(JSON.parse(String(init.body)).testMandateId, 'request-1');
+  assert.equal('history' in JSON.parse(String(init.body)), false, 'legacy API rollout must not receive an unsupported field');
   return new Response(JSON.stringify({ data: reply }), { status: 200 });
 };
 const result = await runAgmatccAiConversation({ question: 'Read the journal', requestId: 'request-1', fetcher, append: async (text, provenance) => { entries.push({ text, provenance }); return { status: 'SYNCED' }; } });
