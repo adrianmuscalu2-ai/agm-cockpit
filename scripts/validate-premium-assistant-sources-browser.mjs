@@ -141,8 +141,8 @@ try {
   });
 
   await page.goto(target + '/access', { waitUntil: 'networkidle' });
-  await page.locator('input[name=email]').fill('owner@example.test');
-  await page.locator('input[name=password]').fill('not-a-real-secret');
+  await page.locator('[data-access-login] input[name=email]').fill('owner@example.test');
+  await page.locator('[data-access-login] input[name=password]').fill('not-a-real-secret');
   await page.locator('[data-access-login]').evaluate((form) => form.requestSubmit());
   await page.waitForFunction(() => document.querySelector('[data-access-enforcement]')?.getAttribute('data-access-state') === 'premium');
   await page.evaluate(() => {
