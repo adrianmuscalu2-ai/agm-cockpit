@@ -42,6 +42,9 @@ describe('Premium assistant read-only contract', () => {
     expect(body.tools).toBeUndefined();
     expect(body.tool_choice).toBeUndefined();
     expect(body.max_output_tokens).toBe(220);
+    expect(body.model).toBe('gpt-6-luna');
+    expect(body.reasoning).toEqual({ effort: 'none' });
+    expect(body).not.toHaveProperty('temperature');
     expect(body.store).toBe(false);
     expect(body.stream).toBe(true);
     expect(body.input[0].content).toContain('Never claim to send messages');
@@ -55,6 +58,32 @@ describe('Premium assistant read-only contract', () => {
     expect(body.input[0].content).toContain('Interpret standardized measurements and transport/navigation tokens');
     expect(body.input[0].content).toContain("speech layer localizes pronunciation separately");
     expect(body.input[0].content).toContain('do not repeat a question already answered');
+  });
+
+  it('supports explicit rollback to the legacy model without Luna-only parameters', async () => {
+    const rollbackConfig = { get: (key: string) => key === 'OPENAI_API_KEY' ? 'test-key' : key === 'OPENAI_PREMIUM_ASSISTANT_MODEL' ? 'gpt-4.1-mini' : undefined } as any;
+    const provider = jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({ output_text: 'Bine.' }), { status: 200 }));
+    await new PremiumAssistantService(rollbackConfig).respond(premiumUser, request);
+    const body = JSON.parse(String(provider.mock.calls[0][1]?.body));
+    expect(body.model).toBe('gpt-4.1-mini');
+    expect(body.temperature).toBe(0.2);
+    expect(body).not.toHaveProperty('reasoning');
+  });
+
+  it('does not reuse or store a standalone cached answer for a conversational follow-up', async () => {
+    const provider = jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({ output_text: 'Berlin.' }), { status: 200 }));
+    const knowledge = {
+      cacheKey: jest.fn(), cachedAnswer: jest.fn(), storeAnswer: jest.fn(),
+      resolve: jest.fn().mockReturnValue({ sources: [], context: [], requiresLiveSearch: false }),
+      createTrace: jest.fn().mockReturnValue({ traceId: 'follow-up', sources: [], counts: { total: 0 } }),
+    };
+    const history = [{ role: 'user' as const, text: 'Destinatia este Berlin.' }];
+    await new PremiumAssistantService(config, undefined, knowledge as any).respond(premiumUser, { ...request, confirmedText: 'Unde merg?', history });
+    expect(knowledge.cacheKey).not.toHaveBeenCalled();
+    expect(knowledge.cachedAnswer).not.toHaveBeenCalled();
+    expect(knowledge.storeAnswer).not.toHaveBeenCalled();
+    const body = JSON.parse(String(provider.mock.calls[0][1]?.body));
+    expect(JSON.parse(body.input[1].content).history).toEqual(history);
   });
 
   it('persists real provider usage for the Product Owner projection', async () => {

@@ -6,7 +6,7 @@ export const PREMIUM_ASSISTANT_CONTRACT = {
   productId: 'agm-cockpit',
   requiredRole: 'PREMIUM_ACCESS',
   provider: 'openai',
-  defaultModel: 'gpt-4.1-mini',
+  defaultModel: 'gpt-6-luna',
   endpoint: 'https://api.openai.com/v1/responses',
   maximumHistoryTurns: 20,
   maximumInputLength: 2_000,
