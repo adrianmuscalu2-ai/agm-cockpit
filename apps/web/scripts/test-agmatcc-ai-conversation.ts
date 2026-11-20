@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { runAgmatccAiConversation } from '../src/turn-agmatcc/agmatcc.ai-conversation';
+import { AgmatccConversationContext, runAgmatccAiConversation } from '../src/turn-agmatcc/agmatcc.ai-conversation';
 
 const reply = { answer: 'Evidence found', status: 'PASS', model: 'configured-alias', provider: 'openai', executionId: 'execution-1', testMandateId: 'request-1', evidenceRefs: ['operational-event:stream@1:event'], providerExecutions: [{ source: 'PROVIDER_RESPONSE', executedModel: 'provider-reported-model', responseId: 'response-1', providerVersion: null }] };
 const entries: Array<{ text: string; provenance: string }> = [];
@@ -30,3 +30,28 @@ assert.ok(failures[1].startsWith('AI_FAILURE '));
 await assert.rejects(runAgmatccAiConversation({ question: 'Cancelled', requestId: 'cancelled', isCancelled: () => true, fetcher, append: async () => ({ status: 'SYNCED' }) }), /CANCELLED_BEFORE_PROVIDER/);
 assert.equal(calls, 1, 'STOP before inference cannot charge a provider call');
 console.log('PASS AGMaTCC AI conversation: durable ordering, correlation, provider identity, unknown identity, pending response, failed request');
+
+const context = new AgmatccConversationContext();
+for (let i = 0; i < 8; i++) context.remember(`question-${i}`, `answer-${i}`);
+assert.equal(context.snapshot().length, 12);
+assert.equal(context.snapshot()[0].content, 'question-2');
+const copy = context.snapshot(); copy[0].content = 'mutated';
+assert.equal(context.snapshot()[0].content, 'question-2');
+let sent: any;
+await runAgmatccAiConversation({ question: 'Și de ce?', requestId: 'followup', history: context.snapshot(),
+  append: async () => ({ status: 'SYNCED' }), fetcher: async (_path, init) => {
+    sent = JSON.parse(String(init.body)); return new Response(JSON.stringify({ data: reply }));
+  } });
+assert.equal(sent.history.at(-1).content, 'answer-7');
+assert.equal(sent.question, 'Și de ce?');
+context.clear(); assert.deepEqual(context.snapshot(), []);
+assert.deepEqual(new AgmatccConversationContext().snapshot(), []);
+console.log('PASS bounded multi-turn context, independent snapshots, follow-up transport, explicit reset and fresh session');
+let sessionWrites = 0;
+let sessionCurrent = true;
+const switched = await runAgmatccAiConversation({ question: 'Old session', requestId: 'session-switch',
+  isSessionCurrent: () => sessionCurrent,
+  append: async () => { sessionWrites++; return { status: 'SYNCED' }; },
+  fetcher: async () => { sessionCurrent = false; return new Response(JSON.stringify({ data: reply })); } });
+assert.equal(sessionWrites, 1, 'a response from an old session must not be journalled under the new caller');
+assert.equal(switched.journalStatus, 'UNAVAILABLE');

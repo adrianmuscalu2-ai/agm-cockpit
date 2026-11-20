@@ -1,5 +1,5 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
-import { AGMATCC_COPILOT_CONTRACT, type CopilotOutcome, type CopilotToolCall, type CopilotUsage, type ProviderMessage, type ProviderTurn, type ProviderExecution } from './agmatcc-copilot.contract';
+import { AGMATCC_COPILOT_CONTRACT, type CopilotReplyKind, type CopilotOutcome, type CopilotToolCall, type CopilotUsage, type ProviderMessage, type ProviderTurn, type ProviderExecution } from './agmatcc-copilot.contract';
 
 export interface AgmatccCopilotProvider {
   readonly model: typeof AGMATCC_COPILOT_CONTRACT.candidateModel;
@@ -102,12 +102,13 @@ export class OpenAIResponsesAgmatccProvider implements AgmatccCopilotProvider {
       };
     }
     const outputText = payload.output_text ?? (payload.output ?? []).flatMap((item) => item.content ?? []).map((item) => item.text ?? '').join('');
-    let output: { status: CopilotOutcome; answer: string; evidenceRefs: string[] };
+    let output: { status: CopilotOutcome; answer: string; evidenceRefs: string[]; replyKind?: CopilotReplyKind };
     try { output = JSON.parse(outputText) as typeof output; }
     catch { throw new CopilotProviderError('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID', usage,providerExecution); }
     if (!output || typeof output !== 'object' || !['PASS', 'FAIL', 'BLOCKED', 'UNKNOWN'].includes(output.status) || typeof output.answer !== 'string' || !Array.isArray(output.evidenceRefs) || output.evidenceRefs.some(ref => typeof ref !== 'string')) {
       throw new CopilotProviderError('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID', usage,providerExecution);
     }
+    if (output.replyKind !== undefined && !['operational', 'conversation', 'clarification'].includes(output.replyKind)) throw new CopilotProviderError('ACPM_PROVIDER_STRUCTURED_OUTPUT_INVALID', usage, providerExecution);
     return { kind: 'final', output, timeToFirstResponseMs: Date.now() - started, usage,providerExecution };
   }
 }
@@ -122,10 +123,11 @@ export const ANSWER_SCHEMA = {
   type: 'object', additionalProperties: false,
   properties: {
     status: { type: 'string', enum: ['PASS', 'FAIL', 'BLOCKED', 'UNKNOWN'] },
+    replyKind: { type: 'string', enum: ['operational', 'conversation', 'clarification'] },
     answer: { type: 'string' },
     evidenceRefs: { type: 'array', items: { type: 'string' } },
   },
-  required: ['status', 'answer', 'evidenceRefs'],
+  required: ['status', 'answer', 'evidenceRefs', 'replyKind'],
 } as const;
 
 type OpenAIResponse = {

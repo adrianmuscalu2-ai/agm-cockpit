@@ -46,9 +46,12 @@ export function renderAgmatccPage(moduleNavigation = '') {
                 <button type="button" class="agmatcc-lips-stop" data-agmatcc-stop aria-label="STOP">STOP</button>
               </div>
               <div class="agmatcc-actions">
+                <button type="button" data-agmatcc-conversation aria-pressed="false">Pornește conversația</button>
+                <button type="button" data-agmatcc-new-conversation>Conversație nouă</button>
                 <button type="button" data-agmatcc-capture>Întreabă vocal</button>
                 <button type="button" data-agmatcc-speak>Redă</button>
               </div>
+              <p class="agmatcc-hint">În modul conversație, ascultarea reîncepe după răspuns. STOP oprește microfonul și redarea. „Conversație nouă” resetează contextul activ.</p>
               <label for="agmatccDraft">Transcriere (editabilă; audio nu este stocat)</label>
               <textarea id="agmatccDraft" data-agmatcc-draft rows="3" maxlength="2000"></textarea>
               <div class="agmatcc-actions">
