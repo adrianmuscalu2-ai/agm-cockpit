@@ -248,7 +248,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     } });
   }
 
-  async dashboard(ctx: RequestContext) {
+  async dashboard(ctx: RequestContext, observationOnly = false) {
     const now = new Date();
     const secretSnapshot = this.secretTelemetry.snapshot();
     const [registry, heartbeats, runtimeEvents, opportunityTelemetry, liveAdapterTelemetry, allLeases, failover, operationalIncidentJournals, domainValidationJournals, mandates, decisions, recovery, domainActivity, opportunityCount, operationalLinguistBaseline, operationalLinguistStates] = await Promise.all([
@@ -427,7 +427,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       scopeId: node.scope,
       qualification: qualifyOperationalIncident({ canonicalId: node.canonicalId, status: node.status, runtimeMode: node.runtimeMode, runtimePresence: node.runtimePresence, workloadState: node.workloadState, dependencyState: node.dependencyState, dependencyFailures: node.dependencyFailures, reason: node.reason, evidenceReference: node.evidence.recordReference, evaluatedAt: now }),
     }));
-    const incidentReconciliation = await this.reconcileOperationalIncidents(ctx, qualifications, operationalIncidentJournals);
+    const incidentReconciliation = await this.reconcileOperationalIncidents(ctx, qualifications, operationalIncidentJournals, observationOnly);
     const operationalNodes = incidentCandidateNodes.map((node) => {
       const qualification = qualifications.find((item) => item.canonicalId === node.canonicalId)!.qualification;
       const openIncidentEventId = incidentReconciliation.openByCanonicalId.get(node.canonicalId) ?? null;
@@ -508,9 +508,9 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     return this.prisma.premiumNetworkRegistryEntry.findMany({ where: { companyId }, orderBy: { canonicalId: 'asc' } });
   }
 
-  async agentAccountability(ctx: RequestContext) {
+  async agentAccountability(ctx: RequestContext, observationOnly = false) {
     const now = new Date();
-    const dashboard = await this.dashboard(ctx);
+    const dashboard = await this.dashboard(ctx, observationOnly);
     const [mandates, runtimeEvents, validationEvents, failoverState, failoverEvents] = await Promise.all([
       this.prisma.authorityMandate.findMany({ where: { companyId: ctx.companyId, status: 'APPROVED', revokedAt: null, OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] }, orderBy: { issuedAt: 'desc' } }),
       this.prisma.agentRuntimeEvent.findMany({ where: { companyId: ctx.companyId }, orderBy: { occurredAt: 'desc' }, take: ACCOUNTABILITY_EVIDENCE_LOOKBACK_LIMIT }),
@@ -534,7 +534,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
       freshnessWindowMs: ACCOUNTABILITY_FRESHNESS_MS,
       now,
     });
-    const controlIncident = failover.controlCoverage === 'INCOMPLETE' ? await this.recordControlCoverageLost(ctx, latestControlEvent) : null;
+    const controlIncident = !observationOnly && failover.controlCoverage === 'INCOMPLETE' ? await this.recordControlCoverageLost(ctx, latestControlEvent) : null;
     const agents = dashboard.nodes.filter((node) => node.kind !== 'HUMAN_AUTHORITY').map((node) => {
       const seed = premiumNetworkSeed.find((item) => item.canonicalId === node.canonicalId)!;
       const profile = operationalProfile(seed);
@@ -1153,6 +1153,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     ctx: RequestContext,
     evaluations: Array<{ canonicalId: string; scopeId: string; qualification: OperationalIncidentQualification }>,
     journals: OperationalJournalEvent[],
+    observationOnly = false,
   ) {
     const events = journals.filter((event) => ['OPERATIONAL_INCIDENT_OPENED', 'OPERATIONAL_INCIDENT_RESOLVED'].includes(event.eventType));
     const latestByCanonicalId = new Map<string, OperationalJournalEvent>();
@@ -1162,7 +1163,7 @@ export class AuthorityControlPlaneService implements OnApplicationBootstrap, OnA
     }
     let opened = 0;
     let resolved = 0;
-    for (const evaluation of evaluations) {
+    for (const evaluation of observationOnly ? [] : evaluations) {
       const latest = latestByCanonicalId.get(evaluation.canonicalId);
       const eventType = operationalIncidentTransition(evaluation.qualification, latest?.eventType ?? null);
       if (!eventType) continue;
@@ -1379,7 +1380,10 @@ function jsonRecord(value: Prisma.JsonValue): Record<string, unknown> {
 }
 
 function toIncidentProjection(item: OperationalJournalEvent) {
-  return { eventId: item.eventId, eventType: item.eventType, scopeId: item.scopeId, reasonCode: item.reasonCode, occurredAt: item.occurredAt, correlationId: item.correlationId, leaseId: item.leaseId };
+  const metadata = jsonRecord(item.safeMetadata);
+  const explanation = Object.fromEntries(['canonicalId', 'severity', 'rootCauseClassification', 'rationale', 'evidenceReference', 'previousEventId']
+    .filter(key => typeof metadata[key] === 'string').map(key => [key, (metadata[key] as string).slice(0, 1600)]));
+  return { eventId: item.eventId, eventType: item.eventType, scopeId: item.scopeId, reasonCode: item.reasonCode, occurredAt: item.occurredAt, correlationId: item.correlationId, leaseId: item.leaseId, explanation };
 }
 
 function hash(value: unknown) {

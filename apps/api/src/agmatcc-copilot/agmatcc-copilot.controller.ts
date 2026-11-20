@@ -34,8 +34,8 @@ export class AgmatccCopilotController {
   @Post('respond')
   @UseGuards(LunaProductionAccessGuard)
   @RequireOperationalEventRight('read')
-  async respond(@CurrentUser() user: RequestContext, @Body() body: AgmatccCopilotRequestDto, @Req() request: { [VERIFIED_LUNA_COMMANDER]?: CommanderBinding }, @Headers('x-request-id') requestId?: string) {
+  async respond(@CurrentUser() user: RequestContext, @Body() body: AgmatccCopilotRequestDto, @Req() request: { [VERIFIED_LUNA_COMMANDER]?: CommanderBinding }, @Headers('x-request-id') requestId?: string, @Headers('authorization') authorization?: string) {
     const context = { ...user, requestId: requestIdFromHeader(requestId), correlationId: randomUUID() };
-    return responseEnvelope(await this.copilot.respond(context, body.question, body.testMandateId, request[VERIFIED_LUNA_COMMANDER], body.history), context.requestId);
+    return responseEnvelope(await this.copilot.respond(context, body.question, body.testMandateId, request[VERIFIED_LUNA_COMMANDER], body.history, authorization), context.requestId);
   }
 }

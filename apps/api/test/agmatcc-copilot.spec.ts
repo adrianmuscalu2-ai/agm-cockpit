@@ -257,9 +257,45 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
     expect(await spool.verify()).toMatchObject({ valid: true, count: 1 });
   });
 
+  it('routes TURN telemetry with its verified bearer outside model context and retains the source snapshot', async () => {
+    const observation = { sourceRef: 'turn-observation:telemetry:test', observedAt: '2026-11-20T00:00:00Z', content: JSON.stringify({ state: 'AVAILABLE', record: { status: 'STALE' } }) };
+    const read = jest.fn().mockResolvedValue([observation]);
+    const complete = jest.fn().mockResolvedValueOnce({ kind: 'tool_calls', calls: [{ id: 'read-1', name: 'read_turn_sources', arguments: { source: 'telemetry', query: 'telemetrie' } }], usage: { inputTokens: 0, outputTokens: 0 }, timeToFirstResponseMs: 1 })
+      .mockResolvedValueOnce({ kind: 'final', output: { status: 'UNKNOWN', answer: 'Semnalul este vechi.', evidenceRefs: [observation.sourceRef] }, usage: { inputTokens: 0, outputTokens: 0 }, timeToFirstResponseMs: 1 });
+    const service = new AgmatccCopilotService(config as never, prisma as never, agentEvents as never, { model: 'gpt-6-luna', provider: 'simulated', complete }, undefined, { read } as never);
+    const caller = { ...user(), roles: ['TURN_ADMIN_SESSION'] };
+    const result = await service.respond(caller, 'Funcționează telemetria?', 'turn-read-test', undefined, [], 'Bearer SYNTHETIC_SESSION');
+    expect(read).toHaveBeenCalledWith('telemetry', 'telemetrie', caller, 'Bearer SYNTHETIC_SESSION');
+    expect(complete.mock.calls[0][2]).toEqual(['search_operational_events', 'read_turn_sources']);
+    expect(JSON.stringify(complete.mock.calls)).not.toContain('SYNTHETIC_SESSION');
+    expect(result.sourceReads?.[0].evidence).toEqual([observation]);
+  });
+
+  it('cannot turn a failed source read into a healthy PASS, even if the model requests it', async () => {
+    const observation = { sourceRef: 'turn-observation:telemetry:failed', observedAt: new Date().toISOString(), content: JSON.stringify({ state: 'UNAVAILABLE', factualDataAvailable: false }) };
+    const complete = jest.fn().mockResolvedValueOnce({ kind: 'tool_calls', calls: [{ id: 'read-1', name: 'read_turn_sources', arguments: { source: 'telemetry', query: '' } }], usage: { inputTokens: 0, outputTokens: 0 }, timeToFirstResponseMs: 1 })
+      .mockResolvedValueOnce({ kind: 'final', output: { status: 'PASS', answer: 'Totul funcționează.', evidenceRefs: [observation.sourceRef] }, usage: { inputTokens: 0, outputTokens: 0 }, timeToFirstResponseMs: 1 });
+    const service = new AgmatccCopilotService(config as never, prisma as never, agentEvents as never, { model: 'gpt-6-luna', provider: 'simulated', complete }, undefined, { read: jest.fn().mockResolvedValue([observation]) } as never);
+    const result = await service.respond({ ...user(), roles: ['TURN_ADMIN_SESSION'] }, 'Telemetrie?');
+    expect(result.status).toBe('UNKNOWN');
+    expect(result.answer).toContain('citirea sursei a eșuat');
+    expect(result.answer).not.toContain('Totul funcționează');
+  });
+
+  it('does not let available configuration conceal a failed telemetry read', async () => {
+    const read = jest.fn(async (source: string) => [{ sourceRef: `turn-observation:${source}:test`, observedAt: new Date().toISOString(), content: JSON.stringify({ state: source === 'connections' ? 'AVAILABLE' : 'UNAVAILABLE', recordKind: source === 'connections' ? 'ADAPTER_CONFIGURATION_ONLY' : undefined }) }]);
+    const complete = jest.fn().mockResolvedValueOnce({ kind: 'tool_calls', calls: ['telemetry', 'connections'].map(source => ({ id: source, name: 'read_turn_sources', arguments: { source, query: '' } })), usage: { inputTokens: 0, outputTokens: 0 }, timeToFirstResponseMs: 1 })
+      .mockResolvedValueOnce({ kind: 'final', output: { status: 'PASS', answer: 'Totul funcționează.', evidenceRefs: ['turn-observation:telemetry:test'] }, usage: { inputTokens: 0, outputTokens: 0 }, timeToFirstResponseMs: 1 });
+    const service = new AgmatccCopilotService(config as never, prisma as never, agentEvents as never, { model: 'gpt-6-luna', provider: 'simulated', complete }, undefined, { read } as never);
+    const result = await service.respond({ ...user(), roles: ['TURN_ADMIN_SESSION'] }, 'Telemetrie și conexiuni?');
+    expect(result.status).toBe('UNKNOWN');
+    expect(result.answer).toContain('citirea sursei a eșuat');
+    expect(result.answer).not.toContain('Totul funcționează');
+  });
+
   it('exposes only read-only tools and no Governance, RK, Guardian, or mandate-write authority', () => {
     const names = READ_ONLY_TOOL_DEFINITIONS.map((tool) => tool.name);
-    expect(names).toEqual(['search_operational_events', 'read_agent_runtime_events', 'search_incidents']);
+    expect(names).toEqual(['read_turn_sources', 'search_operational_events', 'read_agent_runtime_events', 'search_incidents']);
     expect(names.some((name) => /governance|guardian|rk|mandate|approve|execute|write|create/i.test(name))).toBe(false);
     expect(READ_ONLY_TOOL_DEFINITIONS.every((tool) => /Read-only/i.test(tool.description))).toBe(true);
   });

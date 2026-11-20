@@ -7,10 +7,16 @@
  * generalise beyond the lexicon.
  */
 export const SEMANTIC_DIMENSIONS = 512;
-export const SEMANTIC_INDEX_VERSION = 'agmatcc-semantic-hash-v1';
+export const SEMANTIC_INDEX_VERSION = 'agmatcc-semantic-hash-v2';
 export const SEMANTIC_MIN_SCORE = 0.2;
 
 const CONCEPTS: Record<string, readonly string[]> = {
+  telemetry: ['telemetrie', 'telemetry', 'heartbeat', 'puls', 'semnale', 'monitorizare', 'monitoring', 'liveness'],
+  agent: ['agent', 'agenti', 'agents', 'orchestrator', 'orchestratori', 'inspector', 'inspectori', 'executor'],
+  voice: ['voce', 'vocal', 'audio', 'microfon', 'microphone', 'vorbire', 'speech', 'ascultare', 'auz', 'aude'],
+  conversation: ['conversatie', 'conversational', 'dialog', 'dialogue', 'context', 'continuitate', 'conversationala'],
+  regression: ['regresie', 'regresii', 'regression', 'reaparut', 'reapare', 'recidiva', 'recurring', 'recurenta'],
+  timeout: ['timeout', 'expirat', 'expirare', 'expired', 'expiration'],
   delay: ['intarziere', 'intarzieri', 'ratat', 'ratare', 'delay', 'late', 'asteptare', 'blocat', 'stationare', 'ramas'],
   incident: ['incident', 'incidente', 'avarie', 'defectiune', 'problema', 'probleme', 'accident', 'breakdown', 'failure', 'eroare', 'error'],
   alert: ['alerta', 'alerte', 'avertisment', 'avertizare', 'warning', 'alarm', 'alarma', 'semnal'],
