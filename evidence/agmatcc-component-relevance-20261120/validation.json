@@ -1,0 +1,31 @@
+{
+  "baselineRevision": "15ccb707aa99655c2bc9cdd1dd81f5f7c0e11722",
+  "baselineRelease": "https://github.com/adrianmuscalu2-ai/agm-cockpit/actions/runs/44744805436",
+  "baselineReleaseResult": "SUCCESS",
+  "diagnosis": {
+    "C": "Real original AGMaTCC STT symptoms were retrieved but ignored in favor of unrelated monitoring incidents. Reconciliation counters were also mistaken for inventory.",
+    "H": "Restricted copilot adapter scope was described as human account permissions, although a separately authenticated human account can differ."
+  },
+  "changes": [
+    "Preserve explicit AGMaTCC question scope when requesting formal incident projection",
+    "Filter unrelated authority records only for explicit AGMaTCC scope; no cause inferred from mention",
+    "Omit reconciliation counters from observation evidence and explain their meaning",
+    "Label original STT/TTS/PLAYBACK FAILED events as historical symptoms, not formal incidents or cause",
+    "Preserve cited factual evidence beside a successful NO_DATA read, force UNKNOWN and source notice",
+    "Configuration-only records cannot preserve model health claims; actual read/auth failures retain deterministic fail-closed response",
+    "Copilot adapter accessScope separated from uninspected human account permissions"
+  ],
+  "validation": {
+    "targetedApiTests": 41,
+    "targetedApiResult": "PASS",
+    "independentReview": "NO_REMAINING_BLOCKERS",
+    "realRetestCAndH": "PENDING_DEPLOYMENT"
+  },
+  "preserved": [
+    "append-only journals",
+    "existing conversation pilot",
+    "Guardian and RK internals",
+    "authority and authentication policy",
+    "provider budget accounting"
+  ]
+}

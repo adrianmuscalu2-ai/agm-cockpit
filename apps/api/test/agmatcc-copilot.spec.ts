@@ -236,6 +236,29 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
     expect(Object.keys(call)).toContain('name');
   });
 
+  it('preserves voice symptoms when the requested component has no formal incident match', async () => {
+    events[0].eventType = 'agmatcc.note';
+    events[0].payload = { text: 'STT_FAILURE {"code":"no-speech","language":"ro"}' };
+    const read = jest.fn().mockResolvedValue([{ sourceRef: 'turn-observation:incidents:empty', observedAt: new Date().toISOString(), content: JSON.stringify({ state: 'NO_DATA' }) }]);
+    let toolContent = '';
+    const complete = jest.fn().mockResolvedValueOnce({ kind: 'tool_calls', calls: [
+      { id: 'incident', name: 'read_turn_sources', arguments: { source: 'incidents', query: 'incidente' } },
+      { id: 'journal', name: 'search_operational_events', arguments: { query: 'no-speech', limit: 8 } },
+    ], usage: { inputTokens: 0, outputTokens: 0 }, timeToFirstResponseMs: 1 }).mockImplementationOnce(async (messages: ProviderMessage[]) => {
+      toolContent = messages.filter(m => m.role === 'tool').map(m => m.content).join(' ');
+      return { kind: 'final', output: { status: 'PASS', answer: 'Jurnalul consemneaza un simptom istoric no-speech, fara cauza sau stare actuala stabilita.', evidenceRefs: ['operational-event:stream-a@4:event-1'] }, usage: { inputTokens: 0, outputTokens: 0 }, timeToFirstResponseMs: 1 };
+    });
+    const service = new AgmatccCopilotService(config as never, prisma as never, agentEvents as never, { model: 'gpt-6-luna', provider: 'simulated', complete }, undefined, { read } as never);
+    const caller = { ...user(), roles: ['TURN_ADMIN_SESSION'] };
+    const result = await service.respond(caller, 'Ce incidente au afectat AGMaTCC?');
+    expect(read).toHaveBeenCalledWith('incidents', 'AGMaTCC incidente', caller, undefined);
+    expect(toolContent).toContain('DOCUMENTED_HISTORICAL_SYMPTOM');
+    expect(toolContent).toContain('not proof of a formal incident');
+    expect(result.status).toBe('UNKNOWN');
+    expect(result.answer).toContain('simptom istoric no-speech');
+    expect(result.evidenceRefs).toContain('operational-event:stream-a@4:event-1');
+  });
+
   it('records provider timeout as FAIL with no retry and a verifiable append-only chain', async () => {
     const provider: AgmatccCopilotProvider = { model: 'gpt-6-luna', provider: 'simulated', complete: jest.fn().mockRejectedValue(new Error('ACPM_PROVIDER_TIMEOUT')) };
     const result = await make(provider).respond(user(), 'citește jurnalul');
@@ -291,6 +314,16 @@ describe('AGMaTCC isolated copilot and ACPM', () => {
     expect(result.status).toBe('UNKNOWN');
     expect(result.answer).toContain('citirea sursei a eșuat');
     expect(result.answer).not.toContain('Totul funcționează');
+  });
+
+  it('does not preserve health claims supported only by adapter configuration beside an empty source', async () => {
+    const read = jest.fn(async (source: string) => [{ sourceRef: `turn-observation:${source}:test`, observedAt: new Date().toISOString(), content: JSON.stringify({ state: source === 'connections' ? 'AVAILABLE' : 'NO_DATA', recordKind: source === 'connections' ? 'ADAPTER_CONFIGURATION_ONLY' : undefined }) }]);
+    const complete = jest.fn().mockResolvedValueOnce({ kind: 'tool_calls', calls: ['incidents', 'connections'].map(source => ({ id: source, name: 'read_turn_sources', arguments: { source, query: '' } })), usage: { inputTokens: 0, outputTokens: 0 }, timeToFirstResponseMs: 1 })
+      .mockResolvedValueOnce({ kind: 'final', output: { status: 'PASS', answer: 'Totul este sanatos si nu exista incidente.', evidenceRefs: ['turn-observation:connections:test'] }, usage: { inputTokens: 0, outputTokens: 0 }, timeToFirstResponseMs: 1 });
+    const service = new AgmatccCopilotService(config as never, prisma as never, agentEvents as never, { model: 'gpt-6-luna', provider: 'simulated', complete }, undefined, { read } as never);
+    const result = await service.respond({ ...user(), roles: ['TURN_ADMIN_SESSION'] }, 'Incidents?');
+    expect(result.status).toBe('UNKNOWN');
+    expect(result.answer).not.toContain('Totul este sanatos');
   });
 
   it('exposes only read-only tools and no Governance, RK, Guardian, or mandate-write authority', () => {
