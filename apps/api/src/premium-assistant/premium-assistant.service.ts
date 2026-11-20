@@ -62,7 +62,10 @@ export class PremiumAssistantService {
       throw new ServiceUnavailableException('Assistant provider unavailable.');
     }
     const contextRefs = [request.tripId && `trip:${request.tripId}`, request.operationalCaseId && `case:${request.operationalCaseId}`, request.situationId && `situation:${request.situationId}`].filter((value): value is string => Boolean(value));
-    const cacheKey = this.knowledge?.cacheKey({ companyId: user.companyId, moduleId: request.moduleId, language: request.language, question: request.confirmedText, contextRefs });
+    const model = this.config.get<string>('OPENAI_PREMIUM_ASSISTANT_MODEL')?.trim() || PREMIUM_ASSISTANT_CONTRACT.defaultModel;
+    // Follow-up answers depend on the conversation, not just the newest words.
+    // Only standalone questions are reusable, within this user and model.
+    const cacheKey = request.history?.length ? undefined : this.knowledge?.cacheKey({ companyId: user.companyId, userId: user.userId, model, moduleId: request.moduleId, language: request.language, question: request.confirmedText, contextRefs });
     const cached = cacheKey ? this.knowledge?.cachedAnswer(cacheKey) : null;
     const cachedText = cached ? composeUserAnswer(cached.text) : '';
     if (cached && cachedText) {
@@ -92,7 +95,7 @@ export class PremiumAssistantService {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: this.config.get<string>('OPENAI_PREMIUM_ASSISTANT_MODEL', PREMIUM_ASSISTANT_CONTRACT.defaultModel),
+          model,
           input: [
             { role: 'system', content: systemInstruction(request.language) },
             { role: 'user', content: JSON.stringify({
@@ -116,7 +119,10 @@ export class PremiumAssistantService {
           ...(resolution.requiresLiveSearch ? { tools: [{ type: 'web_search' }], tool_choice: 'auto' } : {}),
           max_output_tokens: 220,
           store: false,
-          temperature: 0.2,
+          // Luna defaults to reasoning; disable it for the short voice budget.
+          // Reasoning-family providers reject the legacy temperature parameter.
+          ...(/^gpt-6-luna(?:-|$)/i.test(model) ? { reasoning: { effort: 'none' } } : {}),
+          ...(!/^(gpt-[56]|o\d)/i.test(model) ? { temperature: 0.2 } : {}),
           stream: true,
         }),
         signal: AbortSignal.timeout(PREMIUM_ASSISTANT_CONTRACT.timeoutMs),

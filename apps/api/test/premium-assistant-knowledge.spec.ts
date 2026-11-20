@@ -60,6 +60,15 @@ function knowledge(sources: CanonicalSource[], workspaceRoot?: string) {
 }
 
 describe('Premium Assistant canonical knowledge reuse', () => {
+  it('isolates standalone answers by user and selected model', () => {
+    const service = knowledge([]);
+    const input = { companyId: 'tenant-1', userId: 'user-1', model: 'gpt-6-luna', moduleId: 'cockpit', language: 'ro', question: 'Destinatie?', contextRefs: [] };
+    const key = service.cacheKey(input);
+    expect(service.cacheKey({ ...input, userId: 'user-2' })).not.toBe(key);
+    expect(service.cacheKey({ ...input, model: 'gpt-4.1-mini' })).not.toBe(key);
+    expect(service.cacheKey(input)).toBe(key);
+  });
+
   it('loads the real registry and indexes only the two approved sources confirmed by controlled refresh', () => {
     const loader = new RealCanonicalAuthorityLoader(new ConfigService({ AGM_CANONICAL_LIBRARY_ROOT: resolve(__dirname, '..', '..', '..') }));
     const service = new PremiumAssistantKnowledgeService(loader);

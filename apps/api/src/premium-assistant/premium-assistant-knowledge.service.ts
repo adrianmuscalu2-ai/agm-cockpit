@@ -64,7 +64,7 @@ export class PremiumAssistantKnowledgeService {
     };
   }
 
-  cacheKey(input: { companyId: string; moduleId: string; language: string; question: string; contextRefs: readonly string[] }) {
+  cacheKey(input: { companyId: string; userId?: string; model?: string; moduleId: string; language: string; question: string; contextRefs: readonly string[] }) {
     return createHash('sha256').update(JSON.stringify({ ...input, question: normalize(input.question) })).digest('hex');
   }
 
