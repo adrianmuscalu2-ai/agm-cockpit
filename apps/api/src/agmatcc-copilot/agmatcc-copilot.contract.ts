@@ -30,6 +30,7 @@ export type CopilotAnswer = {
   answer: string;
   replyKind?: CopilotReplyKind;
   evidenceRefs: string[];
+  sourceReads?: Array<{ tool: string; source: string; state: string; retrievedAt: string; evidenceRefs: string[]; evidence: CopilotEvidence[] }>;
   usage: CopilotUsage;
   accounting?: { unconfirmedCalls: number; reservedUsd: number };
   timing: { totalMs: number; timeToFirstResponseMs: number };
@@ -37,8 +38,8 @@ export type CopilotAnswer = {
 
 export type CopilotToolCall = {
   id: string;
-  name: 'search_operational_events' | 'read_agent_runtime_events' | 'search_incidents';
-  arguments: { query?: string; mandateId?: string | null; limit?: number };
+  name: 'search_operational_events' | 'read_agent_runtime_events' | 'search_incidents' | 'read_turn_sources';
+  arguments: { query?: string; mandateId?: string | null; limit?: number; source?: string };
 };
 
 export type ProviderTurn =

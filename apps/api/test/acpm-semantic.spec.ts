@@ -92,7 +92,7 @@ describe('ACPM derived semantic index (synthetic fixtures, no model calls)', () 
   it('reuses the existing semantic engine for cross-language domain concepts',()=>{
     const i=new AcpmSemanticIndex('a');i.sync([event({evidenceRef:'evidence:approval-needed'})],at);
     expect(i.search({q:'aprobare'}).total).toBe(1);
-    expect(i.status().sharedEngine).toBe('agmatcc-semantic-hash-v1');
+    expect(i.status().sharedEngine).toBe('agmatcc-semantic-hash-v2');
     expect(i.search({q:'aprobare'}).results[0].score).toBeGreaterThan(0);
   });
   it('preserves terminal context when only STARTED identifies the model',()=>{

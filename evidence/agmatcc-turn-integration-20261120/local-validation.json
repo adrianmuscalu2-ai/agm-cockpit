@@ -1,0 +1,16 @@
+{
+  "scope": "Local implementation/regression evidence; not real authenticated production Luna acceptance",
+  "apiFullSuite": {"result":"PASS", "suites":108, "tests":812, "note":"Before three additional copilot regression tests; affected suite rerun after final changes"},
+  "finalCopilotSuite": {"result":"PASS", "tests":33, "includes":"authorized TURN routing, bearer excluded from provider context, source snapshot retention, single and mixed source failure cannot become global PASS"},
+  "observationalBoundary": {"result":"PASS", "tests":4, "includes":"real dashboard/accountability projections under write-denying Prisma proxy; session boundary; redaction; failure vs no data"},
+  "semanticRelations": {"result":"PASS", "tests":2, "includes":"explicit relation association without event collapse; concept paraphrase with no exact incident name"},
+  "apiTypecheck":"PASS",
+  "apiLint":"PASS",
+  "apiBuild":"PASS; final small failure-classification change typechecked and scoped-tested, CI rebuild required",
+  "webBuild":"PASS",
+  "webAgmatccSuite":"PASS",
+  "browserFixture":{"result":"PASS_LOCAL_FIXTURE", "scenarios":11, "physicalAudio":"NOT_TESTED", "productionProviderCalls":0},
+  "independentAudit":"Initial defects corrected and closure recorded; real A-H pending",
+  "protectedMechanisms":"Guardian/RK internals, session-family binding, roles, budget and authority distribution unchanged",
+  "productionSession":"No controlled authenticated Commander browser attached; no credentials fabricated or extracted"
+}

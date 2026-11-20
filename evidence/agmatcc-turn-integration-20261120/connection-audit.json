@@ -1,0 +1,35 @@
+{
+  "contract": "agmatcc-turn-connection-audit.v1",
+  "baselineProductionRevision": "90632af730bfeba7473770adf2b38562cb4c475e",
+  "acceptance": "PARTIAL_PENDING_AUTHENTICATED_PRODUCTION_A_H",
+  "pilotBaseline": "USER_OBSERVED_FUNCTIONAL; preserve existing continuous voice and conversation isolation",
+  "diagnosis": [
+    "Production Commander role offered only operational-event search to Luna although TURN already exposes authorized agent/dashboard reads.",
+    "UI navigation metadata does not connect those sources to the model.",
+    "Dashboard GET reconciles incidents; accountability also records loss of control coverage. New Luna observation mode skips both mutation paths.",
+    "Functional overview performs an active translation health probe at cache miss; excluded from observation adapter.",
+    "Shared deterministic semantic vectors existed; original lexicon lacked operational voice/telemetry/agent/regression concepts.",
+    "Original search flattened payload field names and did not retrieve explicitly related events. Structured payload and explicit-reference associations now preserved."
+  ],
+  "sources": [
+    {"source":"Operational journal / history","route":"GET /operational-events/search/semantic","adapter":"search_operational_events","authorization":"Existing TURN read/sync boundary, TURN company only","baseline":"CONNECTED","new":"Structured redacted originals, shared semantic hash v2, explicit reference association","coverage":"Most recent 2000; no full-history claim; AI conversation records excluded as factual sources","realEvidence":"production-source-counts.json: 219 records; authenticated Luna retest pending"},
+    {"source":"Agents / orchestrators / inspectors / Basic and Premium organization","route":"GET /operations/turn/agent-accountability","adapter":"read_turn_sources:agents","authorization":"Existing TURN session verified again; original caller context; no synthesized OWNER","baseline":"NOT_CONNECTED_TO_LUNA","new":"Observation-only existing accountability projection","realEvidence":"Registry 28; runtime events 246089; only existing bounded projection used; authenticated E2E pending"},
+    {"source":"Telemetry / Machine and Runtime Truth","route":"GET /operations/turn/operational-truth + operational-dashboard","adapter":"read_turn_sources:telemetry","authorization":"Public truth plus existing TURN dashboard boundary","baseline":"NOT_CONNECTED_TO_LUNA","new":"Original heartbeat timestamps, freshness, runtime evidence and bounded ranked records","realEvidence":"Public truth HTTP 200/PASS; 27 persisted heartbeats; protected dashboard unauthenticated HTTP 401"},
+    {"source":"Overview / Control Tower / departments","route":"GET /operations/turn/operational-dashboard","adapter":"read_turn_sources:overview","authorization":"Existing TURN boundary","baseline":"NOT_CONNECTED_TO_LUNA","new":"Department and node projection, capability gaps; no active probe","limitation":"functional-overview remains a separate UI reader; live translation probe deliberately excluded"},
+    {"source":"Operational incidents","route":"GET /operations/turn/operational-dashboard","adapter":"read_turn_sources:incidents","authorization":"Existing TURN boundary","baseline":"NOT_CONNECTED_TO_LUNA","new":"Persisted OPENED/RESOLVED journal events with whitelisted cause/rationale/original references","coverage":"Latest 2000 applicable authority events; no collapsing distinct events; no auto-reconciliation on Luna read"},
+    {"source":"Domain incident/evidence stores","route":"GET /incidents; GET /evidence","adapter":"Existing PREMIUM incident tool only","authorization":"Separate JWT/PREMIUM permissions; TURN token not upgraded","state":"NOT_AUTHORIZED_FOR_TURN_COPILOT","realEvidence":"Operator metadata confirms one incident and one evidence record; operator DB access is not caller HTTP proof"},
+    {"source":"Mandates / decisions / chains / blockers","route":"GET /operations/turn/operational-dashboard","adapter":"read_turn_sources:authority","authorization":"Existing TURN projection only","new":"Control-plane chains, documented reasons, evidence, dependencies; no writes or authority redistribution","realEvidence":"28 mandates / 8 decisions in production; authenticated projection retest pending"},
+    {"source":"Version Journal / History and Evolution / Evidence Ledger UI","route":"Historical UI manifest and agma-history.ts","adapter":"No complete live version-store adapter exists in this route","state":"NOT_CONNECTED","limitation":"Use explicit version/reference events if present in authorized journal; cannot infer recurrence from timing or similarity"},
+    {"source":"Agent and Chain Performance / Load Monitor","route":"GET /acpm, /acpm/semantic, /acpm/semantic-chain, /acpm/model-state","authorization":"JWT plus OWNER","state":"NOT_AUTHORIZED_FOR_TURN_COPILOT","realEvidence":"Unauthenticated production /acpm HTTP 401; no rebuild or privilege change"},
+    {"source":"Governance V2 / Risk and Knowledge","route":"GET /governance-v2/proposals; /governance-v2/risk-knowledge/search","authorization":"JWT plus bound ACTIVE human APPROVER/VALIDATOR","state":"NOT_AUTHORIZED_FOR_TURN_COPILOT","realEvidence":"Unauthenticated production RK search HTTP 401; Guardian and RK internals unchanged"}
+  ],
+  "independentReviewCorrections": [
+    "Configuration report now says configuredAdapters / runtimeConnectivity NOT_CHECKED, never inferred live connection.",
+    "Reader distinguishes preserved HTTP 401/403 from other exceptions. Existing verifier can mask DB failures as 401; its behavior is unchanged.",
+    "Exact redacted snapshots accompany sourceReads and are appended through the existing AI_RESPONSE journal path; digest alone is not the evidence.",
+    "Truncated excerpts retain partial/coverage/original-reference metadata.",
+    "Normal session lastUsedAt and authorized request/budget journals still update; no business mutation or active probe is initiated by observational tools."
+  ],
+  "browser": {"Browser Plugin Status":"PASS", "Integrated Browser Control Status":"PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE", "Browser Session Status":"PASS", "Target Page Status":"PASS", "scope":"11 local controlled conversation fixture scenarios; AI/audio simulated, physical microphone not tested"},
+  "productionAcceptance": {"A":"PENDING_AUTHENTICATED_SESSION", "B":"PUBLIC_TRUTH_PASS_LUNA_E2E_PENDING", "C":"PENDING_AUTHENTICATED_SESSION", "D":"PARTIAL_HISTORICAL_SOURCE_COVERAGE", "E":"PENDING_AUTHENTICATED_SESSION", "F":"LOCAL_PARAPHRASE_TEST_PASS_REAL_RECORD_TEST_PENDING", "G":"LOCAL_11_SCENARIOS_PASS_USER_BASELINE_FUNCTIONAL_NEW_PRODUCTION_RETEST_PENDING", "H":"UNAUTHENTICATED_DENIAL_PASS_AUTHENTICATED_ALLOWED_AND_RESTRICTED_PENDING"}
+}

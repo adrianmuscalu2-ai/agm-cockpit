@@ -1,4 +1,7 @@
 import { LunaAcpmLedger } from './luna-acpm-ledger';
+import { TurnObservationReader } from './turn-observation-reader';
+import { AuthorityControlPlaneModule } from '../authority-control-plane/authority-control-plane.module';
+import { TurnOperationalTruthModule } from '../turn-operational-truth/turn-operational-truth.module';
 import { LunaProductionAccessGuard } from './luna-production-access.guard';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -12,10 +15,11 @@ import { AGMATCC_COPILOT_PROVIDER, AgmatccCopilotService } from './agmatcc-copil
 import { DisabledAgmatccProvider, OpenAIResponsesAgmatccProvider, SimulatedAgmatccProvider } from './agmatcc-copilot.provider';
 
 @Module({
-  imports: [AgentRuntimeEventsModule, OperationalEventStoreModule, PrismaModule, TurnAdminModule],
+  imports: [AgentRuntimeEventsModule, OperationalEventStoreModule, PrismaModule, TurnAdminModule, AuthorityControlPlaneModule, TurnOperationalTruthModule],
   controllers: [AgmatccCopilotController],
   providers: [
     AgmatccCopilotService,
+    TurnObservationReader,
     LunaAcpmLedger,
     OperationalEventAccessGuard,
     LunaProductionAccessGuard,
