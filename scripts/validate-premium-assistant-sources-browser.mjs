@@ -99,6 +99,8 @@ try {
   const cleanAnswer = 'Mâine, în Heilbronn, dimineața va fi mai mult noros și sunt posibile câteva averse. După-amiaza se încălzește până la aproximativ 23°C, iar spre seară vremea devine mai senină.';
   const gmailQuery = 'Citește ultimul mail de la dispecerat și deschide adresa de descărcare';
   const gmailAnswer = 'Nu am găsit în Gmail niciun mesaj de la dispecerat care să conțină o adresă de descărcare.';
+  const replyRequests = [];
+  const replySeedQuery = 'Citește ultimul email pentru răspuns';
   await page.route('**/api/v1/**', async (route) => {
     const url = route.request().url();
     if (url.endsWith('/auth/login')) return route.fulfill({
@@ -114,13 +116,16 @@ try {
     if (url.endsWith('/premium-assistant/respond')) {
       const request = route.request().postDataJSON();
       const isGmailRequest = request?.confirmedText === gmailQuery;
+      const replySeed = request?.confirmedText === replySeedQuery;
+      const drafting = request?.task === 'DRAFT_REPLY';
+      if (drafting) replyRequests.push(request);
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({ data: {
         contractVersion: 'premium-assistant.v1',
         kind: 'answer',
-        text: isGmailRequest ? gmailAnswer : cleanAnswer,
+        text: drafting ? (replyRequests.length > 1 ? 'Confirm sosirea la ora 10.' : 'Bună ziua, confirm că ajung la ora 10. Mulțumesc.') : replySeed ? 'Dispeceratul cere confirmarea sosirii.' : isGmailRequest ? gmailAnswer : cleanAnswer,
         provider: 'openai',
         productId: 'agm-cockpit',
         moduleId: 'premium-cockpit',
@@ -130,6 +135,7 @@ try {
         timing: { timeToFirstTokenMs: 180, orchestratorMs: 8, modelMs: 470, answerCompleteMs: 478, serverTotalMs: 485, sourceResolutionMs: 3 },
         externalEffectPerformed: false,
         ...(isGmailRequest ? { toolTrace: { tool: 'gmail-inbox', status: 'SUCCESS', operation: 'SEARCH_MESSAGES', resultCount: 0, errorCode: null } } : {}),
+        ...(replySeed ? { toolTrace: { tool: 'gmail-inbox', status: 'SUCCESS', operation: 'LIST_RECENT', resultCount: 1, errorCode: null }, actionContext: { contractVersion:'gmail-action-context.v1',traceId:'verified-reply',messageRef:'GMAIL-test',senderEmail:'dispatch@example.test',subject:'Arrival',receivedAt:new Date().toISOString(),destinations:[],phoneNumbers:[],dateTimes:[],shareText:'Please confirm arrival.' } } : {}),
       } }),
       });
     }
@@ -184,6 +190,21 @@ try {
     trustedGmailAnswerPreservedInTts: gmailDetail.spokenText === gmailAnswer,
   };
   report.detail = { weather: detail, gmail: gmailDetail };
+  await page.locator('[data-assistant-transcript]').fill(replySeedQuery);
+  await page.locator('[data-assistant-confirm]').click();
+  await page.waitForFunction(() => document.querySelector('[data-assistant-response]')?.textContent?.includes('Dispeceratul cere'));
+  await page.locator('[data-assistant-transcript]').fill('Redactează un răspuns politicos: ajung la ora 10.');
+  await page.locator('[data-assistant-confirm]').click();
+  await page.waitForFunction(() => document.querySelector('[data-assistant-action-summary]')?.textContent?.includes('Bună ziua, confirm'));
+  const preview = await page.locator('[data-assistant-action-summary]').textContent();
+  report.checks.replyRecipientBound = preview.includes('dispatch@example.test') && preview.includes('Re: Arrival');
+  report.checks.replyRequiresConfirmation = await page.locator('[data-assistant-action-confirm]').isVisible();
+  await page.locator('[data-assistant-transcript]').fill('Mai scurt, te rog.');
+  await page.locator('[data-assistant-confirm]').click();
+  await page.waitForFunction(() => document.querySelector('[data-assistant-action-summary]')?.textContent?.includes('Confirm sosirea la ora 10.'));
+  report.checks.draftRevisionUsesPreviousDraft = replyRequests.length === 2 && replyRequests[1].history.some(turn => turn.role === 'assistant' && turn.text.includes('Bună ziua'));
+  await page.locator('[data-assistant-action-reject]').click();
+  report.checks.draftCancelled = !(await page.locator('[data-assistant-action-confirm]').isVisible());
   if (Object.values(report.checks).some((value) => !value)) {
     throw new Error('Source separation checks failed: ' + JSON.stringify(report.checks));
   }

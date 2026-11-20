@@ -49,9 +49,12 @@ final class DeviceContactResolver {
                 if (contactId == null || displayName.isEmpty() || phoneNumber.isEmpty()) continue;
                 int score = matchScore(normalize(displayName), normalize(requestedName));
                 if (score == 0) continue;
-                Candidate existing = candidates.get(contactId);
+                // Multiple numbers belonging to the same person still require
+                // a choice; never silently pick the first number in the cursor.
+                String candidateKey = contactId + ":" + phoneNumber.replaceAll("[^0-9+]", "");
+                Candidate existing = candidates.get(candidateKey);
                 if (existing == null || score > existing.score) {
-                    candidates.put(contactId, new Candidate(displayName, phoneNumber, score));
+                    candidates.put(candidateKey, new Candidate(displayName, phoneNumber, score));
                 }
             }
         } catch (SecurityException ignored) {

@@ -12,6 +12,11 @@ export function routeAndroidAction(text: string, context: ActiveDriverContext | 
   const raw = text.trim();
   const value = normalize(raw);
   if (!value) return unresolved('CLARIFICATION_REQUIRED', 'EMPTY_REQUEST');
+  const prepareContact = /(?:preg[aă]te[sș]te\s+(?:apelul|un apel)(?:\s+(?:pentru|c[aă]tre))?|caut[aă]|g[aă]se[sș]te)\s+(?:(?:contactul|num[aă]rul|pe|lui)\s+)*(.+?)[.!?]*$/i.exec(raw);
+  if (prepareContact && (/\b(?:apel|apelul|contactul|numarul)\b/.test(value))) {
+    const contactName = cleanContactName(prepareContact[1] ?? '');
+    if (contactName) return resolved('DIAL', 'CONTACT_NAME_RESOLUTION_REQUIRED', 'REQUEST', { contactName });
+  }
   if (/\b(citeste l|read it|lies es|lecture|leggilo|leelo)\b/.test(value)) {
     return context?.answerText ? resolved('READ_CONTEXT', 'ACTIVE_CONTEXT_AVAILABLE', 'ACTIVE_GMAIL_CONTEXT', { contextText: context.answerText }) : unresolved('CLARIFICATION_REQUIRED', 'ACTIVE_CONTEXT_REQUIRED');
   }
@@ -27,9 +32,9 @@ export function routeAndroidAction(text: string, context: ActiveDriverContext | 
       ? resolved('NAVIGATION', 'DESTINATION_RESOLVED', contextualReference || !requested ? 'ACTIVE_GMAIL_CONTEXT' : 'REQUEST', payload)
       : unresolved('CLARIFICATION_REQUIRED', 'DESTINATION_REQUIRED');
   }
-  const openApp = /\b(?:deschide|porneste|open|launch|start|offne|starte)\s+(?:aplicatia\s+|the\s+app\s+)?(google maps|maps|waze|tom tom|tomtom|gmail|camera|kamera)\b/i.exec(value);
+  const openApp = /\b(?:deschide|porneste|open|launch|start|offne|starte)\s+(?:aplicatia\s+|the\s+app\s+)?(google maps|maps|waze|tom tom|tomtom|gmail|camera|kamera|contacte|contactele|contacts|telefon|telefonul|phone|whatsapp)\b/i.exec(value);
   if (openApp) {
-    const labels: Record<string, string> = { maps:'Maps','google maps':'Maps',waze:'Waze','tom tom':'TomTom',tomtom:'TomTom',gmail:'Gmail',camera:'Camera',kamera:'Camera' };
+    const labels: Record<string, string> = { maps:'Maps','google maps':'Maps',waze:'Waze','tom tom':'TomTom',tomtom:'TomTom',gmail:'Gmail',camera:'Camera',kamera:'Camera',contacte:'Contacts',contactele:'Contacts',contacts:'Contacts',telefon:'Phone',telefonul:'Phone',phone:'Phone',whatsapp:'WhatsApp' };
     return resolved('OPEN_APP', 'APP_LABEL_RESOLVED', 'REQUEST', { value: labels[openApp[1]!] ?? openApp[1] });
   }
   const messengerCall = /(?:apeleaza|suna|call)\s+(.+?)\s+(?:pe|prin|cu|on|via)\s+messenger[.!?]*$/i.exec(value);
@@ -78,7 +83,7 @@ export function routeAndroidAction(text: string, context: ActiveDriverContext | 
     return shareText ? resolved('SHARE', 'ANDROID_CHOOSER_REQUIRED', context?.shareText ? 'ACTIVE_GMAIL_CONTEXT' : 'REQUEST', { value: shareText, contextText: shareText, mimeType: 'text/plain' }) : unresolved('CLARIFICATION_REQUIRED', 'SHARE_PAYLOAD_REQUIRED');
   }
   if (/\b(sterge|delete|remove|wifi|bluetooth|setari sistem|system settings|instaleaza|uninstall)\b/.test(value)) return unresolved('UNSUPPORTED', 'ACTION_NOT_ALLOWLISTED');
-  if (/\b(asistent|assistant|assistent)\b/.test(value)) return resolved('ASSISTANT', 'GENERAL_ASSISTANT_HANDOFF', 'GENERAL_HANDOFF', { contextText: raw });
+  if (/\b(?:deschide|porneste|open|launch|offne|starte)\b.*\b(?:asistent|asistentul|assistant|assistent)\b/.test(value)) return resolved('ASSISTANT', 'GENERAL_ASSISTANT_HANDOFF', 'GENERAL_HANDOFF', { contextText: raw });
   return unresolved('UNSUPPORTED', 'NO_ACTION_INTENT');
 }
 

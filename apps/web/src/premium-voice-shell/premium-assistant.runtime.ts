@@ -10,7 +10,8 @@ import { premiumConversationMessages } from './premium-conversation.i18n';
 import { recordRoutingMetric, routeDeviceOperation } from '../device-capability-router/device-capability.runtime';
 import { normalizeSpeechText } from '../speech-semantics';
 import { bindDeviceAssistantHandoff, handleSpokenAndroidAssistantCommand } from '../premium-capabilities/device-assistant-handoff.runtime';
-import { rememberDriverContext } from '../android-action-layer/driver-context';
+import { rememberDriverContext, readDriverContext } from '../android-action-layer/driver-context';
+import { isReplyDraftRequest, isDraftRevision, requestsFreshEmail, replyDraftRequest, replyDraftResolution } from './email-reply-draft';
 import { resolveDriverVoiceCommand, driverActionMessage, driverDialConfirmationSummary } from '../android-action-layer/driver-voice-mode';
 import { executeAndroidAction } from '../android-action-layer/android-action.executor';
 import type { AndroidActionResolution } from '../android-action-layer/android-action.contract';
@@ -210,6 +211,14 @@ export function bindPremiumAssistantRuntime(){
      recordConversation(confirmedText,announcement);const announced=await speakRuntimeMessage(announcement,'contact-email-choice-accepted');if(!announced)return true;
      const result=await executeAndroidAction(confirmedText,prepared);const message=driverActionMessage(result.result,result.fallback??'',language,result.resolution);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return true;
     }
+    if(androidConfirmation.hasPending()&&isDraftRevision(confirmedText)){
+     const pending=androidConfirmation.consume()!;
+     if(pending.resolution.action==='EMAIL_DRAFT'){
+      if(actionPanel)actionPanel.hidden=true;
+      return prepareEmailReply(confirmedText,pending.resolution.payload?.contextText);
+     }
+     androidConfirmation.prepare(pending);
+    }
     const confirmation=androidConfirmation.respond(confirmedText,language);
     if(confirmation.status!=='NO_PENDING'){
      if(confirmation.status==='REPEAT'){
@@ -224,7 +233,8 @@ export function bindPremiumAssistantRuntime(){
      if(!announced){status.textContent=m.playbackError;return true;}
      const result=await executeAndroidAction(confirmation.pending.text,confirmation.pending.resolution,{agmConfirmed:true});const message=driverActionMessage(result.result,result.fallback??'',language,result.resolution);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return true;
     }
-   const contactLibrary=await resolveProfilePersonalContactThroughAuthority({text:confirmedVoiceText(confirmedText),language,storage:localStorage,surface:isNativeAudioAvailable()?'ANDROID':'BROWSER',domain:'PREMIUM'});
+   if(!requestsFreshEmail(confirmedText)&&isReplyDraftRequest(confirmedText,Boolean(readDriverContext()))) return prepareEmailReply(confirmedText);
+   const contactLibrary=requestsFreshEmail(confirmedText)?{command:{handled:false as const},package:{status:'VERIFIED_NO_DATA' as const}}:await resolveProfilePersonalContactThroughAuthority({text:confirmedVoiceText(confirmedText),language,storage:localStorage,surface:isNativeAudioAvailable()?'ANDROID':'BROWSER',domain:'PREMIUM'});
    const contactCommand=contactLibrary.command;
    if(!contactCommand.handled&&contactLibrary.package.status!=='VERIFIED_NO_DATA'){
     const message=language==='ro'?'Biblioteca personală AGM nu a putut finaliza rezoluția. Nu am trimis cererea către Assistant-ul generic.':language==='de'?'Die persönliche AGM-Bibliothek konnte die Auflösung nicht abschließen. Die Anfrage wurde nicht an den generischen Assistenten weitergeleitet.':'AGM Personal Library could not complete resolution. The request was not sent to the generic Assistant.';
@@ -266,9 +276,35 @@ export function bindPremiumAssistantRuntime(){
    catch(error){recordRoutingMetric({operation:'AGM_CONTEXT_REASONING',authority:'AGM_AI',executionMode:routing.executionMode,decisionLatencyMs:routing.decisionLatencyMs,executionLatencyMs:performance.now()-modelStartedAt,success:false,atEpochMs:Date.now()});throw error;}
    if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'model-response');return false;}session.markEngineResponse(result.timing);
      const groundedText=enforceVerifiedContactBoundary(confirmedText,result.text,language,{trustedToolResponse:result.toolTrace?.tool==='gmail-inbox'});let retrievedAction:AndroidActionResolution|null=null;if(result.actionContext){const activeContext=rememberDriverContext(result.actionContext,groundedText);retrievedAction=routeRetrievedAndroidAction(confirmedText,activeContext);void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'GMAIL_READONLY',requestedPermissionOrScope:'https://www.googleapis.com/auth/gmail.readonly',requestor:'agm.premium-assistant.gmail',reason:'Record authenticated Gmail retrieval used for driver context',risk:'MEDIUM',currentAuthority:result.toolTrace?.status==='SUCCESS'?'AUTHORIZED':'UNAVAILABLE',evidence:`gmail:${result.toolTrace?.status??'NONE'}:${result.sourceTrace.traceId}`});void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'GMAIL_AUTHORIZATION_PROTOCOL',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.premium-assistant.gmail',reason:'Record current Gmail authorization provider state',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`provider-snapshot:${result.toolTrace?.status??'NONE'}:${result.toolTrace?.errorCode??'NONE'}:${result.sourceTrace.traceId}`});}history.push(historyTurn('user',confirmedText),historyTurn('assistant',groundedText));while(history.length>20)history.shift();saveHistory(history);renderHistory();answerText=groundedText;response.textContent=groundedText;panel.hidden=false;
-    session.transition('PREPARING');session.markTtsRequest();renderLatency(session.snapshot());const spoken=await speak(groundedText,sequence,turnId);if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'tts-completion');return false;}if(retrievedAction){void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'INTENT_ROUTER',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.gmail-action-router',reason:'Resolve requested Gmail follow-up action',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`gmail-route:${retrievedAction.status}:${retrievedAction.action??'NONE'}:${retrievedAction.reason}`});if(retrievedAction.status==='RESOLVED'){const actionResult=await executeAndroidAction(confirmedText,retrievedAction);status.textContent=driverActionMessage(actionResult.result,actionResult.fallback??'',language);if(actionResult.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));}else{status.textContent=driverActionMessage('CLARIFICATION_REQUIRED',retrievedAction.reason,language);}}activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;return spoken;
+    session.transition('PREPARING');session.markTtsRequest();renderLatency(session.snapshot());const spoken=await speak(groundedText,sequence,turnId);if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'tts-completion');return false;}if(result.actionContext&&isReplyDraftRequest(confirmedText,true)){activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;return prepareEmailReply(confirmedText);}if(retrievedAction){void evaluatePermissionRequest({phase:'OBSERVATION',requestedCapability:'INTENT_ROUTER',requestedPermissionOrScope:'NOT_REQUIRED',requestor:'agm.gmail-action-router',reason:'Resolve requested Gmail follow-up action',risk:'LOW',currentAuthority:'NOT_REQUIRED',evidence:`gmail-route:${retrievedAction.status}:${retrievedAction.action??'NONE'}:${retrievedAction.reason}`});if(retrievedAction.status==='RESOLVED'){const actionResult=await executeAndroidAction(confirmedText,retrievedAction);status.textContent=driverActionMessage(actionResult.result,actionResult.fallback??'',language);if(actionResult.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));}else{status.textContent=driverActionMessage('CLARIFICATION_REQUIRED',retrievedAction.reason,language);}}activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;return spoken;
   }catch(error){if(sequence!==requestSequence||disposed){recordStaleEvent(turnId,'model-error');return false;}if(controller.signal.aborted&&!timedOut)return false;retryText=confirmedText;if(retry){retry.textContent=retryLabel(language);retry.hidden=false;}const failureText=timedOut?timeoutText(language):error instanceof PremiumAssistantClientError?premiumAssistantFailureMessage(error.reason,language):m.aiError;response.textContent=failureText;panel.hidden=false;status.textContent=failureText;session.transition('PREPARING');session.markTtsRequest();await speak(failureText,sequence,turnId);if(sequence===requestSequence&&!disposed){session.transition('ERROR');activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;}return false;}finally{window.clearTimeout(timeout);if(activeRequest===controller)activeRequest=undefined;if(sequence===requestSequence&&session.state()==='ERROR'){activeTurnId=undefined;delete runtimeRoot.dataset.activeVoiceTurn;}}
  }
+  async function prepareEmailReply(text:string,previousDraft?:string):Promise<boolean>{
+   const context=readDriverContext();
+   if(!context?.senderEmail){
+    const message=language==='ro'?'Citește mai întâi e-mailul la care vrei să răspunzi, apoi spune-mi ce dorești să transmit.':language==='de'?'Lies zuerst die E-Mail vor, auf die du antworten möchtest, und sage mir dann, was du mitteilen möchtest.':'Read the email you want to reply to first, then tell me what to say.';
+    recordConversation(text,message);await speakRuntimeMessage(message,'reply-context-required');return true;
+   }
+   const sequence=++requestSequence;activeRequest?.abort();const controller=new AbortController();activeRequest=controller;
+   const timeout=window.setTimeout(()=>controller.abort(),18_000);session.transition('UNDERSTANDING');
+   try{
+    const result=await client.respond({...replyDraftRequest(text,context,language,previousDraft),surface:isNativeAudioAvailable()?'ANDROID':'BROWSER'},{signal:controller.signal});
+    if(disposed||sequence!==requestSequence)return false;
+    const resolution=result.kind==='answer'?replyDraftResolution(context,result.text):null;
+    if(!resolution){recordConversation(text,result.text);await speakRuntimeMessage(result.text,'reply-clarification');return true;}
+    androidConfirmation.prepare({text,resolution});
+    const prompt=language==='ro'?'Deschid această ciornă în aplicația de e-mail? Trimiterea o confirmi acolo.':language==='de'?'Soll ich diesen Entwurf in der E-Mail-App öffnen? Das Senden bestätigst du dort.':'Open this draft in your email app? You confirm sending there.';
+    const preview=`${context.senderEmail}\n${resolution.payload?.subject}\n\n${result.text}\n\n${prompt}`;
+    if(actionSummary)actionSummary.textContent=preview;if(actionPanel)actionPanel.hidden=false;
+    recordConversation(text,`${result.text}\n\n${prompt}`);const spoken=await speakRuntimeMessage(`${result.text} ${prompt}`,'reply-draft-preview');
+    if(!spoken||disposed||!androidConfirmation.hasPending())return false;
+    response.textContent=preview;panel.hidden=false;return true;
+   }catch(error){
+    if(disposed||sequence!==requestSequence)return false;
+    const message=language==='ro'?'Nu am putut pregăti ciorna. Nu am trimis niciun mesaj. Încearcă din nou.':'The draft could not be prepared. No message was sent. Please try again.';
+    recordConversation(text,message);await speakRuntimeMessage(message,'reply-draft-failed');return false;
+   }finally{window.clearTimeout(timeout);if(activeRequest===controller)activeRequest=undefined;}
+  }
   async function confirmPendingAction(){
     const prepared=androidConfirmation.consume();if(prepared){if(actionPanel)actionPanel.hidden=true;const result=await executeAndroidAction(prepared.text,prepared.resolution,{agmConfirmed:true});const message=driverActionMessage(result.result,result.fallback??'',language,result.resolution);response.textContent=message;panel.hidden=false;status.textContent=message;if(result.result==='OPENED')window.dispatchEvent(new CustomEvent('agm-android-assistant-handoff'));return;}
   if(!pendingAction)return;

@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.AlarmClock;
 import android.provider.CalendarContract;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import com.getcapacitor.JSObject;
@@ -199,6 +200,12 @@ final class DeviceHandoffIntents {
     private static JSObject openApp(Activity activity, String requestedLabel) {
         PackageManager manager = activity.getPackageManager();
         String needle = requestedLabel.toLowerCase(Locale.ROOT);
+        if ("phone".equals(needle)) return start(activity, new Intent(Intent.ACTION_DIAL, Uri.parse("tel:")), "DIALER_UNAVAILABLE");
+        if ("contacts".equals(needle)) return start(activity, new Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI), "CONTACTS_APP_UNAVAILABLE");
+        if ("whatsapp".equals(needle)) {
+            Intent whatsapp = manager.getLaunchIntentForPackage("com.whatsapp");
+            return whatsapp == null ? result("UNAVAILABLE", "APP_NOT_FOUND", null) : start(activity, whatsapp, "APP_LAUNCH_UNAVAILABLE");
+        }
         if ("camera".equals(needle) || "kamera".equals(needle)) {
             Intent camera = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
             return start(activity, camera, "CAMERA_APP_UNAVAILABLE");

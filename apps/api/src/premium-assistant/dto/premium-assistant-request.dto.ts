@@ -8,6 +8,7 @@ class ConversationTurnDto {
 }
 
 export class PremiumAssistantRequestDto {
+  @IsOptional() @IsIn(['DRAFT_REPLY']) task?: 'DRAFT_REPLY';
   @IsIn(['agm-cockpit']) productId!: 'agm-cockpit';
   @IsString() @IsNotEmpty() @MaxLength(80) moduleId!: string;
   @IsIn(['ro', 'de', 'en', 'fr', 'nl', 'ru', 'pl', 'tr', 'sq', 'it', 'es', 'sv']) language!: string;

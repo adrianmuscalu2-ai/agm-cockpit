@@ -1,16 +1,22 @@
 import { routeAndroidAction } from './android-action.router';
 import { readDriverContext } from './driver-context';
 import type { AndroidActionResolution } from './android-action.contract';
+import { isReplyDraftRequest, requestsFreshEmail } from '../premium-voice-shell/email-reply-draft';
 
 const driverCommands = /\b(citeste l|read it|lies es|navigheaza|navigate|route|navigiere|du[ -]ma|condu[ -]ma|suna|apeleaza|formeaza|dial|call|anrufen|raspunde|reply|antworte|calendar|kalender|distribuie|partajeaza|share|teilen|trimite|scrie|compune|send|write|compose|sende|schreibe|asistent|assistant|assistent)\b|\b(?:deschide|porneste|open|launch|offne|starte)\s+(?:google\s+)?(?:maps|waze|tom\s*tom|gmail|camera|kamera|messenger)\b/i;
 
 export function resolveDriverVoiceCommand(text: string) {
   const normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  if (!driverCommands.test(normalized)) return { handled: false as const };
+  if (!driverCommands.test(normalized) && !/\b(?:pregateste|cauta|gaseste)\b.*\b(?:apel|apelul|contactul|numarul)\b/.test(normalized) && !/\b(?:deschide|open|porneste)\s+(?:aplicatia\s+)?(?:contacte|contactele|contacts|telefon|telefonul|phone|whatsapp)\b/.test(normalized)) return { handled: false as const };
   const context = readDriverContext();
+  if (requestsFreshEmail(text)) return { handled: false as const };
+  if (/\b(?:raspunde|reply|antworte)\b/.test(normalized) && !isReplyDraftRequest(text, Boolean(context))) return { handled: false as const };
   const needsGmailContext = /\b(?:navigheaza|navigate|route|navigiere)\b.*\b(?:ultim(?:ul|a)?\s+(?:e-?mail|mail|mesaj)|latest\s+(?:e-?mail|message)|letzte[nrs]?\s+(?:e-?mail|nachricht))\b/i.test(normalized);
   if (needsGmailContext && !context) return { handled: false as const };
-  return { handled: true as const, resolution: routeAndroidAction(text, context) };
+  const resolution = routeAndroidAction(text, context);
+  // "Write a poem" and ordinary conversation are not Android commands.
+  if (resolution.reason === 'NO_ACTION_INTENT') return { handled: false as const };
+  return { handled: true as const, resolution };
 }
 
 export function driverActionMessage(result: string, reason: string, language: string, resolution?: AndroidActionResolution) {

@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <queries>
+        <package android:name="com.whatsapp" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="vnd.android.cursor.dir/contact" />
+        </intent>
         <package android:name="com.google.android.apps.maps" />
         <package android:name="com.waze" />
         <package android:name="com.tomtom.gplay.navapp" />

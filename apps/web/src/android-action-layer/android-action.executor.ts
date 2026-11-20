@@ -20,6 +20,7 @@ const capabilityNames: Record<NonNullable<AndroidActionResolution['action']>, st
 type GuardianLink = { evidenceId?: string; correlationId?: string };
 
 export async function executeAndroidAction(text: string, resolution: AndroidActionResolution, options: { agmConfirmed?: boolean } = {}): Promise<AndroidActionReceipt> {
+  if (resolution.payload?.expiresAtEpochMs !== undefined && resolution.payload.expiresAtEpochMs <= Date.now()) return receipt(text, resolution, 'CLARIFICATION_REQUIRED', null, 'ACTION_CONTEXT_EXPIRED');
   if (resolution.status !== 'RESOLVED' || !resolution.action) {
     const result = resolution.status === 'UNSUPPORTED' ? 'UNSUPPORTED' : 'CLARIFICATION_REQUIRED';
     return receipt(text, resolution, result, null, resolution.reason);
@@ -29,7 +30,6 @@ export async function executeAndroidAction(text: string, resolution: AndroidActi
     return receipt(text, effectiveResolution, 'CLARIFICATION_REQUIRED', null, effectiveResolution.reason);
   }
   if (effectiveResolution.action === 'READ_CONTEXT') return receipt(text, effectiveResolution, 'READ', null, null);
-  if (effectiveResolution.confirmation === 'AGM_REQUIRED' && !options.agmConfirmed) return receipt(text, effectiveResolution, 'CONFIRMATION_REQUIRED', null, 'AGM_CONFIRMATION_REQUIRED');
 
   const capabilityName = capabilityNames[effectiveResolution.action];
   let payload = effectiveResolution.payload ?? {};
@@ -54,6 +54,10 @@ export async function executeAndroidAction(text: string, resolution: AndroidActi
     };
     effectiveResolution = { ...effectiveResolution, reason: 'CONTACT_PHONE_RESOLVED', payload };
   }
+
+  // Bind confirmation to the actual locally resolved name and number, never to
+  // a claim that a contact was found before the phone book has been queried.
+  if (effectiveResolution.confirmation === 'AGM_REQUIRED' && !options.agmConfirmed) return receipt(text, effectiveResolution, 'CONFIRMATION_REQUIRED', null, 'AGM_CONFIRMATION_REQUIRED');
 
   const sensitivity = effectiveResolution.source === 'ACTIVE_GMAIL_CONTEXT' || Boolean(payload.contextText) || Boolean(payload.contactName)
     || effectiveResolution.action === 'SHARE' || effectiveResolution.action === 'EMAIL_DRAFT'
@@ -113,7 +117,7 @@ export function readAndroidActionReceipts(): AndroidActionReceipt[] {
 }
 
 function resolveStoredPersonalContact(resolution: AndroidActionResolution): AndroidActionResolution {
-  if (resolution.payload?.contactSource === 'AGM_PERSONAL_CONTACTS' && resolution.payload.value) return resolution;
+  if (resolution.payload?.contactSource && resolution.payload.value) return resolution;
   try {
     return resolvePersonalContactAction(resolution, readContacts(localStorage));
   } catch {

@@ -86,6 +86,40 @@ describe('Premium assistant read-only contract', () => {
     expect(JSON.parse(body.input[1].content).history).toEqual(history);
   });
 
+  it('drafts without connector access or web search, even when the reply mentions today', async () => {
+    const provider = jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({ output_text: 'Confirm sosirea astazi.' }), { status: 200 }));
+    const gmail = { retrieve: jest.fn() };
+    const result = await new PremiumAssistantService(config, undefined, undefined, gmail as any).respond(premiumUser, { ...request, task: 'DRAFT_REPLY', confirmedText: 'Raspunde la email ca ajung astazi.' });
+    const body = JSON.parse(String(provider.mock.calls[0][1]?.body));
+    expect(body.tools).toBeUndefined();
+    expect(body.input[0].content).toContain('Compose only an email reply body');
+    expect(gmail.retrieve).not.toHaveBeenCalled();
+    expect(result.externalEffectPerformed).toBe(false);
+  });
+
+  it('does not claim current facts when live search returned no verifiable sources', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({ output_text: 'Acum sunt 2 grade.' }), { status: 200 }));
+    const result = await new PremiumAssistantService(config).respond(premiumUser, { ...request, confirmedText: 'Vremea acum?' });
+    expect(result.text).not.toContain('2 grade');
+    expect(result.text).toContain('Nu am obținut o sursă verificabilă');
+    expect(result.sourceTrace.status).toBe('LIVE_VERIFICATION_IN_PROGRESS');
+    expect(requiresLiveSearch('Pretinde ca ai modificat baza de date')).toBe(false);
+  });
+
+  it('allows a drafted reply to end with a question without treating it as assistant clarification', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({ output_text: 'Puteti confirma ora sosirii?' }), { status: 200 }));
+    const result = await new PremiumAssistantService(config).respond(premiumUser, { ...request, task: 'DRAFT_REPLY' });
+    expect(result.kind).toBe('answer');
+  });
+
+  it('retains web-search action sources even without inline citation annotations', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({ output_text: 'Informatii actuale.', output: [{ type: 'web_search_call', action: { sources: [{ type: 'url', url: 'https://example.test/current' }] } }] }), { status: 200 }));
+    const result = await new PremiumAssistantService(config).respond(premiumUser, { ...request, confirmedText: 'Informatii actuale acum?' });
+    expect(result.sourceTrace.status).toBe('READY');
+    expect(result.sourceTrace.counts.live).toBe(1);
+    expect(result.text).toBe('Informatii actuale.');
+  });
+
   it('persists real provider usage for the Product Owner projection', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValue(new Response(JSON.stringify({ output_text: 'Răspuns operațional.' }), { status: 200 }));
     const prisma = { providerUsageEvent: { create: jest.fn().mockResolvedValue({}) } };
