@@ -3,7 +3,12 @@ package com.agm.cockpit;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -13,6 +18,8 @@ import android.provider.Settings;
 import android.speech.RecognitionService;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
+import android.util.Base64;
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
@@ -21,6 +28,10 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
+import java.io.ByteArrayOutputStream;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @CapacitorPlugin(
     name = "AgmCapability",
@@ -47,6 +58,72 @@ public class AgmCapabilityPlugin extends Plugin {
         out.put("assist", hasActivity(new Intent(Intent.ACTION_ASSIST)));
         out.put("voiceSettings", hasActivity(new Intent(Settings.ACTION_VOICE_INPUT_SETTINGS)));
         call.resolve(out);
+    }
+
+    @PluginMethod
+    public void discoverApplications(PluginCall call) {
+        PackageManager packageManager = getContext().getPackageManager();
+        Intent launcher = new Intent(Intent.ACTION_MAIN);
+        launcher.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> resolved = packageManager.queryIntentActivities(launcher, PackageManager.MATCH_ALL);
+        JSArray applications = new JSArray();
+        Set<String> seen = new HashSet<>();
+        for (ResolveInfo item : resolved) {
+            if (item.activityInfo == null || item.activityInfo.applicationInfo == null) continue;
+            ApplicationInfo application = item.activityInfo.applicationInfo;
+            String packageName = application.packageName == null ? "" : application.packageName.trim();
+            if (packageName.isEmpty() || !seen.add(packageName)) continue;
+            CharSequence label = application.loadLabel(packageManager);
+            applications.put(applicationEntry(packageManager, application));
+        }
+        JSObject result = new JSObject();
+        result.put("applications", applications);
+        call.resolve(result);
+    }
+
+    @PluginMethod
+    public void inspectApplication(PluginCall call) {
+        String packageName = call.getString("packageName", "").trim();
+        if (!packageName.matches("^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+$")) {
+            call.reject("INVALID_PACKAGE_IDENTIFIER");
+            return;
+        }
+        PackageManager packageManager = getContext().getPackageManager();
+        try {
+            ApplicationInfo application = packageManager.getApplicationInfo(packageName, 0);
+            Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
+            if (launchIntent == null) {
+                call.reject("APPLICATION_NOT_LAUNCHABLE");
+                return;
+            }
+            call.resolve(applicationEntry(packageManager, application));
+        } catch (PackageManager.NameNotFoundException error) {
+            call.reject("APPLICATION_NOT_INSTALLED_OR_NOT_VISIBLE");
+        }
+    }
+
+    private JSObject applicationEntry(PackageManager packageManager, ApplicationInfo application) {
+        String packageName = application.packageName == null ? "" : application.packageName.trim();
+        CharSequence label = application.loadLabel(packageManager);
+        JSObject entry = new JSObject();
+        entry.put("packageName", packageName);
+        entry.put("appName", label == null ? packageName : label.toString());
+        entry.put("iconUri", iconDataUri(application.loadIcon(packageManager)));
+        entry.put("systemApp", (application.flags & ApplicationInfo.FLAG_SYSTEM) != 0);
+        entry.put("availability", "AVAILABLE");
+        return entry;
+    }
+
+    private String iconDataUri(Drawable drawable) {
+        final int size = 72;
+        Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, size, size);
+        drawable.draw(canvas);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 90, output);
+        bitmap.recycle();
+        return "data:image/png;base64," + Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP);
     }
 
     @PluginMethod

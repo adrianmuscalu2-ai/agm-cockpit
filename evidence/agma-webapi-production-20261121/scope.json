@@ -1,26 +1,27 @@
 {
-  "release": "AGM 1.9.2 Web/API update 2026-11-21",
-  "baseline": "1bcc20a5d0e4708fe2ea20a6c83fcce0b098724a",
-  "includedSourceCommits": [
-    "8695d30efaec3f8da84986dd8ea0c29fd4c06679",
-    "9f4b977db1e311fbf5ea06a48024a7eee48ca7bc"
-  ],
-  "scope": [
-    "Conversational planning",
-    "Bounded own-profile context",
-    "Own-library lookup",
-    "Web profile permission-list restoration",
-    "API version metadata correction",
-    "Web cache release invalidation"
-  ],
-  "excluded": [
-    "All Android native differences, APK/AAB builds and device installation",
-    "Guardian/RK changes",
-    "DNS/domain changes",
-    "Gmail OAuth reconnection",
-    "Official website redesign"
-  ],
-  "androidStatus": "Existing installed 1.9.2 unchanged; new discovery/exact-package support deferred",
-  "preexistingIssue": "Gmail refresh invalid_grant confirmed; no new OAuth probes required for release",
-  "validation": "Release candidate checks pending; no production PASS claimed"
+    "release":  "AGM 1.9.2 Web/API + Android build 63",
+    "baseline":  "1bcc20a5d0e4708fe2ea20a6c83fcce0b098724a",
+    "includedSourceCommits":  [
+                                  "8695d30efaec3f8da84986dd8ea0c29fd4c06679",
+                                  "9f4b977db1e311fbf5ea06a48024a7eee48ca7bc"
+                              ],
+    "scope":  [
+                  "Conversational planning",
+                  "Bounded own-profile context",
+                  "Own-library lookup",
+                  "Web profile permission-list restoration",
+                  "API version metadata correction",
+                  "Web cache release invalidation",
+                  "PR #51 Android application discovery and exact-package opening",
+                  "Signed Android APK/AAB build 63 and physical-device verification"
+              ],
+    "excluded":  [
+                     "Guardian/RK changes",
+                     "DNS/domain changes",
+                     "Gmail OAuth reconnection",
+                     "Official website redesign"
+                 ],
+    "androidStatus":  "Explicit Product Owner mandate correction: include PR #51 Android; validation pending",
+    "preexistingIssue":  "Gmail refresh invalid_grant confirmed; no new OAuth probes required for release",
+    "validation":  "Web/API candidate 70741256 workflow 44949364447 PASS (838 API tests); amended native candidate pending"
 }
