@@ -1,0 +1,19 @@
+{
+  "sourceRevision": "d3b8a045",
+  "branch": "codex/agma-wakeword-20261121",
+  "preservedBaseline": "d4502f8f236b971ddab95ef6658b0cf242d51841",
+  "verdict": "PASS_REAL_WAKE_AND_APP_OPEN",
+  "authoritativeProof": "real-wake-pass.json",
+  "apkSha256": "cf336c80292cf5e722a372db71f54068172aadd9f494ec5500d7e8522d1a435a",
+  "apkBytes": 261491267,
+  "prepareCommand": "node apps/web/scripts/prepare-local-wake.mjs",
+  "buildCommand": "apps/web/android/gradlew.bat -p apps/web/android :app:assembleAssistantPilot",
+  "testCommand": "apps/web/android/gradlew.bat -p apps/web/android -PagmaTestBuildType=assistantPilot :app:assembleAssistantPilotAndroidTest",
+  "resume": "Reuse accepted real wake PASS. Next independent acceptance: locked-screen acknowledgement, repeatability and battery endurance. Do not reopen frozen navigation/contact/conversation scope without new evidence.",
+  "frozen": [
+    "TURN",
+    "AGMaTCC"
+  ],
+  "productionDeployment": false,
+  "rollback": "previous-passed-pilot.apk retained in full local evidence archive; reinstall with adb install -r, preserving app data"
+}

@@ -1,0 +1,61 @@
+{
+  "baseline": "d4502f8f",
+  "preserved": [
+    "navigation",
+    "contacts-to-dialer",
+    "external-assistant-handoff",
+    "conversation",
+    "TURN",
+    "AGMaTCC"
+  ],
+  "required": [
+    {
+      "id": "ROLE",
+      "proof": "Detector refuses arm without active pilot assistant role"
+    },
+    {
+      "id": "LOCAL",
+      "proof": "Pinned keyword model loads on S25 and microphone enters LISTENING"
+    },
+    {
+      "id": "POSITIVE",
+      "proof": "Real acoustic Hey AGMA triggers callback, not injected text or events"
+    },
+    {
+      "id": "NEGATIVE",
+      "proof": "Unrelated/confusable acoustic phrases do not trigger"
+    },
+    {
+      "id": "BACKGROUND",
+      "proof": "Home screen foreground; acoustic wake opens existing AGM voice runtime"
+    },
+    {
+      "id": "LOCKED",
+      "proof": "Screen locked; acoustic wake acknowledges without exposing private content or bypassing lock"
+    },
+    {
+      "id": "AUDIO_HANDOFF",
+      "proof": "Wake AudioRecord released before existing STT/TTS"
+    },
+    {
+      "id": "STOP",
+      "proof": "Explicit stop removes service, microphone and wake lock"
+    },
+    {
+      "id": "REARM",
+      "proof": "Conversation stops; detector resumes while armed, without overlapping microphone capture"
+    }
+  ],
+  "pilotConstraints": {
+    "maxArmedMinutes": 60,
+    "noBootAutoStart": true,
+    "noAudioUpload": true,
+    "notificationRequired": true
+  },
+  "dependencyRecovery": {
+    "issue": "Windows tar lacks bzip2 helper",
+    "classification": "OPTIONAL archive utility; no installation needed",
+    "recovery": "Python standard-library tarfile/bz2 with fixed allowed output paths",
+    "result": "PASS"
+  }
+}

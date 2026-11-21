@@ -1,0 +1,39 @@
+{
+  "verdict": "PASS_REAL_WAKE_AND_APP_OPEN; EXTENDED_ACCEPTANCE_PENDING",
+  "baselinePreserved": "d4502f8f236b971ddab95ef6658b0cf242d51841",
+  "branch": "codex/agma-wakeword-20261121",
+  "device": "Samsung S25 SM-S931B, Android SDK37",
+  "scope": "Assistant pilot only; TURN and AGMaTCC frozen; no Production deployment",
+  "passed": {
+    "build": "Web build, pilot APK build, non-pilot Java compilation",
+    "regression": "Existing Android action layer and external assistant handoff tests",
+    "role": "Arm refused without pilot role; owner-authorized role selected through Android Settings UI",
+    "microphone": "Foreground microphone active, Android reports not silenced; nonzero RMS and advancing frame count",
+    "syntheticModel": "Final phonetic model: positive, unrelated and expanded confusable fixtures all PASS through the same native decoder in the installed pilot; probe-fixtures.json",
+    "stop": "probe-stop.json: OFF, armed=false; Android recorder stop and wake-lock release observed",
+    "handoff": "probe-handoff.json: LISTENING -> PAUSED with voice active -> LISTENING with voice off",
+    "audioOrdering": "Device 06:48:05.107 detector recorder stops; 06:48:05.207 Google STT starts; 06:48:05.691 STT stops; 06:48:09.197 detector resumes",
+    "realWake": "Owner confirmed PASS; native microphone detection count=1 and existing voice-surface launch at device time 07:13:53; real-wake-pass.json"
+  },
+  "notProven": [
+    "Real acoustic false-positive corpus",
+    "Wake acknowledgement while screen is locked",
+    "Battery endurance and repeated-trial reliability"
+  ],
+  "invalidAcousticAttempt": "PC-generated speech did not materially raise phone audio peak; no detection. Audibility unverified, so neither positive nor negative physical PASS is claimed.",
+  "probeRecovery": [
+    "Hidden legacy stop button timed out; no forced click used",
+    "Main microphone button restarts listening during active turn; not used as final stop",
+    "Existing visible Cancel control stopped conversation; draft restored; minimal handoff retest PASS"
+  ],
+  "browser": {
+    "Browser Plugin Status": "PASS",
+    "Integrated Browser Control Status": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "Browser Session Status": "PASS - controlled Playwright Android WebView CDP",
+    "Target Page Status": "PASS - existing authenticated pilot voice surface"
+  },
+  "limits": "Explicitly armed local foreground session, maximum 60 minutes, persistent Stop notification, manual rearm after process/device restart, no audio files or audio upload by detector",
+  "rollback": "previous-passed-pilot.apk with adb install -r; original assistant component recorded in prior evidence",
+  "revision": "d3b8a045",
+  "latestEvidence": "real-wake-pass.json"
+}

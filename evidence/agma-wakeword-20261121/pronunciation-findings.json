@@ -1,0 +1,14 @@
+{
+  "ownerTrial": "Owner said Hei AGMA three times and confirmed gata",
+  "localCalibrationFinishedUtc": "2026-11-21T06:08:40Z",
+  "recognizedLocally": "HEY ACMAY ACMAY AKMA",
+  "recognizedUnits": " HE Y  A C MA Y  A C MA Y  A K MA",
+  "audioPeakRms": 0.09041944437661034,
+  "audioStored": false,
+  "audioUploaded": false,
+  "inference": "The English acoustic model decodes the owner's AGMA with C/K tokens instead of G; threshold reduction alone did not solve real detection",
+  "candidate": "Keep existing G variant; add C and K phonetic variants with the same HEY_AGMA result and existing 2.0/0.20 parameters",
+  "requiredBeforeRealRetest": "Native positive, unrelated and confusable fixtures; expanded confusables include Hey Acme, Hey Akmal and Hey asthma",
+  "realWakeVerdict": "Still FAIL until a fresh real acoustic event and foreground transition are observed",
+  "preserved": "TURN, AGMaTCC, navigation, contacts and accepted conversation evidence"
+}

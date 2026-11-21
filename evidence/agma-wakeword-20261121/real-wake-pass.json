@@ -1,0 +1,28 @@
+{
+  "verdict": "PASS_REAL_WAKE_AND_APP_OPEN",
+  "revision": "d3b8a045",
+  "ownerConfirmation": "in sfirsit ,,,,,,PASSSSSSS",
+  "nativeEvidence": [
+    "11-21 07:13:53.974 I AGM-Wake: Real microphone keyword detected; count=1",
+    "11-21 07:13:53.982 I AGMa-Session: Opening the existing AGM voice surface from Android assistant authority"
+  ],
+  "scope": "Real owner voice wakes the installed S25 pilot and opens the existing voice surface; user confirmation corroborates native launch event",
+  "notClaimed": [
+    "Locked-screen wake",
+    "Long-term false-positive rate",
+    "Battery endurance",
+    "Boot auto-start",
+    "Production deployment"
+  ],
+  "constraints": {
+    "armedSessionMinutes": 60,
+    "manualRearmAfterRestart": true,
+    "localDetectorAudioUpload": false
+  },
+  "preserved": [
+    "TURN",
+    "AGMaTCC",
+    "previous accepted navigation, contact and conversation checks"
+  ],
+  "interaction": "No page reload, button click, microphone stop or conversation interruption performed during evidence capture"
+}

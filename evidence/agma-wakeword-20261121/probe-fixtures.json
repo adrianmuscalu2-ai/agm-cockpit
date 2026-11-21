@@ -1,0 +1,48 @@
+{
+  "at": "2026-11-21T06:12:24.535Z",
+  "action": "fixtures",
+  "before": {
+    "state": "OFF",
+    "failure": "",
+    "armed": false,
+    "detections": 0,
+    "lastDetection": 0,
+    "localOnly": true,
+    "phrase": "Hei, AGMA",
+    "audioRms": 0,
+    "peakAudioRms": 0,
+    "audioFrames": 0,
+    "lastAudioFrame": 0,
+    "calibrating": false,
+    "calibrationText": "",
+    "calibrationTokens": "",
+    "selectedAssistant": true
+  },
+  "fixtureResults": {
+    "wake-positive.wav": "HEY_AGMA",
+    "wake-negative.wav": "",
+    "wake-confusable.wav": "",
+    "passed": true,
+    "syntheticOnly": true
+  },
+  "after": {
+    "state": "OFF",
+    "failure": "",
+    "armed": false,
+    "detections": 0,
+    "lastDetection": 0,
+    "localOnly": true,
+    "phrase": "Hei, AGMA",
+    "audioRms": 0,
+    "peakAudioRms": 0,
+    "audioFrames": 0,
+    "lastAudioFrame": 0,
+    "calibrating": false,
+    "calibrationText": "",
+    "calibrationTokens": "",
+    "selectedAssistant": true
+  },
+  "ui": "OFF · Activări: 0",
+  "voiceStatus": "Ascultare oprită",
+  "voiceActive": null
+}

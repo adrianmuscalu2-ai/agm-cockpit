@@ -1,0 +1,15 @@
+{
+  "observedAt": "2026-11-21T05:53:24Z",
+  "ownerResult": "nu reactionaza",
+  "verdict": "REAL_WAKE_FAIL",
+  "detector": "LISTENING",
+  "armed": true,
+  "detections": 0,
+  "audioFrames": 6250,
+  "peakAudioRms": 0.09582978186595095,
+  "baselinePeakBeforeOwnerTrial": 0.006104493158261349,
+  "androidAudioSilenced": false,
+  "interpretation": "Service did not expire and audio amplitude increased. This establishes live input, not a transcript or proof of the exact spoken phrase.",
+  "candidateChange": "Keyword boost 1.5 -> 2.0; acoustic trigger threshold 0.35 -> 0.20. Retest synthetic positive, unrelated and similar-name negatives before owner trial.",
+  "previousAcceptedEvidence": "Preserved; synthetic tests remain model-only evidence and cannot supersede real wake failure."
+}
