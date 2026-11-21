@@ -1,0 +1,34 @@
+.local-wake-panel {
+  box-sizing: border-box;
+  display: block;
+  width: calc(100% - 2rem);
+  max-width: 46rem;
+  min-width: 0;
+  margin: 1rem auto;
+  padding: 1rem;
+  border: 1px solid rgba(104, 211, 255, .46);
+  border-radius: 1rem;
+  background: rgba(2, 12, 28, .8);
+}
+.local-wake-panel > .premium-module-content {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+.local-wake-panel h2, .local-wake-panel p {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+.local-wake-panel button {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin: .75rem 0;
+  padding: .75rem;
+  border: 1px solid rgba(104, 211, 255, .5);
+  border-radius: .75rem;
+  background: #041734;
+  color: #fff;
+  font: inherit;
+}

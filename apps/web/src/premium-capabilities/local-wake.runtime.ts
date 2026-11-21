@@ -1,5 +1,6 @@
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { evaluatePermissionRequest } from '../android-action-layer/permission-guardian.client';
+import './local-wake.css';
 
 type WakeStatus = { state: string; armed: boolean; selectedAssistant: boolean; failure: string; detections: number; assistantName?: string };
 const wake = registerPlugin<{ status(): Promise<WakeStatus>; prepare(): Promise<{ microphone: string }>; arm(): Promise<void>; stop(): Promise<void>; pause(): Promise<void>; resume(): Promise<void> }>('AgmWake');
@@ -9,7 +10,7 @@ export function bindLocalWakeControls(root: HTMLElement, language: string) {
   if (!Capacitor.isPluginAvailable('AgmWake')) return () => undefined;
   const ro = language === 'ro';
   const section = document.createElement('section');
-  section.className = 'premium-module';
+  section.className = 'local-wake-panel';
   section.dataset.localWake = '';
   section.innerHTML = `<div class="premium-module-content"><h2>${ro ? 'Activare vocală: Hei, AGMA' : 'Voice activation: Hey, AGMA'}</h2>
     <p>${ro ? 'Activare experimentală: detectare locală, fără trimiterea sunetului. Activează pentru o sesiune de maximum o oră. Android afișează o notificare cu buton de oprire. După repornirea telefonului, reactivează manual.' : 'Experimental activation: local detection with no audio upload. Enable for a session of up to one hour. Android shows a notification with a stop button. Enable again manually after restarting the phone.'}</p>
