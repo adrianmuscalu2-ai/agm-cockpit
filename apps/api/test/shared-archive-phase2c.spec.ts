@@ -57,6 +57,16 @@ function memoryPrisma() {
 }
 
 describe('Phase 2C storage policy and authorized shared backend', () => {
+  it('browses the own library without treating library wording as content keywords', async () => {
+    const store=memoryPrisma();
+    const service=new SharedArchiveService(store.prisma as never);
+    await service.create(owner,archiveDto() as never);
+    await service.create(otherOwner,archiveDto({title:'Other user record'}) as never);
+    const records=await service.query(owner,{query:'Cauta in bibliotecile mele',requestSurface:'ANDROID'});
+    expect(records).toHaveLength(1);
+    expect(records[0].title).toBe('Traducere Clicktrans');
+    expect(store.delegate.findMany.mock.calls[0][0].where.ownerUserId).toBe(owner.userId);
+  });
   it('rejects LOCAL_ONLY and non-approved persistence before any database write', async () => {
     const store = memoryPrisma();
     const service = new SharedArchiveService(store.prisma as never);

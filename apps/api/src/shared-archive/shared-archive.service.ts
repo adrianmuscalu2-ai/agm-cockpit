@@ -124,7 +124,7 @@ function normalizeSearchText(value: string) {
 }
 
 function significantTerms(value: string) {
-  const stop = new Set(['ce', 'am', 'ai', 'despre', 'din', 'de', 'la', 'pe', 'un', 'o', 'si', 'ieri', 'ultima', 'ultimul', 'foloseste', 'gaseste', 'document', 'scanat', 'traducerea', 'the', 'about', 'from', 'yesterday', 'last', 'find', 'use']);
+  const stop = new Set(['cauta','arata','in','biblioteca','bibliotecii','bibliotecile','proprie','proprii','mea','mele','meu','interogarea','arhiva','arhive','library','libraries','search','my','own','bibliothek','archiv','suche','meiner','ce', 'am', 'ai', 'despre', 'din', 'de', 'la', 'pe', 'un', 'o', 'si', 'ieri', 'ultima', 'ultimul', 'foloseste', 'gaseste', 'document', 'scanat', 'traducerea', 'the', 'about', 'from', 'yesterday', 'last', 'find', 'use']);
   return [...new Set((normalizeSearchText(value).match(/[a-z0-9]+/g) ?? []).filter((term) => term.length >= 2 && !stop.has(term)))];
 }
 

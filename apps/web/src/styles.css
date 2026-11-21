@@ -19,6 +19,18 @@
   color: #eff9ff;
 }
 
+/* AGMa application access — explicit Profile authority, deny by default. */
+.application-access-list { display: grid; gap: .8rem; margin: 1rem 0; }
+.application-access-card { border: 1px solid rgba(125,211,252,.25); border-radius: .7rem; padding: .8rem; background: rgba(2,12,24,.35); }
+.application-access-card header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem .8rem; }
+.application-access-icon { width: 2.5rem; height: 2.5rem; object-fit: contain; border-radius: .5rem; }
+.application-access-icon-placeholder { display: grid; place-items: center; background: rgba(125,211,252,.12); font-size: .65rem; }
+.application-access-card code { opacity: .7; font-size: .78rem; }
+.application-access-state { text-transform: uppercase; letter-spacing: .04em; font-size: .75rem; }
+.application-access-capabilities { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: .35rem .7rem; margin-top: .6rem; }
+.application-access-capabilities label, .application-access-safety-mode { display: flex; justify-content: space-between; gap: .7rem; align-items: center; }
+.application-access-add { display: grid; gap: .6rem; margin-top: 1rem; }
+
 :where(.view-premiumVoice, .view-premiumCopilot).shell {
   padding: 0;
   background: #010714;

@@ -1,0 +1,42 @@
+{
+  "status": "IMPLEMENTED_VALIDATED_NOT_DEPLOYED",
+  "recoveredFrom": "35d47b124446561eab07d50b3f65ef26c83d1e24 (October branch, absent from Production 1.9.2)",
+  "baseDependency": "8695d30efaec3f8da84986dd8ea0c29fd4c06679 / PR 50",
+  "scope": [
+    "Restore profile application list and legacy saved preferences",
+    "Explicit app-opening grants with revocation and sensitive override",
+    "Resolve exact saved app names and verify installed identity before opening exact package",
+    "Own profile context for relevant conversational requests; no signature or credentials; bypass answer cache",
+    "Recognize broader own-library queries, remove generic library search words, return up to 12 authorized records"
+  ],
+  "checks": {
+    "apiRegression": "61 tests PASS",
+    "profileContext": "5 tests PASS",
+    "finalArchive": "19 tests PASS including owner boundary for broad query",
+    "apiBuild": "PASS",
+    "webBuild": "PASS before final presentation/reset refinement; final Web TypeScript and actual route Browser PASS",
+    "androidJava": "compileDebugJavaWithJavac PASS offline",
+    "policyAndCommands": "PASS including sensitive override, disabled-app execution denial, profile context minimization",
+    "existingAndroidActions": "PASS",
+    "existingAssistantHandoff": "PASS",
+    "browser": "PASS actual /profile route: list, search, mobile layout, grant persistence, sensitive revocation, reset revocation; no JS errors"
+  },
+  "browserEvidence": "browser/2026-11-21T16-22-47-098Z/report.json",
+  "recovery": [
+    {
+      "classification": "DEFECT DE CONFIGURARE",
+      "failure": "Android SDK location missing in shell",
+      "action": "Use existing verified LOCALAPPDATA/Android/Sdk as ANDROID_HOME for compile only",
+      "result": "PASS; no installation"
+    }
+  ],
+  "limitations": [
+    "S25 disconnected: new discovery and exact-package opening not physically tested",
+    "New user-editable grant currently controls opening saved apps; reading arbitrary third-party content is not implemented",
+    "Existing dedicated navigation, contacts, Gmail and assistant handoff retain their own authorization flows",
+    "Sensitive detection uses known identity terms plus user marking; no claim of exhaustive package classification",
+    "Profile remains local/session-scoped per existing design; no new account/profile sync",
+    "English fallback for new labels outside Romanian",
+    "Production, TURN, AGMaTCC and Guardian unchanged"
+  ]
+}

@@ -251,6 +251,16 @@ final class DeviceHandoffIntents {
     private static JSObject openApp(Activity activity, String requestedLabel) {
         PackageManager manager = activity.getPackageManager();
         String needle = requestedLabel.toLowerCase(Locale.ROOT);
+        if (requestedLabel.matches("^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+$")) {
+            try {
+                String label = String.valueOf(manager.getApplicationLabel(manager.getApplicationInfo(requestedLabel, 0)));
+                String identity = (requestedLabel + " " + label).toLowerCase(Locale.ROOT);
+                if (identity.matches(".*(bank|finance|crypto|wallet|password|authenticator|credential|secret|recovery|bancar|revolut|paypal|n26|wise|sparkasse|ingdiba|comdirect|commerz|credit|health|medical|patient|sanatate|gesund|securefolder).*")) return result("UNSUPPORTED", "SENSITIVE_APPLICATION_BLOCKED", null);
+                Intent exactLaunch = manager.getLaunchIntentForPackage(requestedLabel);
+                return exactLaunch == null ? result("UNAVAILABLE", "APP_NOT_FOUND", null) : start(activity, exactLaunch, "APP_LAUNCH_UNAVAILABLE");
+            } catch (PackageManager.NameNotFoundException error) { return result("UNAVAILABLE", "APP_NOT_FOUND", null); }
+        }
+
         String provider = "google maps".equals(needle) ? "MAPS" : needle.replace(" ", "").toUpperCase(Locale.ROOT);
         String[] knownNavigationPackages = navigationPackages(provider);
         if (knownNavigationPackages != null) {

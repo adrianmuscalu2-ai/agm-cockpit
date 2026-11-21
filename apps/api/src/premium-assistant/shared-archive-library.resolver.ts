@@ -59,7 +59,7 @@ export class SharedArchiveLibraryResolver implements LibraryResolver {
       requestSurface: input.request.surface === 'ANDROID' ? 'ANDROID' : 'BROWSER',
       ...range,
     });
-    const selected = records.slice(0, 4);
+    const selected = records.slice(0, 12);
     const answerText = selected.length
       ? composeArchiveAnswer(selected, input.request.query.language, this.definition.category)
       : archiveNoDataText(input.request.query.language, this.definition.category);
@@ -155,7 +155,7 @@ export function classifyPersistentHistoryIntent(text: string) {
 
 export function classifySharedArchiveIntent(text: string) {
   const value = normalize(text);
-  const explicitArchive = /\b(?:biblioteca|arhiva|arhivat|salvat|pastrat|library|archive|saved|stored)\b/.test(value);
+  const explicitArchive = /\b(?:biblioteca|bibliotecii|bibliotecile|arhiva|arhive|arhivat|salvat|salvate|pastrat|library|libraries|archive|saved|stored|bibliothek|archiv|gespeichert)\b/.test(value);
   const accumulatedKnowledge = /\b(?:informatii|informatie|date|ce)\b/.test(value)
     && /\b(?:avem deja|stim deja|exista deja|already have|already know|stored)\b/.test(value);
   const eligible = explicitArchive || accumulatedKnowledge;
@@ -170,7 +170,7 @@ export function archiveNoDataText(language: string, category?: SharedArchiveCate
 }
 
 function composeArchiveAnswer(records: readonly ArchiveRecord[], language: string, category?: SharedArchiveCategory) {
-  const snippets = records.slice(0, 3).map((record) => summarizeRecord(record)).filter(Boolean);
+  const snippets = records.slice(0, 12).map((record) => summarizeRecord(record)).filter(Boolean);
   if (language === 'ro') {
     const label = category === 'OCR' ? 'documentul OCR' : category === 'TRANSLATION' ? 'traducerea' : category === 'CONVERSATION' ? 'conversația arhivată' : 'informația arhivată';
     return `Am găsit ${label}: ${snippets.join(' ')}`;

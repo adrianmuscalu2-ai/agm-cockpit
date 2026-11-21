@@ -8,6 +8,7 @@ class ConversationTurnDto {
 }
 
 export class PremiumAssistantRequestDto {
+  @IsOptional() @IsString() @MaxLength(12_000) ownProfileContext?: string;
   @IsOptional() @IsIn(['DRAFT_REPLY']) task?: 'DRAFT_REPLY';
   @IsIn(['agm-cockpit']) productId!: 'agm-cockpit';
   @IsString() @IsNotEmpty() @MaxLength(80) moduleId!: string;
