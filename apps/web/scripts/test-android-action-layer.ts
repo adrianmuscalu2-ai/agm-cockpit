@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { parseNaturalDateTime, routeAndroidAction, routeRetrievedAndroidAction } from '../src/android-action-layer/android-action.router';
 import { executeAndroidAction } from '../src/android-action-layer/android-action.executor';
 import { androidActionSafetyBoundary, confirmationFor } from '../src/android-action-layer/confirmation-policy';
-import { resolveDriverVoiceCommand } from '../src/android-action-layer/driver-voice-mode';
+import { resolveDriverVoiceCommand, driverActionMessage } from '../src/android-action-layer/driver-voice-mode';
 import type { ActiveDriverContext } from '../src/android-action-layer/android-action.contract';
 
 for (const [phrase, app] of [['Deschide aplicația Waze', 'Waze'], ['Deschide Tom Tom', 'TomTom'], ['Deschide Google Maps', 'Maps'], ['Open the app Maps', 'Maps']]) {
@@ -16,6 +16,10 @@ for (const [phrase, app] of [['Deschide aplicația Waze', 'Waze'], ['Deschide To
   }
 }
 assert.equal(resolveDriverVoiceCommand('Citește ultimul email și deschide Waze').handled, false);
+assert.equal(routeAndroidAction('Deschide asistentul telefonului', null).action, 'ASSISTANT');
+assert.equal(routeAndroidAction('Deschide asistentul telefonului', null).payload?.contextText, undefined);
+assert.match(driverActionMessage('OPENED', 'ASSISTANT_CHOOSER_OPENED', 'ro'), /Alege un asistent/);
+assert.match(driverActionMessage('OPENED', 'ASSISTANT_TEXT_CHOOSER_OPENED', 'ro'), /nu revine automat/);
 
 for (const [phrase, provider] of [
   ['Deschide Maps la Dieselstraße 5, Stuttgart', 'MAPS'],

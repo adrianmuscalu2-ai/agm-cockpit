@@ -25,7 +25,7 @@ export async function handleSpokenAndroidAssistantCommand(text: string, language
   if (!detectAndroidAssistantCommand(text) || !isAndroidAssistantAvailable()) return false;
   const resolution: AndroidActionResolution = {
     contractVersion:'android-action-resolution.v1',status:'RESOLVED',action:'ASSISTANT',reason:'SPOKEN_ASSISTANT_REQUEST',
-    source:'GENERAL_HANDOFF',confirmation:confirmationFor('ASSISTANT'),payload:{contextText:text},
+    source:'GENERAL_HANDOFF',confirmation:confirmationFor('ASSISTANT'),
   };
   const receipt = await executeAndroidAction(text, resolution);
   const result = receiptToHandoff(receipt);
@@ -105,6 +105,8 @@ function receiptToHandoff(receipt: Awaited<ReturnType<typeof executeAndroidActio
 
 function resultMessage(result: DeviceHandoffResult, language: BasicLanguageCode) {
   const copy = deviceAssistantCopy[language];
+  if (result.status === 'OPENED' && result.reason === 'ASSISTANT_CHOOSER_OPENED') return copy.assistantChooser;
+  if (result.status === 'OPENED' && result.reason === 'ASSISTANT_TEXT_CHOOSER_OPENED') return copy.textChooser;
   if (result.status === 'OPENED') return copy.opened;
   if (result.status === 'UNSUPPORTED') return copy.unsupported;
   if (result.status === 'INVALID_INPUT') return copy.invalid;

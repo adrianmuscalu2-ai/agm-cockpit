@@ -8,7 +8,6 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.Bundle;
 import android.provider.AlarmClock;
 import android.provider.CalendarContract;
 import android.provider.ContactsContract;
@@ -16,6 +15,8 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import com.getcapacitor.JSObject;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -32,21 +33,70 @@ final class DeviceHandoffIntents {
     private DeviceHandoffIntents() {}
 
     static JSObject launchAssistant(Activity activity, String contextText) {
+        String context = clean(contextText, 2000);
+        // Text sharing has an explicit Android contract. ASSIST context is only
+        // optional metadata and must not be presented as a delivered prompt.
+        if (!context.isEmpty()) {
+            Intent share = new Intent(Intent.ACTION_SEND).setType("text/plain")
+                .putExtra(Intent.EXTRA_TEXT, context);
+            if (!hasHandler(activity.getPackageManager(), share)) return result("UNAVAILABLE", "NO_TEXT_SHARE_HANDLER", null);
+            return openAssistantChooser(activity, Intent.createChooser(share, null), "ASSISTANT_TEXT_CHOOSER_OPENED");
+        }
         String selectedPackage = selectedAssistantPackage(activity);
+        if (selectedPackage == null || isOwnAssistant(activity, selectedPackage)) return chooseExternalAssistant(activity);
         Intent intent = new Intent(Intent.ACTION_ASSIST);
         if (selectedPackage != null) intent.setPackage(selectedPackage);
-        String context = clean(contextText, 2000);
-        if (!context.isEmpty()) {
-            Bundle assistContext = new Bundle();
-            assistContext.putString("agm_context", context);
-            intent.putExtra(Intent.EXTRA_ASSIST_CONTEXT, assistContext);
-            intent.putExtra(Intent.EXTRA_TEXT, context);
-        }
         JSObject opened = start(activity, intent, "NO_DEFAULT_ASSISTANT");
         if ("OPENED".equals(opened.optString("status"))) return opened;
         if (selectedPackage == null) return opened;
         Intent launcher = activity.getPackageManager().getLaunchIntentForPackage(selectedPackage);
         return launcher == null ? opened : start(activity, launcher, "DEFAULT_ASSISTANT_APP_UNAVAILABLE");
+    }
+
+    private static boolean isOwnAssistant(Activity activity, String packageName) {
+        String family = AgmaVoiceInteractionService.class.getPackage().getName();
+        return packageName.equals(activity.getPackageName()) || packageName.equals(family) || packageName.startsWith(family + ".");
+    }
+
+    private static List<Intent> externalAssistants(Activity activity) {
+        PackageManager manager = activity.getPackageManager();
+        LinkedHashMap<String, Intent> choices = new LinkedHashMap<>();
+        for (ResolveInfo info : manager.queryIntentActivities(new Intent(Intent.ACTION_ASSIST), PackageManager.MATCH_DEFAULT_ONLY)) {
+            if (info.activityInfo == null || !info.activityInfo.exported || !info.activityInfo.enabled) continue;
+            String packageName = info.activityInfo.packageName;
+            if (!isOwnAssistant(activity, packageName)) {
+                // A non-default provider's ASSIST proxy can immediately finish
+                // because it does not own Android's assistant role. Open its app.
+                Intent launcher = manager.getLaunchIntentForPackage(packageName);
+                choices.put(packageName, launcher != null ? launcher :
+                    new Intent(Intent.ACTION_ASSIST).setComponent(new ComponentName(packageName, info.activityInfo.name)));
+            }
+        }
+        for (ResolveInfo info : manager.queryIntentServices(new Intent("android.service.voice.VoiceInteractionService"), 0)) {
+            if (info.serviceInfo == null || !info.serviceInfo.exported || !info.serviceInfo.enabled) continue;
+            String packageName = info.serviceInfo.packageName;
+            if (isOwnAssistant(activity, packageName) || choices.containsKey(packageName)) continue;
+            Intent launcher = manager.getLaunchIntentForPackage(packageName);
+            if (launcher != null) choices.put(packageName, launcher);
+        }
+        return new ArrayList<>(choices.values());
+    }
+
+    private static JSObject chooseExternalAssistant(Activity activity) {
+        List<Intent> choices = externalAssistants(activity);
+        if (choices.isEmpty()) return result("UNAVAILABLE", "NO_EXTERNAL_ASSISTANT", null);
+        Intent chooser = Intent.createChooser(choices.get(0), null);
+        if (choices.size() > 1) chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, choices.subList(1, choices.size()).toArray(new Intent[0]));
+        return openAssistantChooser(activity, chooser, "ASSISTANT_CHOOSER_OPENED");
+    }
+
+    private static JSObject openAssistantChooser(Activity activity, Intent chooser, String reason) {
+        JSObject opened = start(activity, chooser, "ASSISTANT_CHOOSER_UNAVAILABLE");
+        if ("OPENED".equals(opened.optString("status"))) {
+            opened.put("reason", reason);
+            opened.put("fallback", reason);
+        }
+        return opened;
     }
 
     static JSObject perform(
@@ -113,8 +163,9 @@ final class DeviceHandoffIntents {
         String selectedAssistant = selectedAssistantPackage(activity);
         Intent assistantIntent = new Intent(Intent.ACTION_ASSIST);
         if (selectedAssistant != null) assistantIntent.setPackage(selectedAssistant);
-        boolean selectedAssistantAvailable = hasHandler(manager, assistantIntent)
-            || (selectedAssistant != null && manager.getLaunchIntentForPackage(selectedAssistant) != null);
+        boolean selectedAssistantAvailable = selectedAssistant != null && !isOwnAssistant(activity, selectedAssistant) && (hasHandler(manager, assistantIntent)
+            || manager.getLaunchIntentForPackage(selectedAssistant) != null);
+        selectedAssistantAvailable = selectedAssistantAvailable || !externalAssistants(activity).isEmpty();
         targets.put("assistant", selectedAssistantAvailable);
         Intent navigationProbe = navigationIntent("Heilbronn");
         targets.put("navigation", hasHandler(manager, navigationProbe));
@@ -295,6 +346,7 @@ final class DeviceHandoffIntents {
 
     private static String selectedAssistantPackage(Activity activity) {
         String flattened = Settings.Secure.getString(activity.getContentResolver(), "assistant");
+        if (flattened == null || flattened.trim().isEmpty()) flattened = Settings.Secure.getString(activity.getContentResolver(), "voice_interaction_service");
         if (flattened == null || flattened.trim().isEmpty()) return null;
         ComponentName component = ComponentName.unflattenFromString(flattened);
         return component == null ? null : component.getPackageName();

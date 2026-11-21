@@ -1,6 +1,7 @@
 import { routeAndroidAction } from './android-action.router';
 import { readDriverContext } from './driver-context';
 import type { AndroidActionResolution } from './android-action.contract';
+import { deviceAssistantCopy } from '../premium-capabilities/device-assistant-handoff.i18n';
 import { isReplyDraftRequest, requestsFreshEmail } from '../premium-voice-shell/email-reply-draft';
 
 const driverCommands = /\b(citeste l|read it|lies es|navigheaza|navigate|route|navigiere|du[ -]ma|condu[ -]ma|suna|apeleaza|formeaza|dial|call|anrufen|raspunde|reply|antworte|calendar|kalender|distribuie|partajeaza|share|teilen|trimite|scrie|compune|send|write|compose|sende|schreibe|asistent|assistant|assistent)\b|\b(?:deschide|porneste|open|launch|offne|starte)\s+(?:google\s+)?(?:maps|waze|tom\s*tom|gmail|camera|kamera|messenger)\b/i;
@@ -25,6 +26,9 @@ export function resolveDriverVoiceCommand(text: string) {
 }
 
 export function driverActionMessage(result: string, reason: string, language: string, resolution?: AndroidActionResolution) {
+  const assistantCopy = deviceAssistantCopy[language === 'ro' || language === 'de' ? language : 'en'];
+  if (result === 'OPENED' && reason === 'ASSISTANT_CHOOSER_OPENED') return assistantCopy.assistantChooser;
+  if (result === 'OPENED' && reason === 'ASSISTANT_TEXT_CHOOSER_OPENED') return assistantCopy.textChooser;
   const contactName = resolution?.payload?.contactName?.trim();
   if (result === 'CLARIFICATION_REQUIRED' && reason === 'AGM_PERSONAL_CONTACT_EMAIL_AMBIGUOUS' && contactName) {
     const labels = (resolution?.payload?.availableEmailLabels?.length ? resolution.payload.availableEmailLabels : ['personal', 'work'])

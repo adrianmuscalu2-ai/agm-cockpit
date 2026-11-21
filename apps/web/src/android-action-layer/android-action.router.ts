@@ -85,7 +85,7 @@ export function routeAndroidAction(text: string, context: ActiveDriverContext | 
     return shareText ? resolved('SHARE', 'ANDROID_CHOOSER_REQUIRED', context?.shareText ? 'ACTIVE_GMAIL_CONTEXT' : 'REQUEST', { value: shareText, contextText: shareText, mimeType: 'text/plain' }) : unresolved('CLARIFICATION_REQUIRED', 'SHARE_PAYLOAD_REQUIRED');
   }
   if (/\b(sterge|delete|remove|wifi|bluetooth|setari sistem|system settings|instaleaza|uninstall)\b/.test(value)) return unresolved('UNSUPPORTED', 'ACTION_NOT_ALLOWLISTED');
-  if (/\b(?:deschide|porneste|open|launch|offne|starte)\b.*\b(?:asistent|asistentul|assistant|assistent)\b/.test(value)) return resolved('ASSISTANT', 'GENERAL_ASSISTANT_HANDOFF', 'GENERAL_HANDOFF', { contextText: raw });
+  if (/\b(?:deschide|porneste|open|launch|offne|starte)\b.*\b(?:asistent|asistentul|assistant|assistent)\b/.test(value)) return resolved('ASSISTANT', 'GENERAL_ASSISTANT_HANDOFF', 'GENERAL_HANDOFF');
   return unresolved('UNSUPPORTED', 'NO_ACTION_INTENT');
 }
 

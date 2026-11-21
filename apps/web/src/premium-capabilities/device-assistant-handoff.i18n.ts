@@ -5,9 +5,12 @@ export type DeviceAssistantCopy = {
   action: string; value: string; time: string; execute: string;
   navigation: string; dial: string; app: string; reminder: string; alarm: string; calendar: string; share: string; emailDraft: string; driverMode: string;
   opened: string; unavailable: string; unsupported: string; invalid: string; valueRequired: string;
+  assistantChooser: string; textChooser: string;
 };
 
 const en: DeviceAssistantCopy = {
+  assistantChooser: 'Choose an assistant in Android. AGM has not run the request in that app.',
+  textChooser: 'Choose an app to receive the text. Review it there; its answer is not returned automatically to AGM.',
   title: 'DEVICE ASSISTANT / ANDROID HANDOFF',
   description: 'Hand off phone, Maps, apps, reminders and alarms to Android. AGM keeps transport, Gmail, translation and professional context.',
   open: 'Open Android assistant', sendContext: 'Hand off current request', settings: 'Assistant settings',
@@ -18,6 +21,8 @@ const en: DeviceAssistantCopy = {
   unsupported: 'This action is not supported on this device.', invalid: 'Check the value and try again.', valueRequired: 'Enter the address, number, app or reminder first.',
 };
 const ro: DeviceAssistantCopy = {
+  assistantChooser: 'Alege un asistent în Android. AGM nu a executat cererea în acea aplicație.',
+  textChooser: 'Alege aplicația care primește textul. Verifică-l acolo; răspunsul ei nu revine automat în AGM.',
   title: 'DEVICE ASSISTANT / ANDROID HANDOFF',
   description: 'Preda telefonul, Maps, aplicatiile, mementourile si alarmele catre Android. AGM pastreaza transportul, Gmail, traducerea si contextul profesional.',
   open: 'Deschide asistentul Android', sendContext: 'Preda cererea curenta', settings: 'Setari asistent',
@@ -28,6 +33,8 @@ const ro: DeviceAssistantCopy = {
   unsupported: 'Aceasta actiune nu este suportata pe dispozitiv.', invalid: 'Verifica valoarea si incearca din nou.', valueRequired: 'Introdu mai intai adresa, numarul, aplicatia sau mementoul.',
 };
 const de: DeviceAssistantCopy = {
+  assistantChooser: 'Wählen Sie einen Assistenten in Android. AGM hat die Anfrage dort nicht ausgeführt.',
+  textChooser: 'Wählen Sie eine App für den Text. Prüfen Sie ihn dort; die Antwort wird nicht automatisch an AGM zurückgegeben.',
   title: 'DEVICE ASSISTANT / ANDROID HANDOFF',
   description: 'Ubergibt Telefon, Maps, Apps, Erinnerungen und Wecker an Android. AGM behalt Transport, Gmail, Ubersetzung und beruflichen Kontext.',
   open: 'Android-Assistent offnen', sendContext: 'Aktuelle Anfrage ubergeben', settings: 'Assistent-Einstellungen',
