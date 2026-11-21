@@ -6,3 +6,4 @@ export * from './semantic-index';
 export * from './agent-chain-performance';
 export * from './agent-chain-recorder';
 export * from './acpm';
+export * from './assistant-planning';

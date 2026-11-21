@@ -144,6 +144,7 @@ export async function launchAndroidAssistant(options: {
   draftSelector?: string;
   draft?: string;
   contextText?: string;
+  stillAuthorized?: () => boolean;
 } = {}) {
   if (!isAndroidAssistantAvailable()) return { status: 'UNAVAILABLE' as const, reason: 'ANDROID_REQUIRED' };
   const guardian = await authorize('ANDROID_ASSISTANT', options.moduleId ?? 'android-assistant', 'Open the user-selected Android assistant');
@@ -153,6 +154,7 @@ export async function launchAndroidAssistant(options: {
     operation: 'OPEN_DEVICE_ASSISTANT', sensitivity, userConfirmedExternal: true,
   });
   if (decision.authority !== 'EXTERNAL_DEVICE_AI') return { status: 'UNAVAILABLE' as const, reason: decision.reason };
+  if (options.stillAuthorized && !options.stillAuthorized()) return { status: 'UNAVAILABLE' as const, reason: 'HANDOFF_REVIEW_CANCELLED' };
   captureDeviceHandoffContext({
     moduleId: options.moduleId ?? 'android-assistant', sensitivity,
     draftSelector: options.draftSelector, draft: options.draft,

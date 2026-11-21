@@ -12,6 +12,8 @@ import { ConversationalRoutingLedger, selectConversationalCapability } from '../
 import type { ActionPreview, CapabilityRequest, ConfirmationMethod } from '../premium-capabilities/capability.types';
 import { verifiedPremiumSubject } from '../premium-access/premium-access.navigation';
 import { isAndroidAssistantAvailable, launchAndroidAssistant, shareWithAndroidAi } from '../premium-capabilities/android-assistant.gateway';
+import { bindPhonePlanHandoff } from '../premium-capabilities/phone-plan-handoff';
+import { needsConversationPlanning } from '@agm/shared';
 
 type State = {
   schemaVersion: 1;
@@ -107,6 +109,7 @@ export function bindCopilotRuntime() {
   });
   if (isAndroidAssistantAvailable()) {
     const tools = root.querySelector('[data-copilot-camera]')?.parentElement;
+    if (tools) bindPhonePlanHandoff(root, l, tools);
     const assistantButton = document.createElement('button');
     assistantButton.type = 'button';
     assistantButton.dataset.androidAssistant = '';
@@ -166,6 +169,7 @@ export function bindCopilotRuntime() {
   }
 
   async function prepareCapability(state:State){
+    if(needsConversationPlanning(state.confirmedText))return;
     const selection=selectConversationalCapability(state.decision,state.confirmedText,wave2bEnabled(sessionStorage));if(selection.status==='CONVERSATION_ONLY')return;if(selection.status==='DENIED'){routingLedger.record({conversationId,intent:state.decision.intent,stage:'DENIED',outcome:selection.reason});runtimeRoot.querySelector<HTMLElement>('[data-assistant-status]')!.textContent=capabilityText(l,'denied');return;}const capabilityId=selection.capabilityId;routingLedger.record({conversationId,intent:state.decision.intent,capabilityId,stage:'CAPABILITY_SELECTED',outcome:'ALLOWLIST_MATCH'});
     const subjectId=verifiedPremiumSubject('premium.voice-assistant');
     const request:CapabilityRequest={requestId:crypto.randomUUID(),conversationId,capabilityId,productId:'agm-cockpit',moduleId:'premium-copilot',tenantId:subjectId?`tenant:${subjectId}`:'',subjectId:subjectId??'',premiumEntitled:Boolean(subjectId),parameters:capabilityId==='OPEN_DIALER'?extractPhone(state.confirmedText):capabilityId==='OPEN_MAPS'?extractDestination(state.confirmedText):extractCommunication(state.confirmedText,capabilityId),requestedAt:new Date().toISOString()};

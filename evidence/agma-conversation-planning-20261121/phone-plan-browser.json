@@ -1,0 +1,38 @@
+{
+  "scope": "Actual phone-plan UI and source; native assistant is an explicit test double, no phone execution claimed",
+  "base": "http://127.0.0.1:50433",
+  "browser": {
+    "Browser Plugin Status": "PASS",
+    "Integrated Browser Control Status": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "Browser Session Status": "PASS",
+    "Target Page Status": "PASS"
+  },
+  "cases": [
+    {
+      "width": 390,
+      "status": "PASS",
+      "checks": [
+        "preview only",
+        "explicit edited handoff",
+        "cancel",
+        "stale request invalidation",
+        "oversize blocked",
+        "secret-like value blocked",
+        "cancel during authorization"
+      ]
+    },
+    {
+      "width": 1440,
+      "status": "PASS",
+      "checks": [
+        "preview only",
+        "explicit edited handoff",
+        "cancel",
+        "stale request invalidation",
+        "oversize blocked",
+        "secret-like value blocked",
+        "cancel during authorization"
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import { Type } from 'class-transformer';
 
 class ConversationTurnDto {
   @IsIn(['user', 'assistant']) role!: 'user' | 'assistant';
-  @IsString() @IsNotEmpty() @MaxLength(4_000) text!: string;
+  @IsString() @IsNotEmpty() @MaxLength(12_000) text!: string;
   @IsOptional() @IsISO8601() occurredAt?: string;
 }
 
