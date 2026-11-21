@@ -1,0 +1,34 @@
+﻿{
+    "generatedAt":  "2026-11-21T10:26:39.256Z",
+    "verdict":  {
+                    "controlSystem":  "PASS",
+                    "agentAccountability":  "PASS",
+                    "overallOperationalState":  "PASS",
+                    "inspectorFailover":  "PASS",
+                    "controlCoverage":  "COMPLETE",
+                    "falseActive":  0,
+                    "unexplainedDegraded":  0,
+                    "unexplainedStandby":  0,
+                    "expiredRuntimeEvidence":  0,
+                    "noTelemetry":  0,
+                    "failed":  0,
+                    "mandateNotDemonstrated":  0,
+                    "primaryRecovered":  true,
+                    "openIncidents":  0,
+                    "finalAgentRuntimePass":  "PASS"
+                },
+    "fleet":  {
+                  "total":  27,
+                  "healthy":  27,
+                  "degraded":  0,
+                  "failed":  0,
+                  "noTelemetry":  0,
+                  "standby":  0
+              },
+    "incidents":  {
+                      "eventStore":  "AuthorityAuditJournal",
+                      "open":  0,
+                      "inspectorFailureIncident":  null,
+                      "controlCoverageIncident":  null
+                  }
+}

@@ -1,0 +1,53 @@
+{
+  "scope": "Native panel markup with actual shared and dedicated CSS; no native behavior simulated",
+  "cases": [
+    {
+      "width": 360,
+      "panel": {
+        "x": 16,
+        "y": 16,
+        "width": 328,
+        "height": 403.8125
+      },
+      "content": {
+        "x": 33,
+        "y": 52.90625,
+        "width": 294,
+        "height": 333.90625
+      },
+      "status": "PASS"
+    },
+    {
+      "width": 390,
+      "panel": {
+        "x": 16,
+        "y": 16,
+        "width": 358,
+        "height": 350.8125
+      },
+      "content": {
+        "x": 33,
+        "y": 52.90625,
+        "width": 324,
+        "height": 280.90625
+      },
+      "status": "PASS"
+    },
+    {
+      "width": 1440,
+      "panel": {
+        "x": 16,
+        "y": 16,
+        "width": 1408,
+        "height": 287.8125
+      },
+      "content": {
+        "x": 33,
+        "y": 52.90625,
+        "width": 1374,
+        "height": 217.90625
+      },
+      "status": "PASS"
+    }
+  ]
+}

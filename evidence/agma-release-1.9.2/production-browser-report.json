@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-11-21T10:14:53.228Z",
+  "base": "https://app.agmcockpit.com",
+  "build": {
+    "contract": "agm-web-build-info.v1",
+    "appVersion": "1.9.2",
+    "commit": "1bcc20a5d0e4708fe2ea20a6c83fcce0b098724a",
+    "buildId": "pages-1bcc20a5d0e4",
+    "builtAt": "2026-11-21T10:06:12.193Z"
+  },
+  "apiCommit": "1bcc20a5d0e4708fe2ea20a6c83fcce0b098724a",
+  "downloadStatus": 200,
+  "browser": {
+    "Browser Plugin Status": "PASS",
+    "Integrated Browser Control Status": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+    "Browser Session Status": "PASS",
+    "Target Page Status": "PASS"
+  },
+  "cases": [
+    {
+      "route": "/",
+      "width": 390,
+      "status": "PASS",
+      "screenshot": "evidence/agma-release-1.9.2/production-app-390.png"
+    },
+    {
+      "route": "/android.html",
+      "width": 390,
+      "status": "PASS",
+      "screenshot": "evidence/agma-release-1.9.2/production-android-390.png"
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "status": "PASS",
+      "screenshot": "evidence/agma-release-1.9.2/production-app-1440.png"
+    },
+    {
+      "route": "/android.html",
+      "width": 1440,
+      "status": "PASS",
+      "screenshot": "evidence/agma-release-1.9.2/production-android-1440.png"
+    }
+  ]
+}

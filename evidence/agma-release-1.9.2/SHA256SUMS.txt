@@ -1,0 +1,2 @@
+578aa5022e8ae781fdd7056d22de70764ace164eac5f3683206e759cb13c549c  AGM-Cockpit-Android-1.9.2.aab
+9ca4279fa8e18b50a7873abc7afb752eeb594a8ced47072115d41c247fe9ec95  AGM-Cockpit-Android-1.9.2.apk
