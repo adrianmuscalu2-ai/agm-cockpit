@@ -112,6 +112,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
 
     @PluginMethod
     public void startListening(PluginCall call) {
+        if (!AgmaWakeBridge.yieldMicrophone()) { call.reject("Wake detector did not release microphone", "WAKE_MICROPHONE_BUSY"); return; }
         String language = call.getString("language", Locale.getDefault().toLanguageTag());
         String cycleId = call.getString("cycleId", "").trim();
         boolean preferOnDevice = Boolean.TRUE.equals(call.getBoolean("preferOnDevice", false));
@@ -196,6 +197,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
 
     @PluginMethod
     public void speak(PluginCall call) {
+        if (!AgmaWakeBridge.yieldMicrophone()) { call.reject("Wake detector did not release microphone", "WAKE_MICROPHONE_BUSY"); return; }
         String text = call.getString("text", "").trim();
         String language = call.getString("language", Locale.getDefault().toLanguageTag());
         String turnId = call.getString("turnId", "").trim();
