@@ -4,7 +4,18 @@ import { resolve } from 'node:path';
 import { parseNaturalDateTime, routeAndroidAction, routeRetrievedAndroidAction } from '../src/android-action-layer/android-action.router';
 import { executeAndroidAction } from '../src/android-action-layer/android-action.executor';
 import { androidActionSafetyBoundary, confirmationFor } from '../src/android-action-layer/confirmation-policy';
+import { resolveDriverVoiceCommand } from '../src/android-action-layer/driver-voice-mode';
 import type { ActiveDriverContext } from '../src/android-action-layer/android-action.contract';
+
+for (const [phrase, app] of [['Deschide aplicația Waze', 'Waze'], ['Deschide Tom Tom', 'TomTom'], ['Deschide Google Maps', 'Maps'], ['Open the app Maps', 'Maps']]) {
+  const command = resolveDriverVoiceCommand(phrase!);
+  assert.equal(command.handled, true, phrase);
+  if (command.handled) {
+    assert.equal(command.resolution.action, 'OPEN_APP');
+    assert.equal(command.resolution.payload?.value, app);
+  }
+}
+assert.equal(resolveDriverVoiceCommand('Citește ultimul email și deschide Waze').handled, false);
 
 const context: ActiveDriverContext = {
   contractVersion:'gmail-action-context.v1',traceId:'trace-1',messageRef:'GMAIL-hash',senderEmail:'dispatch@example.com',subject:'Descărcare Heilbronn',receivedAt:'2026-09-13T08:00:00.000Z',

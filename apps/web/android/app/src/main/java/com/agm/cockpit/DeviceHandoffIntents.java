@@ -200,6 +200,15 @@ final class DeviceHandoffIntents {
     private static JSObject openApp(Activity activity, String requestedLabel) {
         PackageManager manager = activity.getPackageManager();
         String needle = requestedLabel.toLowerCase(Locale.ROOT);
+        String provider = "google maps".equals(needle) ? "MAPS" : needle.replace(" ", "").toUpperCase(Locale.ROOT);
+        String[] knownNavigationPackages = navigationPackages(provider);
+        if (knownNavigationPackages != null) {
+            for (String packageName : knownNavigationPackages) {
+                Intent launch = manager.getLaunchIntentForPackage(packageName);
+                if (launch != null) return start(activity, launch, "APP_LAUNCH_UNAVAILABLE");
+            }
+            return result("UNAVAILABLE", "REQUESTED_NAVIGATION_APP_UNAVAILABLE", null);
+        }
         if ("phone".equals(needle)) return start(activity, new Intent(Intent.ACTION_DIAL, Uri.parse("tel:")), "DIALER_UNAVAILABLE");
         if ("contacts".equals(needle)) return start(activity, new Intent(Intent.ACTION_VIEW, ContactsContract.Contacts.CONTENT_URI), "CONTACTS_APP_UNAVAILABLE");
         if ("whatsapp".equals(needle)) {
