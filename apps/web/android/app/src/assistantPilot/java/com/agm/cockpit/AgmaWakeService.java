@@ -21,6 +21,10 @@ public final class AgmaWakeService extends Service {
     private static volatile double peakAudioRms;
     private static volatile long audioFrames;
     private static volatile long lastAudioFrame;
+    private static volatile long calibrationUntil;
+    private static volatile long calibrationTextUntil;
+    private static volatile String calibrationText = "";
+    private static volatile String calibrationTokens = "";
     private final Handler main = new Handler(Looper.getMainLooper());
     private volatile boolean armed;
     private volatile long generation;
@@ -37,6 +41,10 @@ public final class AgmaWakeService extends Service {
         // Amplitude and liveness only; never retain microphone content.
         out.put("audioRms", audioRms); out.put("peakAudioRms", peakAudioRms);
         out.put("audioFrames", audioFrames); out.put("lastAudioFrame", lastAudioFrame);
+        long now = android.os.SystemClock.elapsedRealtime();
+        out.put("calibrating", now < calibrationUntil);
+        out.put("calibrationText", now < calibrationTextUntil ? calibrationText : "");
+        out.put("calibrationTokens", now < calibrationTextUntil ? calibrationTokens : "");
         return out;
     }
 
@@ -82,7 +90,25 @@ public final class AgmaWakeService extends Service {
     }
     public static void stopDetector() { AgmaWakeService service = current; if (service != null) service.stopSelf(); }
 
+    /** Explicit 30-second local diagnostic. No audio storage, logging or network. */
+    public static boolean calibrate() {
+        AgmaWakeService service = current;
+        if (service == null || !service.armed || !"LISTENING".equals(state)) return false;
+        calibrationText = ""; calibrationTokens = "";
+        calibrationUntil = android.os.SystemClock.elapsedRealtime() + 30000;
+        calibrationTextUntil = calibrationUntil + 60000;
+        service.notice("Calibrare locală: spune «Hei, AGMA» în următoarele 30 de secunde");
+        service.main.postDelayed(() -> {
+            if (android.os.SystemClock.elapsedRealtime() >= calibrationTextUntil) {
+                calibrationText = ""; calibrationTokens = "";
+            }
+        }, 90000);
+        return true;
+    }
+
     private synchronized boolean pause() {
+        calibrationUntil = 0; calibrationTextUntil = 0;
+        calibrationText = ""; calibrationTokens = "";
         generation++;
         AudioRecord audio = recorder;
         if (audio != null) try { audio.stop(); } catch (RuntimeException ignored) { }
@@ -112,6 +138,8 @@ public final class AgmaWakeService extends Service {
         KeywordSpotter detector = null;
         OnlineStream stream = null;
         AudioRecord audio = null;
+        OnlineRecognizer calibration = null;
+        OnlineStream calibrationStream = null;
         boolean detected = false;
         try {
             KeywordSpotterConfig config = new KeywordSpotterConfig();
@@ -144,10 +172,31 @@ public final class AgmaWakeService extends Service {
                 audioRms = Math.sqrt(energy / count);
                 peakAudioRms = Math.max(peakAudioRms, audioRms);
                 audioFrames++; lastAudioFrame = System.currentTimeMillis();
+                boolean calibrating = android.os.SystemClock.elapsedRealtime() < calibrationUntil;
+                if (calibrating) {
+                    if (calibration == null) {
+                        OnlineRecognizerConfig diagnosticConfig = new OnlineRecognizerConfig();
+                        diagnosticConfig.setModelConfig(model);
+                        diagnosticConfig.setEnableEndpoint(false);
+                        calibration = new OnlineRecognizer(getAssets(), diagnosticConfig);
+                        calibrationStream = calibration.createStream("");
+                    }
+                    calibrationStream.acceptWaveform(samples, 16000);
+                    while (calibration.isReady(calibrationStream)) calibration.decode(calibrationStream);
+                    OnlineRecognizerResult result = calibration.getResult(calibrationStream);
+                    calibrationText = result.getText().substring(0, Math.min(240, result.getText().length()));
+                    String units = String.join(" ", result.getTokens());
+                    calibrationTokens = units.substring(0, Math.min(480, units.length()));
+                } else if (calibration != null) {
+                    calibrationStream.release(); calibrationStream = null;
+                    calibration.release(); calibration = null;
+                    detector.reset(stream);
+                    main.post(() -> { if (armed && token == generation) notice("Calibrare încheiată. Activare locală: «Hei, AGMA»"); });
+                }
                 stream.acceptWaveform(samples, 16000);
                 while (detector.isReady(stream) && armed && token == generation) {
                     detector.decode(stream);
-                    if ("HEY_AGMA".equals(detector.getResult(stream).getKeyword())) { detected = true; break; }
+                    if (!calibrating && "HEY_AGMA".equals(detector.getResult(stream).getKeyword())) { detected = true; break; }
                 }
                 if (detected) break;
             }
@@ -158,6 +207,8 @@ public final class AgmaWakeService extends Service {
                 main.post(() -> { if (armed && token == generation) stopSelf(); });
             }
         } finally {
+            if (calibrationStream != null) calibrationStream.release();
+            if (calibration != null) calibration.release();
             if (audio != null) { try { audio.stop(); } catch (RuntimeException ignored) { } audio.release(); }
             recorder = null;
             if (stream != null) stream.release();

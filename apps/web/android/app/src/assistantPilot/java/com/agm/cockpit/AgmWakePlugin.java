@@ -37,6 +37,13 @@ public final class AgmWakePlugin extends Plugin {
         catch (RuntimeException error) { call.reject("Android could not arm the local detector", "WAKE_START_FAILED", error); }
     }
     @PluginMethod public void stop(PluginCall call) { getContext().stopService(new Intent(getContext(), AgmaWakeService.class)); call.resolve(); }
+    @PluginMethod public void calibrate(PluginCall call) {
+        if (!selected() || getActivity() == null || !getActivity().hasWindowFocus() || getPermissionState("microphone") != PermissionState.GRANTED) {
+            call.reject("Open the armed pilot before local calibration", "CALIBRATION_AUTHORITY_REQUIRED"); return;
+        }
+        if (!AgmaWakeService.calibrate()) { call.reject("Arm the detector before calibration", "WAKE_NOT_LISTENING"); return; }
+        call.resolve();
+    }
     @PluginMethod public void resume(PluginCall call) { AgmaWakeService.resumeIfArmed(); call.resolve(); }
     @PluginMethod public void pause(PluginCall call) { if (AgmaWakeService.pauseDetector()) call.resolve(); else call.reject("Microphone release timed out", "WAKE_MICROPHONE_BUSY"); }
 }
