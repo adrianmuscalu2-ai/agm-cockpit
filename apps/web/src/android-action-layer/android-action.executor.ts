@@ -1,3 +1,6 @@
+import { readApplicationAccess } from '../application-access/application-access.storage';
+import { evaluateApplicationAction, normalizeEntry } from '../application-access/application-access.policy';
+import { inspectAndroidApplication } from '../device-capability-router/device-capability.runtime';
 import {
   launchAndroidAssistant,
   openAndroidAssistantSettings,
@@ -58,6 +61,20 @@ export async function executeAndroidAction(text: string, resolution: AndroidActi
   // Bind confirmation to the actual locally resolved name and number, never to
   // a claim that a contact was found before the phone book has been queried.
   if (effectiveResolution.confirmation === 'AGM_REQUIRED' && !options.agmConfirmed) return receipt(text, effectiveResolution, 'CONFIRMATION_REQUIRED', null, 'AGM_CONFIRMATION_REQUIRED');
+
+  if (effectiveResolution.action === 'OPEN_APP' && effectiveResolution.reason === 'PROFILE_APPLICATION_SELECTED') {
+    const access = readApplicationAccess(globalThis.localStorage);
+    const entry = access.entries.find(item => item.packageName === payload.value);
+    const initial = evaluateApplicationAction(entry, 'OPEN_APP', {driverSafetyMode:access.driverSafetyMode});
+    if (initial.result !== 'ALLOW') return receipt(text,effectiveResolution,'AUTH_PERMISSION_FAILURE',null,initial.reason);
+    const installed = await inspectAndroidApplication(entry!.packageName);
+    if (!installed) return receipt(text,effectiveResolution,'UNAVAILABLE',null,'APPLICATION_IDENTITY_UNVERIFIED');
+    const current = readApplicationAccess(globalThis.localStorage);
+    const saved = current.entries.find(item => item.packageName === installed.packageName);
+    const verified = saved ? normalizeEntry({...saved,appName:installed.appName,packageName:installed.packageName,availability:installed.availability}) : undefined;
+    const decision = evaluateApplicationAction(verified,'OPEN_APP',{driverSafetyMode:current.driverSafetyMode});
+    if (decision.result !== 'ALLOW') return receipt(text,effectiveResolution,'AUTH_PERMISSION_FAILURE',null,decision.reason);
+  }
 
   const sensitivity = effectiveResolution.source === 'ACTIVE_GMAIL_CONTEXT' || Boolean(payload.contextText) || Boolean(payload.contactName)
     || effectiveResolution.action === 'SHARE' || effectiveResolution.action === 'EMAIL_DRAFT'
