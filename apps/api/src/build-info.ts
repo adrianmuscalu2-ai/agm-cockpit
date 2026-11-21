@@ -11,7 +11,7 @@ export function apiBuildInfo(env: NodeJS.ProcessEnv = process.env): ApiBuildInfo
   const commit = env.AGM_BUILD_SHA?.trim() || 'unknown';
   return {
     contract: 'agm-api-build-info.v1',
-    appVersion: '1.9.1',
+    appVersion: '1.9.2',
     commit,
     buildId: env.AGM_BUILD_ID?.trim() || (commit === 'unknown' ? 'local' : `api-${commit.slice(0, 12)}`),
     builtAt: env.AGM_BUILD_TIME?.trim() || null,

@@ -41,9 +41,9 @@ describe('Premium assistant read-only contract', () => {
     });
     expect(body.tools).toBeUndefined();
     expect(body.tool_choice).toBeUndefined();
-    expect(body.max_output_tokens).toBe(220);
+    expect(body.max_output_tokens).toBe(1024);
     expect(body.model).toBe('gpt-6-luna');
-    expect(body.reasoning).toEqual({ effort: 'none' });
+    expect(body.reasoning).toEqual({ effort: 'low' });
     expect(body).not.toHaveProperty('temperature');
     expect(body.store).toBe(false);
     expect(body.stream).toBe(true);
@@ -57,7 +57,7 @@ describe('Premium assistant read-only contract', () => {
     expect(body.input[0].content).toContain('never reproduce an hourly/event timeline');
     expect(body.input[0].content).toContain('Interpret standardized measurements and transport/navigation tokens');
     expect(body.input[0].content).toContain("speech layer localizes pronunciation separately");
-    expect(body.input[0].content).toContain('do not repeat a question already answered');
+    expect(body.input[0].content).toContain('not repeat a question already answered');
   });
 
   it('supports explicit rollback to the legacy model without Luna-only parameters', async () => {

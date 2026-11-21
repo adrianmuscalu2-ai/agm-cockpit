@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-11-21T16-22-47-098Z",
+  "status": "PASS",
+  "runner": "Controlled AGM Playwright/Chromium",
+  "target": "http://127.0.0.1:53347",
+  "route": "/profile",
+  "browserPluginStatus": "PASS",
+  "integratedBrowserControlStatus": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE",
+  "browserSessionStatus": "PASS",
+  "targetPageStatus": "PASS",
+  "results": [
+    {
+      "id": "Browser Plugin Status",
+      "status": "PASS",
+      "detail": "Repository preflight and Playwright package available"
+    },
+    {
+      "id": "Integrated Browser Control Status",
+      "status": "PASS",
+      "detail": "PLATFORM LIMITATION / OPTIONAL EVIDENCE UNAVAILABLE"
+    },
+    {
+      "id": "Browser Session Status",
+      "status": "PASS",
+      "detail": "Controlled Chromium 151.0.7922.34"
+    },
+    {
+      "id": "Target Page Status",
+      "status": "PASS",
+      "detail": "http://127.0.0.1:53347/profile HTTP 200"
+    },
+    {
+      "id": "profile-navigation",
+      "status": "PASS",
+      "detail": "Profile route rendered"
+    },
+    {
+      "id": "application-list",
+      "status": "PASS",
+      "detail": "Three fixtures rendered without duplicates"
+    },
+    {
+      "id": "deny-by-default-ui",
+      "status": "PASS",
+      "detail": "New general app remains OFF"
+    },
+    {
+      "id": "sensitive-block-ui",
+      "status": "PASS",
+      "detail": "Sensitive application switch disabled"
+    },
+    {
+      "id": "grant-persisted",
+      "status": "PASS",
+      "detail": "Explicit opening grant persisted"
+    },
+    {
+      "id": "sensitive-override",
+      "status": "PASS",
+      "detail": "Sensitive marking revokes opening permission"
+    },
+    {
+      "id": "revocation-persisted",
+      "status": "PASS",
+      "detail": "Revocation persisted"
+    },
+    {
+      "id": "search-filter",
+      "status": "PASS",
+      "detail": "Name/package filter narrows list"
+    },
+    {
+      "id": "mobile-layout",
+      "status": "PASS",
+      "detail": "{\"width\":412,\"scrollWidth\":412}"
+    },
+    {
+      "id": "runtime-errors",
+      "status": "PASS",
+      "detail": "none"
+    },
+    {
+      "id": "reset-revokes",
+      "status": "PASS",
+      "detail": "Reset clears persisted app grants"
+    }
+  ],
+  "finishedAt": "2026-11-21T16:23:01.978Z"
+}

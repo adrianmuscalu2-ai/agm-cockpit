@@ -23,7 +23,7 @@ android {
         applicationId "com.agm.cockpit"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 62
+        versionCode 63
         versionName "1.9.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [usesCleartextTraffic: "false"]

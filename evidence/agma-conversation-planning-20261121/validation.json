@@ -1,0 +1,56 @@
+{
+  "status": "IMPLEMENTED_AND_LOCALLY_VALIDATED_NOT_DEPLOYED",
+  "base": "1bcc20a5d0e4708fe2ea20a6c83fcce0b098724a",
+  "scope": [
+    "Adaptive conversational reasoning and output budget",
+    "Context-preserving plan revisions",
+    "Explicit reviewed phone-assistant handoff",
+    "Guardian-exclusive secret responsibility"
+  ],
+  "checks": {
+    "apiFull": "109 suites / 831 tests PASS",
+    "apiFinalFocused": "6 tests PASS after final prompt and streaming test changes",
+    "webTypes": "PASS",
+    "apiBuild": "PASS",
+    "androidActionLayer": "PASS",
+    "deviceAssistantHandoff": "PASS",
+    "voiceSession": "PASS",
+    "browser": "PASS 390 and 1440 px; explicit native test double",
+    "model": "3 final synthetic Responses API calls HTTP 200, completed, 1.4-3.9 seconds",
+    "webBuild": "PASS"
+  },
+  "modelReview": {
+    "plan": "PASS supplied times preserved; no calendar mutation claimed",
+    "correction": "PASS client moved in proposed plan; atelier/depot retained; draft revised",
+    "guardian": "PASS key responsibility assigned exclusively to Guardian"
+  },
+  "limitations": [
+    "No physical S25 proof for this increment",
+    "Phone handoff OPENED does not prove task execution",
+    "No new direct calendar connector or background task scheduler",
+    "Planning heuristics currently cover Romanian, English and German; handoff labels cover 12 languages",
+    "Production 1.9.2 unchanged; TURN, AGMaTCC and Guardian runtime unchanged"
+  ],
+  "recoveryJournal": [
+    {
+      "cause": "Test fixture configuration",
+      "action": "Isolate Vite custom app with configFile false",
+      "result": "Recovered fixture route"
+    },
+    {
+      "cause": "Test attempted browser typing beyond maxlength",
+      "action": "Inject oversized value with input event to test programmatic prefill",
+      "result": "Oversize confirmation correctly blocked"
+    },
+    {
+      "cause": "Slow test loading during full API regression",
+      "action": "Bound waits, use DOMContentLoaded instead of complete resource load",
+      "result": "Browser checks PASS"
+    },
+    {
+      "cause": "Fixture lacked UTF-8 declaration",
+      "action": "Add charset to Content-Type and HTML",
+      "result": "Re-tested; Romanian text visually correct"
+    }
+  ]
+}

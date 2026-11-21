@@ -20,8 +20,18 @@ type NativeSnapshot = {
   voiceSettings: boolean;
 };
 
+export type DiscoveredAndroidApplication = {
+  packageName: string;
+  appName: string;
+  iconUri?: string;
+  systemApp: boolean;
+  availability: 'AVAILABLE' | 'UNAVAILABLE' | 'UNRESOLVED';
+};
+
 interface AgmCapabilityPlugin {
   getCapabilities(): Promise<NativeSnapshot>;
+  discoverApplications(): Promise<{ applications: DiscoveredAndroidApplication[] }>;
+  inspectApplication(options: { packageName: string }): Promise<DiscoveredAndroidApplication>;
 }
 
 const nativeCapability = registerPlugin<AgmCapabilityPlugin>('AgmCapability');
@@ -122,6 +132,25 @@ export async function getDeviceCapabilitySnapshot(options: { forceRefresh?: bool
     const snapshot = writeSnapshot(fallback);
     lastCapabilityLookup = { latencyMs: performance.now() - startedAt, cacheHit: false };
     return snapshot;
+  }
+}
+
+export async function discoverAndroidApplications(): Promise<DiscoveredAndroidApplication[]> {
+  if (Capacitor.getPlatform() !== 'android') return [];
+  try {
+    const result = await nativeCapability.discoverApplications();
+    return Array.isArray(result.applications) ? result.applications : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function inspectAndroidApplication(packageName: string): Promise<DiscoveredAndroidApplication | null> {
+  if (Capacitor.getPlatform() !== 'android') return null;
+  try {
+    return await nativeCapability.inspectApplication({ packageName });
+  } catch {
+    return null;
   }
 }
 

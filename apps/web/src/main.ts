@@ -1,3 +1,4 @@
+import { applicationAccessText } from './application-access/application-access.i18n';
 import './styles.css';
 import { Capacitor } from '@capacitor/core';
 import { copyPlainText } from './platform/clipboard';
@@ -52,6 +53,9 @@ import {
   readProfile,
   saveProfile,
 } from './profileSettings';
+import type { ApplicationAction } from './application-access/application-access.types';
+import { discoveredApplication } from './application-access/application-access.policy';
+import { readApplicationAccess, saveApplicationAccess } from './application-access/application-access.storage';
 import { evaluateMailDraftSecurity, realMailSendingIsApproved } from './mail-security/mail-security.policy';
 import { buildMailPreview } from './mailmaster/mailmaster.compose';
 import { buildMailSignature } from './mailmaster/mailmaster.signature';
@@ -90,7 +94,7 @@ import { USER_ACCESS_TOKEN_KEY } from './premium-access/premium-access.client';
 import { createSharedArchiveClient, surfaceForRuntime } from './shared-archive/shared-archive.client';
 import { clearOriginalEvidence } from './premium-situation-router/required-document.evidence-store';
 import { recognizeTextFromImage } from './ocr-translator';
-import { getDeviceCapabilitySnapshot } from './device-capability-router/device-capability.runtime';
+import { discoverAndroidApplications, getDeviceCapabilitySnapshot, inspectAndroidApplication } from './device-capability-router/device-capability.runtime';
 import {
   analyzeTransportDocument,
   formatTransportDocumentResult,
@@ -272,6 +276,8 @@ const ocrArchiveRepository = createOcrArchiveRepository(createEphemeralOcrArchiv
 const sharedArchiveClient = createSharedArchiveClient({ surface: surfaceForRuntime(Capacitor.isNativePlatform()) });
 const tutorialRepository = createTutorialRepository(window.localStorage);
 const initialProfile = readProfile(window.sessionStorage);
+initialProfile.applicationAccess = readApplicationAccess(window.localStorage, initialProfile.applicationAccess);
+saveProfile(window.sessionStorage, initialProfile);
 const initialContacts = readContacts(window.localStorage);
 const initialOcrHistory = ocrHistoryRepository.read();
 const initialMessageLibraryPreferences = readMessageLibraryPreferences(window.sessionStorage);
@@ -2063,6 +2069,41 @@ function renderProfile() {
         <legend>${escapeHtml(t(language, 'profile.preferredLanguage'))}</legend>
         ${languageButtons('profilePreferredLanguage', state.profile.preferredLanguage)}
         </fieldset>
+
+        <details class="module-section application-access-section" open>
+          <summary>${escapeHtml(applicationAccessText(language, 'AGMa application access'))}</summary>
+          <section class="compliance-note">
+            <strong>${escapeHtml(applicationAccessText(language, 'Deny by default'))}</strong>
+            <p>${escapeHtml(applicationAccessText(language, 'Discovered applications remain OFF until you enable them and select capabilities. Sensitive applications are blocked by policy.'))}</p>
+            <label class="application-access-safety-mode">
+              <span>${escapeHtml(applicationAccessText(language, 'Driver Safety Restricted'))}</span>
+              <input id="profileDriverSafetyRestricted" type="checkbox" ${state.profile.applicationAccess.driverSafetyMode === 'RESTRICTED' ? 'checked' : ''} />
+            </label>
+          </section>
+          <label><span>${escapeHtml(applicationAccessText(language, 'Search applications'))}</span><input id="profileApplicationSearch" type="search" autocomplete="off" placeholder="${escapeHtml(applicationAccessText(language, 'Name or package'))}" /></label>
+          <div class="application-access-list" aria-label="${escapeHtml(applicationAccessText(language, 'AGMa application access list'))}">
+            ${state.profile.applicationAccess.entries.length === 0
+              ? `<p class="muted-note">${escapeHtml(applicationAccessText(language, 'No applications have been explicitly authorized.'))}</p>`
+              : state.profile.applicationAccess.entries.map((entry) => `
+                <article class="application-access-card" data-package="${escapeHtml(entry.packageName)}">
+                  <header>${entry.iconUri ? `<img class="application-access-icon" src="${escapeHtml(entry.iconUri)}" alt="" />` : '<span class="application-access-icon application-access-icon-placeholder" aria-hidden="true">APP</span>'}<strong>${escapeHtml(entry.appName)}</strong><code>${escapeHtml(entry.packageName)}</code></header>
+                  <p class="application-access-state">${escapeHtml(applicationAccessText(language, entry.safetyClass === 'HARD_BLOCKED' ? 'Excluded sensitive application' : entry.enabled ? 'Enabled by you' : 'Access disabled'))}</p>
+                  <label><span>${escapeHtml(applicationAccessText(language, 'AGMa access'))}</span><input type="checkbox" data-app-enabled="${escapeHtml(entry.packageName)}" ${entry.enabled ? 'checked' : ''} ${entry.safetyClass === 'HARD_BLOCKED' ? 'disabled' : ''} /></label>
+                  <label><span>${language==='ro'?'Conține date sensibile — exclude accesul':'Contains sensitive data — exclude access'}</span><input type="checkbox" data-app-sensitive="${escapeHtml(entry.packageName)}" ${entry.sensitive ? 'checked' : ''} /></label>
+                  <div class="application-access-capabilities">
+                    ${entry.restrictedActions.filter(action => action === 'OPEN_APP').map((action) => `<label><span>${escapeHtml(applicationAccessText(language, 'Open application'))}</span><input type="checkbox" data-app-action="${escapeHtml(entry.packageName)}" data-action="${escapeHtml(action)}" ${entry.allowedActions.includes(action as ApplicationAction) ? 'checked' : ''} ${!entry.enabled || entry.safetyClass === 'HARD_BLOCKED' ? 'disabled' : ''} /></label>`).join('')}
+                  </div>
+                </article>
+              `).join('')}
+          </div>
+          <p role="status" data-application-access-status></p>
+          <div class="application-access-add">
+            <label><span>${escapeHtml(applicationAccessText(language, 'Package identity'))}</span><input id="profileAppPackage" type="text" placeholder="com.example.app" /></label>
+            <button id="addProfileApplication" type="button">${escapeHtml(applicationAccessText(language, 'Add as OFF'))}</button>
+            <button id="discoverProfileApplications" type="button">${escapeHtml(applicationAccessText(language, 'Discover installed applications'))}</button>
+            <p class="muted-note">${escapeHtml(applicationAccessText(language, 'Manual addition never bypasses classification or hard security blocks.'))}</p>
+          </div>
+        </details>
       </details>
 
       <details class="module-section">
@@ -3828,6 +3869,77 @@ function bindContactManager() {
 }
 
 function bindProfile() {
+  document.querySelector<HTMLInputElement>('#profileApplicationSearch')?.addEventListener('input', (event) => {
+    const query = (event.target as HTMLInputElement).value.trim().toLocaleLowerCase();
+    document.querySelectorAll<HTMLElement>('.application-access-card').forEach((card) => {
+      card.hidden = query.length > 0 && !(card.dataset.package ?? '').toLocaleLowerCase().includes(query)
+        && !card.textContent?.toLocaleLowerCase().includes(query);
+    });
+  });
+
+  document.querySelector<HTMLButtonElement>('#discoverProfileApplications')?.addEventListener('click', async () => {
+    const status = document.querySelector<HTMLElement>('[data-application-access-status]');
+    if(status)status.textContent=applicationAccessText(uiLanguage(),'Checking applications...');
+    const discovered = await discoverAndroidApplications();
+    if(!discovered.length && status)status.textContent=applicationAccessText(uiLanguage(),'Open the updated Android app to discover installed applications.');
+    const existing = new Set(state.profile.applicationAccess.entries.map((entry) => entry.packageName));
+    const additions = discovered.filter((entry) => !existing.has(entry.packageName)).map((entry) => discoveredApplication(entry));
+    if (additions.length === 0) return;
+    state.profile = persistApplicationAccess({
+      ...state.profile,
+      applicationAccess: { ...state.profile.applicationAccess, entries: [...state.profile.applicationAccess.entries, ...additions] },
+    });
+    render();
+  });
+
+  document.querySelector<HTMLButtonElement>('#addProfileApplication')?.addEventListener('click', async () => {
+    const packageName = document.querySelector<HTMLInputElement>('#profileAppPackage')?.value.trim() ?? '';
+    if (!/^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$/.test(packageName)
+      || state.profile.applicationAccess.entries.some((entry) => entry.packageName === packageName)) return;
+    const installed = await inspectAndroidApplication(packageName);
+    if (!installed || installed.packageName !== packageName) { const status=document.querySelector<HTMLElement>('[data-application-access-status]');if(status)status.textContent=applicationAccessText(uiLanguage(),'Application identity could not be verified on Android.');return; }
+    state.profile = persistApplicationAccess({
+      ...state.profile,
+      applicationAccess: { ...state.profile.applicationAccess, entries: [...state.profile.applicationAccess.entries, discoveredApplication(installed)] },
+    });
+    render();
+  });
+
+  document.querySelector<HTMLInputElement>('#profileDriverSafetyRestricted')?.addEventListener('change', (event) => {
+    state.profile = persistApplicationAccess({
+      ...state.profile,
+      applicationAccess: { ...state.profile.applicationAccess, driverSafetyMode: (event.target as HTMLInputElement).checked ? 'RESTRICTED' : 'NORMAL' },
+    });
+    render();
+  });
+
+  document.querySelectorAll<HTMLInputElement>('[data-app-sensitive]').forEach(control => {
+    control.addEventListener('change',()=>{state.profile=saveApplicationAccessEntry(control.dataset.appSensitive!,entry=>({...entry,sensitive:control.checked,enabled:false,allowedActions:[]}));render();});
+  });
+
+  document.querySelectorAll<HTMLInputElement>('[data-app-enabled]').forEach((control) => {
+    control.addEventListener('change', () => {
+      const packageName = control.dataset.appEnabled;
+      if (!packageName) return;
+      state.profile = saveApplicationAccessEntry(packageName, (entry) => ({ ...entry, enabled: control.checked, state: control.checked ? 'ON' : 'OFF' }));
+      render();
+    });
+  });
+
+  document.querySelectorAll<HTMLInputElement>('[data-app-action]').forEach((control) => {
+    control.addEventListener('change', () => {
+      const packageName = control.dataset.appAction;
+      const action = control.dataset.action as ApplicationAction | undefined;
+      if (!packageName || !action) return;
+      state.profile = saveApplicationAccessEntry(packageName, (entry) => ({
+        ...entry,
+        allowedActions: control.checked ? [...new Set([...entry.allowedActions, action])] : entry.allowedActions.filter((item) => item !== action),
+        state: entry.enabled ? 'ON' : 'OFF',
+      }));
+      render();
+    });
+  });
+
   document.querySelector<HTMLButtonElement>('#openPersonalContacts')?.addEventListener('click', () => {
     openContactManager();
   });
@@ -3913,6 +4025,19 @@ function bindProfile() {
   initSignaturePad();
 }
 
+function saveApplicationAccessEntry(packageName: string, update: (entry: ProfileSettings['applicationAccess']['entries'][number]) => ProfileSettings['applicationAccess']['entries'][number]): ProfileSettings {
+  const applicationAccess = {
+    ...state.profile.applicationAccess,
+    entries: state.profile.applicationAccess.entries.map((entry) => entry.packageName === packageName ? update(entry) : entry),
+  };
+  return persistApplicationAccess({ ...state.profile, applicationAccess });
+}
+
+function persistApplicationAccess(profile: ProfileSettings): ProfileSettings {
+  const applicationAccess = saveApplicationAccess(window.localStorage, profile.applicationAccess);
+  return saveProfile(window.sessionStorage, { ...profile, applicationAccess });
+}
+
 function input(id: string, update: (value: string) => void) {
   document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`#${id}`)?.addEventListener('input', (event) => {
     update((event.target as HTMLInputElement | HTMLTextAreaElement).value);
@@ -3944,7 +4069,7 @@ function registerServiceWorker() {
   }
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js?v=agm-cockpit-1.9.2-agma-20261121', { updateViaCache: 'none' }).catch(() => {
+    navigator.serviceWorker.register('/sw.js?v=agm-cockpit-1.9.2-webapi-20261121', { updateViaCache: 'none' }).catch(() => {
       state.status = t(uiLanguage(), 'status.pwaUnavailable');
     });
   });
@@ -6143,6 +6268,7 @@ function saveProfileFromForm() {
     favoriteLanguages: state.profile.favoriteLanguages,
     defaultSignature: defaultSignature || state.profile.defaultSignature || defaultProfile().defaultSignature,
     drawnSignatureDataUrl: state.profile.drawnSignatureDataUrl,
+    applicationAccess: state.profile.applicationAccess,
   };
   saveProfile(window.sessionStorage, state.profile);
   state.status = t(uiLanguage(), 'profile.status.saved', { language: languageLabel(state.profile.preferredLanguage) });
@@ -6151,6 +6277,7 @@ function saveProfileFromForm() {
 
 function resetProfile() {
   state.profile = defaultProfile();
+  saveApplicationAccess(window.localStorage, state.profile.applicationAccess);
   state.targetLanguage = state.profile.preferredLanguage;
   state.translatorTargetLanguage = state.profile.preferredLanguage;
   saveProfile(window.sessionStorage, state.profile);

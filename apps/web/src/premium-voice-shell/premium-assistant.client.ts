@@ -3,6 +3,7 @@ import type { BasicLanguageCode } from '../language-registry';
 import type { GmailActionContext } from '../android-action-layer/android-action.contract';
 
 export type PremiumAssistantClientRequest = {
+  ownProfileContext?: string;
   task?: 'DRAFT_REPLY';
   productId: 'agm-cockpit';
   moduleId: string;

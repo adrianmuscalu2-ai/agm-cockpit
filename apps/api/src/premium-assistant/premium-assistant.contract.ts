@@ -10,7 +10,7 @@ export const PREMIUM_ASSISTANT_CONTRACT = {
   endpoint: 'https://api.openai.com/v1/responses',
   maximumHistoryTurns: 20,
   maximumInputLength: 2_000,
-  timeoutMs: 15_000,
+  timeoutMs: 30_000,
   externalEffects: false,
 } as const;
 

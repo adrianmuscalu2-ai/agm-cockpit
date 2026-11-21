@@ -3,11 +3,12 @@ import { Type } from 'class-transformer';
 
 class ConversationTurnDto {
   @IsIn(['user', 'assistant']) role!: 'user' | 'assistant';
-  @IsString() @IsNotEmpty() @MaxLength(4_000) text!: string;
+  @IsString() @IsNotEmpty() @MaxLength(12_000) text!: string;
   @IsOptional() @IsISO8601() occurredAt?: string;
 }
 
 export class PremiumAssistantRequestDto {
+  @IsOptional() @IsString() @MaxLength(12_000) ownProfileContext?: string;
   @IsOptional() @IsIn(['DRAFT_REPLY']) task?: 'DRAFT_REPLY';
   @IsIn(['agm-cockpit']) productId!: 'agm-cockpit';
   @IsString() @IsNotEmpty() @MaxLength(80) moduleId!: string;

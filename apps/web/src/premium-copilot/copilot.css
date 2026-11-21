@@ -28,6 +28,7 @@
 [data-assistant-open-settings] { min-height: 2.8rem; padding: .55rem .8rem; border: 1px solid #d59b3b; border-radius: .7rem; background: #35230d; color: #ffe3ad; }
 [data-assistant-latency] { display: block; margin: .65rem 0; color: #8fb8c9; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .copilot-transcript label { display: grid; gap: .5rem; }
+[data-phone-plan-text] { box-sizing: border-box; display: block; width: 100%; min-height: 12rem; margin: 1rem 0; padding: .8rem; border: 1px solid #68d3ff; border-radius: .8rem; background: #041734; color: #fff; font: inherit; resize: vertical; }
 .copilot-transcript textarea { box-sizing: border-box; width: 100%; min-height: 7rem; padding: .8rem; border: 1px solid rgba(104,211,255,.48); border-radius: .8rem; background: rgba(1,9,24,.34); box-shadow:inset 0 0 22px rgba(22,102,205,.12); color: #fff; font-size: 1rem; line-height: 1.45; resize: vertical; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
 .copilot-transcript>div { display: flex; justify-content: flex-end; gap: .7rem; margin-top: .7rem; }
 .copilot-active [data-copilot-safety] { display: grid; gap: .7rem; }

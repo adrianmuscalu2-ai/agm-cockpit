@@ -1,5 +1,7 @@
 import { type LanguageCode } from './emailLanguage';
 import { isBasicLanguageCode, normalizeQuickLanguages } from './language-registry';
+import { defaultApplicationAccessProfile, type ApplicationAccessProfile } from './application-access/application-access.types';
+import { normalizeApplicationAccess } from './application-access/application-access.storage';
 
 export interface ProfileSettings {
   displayName: string;
@@ -12,6 +14,7 @@ export interface ProfileSettings {
   favoriteLanguages: LanguageCode[];
   defaultSignature: string;
   drawnSignatureDataUrl: string;
+  applicationAccess: ApplicationAccessProfile;
 }
 
 export interface ProfileStorage {
@@ -35,6 +38,7 @@ export function defaultProfile(): ProfileSettings {
     favoriteLanguages: ['ro', 'de', 'en'],
     defaultSignature: 'Cu stima',
     drawnSignatureDataUrl: '',
+    applicationAccess: defaultApplicationAccessProfile(),
   };
 }
 
@@ -89,6 +93,7 @@ export function normalizeProfile(
     ),
     defaultSignature: defaultSignature || defaults.defaultSignature,
     drawnSignatureDataUrl: normalizeDrawnSignature(profile.drawnSignatureDataUrl),
+    applicationAccess: normalizeApplicationAccess(profile.applicationAccess),
   };
 }
 

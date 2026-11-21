@@ -6,7 +6,7 @@ describe('apiBuildInfo', () => {
       apiBuildInfo({ AGM_BUILD_SHA: 'abcdef1234567890', AGM_BUILD_ID: 'api-7-1', AGM_BUILD_TIME: '2026-11-06T18:00:00Z' } as NodeJS.ProcessEnv),
     ).toEqual({
       contract: 'agm-api-build-info.v1',
-      appVersion: '1.9.1',
+      appVersion: '1.9.2',
       commit: 'abcdef1234567890',
       buildId: 'api-7-1',
       builtAt: '2026-11-06T18:00:00Z',

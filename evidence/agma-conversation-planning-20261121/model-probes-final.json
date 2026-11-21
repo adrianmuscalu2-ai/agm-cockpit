@@ -1,0 +1,74 @@
+{
+  "scope": "Synthetic model probes only; no messages or events modified",
+  "results": [
+    {
+      "case": 1,
+      "http": 200,
+      "status": "completed",
+      "text": "Plan propus pentru 25 noiembrie 2026, ora Europe/Berlin: atelier 09:00–10:00, întâlnire cu clientul 11:00–12:00 și depozit 14:00–15:00. Intervalele 10:00–11:00, 12:00–14:00 și după 15:00 sunt doar perioade nealocate în planul furnizat, nu disponibilitate verificată; nu am modificat un calendar.\n\nMesaj pregătit pentru Mona: „Bună, Mona! Ne întâlnim pe 25 noiembrie la ora 11:00. Te rog să-mi confirmi dacă îți convine.” Nu l-am trimis.",
+      "usage": {
+        "input_tokens": 1134,
+        "input_tokens_details": {
+          "cache_write_tokens": 1131,
+          "cache_write_tokens_details": {
+            "ttl_12h_tokens": 0,
+            "ttl_30m_tokens": 1131
+          },
+          "cached_tokens": 0
+        },
+        "output_tokens": 390,
+        "output_tokens_details": {
+          "reasoning_tokens": 226
+        },
+        "total_tokens": 1524
+      },
+      "elapsedMs": 3946
+    },
+    {
+      "case": 2,
+      "http": 200,
+      "status": "completed",
+      "text": "Plan propus pentru 25 noiembrie 2026, ora Europe/Berlin: atelier 09:00–10:00, întâlnire cu clientul 12:30–13:30 și depozit 14:00–15:00. Între întâlnirea cu clientul și depozit rămân 30 de minute; nu am modificat un calendar.\n\nMesaj revizuit pentru Mona: „Bună, Mona! Ne întâlnim pe 25 noiembrie la ora 12:30. Te rog să-mi confirmi dacă îți convine.” Nu l-am trimis.",
+      "usage": {
+        "input_tokens": 1337,
+        "input_tokens_details": {
+          "cache_write_tokens": 1334,
+          "cache_write_tokens_details": {
+            "ttl_12h_tokens": 0,
+            "ttl_30m_tokens": 1334
+          },
+          "cached_tokens": 0
+        },
+        "output_tokens": 206,
+        "output_tokens_details": {
+          "reasoning_tokens": 66
+        },
+        "total_tokens": 1543
+      },
+      "elapsedMs": 2357
+    },
+    {
+      "case": 3,
+      "http": 200,
+      "status": "completed",
+      "text": "Guardian păstrează, gestionează expirarea și rotește cheile API. Eu nu le pot prelua; nu le trimite și nu le afișa aici.",
+      "usage": {
+        "input_tokens": 1508,
+        "input_tokens_details": {
+          "cache_write_tokens": 1505,
+          "cache_write_tokens_details": {
+            "ttl_12h_tokens": 0,
+            "ttl_30m_tokens": 1505
+          },
+          "cached_tokens": 0
+        },
+        "output_tokens": 64,
+        "output_tokens_details": {
+          "reasoning_tokens": 24
+        },
+        "total_tokens": 1572
+      },
+      "elapsedMs": 1426
+    }
+  ]
+}
