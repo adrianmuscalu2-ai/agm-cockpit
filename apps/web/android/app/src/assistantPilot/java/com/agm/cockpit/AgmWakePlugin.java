@@ -37,6 +37,23 @@ public final class AgmWakePlugin extends Plugin {
         catch (RuntimeException error) { call.reject("Android could not arm the local detector", "WAKE_START_FAILED", error); }
     }
     @PluginMethod public void stop(PluginCall call) { getContext().stopService(new Intent(getContext(), AgmaWakeService.class)); call.resolve(); }
+    /** Runs only packaged synthetic fixtures; does not touch microphone or authentication. */
+    @PluginMethod public void verifyModelFixtures(PluginCall call) {
+        if (getActivity() == null || !getActivity().hasWindowFocus()) { call.reject("Open pilot for model checks"); return; }
+        new Thread(() -> {
+            try {
+                Context fixtures = getContext().createPackageContext(getContext().getPackageName() + ".test", 0);
+                JSObject results = new JSObject(); boolean passed = true;
+                String[] files = {"wake-positive.wav", "wake-negative.wav", "wake-confusable.wav"};
+                for (String file : files) {
+                    String actual = AgmaWakeModelProbe.decode(getContext().getAssets(), fixtures.getAssets(), file);
+                    String expected = file.equals("wake-positive.wav") ? "HEY_AGMA" : "";
+                    results.put(file, actual); passed &= expected.equals(actual);
+                }
+                results.put("passed", passed); results.put("syntheticOnly", true); call.resolve(results);
+            } catch (Exception error) { call.reject("Synthetic model check failed", "MODEL_FIXTURE_FAILED", error); }
+        }, "agma-wake-fixtures").start();
+    }
     @PluginMethod public void calibrate(PluginCall call) {
         if (!selected() || getActivity() == null || !getActivity().hasWindowFocus() || getPermissionState("microphone") != PermissionState.GRANTED) {
             call.reject("Open the armed pilot before local calibration", "CALIBRATION_AUTHORITY_REQUIRED"); return;
