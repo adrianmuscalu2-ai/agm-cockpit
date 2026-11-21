@@ -4,5 +4,6 @@
   "rate": -1,
   "format": "PCM signed 16-bit, mono, 16000 Hz",
   "wake-positive.wav": "Hey Agma.",
-  "wake-negative.wav": "Hello world. The weather is clear today. Prepare a route to Stuttgart. Hey Google. Hey Alexa."
+  "wake-negative.wav": "Hello world. The weather is clear today. Prepare a route to Stuttgart. Hey Google. Hey Alexa.",
+  "wake-confusable.wav": "Hey Emma. Hey Alma. Hey mama. Hey Agatha. Hey Google. Hey Siri. Hello again. Prepare my email."
 }

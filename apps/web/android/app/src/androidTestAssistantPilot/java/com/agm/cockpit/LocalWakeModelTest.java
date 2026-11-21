@@ -58,4 +58,5 @@ public class LocalWakeModelTest {
     }
     @Test public void positiveSyntheticPhrase() throws Exception { assertEquals("HEY_AGMA", decode("wake-positive.wav")); }
     @Test public void unrelatedSyntheticSpeech() throws Exception { assertEquals("", decode("wake-negative.wav")); }
+    @Test public void similarNamesMustNotWake() throws Exception { assertEquals("", decode("wake-confusable.wav")); }
 }
