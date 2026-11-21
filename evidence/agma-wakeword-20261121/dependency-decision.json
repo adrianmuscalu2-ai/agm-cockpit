@@ -1,0 +1,12 @@
+{
+  "classification": "NECESAR",
+  "reason": "No local keyword-spotting engine exists; platform sound model only enrolls Google; continuous general SpeechRecognizer is not a substitute for a dedicated local wake detector.",
+  "source": "https://github.com/k2-fsa/sherpa-onnx",
+  "version": "2.0.2",
+  "license": "Apache-2.0 engine; verify bundled model license before distribution",
+  "target": "Android S25 SDK37 arm64-v8a; app minSDK24 compileSDK36",
+  "minimalTest": "Load pinned model; process real audio; positive/negative keyword corpus; native microphone wake and stop, then background/keyguard checks",
+  "rollback": "Reinstall previous-passed-pilot.apk preserving data; branch d4502f8f remains unchanged",
+  "networkAudio": false,
+  "existingProofsFrozen": true
+}

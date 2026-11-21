@@ -12,6 +12,7 @@ export function routeAndroidAction(text: string, context: ActiveDriverContext | 
   const raw = text.trim();
   const value = normalize(raw);
   if (!value) return unresolved('CLARIFICATION_REQUIRED', 'EMPTY_REQUEST');
+  const openingDestination = /(?:deschide|porne[șs]te|open|launch|start|öffne|offne|starte)\s+(?:aplica[țt]ia\s+|the\s+app\s+)?(?:google maps|maps|waze|tom\s*tom)\s+(?:la|c[ăa]tre|to|at|nach)\b\s*(.*)$/i.exec(raw);
   const prepareContact = /(?:preg[aă]te[sș]te\s+(?:apelul|un apel)(?:\s+(?:pentru|c[aă]tre))?|caut[aă]|g[aă]se[sș]te)\s+(?:(?:contactul|num[aă]rul|pe|lui)\s+)*(.+?)[.!?]*$/i.exec(raw);
   if (prepareContact && (/\b(?:apel|apelul|contactul|numarul)\b/.test(value))) {
     const contactName = cleanContactName(prepareContact[1] ?? '');
@@ -20,9 +21,10 @@ export function routeAndroidAction(text: string, context: ActiveDriverContext | 
   if (/\b(citeste l|read it|lies es|lecture|leggilo|leelo)\b/.test(value)) {
     return context?.answerText ? resolved('READ_CONTEXT', 'ACTIVE_CONTEXT_AVAILABLE', 'ACTIVE_GMAIL_CONTEXT', { contextText: context.answerText }) : unresolved('CLARIFICATION_REQUIRED', 'ACTIVE_CONTEXT_REQUIRED');
   }
-  if (/\b(navigheaza|navigare|du[ -]ma|condu[ -]ma|mergi|route|navigate|navigation|fahr|navigiere|itineraire)\b/.test(value)) {
-    const requested = extractNavigationDestination(raw);
-    const contextualReference = /^(?:acolo|there|dort|da|la|(?:adresa|address|adresse).*(?:ultim(?:ul|a)?\s+(?:e-?mail|mail|mesaj)|latest\s+(?:e-?mail|message)|letzte[nrs]?\s+(?:e-?mail|nachricht)))$/i.test(normalize(requested));
+  if (openingDestination || /\b(navigheaza|navigare|du[ -]ma|condu[ -]ma|mergi|route|navigate|navigation|fahr|navigiere|itineraire)\b/.test(value)) {
+    const requested = cleanNavigationDestination(openingDestination ? openingDestination[1] ?? '' : extractNavigationDestination(raw));
+    if (openingDestination && !requested) return unresolved('CLARIFICATION_REQUIRED', 'DESTINATION_REQUIRED');
+    const contextualReference = /^(?:acolo|there|dort|da|la|(?:(?:adresa|address|adresse).*|din\s+|from\s+(?:the\s+)?)(?:ultim(?:ul|a)?\s+(?:e-?mail|mail|mesaj)|latest\s+(?:e-?mail|message)|letzte[nrs]?\s+(?:e-?mail|nachricht)))$/i.test(normalize(requested));
     const destination = contextualReference || !requested ? context?.destinations[0] : requested;
     const payload: AndroidActionPayload = {};
     if (destination) payload.value = destination;
@@ -83,7 +85,7 @@ export function routeAndroidAction(text: string, context: ActiveDriverContext | 
     return shareText ? resolved('SHARE', 'ANDROID_CHOOSER_REQUIRED', context?.shareText ? 'ACTIVE_GMAIL_CONTEXT' : 'REQUEST', { value: shareText, contextText: shareText, mimeType: 'text/plain' }) : unresolved('CLARIFICATION_REQUIRED', 'SHARE_PAYLOAD_REQUIRED');
   }
   if (/\b(sterge|delete|remove|wifi|bluetooth|setari sistem|system settings|instaleaza|uninstall)\b/.test(value)) return unresolved('UNSUPPORTED', 'ACTION_NOT_ALLOWLISTED');
-  if (/\b(?:deschide|porneste|open|launch|offne|starte)\b.*\b(?:asistent|asistentul|assistant|assistent)\b/.test(value)) return resolved('ASSISTANT', 'GENERAL_ASSISTANT_HANDOFF', 'GENERAL_HANDOFF', { contextText: raw });
+  if (/\b(?:deschide|porneste|open|launch|offne|starte)\b.*\b(?:asistent|asistentul|assistant|assistent)\b/.test(value)) return resolved('ASSISTANT', 'GENERAL_ASSISTANT_HANDOFF', 'GENERAL_HANDOFF');
   return unresolved('UNSUPPORTED', 'NO_ACTION_INTENT');
 }
 
@@ -131,6 +133,13 @@ function requestedNavigationApp(value: string): AndroidActionPayload['navigation
 function extractNavigationDestination(value: string) {
   const destination = directValue(value, /(?:navigheaz[ăa]|navigare|du[\s-]*m[ăa]|condu[\s-]*m[ăa]|mergi|navigate|route|navigiere|fahr(?:e)?)(?:\s+(?:la|c[ăa]tre|to|nach))?\s+/i);
   return destination.replace(/^[\s,.;:-]*(?:adresa|address|adresse)\s*[,:-]*\s*/i, '').trim();
+}
+
+function cleanNavigationDestination(value: string) {
+  return value
+    .replace(/\s+(?:cu|prin|folosind|în|in|with|using|via|mit)\s+(?:aplica[țt]ia\s+|the\s+app\s+)?(?:google maps|maps|waze|tom\s*tom)[.!?]*$/i, '')
+    .replace(/^(?:adresa|address|adresse)\s*[,:-]*\s*/i, '')
+    .replace(/[.!?]+$/, '').trim().slice(0, 500);
 }
 
 function extractContactName(value: string) {

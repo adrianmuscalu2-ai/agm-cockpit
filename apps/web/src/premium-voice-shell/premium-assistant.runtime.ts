@@ -10,6 +10,7 @@ import { premiumConversationMessages } from './premium-conversation.i18n';
 import { recordRoutingMetric, routeDeviceOperation } from '../device-capability-router/device-capability.runtime';
 import { normalizeSpeechText } from '../speech-semantics';
 import { bindDeviceAssistantHandoff, handleSpokenAndroidAssistantCommand } from '../premium-capabilities/device-assistant-handoff.runtime';
+import { bindLocalWakeControls } from '../premium-capabilities/local-wake.runtime';
 import { rememberDriverContext, readDriverContext } from '../android-action-layer/driver-context';
 import { isReplyDraftRequest, isDraftRevision, requestsFreshEmail, replyDraftRequest, replyDraftResolution } from './email-reply-draft';
 import { resolveDriverVoiceCommand, driverActionMessage, driverDialConfirmationSummary } from '../android-action-layer/driver-voice-mode';
@@ -81,6 +82,7 @@ export function bindPremiumAssistantRuntime(){
  const client=createPremiumAssistantClient({apiBaseUrl:apiBase,fetch:window.fetch.bind(window),sessionStorage});const history=loadHistory();let answerText='';let activeRequest:AbortController|undefined;let requestSequence=0;let recognition:Recognition|undefined;let cancelRecognitionPromise:(()=>void)|undefined;let activeTurnId:string|undefined;let activeBrowserSpeech:{turnId:string;resolve:()=>void}|undefined;let lastAudioStopReceipt:RuntimeAudioStopReceipt|undefined;let disposed=false;const staleTurnEvents=new Set<string>();const nativeListenerHandles:Array<{remove:()=>Promise<void>}>=[];
  const session=new VoiceSessionController(renderState);renderHistory();renderState('OFF');
  const disposeDeviceAssistantHandoff=bindDeviceAssistantHandoff(runtimeRoot,language);
+ const disposeLocalWake=bindLocalWakeControls(runtimeRoot,language);
 
  const offlineHandler=()=>{activeRequest?.abort();status.textContent=connectionText(language,false);};
  const onlineHandler=()=>{if(session.state()==='OFF'||session.state()==='STANDBY')status.textContent=connectionText(language,true);};
@@ -89,6 +91,7 @@ export function bindPremiumAssistantRuntime(){
   if(disposed)return;disposed=true;androidConfirmation.clear();pendingEmailAction=undefined;session.off();requestSequence+=1;activeRequest?.abort();activeRequest=undefined;activeTurnId=undefined;
   delete runtimeRoot.dataset.activeVoiceTurn;
   disposeDeviceAssistantHandoff();
+  disposeLocalWake();
   window.removeEventListener('agm-android-assistant-handoff',handoffHandler);window.removeEventListener('offline',offlineHandler);window.removeEventListener('online',onlineHandler);
   for(const handle of nativeListenerHandles)void handle.remove();
   void enqueueVoiceCancellation(async()=>{await Promise.allSettled([stopCapture(),stopSpeaking()]);});

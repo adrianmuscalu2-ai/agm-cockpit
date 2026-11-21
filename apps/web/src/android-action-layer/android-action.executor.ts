@@ -66,14 +66,14 @@ export async function executeAndroidAction(text: string, resolution: AndroidActi
   const native = effectiveResolution.action === 'SETTINGS'
     ? await openAndroidAssistantSettings()
     : effectiveResolution.action === 'ASSISTANT'
-      ? await launchAndroidAssistant({ moduleId: 'android-action-layer', sensitivity, contextText: payload.contextText })
+      ? await launchAndroidAssistant({ moduleId: 'android-action-layer', sensitivity, contextText: payload.contextText, draftSelector: '[data-assistant-transcript]' })
       : await performAndroidDeviceHandoff({ action: effectiveResolution.action as DeviceHandoffAction, ...payload }, {
         moduleId: `android-action-${effectiveResolution.action!.toLowerCase()}`, sensitivity,
       });
   const value = receipt(
     text, effectiveResolution,
     native.status === 'OPENED' ? 'OPENED' : native.status === 'UNSUPPORTED' ? 'UNSUPPORTED' : native.reason?.startsWith('GUARDIAN_') ? 'AUTH_PERMISSION_FAILURE' : 'UNAVAILABLE',
-    native.target ?? null, native.status === 'OPENED' ? null : native.reason ?? 'NATIVE_HANDLER_UNAVAILABLE',
+    native.target ?? null, native.status === 'OPENED' ? (native.fallback && native.fallback !== 'NONE' ? native.fallback : null) : native.reason ?? 'NATIVE_HANDLER_UNAVAILABLE',
     native.guardianEvidenceId, native.guardianCorrelationId, contactGuardian,
   );
   void evaluatePermissionRequest({

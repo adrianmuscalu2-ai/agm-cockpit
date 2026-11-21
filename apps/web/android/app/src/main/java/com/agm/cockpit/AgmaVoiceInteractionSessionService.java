@@ -25,6 +25,20 @@ public final class AgmaVoiceInteractionSessionService extends VoiceInteractionSe
 
             @Override
             public void onShow(Bundle sessionArgs, int showFlags) {
+                android.app.KeyguardManager keyguard = (android.app.KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+                if (keyguard != null && keyguard.isDeviceLocked()) {
+                    // A wake word is not authentication. Keep private AGM pages
+                    // behind the system lock, while acknowledging the invocation.
+                    setUiEnabled(true);
+                    android.widget.TextView message = new android.widget.TextView(AgmaVoiceInteractionSessionService.this);
+                    message.setText("AGMa este aici. Deblochează telefonul pentru conversație.");
+                    message.setTextSize(22);
+                    message.setPadding(36, 36, 36, 36);
+                    message.setBackgroundColor(android.graphics.Color.WHITE);
+                    message.setTextColor(android.graphics.Color.BLACK);
+                    setContentView(message);
+                    return;
+                }
                 Intent intent = new Intent(
                     AgmaVoiceInteractionSessionService.this,
                     MainActivity.class

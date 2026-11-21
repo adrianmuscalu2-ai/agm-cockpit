@@ -22,6 +22,9 @@ coverage/
 .video-work/
 .runtime-state/
 *.mp4
+/apps/web/android/app/libs/sherpa-onnx-*.aar
+/apps/web/android/app/src/assistantPilot/assets/wakeword/*.onnx
+/apps/web/android/app/src/assistantPilot/assets/wakeword/tokens.txt
 
 # Separate website repository
 /agmcockpit-website/

@@ -1,0 +1,16 @@
+{
+  "scope": "Sensitivity correction after owner real-wake failure; previous navigation/contact/conversation evidence frozen",
+  "candidate": {"boost": 2.0, "threshold": 0.20},
+  "modelTests": "PASS: 3 native synthetic fixture tests, sensitivity-model-result.txt",
+  "realAcousticVerdict": "NOT_PASSED; awaiting owner authentication and fresh physical trial",
+  "attempts": [
+    {"timeWindowUtc":"2026-11-21T05:53/05:56", "action":"Inspect active detector and actual audio metadata", "result":"LISTENING, frames advancing, peak RMS 0.09583, no wake; classify product recognition issue", "next":"Adjust threshold and add similar-name negative fixture"},
+    {"timeWindowUtc":"2026-11-21T05:56/05:57", "action":"Build/install candidate and execute 3 model tests on S25", "result":"PASS", "next":"Rearm through existing authenticated UI"},
+    {"timeWindowUtc":"2026-11-21T05:57/05:58", "action":"Controlled WebView reattachment and voice page readiness", "result":"Voice selector timeout; RESCUE ACTIVATED", "next":"Inspect existing page without reloading or changing credentials"},
+    {"timeWindowUtc":"2026-11-21T05:58/06:01", "action":"Inspect page and optional screenshot", "result":"DOM inspection succeeded; optional WebView screenshot timed out. No repeated screenshot attempt; Android reports unlocked screen ON", "next":"Read access status and native wake status only"},
+    {"timeWindowUtc":"2026-11-21T05:58/06:01", "action":"Reattach controlled CDP and inspect authentication metadata after normal application restore", "result":"Control RECOVERED; hasSession=false, UI requests authentication, detector OFF, assistant role retained", "next":"Owner login through normal UI; no secret extraction or authority bypass"}
+  ],
+  "handoff": "HANDOFF TO ATLAS: preserve model and stop/handoff PASS; wait for owner login, then arm and observe actual spoken phrase from Home",
+  "phoneState": "AGMA Pilot access page, detector OFF",
+  "production": "Unchanged"
+}

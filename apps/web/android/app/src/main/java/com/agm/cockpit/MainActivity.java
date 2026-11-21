@@ -21,6 +21,10 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(AgmEmailPlugin.class);
         registerPlugin(AgmDiagnosticsPlugin.class);
         registerPlugin(AgmCapabilityPlugin.class);
+        // The wake detector is isolated to the assistantPilot build.
+        try {
+            registerPlugin(Class.forName("com.agm.cockpit.AgmWakePlugin").asSubclass(com.getcapacitor.Plugin.class));
+        } catch (ClassNotFoundException ignored) { }
         super.onCreate(savedInstanceState);
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);

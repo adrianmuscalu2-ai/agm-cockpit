@@ -13,11 +13,13 @@ import android.util.Log;
  * explicitly selected AGMa as the digital assistant.
  */
 public final class AgmaVoiceInteractionService extends VoiceInteractionService {
+    private static volatile AgmaVoiceInteractionService active;
     private static final String TAG = "AGMa-Assistant";
 
     @Override
     public void onReady() {
         super.onReady();
+        active = this;
         setDisabledShowContext(
             VoiceInteractionSession.SHOW_WITH_ASSIST
                 | VoiceInteractionSession.SHOW_WITH_SCREENSHOT
@@ -34,7 +36,18 @@ public final class AgmaVoiceInteractionService extends VoiceInteractionService {
 
     @Override
     public void onShutdown() {
+        active = null;
+        AgmaWakeBridge.stopIfPresent();
         Log.i(TAG, "AGMa digital-assistant authority stopped");
         super.onShutdown();
+    }
+
+    public static boolean requestLocalWake() {
+        AgmaVoiceInteractionService service = active;
+        if (service == null) return false;
+        Bundle args = new Bundle();
+        args.putString(AgmaVoiceInteractionSessionService.EXTRA_INVOCATION_SOURCE, "LOCAL_WAKE_WORD");
+        try { service.showSession(args, 0); return true; }
+        catch (RuntimeException error) { Log.w(TAG, "Wake session unavailable", error); return false; }
     }
 }

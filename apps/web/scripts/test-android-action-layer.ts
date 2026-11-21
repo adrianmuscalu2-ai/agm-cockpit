@@ -4,7 +4,42 @@ import { resolve } from 'node:path';
 import { parseNaturalDateTime, routeAndroidAction, routeRetrievedAndroidAction } from '../src/android-action-layer/android-action.router';
 import { executeAndroidAction } from '../src/android-action-layer/android-action.executor';
 import { androidActionSafetyBoundary, confirmationFor } from '../src/android-action-layer/confirmation-policy';
+import { resolveDriverVoiceCommand, driverActionMessage } from '../src/android-action-layer/driver-voice-mode';
 import type { ActiveDriverContext } from '../src/android-action-layer/android-action.contract';
+
+for (const [phrase, app] of [['Deschide aplicația Waze', 'Waze'], ['Deschide Tom Tom', 'TomTom'], ['Deschide Google Maps', 'Maps'], ['Open the app Maps', 'Maps']]) {
+  const command = resolveDriverVoiceCommand(phrase!);
+  assert.equal(command.handled, true, phrase);
+  if (command.handled) {
+    assert.equal(command.resolution.action, 'OPEN_APP');
+    assert.equal(command.resolution.payload?.value, app);
+  }
+}
+assert.equal(resolveDriverVoiceCommand('Citește ultimul email și deschide Waze').handled, false);
+assert.equal(routeAndroidAction('Deschide asistentul telefonului', null).action, 'ASSISTANT');
+assert.equal(routeAndroidAction('Deschide asistentul telefonului', null).payload?.contextText, undefined);
+assert.match(driverActionMessage('OPENED', 'ASSISTANT_CHOOSER_OPENED', 'ro'), /Alege un asistent/);
+assert.match(driverActionMessage('OPENED', 'ASSISTANT_TEXT_CHOOSER_OPENED', 'ro'), /nu revine automat/);
+
+for (const [phrase, provider] of [
+  ['Deschide Maps la Dieselstraße 5, Stuttgart', 'MAPS'],
+  ['Deschide aplicația Waze către Dieselstraße 5, Stuttgart', 'WAZE'],
+  ['Open the app Maps to Dieselstraße 5, Stuttgart', 'MAPS'],
+  ['Deschide Tom Tom la adresa Dieselstraße 5, Stuttgart', 'TOMTOM'],
+  ['Navighează la Dieselstraße 5, Stuttgart cu Waze.', 'WAZE'],
+  ['Du-mă la Dieselstraße 5, Stuttgart folosind Google Maps', 'MAPS'],
+]) {
+  const result = resolveDriverVoiceCommand(phrase!);
+  assert.equal(result.handled, true, phrase);
+  if (result.handled) {
+    assert.equal(result.resolution.action, 'NAVIGATION', phrase);
+    assert.equal(result.resolution.payload?.navigationApp, provider, phrase);
+    assert.equal(result.resolution.payload?.value, 'Dieselstraße 5, Stuttgart', phrase);
+  }
+}
+assert.equal(routeAndroidAction('Deschide Maps la', null).status, 'CLARIFICATION_REQUIRED');
+assert.equal(resolveDriverVoiceCommand('Citește ultimul email și deschide Maps la adresa de acolo').handled, false);
+assert.equal(resolveDriverVoiceCommand('Ce poți face cu Waze?').handled, false);
 
 const context: ActiveDriverContext = {
   contractVersion:'gmail-action-context.v1',traceId:'trace-1',messageRef:'GMAIL-hash',senderEmail:'dispatch@example.com',subject:'Descărcare Heilbronn',receivedAt:'2026-09-13T08:00:00.000Z',
@@ -12,6 +47,10 @@ const context: ActiveDriverContext = {
 };
 
 const navigate = routeAndroidAction('Navighează acolo.', context);
+assert.equal(routeAndroidAction('Deschide Maps la', context).status, 'CLARIFICATION_REQUIRED');
+assert.equal(routeAndroidAction('Deschide Waze la acolo', context).payload?.value, context.destinations[0]);
+assert.equal(routeAndroidAction('Deschide Maps la adresa din ultimul email', context).payload?.value, context.destinations[0]);
+assert.equal(routeAndroidAction('Deschide Maps la adresa din ultimul email', null).status, 'CLARIFICATION_REQUIRED');
 assert.equal(navigate.status, 'RESOLVED');
 assert.equal(navigate.action, 'NAVIGATION');
 assert.equal(navigate.source, 'ACTIVE_GMAIL_CONTEXT');

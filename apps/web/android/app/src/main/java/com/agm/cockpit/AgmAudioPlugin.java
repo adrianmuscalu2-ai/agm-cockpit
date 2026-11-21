@@ -33,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.HashSet;
+import java.util.Set;
 
 @CapacitorPlugin(
     name = "AgmAudio",
@@ -48,6 +50,9 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     private String listeningCycleId;
     private TextToSpeech textToSpeech;
     private boolean textToSpeechReady;
+    private final Set<String> triedTtsEngines = new HashSet<>();
+    private String activeTtsEngine;
+    private long ttsEngineGeneration;
     private AudioManager audioManager;
     private AudioFocusRequest audioFocusRequest;
     private boolean ownsAudioFocus;
@@ -107,6 +112,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
 
     @PluginMethod
     public void startListening(PluginCall call) {
+        if (!AgmaWakeBridge.yieldMicrophone()) { call.reject("Wake detector did not release microphone", "WAKE_MICROPHONE_BUSY"); return; }
         String language = call.getString("language", Locale.getDefault().toLanguageTag());
         String cycleId = call.getString("cycleId", "").trim();
         boolean preferOnDevice = Boolean.TRUE.equals(call.getBoolean("preferOnDevice", false));
@@ -191,6 +197,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
 
     @PluginMethod
     public void speak(PluginCall call) {
+        if (!AgmaWakeBridge.yieldMicrophone()) { call.reject("Wake detector did not release microphone", "WAKE_MICROPHONE_BUSY"); return; }
         String text = call.getString("text", "").trim();
         String language = call.getString("language", Locale.getDefault().toLanguageTag());
         String turnId = call.getString("turnId", "").trim();
@@ -217,19 +224,49 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
             pendingSpeechText = text;
             pendingSpeechLanguage = language;
             pendingSpeechTurnId = turnId;
+            triedTtsEngines.clear();
+            if (activeTtsEngine != null) triedTtsEngines.add(activeTtsEngine);
             activeUtteranceId = "agm-tts-" + (++ttsSequence) + "-g" + generation;
             ttsRequestedAt = SystemClock.elapsedRealtime();
             Log.i(TAG, "TTS authority granted; turnId=" + turnId + "; generation=" + generation + "; utteranceId=" + activeUtteranceId);
             if (textToSpeech == null) {
                 textToSpeechReady = false;
                 Log.i(TAG, "Using the user-selected Android default TTS engine");
-                textToSpeech = new TextToSpeech(getContext(), this);
+                initializeTtsEngine(null);
             } else if (textToSpeechReady) {
                 speakPendingText(generation);
             } else {
                 Log.i(TAG, "TTS initialization pending; current generation retained=" + generation);
             }
         });
+    }
+
+    private void initializeTtsEngine(String engine) {
+        long engineGeneration = ++ttsEngineGeneration;
+        textToSpeechReady = false;
+        activeTtsEngine = engine;
+        if (engine != null) triedTtsEngines.add(engine);
+        TextToSpeech.OnInitListener listener = status -> getActivity().runOnUiThread(() -> {
+            if (engineGeneration != ttsEngineGeneration) return;
+            onInit(status);
+        });
+        textToSpeech = engine == null
+            ? new TextToSpeech(getContext(), listener)
+            : new TextToSpeech(getContext(), listener, engine);
+    }
+
+    private boolean tryInstalledTtsEngine() {
+        if (textToSpeech == null || pendingSpeechCall == null) return false;
+        if (activeTtsEngine == null) activeTtsEngine = textToSpeech.getDefaultEngine();
+        if (activeTtsEngine != null) triedTtsEngines.add(activeTtsEngine);
+        for (TextToSpeech.EngineInfo engine : textToSpeech.getEngines()) {
+            if (engine.name == null || triedTtsEngines.contains(engine.name)) continue;
+            Log.i(TAG, "Requested language unavailable; trying installed TTS engine=" + engine.name);
+            textToSpeech.shutdown();
+            initializeTtsEngine(engine.name);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -241,6 +278,8 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
             return;
         }
         textToSpeechReady = true;
+        if (activeTtsEngine == null) activeTtsEngine = textToSpeech.getDefaultEngine();
+        if (activeTtsEngine != null) triedTtsEngines.add(activeTtsEngine);
         textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override public void onStart(String utteranceId) {
                 if (!utteranceId.equals(activeUtteranceId)) return;
@@ -288,6 +327,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
         Locale locale = Locale.forLanguageTag(pendingSpeechLanguage);
         int languageResult = textToSpeech.setLanguage(locale);
         if (languageResult == TextToSpeech.LANG_MISSING_DATA || languageResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+            if (tryInstalledTtsEngine()) return;
             rejectPendingSpeech("TTS language is unavailable: " + pendingSpeechLanguage, "TTS_LANGUAGE_UNAVAILABLE");
             return;
         }
@@ -564,6 +604,7 @@ public class AgmAudioPlugin extends Plugin implements RecognitionListener, TextT
     }
 
     @Override protected void handleOnDestroy() {
+        ttsEngineGeneration++;
         destroyRecognizer();
         abandonSpeechAudioFocus();
         if (textToSpeech != null) { textToSpeech.stop(); textToSpeech.shutdown(); textToSpeech = null; }

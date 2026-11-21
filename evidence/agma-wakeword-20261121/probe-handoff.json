@@ -1,0 +1,52 @@
+{
+  "at": "2026-11-21T05:48:14.584Z",
+  "action": "handoff",
+  "before": {
+    "state": "LISTENING",
+    "failure": "",
+    "armed": true,
+    "detections": 0,
+    "lastDetection": 0,
+    "localOnly": true,
+    "phrase": "Hei, AGMA",
+    "audioRms": 0.003507973536902756,
+    "peakAudioRms": 0.004851771152466174,
+    "audioFrames": 412,
+    "lastAudioFrame": 1795240084818,
+    "selectedAssistant": true
+  },
+  "handoff": {
+    "during": {
+      "state": "PAUSED",
+      "failure": "",
+      "armed": true,
+      "detections": 0,
+      "lastDetection": 0,
+      "localOnly": true,
+      "phrase": "Hei, AGMA",
+      "audioRms": 0.004492775636246738,
+      "peakAudioRms": 0.004851771152466174,
+      "audioFrames": 417,
+      "lastAudioFrame": 1795240085059,
+      "selectedAssistant": true
+    },
+    "voiceActive": "true"
+  },
+  "after": {
+    "state": "LISTENING",
+    "failure": "",
+    "armed": true,
+    "detections": 0,
+    "lastDetection": 0,
+    "localOnly": true,
+    "phrase": "Hei, AGMA",
+    "audioRms": 0.006104493158261349,
+    "peakAudioRms": 0.006104493158261349,
+    "audioFrames": 60,
+    "lastAudioFrame": 1795240092234,
+    "selectedAssistant": true
+  },
+  "ui": "LISTENING · Activări: 0",
+  "voiceStatus": "Ascultare oprită",
+  "voiceActive": "false"
+}
