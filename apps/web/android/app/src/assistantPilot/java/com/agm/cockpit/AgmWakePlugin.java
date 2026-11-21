@@ -12,13 +12,14 @@ import com.getcapacitor.annotation.*;
     @Permission(alias="notifications", strings={Manifest.permission.POST_NOTIFICATIONS})
 })
 public final class AgmWakePlugin extends Plugin {
+    private boolean diagnosticsAllowed() { return (getContext().getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0; }
     private boolean selected() { return VoiceInteractionService.isActiveService(getContext(), new ComponentName(getContext(), AgmaVoiceInteractionService.class)); }
     @PluginMethod public void status(PluginCall call) {
-        JSObject value = AgmaWakeService.snapshot(); value.put("selectedAssistant", selected()); call.resolve(value);
+        JSObject value = AgmaWakeService.snapshot(); value.put("selectedAssistant", selected()); value.put("assistantName", getContext().getString(com.agm.cockpit.R.string.agma_assistant_name)); call.resolve(value);
     }
     @PluginMethod public void prepare(PluginCall call) {
         if (Build.VERSION.SDK_INT < 29) { call.reject("Local wake pilot requires Android 10 or newer", "WAKE_PLATFORM_UNSUPPORTED"); return; }
-        if (!selected()) { call.reject("Select AGMA Pilot as the Android assistant first", "ASSISTANT_ROLE_REQUIRED"); return; }
+        if (!selected()) { call.reject("Select AGMa as the Android assistant first", "ASSISTANT_ROLE_REQUIRED"); return; }
         if (getPermissionState("microphone") != PermissionState.GRANTED) { requestPermissionForAlias("microphone", call, "afterMicrophone"); return; }
         afterMicrophone(call);
     }
@@ -32,6 +33,7 @@ public final class AgmWakePlugin extends Plugin {
         JSObject out = new JSObject(); out.put("microphone", "granted"); call.resolve(out);
     }
     @PluginMethod public void arm(PluginCall call) {
+        if (Build.VERSION.SDK_INT < 29) { call.reject("Local wake requires Android 10 or newer", "WAKE_PLATFORM_UNSUPPORTED"); return; }
         if (!selected() || getPermissionState("microphone") != PermissionState.GRANTED || (Build.VERSION.SDK_INT >= 33 && getPermissionState("notifications") != PermissionState.GRANTED)) { call.reject("Wake permissions or assistant role missing", "WAKE_AUTHORITY_REQUIRED"); return; }
         try { getContext().startForegroundService(new Intent(getContext(), AgmaWakeService.class).setAction("ARM")); call.resolve(); }
         catch (RuntimeException error) { call.reject("Android could not arm the local detector", "WAKE_START_FAILED", error); }
@@ -39,6 +41,7 @@ public final class AgmWakePlugin extends Plugin {
     @PluginMethod public void stop(PluginCall call) { getContext().stopService(new Intent(getContext(), AgmaWakeService.class)); call.resolve(); }
     /** Runs only packaged synthetic fixtures; does not touch microphone or authentication. */
     @PluginMethod public void verifyModelFixtures(PluginCall call) {
+        if (!diagnosticsAllowed()) { call.reject("Diagnostics are unavailable in release builds", "DIAGNOSTICS_DISABLED"); return; }
         if (getActivity() == null || !getActivity().hasWindowFocus()) { call.reject("Open pilot for model checks"); return; }
         new Thread(() -> {
             try {
@@ -55,6 +58,7 @@ public final class AgmWakePlugin extends Plugin {
         }, "agma-wake-fixtures").start();
     }
     @PluginMethod public void calibrate(PluginCall call) {
+        if (!diagnosticsAllowed()) { call.reject("Diagnostics are unavailable in release builds", "DIAGNOSTICS_DISABLED"); return; }
         if (!selected() || getActivity() == null || !getActivity().hasWindowFocus() || getPermissionState("microphone") != PermissionState.GRANTED) {
             call.reject("Open the armed pilot before local calibration", "CALIBRATION_AUTHORITY_REQUIRED"); return;
         }

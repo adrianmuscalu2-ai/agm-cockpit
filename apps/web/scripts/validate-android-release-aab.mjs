@@ -44,7 +44,7 @@ if (!expectedCertificateSha256 || !/^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(expect
 const applicationId = build.match(/applicationId\s+["']([^"']+)["']/)?.[1] ?? null;
 const versionName = build.match(/versionName\s+["']([^"']+)["']/)?.[1] ?? null;
 const versionCode = Number(build.match(/versionCode\s+(\d+)/)?.[1] ?? Number.NaN);
-if (applicationId !== 'com.agm.cockpit' || versionName !== '1.6.0' || versionCode !== 28) {
+if (applicationId !== 'com.agm.cockpit' || versionName !== '1.9.2' || versionCode !== 62) {
   console.error('ANDROID_RELEASE_IDENTITY_OR_VERSION_MISMATCH');
   process.exit(1);
 }
@@ -106,7 +106,13 @@ if (certificateSha256.toUpperCase() !== expectedCertificateSha256) {
 const entries = execFileSync(jar, ['tf', aab], { encoding: 'utf8', windowsHide: true })
   .split(/\r?\n/)
   .filter(Boolean);
-const requiredEntries = ['BundleConfig.pb', 'base/manifest/AndroidManifest.xml'];
+const requiredEntries = [
+  'BundleConfig.pb', 'base/manifest/AndroidManifest.xml',
+  'base/assets/wakeword/encoder.onnx', 'base/assets/wakeword/decoder.onnx',
+  'base/assets/wakeword/joiner.onnx', 'base/assets/wakeword/tokens.txt',
+  'base/assets/wakeword/keywords.txt',
+  'base/lib/arm64-v8a/libsherpa-onnx-jni.so',
+];
 const missingEntries = requiredEntries.filter((entry) => !entries.includes(entry));
 if (missingEntries.length) {
   console.error(`ANDROID_RELEASE_AAB_STRUCTURE_INVALID:${missingEntries.join(',')}`);

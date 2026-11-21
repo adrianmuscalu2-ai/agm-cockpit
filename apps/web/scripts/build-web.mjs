@@ -20,12 +20,13 @@ if (process.env.CF_PAGES === '1') {
 }
 
 async function writeBuildInfo(outputRoot) {
+  const packageInfo = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
   // Cloudflare Pages builds from Git and exposes its own commit variable instead of our build args.
   const pagesSha = process.env.CF_PAGES === '1' ? process.env.CF_PAGES_COMMIT_SHA : '';
   const commit = process.env.AGM_BUILD_SHA && process.env.AGM_BUILD_SHA !== 'unknown' ? process.env.AGM_BUILD_SHA : pagesSha || 'unknown';
   const info = {
     contract: 'agm-web-build-info.v1',
-    appVersion: '1.9.1',
+    appVersion: packageInfo.version,
     commit,
     buildId: process.env.AGM_BUILD_ID || (commit === 'unknown' ? 'local' : `${pagesSha ? 'pages' : 'web'}-${commit.slice(0, 12)}`),
     builtAt: process.env.AGM_BUILD_TIME || new Date().toISOString(),
