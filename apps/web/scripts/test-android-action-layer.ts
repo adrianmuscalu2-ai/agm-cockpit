@@ -17,12 +17,36 @@ for (const [phrase, app] of [['Deschide aplicația Waze', 'Waze'], ['Deschide To
 }
 assert.equal(resolveDriverVoiceCommand('Citește ultimul email și deschide Waze').handled, false);
 
+for (const [phrase, provider] of [
+  ['Deschide Maps la Dieselstraße 5, Stuttgart', 'MAPS'],
+  ['Deschide aplicația Waze către Dieselstraße 5, Stuttgart', 'WAZE'],
+  ['Open the app Maps to Dieselstraße 5, Stuttgart', 'MAPS'],
+  ['Deschide Tom Tom la adresa Dieselstraße 5, Stuttgart', 'TOMTOM'],
+  ['Navighează la Dieselstraße 5, Stuttgart cu Waze.', 'WAZE'],
+  ['Du-mă la Dieselstraße 5, Stuttgart folosind Google Maps', 'MAPS'],
+]) {
+  const result = resolveDriverVoiceCommand(phrase!);
+  assert.equal(result.handled, true, phrase);
+  if (result.handled) {
+    assert.equal(result.resolution.action, 'NAVIGATION', phrase);
+    assert.equal(result.resolution.payload?.navigationApp, provider, phrase);
+    assert.equal(result.resolution.payload?.value, 'Dieselstraße 5, Stuttgart', phrase);
+  }
+}
+assert.equal(routeAndroidAction('Deschide Maps la', null).status, 'CLARIFICATION_REQUIRED');
+assert.equal(resolveDriverVoiceCommand('Citește ultimul email și deschide Maps la adresa de acolo').handled, false);
+assert.equal(resolveDriverVoiceCommand('Ce poți face cu Waze?').handled, false);
+
 const context: ActiveDriverContext = {
   contractVersion:'gmail-action-context.v1',traceId:'trace-1',messageRef:'GMAIL-hash',senderEmail:'dispatch@example.com',subject:'Descărcare Heilbronn',receivedAt:'2026-09-13T08:00:00.000Z',
   destinations:['Industriestrasse 10, 74072 Heilbronn'],phoneNumbers:['+49 7131 123456'],dateTimes:['2026-09-14T06:30:00.000Z'],shareText:'Descărcare la Industriestrasse 10',answerText:'Ultimul mail confirmă descărcarea în Heilbronn.',capturedAtEpochMs:1,expiresAtEpochMs:Number.MAX_SAFE_INTEGER,
 };
 
 const navigate = routeAndroidAction('Navighează acolo.', context);
+assert.equal(routeAndroidAction('Deschide Maps la', context).status, 'CLARIFICATION_REQUIRED');
+assert.equal(routeAndroidAction('Deschide Waze la acolo', context).payload?.value, context.destinations[0]);
+assert.equal(routeAndroidAction('Deschide Maps la adresa din ultimul email', context).payload?.value, context.destinations[0]);
+assert.equal(routeAndroidAction('Deschide Maps la adresa din ultimul email', null).status, 'CLARIFICATION_REQUIRED');
 assert.equal(navigate.status, 'RESOLVED');
 assert.equal(navigate.action, 'NAVIGATION');
 assert.equal(navigate.source, 'ACTIVE_GMAIL_CONTEXT');

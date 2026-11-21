@@ -12,7 +12,8 @@ export function resolveDriverVoiceCommand(text: string) {
   // including "deschide aplicatia" and "open the app".
   const appResolution = routeAndroidAction(text, null);
   if (appResolution.action === 'OPEN_APP') return { handled: true as const, resolution: appResolution };
-  if (!driverCommands.test(normalized) && !/\b(?:pregateste|cauta|gaseste)\b.*\b(?:apel|apelul|contactul|numarul)\b/.test(normalized) && !/\b(?:deschide|open|porneste)\s+(?:aplicatia\s+)?(?:contacte|contactele|contacts|telefon|telefonul|phone|whatsapp)\b/.test(normalized)) return { handled: false as const };
+  if (appResolution.action === 'NAVIGATION' && appResolution.source === 'REQUEST') return { handled: true as const, resolution: appResolution };
+  if (appResolution.reason !== 'DESTINATION_REQUIRED' && !driverCommands.test(normalized) && !/\b(?:pregateste|cauta|gaseste)\b.*\b(?:apel|apelul|contactul|numarul)\b/.test(normalized) && !/\b(?:deschide|open|porneste)\s+(?:aplicatia\s+)?(?:contacte|contactele|contacts|telefon|telefonul|phone|whatsapp)\b/.test(normalized)) return { handled: false as const };
   const context = readDriverContext();
   if (/\b(?:raspunde|reply|antworte)\b/.test(normalized) && !isReplyDraftRequest(text, Boolean(context))) return { handled: false as const };
   const needsGmailContext = /\b(?:navigheaza|navigate|route|navigiere)\b.*\b(?:ultim(?:ul|a)?\s+(?:e-?mail|mail|mesaj)|latest\s+(?:e-?mail|message)|letzte[nrs]?\s+(?:e-?mail|nachricht))\b/i.test(normalized);
