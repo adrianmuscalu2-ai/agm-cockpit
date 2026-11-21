@@ -26,6 +26,7 @@ export type ActiveDriverContext = GmailActionContext & {
 };
 
 export type AndroidActionPayload = {
+  expiresAtEpochMs?: number;
   value?: string;
   navigationApp?: 'MAPS' | 'WAZE' | 'TOMTOM';
   contactId?: string;

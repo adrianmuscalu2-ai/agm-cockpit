@@ -56,6 +56,14 @@ android {
             versionNameSuffix "-storage-test"
             matchingFallbacks = ['debug']
         }
+        assistantPilot {
+            initWith debug
+            applicationIdSuffix ".assistantpilot"
+            versionNameSuffix "-assistant-pilot"
+            matchingFallbacks = ['debug']
+            resValue "string", "app_name", "AGMA Pilot"
+            resValue "string", "title_activity_main", "AGMA Pilot"
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
