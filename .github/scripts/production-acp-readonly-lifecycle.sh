@@ -60,10 +60,20 @@ SELECT
   COALESCE((SELECT count(*) FROM "_prisma_migrations"), -1),
   COALESCE((SELECT count(*) FROM "_prisma_migrations" WHERE finished_at IS NULL OR rolled_back_at IS NOT NULL), -1),
   COALESCE((SELECT string_agg(migration_name, ',' ORDER BY migration_name) FROM "_prisma_migrations"
-    WHERE migration_name LIKE '%0003%' OR migration_name LIKE '%0004%'), '');
+    WHERE migration_name LIKE '%0003%' OR migration_name LIKE '%0004%'), ''),
+  to_regclass('public."PreDepartureSession"') IS NOT NULL,
+  to_regclass('public."PreDepartureAnswer"') IS NOT NULL,
+  to_regclass('public."AuthorityExecutionClaim"') IS NOT NULL,
+  to_regclass('public."UniversalMandateLifecycleRecord"') IS NOT NULL
+    AND EXISTS (SELECT 1 FROM information_schema.columns
+      WHERE table_schema='public' AND table_name='UniversalMandateLifecycleRecord'
+        AND column_name='riskAssessmentId')
+    AND EXISTS (SELECT 1 FROM information_schema.columns
+      WHERE table_schema='public' AND table_name='UniversalMandateLifecycleRecord'
+        AND column_name='protectionSetId');
 SQL
 )" || { echo 'ACPM_REMOTE=BLOCKED Prisma migration read failed'; exit 1; }
-IFS='|' read -r migration_table_present migration_count incomplete_count migration_0003_0004_names <<< "$migration_status"
+IFS='|' read -r migration_table_present migration_count incomplete_count migration_0003_0004_names predeparture_session_present predeparture_answer_present authority_claim_present universal_risk_columns_present <<< "$migration_status"
 [[ "$migration_table_present" == t && "$migration_count" =~ ^[0-9]+$ && "$incomplete_count" =~ ^[0-9]+$ ]] || { echo 'ACPM_REMOTE=MIGRATION_STATUS_UNKNOWN table_or_counts_invalid'; exit 1; }
 [[ "$incomplete_count" == 0 ]] || { echo "ACPM_REMOTE=MIGRATION_STATUS_FAIL incomplete=$incomplete_count"; exit 1; }
 echo "ACPM_REMOTE=MIGRATION_STATUS_PASS table_present=true applied=$migration_count incomplete=$incomplete_count"
@@ -72,6 +82,7 @@ if [[ -n "$migration_0003_0004_names" ]]; then
 else
   echo 'ACPM_REMOTE=MIGRATION_0003_0004_MATCHES=none'
 fi
+echo "ACPM_REMOTE=OBJECT_STATUS predeparture_session=$predeparture_session_present predeparture_answer=$predeparture_answer_present authority_claim=$authority_claim_present universal_risk_columns=$universal_risk_columns_present"
 
 migration_manifest="$(docker exec -i -e ACPM_TARGET_DB="$db_name" agm-postgres sh -ceu '
   exec psql -X -A -t -F "|" -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$ACPM_TARGET_DB"
