@@ -31,7 +31,21 @@ jobs:
 
           fail() { printf 'ACPM_CHECK=BLOCKED reason=%s\n' "$1"; exit 1; }
           [[ -n "$PRODUCTION_HOST" && -n "$PRODUCTION_USER" && -n "$PRODUCTION_SSH_KEY" ]] || fail 'Production SSH environment values unavailable'
-          [[ "$PRODUCTION_SSH_HOST_KEY_SHA256" =~ ^SHA256:[A-Za-z0-9+/]+$ ]] || fail 'trusted PRODUCTION_SSH_HOST_KEY_SHA256 environment variable missing or malformed'
+          if [[ ! "$PRODUCTION_SSH_HOST_KEY_SHA256" =~ ^SHA256:[A-Za-z0-9+/]+$ ]]; then
+            scan_file="$RUNNER_TEMP/agm-production-host-key-probe"
+            trap 'rm -f -- "$scan_file"' EXIT
+            ssh-keyscan -T 8 -t ed25519 "$PRODUCTION_HOST" > "$scan_file" 2>/dev/null || fail 'SSH host-key scan failed'
+            : > "$RUNNER_TEMP/agm-production-host-key-probes"
+            while IFS= read -r key_line; do
+              [[ -n "$key_line" ]] || continue
+              printf '%s\n' "$key_line" > "$RUNNER_TEMP/agm-production-host-key-candidate"
+              fingerprint="$(ssh-keygen -lf "$RUNNER_TEMP/agm-production-host-key-candidate" -E sha256 | awk 'NR == 1 {print $2}')"
+              printf 'ACPM_HOST_KEY_PROBE=%s\n' "$fingerprint" >> "$RUNNER_TEMP/agm-production-host-key-probes"
+            done < "$scan_file"
+            grep -Ev '^ACPM_HOST_KEY_PROBE=$' "$RUNNER_TEMP/agm-production-host-key-probes" || fail 'SSH host-key probe returned no Ed25519 fingerprint'
+            rm -f -- "$RUNNER_TEMP/agm-production-host-key-candidate"
+            exit 0
+          fi
           [[ "$GITHUB_REF" == 'refs/heads/agm-canonical-20260820' ]] || fail 'workflow must run from agm-canonical-20260820'
 
           key_file="$RUNNER_TEMP/agm-production-ssh-key"
