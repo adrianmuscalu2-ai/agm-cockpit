@@ -76,7 +76,7 @@ fi
 migration_manifest="$(docker exec -i -e ACPM_TARGET_DB="$db_name" agm-postgres sh -ceu '
   exec psql -X -A -t -F "|" -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$ACPM_TARGET_DB"
 ' <<'SQL'
-SELECT migration_name || "|" || COALESCE(checksum, '') || "|" || CASE WHEN rolled_back_at IS NULL THEN 'APPLIED' ELSE 'ROLLED_BACK' END
+SELECT concat(migration_name, '|', COALESCE(checksum, ''), '|', CASE WHEN rolled_back_at IS NULL THEN 'APPLIED' ELSE 'ROLLED_BACK' END)
 FROM "_prisma_migrations"
 ORDER BY migration_name;
 SQL
