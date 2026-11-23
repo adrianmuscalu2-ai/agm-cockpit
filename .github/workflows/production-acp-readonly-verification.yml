@@ -64,6 +64,7 @@ jobs:
           : > "$known_hosts"
           while IFS= read -r key_line; do
             [[ -n "$key_line" ]] || continue
+            [[ "$key_line" != \#* ]] || continue
             printf '%s\n' "$key_line" > "$candidate_file"
             candidate_fingerprint="$(ssh-keygen -lf "$candidate_file" -E sha256 | awk 'NR == 1 {print $2}')"
             if [[ "$candidate_fingerprint" == "$PRODUCTION_SSH_HOST_KEY_SHA256" ]]; then
