@@ -73,6 +73,19 @@ else
   echo 'ACPM_REMOTE=MIGRATION_0003_0004_MATCHES=none'
 fi
 
+migration_manifest="$(docker exec -i -e ACPM_TARGET_DB="$db_name" agm-postgres sh -ceu '
+  exec psql -X -A -t -F "|" -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$ACPM_TARGET_DB"
+' <<'SQL'
+SELECT migration_name || "|" || COALESCE(checksum, '') || "|" || CASE WHEN rolled_back_at IS NULL THEN 'APPLIED' ELSE 'ROLLED_BACK' END
+FROM "_prisma_migrations"
+ORDER BY migration_name;
+SQL
+)" || { echo 'ACPM_REMOTE=BLOCKED Prisma migration manifest read failed'; exit 1; }
+while IFS='|' read -r migration_name migration_checksum migration_state; do
+  [[ -n "$migration_name" ]] || continue
+  printf 'ACPM_REMOTE=MIGRATION_ROW name=%s state=%s checksum=%s\n' "$migration_name" "$migration_state" "$migration_checksum"
+done <<< "$migration_manifest"
+
 temp_password="$(openssl rand -hex 32)" || { echo 'ACPM_REMOTE=BLOCKED secure password generation failed'; exit 1; }
 cleanup_needed=true
 cleanup() {
