@@ -210,12 +210,11 @@ role_check="$(printf '%s\n' "$temp_password" | docker exec -i -e ACPM_ROLE="$rol
 IFS='|' read -r check_user check_db default_readonly can_connect can_use_schema can_create_schema table_select columns_select other_column_select can_insert can_update can_delete can_truncate column_insert column_update column_references role_attributes <<< "$role_check"
 [[ "$check_user" == "$role" && "$check_db" == "$db_name" && "$default_readonly" == on && "$can_connect" == t && "$can_use_schema" == t && "$can_create_schema" == f && "$table_select" == f && "$columns_select" == t && "$other_column_select" == t && "$can_insert" == f && "$can_update" == f && "$can_delete" == f && "$can_truncate" == f && "$column_insert" == f && "$column_update" == f && "$column_references" == f && "$role_attributes" == t ]] || { echo 'ACPM_REMOTE=CHECK_FAILED temporary role privileges did not match least-privilege contract'; exit 1; }
 
-event_probe_sql="$(cat <<'SQL'
+event_probe_sql='
 SELECT EXISTS (SELECT 1 FROM public."AuthorityAuditJournal"),
        (SELECT max("occurredAt") IS NOT NULL FROM public."AuthorityAuditJournal"),
        (SELECT length("payloadHash") FROM public."AuthorityAuditJournal" ORDER BY "occurredAt" DESC LIMIT 1);
-SQL
-)
+'
 event_probe="$(printf '%s\n' "$temp_password" | docker exec -i -e ACPM_ROLE="$role" -e ACPM_TARGET_DB="$db_name" -e ACPM_SQL="$event_probe_sql" agm-postgres sh -ceu '
   IFS= read -r PGPASSWORD
   export PGPASSWORD
