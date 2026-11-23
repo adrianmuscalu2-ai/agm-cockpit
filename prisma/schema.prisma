@@ -85,6 +85,8 @@ model UniversalMandateLifecycleRecord {
   snapshotRef              String    @db.VarChar(240)
   executionAuthorized      Boolean
   actorRefs                Json
+  riskAssessmentId         String?   @db.VarChar(160)
+  protectionSetId          String?   @db.VarChar(160)
   correlationId            String    @db.VarChar(160)
   evidenceRefs             Json
   status                   String    @db.VarChar(40)
@@ -140,6 +142,28 @@ model UniversalSessionEndRecord {
   createdAt             DateTime @default(now())
 
   @@index([sessionClosed])
+}
+
+model AuthorityExecutionClaim {
+  id            String   @id @default(uuid()) @db.Uuid
+  companyId     String   @db.Uuid
+  idempotencyKey String  @db.VarChar(240)
+  mandateId     String   @db.Uuid
+  leaseId       String   @db.Uuid
+  executorId    String   @db.VarChar(160)
+  operation     String   @db.VarChar(160)
+  state         String   @default("CLAIMED") @db.VarChar(24)
+  claimedAt     DateTime @default(now())
+  expiresAt     DateTime
+  completedAt   DateTime?
+  result        Json?
+  failureReason String?  @db.VarChar(240)
+  version       Int      @default(1)
+  updatedAt     DateTime @updatedAt
+
+  @@unique([companyId, idempotencyKey])
+  @@index([companyId, mandateId, leaseId, state])
+  @@index([companyId, state, expiresAt])
 }
 
 model UniversalLifecycleEvent {
