@@ -162,35 +162,32 @@ GRANT SELECT ("companyId", "eventId", "eventType", "occurredAt", "payloadHash")
   ON TABLE public."AuthorityAuditJournal" TO :"acp_role";
 SQL
 
-role_check_sql="$(cat <<'SQL'
-SELECT current_user, current_database(), current_setting('default_transaction_read_only'),
-       has_database_privilege(current_user,current_database(),'CONNECT'),
-       has_schema_privilege(current_user,'public','USAGE'),
-       has_schema_privilege(current_user,'public','CREATE'),
-       has_table_privilege(current_user,'public."AuthorityAuditJournal"','SELECT'),
-       has_column_privilege(current_user,'public."AuthorityAuditJournal"','companyId','SELECT')
-         AND has_column_privilege(current_user,'public."AuthorityAuditJournal"','eventId','SELECT')
-         AND has_column_privilege(current_user,'public."AuthorityAuditJournal"','eventType','SELECT')
-         AND has_column_privilege(current_user,'public."AuthorityAuditJournal"','occurredAt','SELECT')
-         AND has_column_privilege(current_user,'public."AuthorityAuditJournal"','payloadHash','SELECT'),
+role_check_sql='SELECT current_user, current_database(), current_setting('\''default_transaction_read_only'\''),
+       has_database_privilege(current_user,current_database(),'\'CONNECT'\'''),
+       has_schema_privilege(current_user,'\''public'\'','\''USAGE'\'''),
+       has_schema_privilege(current_user,'\''public'\'','\''CREATE'\'''),
+       has_table_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''SELECT'\'''),
+       has_column_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''companyId'\'','\''SELECT'\'')
+         AND has_column_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''eventId'\'','\''SELECT'\'')
+         AND has_column_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''eventType'\'','\''SELECT'\'')
+         AND has_column_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''occurredAt'\'','\''SELECT'\'')
+         AND has_column_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''payloadHash'\'','\''SELECT'\''),
        NOT EXISTS (SELECT 1 FROM pg_attribute a
-         WHERE a.attrelid='public."AuthorityAuditJournal"'::regclass AND a.attnum>0 AND NOT a.attisdropped
-           AND a.attname NOT IN ('companyId','eventId','eventType','occurredAt','payloadHash')
-           AND has_column_privilege(current_user,a.attrelid,a.attname,'SELECT')),
-       has_table_privilege(current_user,'public."AuthorityAuditJournal"','INSERT'),
-       has_table_privilege(current_user,'public."AuthorityAuditJournal"','UPDATE'),
-       has_table_privilege(current_user,'public."AuthorityAuditJournal"','DELETE'),
-       has_table_privilege(current_user,'public."AuthorityAuditJournal"','TRUNCATE'),
-       has_any_column_privilege(current_user,'public."AuthorityAuditJournal"','INSERT'),
-       has_any_column_privilege(current_user,'public."AuthorityAuditJournal"','UPDATE'),
-       has_any_column_privilege(current_user,'public."AuthorityAuditJournal"','REFERENCES'),
+         WHERE a.attrelid='\''public."AuthorityAuditJournal"'\''::regclass AND a.attnum>0 AND NOT a.attisdropped
+           AND a.attname NOT IN ('\''companyId'\'','\''eventId'\'','\''eventType'\'','\''occurredAt'\'','\''payloadHash'\'')
+           AND has_column_privilege(current_user,a.attrelid,a.attname,'\''SELECT'\'')),
+       has_table_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''INSERT'\''),
+       has_table_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''UPDATE'\''),
+       has_table_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''DELETE'\''),
+       has_table_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''TRUNCATE'\''),
+       has_any_column_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''INSERT'\''),
+       has_any_column_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''UPDATE'\''),
+       has_any_column_privilege(current_user,'\''public."AuthorityAuditJournal"'\'','\''REFERENCES'\''),
        (SELECT rolsuper=false AND rolcreaterole=false AND rolcreatedb=false AND rolcanlogin=true
           AND rolinherit=false AND rolconnlimit=1 AND rolvaliduntil>now()
-          AND rolvaliduntil<=now()+interval '31 minutes'
+          AND rolvaliduntil<=now()+interval '\''31 minutes'\''
           AND NOT EXISTS (SELECT 1 FROM pg_auth_members m WHERE m.member=pg_roles.oid)
-        FROM pg_roles WHERE rolname=current_user);
-SQL
-)
+        FROM pg_roles WHERE rolname=current_user);'
 role_check="$(printf '%s\n' "$temp_password" | docker exec -i -e ACPM_ROLE="$role" -e ACPM_TARGET_DB="$db_name" -e ACPM_SQL="$role_check_sql" agm-postgres sh -ceu '
   IFS= read -r PGPASSWORD
   export PGPASSWORD
