@@ -52,6 +52,27 @@ IFS='|' read -r db_matches primary_writable admin_can_create journal_exists colu
 [[ "$db_matches" == t && "$primary_writable" == t && "$admin_can_create" == t && "$journal_exists" == t && "$columns_exist" == t && "$role_available" == t ]] || { echo 'ACPM_REMOTE=BLOCKED PostgreSQL identity, schema, privilege, or role-collision preflight failed'; exit 1; }
 echo 'ACPM_REMOTE=PREFLIGHT_PASS target=API_DATABASE_URL container=agm-postgres journal=present'
 
+migration_status="$(docker exec -i -e ACPM_TARGET_DB="$db_name" agm-postgres sh -ceu '
+  exec psql -X -A -t -F "|" -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$ACPM_TARGET_DB"
+' <<'SQL'
+SELECT
+  to_regclass('public."_prisma_migrations"') IS NOT NULL,
+  COALESCE((SELECT count(*) FROM "_prisma_migrations"), -1),
+  COALESCE((SELECT count(*) FROM "_prisma_migrations" WHERE finished_at IS NULL OR rolled_back_at IS NOT NULL), -1),
+  COALESCE((SELECT string_agg(migration_name, ',' ORDER BY migration_name) FROM "_prisma_migrations"
+    WHERE migration_name LIKE '%0003%' OR migration_name LIKE '%0004%'), '');
+SQL
+)" || { echo 'ACPM_REMOTE=BLOCKED Prisma migration read failed'; exit 1; }
+IFS='|' read -r migration_table_present migration_count incomplete_count migration_0003_0004_names <<< "$migration_status"
+[[ "$migration_table_present" == t && "$migration_count" =~ ^[0-9]+$ && "$incomplete_count" =~ ^[0-9]+$ ]] || { echo 'ACPM_REMOTE=MIGRATION_STATUS_UNKNOWN table_or_counts_invalid'; exit 1; }
+[[ "$incomplete_count" == 0 ]] || { echo "ACPM_REMOTE=MIGRATION_STATUS_FAIL incomplete=$incomplete_count"; exit 1; }
+echo "ACPM_REMOTE=MIGRATION_STATUS_PASS table_present=true applied=$migration_count incomplete=$incomplete_count"
+if [[ -n "$migration_0003_0004_names" ]]; then
+  echo "ACPM_REMOTE=MIGRATION_0003_0004_MATCHES=$migration_0003_0004_names"
+else
+  echo 'ACPM_REMOTE=MIGRATION_0003_0004_MATCHES=none'
+fi
+
 temp_password="$(openssl rand -hex 32)" || { echo 'ACPM_REMOTE=BLOCKED secure password generation failed'; exit 1; }
 cleanup_needed=true
 cleanup() {
