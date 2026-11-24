@@ -350,6 +350,14 @@ let legislationTextConfirmed = false;
 let legislationAnalysis: LegislationAnalysisResult | null = null;
 let cargoSafetyTextConfirmed = false;
 let cargoSafetyAnalysis: CargoSafetyAnalysisResult | null = null;
+
+const legacyHtmlAlias = (() => {
+  const pathname = window.location.pathname.toLowerCase();
+  if (pathname === '/copilot.html') return '/premium/copilot';
+  if (pathname === '/contabilitate.html') return '/car-mover/accounting';
+  return null;
+})();
+if (legacyHtmlAlias) window.location.replace(legacyHtmlAlias);
 const state = attachMailLegacyFacade(attachTranslatorLegacyFacade(attachContactsLegacyFacade(attachOcrLegacyFacade(attachIncidentsLegacyFacade({
   view: viewFromCurrentRoute(),
   profile: initialProfile,

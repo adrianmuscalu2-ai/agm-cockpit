@@ -17,6 +17,17 @@ export type TurnAgentRuntimeEvent = {
   detail: string;
 };
 
+export type TurnAgentRuntimeSnapshot = {
+  latestEvent: TurnAgentRuntimeEvent | undefined;
+  events: readonly TurnAgentRuntimeEvent[];
+  status: 'empty' | 'live';
+};
+
+export function currentTurnAgentRuntimeSnapshot(): TurnAgentRuntimeSnapshot {
+  const events = history.length ? [...history] : (currentRuntimeEvent ? [currentRuntimeEvent] : []);
+  return { latestEvent: currentRuntimeEvent ?? events.at(-1), events, status: events.length ? 'live' : 'empty' };
+}
+
 let pollTimer: number | undefined;
 export const turnAgentLivePollIntervalMs = 5_000;
 const seen = new Set<string>();

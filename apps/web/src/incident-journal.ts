@@ -57,6 +57,30 @@ export const incidentStatuses: IncidentStatus[] = ['new', 'analysis', 'remediati
 export const incidentCategories: IncidentCategory[] = ['technical', 'ux', 'translation', 'network', 'security', 'infrastructure'];
 export const incidentJournalStorageKey = 'agm.turn.incident-journal.v1';
 
+export const currentAgmaIncident: OperationalIncident = {
+  id: 'AGM-MON-ANDROID',
+  occurredAt: '2026-08-07T16:00:00.000Z',
+  updatedAt: '2026-08-11T14:30:00.000Z',
+  module: 'Android client / monitoring',
+  environments: ['Android/APK', 'API', 'Wi-Fi/date mobile'],
+  category: 'technical',
+  symptom: 'Monitorul Android nu putea confirma starea țintei și incidentul persistent era afișat OPEN / ACTIVE.',
+  severity: 'major',
+  reproduction: 'Cardul Turn raporta agent DEGRADED și target UNKNOWN / NO TELEMETRY.',
+  cause: 'Sursele Android sunt statice; collectorul Production pentru heartbeat continuu nu este implementat.',
+  attemptedSolutions: 'Audit read-only al sursei Turn, monitorului MON-005, jurnalului, ADB, WebView și endpointurilor Production.',
+  appliedSolution: 'Incidentul de produs a fost reconciliat ca validat pe dovada funcționării reale.',
+  owner: 'Turn Command Center / Monitoring / QA & Validation',
+  fixedInVersion: 'AGM-MON-ANDROID reconciliation 2026-08-11',
+  tests: 'Samsung SM-S931B ADB; Production API health și ready HTTP 200.',
+  humanValidation: 'Product Owner a acceptat ANDROID PRODUCT — OPERATIONAL / PASS.',
+  preventiveMeasure: 'Păstrarea monitorizării Android DEGRADED până la existența unui collector Production real.',
+  status: 'validated',
+  relatedIncidentIds: ['AGM-FU-20260725-UILIVE'],
+  reusableSolution: true,
+  history: [{ at: '2026-08-11T14:30:00.000Z', action: 'validated', actor: 'Product Owner / Turn Command Center', toStatus: 'validated', note: 'Incident reconciliat ca validat; telemetria continuă rămâne DEGRADED.' }],
+};
+
 export function emptyIncidentFilters(): IncidentJournalFilters {
   return { query: '', module: '', severity: '', status: '', category: '', dateFrom: '', dateTo: '', version: '' };
 }
